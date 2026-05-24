@@ -2,6 +2,11 @@
 
 Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentiert.
 
+## 0.2.1 - 2026-05-25
+
+### Changed
+- Analysecode weiter modularisiert: gemeinsame Energy-Logik fuer Heating/Cooling, Tabellenpaket fuer Excel-Berichte und Comfort-Module fuer Daten, Zonen, Tabellen und Plots ergaenzt.
+
 ## 0.2.0 - 2026-05-24
 
 ### Added
@@ -27,3 +32,4 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ### Added
 - Erster Paketstand fuer `ma_analyse` mit zentralem CLI-Einstieg.
+

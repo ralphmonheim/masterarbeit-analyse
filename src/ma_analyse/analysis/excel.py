@@ -15,86 +15,14 @@ Wichtige Annahmen:
 
 import argparse
 import os
-from datetime import datetime
-from pathlib import Path
 
 import pandas as pd
 
-from ..core.config import DATENBANK_DIR, OUTPUT_DIR, ROOM_FILE_EXTENSION, ROOMS
-
-PLOT_SUBDIR_EXCEL = "excel"
-
-# Metriken, die derzeit standardmäßig aus den Raum-CSV-Dateien extrahiert werden.
-# Spaltennamen können später ergänzt oder angepasst werden.
-# Die Ausgabe wird als breite Tabelle erzeugt, damit die Struktur nachträglich leichter geändert werden kann.
-METRIC_DEFINITIONS = {
-    "max_q_heat": ("zone_energy_q_heat", "max"),
-    "min_q_heat": ("zone_energy_q_heat", "min"),
-    "max_q_cool": ("zone_energy_q_cool", "max"),
-    "min_q_cool": ("zone_energy_q_cool", "min"),
-    "max_q_occ": ("zone_energy_q_occ", "max"),
-    "max_q_loss": ("zone_energy_q_loss", "max"),
-    "max_q_equip": ("zone_energy_q_equip", "max"),
-    "max_co2": ("iaq_xco2vol", "max"),
-    "mean_co2": ("iaq_xco2vol", "mean"),
-    "max_tair": ("temperatures_tairmean", "max"),
-    "min_tair": ("temperatures_tairmean", "min"),
-    "max_top": ("temperatures_top", "max"),
-    "min_top": ("temperatures_top", "min"),
-    "mean_top": ("temperatures_top", "mean"),
-    "max_relhum": ("iaq_relhum", "max"),
-    "min_relhum": ("iaq_relhum", "min"),
-    "mean_relhum": ("iaq_relhum", "mean"),
-    "max_air_age": ("iaq_air_age", "max"),
-}
-OUTPUT_COLUMNS = [
-    "Zone",
-    "Group",
-    "Zone multiplier, M",
-    "Min temp., \u00b0C",
-    "Max temp., \u00b0C",
-    "Min op temp., \u00b0C",
-    "Max op temp., \u00b0C",
-    "Room unit heat, kWh",
-    "Room unit heat, kWh/m2",
-    "Max heat supplied, W/m2",
-    "Room unit heat, W/m2",
-    "Max heat removed, W/m2",
-    "Room unit cool, kWh",
-    "Room unit cool, kWh/m2",
-    "Room unit cool, W/m2",
-    "Dryvent cool, W/m2",
-    "Max sup airflow, L/s m2",
-    "Max rtn airflow, L/s",
-    "Max solar gain, W/m2",
-    "Min rel hum, %",
-    "Max rel hum, %",
-    "Max CO2 ppm (vol)",
-    "Max PPD, %",
-    "Max age of air, h",
-    "In use, h",
-    "h of T_op>25, h",
-    "h of T_op>27, h",
-    "Occ. hours, h PDH, h",
-    "Unmet hours (cooling)",
-    "Unmet hours (heating)",
-    "DIN 4108-2 over-temperature degree hours, h Deg-C",
-]
-COLUMN_RENAME = {
-    "room": "Zone",
-    "variant": "Group",
-    "row_count": "In use, h",
-    "min_tair": "Min temp., \u00b0C",
-    "max_tair": "Max temp., \u00b0C",
-    "min_top": "Min op temp., \u00b0C",
-    "max_top": "Max op temp., \u00b0C",
-    "max_q_heat": "Max heat supplied, W/m2",
-    "max_q_cool": "Max heat removed, W/m2",
-    "min_relhum": "Min rel hum, %",
-    "max_relhum": "Max rel hum, %",
-    "max_co2": "Max CO2 ppm (vol)",
-    "max_air_age": "Max age of air, h",
-}
+from ..core.config import DATENBANK_DIR, ROOMS
+from .components.rooms import get_room_data_file
+from .components.runtime import build_named_run_output_dir, get_dated_output_prefix, get_run_id
+from .components.variants import get_variant_display_name, normalize_variant_name
+from .tables.excel_report import prepare_result_dataframe, summarize_room_metrics, write_excel_report
 
 
 # ============================================================================
@@ -108,46 +36,13 @@ def parse_comma_separated_list(value):
 
 
 def get_output_prefix(reference_time=None):
-    """Erzeugt den Tagespräfix für Ausgabedateien und -ordner."""
-    if reference_time is None:
-        reference_time = datetime.now()
-    return f"{reference_time.strftime('%y%m%d')}_Dimensionierung"
-
-
-def get_run_id(command_name=None, run_id=None):
-    """Gibt eine bestehende Lauf-ID zurück oder erzeugt eine neue mit Befehlsnamen."""
-    if run_id:
-        return run_id
-    timestamp = datetime.now().strftime("%Y-%m-%d-%H%M%S")
-    if command_name:
-        return f"{timestamp}_{command_name}"
-    return timestamp
+    """Erzeugt den Tagespraefix fuer Excel-Ausgabedateien und -ordner."""
+    return get_dated_output_prefix("Dimensionierung", reference_time)
 
 
 def build_run_output_dir(variant_dir, run_id, output_root=None):
     """Baut den Laufordner im Schema <output_root>/<variant_dir>/<run_id>."""
-    base_output_dir = output_root if output_root else OUTPUT_DIR
-    return os.path.join(base_output_dir, variant_dir, run_id)
-
-
-def normalize_variant_name(variant_name, suffix):
-    """Ergaenzt den erwarteten Datenordner-Suffix, falls er fehlt."""
-    if variant_name.endswith(suffix):
-        return variant_name
-    return f"{variant_name}{suffix}"
-
-
-def strip_variant_suffix(variant_name):
-    """Entfernt bekannte Varianten-Suffixe fuer lesbare Anzeigenamen."""
-    for suffix in ("_rohdaten", "_nutzdaten"):
-        if variant_name.endswith(suffix):
-            return variant_name[: -len(suffix)]
-    return variant_name
-
-
-def get_variant_display_name(variant_name):
-    """Gibt den kurzen Anzeigenamen einer Variante oder eines Pfads zurueck."""
-    return strip_variant_suffix(Path(variant_name).name)
+    return build_named_run_output_dir(str(variant_dir), run_id, output_root=output_root)
 
 
 def find_variant_dirs(datenbank_dir, selected_variants=None):
@@ -170,12 +65,6 @@ def find_variant_dirs(datenbank_dir, selected_variants=None):
     return variants
 
 
-def get_room_data_file(variant_dir, room_name):
-    """Liefert den erwarteten CSV-Pfad fuer einen Raum."""
-    """Liefert den Dateipfad zur aufbereiteten Raum-CSV-Datei."""
-    return os.path.join(variant_dir, f"{room_name.replace(' ', '_')}{ROOM_FILE_EXTENSION}")
-
-
 def load_room_csv(csv_file):
     """Laedt eine Raum-CSV und gibt bei Fehlern eine leere Tabelle zurueck."""
     """Lädt eine Raum-CSV-Datei und konvertiert numerische Spalten."""
@@ -189,63 +78,6 @@ def load_room_csv(csv_file):
         df[column] = pd.to_numeric(df[column], errors="coerce")
 
     return df
-
-
-def summarize_room_metrics(df, variant_name, room_name):
-    """Berechnet die definierten Kennwerte fuer einen Raum."""
-    """Berechnet die definierten Metriken für einen Raum und gibt eine breite Zeile zurück."""
-    if df is None or df.empty:
-        return None
-
-    row = {
-        "variant": variant_name,
-        "room": room_name,
-        "row_count": len(df),
-    }
-
-    for metric_name, (column_name, agg_func) in METRIC_DEFINITIONS.items():
-        if column_name not in df.columns:
-            row[metric_name] = None
-            continue
-
-        series = df[column_name].dropna()
-        if series.empty:
-            row[metric_name] = None
-            continue
-
-        if agg_func == "max":
-            value = series.max()
-        elif agg_func == "min":
-            value = series.min()
-        elif agg_func == "mean":
-            value = series.mean()
-        elif agg_func == "median":
-            value = series.median()
-        else:
-            value = None
-
-        row[metric_name] = value
-
-    return row
-
-
-def prepare_result_dataframe(rows):
-    """Bringt Ergebniszeilen in die gewuenschte Excel-Spaltenreihenfolge."""
-    result_df = pd.DataFrame(rows)
-    result_df = result_df.sort_values(["variant", "room"])
-    result_df = result_df.rename(columns=COLUMN_RENAME)
-    return result_df.reindex(columns=OUTPUT_COLUMNS)
-
-
-def write_excel_report(result_df, output_dir, filename):
-    """Schreibt eine Ergebnis-Tabelle als Excel-Datei."""
-    output_excel_dir = os.path.join(output_dir, PLOT_SUBDIR_EXCEL)
-    os.makedirs(output_excel_dir, exist_ok=True)
-
-    output_file = os.path.join(output_excel_dir, filename)
-    with pd.ExcelWriter(output_file, engine="openpyxl") as writer:
-        result_df.to_excel(writer, sheet_name="metrics", index=False)
-    return output_file
 
 
 def build_excel_report(
@@ -309,7 +141,7 @@ def build_excel_report(
             output_file = write_excel_report(
                 result_df,
                 run_output_dir,
-                f"{datetime.now().strftime('%y%m%d')}_{variant_display_name}_analysis.xlsx",
+                f"{get_dated_output_prefix(variant_display_name)}_analysis.xlsx",
             )
             output_files.append(output_file)
             if debug:

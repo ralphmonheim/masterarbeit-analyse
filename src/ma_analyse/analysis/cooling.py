@@ -14,26 +14,51 @@ Wichtige Annahmen:
 
 import argparse
 import os
-from datetime import datetime
 
 import matplotlib
 import pandas as pd
 
 matplotlib.use("Agg")
-from pathlib import Path
 
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyArrowPatch
 
-from ..core.config import (
-    COMBINED_COOLING_OUTPUT_DIR,
-    DATENBANK_DIR,
-    OUTPUT_DIR,
-    ROOM_FILE_EXTENSION,
-    ROOMS,
-    RUN_FOLDER_SUFFIX,
-)
+from ..core.config import COMBINED_COOLING_OUTPUT_DIR, DATENBANK_DIR, ROOMS
 from .components.figures import get_figure_size_inches
+from .components.rooms import get_room_data_file
+from .components.runtime import annotate_timestamp, get_run_id
+from .components.time_windows import MONTH_NAMES, filter_time_window, get_time_window
+from .components.variants import get_variant_display_name, normalize_variant_name
+from .energy.common import (
+    EnergyOutputSpec,
+)
+from .energy.common import (
+    build_combined_plot_filename as build_energy_combined_plot_filename,
+)
+from .energy.common import (
+    build_compare_output_dir as build_energy_compare_output_dir,
+)
+from .energy.common import (
+    build_plot_subtitle as build_energy_plot_subtitle,
+)
+from .energy.common import (
+    build_run_output_dir as build_energy_run_output_dir,
+)
+from .energy.common import (
+    build_single_series_plot_filename as build_energy_single_series_plot_filename,
+)
+from .energy.common import (
+    build_time_axis_config as build_energy_time_axis_config,
+)
+from .energy.common import (
+    build_variant_plot_filename as build_energy_variant_plot_filename,
+)
+from .energy.common import (
+    get_output_prefix as get_energy_output_prefix,
+)
+from .energy.common import (
+    validate_time_selection as validate_energy_time_selection,
+)
 
 # ============================================================================
 # Konfiguration
@@ -47,364 +72,75 @@ REQUIRED_COOLING_COLUMN = "zone_energy_q_cool"
 # ============================================================================
 # Allgemeine Hilfsfunktionen
 # ============================================================================
-def get_output_prefix(reference_time=None):
-    """Erzeugt den Tagespräfix für Ausgabedateien und -ordner."""
-    if reference_time is None:
-        reference_time = datetime.now()
-    return f"{reference_time.strftime('%y%m%d')}_CoolingComparison"
-
-
-def annotate_timestamp(fig, timestamp=None):
-    """Fügt einen Erstellungszeitstempel unten rechts auf der Figur ein."""
-    if timestamp is None:
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    fig.text(
-        0.99,
-        0.01,
-        f"Erstellt: {timestamp}",
-        ha="right",
-        va="bottom",
-        fontsize=8,
-        color="black",
-        alpha=0.65,
-        transform=fig.transFigure,
-    )
-
-
-MONTH_DAY_COUNTS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-MONTH_NAMES = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"]
-MONTH_HOURS = [days * 24 for days in MONTH_DAY_COUNTS]
-MONTH_BOUNDARIES = [sum(MONTH_HOURS[: i + 1]) for i in range(len(MONTH_HOURS))]
-MONTH_START_HOURS = [0] + MONTH_BOUNDARIES[:-1]
-HOURS_PER_WEEK = 7 * 24
-HOURS_PER_DAY = 24
-MAX_CALENDAR_WEEK = ((MONTH_BOUNDARIES[-1] - 1) // HOURS_PER_WEEK) + 1
 TECHNICAL_PLOT_BG = "#fbfbfb"
 TECHNICAL_GRID_COLOR = "#b8b8b8"
 TECHNICAL_SPINE_COLOR = "#2e2e2e"
 TECHNICAL_TEXT_COLOR = "#1f1f1f"
 COOLING_LINE_COLORS = ["#d62828", "#2563eb", "#2a9d8f", "#f77f00", "#7c3aed", "#0081a7"]
+COOLING_OUTPUT_SPEC = EnergyOutputSpec(
+    metric="cooling",
+    output_prefix_label="CoolingComparison",
+    combined_output_dir=COMBINED_COOLING_OUTPUT_DIR,
+    time_selection_label="cooling",
+    year_subtitle="Zeitraum: Jan bis Dez",
+    year_tick_mode="14-day",
+)
 
 
-def get_run_id(command_name=None, run_id=None):
-    """Gibt eine bestehende Lauf-ID zurück oder erzeugt eine neue mit Befehlsnamen."""
-    if run_id:
-        return run_id
-    timestamp = datetime.now().strftime("%Y-%m-%d-%H%M%S")
-    if command_name:
-        return f"{timestamp}_{command_name}"
-    return timestamp
-
-
-def hour_to_month_label(hour):
-    """Gibt fuer eine Jahresstunde den passenden Monatsnamen zurueck."""
-    try:
-        hour = int(hour)
-    except Exception:
-        return "Unbekannt"
-    for index, boundary in enumerate(MONTH_BOUNDARIES):
-        if hour < boundary:
-            return MONTH_NAMES[index]
-    return MONTH_NAMES[-1]
-
-
-def get_month_hour_range(month_name):
-    """Liefert Start- und Endstunde eines Monats im 8760h-Jahr."""
-    if month_name not in MONTH_NAMES:
-        raise ValueError(f"Ungültiger Monat: {month_name}")
-    month_index = MONTH_NAMES.index(month_name)
-    return MONTH_START_HOURS[month_index], MONTH_BOUNDARIES[month_index]
-
-
-def get_week_hour_range(week_number):
-    """Liefert Start- und Endstunde einer Kalenderwoche im 8760h-Jahr."""
-    if week_number < 1 or week_number > MAX_CALENDAR_WEEK:
-        raise ValueError(f"Ungültige Kalenderwoche: {week_number}")
-    start_hour = (week_number - 1) * HOURS_PER_WEEK
-    end_hour = start_hour + HOURS_PER_WEEK
-    return start_hour, end_hour
-
-
-def get_day_hour_range(month_name, day_number):
-    """Liefert Start- und Endstunde eines Kalendertags im 8760h-Jahr."""
-    if month_name not in MONTH_NAMES:
-        raise ValueError(f"Ungültiger Monat: {month_name}")
-    month_index = MONTH_NAMES.index(month_name)
-    max_days = MONTH_DAY_COUNTS[month_index]
-    if day_number < 1 or day_number > max_days:
-        raise ValueError(f"Ungültiger Tag {day_number} für {month_name}")
-    start_hour = MONTH_START_HOURS[month_index] + ((day_number - 1) * HOURS_PER_DAY)
-    end_hour = start_hour + HOURS_PER_DAY
-    return start_hour, end_hour
-
-
-def get_month_day_from_day_of_year(day_of_year):
-    """Wandelt einen Tagesindex im Jahr in Monat und Tag um."""
-    remaining_days = day_of_year
-    for month_index, day_count in enumerate(MONTH_DAY_COUNTS):
-        if remaining_days < day_count:
-            return month_index, remaining_days + 1
-        remaining_days -= day_count
-    return len(MONTH_DAY_COUNTS) - 1, MONTH_DAY_COUNTS[-1]
-
-
-def get_time_window(view, month=None, week=None, day=None):
-    """Baut ein einheitliches Zeitfenster fuer month/week/day-Ansichten."""
-    if view == "month":
-        month_index = MONTH_NAMES.index(month)
-        start_hour, end_hour = get_month_hour_range(month)
-        return {
-            "start_hour": start_hour,
-            "end_hour": end_hour,
-            "file_stub": f"month_{month_index + 1:02d}",
-            "title_text": f"Monat {month}",
-            "x_label": f"Stunde in {month}",
-            "month_name": month,
-        }
-
-    if view == "week":
-        start_hour, end_hour = get_week_hour_range(week)
-        return {
-            "start_hour": start_hour,
-            "end_hour": end_hour,
-            "file_stub": f"week_kw{week:02d}",
-            "title_text": f"KW {week:02d}",
-            "x_label": f"Stunde in KW {week:02d}",
-        }
-
-    if view == "day":
-        start_hour, end_hour = get_day_hour_range(month, day)
-        month_index = MONTH_NAMES.index(month)
-        return {
-            "start_hour": start_hour,
-            "end_hour": end_hour,
-            "file_stub": f"day_{month_index + 1:02d}_{day:02d}",
-            "title_text": f"{day:02d}. {month}",
-            "x_label": f"Stunde am {day:02d}. {month}",
-            "month_name": month,
-            "day_number": day,
-        }
-
-    raise ValueError(f"Nicht unterstützte Zeitansicht: {view}")
-
-
-def filter_time_window(df, time_window):
-    """Filtert eine Zeitreihe auf ein Zeitfenster und setzt die lokale x-Achse."""
-    filtered = df[(df["time"] >= time_window["start_hour"]) & (df["time"] < time_window["end_hour"])].copy()
-    if filtered.empty:
-        return filtered
-
-    filtered["time_window"] = filtered["time"] - time_window["start_hour"]
-    return filtered
+def get_output_prefix(reference_time=None):
+    """Erzeugt den Tagespraefix fuer Cooling-Ausgaben."""
+    return get_energy_output_prefix(COOLING_OUTPUT_SPEC, reference_time)
 
 
 def validate_time_selection(view, month=None, week=None, day=None):
-    """Prueft CLI-/GUI-Zeitangaben, bevor Plots erzeugt werden."""
-    if view == "month":
-        if month is None:
-            print("X Für view=month muss ein Monat gewählt werden.")
-            return False
-        if month not in MONTH_NAMES:
-            print(f"X Ungültiger Monat für cooling: {month}")
-            return False
-        return True
-
-    if view == "week":
-        if week is None:
-            print("X Für view=week muss eine Kalenderwoche gewählt werden.")
-            return False
-        if week < 1 or week > MAX_CALENDAR_WEEK:
-            print(f"X Die Kalenderwoche muss zwischen 1 und {MAX_CALENDAR_WEEK} liegen.")
-            return False
-        return True
-
-    if view == "day":
-        if month is None:
-            print("X Für view=day muss ein Monat gewählt werden.")
-            return False
-        if month not in MONTH_NAMES:
-            print(f"X Ungültiger Monat für cooling: {month}")
-            return False
-        if day is None:
-            print("X Für view=day muss ein Tag gewählt werden.")
-            return False
-        month_index = MONTH_NAMES.index(month)
-        if day < 1 or day > MONTH_DAY_COUNTS[month_index]:
-            print(f"X Der Tag muss für {month} zwischen 1 und {MONTH_DAY_COUNTS[month_index]} liegen.")
-            return False
-        return True
-
-    return True
-
-
-def sanitize_file_name(value):
-    """Entfernt Zeichen, die in Dateinamen stoeren wuerden."""
-    return value.replace(" ", "_").replace("/", "_").replace("\\", "_")
-
-
-# ============================================================================
-# Ausgabeordner und Dateinamen
-# ============================================================================
-
-
-def ensure_output_run_suffix(run_id):
-    """Ergaenzt das Standardsuffix fuer variantenbezogene Laufordner genau einmal."""
-    if run_id.endswith(RUN_FOLDER_SUFFIX):
-        return run_id
-    return f"{run_id}{RUN_FOLDER_SUFFIX}"
+    """Prueft CLI-/GUI-Zeitangaben fuer Cooling-Auswertungen."""
+    return validate_energy_time_selection(COOLING_OUTPUT_SPEC, view, month=month, week=week, day=day)
 
 
 def build_run_output_dir(variant_dir, run_id, output_root=None):
-    """Baut den Laufordner im Schema <output_root>/<variant_dir>/<run_id>."""
-    base_output_dir = output_root if output_root else OUTPUT_DIR
-    return os.path.join(
-        base_output_dir,
-        get_variant_display_name(variant_dir),
-        ensure_output_run_suffix(run_id),
-    )
+    """Baut den Laufordner fuer Cooling-Einzelplots."""
+    return build_energy_run_output_dir(variant_dir, run_id, output_root=output_root)
 
 
 def build_compare_output_dir(run_id, output_root=None):
-    """Baut den Laufordner für Vergleichsplots mit mehreren Varianten."""
-    base_output_dir = output_root if output_root else OUTPUT_DIR
-    return os.path.join(
-        base_output_dir,
-        COMBINED_COOLING_OUTPUT_DIR,
-        ensure_output_run_suffix(run_id),
-    )
+    """Baut den Laufordner fuer kombinierte Cooling-Variantenvergleiche."""
+    return build_energy_compare_output_dir(COOLING_OUTPUT_SPEC, run_id, output_root=output_root)
 
 
 def build_variant_plot_filename(view, time_window=None):
-    """Dateiname fuer Variantenplots mit mehreren Raumdatenreihen."""
-    if view == "bar":
-        return "cooling_bar_rooms_separate.png"
-    if view == "year":
-        return "cooling_year_rooms_separate.png"
-    if time_window is None:
-        raise ValueError("Für month/week/day wird ein time_window für den Dateinamen benötigt.")
-    return f"cooling_{time_window['file_stub']}_rooms_separate.png"
+    """Dateiname fuer separate Cooling-Raumplots."""
+    return build_energy_variant_plot_filename(COOLING_OUTPUT_SPEC, view, time_window=time_window)
 
 
 def build_single_series_plot_filename(room, view, time_window=None):
-    """Dateiname fuer Single-Plots mit genau einer Raumdatenreihe."""
-    room_stub = sanitize_file_name(room)
-    if view == "year":
-        return f"{room_stub}_cooling_year_single.png"
-    if time_window is None:
-        raise ValueError("Für month/week/day wird ein time_window für den Dateinamen benötigt.")
-    return f"{room_stub}_cooling_{time_window['file_stub']}_single.png"
+    """Dateiname fuer einen einzelnen Cooling-Raumplot."""
+    return build_energy_single_series_plot_filename(COOLING_OUTPUT_SPEC, room, view, time_window=time_window)
 
 
 def build_combined_plot_filename(room, view, time_window=None):
-    """Dateiname fuer kombinierte Variantenvergleiche je Raum."""
-    room_stub = sanitize_file_name(room)
-    if view == "year":
-        return f"{room_stub}_cooling_year_variants_combined.png"
-    if time_window is None:
-        raise ValueError("Für month/week/day wird ein time_window für den Dateinamen benötigt.")
-    return f"{room_stub}_cooling_{time_window['file_stub']}_variants_combined.png"
+    """Dateiname fuer einen Cooling-Variantenvergleich eines Raums."""
+    return build_energy_combined_plot_filename(COOLING_OUTPUT_SPEC, room, view, time_window=time_window)
 
 
 def build_plot_subtitle(view, month_name=None, week_number=None, day_number=None):
-    """Kurzer Zeitraumtext fuer die rechte obere Diagrammecke."""
-    if view == "year":
-        return "Zeitraum: Jan bis Dez"
-    if view == "month":
-        return f"Zeitraum: Monat {month_name}"
-    if view == "week":
-        return f"Zeitraum: KW {week_number:02d}"
-    if view == "day":
-        return f"Zeitraum: {day_number:02d}. {month_name}"
-    return ""
+    """Kurzer Zeitraumtext fuer Cooling-Diagramme."""
+    return build_energy_plot_subtitle(
+        COOLING_OUTPUT_SPEC,
+        view,
+        month_name=month_name,
+        week_number=week_number,
+        day_number=day_number,
+    )
 
 
 def build_time_axis_config(view, time_window=None):
-    """Definiert Grid, Zeitstrahl und Zusatzlabels fuer die gewaehlte Ansicht."""
-    if view == "year":
-        hour_ticks = list(range(0, MONTH_BOUNDARIES[-1] + 1, 14 * HOURS_PER_DAY))
-        if hour_ticks[-1] != MONTH_BOUNDARIES[-1] and (MONTH_BOUNDARIES[-1] - hour_ticks[-1]) > (3 * HOURS_PER_DAY):
-            hour_ticks.append(MONTH_BOUNDARIES[-1])
-        month_boundary_ticks = [0] + MONTH_START_HOURS[1:] + [MONTH_BOUNDARIES[-1]]
-        month_centers = [MONTH_START_HOURS[index] + (MONTH_HOURS[index] / 2) for index in range(len(MONTH_NAMES))]
-        return {
-            "ticks": hour_ticks,
-            "labels": [str(int(tick)) for tick in hour_ticks],
-            "grid_ticks": month_boundary_ticks,
-            "x_label": "Stunde im Jahr",
-            "x_lim": (0, MONTH_BOUNDARIES[-1]),
-            "rotation": 0,
-            "boundary_ticks": MONTH_START_HOURS[1:],
-            "annotation_ticks": month_centers,
-            "annotation_labels": MONTH_NAMES,
-        }
+    """Definiert Grid, Zeitstrahl und Zusatzlabels fuer die gewaehlte Cooling-Ansicht."""
+    return build_energy_time_axis_config(COOLING_OUTPUT_SPEC, view, time_window=time_window)
 
-    if time_window is None:
-        raise ValueError("Für month/week/day wird ein time_window benötigt.")
 
-    total_hours = time_window["end_hour"] - time_window["start_hour"]
-
-    if view == "month":
-        total_days = max(1, total_hours // HOURS_PER_DAY)
-        hour_step = 48 if total_hours > (10 * HOURS_PER_DAY) else 24
-        ticks = list(range(0, total_hours + 1, hour_step))
-        if ticks[-1] != total_hours:
-            ticks.append(total_hours)
-        span_ticks = [((day_index * HOURS_PER_DAY) + (HOURS_PER_DAY / 2)) for day_index in range(total_days)]
-        span_labels = [str(day_index + 1) for day_index in range(total_days)]
-        return {
-            "ticks": ticks,
-            "labels": [str(int(tick)) for tick in ticks],
-            "grid_ticks": list(range(0, total_hours + 1, HOURS_PER_DAY)),
-            "x_label": f"Stunde in {time_window['title_text']}",
-            "x_lim": (0, total_hours),
-            "rotation": 0,
-            "boundary_ticks": list(range(HOURS_PER_DAY, total_hours, HOURS_PER_DAY)),
-            "annotation_ticks": span_ticks,
-            "annotation_labels": span_labels,
-        }
-
-    if view == "week":
-        ticks = list(range(0, total_hours + 1, HOURS_PER_DAY))
-        if ticks[-1] != total_hours:
-            ticks.append(total_hours)
-        first_day_of_year = time_window["start_hour"] // HOURS_PER_DAY
-        span_ticks = []
-        span_labels = []
-        previous_month_index = None
-        for offset in range(total_hours // HOURS_PER_DAY):
-            span_ticks.append((offset * HOURS_PER_DAY) + (HOURS_PER_DAY / 2))
-            month_index, month_day = get_month_day_from_day_of_year(first_day_of_year + offset)
-            if previous_month_index is None or previous_month_index != month_index:
-                span_labels.append(f"{month_day} {MONTH_NAMES[month_index]}")
-            else:
-                span_labels.append(str(month_day))
-            previous_month_index = month_index
-        return {
-            "ticks": ticks,
-            "labels": [str(int(tick)) for tick in ticks],
-            "grid_ticks": ticks,
-            "x_label": time_window["x_label"],
-            "x_lim": (0, total_hours),
-            "rotation": 0,
-            "boundary_ticks": list(range(HOURS_PER_DAY, total_hours, HOURS_PER_DAY)),
-            "annotation_ticks": span_ticks,
-            "annotation_labels": span_labels,
-        }
-
-    if view == "day":
-        ticks = list(range(0, total_hours + 1, 3))
-        if ticks[-1] != total_hours:
-            ticks.append(total_hours)
-        return {
-            "ticks": ticks,
-            "labels": [str(int(tick)) for tick in ticks],
-            "grid_ticks": ticks,
-            "x_label": time_window["x_label"],
-            "x_lim": (0, total_hours),
-            "rotation": 0,
-        }
-
-    raise ValueError(f"Nicht unterstützte Achsenansicht: {view}")
+# ============================================================================
+# Achsen- und Diagrammlayout
+# ============================================================================
 
 
 def get_line_color(index):
@@ -577,11 +313,6 @@ def draw_technical_line_plot(plot_df, x_col, group_col, title, subtitle, axis_co
     annotate_timestamp(figure)
     plt.savefig(output_file, dpi=300, bbox_inches="tight")
     plt.close(figure)
-
-
-def get_room_data_file(variant_dir, room_name):
-    """Liefert den Dateipfad zur aufbereiteten Raum-CSV-Datei."""
-    return os.path.join(variant_dir, f"{room_name.replace(' ', '_')}{ROOM_FILE_EXTENSION}")
 
 
 def get_room_hourly_data(csv_file, debug=False):
@@ -1009,26 +740,6 @@ def load_room_csv(csv_file, debug=False):
     except Exception as e:
         print(f"    X Fehler beim Lesen {csv_file}: {e}")
         return None
-
-
-def normalize_variant_name(variant_name, suffix):
-    """Ergaenzt den erwarteten Datenordner-Suffix, falls er fehlt."""
-    if variant_name.endswith(suffix):
-        return variant_name
-    return f"{variant_name}{suffix}"
-
-
-def strip_variant_suffix(variant_name):
-    """Entfernt bekannte Varianten-Suffixe fuer lesbare Anzeigenamen."""
-    for suffix in ("_rohdaten", "_nutzdaten"):
-        if variant_name.endswith(suffix):
-            return variant_name[: -len(suffix)]
-    return variant_name
-
-
-def get_variant_display_name(variant_name):
-    """Gibt den kurzen Anzeigenamen einer Variante oder eines Pfads zurueck."""
-    return strip_variant_suffix(Path(variant_name).name)
 
 
 def get_variant_data(variant_dir, debug=False, rooms=None):

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ma-analyse"
-version = "0.2.0"
+version = "0.2.1"
 description = "Analysepipeline fuer Simulationsdaten der Masterarbeit"
 requires-python = ">=3.14"
 dependencies = [
@@ -42,9 +42,5 @@ ignore = ["E501"]
 quote-style = "double"
 indent-style = "space"
 line-ending = "auto"
-
-
-
-
 
 

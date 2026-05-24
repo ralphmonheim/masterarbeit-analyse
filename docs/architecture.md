@@ -18,17 +18,19 @@
 | `core/config.py` | Pfade, Raeume, Dateinamen und gemeinsame Konstanten |
 | `core/logging.py` | automatische Logdateien fuer Analyse-CLI-Laeufe |
 | `preprocessing/prepare.py` | Rohdaten aus PRN-Dateien in Raumtabellen ueberfuehren |
-| `analysis/excel.py` | Kennzahlen und Excel-Berichte erzeugen |
-| `analysis/heating.py` | Heizlast-Zeitreihen und Vergleichsplots |
-| `analysis/cooling.py` | Kuehllast-Zeitreihen und Vergleichsplots |
-| `analysis/comfort/` | Komfortzonen, Comfort-Plots und Uebersichten |
+| `analysis/excel.py` | Ablauf fuer Kennzahlen- und Excel-Berichte |
+| `analysis/heating.py` | Ablauf fuer Heizlast-Zeitreihen und Vergleichsplots |
+| `analysis/cooling.py` | Ablauf fuer Kuehllast-Zeitreihen und Vergleichsplots |
+| `analysis/comfort/` | Comfort-Ablauf, Datenladen, Zonen, Tabellen und Plotmodule |
 | `analysis/components/` | gemeinsame Analyse-Komponenten fuer Raeume, Varianten, Zeitfenster, Laufordner und Figures |
+| `analysis/energy/` | gemeinsame Ausgabe-, Zeit- und Dateinamenlogik fuer Heating und Cooling |
+| `analysis/tables/` | Schema, Kennwertberechnung und Excel-Schreiben fuer Tabellenberichte |
 | `gui/` | Grafische Oberflaeche, Dialoge, GUI-Worker und Singleton-Steuerung |
 | `settings.naming` | Namensmapping lesen und anwenden; Dokument liegt daneben als `naming.md` |
 | `settings.formats` | Ausgabeformate lesen und bereitstellen; Dokument liegt daneben als `output_formats.md` |
 
 ## Naechste Modularisierung
 
-- Heating-/Cooling-Logik weiter auf `analysis/components/` reduzieren.
+- Heating und Cooling weiter in Energy-Runner, Datenladen und Plotmodule zerlegen.
+- Comfort-Runner weiter verkleinern, falls Auswahl- und Prozesslogik wachsen.
 - GUI weiter in kleinere Komponenten fuer Layout, Dialoge und Laufsteuerung aufteilen.
-- Comfort-Analyse und Comfort-Plotting voneinander trennen.
