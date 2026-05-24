@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
+.cache/
+
+# Lokale Umgebung
+.venv/
+.env
+
+# Grosse Arbeitsdaten und erzeugte Ausgaben
+0_Input/
+1_Datenbank/
+2_Output/
+9_test_/
+
+# Logs und temporaere Dateien
+*.log
+*.tmp
+*.bak
+~$*
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+
