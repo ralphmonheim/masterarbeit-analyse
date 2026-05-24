@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 .pytest_cache/
+*.egg-info/
 .ruff_cache/
 .cache/
 
@@ -10,13 +11,19 @@ __pycache__/
 .venv/
 .env
 
-# Grosse Arbeitsdaten und erzeugte Ausgaben
-0_Input/
-1_Datenbank/
-2_Output/
-9_test_/
+# Lokale Arbeitsdaten und erzeugte Ausgaben
+data/input/*
+!data/input/.gitkeep
+data/database/*
+!data/database/.gitkeep
+data/output/*
+!data/output/.gitkeep
+data/test_output/*
+!data/test_output/.gitkeep
 
 # Logs und temporaere Dateien
+logs/*.log
+!logs/.gitkeep
 *.log
 *.tmp
 *.bak

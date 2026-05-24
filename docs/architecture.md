@@ -1,0 +1,34 @@
+# Architektur
+
+`ma_analyse` ist als Python-Paket unter `src/ma_analyse` aufgebaut. Die CLI und GUI nutzen dieselben fachlichen Funktionen, damit Ergebnisse reproduzierbar bleiben.
+
+## Datenfluss
+
+1. `prepare` liest Varianten aus `data/input/` und schreibt Raumtabellen nach `data/database/`.
+2. `comfort`, `heating`, `cooling` und `analyze-data` lesen aus `data/database/`.
+3. Regulaere Ergebnisse landen in `data/output/`, Smoke-Tests und Experimente in `data/test_output/`.
+4. CLI-Analysebefehle spiegeln Konsolenausgaben automatisch nach `logs/`.
+
+## Zentrale Pakete
+
+| Paket/Modul | Aufgabe |
+|---|---|
+| `app/cli.py` | CLI-Parser und Paket-Einstieg |
+| `app/commands.py` | Befehlsausfuehrung und Schritt-Orchestrierung |
+| `core/config.py` | Pfade, Raeume, Dateinamen und gemeinsame Konstanten |
+| `core/logging.py` | automatische Logdateien fuer Analyse-CLI-Laeufe |
+| `preprocessing/prepare.py` | Rohdaten aus PRN-Dateien in Raumtabellen ueberfuehren |
+| `analysis/excel.py` | Kennzahlen und Excel-Berichte erzeugen |
+| `analysis/heating.py` | Heizlast-Zeitreihen und Vergleichsplots |
+| `analysis/cooling.py` | Kuehllast-Zeitreihen und Vergleichsplots |
+| `analysis/comfort/` | Komfortzonen, Comfort-Plots und Uebersichten |
+| `analysis/components/` | gemeinsame Analyse-Komponenten fuer Raeume, Varianten, Zeitfenster, Laufordner und Figures |
+| `gui/` | Grafische Oberflaeche, Dialoge, GUI-Worker und Singleton-Steuerung |
+| `settings.naming` | Namensmapping lesen und anwenden; Dokument liegt daneben als `naming.md` |
+| `settings.formats` | Ausgabeformate lesen und bereitstellen; Dokument liegt daneben als `output_formats.md` |
+
+## Naechste Modularisierung
+
+- Heating-/Cooling-Logik weiter auf `analysis/components/` reduzieren.
+- GUI weiter in kleinere Komponenten fuer Layout, Dialoge und Laufsteuerung aufteilen.
+- Comfort-Analyse und Comfort-Plotting voneinander trennen.

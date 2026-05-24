@@ -17,14 +17,18 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pre-commit",
+    "pytest",
     "ruff",
 ]
 
 [project.scripts]
-ma-analyse = "ma_analyse.cli:main"
+ma-analyse = "ma_analyse.app.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+"ma_analyse.settings" = ["*.md"]
 
 [tool.ruff]
 line-length = 120
@@ -38,3 +42,8 @@ ignore = ["E501"]
 quote-style = "double"
 indent-style = "space"
 line-ending = "auto"
+
+
+
+
+
