@@ -10,12 +10,13 @@ from ..analysis.comfort.main import get_run_id, process_analysis, process_overvi
 from ..analysis.cooling import main as compare_cooling_comparison
 from ..analysis.excel import build_excel_report
 from ..analysis.heating import main as compare_heating_comparison
-from ..core.config import ROOMS
+from ..analysis.templates import build_heating_year_template
+from ..core.config import OUTPUT_DIR, ROOMS, TEST_OUTPUT_DIR
 from ..core.logging import format_duration, timed_step
 from ..preprocessing.prepare import process_all_variants
 
-STEP_SEQUENCE = ["prepare", "plots", "overview", "analysis", "analyze", "heating", "cooling"]
-DATABASE_STEPS = {"plots", "overview", "analysis", "analyze", "heating", "cooling"}
+STEP_SEQUENCE = ["prepare", "plots", "overview", "analysis", "analyze", "heating", "cooling", "plot_template"]
+DATABASE_STEPS = {"plots", "overview", "analysis", "analyze", "heating", "cooling", "plot_template"}
 STEP_TITLES = {
     "prepare": "prepare (Rohdaten aufbereiten)",
     "plots": "plots (Einzelne Raumdiagramme)",
@@ -24,6 +25,7 @@ STEP_TITLES = {
     "analyze": "analyze_data (Excel-Auswertung)",
     "heating": "heating (Heizvergleich)",
     "cooling": "cooling (Kuehlvergleich)",
+    "plot_template": "plot-template (Diagramm-Vorlage)",
 }
 COMMAND_TO_INTERNAL_STEP = {
     "prepare": "prepare",
@@ -34,6 +36,7 @@ COMMAND_TO_INTERNAL_STEP = {
     "analyze-data": "analyze",
     "heating": "heating",
     "cooling": "cooling",
+    "plot-template": "plot_template",
 }
 
 COMFORT_OUTPUT_TYPES = {
@@ -196,6 +199,40 @@ def run_cooling(args):
     )
 
 
+def run_plot_template(args):
+    """Fuehrt die manuell anpassbare Diagrammvorlage aus."""
+    output_root = getattr(args, "output_root", None)
+    if not getattr(args, "output_root_explicit", False) and output_root == OUTPUT_DIR:
+        output_root = TEST_OUTPUT_DIR
+
+    output_files = build_heating_year_template(
+        datenbank_dir=args.datenbank_dir,
+        input_dir=args.input_dir,
+        output_root=output_root,
+        selected_variants=args.variants,
+        rooms=args.rooms,
+        template=getattr(args, "template", "heating-year"),
+        setpoint_min=getattr(args, "setpoint_min", 21.0),
+        setpoint_max=getattr(args, "setpoint_max", 26.0),
+        temperature_ymin=getattr(args, "temperature_ymin", -20.0),
+        temperature_ymax=getattr(args, "temperature_ymax", 40.0),
+        outdoor_column=getattr(args, "outdoor_column", "tair"),
+        show_setpoint_band=getattr(args, "show_setpoint_band", True),
+        show_outdoor_temperature=getattr(args, "show_outdoor_temperature", True),
+        show_operative_temperature=getattr(args, "show_operative_temperature", True),
+        overlay_lines=getattr(args, "overlay_lines", None),
+        run_id=getattr(args, "run_id", None),
+        debug=getattr(args, "debug", False),
+    )
+    if isinstance(output_files, list):
+        print(f"Plot-Templates gespeichert: {len(output_files)} Dateien")
+        for output_file in output_files:
+            print(f"- {output_file}")
+        return
+
+    print(f"Plot-Template gespeichert: {output_files}")
+
+
 def run_comfort(args):
     """Fuehrt den Comfort-Unterbefehl ueber die gemeinsame Pipeline aus."""
     output_type = getattr(args, "output_type", "plot_analysis_overview")
@@ -233,6 +270,7 @@ def build_runtime_args(
     prepare_options=None,
     comfort_options=None,
     heating_options=None,
+    plot_template_options=None,
     plot_output_subdir=None,
 ):
     """Baut ein einheitliches Argumentobjekt fuer interne Pipeline-Schritte."""
@@ -261,10 +299,26 @@ def build_runtime_args(
     if prepare_options:
         prepare_defaults.update(prepare_options)
 
+    plot_template_defaults = {
+        "template": getattr(args, "template", "heating-year"),
+        "setpoint_min": getattr(args, "setpoint_min", 21.0),
+        "setpoint_max": getattr(args, "setpoint_max", 26.0),
+        "temperature_ymin": getattr(args, "temperature_ymin", -20.0),
+        "temperature_ymax": getattr(args, "temperature_ymax", 40.0),
+        "outdoor_column": getattr(args, "outdoor_column", "tair"),
+        "show_setpoint_band": getattr(args, "show_setpoint_band", True),
+        "show_outdoor_temperature": getattr(args, "show_outdoor_temperature", True),
+        "show_operative_temperature": getattr(args, "show_operative_temperature", True),
+        "overlay_lines": getattr(args, "overlay_lines", None),
+    }
+    if plot_template_options:
+        plot_template_defaults.update(plot_template_options)
+
     return argparse.Namespace(
         input_dir=args.input_dir,
         datenbank_dir=args.datenbank_dir,
         output_root=args.output_root,
+        output_root_explicit=getattr(args, "output_root_explicit", False),
         run_id=args.run_id,
         debug=args.debug,
         variants=variants,
@@ -281,6 +335,16 @@ def build_runtime_args(
         analysis_overview=comfort_defaults["analysis_overview"],
         plot_output_subdir=plot_output_subdir,
         export_format=prepare_defaults["export_format"],
+        template=plot_template_defaults["template"],
+        setpoint_min=plot_template_defaults["setpoint_min"],
+        setpoint_max=plot_template_defaults["setpoint_max"],
+        temperature_ymin=plot_template_defaults["temperature_ymin"],
+        temperature_ymax=plot_template_defaults["temperature_ymax"],
+        outdoor_column=plot_template_defaults["outdoor_column"],
+        show_setpoint_band=plot_template_defaults["show_setpoint_band"],
+        show_outdoor_temperature=plot_template_defaults["show_outdoor_temperature"],
+        show_operative_temperature=plot_template_defaults["show_operative_temperature"],
+        overlay_lines=plot_template_defaults["overlay_lines"],
     )
 
 
@@ -293,6 +357,7 @@ def execute_steps(
     prepare_options=None,
     comfort_options=None,
     heating_options=None,
+    plot_template_options=None,
     plot_output_subdir=None,
 ):
     """Fuehrt eine geordnete Teilmenge der Pipeline-Schritte aus."""
@@ -307,6 +372,7 @@ def execute_steps(
         prepare_options=prepare_options,
         comfort_options=comfort_options,
         heating_options=heating_options,
+        plot_template_options=plot_template_options,
         plot_output_subdir=plot_output_subdir,
     )
 
@@ -358,6 +424,10 @@ def execute_steps(
 
             if step == "cooling":
                 run_cooling(runtime_args)
+                continue
+
+            if step == "plot_template":
+                run_plot_template(runtime_args)
                 continue
 
     print("\n" + "=" * 70)
@@ -493,6 +563,12 @@ def dispatch_command(args):
         with timed_step(STEP_TITLES["cooling"]):
             ensure_required_data(args, ["cooling"])
             run_cooling(args)
+        return
+
+    if args.command == "plot-template":
+        with timed_step(STEP_TITLES["plot_template"]):
+            ensure_required_data(args, ["plot_template"])
+            run_plot_template(args)
         return
 
     if args.command == "gui":

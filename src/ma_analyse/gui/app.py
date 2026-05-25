@@ -24,11 +24,22 @@ except ImportError:
     HAS_TKINTER = False
 
 from ..analysis.components.time_windows import MAX_CALENDAR_WEEK, MONTH_DAY_COUNTS, MONTH_NAMES
+from ..analysis.templates import (
+    DEFAULT_OUTDOOR_COLUMN,
+    DEFAULT_SETPOINT_MAX,
+    DEFAULT_SETPOINT_MIN,
+    DEFAULT_TEMPERATURE_YMAX,
+    DEFAULT_TEMPERATURE_YMIN,
+    HEATING_YEAR_TEMPLATE,
+    list_heating_year_overlay_sources,
+    validate_template_request,
+)
 from ..app.commands import build_runtime_args, execute_steps, get_comfort_output_settings, run_all
 from ..core.config import DATENBANK_DIR, INPUT_DIR, OUTPUT_DIR, ROOMS
 from ..core.logging import command_log, should_log_command
 from ..settings.formats import ensure_output_format_doc
 from ..settings.naming import LEGACY_MAPPING_DOC as NAMENSMAPPING_DOC
+from ..settings.plot_templates import get_heating_year_template_defaults
 from .dialogs import OUTPUT_FORMAT_DOC, SettingsDialogMixin
 from .selection import format_cli_list, list_datenbank_variants, list_input_variants, strip_variant_suffix
 from .singleton import (
@@ -114,6 +125,7 @@ def run_gui_refresh(args):
 def build_gui_restart_argv(args, refresh_port):
     """Baut den CLI-Aufruf, mit dem sich die GUI selbst neu startet."""
     argv = [sys.executable, "-m", "ma_analyse", "gui"]
+    template_defaults = get_heating_year_template_defaults()
 
     option_values = [
         ("--input-dir", getattr(args, "input_dir", None), INPUT_DIR),
@@ -129,6 +141,32 @@ def build_gui_restart_argv(args, refresh_port):
         ("--heating-mode", getattr(args, "heating_mode", None), "compare"),
         ("--heating-series-layout", getattr(args, "heating_series_layout", None), "separate"),
         ("--export-format", getattr(args, "export_format", None), "csv"),
+        ("--template", getattr(args, "template", None), HEATING_YEAR_TEMPLATE),
+        (
+            "--setpoint-min",
+            getattr(args, "setpoint_min", None),
+            template_defaults.get("setpoint_min", DEFAULT_SETPOINT_MIN),
+        ),
+        (
+            "--setpoint-max",
+            getattr(args, "setpoint_max", None),
+            template_defaults.get("setpoint_max", DEFAULT_SETPOINT_MAX),
+        ),
+        (
+            "--temperature-ymin",
+            getattr(args, "temperature_ymin", None),
+            template_defaults.get("temperature_ymin", DEFAULT_TEMPERATURE_YMIN),
+        ),
+        (
+            "--temperature-ymax",
+            getattr(args, "temperature_ymax", None),
+            template_defaults.get("temperature_ymax", DEFAULT_TEMPERATURE_YMAX),
+        ),
+        (
+            "--outdoor-column",
+            getattr(args, "outdoor_column", None),
+            template_defaults.get("outdoor_column", DEFAULT_OUTDOOR_COLUMN),
+        ),
     ]
 
     for option_name, value, default_value in option_values:
@@ -142,6 +180,13 @@ def build_gui_restart_argv(args, refresh_port):
         argv.append("--debug")
     else:
         argv.append("--no-debug")
+
+    if getattr(args, "show_setpoint_band", template_defaults.get("show_setpoint_band", True)) is False:
+        argv.append("--no-setpoint-band")
+    if getattr(args, "show_outdoor_temperature", template_defaults.get("show_outdoor_temperature", True)) is False:
+        argv.append("--no-outdoor-temperature")
+    if getattr(args, "show_operative_temperature", template_defaults.get("show_operative_temperature", True)) is False:
+        argv.append("--no-operative-temperature")
 
     window_geometry = getattr(args, "gui_window_geometry", None)
     if isinstance(window_geometry, dict):
@@ -205,40 +250,85 @@ class PipelineGUI(SettingsDialogMixin):
             "analyze_data": ["analyze"],
             "heating": ["heating"],
             "cooling": ["cooling"],
+            "plot-template": ["plot_template"],
             "all": ["overview", "analysis", "heating", "cooling"],
         }
         self.commands = list(self.command_to_steps.keys())
-        initial_export_format = getattr(args, "export_format", "csv")
+        self.plot_template_defaults = get_heating_year_template_defaults()
 
-        self.analysis_scope = tk.StringVar(value="Alle Varianten")
-        self.command = tk.StringVar(value="comfort")
-        self.prepare_export_format = tk.StringVar(value=initial_export_format)
-        self.comfort_type = tk.StringVar(value="plot")
-        self.analysis_level = tk.StringVar(value="Analyse Raum")
+        self.analysis_scope = tk.StringVar(value="")
+        self.command = tk.StringVar(value="")
+        self.prepare_export_format = tk.StringVar(value="")
+        self.comfort_type = tk.StringVar(value="")
+        self.analysis_level = tk.StringVar(value="")
         self.load_subcommand = tk.StringVar(value="")
-        self.heating_mode = tk.StringVar(value="single")
-        self.heating_view = tk.StringVar(value="year")
-        self.heating_series_layout = tk.StringVar(value="separate")
+        self.heating_mode = tk.StringVar(value="")
+        self.heating_view = tk.StringVar(value="")
+        self.heating_series_layout = tk.StringVar(value="")
         self.heating_month = tk.StringVar(value=MONTH_NAMES[0])
         self.heating_week = tk.StringVar(value="1")
         self.heating_day = tk.StringVar(value="1")
+        self.plot_template = tk.StringVar(value=getattr(args, "template", HEATING_YEAR_TEMPLATE))
+        self.plot_setpoint_min = tk.StringVar(
+            value=str(
+                getattr(args, "setpoint_min", self.plot_template_defaults.get("setpoint_min", DEFAULT_SETPOINT_MIN))
+            )
+        )
+        self.plot_setpoint_max = tk.StringVar(
+            value=str(
+                getattr(args, "setpoint_max", self.plot_template_defaults.get("setpoint_max", DEFAULT_SETPOINT_MAX))
+            )
+        )
+        self.plot_temperature_ymin = tk.StringVar(
+            value=str(
+                getattr(
+                    args,
+                    "temperature_ymin",
+                    self.plot_template_defaults.get("temperature_ymin", DEFAULT_TEMPERATURE_YMIN),
+                )
+            )
+        )
+        self.plot_temperature_ymax = tk.StringVar(
+            value=str(
+                getattr(
+                    args,
+                    "temperature_ymax",
+                    self.plot_template_defaults.get("temperature_ymax", DEFAULT_TEMPERATURE_YMAX),
+                )
+            )
+        )
+        self.plot_outdoor_column = tk.StringVar(
+            value=getattr(
+                args, "outdoor_column", self.plot_template_defaults.get("outdoor_column", DEFAULT_OUTDOOR_COLUMN)
+            )
+        )
+        self.plot_show_setpoint_band = tk.BooleanVar(value=False)
+        self.plot_show_outdoor_temperature = tk.BooleanVar(value=False)
+        self.plot_show_operative_temperature = tk.BooleanVar(value=False)
+        self.overlay_source = tk.StringVar(value="")
+        self.overlay_column = tk.StringVar(value="")
+        self.overlay_label = tk.StringVar(value="")
+        self.overlay_axis = tk.StringVar(value="")
 
         self.selected_steps = []
         self.selected_variants = []
-        self.selected_rooms = ROOMS.copy()
+        self.selected_rooms = []
         self.selected_load_subcommand = ""
-        self.selected_heating_mode = "single"
-        self.selected_heating_view = "year"
-        self.selected_heating_series_layout = "separate"
-        self.selected_prepare_export_format = initial_export_format
+        self.selected_heating_mode = ""
+        self.selected_heating_view = ""
+        self.selected_heating_series_layout = ""
+        self.selected_prepare_export_format = ""
         self.selected_month = MONTH_NAMES[0]
         self.selected_week = 1
         self.selected_day = 1
-        self.selected_comfort_type = "plot"
+        self.selected_comfort_type = ""
+        self.selected_plot_template_options = {}
         self.selected_plot_single = True
         self.selected_plot_overview = True
         self.selected_analysis_individual = True
         self.selected_analysis_overview = True
+        self.free_overlay_lines = []
+        self.overlay_catalog = {"csv": [], "aux": []}
 
         self.comfort_allowed_by_level = {
             "Analyse Raum": {"plot", "plot_analysis"},
@@ -252,8 +342,10 @@ class PipelineGUI(SettingsDialogMixin):
 
         self.variant_names = []
         self.variant_source_kind = None
+        self.active_step_card = None
         self.left_scroll_window = None
         self.right_scroll_window = None
+        self.right_scrollbar_visible = False
         self.tools_menu = None
         self.mapping_dialog = None
         self.mapping_row_vars = {}
@@ -486,9 +578,33 @@ class PipelineGUI(SettingsDialogMixin):
 
     def _update_right_scroll_region(self, _event=None):
         self.right_scroll_canvas.configure(scrollregion=self.right_scroll_canvas.bbox("all"))
+        self._update_right_scrollbar_visibility()
 
     def _sync_right_scroll_width(self, event):
         self.right_scroll_canvas.itemconfigure(self.right_scroll_window, width=event.width)
+        self._update_right_scrollbar_visibility()
+
+    def _update_right_scrollbar_visibility(self):
+        if not hasattr(self, "right_scrollbar") or self.right_scrollbar is None:
+            return
+        if getattr(self, "_is_updating_right_scrollbar", False):
+            return
+        self._is_updating_right_scrollbar = True
+        try:
+            self.root.update_idletasks()
+            content_height = self.right_content.winfo_reqheight()
+            viewport_height = self.right_scroll_canvas.winfo_height()
+            needs_scrollbar = content_height > viewport_height + 1
+            if needs_scrollbar == self.right_scrollbar_visible:
+                return
+            self.right_scrollbar_visible = needs_scrollbar
+            if needs_scrollbar:
+                self.right_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+                return
+            self.right_scrollbar.pack_forget()
+            self.right_scroll_canvas.yview_moveto(0)
+        finally:
+            self._is_updating_right_scrollbar = False
 
     def _should_skip_mousewheel(self, widget):
         widget_class = widget.winfo_class()
@@ -523,7 +639,8 @@ class PipelineGUI(SettingsDialogMixin):
         if delta == 0:
             return
         if self._widget_is_in_right_scroll_area(event.widget):
-            self.right_scroll_canvas.yview_scroll(delta, "units")
+            if self.right_scrollbar_visible:
+                self.right_scroll_canvas.yview_scroll(delta, "units")
             return
         if self._widget_is_in_left_scroll_area(event.widget):
             self.left_scroll_canvas.yview_scroll(delta, "units")
@@ -532,7 +649,8 @@ class PipelineGUI(SettingsDialogMixin):
         if self._should_skip_mousewheel(event.widget):
             return
         if self._widget_is_in_right_scroll_area(event.widget):
-            self.right_scroll_canvas.yview_scroll(-1, "units")
+            if self.right_scrollbar_visible:
+                self.right_scroll_canvas.yview_scroll(-1, "units")
             return
         if self._widget_is_in_left_scroll_area(event.widget):
             self.left_scroll_canvas.yview_scroll(-1, "units")
@@ -541,7 +659,8 @@ class PipelineGUI(SettingsDialogMixin):
         if self._should_skip_mousewheel(event.widget):
             return
         if self._widget_is_in_right_scroll_area(event.widget):
-            self.right_scroll_canvas.yview_scroll(1, "units")
+            if self.right_scrollbar_visible:
+                self.right_scroll_canvas.yview_scroll(1, "units")
             return
         if self._widget_is_in_left_scroll_area(event.widget):
             self.left_scroll_canvas.yview_scroll(1, "units")
@@ -574,17 +693,6 @@ class PipelineGUI(SettingsDialogMixin):
 
         actions_frame = tk.Frame(self.title_frame, bg=self.color_bg)
         actions_frame.pack(side=tk.RIGHT)
-
-        self.more_button = tk.Label(
-            actions_frame,
-            text="•••",
-            bg=self.color_bg,
-            fg=self.color_text,
-            font=("Segoe UI", 18, "bold"),
-            cursor="hand2",
-        )
-        self.more_button.pack(side=tk.LEFT, padx=(0, 16))
-        self.more_button.bind("<Button-1>", self._open_tools_menu)
 
         minimize_label = tk.Label(
             actions_frame,
@@ -639,8 +747,9 @@ class PipelineGUI(SettingsDialogMixin):
             self.tools_menu.add_command(label="Namensmapping", command=self._open_name_mapping_dialog)
             self.tools_menu.add_command(label="GUI aktualisieren", command=self._restart_gui)
 
-        x_pos = self.more_button.winfo_rootx()
-        y_pos = self.more_button.winfo_rooty() + self.more_button.winfo_height()
+        source_widget = event.widget if event is not None else getattr(self, "settings_bottom_button", self.root)
+        x_pos = source_widget.winfo_rootx()
+        y_pos = source_widget.winfo_rooty() + source_widget.winfo_height()
         self._safe_popup_menu(self.tools_menu, x_pos, y_pos)
 
     def _handle_singleton_message(self, payload):
@@ -981,7 +1090,9 @@ class PipelineGUI(SettingsDialogMixin):
         self.main_frame.pack(fill=tk.BOTH, expand=True, padx=22, pady=10)
 
         self.left_scroll_host = tk.Frame(self.main_frame, bg=self.color_bg)
-        self.left_scroll_host.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 12))
+        self.left_scroll_host.pack(side=tk.LEFT, fill=tk.Y, padx=(0, 12))
+        self.left_scroll_host.configure(width=270)
+        self.left_scroll_host.pack_propagate(False)
 
         self.left_scroll_canvas = tk.Canvas(
             self.left_scroll_host,
@@ -1010,9 +1121,8 @@ class PipelineGUI(SettingsDialogMixin):
         self.left_column.bind("<Configure>", self._update_left_scroll_region)
         self.left_scroll_canvas.bind("<Configure>", self._sync_left_scroll_width)
 
-        self.right_column = tk.Frame(self.main_frame, bg=self.color_bg, width=430)
-        self.right_column.pack(side=tk.RIGHT, fill=tk.BOTH, padx=(12, 0))
-        self.right_column.pack_propagate(False)
+        self.right_column = tk.Frame(self.main_frame, bg=self.color_bg)
+        self.right_column.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 
         self.right_scroll_canvas = tk.Canvas(
             self.right_column,
@@ -1029,6 +1139,7 @@ class PipelineGUI(SettingsDialogMixin):
             style="Tool.Vertical.TScrollbar",
         )
         self.right_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        self.right_scrollbar_visible = True
         self.right_scroll_canvas.configure(yscrollcommand=self.right_scrollbar.set)
 
         self.right_content = tk.Frame(self.right_scroll_canvas, bg=self.color_bg)
@@ -1046,37 +1157,96 @@ class PipelineGUI(SettingsDialogMixin):
         self.root.bind_all("<Button-5>", self._on_mousewheel_linux_down, add="+")
 
     def _create_step_card(self, parent, number, title):
-        card = tk.Frame(
+        nav_item = tk.Frame(
             parent,
             bg=self.color_panel,
             highlightbackground=self.color_border,
             highlightthickness=1,
+            cursor="hand2",
         )
-        card.pack(fill=tk.X, pady=6)
+        nav_item.pack(fill=tk.X, pady=6)
 
-        header = tk.Frame(card, bg=self.color_panel)
-        header.pack(fill=tk.X, padx=18, pady=(14, 8))
+        header = tk.Frame(nav_item, bg=self.color_panel, cursor="hand2")
+        header.pack(fill=tk.X, padx=14, pady=12)
 
         number_label = tk.Label(
             header,
             text=str(number),
-            bg=self.color_blue,
+            bg=self.color_border,
             fg="white",
             width=3,
             height=1,
             font=("Segoe UI", 12, "bold"),
+            cursor="hand2",
         )
         number_label.pack(side=tk.LEFT, padx=(0, 12))
 
         heading = ttk.Label(header, text=title, style="Heading.TLabel")
         heading.pack(side=tk.LEFT)
 
-        content = tk.Frame(card, bg=self.color_panel)
-        content.pack(fill=tk.X, padx=18, pady=(0, 16))
-        card.step_header = header
+        status_dot = tk.Label(
+            header,
+            text="●",
+            bg=self.color_panel,
+            fg=self.color_panel,
+            font=("Segoe UI", 12, "bold"),
+            cursor="hand2",
+        )
+        status_dot.pack(side=tk.RIGHT, padx=(10, 0))
+
+        card = tk.Frame(
+            self.right_content,
+            bg=self.color_bg,
+        )
+        summary_frame = tk.Frame(
+            card,
+            bg=self.color_panel,
+            highlightbackground=self.color_border,
+            highlightthickness=1,
+        )
+        ttk.Label(
+            summary_frame,
+            text="summary",
+            style="Dark.TLabel",
+        ).pack(anchor=tk.W, padx=18, pady=(18, 6))
+        summary_label = ttk.Label(
+            summary_frame,
+            text="",
+            style="Muted.TLabel",
+            justify=tk.LEFT,
+            wraplength=650,
+        )
+        summary_label.pack(fill=tk.X, padx=18, pady=(0, 18))
+
+        step_body = tk.Frame(
+            card,
+            bg=self.color_panel,
+            highlightbackground=self.color_border,
+            highlightthickness=1,
+        )
+        step_body.pack(fill=tk.BOTH, expand=True)
+
+        card_header = tk.Frame(step_body, bg=self.color_panel)
+        card_header.pack(fill=tk.X, padx=18, pady=(18, 10))
+        ttk.Label(card_header, text=title, style="Heading.TLabel").pack(anchor=tk.W)
+
+        content = tk.Frame(step_body, bg=self.color_panel)
+        content.pack(fill=tk.BOTH, expand=True, padx=18, pady=(0, 18))
+        card.step_nav = nav_item
+        card.step_header = nav_item
         card.step_number_label = number_label
         card.step_heading = heading
+        card.step_status_dot = status_dot
+        card.step_summary_frame = summary_frame
+        card.step_summary_label = summary_label
+        card.step_body = step_body
+        card.step_card_header = card_header
+        card.step_content = content
         card.step_title = title
+        card.step_available = True
+
+        for widget in (nav_item, header, number_label, heading, status_dot):
+            widget.bind("<Button-1>", lambda _event, selected_card=card: self._activate_step(selected_card))
         return card, content
 
     def _build_left_column(self):
@@ -1084,6 +1254,7 @@ class PipelineGUI(SettingsDialogMixin):
         self._build_subcommand_step()
         self._build_prepare_export_step()
         self._build_step_3()
+        self._build_overlay_step()
         self._build_step_1()
         self._build_step_4()
         self._build_step_5()
@@ -1092,6 +1263,7 @@ class PipelineGUI(SettingsDialogMixin):
             self.subcommand_card,
             self.prepare_export_card,
             self.step_3_card,
+            self.overlay_card,
             self.step_1_card,
             self.step_4_card,
             self.step_5_card,
@@ -1100,7 +1272,8 @@ class PipelineGUI(SettingsDialogMixin):
             self.step_2_card: "Befehl festlegen",
             self.subcommand_card: "Unterbefehl passend zum Befehl waehlen",
             self.prepare_export_card: "Exportformat fuer prepare waehlen",
-            self.step_3_card: "Befehlsabhaengige Optionen pruefen",
+            self.step_3_card: "Template auswaehlen",
+            self.overlay_card: "Datenlinien fuer Plot-Templates auswaehlen",
             self.step_1_card: "Analyseumfang waehlen",
             self.step_4_card: "Varianten passend zum Befehl auswaehlen",
             self.step_5_card: "Raeume auswaehlen oder automatisch uebernehmen",
@@ -1283,7 +1456,7 @@ class PipelineGUI(SettingsDialogMixin):
             button.grid_configure(sticky="nsew")
 
     def _build_step_3(self):
-        self.step_3_card, content = self._create_step_card(self.left_column, 4, "Analyseebene und Befehlsoptionen")
+        self.step_3_card, content = self._create_step_card(self.left_column, 4, "Template")
 
         self.heating_mode_section = tk.Frame(content, bg=self.color_panel)
         self.load_mode_title = ttk.Label(self.heating_mode_section, text="Heizvergleich Modus", style="Dark.TLabel")
@@ -1433,6 +1606,223 @@ class PipelineGUI(SettingsDialogMixin):
         self.heating_day_combo.pack(fill=tk.X)
         self.heating_day_combo.bind("<<ComboboxSelected>>", lambda event: self._update_dynamic_fields())
 
+        self.plot_template_section = tk.Frame(content, bg=self.color_panel)
+        ttk.Label(self.plot_template_section, text="Template", style="Dark.TLabel").pack(anchor=tk.W, pady=(0, 6))
+
+        self.plot_template_grid = tk.Frame(self.plot_template_section, bg=self.color_panel)
+        self.plot_template_grid.pack(fill=tk.X)
+        for column in range(2):
+            self.plot_template_grid.grid_columnconfigure(column, weight=1)
+
+        self.plot_template_combo = self._create_labeled_entry(
+            self.plot_template_grid,
+            "Template",
+            self.plot_template,
+            row=0,
+            column=0,
+            values=[HEATING_YEAR_TEMPLATE],
+        )
+        self.plot_template_note = ttk.Label(
+            self.plot_template_section,
+            text="Das Template nutzt eine oder mehrere Varianten und genau einen Raum. Zusatzlinien werden im Schritt Ueberlagerungen gewaehlt.",
+            style="Muted.TLabel",
+            wraplength=640,
+            justify=tk.LEFT,
+        )
+        self.plot_template_note.pack(anchor=tk.W, pady=(8, 0))
+
+    def _build_overlay_step(self):
+        self.overlay_card, content = self._create_step_card(self.left_column, 5, "Überlagerungen")
+
+        axis_section = tk.Frame(content, bg=self.color_panel)
+        axis_section.pack(fill=tk.X, pady=(0, 14))
+        ttk.Label(axis_section, text="Temperaturachse", style="Dark.TLabel").pack(anchor=tk.W, pady=(0, 8))
+        axis_grid = tk.Frame(
+            axis_section,
+            bg=self.color_panel_light,
+            highlightbackground=self.color_border,
+            highlightthickness=1,
+        )
+        axis_grid.pack(fill=tk.X)
+        axis_grid.grid_columnconfigure(0, weight=1)
+        axis_grid.grid_columnconfigure(1, weight=1)
+        self.plot_temperature_ymin_entry = self._create_labeled_entry(
+            axis_grid,
+            "Min [°C]",
+            self.plot_temperature_ymin,
+            row=0,
+            column=0,
+        )
+        self.plot_temperature_ymax_entry = self._create_labeled_entry(
+            axis_grid,
+            "Max [°C]",
+            self.plot_temperature_ymax,
+            row=0,
+            column=1,
+        )
+
+        fixed_section = tk.Frame(content, bg=self.color_panel)
+        fixed_section.pack(fill=tk.X, pady=(0, 14))
+        ttk.Label(fixed_section, text="Feste Linien", style="Dark.TLabel").pack(anchor=tk.W, pady=(0, 8))
+
+        heat_row = tk.Frame(
+            fixed_section, bg=self.color_panel_light, highlightbackground=self.color_border, highlightthickness=1
+        )
+        heat_row.pack(fill=tk.X, pady=3)
+        ttk.Label(heat_row, text="Heizleistung [W]", style="Dark.TLabel").pack(anchor=tk.W, padx=10, pady=(8, 2))
+        ttk.Label(heat_row, text="Pflichtlinie auf der linken Achse", style="Muted.TLabel").pack(
+            anchor=tk.W,
+            padx=10,
+            pady=(0, 8),
+        )
+
+        self.setpoint_row = tk.Frame(
+            fixed_section, bg=self.color_panel_light, highlightbackground=self.color_border, highlightthickness=1
+        )
+        self.setpoint_row.pack(fill=tk.X, pady=3)
+        ttk.Checkbutton(
+            self.setpoint_row,
+            text="Sollwertband",
+            variable=self.plot_show_setpoint_band,
+            command=self._update_dynamic_fields,
+            style="TCheckbutton",
+        ).pack(anchor=tk.W, padx=10, pady=(8, 4))
+        setpoint_grid = tk.Frame(self.setpoint_row, bg=self.color_panel_light)
+        setpoint_grid.pack(fill=tk.X, padx=10, pady=(0, 8))
+        setpoint_grid.grid_columnconfigure(0, weight=1)
+        setpoint_grid.grid_columnconfigure(1, weight=1)
+        self.plot_setpoint_min_entry = self._create_labeled_entry(
+            setpoint_grid,
+            "Min [°C]",
+            self.plot_setpoint_min,
+            row=0,
+            column=0,
+        )
+        self.plot_setpoint_max_entry = self._create_labeled_entry(
+            setpoint_grid,
+            "Max [°C]",
+            self.plot_setpoint_max,
+            row=0,
+            column=1,
+        )
+
+        for label_text, variable, detail in [
+            ("Außenlufttemperatur", self.plot_show_outdoor_temperature, "REPORT-AUX.prn:tair, rechte Achse"),
+            (
+                "Operative Temperatur",
+                self.plot_show_operative_temperature,
+                "temperatures_top, Fallback local_de_comf_diag_t_top, rechte Achse",
+            ),
+        ]:
+            row = tk.Frame(
+                fixed_section,
+                bg=self.color_panel_light,
+                highlightbackground=self.color_border,
+                highlightthickness=1,
+            )
+            row.pack(fill=tk.X, pady=3)
+            ttk.Checkbutton(
+                row,
+                text=label_text,
+                variable=variable,
+                command=self._update_dynamic_fields,
+                style="TCheckbutton",
+            ).pack(anchor=tk.W, padx=10, pady=(8, 2))
+            ttk.Label(row, text=detail, style="Muted.TLabel").pack(anchor=tk.W, padx=10, pady=(0, 8))
+
+        free_section = tk.Frame(content, bg=self.color_panel)
+        free_section.pack(fill=tk.BOTH, expand=True)
+        ttk.Label(free_section, text="Freie Datenlinien", style="Dark.TLabel").pack(anchor=tk.W, pady=(0, 8))
+
+        editor = tk.Frame(free_section, bg=self.color_panel)
+        editor.pack(fill=tk.X)
+        for column in range(4):
+            editor.grid_columnconfigure(column, weight=1)
+
+        self.overlay_source_combo = self._create_labeled_entry(
+            editor,
+            "Quelle",
+            self.overlay_source,
+            row=0,
+            column=0,
+            values=["csv", "aux"],
+        )
+        self.overlay_source_combo.bind("<<ComboboxSelected>>", lambda _event: self._refresh_overlay_column_options())
+        self.overlay_column_combo = self._create_labeled_entry(
+            editor,
+            "Spalte",
+            self.overlay_column,
+            row=0,
+            column=1,
+            values=[],
+        )
+        self.overlay_column_combo.bind("<<ComboboxSelected>>", lambda _event: self._prefill_overlay_label())
+        self.overlay_label_entry = self._create_labeled_entry(
+            editor,
+            "Anzeigename",
+            self.overlay_label,
+            row=0,
+            column=2,
+        )
+        self.overlay_axis_combo = self._create_labeled_entry(
+            editor,
+            "Achse",
+            self.overlay_axis,
+            row=0,
+            column=3,
+            values=["temperature", "heat"],
+        )
+
+        button_row = tk.Frame(free_section, bg=self.color_panel)
+        button_row.pack(fill=tk.X, pady=(8, 8))
+        ttk.Button(
+            button_row, text="Linie hinzufügen", style="Primary.TButton", command=self._add_free_overlay_line
+        ).pack(side=tk.LEFT)
+        ttk.Button(
+            button_row,
+            text="Linie entfernen",
+            style="Secondary.TButton",
+            command=self._remove_selected_free_overlay_line,
+        ).pack(side=tk.LEFT, padx=(10, 0))
+
+        self.overlay_lines_listbox = tk.Listbox(
+            free_section,
+            height=6,
+            selectmode=tk.BROWSE,
+            bg=self.color_panel_light,
+            fg=self.color_text,
+            selectbackground=self.color_blue,
+            selectforeground="white",
+            highlightbackground=self.color_border,
+            highlightcolor=self.color_blue,
+            relief=tk.FLAT,
+            exportselection=False,
+            font=("Segoe UI", 10),
+        )
+        self.overlay_lines_listbox.pack(fill=tk.BOTH, expand=True)
+
+    def _create_labeled_entry(self, parent, label_text, textvariable, row, column, values=None):
+        """Erzeugt ein beschriftetes Eingabefeld im Optionsraster."""
+        container = tk.Frame(parent, bg=self.color_panel)
+        container.grid(row=row, column=column, sticky="ew", padx=2, pady=4)
+        ttk.Label(container, text=label_text, style="Dark.TLabel").pack(anchor=tk.W, pady=(0, 4))
+        if values is not None:
+            widget = ttk.Combobox(container, textvariable=textvariable, values=values, state="readonly")
+        else:
+            widget = tk.Entry(
+                container,
+                textvariable=textvariable,
+                bg=self.color_panel_light,
+                fg=self.color_text,
+                insertbackground=self.color_text,
+                relief=tk.FLAT,
+                highlightbackground=self.color_border,
+                highlightcolor=self.color_blue,
+                font=("Segoe UI", 10),
+            )
+        widget.pack(fill=tk.X)
+        return widget
+
     def _build_step_4(self):
         self.step_4_card, content = self._create_step_card(self.left_column, 6, "Varianten")
 
@@ -1457,9 +1847,7 @@ class PipelineGUI(SettingsDialogMixin):
             font=("Segoe UI", 10),
         )
         self.variants_listbox.pack(fill=tk.BOTH, expand=True)
-        self.variants_listbox.bind(
-            "<<ListboxSelect>>", lambda event: self._update_variant_note_state(self.analysis_scope.get())
-        )
+        self.variants_listbox.bind("<<ListboxSelect>>", lambda _event: self._handle_variant_selection_changed())
 
         self.variant_note = ttk.Label(
             right,
@@ -1493,9 +1881,7 @@ class PipelineGUI(SettingsDialogMixin):
             font=("Segoe UI", 10),
         )
         self.rooms_listbox.pack(fill=tk.BOTH, expand=True)
-        self.rooms_listbox.bind(
-            "<<ListboxSelect>>", lambda event: self._update_room_note_state(self.analysis_level.get())
-        )
+        self.rooms_listbox.bind("<<ListboxSelect>>", lambda _event: self._handle_room_selection_changed())
 
         self.room_note = ttk.Label(
             self.step_5_right,
@@ -1506,157 +1892,200 @@ class PipelineGUI(SettingsDialogMixin):
         self.room_note.pack(anchor=tk.W)
 
     def _build_right_column(self):
-        panel = tk.Frame(
-            self.right_content,
-            bg=self.color_panel,
-            highlightbackground=self.color_border,
-            highlightthickness=1,
-        )
-        panel.pack(fill=tk.BOTH, expand=True)
-
-        ttk.Label(panel, text="Anleitung und Hinweise", style="Heading.TLabel").pack(
-            anchor=tk.W,
-            padx=18,
-            pady=(18, 16),
-        )
-
-        steps_card = tk.Frame(
-            panel,
-            bg=self.color_panel_light,
-            highlightbackground=self.color_border,
-            highlightthickness=1,
-        )
-        steps_card.pack(fill=tk.X, padx=18, pady=(0, 12))
-
-        ttk.Label(steps_card, text="Schritte", style="Heading.TLabel").pack(anchor=tk.W, padx=16, pady=(14, 10))
-        self.steps_list_container = tk.Frame(steps_card, bg=self.color_panel_light)
-        self.steps_list_container.pack(fill=tk.X)
-
-        hints_card = tk.Frame(
-            panel,
-            bg=self.color_panel_light,
-            highlightbackground=self.color_border,
-            highlightthickness=1,
-        )
-        hints_card.pack(fill=tk.X, padx=18, pady=(0, 18))
-
-        ttk.Label(hints_card, text="Moegliche Hinweise", style="Heading.TLabel").pack(
-            anchor=tk.W,
-            padx=16,
-            pady=(14, 10),
-        )
-
-        hints = [
-            "'all' erzeugt Comfort-/Analyseuebersichten plus Heating-/Cooling-Barplots und Jahresplots.",
-            f"Die Variantenliste zeigt bei 'prepare' Input-Varianten aus {INPUT_DIR}, sonst Datenbank-Varianten aus {DATENBANK_DIR}.",
-            "'prepare' kann CSV, Excel oder beides erzeugen; die Folgeskripte arbeiten operativ mit CSV.",
-            "'comfort' zeigt die passenden Unterbefehle in zwei Spalten.",
-            "'heating' arbeitet direkt mit der Raumauswahl; die Analyseebene wird dort nicht verwendet.",
-            "'heating' bietet Maximalwert, Jahr, Monat, Woche und Tag mit passender Detailauswahl.",
-            "'cooling' arbeitet wie heating mit der Raumauswahl, zeigt aber Kuehllasten als negative Zeitverlaeufe.",
-            f"Berechnungen und Diagramme arbeiten mit den Daten aus {DATENBANK_DIR}.",
-        ]
-        for hint in hints:
-            label = tk.Label(
-                hints_card,
-                text="* " + hint,
-                bg=self.color_panel_light,
-                fg=self.color_text,
-                font=("Segoe UI", 10),
-                anchor=tk.W,
-                justify=tk.LEFT,
-                wraplength=360,
-            )
-            label.pack(anchor=tk.W, padx=16, pady=5)
-
-        self.log_card = tk.Frame(
-            panel,
-            bg=self.color_panel_light,
-            highlightbackground=self.color_border,
-            highlightthickness=1,
-        )
-        self.log_card.pack(fill=tk.BOTH, expand=True, padx=18, pady=(0, 18))
-
-        log_header = tk.Frame(self.log_card, bg=self.color_panel_light)
-        log_header.pack(fill=tk.X, padx=16, pady=(14, 10))
-
-        ttk.Label(log_header, text="Status und Protokoll", style="Heading.TLabel").pack(
-            side=tk.LEFT,
-            anchor=tk.W,
-        )
-
-        self.log_expand_button = tk.Button(
-            log_header,
-            text="⤢",
-            command=self._expand_log_panel,
-            bg=self.color_panel_light,
-            fg=self.color_text,
-            activebackground=self.color_blue_dark,
-            activeforeground="white",
-            relief=tk.FLAT,
-            font=("Segoe UI Symbol", 12, "bold"),
-            width=3,
-            cursor="hand2",
-        )
-        self.log_expand_button.pack(side=tk.RIGHT)
-
-        status_label = ttk.Label(
-            self.log_card,
-            textvariable=self.status_var,
-            style="Muted.TLabel",
-        )
-        status_label.pack(anchor=tk.W, padx=16, pady=(0, 8))
-
-        self.run_log_text = tk.Text(
-            self.log_card,
-            height=14,
-            bg=self.color_panel,
-            fg=self.color_text,
-            insertbackground=self.color_text,
-            relief=tk.FLAT,
-            highlightbackground=self.color_border,
-            highlightcolor=self.color_blue,
-            font=("Consolas", 9),
-            wrap=tk.WORD,
-        )
-        self.run_log_text.pack(fill=tk.BOTH, expand=True, padx=16, pady=(0, 16))
-        self.run_log_text.configure(state=tk.DISABLED)
+        self.run_log_text = None
+        self.steps_list_container = None
+        self._activate_first_available_step()
 
     def _refresh_step_indicators(self):
-        visible_cards = [card for card in self.step_card_order if card.winfo_manager() == "pack"]
+        visible_cards = [card for card in self.step_card_order if getattr(card, "step_available", True)]
 
         for index, card in enumerate(visible_cards, start=1):
             card.step_number_label.configure(text=str(index))
 
-        for child in self.steps_list_container.winfo_children():
-            child.destroy()
+        if self.active_step_card not in visible_cards:
+            self._activate_first_available_step()
+        else:
+            self._update_step_nav_styles()
 
-        for index, card in enumerate(visible_cards, start=1):
-            text = self.step_card_descriptions[card]
-            row = tk.Frame(self.steps_list_container, bg=self.color_panel_light)
-            row.pack(fill=tk.X, padx=16, pady=5)
+    def _activate_first_available_step(self):
+        for card in getattr(self, "step_card_order", []):
+            if getattr(card, "step_available", True):
+                self._activate_step(card)
+                return
 
-            number = tk.Label(
-                row,
-                text=str(index),
-                bg=self.color_blue,
-                fg="white",
-                width=2,
-                font=("Segoe UI", 10, "bold"),
-            )
-            number.pack(side=tk.LEFT, padx=(0, 10))
+    def _activate_next_available_step_after(self, current_card):
+        try:
+            current_index = self.step_card_order.index(current_card)
+        except ValueError:
+            return
 
-            label = tk.Label(
-                row,
-                text=text,
-                bg=self.color_panel_light,
-                fg=self.color_text,
-                font=("Segoe UI", 10),
-                anchor=tk.W,
-                justify=tk.LEFT,
-                wraplength=340,
-            )
-            label.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        for card in self.step_card_order[current_index + 1 :]:
+            if getattr(card, "step_available", True) and card.step_nav.winfo_manager() == "pack":
+                self._activate_step(card)
+                return
+
+    def _advance_after_completed_single_choice(self, current_card):
+        if self._is_single_choice_step_complete(current_card):
+            self._activate_next_available_step_after(current_card)
+
+    def _is_single_choice_step_complete(self, card):
+        selected_command = self.command.get()
+
+        if card is self.subcommand_card:
+            if selected_command == "comfort":
+                return bool(self.comfort_type.get())
+            if selected_command in {"heating", "cooling"}:
+                return self.load_subcommand.get() in {"bar", "timeline"}
+            return False
+
+        if card is self.prepare_export_card:
+            return bool(self.prepare_export_format.get())
+
+        if card is self.step_3_card:
+            if selected_command == "plot-template":
+                return bool(self.plot_template.get())
+            if selected_command == "comfort":
+                return bool(self.analysis_level.get())
+            if selected_command == "analyze_data":
+                return bool(self.heating_series_layout.get())
+            if selected_command in {"heating", "cooling"}:
+                if self.load_subcommand.get() not in {"bar", "timeline"} or not self.heating_mode.get():
+                    return False
+                if self.heating_mode.get() == "compare" and not self.heating_series_layout.get():
+                    return False
+                if self.load_subcommand.get() == "timeline" and self.heating_view.get() not in {
+                    "year",
+                    "month",
+                    "week",
+                    "day",
+                }:
+                    return False
+                return True
+            return False
+
+        return False
+
+    def _activate_step(self, card):
+        if not getattr(card, "step_available", True):
+            return
+        for step_card in getattr(self, "step_card_order", []):
+            if step_card.winfo_manager() == "pack":
+                step_card.pack_forget()
+        card.pack(fill=tk.BOTH, expand=True)
+        self.active_step_card = card
+        self._update_step_nav_styles()
+        self.right_scroll_canvas.yview_moveto(0)
+
+    def _update_step_nav_styles(self):
+        for card in getattr(self, "step_card_order", []):
+            bg = self.color_panel
+            number_bg = self.color_border
+            dot_color = self.color_blue if card is self.active_step_card else self.color_panel
+            card.step_nav.configure(bg=bg, highlightbackground=self.color_border)
+            card.step_header.configure(bg=bg)
+            card.step_number_label.configure(bg=number_bg)
+            card.step_heading.configure(background=bg)
+            card.step_status_dot.configure(bg=bg, fg=dot_color)
+
+    def _build_step_summary_text(self, target_card):
+        lines = []
+        for card in getattr(self, "step_card_order", []):
+            if card is target_card:
+                break
+            if not getattr(card, "step_available", True) or card.step_nav.winfo_manager() != "pack":
+                continue
+            summary_line = self._get_step_summary_line(card)
+            if summary_line:
+                lines.append(summary_line)
+        return "\n".join(lines)
+
+    def _format_summary_selection(self, singular_label, plural_label, values):
+        if not values:
+            return ""
+        if len(values) == 1:
+            return f"{singular_label}: {values[0]}"
+        return f"{plural_label}: {len(values)} ausgewaehlt"
+
+    def _get_step_summary_line(self, card):
+        if card is self.step_2_card:
+            command = self.command.get()
+            return f"Befehl: {command}" if command else ""
+
+        if card is self.subcommand_card:
+            if self.command.get() == "comfort" and self.comfort_type.get():
+                return f"Unterbefehl: {self.comfort_type.get()}"
+            if self.command.get() in {"heating", "cooling"} and self.load_subcommand.get():
+                return f"Unterbefehl: {self.load_subcommand.get()}"
+            return ""
+
+        if card is self.prepare_export_card and self.prepare_export_format.get():
+            return f"Exportformat: {self.prepare_export_format.get()}"
+
+        if card is self.step_3_card:
+            selected_command = self.command.get()
+            if selected_command == "plot-template":
+                return f"Template: {self.plot_template.get()}"
+            if selected_command == "comfort" and self.analysis_level.get():
+                return f"Analyseebene: {self.analysis_level.get()}"
+            if selected_command == "analyze_data" and self.heating_series_layout.get():
+                return f"Excel-Ausgabe: {self.heating_series_layout.get()}"
+            if selected_command in {"heating", "cooling"}:
+                parts = []
+                if self.heating_mode.get():
+                    parts.append(f"Modus {self.heating_mode.get()}")
+                if self.heating_mode.get() == "compare" and self.heating_series_layout.get():
+                    parts.append(f"Ausgabe {self.heating_series_layout.get()}")
+                if self.load_subcommand.get() == "timeline" and self.heating_view.get():
+                    view_label = self.heating_view.get()
+                    if view_label == "month":
+                        view_label = f"month {self.heating_month.get()}"
+                    elif view_label == "week":
+                        view_label = f"week KW {self.heating_week.get()}"
+                    elif view_label == "day":
+                        view_label = f"day {self.heating_month.get()} {self.heating_day.get()}"
+                    parts.append(f"Ansicht {view_label}")
+                return f"Optionen: {', '.join(parts)}" if parts else ""
+            return ""
+
+        if card is self.overlay_card:
+            parts = []
+            if self.plot_show_setpoint_band.get():
+                parts.append(f"Sollwertband {self.plot_setpoint_min.get()}-{self.plot_setpoint_max.get()} °C")
+            if self.plot_show_outdoor_temperature.get():
+                parts.append("Außenluft")
+            if self.plot_show_operative_temperature.get():
+                parts.append("Operative Temperatur")
+            if self.free_overlay_lines:
+                line_label = "freie Linie" if len(self.free_overlay_lines) == 1 else "freie Linien"
+                parts.append(f"{len(self.free_overlay_lines)} {line_label}")
+            return f"Überlagerungen: {', '.join(parts)}" if parts else ""
+
+        if card is self.step_1_card and self.analysis_scope.get():
+            return f"Analyseumfang: {self.analysis_scope.get()}"
+
+        if card is self.step_4_card:
+            if self.analysis_scope.get() == "Alle Varianten" and self.command.get() != "plot-template":
+                return f"Varianten: alle ({len(self.variant_names)})"
+            return self._format_summary_selection("Variante", "Varianten", self._get_selected_variants())
+
+        if card is self.step_5_card:
+            return self._format_summary_selection("Raum", "Raeume", self._get_selected_rooms())
+
+        return ""
+
+    def _update_step_summaries(self):
+        for card in getattr(self, "step_card_order", []):
+            summary_text = self._build_step_summary_text(card)
+            card.step_summary_label.configure(text=summary_text)
+            if summary_text and card.step_summary_frame.winfo_manager() != "pack":
+                card.step_summary_frame.pack(
+                    fill=tk.X,
+                    pady=(0, 12),
+                    before=card.step_body,
+                )
+            elif not summary_text and card.step_summary_frame.winfo_manager() == "pack":
+                card.step_summary_frame.pack_forget()
+        self._update_right_scrollbar_visibility()
 
     def _set_status(self, message):
         self.status_var.set(message)
@@ -1902,6 +2331,7 @@ class PipelineGUI(SettingsDialogMixin):
         prepare_options,
         comfort_options,
         heating_options,
+        plot_template_options,
     ):
         success = True
         writer = QueueLogWriter(self.pipeline_queue)
@@ -1925,6 +2355,7 @@ class PipelineGUI(SettingsDialogMixin):
                 prepare_options=prepare_options,
                 comfort_options=comfort_options,
                 heating_options=heating_options,
+                plot_template_options=plot_template_options,
             )
 
         try:
@@ -1974,13 +2405,44 @@ class PipelineGUI(SettingsDialogMixin):
         finally:
             menu.grab_release()
 
+    def _open_log_view(self):
+        if self.analysis_log_window is not None and self.analysis_log_window.winfo_exists():
+            self.analysis_log_window.lift()
+            with contextlib.suppress(tk.TclError):
+                self.analysis_log_window.focus_force()
+            return
+        self._expand_log_panel()
+
     def _build_bottom_buttons(self):
         self.bottom_button_frame = tk.Frame(self.root, bg=self.color_bg)
         self.bottom_button_frame.pack(fill=tk.X, padx=22, pady=(0, 18))
 
+        self.settings_bottom_button = ttk.Button(
+            self.bottom_button_frame,
+            text="settings",
+            style="Secondary.TButton",
+            command=self._open_tools_menu,
+        )
+        self.settings_bottom_button.pack(side=tk.LEFT)
+
+        self.log_bottom_button = ttk.Button(
+            self.bottom_button_frame,
+            text="log",
+            style="Secondary.TButton",
+            command=self._open_log_view,
+        )
+        self.log_bottom_button.pack(side=tk.LEFT, padx=(8, 0))
+
+        self.bottom_status_label = ttk.Label(
+            self.bottom_button_frame,
+            textvariable=self.status_var,
+            style="Muted.TLabel",
+        )
+        self.bottom_status_label.pack(side=tk.LEFT, padx=(14, 0))
+
         self.start_button = ttk.Button(
             self.bottom_button_frame,
-            text="Analyse starten",
+            text="Start",
             style="Primary.TButton",
             command=self._start_pipeline,
         )
@@ -2044,54 +2506,54 @@ class PipelineGUI(SettingsDialogMixin):
     def _set_analysis_scope(self, value):
         self.analysis_scope.set(value)
         self._update_dynamic_fields()
+        self._activate_step(self.step_4_card)
 
     def _set_command(self, value):
         if value in DISABLED_GUI_COMMANDS:
             return
         self.command.set(value)
         self.load_subcommand.set("")
-        if value == "comfort":
-            self.comfort_type.set(self.comfort_default_by_level[self.analysis_level.get()])
-        if value in {"heating", "cooling"}:
-            self.load_subcommand.set("bar")
-            self.heating_view.set("bar")
-        if value == "analyze_data":
-            self.heating_series_layout.set("separate")
-        if value == "all":
-            self._select_all_rooms()
         self._update_dynamic_fields()
+        self._activate_next_available_step_after(self.step_2_card)
 
     def _set_prepare_export_format(self, value):
         self.prepare_export_format.set(value)
         self._update_dynamic_fields()
+        self._advance_after_completed_single_choice(self.prepare_export_card)
 
     def _set_analysis_level(self, value):
         self.analysis_level.set(value)
         self._update_dynamic_fields()
+        self._advance_after_completed_single_choice(self.step_3_card)
 
     def _set_heating_mode(self, value):
         self.heating_mode.set(value)
         self._update_dynamic_fields()
+        self._advance_after_completed_single_choice(self.step_3_card)
 
     def _set_heating_series_layout(self, value):
         self.heating_series_layout.set(value)
         self._update_dynamic_fields()
+        self._advance_after_completed_single_choice(self.step_3_card)
 
     def _set_load_subcommand(self, value):
         self.load_subcommand.set(value)
         if value == "bar":
             self.heating_view.set("bar")
-        elif value == "timeline" and self.heating_view.get() not in {"year", "month", "week", "day"}:
-            self.heating_view.set("year")
+        elif value == "timeline" and self.heating_view.get() == "bar":
+            self.heating_view.set("")
         self._update_dynamic_fields()
+        self._advance_after_completed_single_choice(self.subcommand_card)
 
     def _set_comfort_type(self, value):
         self.comfort_type.set(value)
         self._update_dynamic_fields()
+        self._advance_after_completed_single_choice(self.subcommand_card)
 
     def _set_heating_view(self, value):
         self.heating_view.set(value)
         self._update_dynamic_fields()
+        self._advance_after_completed_single_choice(self.step_3_card)
 
     def _update_dynamic_fields(self):
         self._populate_variants()
@@ -2111,37 +2573,45 @@ class PipelineGUI(SettingsDialogMixin):
         self._update_heating_detail_fields()
         self._update_variant_field()
         self._update_room_field()
+        self._refresh_overlay_catalog()
         self._refresh_step_indicators()
+        self._update_step_summaries()
 
     def _update_step_visibility(self):
         selected_command = self.command.get()
+        no_command = not selected_command
         is_prepare = selected_command == "prepare"
         show_subcommands = selected_command in {"comfort", "heating", "cooling"}
         load_without_subcommand = selected_command in {"heating", "cooling"} and self.load_subcommand.get() not in {
             "bar",
             "timeline",
         }
-        hide_options_step = selected_command in {"prepare", "all"} or load_without_subcommand
+        hide_options_step = no_command or selected_command in {"prepare", "all"} or load_without_subcommand
+        show_overlays = selected_command == "plot-template"
         self._set_card_visible(self.subcommand_card, show_subcommands)
         self._set_card_visible(self.prepare_export_card, is_prepare)
         self._set_card_visible(self.step_3_card, not hide_options_step)
+        self._set_card_visible(self.overlay_card, show_overlays)
         self._set_card_visible(self.step_4_card, True)
         self._set_card_visible(self.step_5_card, not is_prepare)
 
     def _set_card_visible(self, card, visible):
-        is_visible = card.winfo_manager() == "pack"
-        if visible and not is_visible:
+        card.step_available = visible
+        nav_visible = card.step_nav.winfo_manager() == "pack"
+        if visible and not nav_visible:
             self._show_step_card_in_order(card)
-        elif not visible and is_visible:
+        elif not visible and nav_visible:
+            card.step_nav.pack_forget()
+        if not visible and card.winfo_manager() == "pack":
             card.pack_forget()
 
     def _show_step_card_in_order(self, card):
         card_index = self.step_card_order.index(card)
         for next_card in self.step_card_order[card_index + 1 :]:
-            if next_card.winfo_manager() == "pack":
-                card.pack(fill=tk.X, pady=6, before=next_card)
+            if next_card.step_nav.winfo_manager() == "pack":
+                card.step_nav.pack(fill=tk.X, pady=6, before=next_card.step_nav)
                 return
-        card.pack(fill=tk.X, pady=6)
+        card.step_nav.pack(fill=tk.X, pady=6)
 
     def _update_scope_buttons(self):
         for scope, button in self.scope_buttons.items():
@@ -2230,9 +2700,12 @@ class PipelineGUI(SettingsDialogMixin):
                 text="Excel dient aktuell nur der uebersichtlicheren Darstellung. Die Folgeskripte verwenden weiterhin CSV-Dateien."
             )
             return
-        self.prepare_export_note.configure(
-            text="CSV + Excel erzeugt operative CSV-Dateien fuer die Pipeline und zusaetzlich XLSX-Dateien zur Ansicht."
-        )
+        if selected_format == "both":
+            self.prepare_export_note.configure(
+                text="CSV + Excel erzeugt operative CSV-Dateien fuer die Pipeline und zusaetzlich XLSX-Dateien zur Ansicht."
+            )
+            return
+        self.prepare_export_note.configure(text="Bitte waehlen Sie ein Exportformat.")
 
     def _update_subcommand_dependent_fields(self):
         selected_command = self.command.get()
@@ -2272,8 +2745,12 @@ class PipelineGUI(SettingsDialogMixin):
             self.heating_layout_section,
             self.analysis_section,
             self.heating_view_section,
+            self.plot_template_section,
         ]:
             section.pack_forget()
+
+        if not selected_command:
+            return
 
         if all_active:
             return
@@ -2299,6 +2776,10 @@ class PipelineGUI(SettingsDialogMixin):
             )
             return
 
+        if selected_command == "plot-template":
+            self.plot_template_section.pack(fill=tk.X)
+            return
+
         if comfort_active:
             self.analysis_section.pack(fill=tk.X)
             return
@@ -2322,8 +2803,12 @@ class PipelineGUI(SettingsDialogMixin):
             self.comfort_allowed_by_level["Analyse Raum"],
         )
 
-        if self.command.get() == "comfort" and self.comfort_type.get() not in allowed_values:
-            self.comfort_type.set(self.comfort_default_by_level[self.analysis_level.get()])
+        if (
+            self.command.get() == "comfort"
+            and self.comfort_type.get()
+            and self.comfort_type.get() not in allowed_values
+        ):
+            self.comfort_type.set("")
 
         disabled_values = {value for value in self.comfort_type_widgets if value not in allowed_values}
         self._update_selection_button_group(
@@ -2344,6 +2829,10 @@ class PipelineGUI(SettingsDialogMixin):
         self.heating_day_combo.configure(values=valid_days)
         if self.heating_day.get() not in valid_days:
             self.heating_day.set(valid_days[0])
+
+        if not selected_view:
+            self.heating_view_note.configure(text="Bitte waehlen Sie eine Zeitansicht.")
+            return
 
         if selected_view == "month":
             self.heating_view_note.configure(
@@ -2396,6 +2885,13 @@ class PipelineGUI(SettingsDialogMixin):
             self.last_variant_scope = scope
             return
 
+        if not scope:
+            self.variants_listbox.selection_clear(0, tk.END)
+            self._update_variant_note_state(scope)
+            self.last_variant_scope = scope
+            return
+
+        self.variants_listbox.selection_clear(0, tk.END)
         self.variants_listbox.selection_set(0, tk.END)
         self.variants_listbox.configure(state=tk.DISABLED)
         self._update_variant_note_state(scope)
@@ -2403,6 +2899,10 @@ class PipelineGUI(SettingsDialogMixin):
 
     def _update_variant_note_state(self, scope):
         if not self.variant_names:
+            return
+
+        if not scope:
+            self.variant_note.configure(text="Bitte waehlen Sie zuerst den Analyseumfang.")
             return
 
         if self.command.get() == "prepare":
@@ -2464,11 +2964,19 @@ class PipelineGUI(SettingsDialogMixin):
         )
 
     def _update_room_field(self):
+        if self.command.get() == "plot-template":
+            self.rooms_listbox.configure(state=tk.NORMAL, selectmode=tk.BROWSE)
+            self._set_step_5_enabled(True)
+            if not self.rooms_listbox.curselection():
+                self.room_note.configure(text="Fuer plot-template ist aktuell kein Raum ausgewaehlt.")
+                return
+            self.room_note.configure(text="plot-template nutzt genau einen Raum fuer die Diagrammvorlage.")
+            return
+
         if self.command.get() in {"heating", "cooling", "analyze_data", "all"}:
             self.rooms_listbox.configure(state=tk.NORMAL, selectmode=tk.MULTIPLE)
             self._set_step_5_enabled(True)
             if self.command.get() == "all":
-                self._select_all_rooms()
                 self._update_room_note_state("All")
                 return
             self._update_room_note_state(
@@ -2495,7 +3003,7 @@ class PipelineGUI(SettingsDialogMixin):
     def _set_step_5_enabled(self, enabled):
         card_bg = self.color_panel if enabled else self.color_panel_light
         header_bg = self.color_panel if enabled else self.color_panel_light
-        number_bg = self.color_blue if enabled else self.color_border
+        number_bg = self.color_border
         listbox_bg = self.color_panel_light if enabled else self.color_panel
         listbox_fg = self.color_text if enabled else self.color_muted
         highlight_color = self.color_blue if enabled else self.color_border
@@ -2589,29 +3097,169 @@ class PipelineGUI(SettingsDialogMixin):
             text="Analyse Variante ist aktiv. Waehlen Sie die Raeume bewusst aus; es wird nichts automatisch uebernommen."
         )
 
+    def _handle_variant_selection_changed(self):
+        if self.command.get() == "plot-template":
+            self._update_variant_note_state(self.analysis_scope.get())
+        else:
+            self._update_variant_note_state(self.analysis_scope.get())
+        self._refresh_overlay_catalog()
+        self._update_step_summaries()
+
+    def _handle_room_selection_changed(self):
+        if self.command.get() == "plot-template":
+            self.room_note.configure(text="plot-template nutzt genau einen Raum fuer die Diagrammvorlage.")
+        else:
+            self._update_room_note_state(self.analysis_level.get())
+        self._refresh_overlay_catalog()
+        self._update_step_summaries()
+
+    def _refresh_overlay_catalog(self):
+        if self.command.get() != "plot-template" or not hasattr(self, "overlay_column_combo"):
+            return
+
+        variant_name = None
+        if self.variant_names:
+            selected_indices = self.variants_listbox.curselection()
+            if selected_indices:
+                variant_name = self.variant_names[selected_indices[0]]
+
+        room_name = None
+        if self.rooms_listbox.size() > 0:
+            selected_room_indices = self.rooms_listbox.curselection()
+            if selected_room_indices:
+                room_name = self.rooms_listbox.get(selected_room_indices[0])
+
+        if not variant_name or not room_name:
+            self.overlay_catalog = {"csv": [], "aux": []}
+            self._refresh_overlay_column_options()
+            return
+
+        try:
+            self.overlay_catalog = list_heating_year_overlay_sources(
+                self.args.datenbank_dir,
+                self.args.input_dir,
+                variant_name,
+                room_name,
+                outdoor_column=self.plot_outdoor_column.get() or DEFAULT_OUTDOOR_COLUMN,
+            )
+        except Exception:
+            self.overlay_catalog = {"csv": [], "aux": []}
+        self._refresh_overlay_column_options()
+
+    def _refresh_overlay_column_options(self):
+        if not hasattr(self, "overlay_column_combo"):
+            return
+        source = self.overlay_source.get()
+        columns = self.overlay_catalog.get(source, [])
+        self.overlay_column_combo.configure(values=columns)
+        if columns and self.overlay_column.get() not in columns:
+            self.overlay_column.set(columns[0])
+            self._prefill_overlay_label()
+        elif not columns:
+            self.overlay_column.set("")
+
+    def _prefill_overlay_label(self):
+        if not self.overlay_label.get().strip():
+            self.overlay_label.set(self.overlay_column.get())
+
+    def _add_free_overlay_line(self):
+        source = self.overlay_source.get()
+        column = self.overlay_column.get().strip()
+        axis = self.overlay_axis.get()
+        label = self.overlay_label.get().strip() or column
+        if source not in {"csv", "aux"} or axis not in {"heat", "temperature"} or not column:
+            messagebox.showwarning("Warnung", "Bitte waehlen Sie Quelle, Spalte und Achse fuer die Datenlinie.")
+            return
+        if column not in self.overlay_catalog.get(source, []):
+            messagebox.showwarning("Warnung", "Die gewaehlte Spalte ist fuer Variante/Raum aktuell nicht verfuegbar.")
+            return
+        if any(
+            line["source"] == source and line["column"] == column and line["axis"] == axis
+            for line in self.free_overlay_lines
+        ):
+            messagebox.showwarning("Warnung", "Diese Datenlinie ist bereits hinzugefuegt.")
+            return
+
+        self.free_overlay_lines.append(
+            {
+                "source": source,
+                "column": column,
+                "label": label,
+                "axis": axis,
+                "enabled": True,
+            }
+        )
+        self.overlay_label.set("")
+        self._sync_free_overlay_listbox()
+        self._update_step_summaries()
+
+    def _remove_selected_free_overlay_line(self):
+        if not hasattr(self, "overlay_lines_listbox"):
+            return
+        selection = self.overlay_lines_listbox.curselection()
+        if not selection:
+            return
+        del self.free_overlay_lines[selection[0]]
+        self._sync_free_overlay_listbox()
+        self._update_step_summaries()
+
+    def _sync_free_overlay_listbox(self):
+        if not hasattr(self, "overlay_lines_listbox"):
+            return
+        self.overlay_lines_listbox.delete(0, tk.END)
+        for line in self.free_overlay_lines:
+            axis_label = "Temperatur [°C]" if line["axis"] == "temperature" else "Leistung [W]"
+            self.overlay_lines_listbox.insert(
+                tk.END,
+                f"{line['label']}  |  {line['source']}:{line['column']}  |  {axis_label}",
+            )
+
     def _reset_fields(self):
-        self.analysis_scope.set("Alle Varianten")
-        self.command.set("comfort")
-        self.prepare_export_format.set("csv")
-        self.comfort_type.set("plot")
-        self.analysis_level.set("Analyse Raum")
+        self.analysis_scope.set("")
+        self.command.set("")
+        self.prepare_export_format.set("")
+        self.comfort_type.set("")
+        self.analysis_level.set("")
         self.load_subcommand.set("")
-        self.heating_mode.set("single")
-        self.heating_view.set("year")
-        self.heating_series_layout.set("separate")
+        self.heating_mode.set("")
+        self.heating_view.set("")
+        self.heating_series_layout.set("")
         self.heating_month.set(MONTH_NAMES[0])
         self.heating_week.set("1")
         self.heating_day.set("1")
+        self.plot_template.set(HEATING_YEAR_TEMPLATE)
+        self.plot_setpoint_min.set(str(self.plot_template_defaults.get("setpoint_min", DEFAULT_SETPOINT_MIN)))
+        self.plot_setpoint_max.set(str(self.plot_template_defaults.get("setpoint_max", DEFAULT_SETPOINT_MAX)))
+        self.plot_temperature_ymin.set(
+            str(self.plot_template_defaults.get("temperature_ymin", DEFAULT_TEMPERATURE_YMIN))
+        )
+        self.plot_temperature_ymax.set(
+            str(self.plot_template_defaults.get("temperature_ymax", DEFAULT_TEMPERATURE_YMAX))
+        )
+        self.plot_outdoor_column.set(self.plot_template_defaults.get("outdoor_column", DEFAULT_OUTDOOR_COLUMN))
+        self.plot_show_setpoint_band.set(False)
+        self.plot_show_outdoor_temperature.set(False)
+        self.plot_show_operative_temperature.set(False)
+        self.overlay_source.set("")
+        self.overlay_column.set("")
+        self.overlay_label.set("")
+        self.overlay_axis.set("")
+        self.free_overlay_lines = []
 
-        self.selected_comfort_type = "plot"
-        self.selected_prepare_export_format = "csv"
+        self.variants_listbox.selection_clear(0, tk.END)
+        self.rooms_listbox.selection_clear(0, tk.END)
+
+        self.selected_comfort_type = ""
+        self.selected_prepare_export_format = ""
         self.selected_load_subcommand = ""
-        self.selected_heating_mode = "single"
-        self.selected_heating_view = "year"
-        self.selected_heating_series_layout = "separate"
+        self.selected_heating_mode = ""
+        self.selected_heating_view = ""
+        self.selected_heating_series_layout = ""
         self.selected_month = MONTH_NAMES[0]
         self.selected_week = 1
         self.selected_day = 1
+        self.selected_plot_template_options = {}
+        self._sync_free_overlay_listbox()
 
         self._update_dynamic_fields()
 
@@ -2653,18 +3301,77 @@ class PipelineGUI(SettingsDialogMixin):
             return None
         return day_value
 
+    def _parse_float_option(self, raw_value, label):
+        raw_value = raw_value.strip()
+        if not raw_value:
+            messagebox.showwarning("Warnung", f"Bitte geben Sie einen Wert fuer {label} ein.")
+            return None
+        try:
+            return float(raw_value.replace(",", "."))
+        except ValueError:
+            messagebox.showwarning("Warnung", f"{label} muss eine Zahl sein.")
+            return None
+
+    def _get_plot_template_options(self, variants, rooms):
+        if self.plot_show_setpoint_band.get():
+            setpoint_min = self._parse_float_option(self.plot_setpoint_min.get(), "Sollwert min")
+            if setpoint_min is None:
+                return None
+            setpoint_max = self._parse_float_option(self.plot_setpoint_max.get(), "Sollwert max")
+            if setpoint_max is None:
+                return None
+        else:
+            setpoint_min = self.plot_template_defaults.get("setpoint_min", DEFAULT_SETPOINT_MIN)
+            setpoint_max = self.plot_template_defaults.get("setpoint_max", DEFAULT_SETPOINT_MAX)
+        temperature_ymin = self._parse_float_option(self.plot_temperature_ymin.get(), "Temp.-Achse min")
+        if temperature_ymin is None:
+            return None
+        temperature_ymax = self._parse_float_option(self.plot_temperature_ymax.get(), "Temp.-Achse max")
+        if temperature_ymax is None:
+            return None
+
+        options = {
+            "template": self.plot_template.get(),
+            "setpoint_min": setpoint_min,
+            "setpoint_max": setpoint_max,
+            "temperature_ymin": temperature_ymin,
+            "temperature_ymax": temperature_ymax,
+            "outdoor_column": self.plot_outdoor_column.get().strip() or DEFAULT_OUTDOOR_COLUMN,
+            "show_setpoint_band": self.plot_show_setpoint_band.get(),
+            "show_outdoor_temperature": self.plot_show_outdoor_temperature.get(),
+            "show_operative_temperature": self.plot_show_operative_temperature.get(),
+            "overlay_lines": [line.copy() for line in self.free_overlay_lines],
+        }
+        errors = validate_template_request(
+            options["template"],
+            variants,
+            rooms,
+            options["setpoint_min"],
+            options["setpoint_max"],
+            options["temperature_ymin"],
+            options["temperature_ymax"],
+            validate_setpoint_band=options["show_setpoint_band"],
+        )
+        if errors:
+            messagebox.showwarning("Warnung", "\n".join(errors))
+            return None
+        return options
+
     def _get_selected_variants(self):
         if not self.variant_names:
             return []
         if self.analysis_scope.get() == "Alle Varianten":
             return self.variant_names.copy()
+        if self.command.get() == "plot-template":
+            selected_indices = self.variants_listbox.curselection()
+            return [self.variant_names[index] for index in selected_indices]
         selected_indices = self.variants_listbox.curselection()
         return [self.variant_names[index] for index in selected_indices]
 
     def _get_selected_rooms(self):
         if self.command.get() == "prepare":
             return ROOMS.copy()
-        if self.command.get() in {"heating", "cooling", "analyze_data", "all"}:
+        if self.command.get() in {"heating", "cooling", "analyze_data", "all", "plot-template"}:
             selected_indices = self.rooms_listbox.curselection()
             return [self.rooms_listbox.get(index) for index in selected_indices]
         if self.analysis_level.get() == "Analyse Variante":
@@ -2684,6 +3391,30 @@ class PipelineGUI(SettingsDialogMixin):
             return
 
         selected_command = self.command.get()
+        if not selected_command:
+            messagebox.showwarning("Warnung", "Bitte waehlen Sie einen gueltigen Befehl.")
+            return
+
+        if selected_command == "prepare" and not self.prepare_export_format.get():
+            messagebox.showwarning("Warnung", "Bitte waehlen Sie ein Exportformat.")
+            return
+
+        if selected_command == "comfort":
+            if not self.analysis_level.get():
+                messagebox.showwarning("Warnung", "Bitte waehlen Sie eine Analyseebene.")
+                return
+            if not self.comfort_type.get():
+                messagebox.showwarning("Warnung", "Bitte waehlen Sie einen Comfort-Unterbefehl.")
+                return
+
+        if selected_command == "analyze_data" and not self.heating_series_layout.get():
+            messagebox.showwarning("Warnung", "Bitte waehlen Sie eine Excel-Ausgabe.")
+            return
+
+        if not self.analysis_scope.get():
+            messagebox.showwarning("Warnung", "Bitte waehlen Sie den Analyseumfang.")
+            return
+
         if selected_command == "comfort":
             comfort_settings = get_comfort_output_settings(self.comfort_type.get())
             steps = comfort_settings["steps"]
@@ -2703,14 +3434,32 @@ class PipelineGUI(SettingsDialogMixin):
             return
         selected_week = None
         selected_day = None
+        plot_template_options = {}
+        if selected_command == "plot-template":
+            plot_template_options = self._get_plot_template_options(variants, rooms)
+            if plot_template_options is None:
+                return
         if selected_command in {"heating", "cooling"} and self.load_subcommand.get() not in {"bar", "timeline"}:
             messagebox.showwarning("Warnung", "Bitte waehlen Sie den Unterbefehl bar oder timeline.")
+            return
+        if selected_command in {"heating", "cooling"} and not self.heating_mode.get():
+            messagebox.showwarning("Warnung", "Bitte waehlen Sie den Vergleichsmodus.")
+            return
+        if (
+            selected_command in {"heating", "cooling"}
+            and self.heating_mode.get() == "compare"
+            and not self.heating_series_layout.get()
+        ):
+            messagebox.showwarning("Warnung", "Bitte waehlen Sie die Diagrammausgabe.")
             return
 
         uses_load_detail_options = (
             selected_command in {"heating", "cooling"} and self.load_subcommand.get() == "timeline"
         )
         if uses_load_detail_options:
+            if self.heating_view.get() not in {"year", "month", "week", "day"}:
+                messagebox.showwarning("Warnung", "Bitte waehlen Sie eine Zeitansicht.")
+                return
             if self.heating_view.get() in {"month", "day"} and self.heating_month.get() not in MONTH_NAMES:
                 messagebox.showwarning("Warnung", "Bitte waehlen Sie einen gueltigen Monat.")
                 return
@@ -2744,6 +3493,7 @@ class PipelineGUI(SettingsDialogMixin):
         self.selected_week = selected_week if selected_week is not None else 1
         self.selected_day = selected_day if selected_day is not None else int(self.heating_day.get())
         self.selected_comfort_type = self.comfort_type.get()
+        self.selected_plot_template_options = plot_template_options
         comfort_options = {}
         if selected_command == "comfort":
             comfort_options = get_comfort_output_settings(self.selected_comfort_type)
@@ -2779,6 +3529,7 @@ class PipelineGUI(SettingsDialogMixin):
                 prepare_options,
                 comfort_options,
                 heating_options,
+                plot_template_options,
             ),
             daemon=True,
         )
@@ -2816,4 +3567,5 @@ def run_gui_menu(args):
         prepare_options,
         comfort_options,
         heating_options,
+        gui.selected_plot_template_options,
     )

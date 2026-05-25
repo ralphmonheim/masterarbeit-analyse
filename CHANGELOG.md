@@ -2,6 +2,39 @@
 
 Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentiert.
 
+## 0.2.2 - 2026-05-25
+
+### Added
+- CLI-Befehl `plot-template` fuer manuell anpassbare Diagramm-Vorlagen ergaenzt.
+- Erste Vorlage `heating-year` fuer eine oder mehrere Varianten und genau einen Raum eingefuehrt.
+- Neues Modul `analysis/templates/` fuer Plot-Templates und Overlay-Logik ergaenzt.
+- Plot-Template-Defaults ueber `settings/plot_templates.toml` und Loader `settings.plot_templates` konfigurierbar gemacht.
+- Heating-Year-Template um Aussenlufttemperatur, operative Temperatur, Sollwertband und freie Overlay-Linien aus Raum-CSV oder `REPORT-AUX.prn` erweitert.
+- GUI um die Schritte `Template` und `Ueberlagerungen` fuer Plot-Templates ergaenzt.
+- Rechten GUI-Bereich um einen `summary`-Kasten fuer abgeschlossene vorherige Schritte erweitert.
+- Unteren GUI-Bereich um einen `log`-Button neben `settings` erweitert, der die bestehende Protokollansicht oeffnet oder ein laufendes Analyse-Logfenster fokussiert.
+- Tests fuer Plot-Template-Validierung, PRN-Stundenaggregation, Overlay-Kataloge, freie Overlays, TOML-Defaults, CLI-Optionen und Logging ergaenzt.
+
+### Changed
+- GUI im Wizard-Stil ueberarbeitet: linke Schritt-Navigation, rechter Inhaltsbereich und getrennte Kaesten fuer `summary` und aktuellen Schritt.
+- GUI startet ohne vorausgewaehlte sichtbare Auswahl; Pflichtauswahlen werden erst beim Start validiert.
+- Aktiver GUI-Schritt wird mit kleinem Punkt markiert, ohne blaue Flaechenmarkierung.
+- Nach Auswahl eines Befehls springt die GUI automatisch zum naechsten sichtbaren Schritt.
+- Automatisches Weitergehen auf weitere Einzelauswahl-Schritte erweitert; bei mehrteiligen Optionen wartet die GUI bis die Pflichtauswahl vollstaendig ist.
+- Drei-Punkte-Menue aus der Titelleiste entfernt; Tools-Menue wird ueber `settings` geoeffnet.
+- Rechte GUI-Scrollbar wird nur eingeblendet und per Mausrad genutzt, wenn der rechte Inhalt ueber das sichtbare Feld hinausgeht.
+- Temperaturachsen-Eingaben in den Schritt `Ueberlagerungen` verschoben.
+- `plot-template` kann nun mehrere Varianten aus der GUI-/CLI-Auswahl verarbeiten und erzeugt pro Variante ein eigenes Template-PNG.
+- Heating-Year-Plot-Layout verfeinert: X-Achse naeher am Zeitstrahl, Abstand zur Monatsbeschriftung auf ca. 5 mm gesetzt und Abstand zwischen Zeitstrahl-Beschriftung und `Stunden [h]` auf ca. 3 mm reduziert.
+- Positionen von Legende und `Stunden [h]` im Heating-Year-Plot getauscht.
+- Jahres-Zeitstrahl trennt Grid-Markierungen oberhalb der Hauptlinie von 1000er-Stundenticks unterhalb der Hauptlinie.
+- `plot-template` in die Laufprotokollierung aufgenommen.
+
+### Docs
+- `README.md`, `docs/commands.md` und `docs/architecture.md` um `plot-template`, Plot-Template-Config und Setup-/Start-Hinweise erweitert.
+- `*.toml` als Package-Daten fuer `ma_analyse.settings` aufgenommen.
+- Pytest-Testpfad in `pyproject.toml` dokumentiert.
+
 ## 0.2.1 - 2026-05-25
 
 ### Changed

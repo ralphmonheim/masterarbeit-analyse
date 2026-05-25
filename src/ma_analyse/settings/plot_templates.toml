@@ -1,0 +1,26 @@
+[heating_year]
+setpoint_min = 21.0
+setpoint_max = 26.0
+temperature_ymin = -20.0
+temperature_ymax = 40.0
+show_setpoint_band = true
+show_outdoor_temperature = true
+show_operative_temperature = true
+outdoor_column = "tair"
+
+[[heating_year.default_overlays]]
+id = "outdoor_temperature"
+label = "Außenlufttemperatur"
+source = "aux"
+column = "tair"
+axis = "temperature"
+enabled = true
+
+[[heating_year.default_overlays]]
+id = "operative_temperature"
+label = "Operative Temperatur"
+source = "csv"
+column = "temperatures_top"
+fallback_columns = ["local_de_comf_diag_t_top"]
+axis = "temperature"
+enabled = true

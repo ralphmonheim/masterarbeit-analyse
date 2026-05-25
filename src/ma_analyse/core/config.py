@@ -12,6 +12,7 @@ SETTINGS_DIR = PACKAGE_DIR / "settings"
 COMMAND_DOC = DOCS_DIR / "commands.md"
 NAMING_DOC = SETTINGS_DIR / "naming.md"
 OUTPUT_FORMATS_DOC = SETTINGS_DIR / "output_formats.md"
+PLOT_TEMPLATES_CONFIG = SETTINGS_DIR / "plot_templates.toml"
 
 INPUT_DIR = "data/input"
 DATENBANK_DIR = "data/database"

@@ -12,7 +12,16 @@ from typing import TextIO
 
 from .config import LOG_DIR
 
-LOGGED_COMMANDS = {"prepare", "comfort", "analyze-data", "analyze_data", "heating", "cooling", "all"}
+LOGGED_COMMANDS = {
+    "prepare",
+    "comfort",
+    "analyze-data",
+    "analyze_data",
+    "heating",
+    "cooling",
+    "plot-template",
+    "all",
+}
 
 
 class TeeStream:

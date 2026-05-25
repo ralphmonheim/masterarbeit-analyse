@@ -6,8 +6,20 @@ import argparse
 import sys
 
 from ..analysis.components.time_windows import MONTH_NAMES
-from ..core.config import DATENBANK_DIR, EXPORT_FORMATS, INPUT_DIR, OUTPUT_DIR, ROOMS
+from ..analysis.templates import (
+    DEFAULT_OUTDOOR_COLUMN,
+    DEFAULT_SETPOINT_MAX,
+    DEFAULT_SETPOINT_MIN,
+    DEFAULT_SHOW_OPERATIVE_TEMPERATURE,
+    DEFAULT_SHOW_OUTDOOR_TEMPERATURE,
+    DEFAULT_SHOW_SETPOINT_BAND,
+    DEFAULT_TEMPERATURE_YMAX,
+    DEFAULT_TEMPERATURE_YMIN,
+    HEATING_YEAR_TEMPLATE,
+)
+from ..core.config import DATENBANK_DIR, EXPORT_FORMATS, INPUT_DIR, OUTPUT_DIR, ROOMS, TEST_OUTPUT_DIR
 from ..core.logging import command_log, should_log_command
+from ..settings.plot_templates import get_heating_year_template_defaults
 from .commands import dispatch_command, get_comfort_output_settings
 
 
@@ -40,6 +52,68 @@ def normalize_rooms(selected_rooms):
     print(f"X Ungueltige Raeume: {selected_rooms}")
     print(f"  Verfuegbare Raeume: {ROOMS}")
     raise SystemExit(1)
+
+
+def add_plot_template_arguments(parser, hide_help=False):
+    """Ergaenzt Argumente fuer den Plot-Template-Befehl."""
+    help_value = argparse.SUPPRESS if hide_help else None
+    template_defaults = get_heating_year_template_defaults()
+    parser.add_argument(
+        "--template",
+        choices=[HEATING_YEAR_TEMPLATE],
+        default=HEATING_YEAR_TEMPLATE,
+        help=help_value or "Diagrammvorlage, aktuell: heating-year",
+    )
+    parser.add_argument(
+        "--setpoint-min",
+        type=float,
+        default=template_defaults.get("setpoint_min", DEFAULT_SETPOINT_MIN),
+        help=help_value or "Untere Grenze des Sollwertbands in Grad Celsius",
+    )
+    parser.add_argument(
+        "--setpoint-max",
+        type=float,
+        default=template_defaults.get("setpoint_max", DEFAULT_SETPOINT_MAX),
+        help=help_value or "Obere Grenze des Sollwertbands in Grad Celsius",
+    )
+    parser.add_argument(
+        "--temperature-ymin",
+        type=float,
+        default=template_defaults.get("temperature_ymin", DEFAULT_TEMPERATURE_YMIN),
+        help=help_value or "Untere Grenze der Temperaturachse",
+    )
+    parser.add_argument(
+        "--temperature-ymax",
+        type=float,
+        default=template_defaults.get("temperature_ymax", DEFAULT_TEMPERATURE_YMAX),
+        help=help_value or "Obere Grenze der Temperaturachse",
+    )
+    parser.add_argument(
+        "--outdoor-column",
+        default=template_defaults.get("outdoor_column", DEFAULT_OUTDOOR_COLUMN),
+        help=help_value or "Spalte aus REPORT-AUX.prn fuer die Aussenlufttemperatur",
+    )
+    parser.add_argument(
+        "--no-setpoint-band",
+        dest="show_setpoint_band",
+        action="store_false",
+        default=template_defaults.get("show_setpoint_band", DEFAULT_SHOW_SETPOINT_BAND),
+        help=help_value or "Sollwertband im Plot-Template ausblenden",
+    )
+    parser.add_argument(
+        "--no-outdoor-temperature",
+        dest="show_outdoor_temperature",
+        action="store_false",
+        default=template_defaults.get("show_outdoor_temperature", DEFAULT_SHOW_OUTDOOR_TEMPERATURE),
+        help=help_value or "Aussenlufttemperatur im Plot-Template ausblenden",
+    )
+    parser.add_argument(
+        "--no-operative-temperature",
+        dest="show_operative_temperature",
+        action="store_false",
+        default=template_defaults.get("show_operative_temperature", DEFAULT_SHOW_OPERATIVE_TEMPERATURE),
+        help=help_value or "Operative Temperatur im Plot-Template ausblenden",
+    )
 
 
 def build_parser():
@@ -210,6 +284,14 @@ def build_parser():
     )
     cooling_parser.set_defaults(debug=True)
 
+    plot_template_parser = subparsers.add_parser(
+        "plot-template",
+        parents=[common],
+        help="Erstellt manuell anpassbare Diagramm-Vorlagen",
+    )
+    add_plot_template_arguments(plot_template_parser)
+    plot_template_parser.set_defaults(debug=True, output_root=TEST_OUTPUT_DIR)
+
     gui_parser = subparsers.add_parser(
         "gui",
         parents=[common],
@@ -221,6 +303,7 @@ def build_parser():
         default="csv",
         help="Startwert fuer das Prepare-Exportformat in der GUI",
     )
+    add_plot_template_arguments(gui_parser, hide_help=True)
     gui_parser.set_defaults(debug=True)
 
     all_parser = subparsers.add_parser(
@@ -240,6 +323,7 @@ def main():
     raw_argv = sys.argv[1:]
     args.variant_mode_explicit = has_cli_option(raw_argv, "--heating-mode", "--variant-mode")
     args.series_layout_explicit = has_cli_option(raw_argv, "--heating-series-layout", "--series-layout")
+    args.output_root_explicit = has_cli_option(raw_argv, "--output-root")
 
     args.rooms = normalize_rooms(args.rooms)
 
@@ -255,6 +339,7 @@ def main():
 
 __all__ = [
     "build_parser",
+    "add_plot_template_arguments",
     "get_comfort_output_settings",
     "has_cli_option",
     "main",

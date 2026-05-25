@@ -21,6 +21,7 @@
 | `analysis/excel.py` | Ablauf fuer Kennzahlen- und Excel-Berichte |
 | `analysis/heating.py` | Ablauf fuer Heizlast-Zeitreihen und Vergleichsplots |
 | `analysis/cooling.py` | Ablauf fuer Kuehllast-Zeitreihen und Vergleichsplots |
+| `analysis/templates/` | Manuell anpassbare Diagramm-Vorlagen fuer Plot-Experimente |
 | `analysis/comfort/` | Comfort-Ablauf, Datenladen, Zonen, Tabellen und Plotmodule |
 | `analysis/components/` | gemeinsame Analyse-Komponenten fuer Raeume, Varianten, Zeitfenster, Laufordner und Figures |
 | `analysis/energy/` | gemeinsame Ausgabe-, Zeit- und Dateinamenlogik fuer Heating und Cooling |
@@ -28,6 +29,7 @@
 | `gui/` | Grafische Oberflaeche, Dialoge, GUI-Worker und Singleton-Steuerung |
 | `settings.naming` | Namensmapping lesen und anwenden; Dokument liegt daneben als `naming.md` |
 | `settings.formats` | Ausgabeformate lesen und bereitstellen; Dokument liegt daneben als `output_formats.md` |
+| `settings.plot_templates` | Plot-Template-Defaults aus `plot_templates.toml` lesen |
 
 ## Naechste Modularisierung
 
