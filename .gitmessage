@@ -1,0 +1,22 @@
+Release x.x.x - Zusammenfassung der Version
+
+Kurzbeschreibung (eine Zeile):
+- Ein bis zwei Sätze, was diese Version liefert.
+
+Ausführliche Notizen (optional):
+- Added: Kurze Liste neuer Funktionen
+- Changed: Wichtige Änderungen
+- Fixed: Behobene Fehler
+- Docs: Aktualisierte Dokumentation
+
+Beispiel:
+Release 0.3.2 - Beispiele und Dokumentationsgalerie
+
+Added:
+- Neuer CLI-Befehl `plot-template-examples` zum Erzeugen der Beispielgalerie.
+Changed:
+- Version erhöht auf 0.3.2.
+
+Hinweis: Um dieses Template lokal zu aktivieren, führe aus:
+
+    git config commit.template .gitmessage
