@@ -1,0 +1,47 @@
+generic_system_costs:
+  - system_type: heating
+    display_name: Generisches Heizsystem
+    investment_cost_eur: 42000
+    maintenance_cost_eur_per_year: 950
+    lifetime_years: 20
+    is_example_value: true
+
+  - system_type: cooling
+    display_name: Generisches Kuehlsystem
+    investment_cost_eur: 26000
+    maintenance_cost_eur_per_year: 720
+    lifetime_years: 18
+    is_example_value: true
+
+  - system_type: pv
+    display_name: Generische PV-Anlage
+    investment_cost_eur: 21000
+    maintenance_cost_eur_per_year: 260
+    lifetime_years: 25
+    is_example_value: true
+
+  - system_type: ventilation
+    display_name: Generische Lueftungsanlage
+    investment_cost_eur: 31000
+    maintenance_cost_eur_per_year: 1100
+    lifetime_years: 20
+    is_example_value: true
+
+energy_prices:
+  - energy_carrier: heating_energy
+    price_eur_per_kwh: 0.18
+    is_example_value: true
+
+  - energy_carrier: cooling_energy
+    price_eur_per_kwh: 0.24
+    is_example_value: true
+
+economic_scenarios:
+  - scenario_key: example_20y
+    display_name: Beispiel 20 Jahre
+    observation_period_years: 20
+    heating_energy_carrier: heating_energy
+    cooling_energy_carrier: cooling_energy
+    default_heating_energy_kwh_per_year: 12000
+    default_cooling_energy_kwh_per_year: 3500
+    is_example_value: true

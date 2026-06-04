@@ -1,0 +1,45 @@
+option_sets:
+  - option_set_key: heating_capacity_factors
+    display_name: Heizleistungsfaktoren
+    description: Kleine Beispielstufen fuer die Heizleistungsdimensionierung.
+    values:
+      - option_key: heating_capacity_100
+        label: 100 Prozent
+        value: 100
+        unit: "%"
+        is_active: true
+      - option_key: heating_capacity_80
+        label: 80 Prozent
+        value: 80
+        unit: "%"
+        is_active: true
+
+  - option_set_key: ventilation_control_modes
+    display_name: Lueftungsregelungen
+    description: Kleine Beispielauswahl fuer Lueftungsstrategien.
+    values:
+      - option_key: ventilation_co2
+        label: CO2 geregelt
+        value: co2
+        unit: "-"
+        is_active: true
+      - option_key: ventilation_temperature
+        label: Temperatur geregelt
+        value: temperature
+        unit: "-"
+        is_active: true
+
+  - option_set_key: cooling_setpoint_levels
+    display_name: Kuehlsollwert-Niveaus
+    description: Kleine Beispielauswahl fuer operative Kuehlsollwerte.
+    values:
+      - option_key: cooling_setpoint_24
+        label: 24 Grad Celsius
+        value: 24
+        unit: "degC"
+        is_active: true
+      - option_key: cooling_setpoint_26
+        label: 26 Grad Celsius
+        value: 26
+        unit: "degC"
+        is_active: true

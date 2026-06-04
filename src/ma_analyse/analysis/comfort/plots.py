@@ -16,13 +16,25 @@ from ..components.figures import get_figure_size_inches
 from ..components.rooms import get_room_data_file
 from ..components.runtime import annotate_timestamp
 from ..components.variants import get_variant_display_name
+from ..settings.plot_templates import get_plot_template_defaults
 from .data import load_room_csv
 from .zones import COMFORT_HIGH, COMFORT_NORMAL
+
+
+def _get_comfort_plot_style(template: str) -> dict[str, object]:
+    return get_plot_template_defaults(template)
 
 
 def create_scatter_plot(room_data, room_name, ax):
     """Zeichnet einen Comfort-Scatterplot mit Komfortzonen in eine Achse."""
     """Erstellt Scatterplot für einen Raum mit Komfortzonen."""
+    style = _get_comfort_plot_style("comfort-plot")
+    title_fontsize = style.get("title_fontsize", 11)
+    title_fontweight = style.get("title_fontweight", "bold")
+    label_fontsize = style.get("label_fontsize", 9)
+    xlabel = style.get("xlabel", "Operative Temperatur (°C)")
+    ylabel = style.get("ylabel", "Relative Raumluftfeuchte (%)")
+
     if room_data is None or room_data.empty:
         ax.text(
             0.5,
@@ -34,9 +46,9 @@ def create_scatter_plot(room_data, room_name, ax):
             fontsize=10,
             color="red",
         )
-        ax.set_title(room_name, fontsize=11, fontweight="bold")
-        ax.set_xlabel("Operative Temperatur (°C)")
-        ax.set_ylabel("Relative Raumluftfeuchte (%)")
+        ax.set_title(room_name, fontsize=title_fontsize, fontweight=title_fontweight)
+        ax.set_xlabel(xlabel, fontsize=label_fontsize)
+        ax.set_ylabel(ylabel, fontsize=label_fontsize)
         ax.grid(True, alpha=0.3, linestyle="--")
         return
 
@@ -69,9 +81,9 @@ def create_scatter_plot(room_data, room_name, ax):
         zorder=10,
         edgecolor=None,
     )
-    ax.set_title(f"{room_name}", fontsize=11, fontweight="bold")
-    ax.set_xlabel("Operative Temperatur (°C)", fontsize=9)
-    ax.set_ylabel("Relative Raumluftfeuchte (%)", fontsize=9)
+    ax.set_title(f"{room_name}", fontsize=title_fontsize, fontweight=title_fontweight)
+    ax.set_xlabel(xlabel, fontsize=label_fontsize)
+    ax.set_ylabel(ylabel, fontsize=label_fontsize)
     ax.grid(True, alpha=0.3, linestyle="--")
     ax.legend(loc="upper right", fontsize=8)
 
@@ -102,7 +114,8 @@ def create_room_plot(room_data, room_name, output_file, debug=False):
     create_scatter_plot(room_data, room_name, ax)
 
     plt.tight_layout()
-    annotate_timestamp(fig)
+    style = _get_comfort_plot_style("comfort-plot")
+    annotate_timestamp(fig, fontsize=style.get("timestamp_fontsize", 8))
     # Konkrete Dateiablage je Raum. Das Ziel wird in process_all_variants
     # aus Laufordner + Variante + Dateiname aufgebaut.
     plt.savefig(output_file, format="png", dpi=150, bbox_inches="tight")
@@ -118,11 +131,19 @@ def create_overview_pdf(variant_data_dir, rooms, output_file, debug=False):
     if debug:
         print(f"  Erstelle PDF-Übersicht für Variante: {variant_name}")
 
+    style = _get_comfort_plot_style("comfort-plot-overview")
+    overview_title = style.get(
+        "title_template",
+        f"Behaglichkeitsanalyse: {variant_name}\nOperative Temperatur vs. Relative Luftfeuchte",
+    ).format(variant_name=variant_name)
+    title_fontsize = style.get("title_fontsize", 14)
+    title_fontweight = style.get("title_fontweight", "bold")
+
     fig, axes = plt.subplots(1, 5, figsize=get_figure_size_inches("comfort.plot_overview.pdf", (28, 6.5)))
     fig.suptitle(
-        f"Behaglichkeitsanalyse: {variant_name}\nOperative Temperatur vs. Relative Luftfeuchte",
-        fontsize=14,
-        fontweight="bold",
+        overview_title,
+        fontsize=title_fontsize,
+        fontweight=title_fontweight,
         y=0.98,
     )
 
@@ -143,15 +164,15 @@ def create_overview_pdf(variant_data_dir, rooms, output_file, debug=False):
                 ha="center",
                 va="center",
                 transform=axes[idx].transAxes,
-                fontsize=10,
+                fontsize=9,
                 color="red",
             )
-            axes[idx].set_title(room_name, fontsize=11, fontweight="bold")
+            axes[idx].set_title(room_name, fontsize=9, fontweight="bold")
             if debug:
                 print(f"  X CSV nicht gefunden: {csv_file}")
 
     plt.tight_layout(rect=[0, 0, 1, 0.96])  # type: ignore
-    annotate_timestamp(plt.gcf())
+    annotate_timestamp(plt.gcf(), fontsize=style.get("timestamp_fontsize", 8))
     plt.savefig(output_file, format="pdf", dpi=150)
     plt.close()
     print(f"    + PDF-Übersicht erstellt: {output_file}")

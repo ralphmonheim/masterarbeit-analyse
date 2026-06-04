@@ -20,7 +20,7 @@ from ..analysis.templates import (
 )
 from ..core.config import DATENBANK_DIR, EXPORT_FORMATS, INPUT_DIR, OUTPUT_DIR, ROOMS, TEST_OUTPUT_DIR
 from ..core.logging import command_log, should_log_command
-from ..settings.plot_templates import get_heating_year_template_defaults
+from ..settings.plot_templates import get_plot_template_defaults, get_heating_year_template_defaults, load_plot_template_config
 from .commands import dispatch_command, get_comfort_output_settings
 
 
@@ -58,17 +58,18 @@ def normalize_rooms(selected_rooms):
 def add_plot_template_arguments(parser, hide_help=False, config_path=None):
     """Ergaenzt Argumente fuer den Plot-Template-Befehl."""
     help_value = argparse.SUPPRESS if hide_help else None
-    template_defaults = (
-        get_heating_year_template_defaults(config_path)
-        if config_path is not None
-        else get_heating_year_template_defaults()
-    )
+    template_defaults = get_plot_template_defaults("heating-year", config_path)
     parser.set_defaults(fixed_overlays=template_defaults.get("default_overlays"))
     parser.add_argument(
         "--template",
         choices=PLOT_TEMPLATE_CHOICES,
         default=HEATING_YEAR_TEMPLATE,
         help=help_value or "Diagrammvorlage fuer Plot-Template-Ausgaben",
+    )
+    parser.add_argument(
+        "--plot-template-config",
+        default=None,
+        help=help_value or "Pfad zur Plot-Template-Konfigurationsdatei oder zum Konfigurationsverzeichnis",
     )
     parser.add_argument(
         "--setpoint-min",
@@ -120,6 +121,40 @@ def add_plot_template_arguments(parser, hide_help=False, config_path=None):
         default=template_defaults.get("show_operative_temperature", DEFAULT_SHOW_OPERATIVE_TEMPERATURE),
         help=help_value or "Operative Temperatur im Plot-Template ausblenden",
     )
+
+
+def _should_apply_config_option(raw_argv, *option_names):
+    return has_cli_option(raw_argv, *option_names)
+
+
+def apply_plot_template_config_defaults(args, raw_argv):
+    """Ueberschreibt nicht explizit gesetzte Plot-Template-Optionen aus einer Templatedatei."""
+    config_path = getattr(args, "plot_template_config", None)
+    if config_path is None:
+        return
+
+    template_data = get_plot_template_defaults(args.template, config_path)
+    if not isinstance(template_data, dict) or not template_data:
+        return
+
+    if not _should_apply_config_option(raw_argv, "--setpoint-min") and "setpoint_min" in template_data:
+        args.setpoint_min = float(template_data["setpoint_min"])
+    if not _should_apply_config_option(raw_argv, "--setpoint-max") and "setpoint_max" in template_data:
+        args.setpoint_max = float(template_data["setpoint_max"])
+    if not _should_apply_config_option(raw_argv, "--temperature-ymin") and "temperature_ymin" in template_data:
+        args.temperature_ymin = float(template_data["temperature_ymin"])
+    if not _should_apply_config_option(raw_argv, "--temperature-ymax") and "temperature_ymax" in template_data:
+        args.temperature_ymax = float(template_data["temperature_ymax"])
+    if not _should_apply_config_option(raw_argv, "--outdoor-column") and "outdoor_column" in template_data:
+        args.outdoor_column = str(template_data["outdoor_column"])
+    if not _should_apply_config_option(raw_argv, "--no-setpoint-band") and "show_setpoint_band" in template_data:
+        args.show_setpoint_band = bool(template_data["show_setpoint_band"])
+    if not _should_apply_config_option(raw_argv, "--no-outdoor-temperature") and "show_outdoor_temperature" in template_data:
+        args.show_outdoor_temperature = bool(template_data["show_outdoor_temperature"])
+    if not _should_apply_config_option(raw_argv, "--no-operative-temperature") and "show_operative_temperature" in template_data:
+        args.show_operative_temperature = bool(template_data["show_operative_temperature"])
+    if "default_overlays" in template_data:
+        args.fixed_overlays = template_data["default_overlays"]
 
 
 def build_parser(plot_template_config_path=None):
@@ -337,6 +372,9 @@ def main():
     args.variant_mode_explicit = has_cli_option(raw_argv, "--heating-mode", "--variant-mode")
     args.series_layout_explicit = has_cli_option(raw_argv, "--heating-series-layout", "--series-layout")
     args.output_root_explicit = has_cli_option(raw_argv, "--output-root")
+
+    if args.command == "plot-template":
+        apply_plot_template_config_defaults(args, raw_argv)
 
     args.rooms = normalize_rooms(args.rooms)
 

@@ -1,0 +1,74 @@
+system_templates:
+  - system_template_key: HEAT_01
+    display_name: Waermepumpe Niedertemperatur
+    system_type: heating
+    description: Kleine Beispielvorlage fuer ein Niedertemperatur-Heizsystem.
+    is_active: true
+    values:
+      - parameter_key: heating_system_type
+        value: heat_pump
+        unit: "-"
+      - parameter_key: heating_supply_temperature_degC
+        value: 35
+        unit: "degC"
+      - parameter_key: heating_nominal_power_kw
+        value: 18
+        unit: "kW"
+
+  - system_template_key: COOL_01
+    display_name: Aktive Kuehlung
+    system_type: cooling
+    description: Kleine Beispielvorlage fuer ein aktives Kuehlsystem.
+    is_active: true
+    values:
+      - parameter_key: cooling_system_type
+        value: active_chiller
+        unit: "-"
+      - parameter_key: cooling_supply_temperature_degC
+        value: 16
+        unit: "degC"
+      - parameter_key: cooling_nominal_power_kw
+        value: 12
+        unit: "kW"
+
+  - system_template_key: PV_01
+    display_name: PV Dachanlage Sued
+    system_type: pv
+    description: Kleine Beispielvorlage fuer eine einfache PV-Dachanlage.
+    is_active: true
+    values:
+      - parameter_key: pv_area_m2
+        value: 72
+        unit: "m2"
+      - parameter_key: pv_tilt_deg
+        value: 30
+        unit: "deg"
+      - parameter_key: pv_azimuth_deg
+        value: 180
+        unit: "deg"
+      - parameter_key: pv_peak_power_kwp
+        value: 14.4
+        unit: "kWp"
+
+  - system_template_key: VENT_01
+    display_name: Zentrale Lueftung WRG
+    system_type: ventilation
+    description: Kleine Beispielvorlage fuer eine zentrale Lueftung mit Waermerueckgewinnung.
+    is_active: true
+    values:
+      - parameter_key: ventilation_system_type
+        value: central_ahu
+        unit: "-"
+      - parameter_key: ventilation_airflow_m3h
+        value: 1800
+        unit: "m3/h"
+      - parameter_key: ventilation_heat_recovery_efficiency
+        value: 0.78
+        unit: "-"
+
+dependency_rules:
+  - rule_key: cooling_requires_ventilation
+    system_template_key: COOL_01
+    required_system_template_key: VENT_01
+    description: Das Beispiel-Kuehlsystem wird nur gemeinsam mit einer Lueftungsvorlage aufgeloest.
+    is_active: true

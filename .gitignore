@@ -3,6 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 .pytest_cache/
+.pytest_basetemp/
+.pytest_temp/
 *.egg-info/
 .ruff_cache/
 .cache/
@@ -20,6 +22,16 @@ data/output/*
 !data/output/.gitkeep
 data/test_output/*
 !data/test_output/.gitkeep
+data/imports/*
+!data/imports/.gitkeep
+data/reports/*
+!data/reports/.gitkeep
+data/exports/*
+!data/exports/.gitkeep
+!data/exports/example_*.json
+!data/exports/example_*.csv
+data/ida_exports/*
+!data/ida_exports/.gitkeep
 
 # Logs und temporaere Dateien
 logs/*.log
@@ -34,5 +46,3 @@ Thumbs.db
 # Editor
 .vscode/
 .idea/
-
-

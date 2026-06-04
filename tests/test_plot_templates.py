@@ -15,7 +15,11 @@ from ma_analyse.analysis.templates import (
     load_hourly_prn_series,
     validate_template_request,
 )
-from ma_analyse.settings.plot_templates import get_heating_year_template_defaults
+from ma_analyse.settings.plot_templates import (
+    get_plot_template_defaults,
+    get_heating_year_template_defaults,
+    load_plot_template_config,
+)
 
 
 def test_validate_template_request_requires_variant_and_single_room():
@@ -173,6 +177,78 @@ def test_build_heating_year_template_creates_png(tmp_path):
         "Dimensionierung",
         "101_lobby_heating_year_template.png",
     )
+
+
+def test_build_heating_overlay_template_creates_png(tmp_path):
+    datenbank_dir = tmp_path / "database"
+    input_dir = tmp_path / "input"
+    output_root = tmp_path / "output"
+    variant_database = datenbank_dir / "Dimensionierung_nutzdaten"
+    variant_input = input_dir / "Dimensionierung"
+    variant_database.mkdir(parents=True)
+    variant_input.mkdir(parents=True)
+
+    hours = list(range(48))
+    room_df = pd.DataFrame(
+        {
+            "time": hours,
+            "zone_energy_q_heat": [1000 if hour < 12 else 0 for hour in hours],
+            "temperatures_tairmean": [20.0 + (hour % 24) * 0.03 for hour in hours],
+            "temperatures_top": [21.0 + (hour % 24) * 0.05 for hour in hours],
+        }
+    )
+    room_df.to_csv(variant_database / "101_lobby.csv", index=False)
+
+    report_lines = ["#      time         order        tair        tout"]
+    for hour in hours:
+        report_lines.append(f"{hour}.0 1.0 {5 + hour * 0.1} {3 + hour * 0.2}")
+    (variant_input / "REPORT-AUX.prn").write_text("\n".join(report_lines), encoding="utf-8")
+
+    output_file = build_plot_template(
+        datenbank_dir=datenbank_dir,
+        input_dir=input_dir,
+        output_root=output_root,
+        selected_variants=["Dimensionierung"],
+        rooms=["101 lobby"],
+        template="heating-overlay",
+        run_id="overlay-run",
+    )
+
+    output_path = Path(output_file)
+    assert output_path.exists()
+    assert output_path.stat().st_size > 1000
+    assert output_path.parts[-4:] == (
+        "PlotTemplates",
+        "overlay-run",
+        "Dimensionierung",
+        "101_lobby_heating_overlay_template.png",
+    )
+
+
+def test_get_plot_template_defaults_loads_heating_overlay_config(tmp_path):
+    config_dir = tmp_path / "plot_templates"
+    config_dir.mkdir()
+    config_file = config_dir / "heating_overlay.toml"
+    config_file.write_text(
+        "\n".join(
+            [
+                "setpoint_min = 18.0",
+                "setpoint_max = 24.0",
+                "temperature_ymin = -10.0",
+                "temperature_ymax = 32.0",
+                'outdoor_column = "tout"',
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    defaults = get_plot_template_defaults("heating-overlay", config_dir)
+
+    assert defaults["setpoint_min"] == 18.0
+    assert defaults["setpoint_max"] == 24.0
+    assert defaults["temperature_ymin"] == -10.0
+    assert defaults["temperature_ymax"] == 32.0
+    assert defaults["outdoor_column"] == "tout"
 
 
 def test_build_heating_year_template_creates_png_for_multiple_variants(tmp_path):
@@ -736,3 +812,88 @@ def test_plot_template_defaults_are_loaded_from_toml(tmp_path):
     assert defaults["show_setpoint_band"] is False
     assert defaults["show_operative_temperature"] is False
     assert defaults["outdoor_column"] == "tout"
+
+
+def test_plot_template_defaults_are_loaded_from_config_dir(tmp_path):
+    config_dir = tmp_path / "plot_templates"
+    config_dir.mkdir()
+    config_file = config_dir / "heating_year.toml"
+    config_file.write_text(
+        "\n".join(
+            [
+                "setpoint_min = 19.0",
+                "setpoint_max = 24.0",
+                "temperature_ymin = -10.0",
+                "temperature_ymax = 32.0",
+                "show_setpoint_band = false",
+                "show_outdoor_temperature = true",
+                "show_operative_temperature = false",
+                'outdoor_column = "tout"',
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    defaults = get_heating_year_template_defaults(config_dir)
+
+    assert defaults["setpoint_min"] == 19
+    assert defaults["setpoint_max"] == 24
+    assert defaults["temperature_ymin"] == -10
+    assert defaults["temperature_ymax"] == 32
+    assert defaults["show_setpoint_band"] is False
+    assert defaults["show_outdoor_temperature"] is True
+    assert defaults["show_operative_temperature"] is False
+    assert defaults["outdoor_column"] == "tout"
+
+
+def test_plot_template_config_keeps_multiple_templates(tmp_path):
+    config_dir = tmp_path / "plot_templates"
+    config_dir.mkdir()
+    heating_file = config_dir / "heating_year.toml"
+    heating_file.write_text(
+        "\n".join(
+            [
+                "setpoint_min = 18.0",
+                "setpoint_max = 23.0",
+                "show_setpoint_band = false",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    comfort_file = config_dir / "comfort_plot.toml"
+    comfort_file.write_text(
+        "\n".join(
+            [
+                "show_operative_temperature = true",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    loaded = load_plot_template_config(config_dir)
+
+    assert "heating_year" in loaded
+    assert "comfort_plot" in loaded
+    assert loaded["heating_year"]["setpoint_min"] == 18.0
+    assert loaded["heating_year"]["show_setpoint_band"] is False
+    assert loaded["comfort_plot"]["show_operative_temperature"] is True
+
+
+def test_get_plot_template_defaults_for_template(tmp_path):
+    config_dir = tmp_path / "plot_templates"
+    config_dir.mkdir()
+    config_file = config_dir / "comfort_plot.toml"
+    config_file.write_text(
+        "\n".join(
+            [
+                "show_operative_temperature = false",
+                "show_outdoor_temperature = false",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    defaults = get_plot_template_defaults("comfort-plot", config_dir)
+
+    assert defaults["show_operative_temperature"] is False
+    assert defaults["show_outdoor_temperature"] is False

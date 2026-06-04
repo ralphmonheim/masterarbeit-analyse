@@ -1,0 +1,16 @@
+sources:
+  - source_key: example_product_source
+    source_type: example
+    title: Beispielquelle Produktdaten
+    url: https://example.invalid/sources/products
+    citation: Platzhalterquelle fuer Beispielproduktdaten, nicht fuer belastbare Bewertungen geeignet.
+    accessed_at: "2026-06-03"
+    data_quality: example
+
+  - source_key: example_material_source
+    source_type: example
+    title: Beispielquelle Materialdaten
+    url: https://example.invalid/sources/materials
+    citation: Platzhalterquelle fuer Beispielmaterialdaten, nicht fuer belastbare Bewertungen geeignet.
+    accessed_at: "2026-06-03"
+    data_quality: example

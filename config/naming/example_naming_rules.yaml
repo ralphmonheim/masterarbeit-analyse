@@ -1,0 +1,18 @@
+naming:
+  prefix: V
+  index_width: 3
+  separator: "_"
+  include_index: true
+  parts:
+    - parameter_key: cooling_setpoint_level
+      option_tokens:
+        cooling_setpoint_24: CL24
+        cooling_setpoint_26: CL26
+    - parameter_key: ventilation_control_mode
+      option_tokens:
+        ventilation_co2: VCO2
+        ventilation_temperature: VTMP
+    - parameter_key: heating_capacity_factor
+      option_tokens:
+        heating_capacity_100: H100
+        heating_capacity_80: H080

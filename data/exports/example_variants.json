@@ -1,0 +1,205 @@
+{
+  "variant_count": 8,
+  "variants": [
+    {
+      "variant_key": "variant_0001",
+      "variant_name": "Variante 0001: 100 Prozent / CO2 geregelt / 24 Grad Celsius",
+      "status": "generated",
+      "values": [
+        {
+          "variant_key": "variant_0001",
+          "parameter_key": "heating_capacity_factor",
+          "option_key": "heating_capacity_100",
+          "resolved_value": 100
+        },
+        {
+          "variant_key": "variant_0001",
+          "parameter_key": "ventilation_control_mode",
+          "option_key": "ventilation_co2",
+          "resolved_value": "co2"
+        },
+        {
+          "variant_key": "variant_0001",
+          "parameter_key": "cooling_setpoint_level",
+          "option_key": "cooling_setpoint_24",
+          "resolved_value": 24
+        }
+      ]
+    },
+    {
+      "variant_key": "variant_0002",
+      "variant_name": "Variante 0002: 100 Prozent / CO2 geregelt / 26 Grad Celsius",
+      "status": "generated",
+      "values": [
+        {
+          "variant_key": "variant_0002",
+          "parameter_key": "heating_capacity_factor",
+          "option_key": "heating_capacity_100",
+          "resolved_value": 100
+        },
+        {
+          "variant_key": "variant_0002",
+          "parameter_key": "ventilation_control_mode",
+          "option_key": "ventilation_co2",
+          "resolved_value": "co2"
+        },
+        {
+          "variant_key": "variant_0002",
+          "parameter_key": "cooling_setpoint_level",
+          "option_key": "cooling_setpoint_26",
+          "resolved_value": 26
+        }
+      ]
+    },
+    {
+      "variant_key": "variant_0003",
+      "variant_name": "Variante 0003: 100 Prozent / Temperatur geregelt / 24 Grad Celsius",
+      "status": "generated",
+      "values": [
+        {
+          "variant_key": "variant_0003",
+          "parameter_key": "heating_capacity_factor",
+          "option_key": "heating_capacity_100",
+          "resolved_value": 100
+        },
+        {
+          "variant_key": "variant_0003",
+          "parameter_key": "ventilation_control_mode",
+          "option_key": "ventilation_temperature",
+          "resolved_value": "temperature"
+        },
+        {
+          "variant_key": "variant_0003",
+          "parameter_key": "cooling_setpoint_level",
+          "option_key": "cooling_setpoint_24",
+          "resolved_value": 24
+        }
+      ]
+    },
+    {
+      "variant_key": "variant_0004",
+      "variant_name": "Variante 0004: 100 Prozent / Temperatur geregelt / 26 Grad Celsius",
+      "status": "generated",
+      "values": [
+        {
+          "variant_key": "variant_0004",
+          "parameter_key": "heating_capacity_factor",
+          "option_key": "heating_capacity_100",
+          "resolved_value": 100
+        },
+        {
+          "variant_key": "variant_0004",
+          "parameter_key": "ventilation_control_mode",
+          "option_key": "ventilation_temperature",
+          "resolved_value": "temperature"
+        },
+        {
+          "variant_key": "variant_0004",
+          "parameter_key": "cooling_setpoint_level",
+          "option_key": "cooling_setpoint_26",
+          "resolved_value": 26
+        }
+      ]
+    },
+    {
+      "variant_key": "variant_0005",
+      "variant_name": "Variante 0005: 80 Prozent / CO2 geregelt / 24 Grad Celsius",
+      "status": "generated",
+      "values": [
+        {
+          "variant_key": "variant_0005",
+          "parameter_key": "heating_capacity_factor",
+          "option_key": "heating_capacity_80",
+          "resolved_value": 80
+        },
+        {
+          "variant_key": "variant_0005",
+          "parameter_key": "ventilation_control_mode",
+          "option_key": "ventilation_co2",
+          "resolved_value": "co2"
+        },
+        {
+          "variant_key": "variant_0005",
+          "parameter_key": "cooling_setpoint_level",
+          "option_key": "cooling_setpoint_24",
+          "resolved_value": 24
+        }
+      ]
+    },
+    {
+      "variant_key": "variant_0006",
+      "variant_name": "Variante 0006: 80 Prozent / CO2 geregelt / 26 Grad Celsius",
+      "status": "generated",
+      "values": [
+        {
+          "variant_key": "variant_0006",
+          "parameter_key": "heating_capacity_factor",
+          "option_key": "heating_capacity_80",
+          "resolved_value": 80
+        },
+        {
+          "variant_key": "variant_0006",
+          "parameter_key": "ventilation_control_mode",
+          "option_key": "ventilation_co2",
+          "resolved_value": "co2"
+        },
+        {
+          "variant_key": "variant_0006",
+          "parameter_key": "cooling_setpoint_level",
+          "option_key": "cooling_setpoint_26",
+          "resolved_value": 26
+        }
+      ]
+    },
+    {
+      "variant_key": "variant_0007",
+      "variant_name": "Variante 0007: 80 Prozent / Temperatur geregelt / 24 Grad Celsius",
+      "status": "generated",
+      "values": [
+        {
+          "variant_key": "variant_0007",
+          "parameter_key": "heating_capacity_factor",
+          "option_key": "heating_capacity_80",
+          "resolved_value": 80
+        },
+        {
+          "variant_key": "variant_0007",
+          "parameter_key": "ventilation_control_mode",
+          "option_key": "ventilation_temperature",
+          "resolved_value": "temperature"
+        },
+        {
+          "variant_key": "variant_0007",
+          "parameter_key": "cooling_setpoint_level",
+          "option_key": "cooling_setpoint_24",
+          "resolved_value": 24
+        }
+      ]
+    },
+    {
+      "variant_key": "variant_0008",
+      "variant_name": "Variante 0008: 80 Prozent / Temperatur geregelt / 26 Grad Celsius",
+      "status": "generated",
+      "values": [
+        {
+          "variant_key": "variant_0008",
+          "parameter_key": "heating_capacity_factor",
+          "option_key": "heating_capacity_80",
+          "resolved_value": 80
+        },
+        {
+          "variant_key": "variant_0008",
+          "parameter_key": "ventilation_control_mode",
+          "option_key": "ventilation_temperature",
+          "resolved_value": "temperature"
+        },
+        {
+          "variant_key": "variant_0008",
+          "parameter_key": "cooling_setpoint_level",
+          "option_key": "cooling_setpoint_26",
+          "resolved_value": 26
+        }
+      ]
+    }
+  ]
+}

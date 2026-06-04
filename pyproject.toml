@@ -4,14 +4,19 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ma-analyse"
-version = "0.3.2"
+version = "0.4.0"
 description = "Analysepipeline fuer Simulationsdaten der Masterarbeit"
 requires-python = ">=3.14"
 dependencies = [
+    "alembic",
     "matplotlib",
     "openpyxl",
     "pandas",
+    "psycopg[binary]",
+    "PyYAML",
     "seaborn",
+    "SQLAlchemy",
+    "streamlit",
 ]
 
 [project.optional-dependencies]
@@ -45,5 +50,4 @@ line-ending = "auto"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-
-
+addopts = ["-p", "no:cacheprovider"]

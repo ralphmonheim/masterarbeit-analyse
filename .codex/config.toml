@@ -1,0 +1,11 @@
+# Project-local Codex settings for this repository.
+# Loaded only when the project is trusted by Codex.
+
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+
+[sandbox_workspace_write]
+network_access = false
+
+[windows]
+sandbox = "unelevated"

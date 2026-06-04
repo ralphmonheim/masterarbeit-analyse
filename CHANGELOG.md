@@ -4,8 +4,47 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+Noch keine Aenderungen seit `0.4.0`.
+
+## 0.4.0 - 2026-06-04
+
 ### Added
-- Keine aktuellen Unreleased-Änderungen.
+- Projektlokale Codex-Konfiguration unter `.codex/config.toml` ergaenzt, damit dieses Repository mit `workspace-write`, `on-request` und Windows-`unelevated`-Sandbox gestartet werden kann.
+- `docs/PLAN.md` als Projektplan Version 1.0.0 fuer den modularen Varianten-, Simulations- und Bewertungskern ergaenzt.
+- Projektvorbereitung mit `config/.gitkeep`, `docs/WORKFLOW.md`, `docs/DATA_MODEL.md`, `docs/DECISIONS.md` und Pflege ueber den zentralen Root-`CHANGELOG.md` ergaenzt.
+- Abschnitt 1 umgesetzt: neues Paket `ma_variants` mit `parameter_catalog`, `option_catalog`, `variant_manager`, `validation` und zentralen dataclass-Modellen fuer Parameter, Optionen und Varianten ergaenzt.
+- Tests fuer die neuen `ma_variants`-Modelle und einfache Pflichtfeldvalidierung ergaenzt.
+- Pytest-Cacheprovider deaktiviert und `tmp_path` lokal unter `data/test_output/pytest_runs` bereitgestellt, um gesperrte Windows-Cache- und Tempordner ohne Einfluss auf die Testausfuehrung zu umgehen.
+- Abschnitt 2 umgesetzt: kleine YAML-Beispielkonfigurationen fuer Parameter und Optionen sowie dateibasierte Importer mit Validierung und JSON-Importbericht ergaenzt.
+- Tests fuer Parameterimport, Optionsimport, doppelte Keys, fehlende Optionsgruppenreferenzen und Importberichte ergaenzt.
+- Abschnitt 3 umgesetzt: Variantenzaehlung, einfache In-Memory-Variantenerzeugung und JSON-Export fuer Beispielvarianten ergaenzt.
+- Beispielausgabe `data/exports/example_variants.json` und Tests fuer Variantenanzahl, Filterung aktiver Optionen und Variantengenerierung ergaenzt.
+- Abschnitt 4 umgesetzt: manuelle Auswahl, Filterauswahl, reproduzierbare Zufallsauswahl und einfache Namensgenerierung mit Duplikatspruefung ergaenzt.
+- Beispielregeln `config/naming/example_naming_rules.yaml`, Beispielausgabe `data/exports/example_selected_named_variants.json` und Tests fuer Auswahl/Naming ergaenzt.
+- Abschnitt 5 umgesetzt: Basisexporte unter `ma_variants.reporting` mit JSON, CSV und Exportbericht fuer ausgewaehlte Varianten ergaenzt.
+- Beispielausgaben `data/exports/example_variant_overview.json`, `data/exports/example_variant_overview.csv` und `data/exports/example_variant_report.json` sowie Tests fuer Export und Reporting ergaenzt.
+- Abschnitt 6 umgesetzt: SQLAlchemy-/Alembic-Grundstruktur fuer PostgreSQL unter `ma_variants.database` mit env-basierter Verbindungskonfiguration ergaenzt.
+- Datenbankmodelle, erste Migration und Repository-Funktionen fuer `parameters`, `option_sets`, `option_values`, `variants`, `variant_values` und `import_logs` ergaenzt.
+- Beispielkonfiguration `config/database/example.env` ohne echte Zugangsdaten sowie lokale SQLite-Tests fuer die DB-Repositorylogik ergaenzt.
+- Abschnitt 7 umgesetzt: `system_catalog` mit Systemtemplates, Templatewerten, einfachen Dependency-Regeln und Template-Aufloesung ergaenzt.
+- Beispielsysteme `HEAT_01`, `COOL_01`, `PV_01` und `VENT_01` unter `config/systems/example_system_templates.yaml` sowie Tests fuer die Template-Aufloesung ergaenzt.
+- Datenbankmodelle, Alembic-Migration und Repository-Funktionen fuer `system_templates`, `system_template_values` und `dependency_rules` ergaenzt.
+- Abschnitt 8 umgesetzt: `ida_export` mit vorbereiteter IDA-ICE-Uebergabestruktur je Variante ergaenzt.
+- Beispielkonfiguration `config/export/example_ida_export.yaml`, Zielordner `data/ida_exports` und Tests fuer Ordnererzeugung, Metadaten, aufgeloeste Parameter und Exportlog ergaenzt.
+- Abschnitt 9 umgesetzt: `simulation_results` als lesender Adapter fuer vorhandene `ma_analyse`-Ergebnisordner ergaenzt.
+- Zuordnung von `*_nutzdaten`-Ordnern zu Varianten, Kennwertimport aus Raum-CSV-Dateien und JSON-Export fuer Simulationsergebnisse ergaenzt.
+- Schnittstelle zur bestehenden Analysepipeline in `docs/WORKFLOW.md` dokumentiert, ohne bestehende Analysefunktionen umzubauen.
+- Abschnitt 10 umgesetzt: `economic_analysis` mit generischen Kostenannahmen, Energiepreisen, Wirtschaftlichkeitsszenarien und einfacher Varianten-Kostenberechnung ergaenzt.
+- Beispielannahmen unter `config/economic/example_economic_assumptions.yaml`, JSON-/CSV-Export fuer Kostenergebnisse und `docs/ECONOMIC_MODEL.md` ergaenzt.
+- Datenbankmodelle, Alembic-Migration und Repository-Funktionen fuer `generic_system_costs`, `energy_prices`, `economic_scenarios` und `variant_cost_results` ergaenzt.
+- Tests fuer Import, Kostenberechnung mit Simulationsergebnissen, Fallback auf Beispielwerte, Systemtemplate-Zuordnung, Export und DB-Speicherung ergaenzt.
+- Abschnitt 11 umgesetzt: Produkt-, Material-, Dokument- und Quellenkataloge mit dataclass-Modellen und einfachen Importern ergaenzt.
+- Beispielkataloge unter `config/products`, `config/materials`, `config/documents` und `config/sources` sowie Dokumentpfadstruktur unter `data/documents` ergaenzt.
+- Datenbankmodelle, Alembic-Migration und Repository-Funktionen fuer `products`, `product_properties`, `materials`, `material_properties`, `documents` und `sources` ergaenzt.
+- Tests fuer Produkt-/Materialimport, Dokument-/Quellenimport und DB-Speicherung der neuen Kataloge ergaenzt.
+- Abschnitt 12 umgesetzt: lokale Streamlit-Oberflaeche unter `ma_variants.ui` fuer Parameter, Optionen, Variantenanzahl, Variantenauswahl, Basisexport und Ergebnisdateien ergaenzt.
+- Streamlit als Projektabhaengigkeit ergaenzt und testbare UI-Servicefunktionen ohne eigene Fachlogik eingefuehrt.
+- Startbefehl und manuelle Testhinweise fuer die lokale Oberflaeche in `docs/WORKFLOW.md` dokumentiert.
 
 ## 0.3.2 - 2026-05-28
 
@@ -116,4 +155,3 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ### Added
 - Erster Paketstand fuer `ma_analyse` mit zentralem CLI-Einstieg.
-

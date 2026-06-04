@@ -1,0 +1,43 @@
+products:
+  - product_key: example_heat_pump_01
+    product_type: heating
+    manufacturer: Beispiel Hersteller
+    product_name: Beispiel Waermepumpe 25 kW
+    nominal_power: 25
+    price: 18500
+    currency: EUR
+    gwp_value: 2450
+    gwp_unit: kgCO2e/unit
+    product_url: https://example.invalid/products/example_heat_pump_01
+    document_path: data/documents/products/example_heat_pump_01_datasheet.pdf
+    source: example_product_source
+    data_quality: example
+
+  - product_key: example_pv_module_01
+    product_type: pv
+    manufacturer: Beispiel Solar
+    product_name: Beispiel PV-Modul 450 Wp
+    nominal_power: 0.45
+    price: 145
+    currency: EUR
+    gwp_value: 82
+    gwp_unit: kgCO2e/unit
+    product_url: https://example.invalid/products/example_pv_module_01
+    document_path: data/documents/products/example_pv_module_01_datasheet.pdf
+    source: example_product_source
+    data_quality: example
+
+product_properties:
+  - product_key: example_heat_pump_01
+    property_key: scop
+    value: 3.8
+    unit: "-"
+    source: example_product_source
+    data_quality: example
+
+  - product_key: example_pv_module_01
+    property_key: module_area_m2
+    value: 2.1
+    unit: m2
+    source: example_product_source
+    data_quality: example

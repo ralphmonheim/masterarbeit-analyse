@@ -27,7 +27,7 @@ def get_run_id(command_name: str | None = None, run_id: str | None = None) -> st
     return timestamp
 
 
-def annotate_timestamp(fig, timestamp: str | None = None) -> None:
+def annotate_timestamp(fig, timestamp: str | None = None, fontsize: int = 8) -> None:
     """Fuegt einen Erstellungszeitstempel unten rechts auf einer Matplotlib-Figur ein."""
     if timestamp is None:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -37,7 +37,7 @@ def annotate_timestamp(fig, timestamp: str | None = None) -> None:
         f"Erstellt: {timestamp}",
         ha="right",
         va="bottom",
-        fontsize=8,
+        fontsize=fontsize,
         color="black",
         alpha=0.65,
         transform=fig.transFigure,

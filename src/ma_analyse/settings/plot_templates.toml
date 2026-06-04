@@ -1,3 +1,10 @@
+# Zentrale Plot-Template-Konfiguration.
+#
+# Hier werden alle Template-spezifischen Defaults in einer einzigen Datei
+# zusammengefasst. Die Datei kann mit der CLI-Option
+#   --plot-template-config src/ma_analyse/settings/plot_templates.toml
+# geladen werden.
+
 [heating_year]
 setpoint_min = 21.0
 setpoint_max = 26.0
@@ -24,3 +31,111 @@ column = "temperatures_top"
 fallback_columns = ["local_de_comf_diag_t_top"]
 axis = "temperature"
 enabled = true
+
+[heating_overlay]
+setpoint_min = 21.0
+setpoint_max = 26.0
+temperature_ymin = -20.0
+temperature_ymax = 40.0
+show_setpoint_band = true
+show_outdoor_temperature = true
+show_operative_temperature = true
+outdoor_column = "tair"
+
+[[heating_overlay.default_overlays]]
+id = "outdoor_temperature"
+label = "Außenlufttemperatur"
+source = "aux"
+column = "tair"
+axis = "temperature"
+enabled = true
+
+[[heating_overlay.default_overlays]]
+id = "operative_temperature"
+label = "Operative Temperatur"
+source = "csv"
+column = "temperatures_top"
+fallback_columns = ["local_de_comf_diag_t_top"]
+axis = "temperature"
+enabled = true
+
+[heating_month]
+# Optional: Template-spezifische Einstellungen fuer heating-month
+
+[heating_week]
+# Optional: Template-spezifische Einstellungen fuer heating-week
+
+[heating_day]
+# Optional: Template-spezifische Einstellungen fuer heating-day
+
+[heating_bar]
+# Optional: Template-spezifische Einstellungen fuer heating-bar
+
+[cooling_year]
+# Optional: Template-spezifische Einstellungen fuer cooling-year
+
+[cooling_month]
+# Optional: Template-spezifische Einstellungen fuer cooling-month
+
+[cooling_week]
+# Optional: Template-spezifische Einstellungen fuer cooling-week
+
+[cooling_day]
+# Optional: Template-spezifische Einstellungen fuer cooling-day
+
+[cooling_bar]
+# Optional: Template-spezifische Einstellungen fuer cooling-bar
+
+[comfort_plot]
+# Optional: Template-spezifische Einstellungen fuer comfort-plot
+
+[comfort_plot_overview]
+# Optional: Template-spezifische Einstellungen fuer comfort-plot-overview
+
+[comfort_analysis]
+# Optional: Template-spezifische Einstellungen fuer comfort-analysis
+
+[comfort_analysis_overview]
+# Optional: Template-spezifische Einstellungen fuer comfort-analysis-overview
+
+[internal_loads_year]
+# Optional: Template-spezifische Einstellungen fuer internal-loads-year
+
+[internal_loads_month]
+# Optional: Template-spezifische Einstellungen fuer internal-loads-month
+
+[internal_loads_week]
+# Optional: Template-spezifische Einstellungen fuer internal-loads-week
+
+[internal_loads_day]
+# Optional: Template-spezifische Einstellungen fuer internal-loads-day
+
+[internal_loads_monthly_sum]
+# Optional: Template-spezifische Einstellungen fuer internal-loads-monthly-sum
+
+[internal_loads_room_comparison]
+# Optional: Template-spezifische Einstellungen fuer internal-loads-room-comparison
+
+[energy_balance_year]
+# Optional: Template-spezifische Einstellungen fuer energy-balance-year
+
+[energy_balance_month]
+# Optional: Template-spezifische Einstellungen fuer energy-balance-month
+
+[energy_balance_week]
+# Optional: Template-spezifische Einstellungen fuer energy-balance-week
+
+[energy_balance_day]
+# Optional: Template-spezifische Einstellungen fuer energy-balance-day
+
+[thermal_room_climate_year]
+# Optional: Template-spezifische Einstellungen fuer thermal-room-climate-year
+
+[thermal_room_climate_month]
+# Optional: Template-spezifische Einstellungen fuer thermal-room-climate-month
+
+[thermal_room_climate_week]
+# Optional: Template-spezifische Einstellungen fuer thermal-room-climate-week
+
+[thermal_room_climate_day]
+# Optional: Template-spezifische Einstellungen fuer thermal-room-climate-day

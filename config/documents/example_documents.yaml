@@ -1,0 +1,16 @@
+documents:
+  - document_key: doc_example_heat_pump_01
+    document_type: product_datasheet
+    title: Beispiel Datenblatt Waermepumpe
+    document_path: data/documents/products/example_heat_pump_01_datasheet.pdf
+    related_key: example_heat_pump_01
+    source: example_product_source
+    data_quality: example
+
+  - document_key: doc_example_insulation_01
+    document_type: material_datasheet
+    title: Beispiel Datenblatt Daemmung
+    document_path: data/documents/materials/example_insulation_01_datasheet.pdf
+    related_key: example_insulation_01
+    source: example_material_source
+    data_quality: example

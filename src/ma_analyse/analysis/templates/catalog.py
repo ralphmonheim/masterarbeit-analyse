@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 HEATING_YEAR_TEMPLATE = "heating-year"
+HEATING_OVERLAY_TEMPLATE = "heating-overlay"
 HEATING_MONTH_TEMPLATE = "heating-month"
 HEATING_WEEK_TEMPLATE = "heating-week"
 HEATING_DAY_TEMPLATE = "heating-day"
@@ -47,6 +48,7 @@ class PlotTemplateSpec:
 
 PLOT_TEMPLATE_SPECS = {
     HEATING_YEAR_TEMPLATE: PlotTemplateSpec(HEATING_YEAR_TEMPLATE, "heating", "year", supports_overlays=True),
+    HEATING_OVERLAY_TEMPLATE: PlotTemplateSpec(HEATING_OVERLAY_TEMPLATE, "heating", "year", supports_overlays=True),
     HEATING_MONTH_TEMPLATE: PlotTemplateSpec(HEATING_MONTH_TEMPLATE, "heating", "month"),
     HEATING_WEEK_TEMPLATE: PlotTemplateSpec(HEATING_WEEK_TEMPLATE, "heating", "week"),
     HEATING_DAY_TEMPLATE: PlotTemplateSpec(HEATING_DAY_TEMPLATE, "heating", "day"),

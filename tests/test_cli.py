@@ -1,4 +1,4 @@
-from ma_analyse.app.cli import build_parser
+from ma_analyse.app.cli import apply_plot_template_config_defaults, build_parser
 
 
 def test_cli_parser_accepts_main_commands():
@@ -55,6 +55,7 @@ def test_cli_parser_accepts_all_plot_template_views():
 
     templates = [
         "heating-year",
+        "heating-overlay",
         "heating-month",
         "heating-week",
         "heating-day",
@@ -89,6 +90,13 @@ def test_cli_parser_accepts_all_plot_template_views():
         assert args.template == template
 
 
+def test_cli_parser_accepts_heating_overlay_template():
+    parser = build_parser()
+    args = parser.parse_args(["plot-template", "--template", "heating-overlay"])
+
+    assert args.template == "heating-overlay"
+
+
 def test_cli_parser_uses_plot_template_config_defaults(tmp_path):
     config_file = tmp_path / "plot_templates.toml"
     config_file.write_text(
@@ -118,6 +126,92 @@ def test_cli_parser_uses_plot_template_config_defaults(tmp_path):
     parser = build_parser(plot_template_config_path=config_file)
 
     args = parser.parse_args(["plot-template"])
+
+    assert args.setpoint_min == 19
+    assert args.setpoint_max == 24
+    assert args.temperature_ymin == -10
+    assert args.temperature_ymax == 32
+    assert args.show_setpoint_band is False
+    assert args.show_outdoor_temperature is True
+    assert args.show_operative_temperature is False
+    assert args.outdoor_column == "tout"
+    assert args.fixed_overlays[0]["label"] == "Aussenluft tout"
+
+
+def test_cli_parser_uses_plot_template_config_dir(tmp_path):
+    config_dir = tmp_path / "plot_templates"
+    config_dir.mkdir()
+    config_file = config_dir / "heating_year.toml"
+    config_file.write_text(
+        "\n".join(
+            [
+                "setpoint_min = 19.0",
+                "setpoint_max = 24.0",
+                "temperature_ymin = -10.0",
+                "temperature_ymax = 32.0",
+                "show_setpoint_band = false",
+                "show_outdoor_temperature = true",
+                "show_operative_temperature = false",
+                'outdoor_column = "tout"',
+                "",
+                "[[default_overlays]]",
+                'id = "outdoor_temperature"',
+                'label = "Aussenluft tout"',
+                'source = "aux"',
+                'column = "tout"',
+                'axis = "temperature"',
+                "enabled = true",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    parser = build_parser(plot_template_config_path=config_dir)
+
+    args = parser.parse_args(["plot-template"])
+
+    assert args.setpoint_min == 19
+    assert args.setpoint_max == 24
+    assert args.temperature_ymin == -10
+    assert args.temperature_ymax == 32
+    assert args.show_setpoint_band is False
+    assert args.show_outdoor_temperature is True
+    assert args.show_operative_temperature is False
+    assert args.outdoor_column == "tout"
+    assert args.fixed_overlays[0]["label"] == "Aussenluft tout"
+
+
+def test_cli_applies_plot_template_config_from_runtime_argument(tmp_path):
+    config_dir = tmp_path / "plot_templates"
+    config_dir.mkdir()
+    config_file = config_dir / "heating_year.toml"
+    config_file.write_text(
+        "\n".join(
+            [
+                "setpoint_min = 19.0",
+                "setpoint_max = 24.0",
+                "temperature_ymin = -10.0",
+                "temperature_ymax = 32.0",
+                "show_setpoint_band = false",
+                "show_outdoor_temperature = true",
+                "show_operative_temperature = false",
+                'outdoor_column = "tout"',
+                "",
+                "[[default_overlays]]",
+                'id = "outdoor_temperature"',
+                'label = "Aussenluft tout"',
+                'source = "aux"',
+                'column = "tout"',
+                'axis = "temperature"',
+                "enabled = true",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    parser = build_parser()
+    args = parser.parse_args(["plot-template", "--plot-template-config", str(config_dir)])
+    apply_plot_template_config_defaults(args, ["plot-template", "--plot-template-config", str(config_dir)])
 
     assert args.setpoint_min == 19
     assert args.setpoint_max == 24

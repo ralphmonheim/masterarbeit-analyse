@@ -54,6 +54,7 @@ Gemeinsame Optionen:
 - `--debug` / `--no-debug`
 
 `plot-template` nutzt standardmaessig `data/test_output/` und startet mit `heating-year`.
+Option `--plot-template-config <path>` erlaubt die Angabe eines benutzerdefinierten Plot-Template-Config-Verzeichnisses oder einer TOML-Datei.
 Verfuegbare Templates sind:
 
 - Heating: `heating-year`, `heating-month`, `heating-week`, `heating-day`
@@ -113,8 +114,10 @@ Thermal-Room-Climate-Templates kombinieren Sollwertband, interne Lasten total,
 Lueftung, Raumkaelte, Raumlufttemperatur und Aussenlufttemperatur als feste
 Raumklima-Vorlage. Die Leistungsachse zeigt aktuell absolute Leistung `[W]`.
 Die Defaultwerte fuer Achsen, Sollwertband und Standard-Overlays liegen in
-`src/ma_analyse/settings/plot_templates.toml`. Nach Aenderungen dort die GUI neu
-starten oder ueber `GUI aktualisieren` neu laden.
+`src/ma_analyse/settings/plot_templates.toml` oder in separaten Dateien im
+`src/ma_analyse/settings/plot_templates/`-Verzeichnis. Dort koennen einzelne
+Template-Dateien wie `heating_year.toml` gepflegt werden. Nach Aenderungen
+dort die GUI neu starten oder ueber `GUI aktualisieren` neu laden.
 
 ## Logs
 

@@ -1,0 +1,37 @@
+{
+  "total_variant_count": 8,
+  "selected_variant_count": 3,
+  "used_parameters": [
+    {
+      "parameter_key": "heating_capacity_factor",
+      "display_name": "Heizleistungsfaktor",
+      "option_set_key": "heating_capacity_factors"
+    },
+    {
+      "parameter_key": "ventilation_control_mode",
+      "display_name": "Lueftungsregelung",
+      "option_set_key": "ventilation_control_modes"
+    },
+    {
+      "parameter_key": "cooling_setpoint_level",
+      "display_name": "Kuehlsollwert-Niveau",
+      "option_set_key": "cooling_setpoint_levels"
+    }
+  ],
+  "used_option_sets": [
+    {
+      "option_set_key": "heating_capacity_factors",
+      "display_name": "Heizleistungsfaktoren"
+    },
+    {
+      "option_set_key": "ventilation_control_modes",
+      "display_name": "Lueftungsregelungen"
+    },
+    {
+      "option_set_key": "cooling_setpoint_levels",
+      "display_name": "Kuehlsollwert-Niveaus"
+    }
+  ],
+  "exported_at": "2026-06-03T12:00:00+00:00",
+  "missing_data_notes": []
+}

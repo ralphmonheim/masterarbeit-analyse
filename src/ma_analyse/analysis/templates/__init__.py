@@ -19,6 +19,7 @@ from .catalog import (
     HEATING_BAR_TEMPLATE,
     HEATING_DAY_TEMPLATE,
     HEATING_MONTH_TEMPLATE,
+    HEATING_OVERLAY_TEMPLATE,
     HEATING_WEEK_TEMPLATE,
     HEATING_YEAR_TEMPLATE,
     INTERNAL_LOADS_DAY_TEMPLATE,
@@ -85,10 +86,11 @@ def build_plot_template(
     week=None,
     day=None,
     run_id=None,
+    plot_template_config_path=None,
     debug=False,
 ):
     """Fuehrt das passende Plot-Template anhand des Template-Namens aus."""
-    if template == HEATING_YEAR_TEMPLATE:
+    if template in {HEATING_YEAR_TEMPLATE, HEATING_OVERLAY_TEMPLATE}:
         return build_heating_year_template(
             datenbank_dir=datenbank_dir,
             input_dir=input_dir,
@@ -132,6 +134,7 @@ def build_plot_template(
             rooms=rooms,
             template=template,
             run_id=run_id,
+            plot_template_config=plot_template_config_path,
             debug=debug,
         )
 

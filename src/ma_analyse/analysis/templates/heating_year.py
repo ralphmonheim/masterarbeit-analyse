@@ -21,7 +21,7 @@ from ..components.rooms import get_room_data_file
 from ..components.runtime import annotate_timestamp, get_run_id, sanitize_file_name
 from ..components.time_windows import build_energy_time_axis_config
 from ..components.variants import get_variant_display_name, normalize_variant_name, strip_variant_suffix
-from .catalog import HEATING_YEAR_TEMPLATE, get_plot_template_spec, template_requires_single_room
+from .catalog import HEATING_OVERLAY_TEMPLATE, HEATING_YEAR_TEMPLATE, get_plot_template_spec, template_requires_single_room
 from .timeline import validate_timeline_template_time_selection
 
 REQUIRED_HEATING_COLUMN = "zone_energy_q_heat"
@@ -93,7 +93,7 @@ def validate_template_request(
         errors.append("plot-template erwartet mindestens einen Raum.")
     elif template_requires_single_room(template) and len(rooms) != 1:
         errors.append("Dieses plot-template erwartet genau einen Raum.")
-    if spec is not None and spec.name == HEATING_YEAR_TEMPLATE:
+    if spec is not None and spec.name in {HEATING_YEAR_TEMPLATE, HEATING_OVERLAY_TEMPLATE}:
         if validate_setpoint_band and setpoint_min >= setpoint_max:
             errors.append("setpoint-min muss kleiner als setpoint-max sein.")
         if temperature_ymin >= temperature_ymax:
@@ -661,7 +661,7 @@ def build_heating_year_template(
 
         output_dir = output_base / "PlotTemplates" / resolved_run_id / variant_display_name
         output_dir.mkdir(parents=True, exist_ok=True)
-        output_file = output_dir / f"{sanitize_file_name(room_name)}_heating_year_template.png"
+        output_file = output_dir / f"{sanitize_file_name(room_name)}_{template.replace('-', '_')}_template.png"
 
         if debug:
             print(f"Template-Variante: {variant_name}")

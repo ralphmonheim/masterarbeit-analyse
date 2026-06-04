@@ -6,9 +6,10 @@ import copy
 import tomllib
 from pathlib import Path
 
-from ..core.config import PLOT_TEMPLATES_CONFIG
+from ..core.config import PLOT_TEMPLATES_CONFIG, PLOT_TEMPLATES_CONFIG_DIR
 
 HEATING_YEAR_KEY = "heating_year"
+HEATING_OVERLAY_KEY = "heating_overlay"
 OUTDOOR_OVERLAY_ID = "outdoor_temperature"
 OPERATIVE_OVERLAY_ID = "operative_temperature"
 
@@ -45,10 +46,54 @@ DEFAULT_PLOT_TEMPLATE_CONFIG = {
 }
 
 
+def _normalize_template_key(raw_key: str) -> str:
+    return raw_key.strip().replace("-", "_")
+
+
+def _load_toml_source(path: Path) -> dict[str, object]:
+    try:
+        return tomllib.loads(path.read_text(encoding="utf-8"))
+    except tomllib.TOMLDecodeError as exc:
+        raise ValueError(f"Plot-Template-Konfiguration ist ungueltig: {path}") from exc
+
+
+def _extract_template_configs_from_file(path: Path) -> dict[str, dict]:
+    loaded = _load_toml_source(path)
+    if not isinstance(loaded, dict):
+        return {}
+
+    if path.name == "plot_templates.toml":
+        return {
+            _normalize_template_key(key): value
+            for key, value in loaded.items()
+            if isinstance(key, str)
+        }
+
+    if len(loaded) == 1:
+        key, value = next(iter(loaded.items()))
+        if isinstance(key, str) and isinstance(value, dict):
+            return {_normalize_template_key(key): value}
+
+    return {_normalize_template_key(path.stem): loaded}
+
+
+def _load_plot_template_config_from_path(path: Path) -> dict[str, dict]:
+    if path.is_dir():
+        configs: dict[str, dict] = {}
+        for file_path in sorted(path.glob("*.toml")):
+            configs.update(_extract_template_configs_from_file(file_path))
+        return configs
+
+    if path.exists():
+        return _extract_template_configs_from_file(path)
+
+    raise FileNotFoundError(f"Plot-Template-Konfiguration nicht gefunden: {path}")
+
+
 def _as_float(value, fallback):
     try:
         return float(value)
-    except TypeError, ValueError:
+    except (TypeError, ValueError):
         return fallback
 
 
@@ -131,29 +176,59 @@ def _merge_heating_year_config(loaded):
 
 def load_plot_template_config(config_path=PLOT_TEMPLATES_CONFIG):
     """Laedt die Plot-Template-Konfiguration mit stabilen Fallbacks."""
-    path = Path(config_path)
-    if not path.exists():
-        return copy.deepcopy(DEFAULT_PLOT_TEMPLATE_CONFIG)
+    if config_path is None or Path(config_path) == PLOT_TEMPLATES_CONFIG:
+        if PLOT_TEMPLATES_CONFIG_DIR.exists():
+            loaded = _load_plot_template_config_from_path(PLOT_TEMPLATES_CONFIG_DIR)
+        elif PLOT_TEMPLATES_CONFIG.exists():
+            loaded = _load_plot_template_config_from_path(PLOT_TEMPLATES_CONFIG)
+        else:
+            return copy.deepcopy(DEFAULT_PLOT_TEMPLATE_CONFIG)
+    else:
+        path = Path(config_path)
+        if path.exists():
+            loaded = _load_plot_template_config_from_path(path)
+        else:
+            raise FileNotFoundError(f"Plot-Template-Konfiguration nicht gefunden: {path}")
 
-    try:
-        loaded = tomllib.loads(path.read_text(encoding="utf-8"))
-    except tomllib.TOMLDecodeError as exc:
-        raise ValueError(f"Plot-Template-Konfiguration ist ungueltig: {path}") from exc
+    result: dict[str, dict] = {}
+    for key, config in loaded.items():
+        if key == HEATING_YEAR_KEY or key == HEATING_OVERLAY_KEY:
+            result[key] = _merge_heating_year_config(config)
+        elif isinstance(config, dict):
+            result[key] = copy.deepcopy(config)
+        else:
+            result[key] = {}
+    if HEATING_YEAR_KEY not in result:
+        result[HEATING_YEAR_KEY] = _merge_heating_year_config(None)
+    if HEATING_OVERLAY_KEY not in result:
+        result[HEATING_OVERLAY_KEY] = _merge_heating_year_config(None)
+    return result
 
-    return {
-        HEATING_YEAR_KEY: _merge_heating_year_config(loaded.get(HEATING_YEAR_KEY)),
-    }
+
+def get_plot_template_defaults(template: str, config_path=PLOT_TEMPLATES_CONFIG) -> dict[str, object]:
+    """Gibt die geladenen Defaults fuer ein spezifisches Plot-Template zurueck."""
+    template_key = _normalize_template_key(template)
+    loaded = load_plot_template_config(config_path)
+    if template_key in loaded:
+        return loaded[template_key]
+    if template_key == HEATING_OVERLAY_KEY:
+        return loaded.get(HEATING_YEAR_KEY, {})
+    if template_key != HEATING_YEAR_KEY:
+        return {}
+    return loaded[HEATING_YEAR_KEY]
 
 
 def get_heating_year_template_defaults(config_path=PLOT_TEMPLATES_CONFIG):
-    return load_plot_template_config(config_path)[HEATING_YEAR_KEY]
+    return get_plot_template_defaults("heating-year", config_path)
 
 
 __all__ = [
     "DEFAULT_PLOT_TEMPLATE_CONFIG",
     "HEATING_YEAR_KEY",
+    "HEATING_OVERLAY_KEY",
     "OPERATIVE_OVERLAY_ID",
     "OUTDOOR_OVERLAY_ID",
+    "get_plot_template_defaults",
     "get_heating_year_template_defaults",
     "load_plot_template_config",
 ]

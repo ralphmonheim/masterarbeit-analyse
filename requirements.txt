@@ -1,4 +1,9 @@
+alembic
 matplotlib
 openpyxl
 pandas
+psycopg[binary]
+PyYAML
 seaborn
+SQLAlchemy
+streamlit

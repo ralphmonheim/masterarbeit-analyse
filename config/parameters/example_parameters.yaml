@@ -1,0 +1,30 @@
+parameters:
+  - parameter_key: heating_capacity_factor
+    display_name: Heizleistungsfaktor
+    category: hvac
+    parameter_class: sizing
+    option_set_key: heating_capacity_factors
+    unit: "%"
+    is_variant_relevant: true
+    is_naming_relevant: true
+    is_export_relevant: true
+
+  - parameter_key: ventilation_control_mode
+    display_name: Lueftungsregelung
+    category: hvac
+    parameter_class: control
+    option_set_key: ventilation_control_modes
+    unit: "-"
+    is_variant_relevant: true
+    is_naming_relevant: true
+    is_export_relevant: true
+
+  - parameter_key: cooling_setpoint_level
+    display_name: Kuehlsollwert-Niveau
+    category: comfort
+    parameter_class: setpoint
+    option_set_key: cooling_setpoint_levels
+    unit: "degC"
+    is_variant_relevant: true
+    is_naming_relevant: false
+    is_export_relevant: true

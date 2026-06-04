@@ -1,0 +1,80 @@
+{
+  "variant_count": 3,
+  "variants": [
+    {
+      "variant_key": "variant_0001",
+      "variant_name": "V001_CL24_VCO2_H100",
+      "status": "generated",
+      "values": [
+        {
+          "variant_key": "variant_0001",
+          "parameter_key": "heating_capacity_factor",
+          "option_key": "heating_capacity_100",
+          "resolved_value": 100
+        },
+        {
+          "variant_key": "variant_0001",
+          "parameter_key": "ventilation_control_mode",
+          "option_key": "ventilation_co2",
+          "resolved_value": "co2"
+        },
+        {
+          "variant_key": "variant_0001",
+          "parameter_key": "cooling_setpoint_level",
+          "option_key": "cooling_setpoint_24",
+          "resolved_value": 24
+        }
+      ]
+    },
+    {
+      "variant_key": "variant_0005",
+      "variant_name": "V002_CL24_VCO2_H080",
+      "status": "generated",
+      "values": [
+        {
+          "variant_key": "variant_0005",
+          "parameter_key": "heating_capacity_factor",
+          "option_key": "heating_capacity_80",
+          "resolved_value": 80
+        },
+        {
+          "variant_key": "variant_0005",
+          "parameter_key": "ventilation_control_mode",
+          "option_key": "ventilation_co2",
+          "resolved_value": "co2"
+        },
+        {
+          "variant_key": "variant_0005",
+          "parameter_key": "cooling_setpoint_level",
+          "option_key": "cooling_setpoint_24",
+          "resolved_value": 24
+        }
+      ]
+    },
+    {
+      "variant_key": "variant_0008",
+      "variant_name": "V003_CL26_VTMP_H080",
+      "status": "generated",
+      "values": [
+        {
+          "variant_key": "variant_0008",
+          "parameter_key": "heating_capacity_factor",
+          "option_key": "heating_capacity_80",
+          "resolved_value": 80
+        },
+        {
+          "variant_key": "variant_0008",
+          "parameter_key": "ventilation_control_mode",
+          "option_key": "ventilation_temperature",
+          "resolved_value": "temperature"
+        },
+        {
+          "variant_key": "variant_0008",
+          "parameter_key": "cooling_setpoint_level",
+          "option_key": "cooling_setpoint_26",
+          "resolved_value": 26
+        }
+      ]
+    }
+  ]
+}

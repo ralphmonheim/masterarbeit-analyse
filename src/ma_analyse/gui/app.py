@@ -44,7 +44,11 @@ from ..core.config import DATENBANK_DIR, INPUT_DIR, OUTPUT_DIR, ROOMS
 from ..core.logging import command_log, should_log_command
 from ..settings.formats import ensure_output_format_doc
 from ..settings.naming import LEGACY_MAPPING_DOC as NAMENSMAPPING_DOC
-from ..settings.plot_templates import OPERATIVE_OVERLAY_ID, OUTDOOR_OVERLAY_ID, get_heating_year_template_defaults
+from ..settings.plot_templates import (
+    OPERATIVE_OVERLAY_ID,
+    OUTDOOR_OVERLAY_ID,
+    get_plot_template_defaults,
+)
 from .dialogs import OUTPUT_FORMAT_DOC, SettingsDialogMixin
 from .selection import (
     format_cli_list,
@@ -276,7 +280,12 @@ class PipelineGUI(SettingsDialogMixin):
             "all": ["overview", "analysis", "heating", "cooling"],
         }
         self.commands = list(self.command_to_steps.keys())
-        self.plot_template_defaults = get_heating_year_template_defaults()
+        self.plot_template_config_path = getattr(args, "plot_template_config", None)
+        self.plot_template = tk.StringVar(value=getattr(args, "template", HEATING_YEAR_TEMPLATE))
+        self.plot_template_defaults = get_plot_template_defaults(
+            self.plot_template.get(),
+            self.plot_template_config_path,
+        )
         self.fixed_plot_overlays = self.plot_template_defaults.get("default_overlays", [])
 
         self.analysis_scope = tk.StringVar(value="")
@@ -291,7 +300,6 @@ class PipelineGUI(SettingsDialogMixin):
         self.heating_month = tk.StringVar(value=MONTH_NAMES[0])
         self.heating_week = tk.StringVar(value="1")
         self.heating_day = tk.StringVar(value="1")
-        self.plot_template = tk.StringVar(value=getattr(args, "template", HEATING_YEAR_TEMPLATE))
         self.plot_setpoint_min = tk.StringVar(
             value=str(
                 getattr(args, "setpoint_min", self.plot_template_defaults.get("setpoint_min", DEFAULT_SETPOINT_MIN))
@@ -629,11 +637,25 @@ class PipelineGUI(SettingsDialogMixin):
         finally:
             self._is_updating_right_scrollbar = False
 
+    def _resolve_widget(self, widget):
+        if isinstance(widget, str):
+            try:
+                return self.root.nametowidget(widget)
+            except (tk.TclError, AttributeError):
+                return None
+        return widget
+
     def _should_skip_mousewheel(self, widget):
+        widget = self._resolve_widget(widget)
+        if widget is None:
+            return False
         widget_class = widget.winfo_class()
         return widget_class in {"Listbox", "Text", "Entry", "TCombobox", "Combobox"}
 
     def _widget_is_in_left_scroll_area(self, widget):
+        widget = self._resolve_widget(widget)
+        if widget is None:
+            return False
         current = widget
         while current is not None:
             if current == self.left_scroll_host:
@@ -645,6 +667,9 @@ class PipelineGUI(SettingsDialogMixin):
         return False
 
     def _widget_is_in_right_scroll_area(self, widget):
+        widget = self._resolve_widget(widget)
+        if widget is None:
+            return False
         current = widget
         while current is not None:
             if current == self.right_column:
@@ -2663,6 +2688,7 @@ class PipelineGUI(SettingsDialogMixin):
         self._advance_after_completed_single_choice(self.step_3_card)
 
     def _update_dynamic_fields(self):
+        self._refresh_plot_template_defaults()
         self._populate_variants()
         self._update_scope_buttons()
         self._update_command_buttons()
@@ -3294,6 +3320,48 @@ class PipelineGUI(SettingsDialogMixin):
             self._prefill_overlay_label()
         elif not columns:
             self.overlay_column.set("")
+
+    def _load_plot_template_defaults(self, template: str | None = None):
+        template = template or self.plot_template.get()
+        return get_plot_template_defaults(template, self.plot_template_config_path)
+
+    def _sync_plot_template_fields(self):
+        if not hasattr(self, "plot_setpoint_min"):
+            return
+        self.plot_setpoint_min.set(
+            str(self.plot_template_defaults.get("setpoint_min", DEFAULT_SETPOINT_MIN))
+        )
+        self.plot_setpoint_max.set(
+            str(self.plot_template_defaults.get("setpoint_max", DEFAULT_SETPOINT_MAX))
+        )
+        self.plot_temperature_ymin.set(
+            str(self.plot_template_defaults.get("temperature_ymin", DEFAULT_TEMPERATURE_YMIN))
+        )
+        self.plot_temperature_ymax.set(
+            str(self.plot_template_defaults.get("temperature_ymax", DEFAULT_TEMPERATURE_YMAX))
+        )
+        self.plot_outdoor_column.set(
+            self.plot_template_defaults.get("outdoor_column", DEFAULT_OUTDOOR_COLUMN)
+        )
+        self.plot_show_setpoint_band.set(
+            bool(self.plot_template_defaults.get("show_setpoint_band", DEFAULT_SHOW_SETPOINT_BAND))
+        )
+        self.plot_show_outdoor_temperature.set(
+            bool(self.plot_template_defaults.get("show_outdoor_temperature", DEFAULT_SHOW_OUTDOOR_TEMPERATURE))
+        )
+        self.plot_show_operative_temperature.set(
+            bool(self.plot_template_defaults.get("show_operative_temperature", DEFAULT_SHOW_OPERATIVE_TEMPERATURE))
+        )
+        self.fixed_plot_overlays = self.plot_template_defaults.get("default_overlays", [])
+
+    def _refresh_plot_template_defaults(self):
+        template = self.plot_template.get()
+        if getattr(self, "_active_plot_template", None) == template:
+            return
+        self.plot_template_defaults = self._load_plot_template_defaults(template)
+        self.fixed_plot_overlays = self.plot_template_defaults.get("default_overlays", [])
+        self._active_plot_template = template
+        self._sync_plot_template_fields()
 
     def _prefill_overlay_label(self):
         if not self.overlay_label.get().strip():
