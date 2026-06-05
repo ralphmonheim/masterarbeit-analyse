@@ -79,7 +79,7 @@ Zwischenergebnisse sollen bei Bedarf speicherbar oder prüfbar sein.
 
 ## Dokumentation
 
-Es gibt zwei getrennte Dokumentationsdateien.
+Es gibt getrennte Dokumentationsbereiche.
 
 ### CHANGELOG.md
 
@@ -91,15 +91,15 @@ CHANGELOG.md ist keine Aufgabenliste.
 
 Offene Ideen, geplante Funktionen und unfertige Anforderungen gehören nicht in CHANGELOG.md.
 
-### docs/PLAN_STATUS.md
+### docs/project/plans/PLAN_STATUS.md
 
-docs/PLAN_STATUS.md ist meine persönliche Planungsübersicht.
+docs/project/plans/PLAN_STATUS.md ist meine persönliche Planungsübersicht.
 
 Dort werden nur aktive, noch nicht abgeschlossene Anforderungen dokumentiert.
 
-Erledigte und längere historische Planstände werden regelmäßig in `docs/plan_status/YYYY-MM-DD.md` archiviert.
+Erledigte und längere historische Planstände werden regelmäßig in `docs/project/plans/archived/YYYY-MM-DD.md` archiviert.
 
-Nutze für `docs/PLAN_STATUS.md` nach Möglichkeit diese Struktur.
+Nutze für `docs/project/plans/PLAN_STATUS.md` nach Möglichkeit diese Struktur.
 
 ## Teilweise umgesetzt
 
@@ -109,11 +109,11 @@ Nutze für `docs/PLAN_STATUS.md` nach Möglichkeit diese Struktur.
 
 ## Archiv
 
-Regeln für docs/PLAN_STATUS.md
+Regeln für docs/project/plans/PLAN_STATUS.md
 
 Die Hauptdatei bleibt kurz und enthält nur offene, teilweise umgesetzte oder unklare Punkte.
 
-Erledigte Punkte werden beim Archivieren in einer Tagesdatei unter `docs/plan_status/` dokumentiert.
+Erledigte Punkte werden beim Archivieren in einer Tagesdatei unter `docs/project/plans/archived/` dokumentiert.
 
 Erledigte Punkte in Archivdateien werden mit durchgestrichenem Markdown markiert.
 
@@ -125,15 +125,27 @@ Unklare Punkte erhalten eine konkrete Rückfrage.
 
 Nenne nach Möglichkeit betroffene Dateien, Funktionen oder Module.
 
-Archivdateien erhalten Namen nach dem Muster `docs/plan_status/YYYY-MM-DD.md`.
+Archivdateien erhalten Namen nach dem Muster `docs/project/plans/archived/YYYY-MM-DD.md`.
 
 ## Wann Dokumentation aktualisiert werden soll
 
 Nach jeder größeren Codeänderung prüfst du, ob CHANGELOG.md aktualisiert werden muss.
 
-Nach jeder umgesetzten oder geprüften Anforderung prüfst du, ob docs/PLAN_STATUS.md oder ein Archivstand unter `docs/plan_status/` aktualisiert werden muss.
+Nach jeder umgesetzten oder geprüften Anforderung prüfst du, ob docs/project/plans/PLAN_STATUS.md oder ein Archivstand unter `docs/project/plans/archived/` aktualisiert werden muss.
 
-Wenn die Hauptdatei durch erledigte Punkte unübersichtlich wird, archiviere den vollständigen Stand und reduziere `docs/PLAN_STATUS.md` wieder auf aktive Punkte.
+Wenn die Hauptdatei durch erledigte Punkte unübersichtlich wird, archiviere den vollständigen Stand und reduziere `docs/project/plans/PLAN_STATUS.md` wieder auf aktive Punkte.
+
+### docs/project/plans/
+
+Neue oder externe Plaene werden zuerst unter `docs/project/plans/inbox/` abgelegt und in `docs/project/plans/PLAN_INDEX.md` eingeordnet.
+
+### docs/project/decisions/
+
+Technische Entscheidungen stehen in `docs/project/decisions/TECHNICAL_DECISIONS.md`.
+
+Nutzerentscheidungen stehen getrennt in `docs/project/decisions/USER_DECISIONS_MASTERTHESIS_CODE.md`.
+
+Offene Nutzerentscheidungen stehen in `docs/project/decisions/USER_DECISIONS_OPEN_POINTS.md`.
 
 Wenn ich nur eine Dokumentationsaufgabe stelle, darf kein Programmcode geändert werden.
 

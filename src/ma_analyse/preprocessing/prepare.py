@@ -1,11 +1,11 @@
 """Bereitet Rohdaten-PRN-Dateien fuer die Analysepipeline auf.
 
 Eingaben:
-    Variantenordner unter ``data/input`` mit Raumunterordnern und den erwarteten
+    Variantenordner unter ``data/ma_analyse/input`` mit Raumunterordnern und den erwarteten
     PRN-Dateien je Raum.
 
 Ausgaben:
-    Zusammengefuehrte Raumtabellen unter ``data/database/<Variante>_nutzdaten``.
+    Zusammengefuehrte Raumtabellen unter ``data/ma_analyse/database/<Variante>_nutzdaten``.
     Je nach Exportformat werden CSV-, Excel- oder beide Dateitypen erzeugt.
 
 Wichtige Annahmen:
@@ -262,7 +262,7 @@ def is_input_variant_dir(variant_path, rooms=None):
 
 def discover_variant_dirs(input_root, rooms=None, debug=False, selected_variants=None):
     """Findet passende Variantenordner im Input-Root."""
-    """Findet Variantenordner unter data/input, auch ohne Suffix _rohdaten."""
+    """Findet Variantenordner unter data/ma_analyse/input, auch ohne Suffix _rohdaten."""
     if not os.path.exists(input_root):
         return []
 

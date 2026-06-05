@@ -1,7 +1,7 @@
 """Erzeugt Comfort- und Behaglichkeitsdiagramme aus Raumdaten.
 
 Eingaben:
-    Aufbereitete Raum-CSV-Dateien aus ``data/database/<Variante>_nutzdaten``.
+    Aufbereitete Raum-CSV-Dateien aus ``data/ma_analyse/database/<Variante>_nutzdaten``.
 
 Ausgaben:
     Einzelraum-PNGs, PDF-Uebersichten und Analyseausgaben mit Komfortzonen.
@@ -128,7 +128,7 @@ def process_plots(
         variant_display_name = get_variant_display_name(variant_dir)
 
         # Neue, kompaktere Struktur:
-        # data/output/<variant_dir>/<run_id>/
+        # data/ma_analyse/output/<variant_dir>/<run_id>/
         run_output_dir = build_run_output_dir(variant_dir, resolved_run_id, output_root=output_root)
         os.makedirs(run_output_dir, exist_ok=True)
 
@@ -214,7 +214,7 @@ def process_overview(datenbank_dir, rooms, run_id=None, output_root=None, varian
         variant_display_name = get_variant_display_name(variant_dir)
 
         # Neue, kompaktere Struktur:
-        # data/output/<variant_dir>/<run_id>/
+        # data/ma_analyse/output/<variant_dir>/<run_id>/
         run_output_dir = build_run_output_dir(variant_dir, resolved_run_id, output_root=output_root)
         os.makedirs(run_output_dir, exist_ok=True)
 
@@ -437,11 +437,11 @@ def parse_args():
 
     common = argparse.ArgumentParser(add_help=False)
     common.add_argument(
-        "--datenbank-dir", default=DATENBANK_DIR, help="Verzeichnis mit aufbereiteten Daten (default: data/database)"
+        "--datenbank-dir", default=DATENBANK_DIR, help="Verzeichnis mit aufbereiteten Daten (default: data/ma_analyse/database)"
     )
     common.add_argument("--run-id", default=None, help="Optionale Lauf-ID, z. B. 2026-03-28_153000")
     common.add_argument(
-        "--output-root", default=None, help="Optionales Output-Root; ohne Angabe wird data/output verwendet"
+        "--output-root", default=None, help="Optionales Output-Root; ohne Angabe wird data/ma_analyse/output verwendet"
     )
     common.add_argument("--debug", dest="debug", action="store_true", help="Aktiviert Debug-Ausgaben")
     common.add_argument("--no-debug", dest="debug", action="store_false", help="Deaktiviert Debug-Ausgaben")

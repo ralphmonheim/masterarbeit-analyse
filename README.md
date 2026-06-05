@@ -12,17 +12,23 @@ python -m pip install -e ".[dev]"
 
 | Ordner | Zweck |
 |---|---|
-| `data/input/` | Rohdaten und Variantenordner |
-| `data/database/` | aufbereitete Raumdaten |
-| `data/output/` | regulaere Analyseausgaben |
+| `data/ma_analyse/input/` | Rohdaten und Variantenordner |
+| `data/ma_analyse/database/` | aufbereitete Raumdaten |
+| `data/ma_analyse/output/` | regulaere Analyseausgaben |
 | `data/test_output/` | lokale Test- und Smoke-Test-Ausgaben |
-| `docs/` | Befehle und Architekturhinweise |
+| `data/ma_variants/` | Import-, Export- und IDA-Uebergabedaten des Variantenkerns |
+| `data/catalogs/` | Produkt-, Material-, Quellen- und Dokumentkataloge |
+| `docs/project/` | Planstatus, Planindex, Entscheidungen und Strukturreviews |
+| `docs/ma_analyse/` | Befehle, Architektur und Plot-Template-Beispiele der Analysepipeline |
+| `docs/ma_variants/` | Workflow, Datenmodell und Wirtschaftlichkeitsmodell des Variantenkerns |
+| `docs/ma_weather/` | geplanter Bereich fuer Wetterdatenanalyse und TRY-Integration |
 | `src/ma_analyse/app/` | CLI und Befehlssteuerung |
 | `src/ma_analyse/core/` | zentrale Konfiguration und Logging |
 | `src/ma_analyse/preprocessing/` | Datenvorbereitung aus Rohdaten |
 | `src/ma_analyse/analysis/` | Datenverarbeitung, Auswertung und gemeinsame Analyse-Komponenten |
 | `src/ma_analyse/settings/` | Naming- und Formatlogik plus zugehoerige Markdown-Dateien |
 | `src/ma_analyse/gui/` | grafische Oberflaeche |
+| `src/ma_variants/` | modularer Varianten-, Export-, Katalog- und Bewertungskern |
 | `tests/` | automatisierte Code-Tests |
 | `logs/` | automatisch erzeugte Laufprotokolle der Analysebefehle |
 
@@ -49,3 +55,11 @@ python -m pytest
 ```
 
 Lokale Daten- und Ausgabeordner unter `data/` sind in `.gitignore` ausgeschlossen. Analysebefehle schreiben automatisch Logdateien mit Schritt- und Gesamtlaufzeiten nach `logs/`; die Logdateien selbst werden nicht versioniert.
+
+## Projektsteuerung
+
+- Aktiver Planstatus: `docs/project/plans/PLAN_STATUS.md`
+- Planindex und Plan-Inbox: `docs/project/plans/`
+- Technische Entscheidungen: `docs/project/decisions/TECHNICAL_DECISIONS.md`
+- Nutzerentscheidungen: `docs/project/decisions/USER_DECISIONS_MASTERTHESIS_CODE.md`
+- Root-Changelog: `CHANGELOG.md`

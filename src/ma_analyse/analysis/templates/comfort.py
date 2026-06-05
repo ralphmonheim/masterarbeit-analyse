@@ -96,9 +96,11 @@ def build_comfort_template(
     rooms: list[str] | tuple[str, ...] | None = None,
     template: str = COMFORT_PLOT_TEMPLATE,
     run_id: str | None = None,
+    plot_template_config: str | Path | None = None,
     debug: bool = False,
 ) -> str | list[str]:
     """Erzeugt Comfort-Plot-Templates fuer eine oder mehrere Varianten."""
+    _ = plot_template_config
     errors = validate_comfort_template_request(template, selected_variants, rooms)
     if errors:
         raise ValueError("; ".join(errors))

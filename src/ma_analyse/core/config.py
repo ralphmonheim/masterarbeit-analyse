@@ -9,15 +9,15 @@ SRC_DIR = PACKAGE_DIR.parent
 PROJECT_ROOT = SRC_DIR.parent
 DOCS_DIR = PROJECT_ROOT / "docs"
 SETTINGS_DIR = PACKAGE_DIR / "settings"
-COMMAND_DOC = DOCS_DIR / "commands.md"
+COMMAND_DOC = DOCS_DIR / "ma_analyse" / "commands_analyse.md"
 NAMING_DOC = SETTINGS_DIR / "naming.md"
 OUTPUT_FORMATS_DOC = SETTINGS_DIR / "output_formats.md"
 PLOT_TEMPLATES_CONFIG = SETTINGS_DIR / "plot_templates.toml"
 PLOT_TEMPLATES_CONFIG_DIR = SETTINGS_DIR / "plot_templates"
 
-INPUT_DIR = "data/input"
-DATENBANK_DIR = "data/database"
-OUTPUT_DIR = "data/output"
+INPUT_DIR = "data/ma_analyse/input"
+DATENBANK_DIR = "data/ma_analyse/database"
+OUTPUT_DIR = "data/ma_analyse/output"
 TEST_OUTPUT_DIR = "data/test_output"
 LOG_DIR = "logs"
 

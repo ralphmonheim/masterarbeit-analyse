@@ -2,15 +2,16 @@
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from datetime import datetime, timezone
 from pathlib import Path
 
 from ..importing.catalog import import_catalog
+from ..naming import apply_variant_names, load_naming_rules
 from ..option_catalog import OptionSet, OptionValue
 from ..parameter_catalog import Parameter
 from ..reporting import VariantExportResult, export_variant_overview
-from ..selection import select_variants_by_key
+from ..selection import filter_variants_by_options, random_select_variants, select_variants_by_key
 from ..variant_manager import (
     Variant,
     VariantValue,
@@ -20,9 +21,20 @@ from ..variant_manager import (
 
 GeneratedVariant = tuple[Variant, list[VariantValue]]
 
-DEFAULT_PARAMETER_CONFIG = Path("config/parameters/example_parameters.yaml")
-DEFAULT_OPTION_CONFIG = Path("config/options/example_options.yaml")
-DEFAULT_EXPORT_DIR = Path("data/exports")
+DEFAULT_PARAMETER_CONFIG = Path("config/ma_variants/parameters/example_parameters.yaml")
+DEFAULT_OPTION_CONFIG = Path("config/ma_variants/options/example_options.yaml")
+DEFAULT_EXPORT_DIR = Path("data/ma_variants/exports")
+DEFAULT_NAMING_CONFIG = Path("config/ma_variants/naming/example_naming_rules.yaml")
+
+
+@dataclass(frozen=True, slots=True)
+class SelectionMethodInfo:
+    """Beschreibt eine in der UI angezeigte Auswahlmethode."""
+
+    method_key: str
+    label: str
+    is_implemented: bool
+    notes: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -44,6 +56,52 @@ class ResultFileInfo:
     path: Path
     size_bytes: int
     modified_at: str
+
+
+SELECTION_METHODS: tuple[SelectionMethodInfo, ...] = (
+    SelectionMethodInfo(
+        method_key="manual",
+        label="Manuell nach variant_key",
+        is_implemented=True,
+        notes="Waehlt Varianten ueber ihre technischen variant_key Werte aus.",
+    ),
+    SelectionMethodInfo(
+        method_key="random",
+        label="Vollstaendig zufaellig",
+        is_implemented=True,
+        notes="Waehlt reproduzierbar eine zufaellige Teilmenge mit festem random_seed aus.",
+    ),
+    SelectionMethodInfo(
+        method_key="filter",
+        label="Auswahl bestimmter Parameter",
+        is_implemented=True,
+        notes="Filtert Varianten ueber parameter_key und erlaubte option_key Werte.",
+    ),
+    SelectionMethodInfo(
+        method_key="monte_carlo",
+        label="Monte Carlo",
+        is_implemented=False,
+        notes="Nur vorbereitet. Es gibt noch keine Monte-Carlo-Logik.",
+    ),
+    SelectionMethodInfo(
+        method_key="structured_coverage",
+        label="Strukturierte Abdeckung",
+        is_implemented=False,
+        notes="Nur vorbereitet. Es gibt noch keine Abdeckungslogik.",
+    ),
+    SelectionMethodInfo(
+        method_key="sensitivity",
+        label="Sensitivitaetsvarianten",
+        is_implemented=False,
+        notes="Nur vorbereitet. Es gibt noch keine Sensitivitaetsanalyse.",
+    ),
+    SelectionMethodInfo(
+        method_key="rule_based",
+        label="Regelbasierte Auswahl",
+        is_implemented=False,
+        notes="Nur vorbereitet. Es gibt noch keine komplexe Regellogik.",
+    ),
+)
 
 
 def load_variant_ui_data(
@@ -115,6 +173,49 @@ def select_variants_for_export(
 ) -> list[GeneratedVariant]:
     """Waehlt Varianten ueber die bestehende Auswahlfunktion aus."""
     return select_variants_by_key(generated_variants, selected_variant_keys)
+
+
+def selection_method_rows() -> list[dict[str, object]]:
+    """Bereitet Auswahlmethoden fuer eine UI-Tabelle auf."""
+    return [asdict(method) for method in SELECTION_METHODS]
+
+
+def selection_method_by_label(label: str) -> SelectionMethodInfo:
+    """Findet eine Auswahlmethode ueber ihre sichtbare UI-Beschriftung."""
+    for method in SELECTION_METHODS:
+        if method.label == label:
+            return method
+    raise ValueError(f"Unbekannte Auswahlmethode: {label}")
+
+
+def select_variants_by_method(
+    generated_variants: list[GeneratedVariant],
+    method_key: str,
+    *,
+    selected_variant_keys: list[str] | None = None,
+    random_count: int = 0,
+    random_seed: int = 42,
+    filter_criteria: dict[str, str | list[str]] | None = None,
+) -> list[GeneratedVariant]:
+    """Fuehrt die in der UI waehlbaren einfachen Auswahlmethoden aus."""
+    if method_key == "manual":
+        return select_variants_by_key(generated_variants, selected_variant_keys or [])
+    if method_key == "random":
+        return random_select_variants(generated_variants, random_count, random_seed)
+    if method_key == "filter":
+        return filter_variants_by_options(generated_variants, filter_criteria or {})
+
+    raise NotImplementedError(f"Auswahlmethode '{method_key}' ist vorbereitet, aber noch nicht implementiert.")
+
+
+def apply_naming_to_ui_data(
+    ui_data: VariantUiData,
+    naming_config: str | Path = DEFAULT_NAMING_CONFIG,
+) -> VariantUiData:
+    """Wendet die bestehenden Namensregeln auf alle erzeugten Varianten an."""
+    naming_rules = load_naming_rules(naming_config)
+    named_variants = apply_variant_names(ui_data.generated_variants, naming_rules)
+    return replace(ui_data, generated_variants=named_variants)
 
 
 def run_variant_export(

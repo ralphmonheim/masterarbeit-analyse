@@ -23,7 +23,7 @@ def _simulation_metrics(variant_key="variant_a"):
     return VariantMetricsResult(
         variant_key=variant_key,
         variant_name="Variante A",
-        result_dir=Path("data/database/variant_a_nutzdaten"),
+        result_dir=Path("data/ma_analyse/database/variant_a_nutzdaten"),
         room_metrics=[],
         summary_metrics={
             "heating_energy_kwh": 1000,
@@ -34,7 +34,7 @@ def _simulation_metrics(variant_key="variant_a"):
 
 
 def test_import_economic_assumptions_loads_example_values():
-    assumptions, errors = import_economic_assumptions("config/economic/example_economic_assumptions.yaml")
+    assumptions, errors = import_economic_assumptions("config/ma_variants/economic/example_economic_assumptions.yaml")
 
     assert errors == []
     assert [cost.system_type for cost in assumptions.generic_system_costs] == [
@@ -87,7 +87,7 @@ economic_scenarios:
 
 
 def test_calculate_variant_costs_uses_simulation_metrics_when_available():
-    assumptions, errors = import_economic_assumptions("config/economic/example_economic_assumptions.yaml")
+    assumptions, errors = import_economic_assumptions("config/ma_variants/economic/example_economic_assumptions.yaml")
     assert errors == []
 
     result = calculate_variant_costs(
@@ -111,7 +111,7 @@ def test_calculate_variant_costs_uses_simulation_metrics_when_available():
 
 
 def test_calculate_variant_costs_marks_default_energy_values():
-    assumptions, errors = import_economic_assumptions("config/economic/example_economic_assumptions.yaml")
+    assumptions, errors = import_economic_assumptions("config/ma_variants/economic/example_economic_assumptions.yaml")
     assert errors == []
 
     result = calculate_variant_costs(
@@ -131,9 +131,9 @@ def test_calculate_variant_costs_marks_default_energy_values():
 
 
 def test_calculate_variant_costs_can_use_system_template_keys():
-    assumptions, errors = import_economic_assumptions("config/economic/example_economic_assumptions.yaml")
+    assumptions, errors = import_economic_assumptions("config/ma_variants/economic/example_economic_assumptions.yaml")
     assert errors == []
-    system_catalog = import_system_catalog("config/systems/example_system_templates.yaml")
+    system_catalog = import_system_catalog("config/ma_variants/systems/example_system_templates.yaml")
 
     result = calculate_variant_costs(
         variant=_variant(),
@@ -148,7 +148,7 @@ def test_calculate_variant_costs_can_use_system_template_keys():
 
 
 def test_export_variant_cost_results_as_json_and_csv(tmp_path):
-    assumptions, errors = import_economic_assumptions("config/economic/example_economic_assumptions.yaml")
+    assumptions, errors = import_economic_assumptions("config/ma_variants/economic/example_economic_assumptions.yaml")
     assert errors == []
     result = calculate_variant_costs(
         variant=_variant(),

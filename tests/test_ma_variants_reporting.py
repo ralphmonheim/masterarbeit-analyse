@@ -18,8 +18,8 @@ FIXED_EXPORTED_AT = "2026-06-03T12:00:00+00:00"
 
 def _load_example_export_data(tmp_path):
     catalog = import_catalog(
-        "config/parameters/example_parameters.yaml",
-        "config/options/example_options.yaml",
+        "config/ma_variants/parameters/example_parameters.yaml",
+        "config/ma_variants/options/example_options.yaml",
         report_path=tmp_path / "import_report.json",
     )
     all_variants = generate_variants(catalog.parameters, catalog.option_values)
@@ -27,7 +27,7 @@ def _load_example_export_data(tmp_path):
         all_variants,
         ["variant_0001", "variant_0005", "variant_0008"],
     )
-    naming_rules = load_naming_rules("config/naming/example_naming_rules.yaml")
+    naming_rules = load_naming_rules("config/ma_variants/naming/example_naming_rules.yaml")
     named_variants = apply_variant_names(selected_variants, naming_rules)
     return catalog, all_variants, named_variants
 

@@ -14,24 +14,41 @@ __pycache__/
 .env
 
 # Lokale Arbeitsdaten und erzeugte Ausgaben
-data/input/*
-!data/input/.gitkeep
-data/database/*
-!data/database/.gitkeep
-data/output/*
-!data/output/.gitkeep
 data/test_output/*
 !data/test_output/.gitkeep
-data/imports/*
-!data/imports/.gitkeep
-data/reports/*
-!data/reports/.gitkeep
-data/exports/*
-!data/exports/.gitkeep
-!data/exports/example_*.json
-!data/exports/example_*.csv
-data/ida_exports/*
-!data/ida_exports/.gitkeep
+!data/test_output/README.md
+data/ma_analyse/input/*
+!data/ma_analyse/input/.gitkeep
+data/ma_analyse/database/*
+!data/ma_analyse/database/.gitkeep
+data/ma_analyse/output/*
+!data/ma_analyse/output/.gitkeep
+data/ma_analyse/reports/*
+!data/ma_analyse/reports/.gitkeep
+data/ma_variants/imports/*
+!data/ma_variants/imports/.gitkeep
+data/ma_variants/exports/*
+!data/ma_variants/exports/.gitkeep
+!data/ma_variants/exports/example_*.json
+!data/ma_variants/exports/example_*.csv
+data/ma_variants/ida_exports/*
+!data/ma_variants/ida_exports/.gitkeep
+data/ma_variants/database/*
+!data/ma_variants/database/.gitkeep
+data/ma_weather/input/*
+!data/ma_weather/input/.gitkeep
+data/ma_weather/processed/*
+!data/ma_weather/processed/.gitkeep
+data/ma_weather/exports/*
+!data/ma_weather/exports/.gitkeep
+data/ma_weather/reports/*
+!data/ma_weather/reports/.gitkeep
+data/catalogs/documents/products/*
+!data/catalogs/documents/products/.gitkeep
+data/catalogs/documents/materials/*
+!data/catalogs/documents/materials/.gitkeep
+data/common/reports/*
+!data/common/reports/.gitkeep
 
 # Logs und temporaere Dateien
 logs/*.log

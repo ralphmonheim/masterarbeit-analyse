@@ -23,7 +23,7 @@ def _json_default(value: Any) -> str:
 
 def export_simulation_metrics_to_json(
     metric_results: list[VariantMetricsResult],
-    output_path: str | Path = Path("data/exports/simulation_metrics.json"),
+    output_path: str | Path = Path("data/ma_variants/exports/simulation_metrics.json"),
     exported_at: str | None = None,
 ) -> Path:
     """Schreibt eingelesene Simulationskennwerte als JSON."""

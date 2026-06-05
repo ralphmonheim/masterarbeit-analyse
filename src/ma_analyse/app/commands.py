@@ -489,9 +489,9 @@ def _render_gallery_markdown(entries: list[dict[str, object]], output_file: Path
             lines.append(f"**Beispielbefehl:** `{entry['command']}`")
             lines.append("")
             if target_file.lower().endswith(".pdf"):
-                lines.append(f"[PDF-Ausgabe](examples/plot_templates/{target_file})")
+                lines.append(f"[PDF-Ausgabe](../examples/plot_templates/{target_file})")
             else:
-                lines.append(f"![{template}](examples/plot_templates/{target_file})")
+                lines.append(f"![{template}](../examples/plot_templates/{target_file})")
             lines.append("")
         lines.append("")
 
@@ -548,7 +548,7 @@ def run_plot_template_examples(args):
         target = _copy_gallery_file(output, gallery_dir, example["template"])
         output_entries.append({**example, "target_file": target})
 
-    markdown_file = DOCS_DIR / "plot_template_examples.md"
+    markdown_file = DOCS_DIR / "ma_analyse" / "plot_template_examples.md"
     _render_gallery_markdown(output_entries, markdown_file)
     print(f"Beispielgalerie erzeugt: {markdown_file}")
     print(f"Bilder erzeugt: {len(output_entries)} Dateien")

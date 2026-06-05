@@ -28,6 +28,9 @@ from ..analysis.templates import (
     DEFAULT_OUTDOOR_COLUMN,
     DEFAULT_SETPOINT_MAX,
     DEFAULT_SETPOINT_MIN,
+    DEFAULT_SHOW_OPERATIVE_TEMPERATURE,
+    DEFAULT_SHOW_OUTDOOR_TEMPERATURE,
+    DEFAULT_SHOW_SETPOINT_BAND,
     DEFAULT_TEMPERATURE_YMAX,
     DEFAULT_TEMPERATURE_YMIN,
     HEATING_YEAR_TEMPLATE,
@@ -47,6 +50,7 @@ from ..settings.naming import LEGACY_MAPPING_DOC as NAMENSMAPPING_DOC
 from ..settings.plot_templates import (
     OPERATIVE_OVERLAY_ID,
     OUTDOOR_OVERLAY_ID,
+    get_heating_year_template_defaults,
     get_plot_template_defaults,
 )
 from .dialogs import OUTPUT_FORMAT_DOC, SettingsDialogMixin

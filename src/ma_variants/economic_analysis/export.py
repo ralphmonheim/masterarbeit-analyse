@@ -10,8 +10,8 @@ from pathlib import Path
 
 from .models import VariantCostResult
 
-DEFAULT_JSON_EXPORT_PATH = Path("data/exports/variant_cost_results.json")
-DEFAULT_CSV_EXPORT_PATH = Path("data/exports/variant_cost_results.csv")
+DEFAULT_JSON_EXPORT_PATH = Path("data/ma_variants/exports/variant_cost_results.json")
+DEFAULT_CSV_EXPORT_PATH = Path("data/ma_variants/exports/variant_cost_results.csv")
 
 
 def _timestamp(exported_at: str | None) -> str:

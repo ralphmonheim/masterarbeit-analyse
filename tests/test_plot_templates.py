@@ -16,8 +16,8 @@ from ma_analyse.analysis.templates import (
     validate_template_request,
 )
 from ma_analyse.settings.plot_templates import (
-    get_plot_template_defaults,
     get_heating_year_template_defaults,
+    get_plot_template_defaults,
     load_plot_template_config,
 )
 

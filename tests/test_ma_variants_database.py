@@ -63,8 +63,8 @@ def _session_factory():
 
 def _load_example_catalog(tmp_path):
     return import_catalog(
-        "config/parameters/example_parameters.yaml",
-        "config/options/example_options.yaml",
+        "config/ma_variants/parameters/example_parameters.yaml",
+        "config/ma_variants/options/example_options.yaml",
         report_path=tmp_path / "import_report.json",
     )
 
@@ -95,9 +95,9 @@ def test_database_url_is_built_from_environment_parts():
 
 def test_repository_saves_catalog_variants_and_import_log(tmp_path):
     catalog = _load_example_catalog(tmp_path)
-    system_catalog = import_system_catalog("config/systems/example_system_templates.yaml")
+    system_catalog = import_system_catalog("config/ma_variants/systems/example_system_templates.yaml")
     economic_assumptions, economic_errors = import_economic_assumptions(
-        "config/economic/example_economic_assumptions.yaml"
+        "config/ma_variants/economic/example_economic_assumptions.yaml"
     )
     assert economic_errors == []
     generated_variants = generate_variants(catalog.parameters, catalog.option_values)[:2]
@@ -184,10 +184,10 @@ def test_repository_updates_existing_parameter_without_deleting_related_data(tmp
 
 
 def test_repository_saves_product_material_document_and_source_catalogs():
-    product_catalog = import_products("config/products/example_products.yaml")
-    material_catalog = import_materials("config/materials/example_materials.yaml")
-    document_catalog = import_documents("config/documents/example_documents.yaml")
-    source_catalog = import_sources("config/sources/example_sources.yaml")
+    product_catalog = import_products("config/ma_variants/products/example_products.yaml")
+    material_catalog = import_materials("config/ma_variants/materials/example_materials.yaml")
+    document_catalog = import_documents("config/ma_variants/documents/example_documents.yaml")
+    source_catalog = import_sources("config/ma_variants/sources/example_sources.yaml")
     assert product_catalog.errors == []
     assert material_catalog.errors == []
     assert document_catalog.errors == []
@@ -212,7 +212,7 @@ def test_repository_saves_product_material_document_and_source_catalogs():
 
         product = session.get(DbProduct, "example_heat_pump_01")
         assert product is not None
-        assert product.document_path == "data/documents/products/example_heat_pump_01_datasheet.pdf"
+        assert product.document_path == "data/catalogs/documents/products/example_heat_pump_01_datasheet.pdf"
 
         material_property = session.get(DbMaterialProperty, ("example_concrete_01", "compressive_strength_mpa"))
         assert material_property is not None

@@ -20,7 +20,7 @@ from ..analysis.templates import (
 )
 from ..core.config import DATENBANK_DIR, EXPORT_FORMATS, INPUT_DIR, OUTPUT_DIR, ROOMS, TEST_OUTPUT_DIR
 from ..core.logging import command_log, should_log_command
-from ..settings.plot_templates import get_plot_template_defaults, get_heating_year_template_defaults, load_plot_template_config
+from ..settings.plot_templates import get_plot_template_defaults
 from .commands import dispatch_command, get_comfort_output_settings
 
 

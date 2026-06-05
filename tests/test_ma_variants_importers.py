@@ -12,8 +12,8 @@ def test_import_catalog_loads_example_configs_and_writes_report(tmp_path):
     report_path = tmp_path / "import_report.json"
 
     result = import_catalog(
-        "config/parameters/example_parameters.yaml",
-        "config/options/example_options.yaml",
+        "config/ma_variants/parameters/example_parameters.yaml",
+        "config/ma_variants/options/example_options.yaml",
         report_path=report_path,
     )
 

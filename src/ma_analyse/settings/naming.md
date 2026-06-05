@@ -13,10 +13,10 @@ Regeln:
 
 | Kategorie | Aktueller Name | Neuer Name | Verwendung | Fundstellen/Hinweis |
 | --- | --- | --- | --- | --- |
-| Ordner & Pfade | data/input |  | Standard-Input-Ordner fuer Rohdatenvarianten | ID=path.input_dir; MODE=literal; core/config.py, app/cli.py, preprocessing/prepare.py, docs/commands.md |
-| Ordner & Pfade | data/database |  | Standard-Ausgabeordner fuer aufbereitete Nutzdaten | ID=path.database_dir; MODE=literal; alle Hauptmodule, docs/commands.md |
-| Ordner & Pfade | data/output |  | Standard-Output-Ordner fuer Diagramme, PDFs und Excel | ID=path.output_dir; MODE=literal; Plot-/Analyse-/Heating-Module, docs/commands.md |
-| Ordner & Pfade | data/test_output |  | Standard-Ordner fuer lokale Test- und Smoke-Test-Ausgaben | ID=path.test_output_dir; MODE=literal; docs/commands.md, tests |
+| Ordner & Pfade | data/ma_analyse/input |  | Standard-Input-Ordner fuer Rohdatenvarianten | ID=path.input_dir; MODE=literal; core/config.py, app/cli.py, preprocessing/prepare.py, docs/ma_analyse/commands_analyse.md |
+| Ordner & Pfade | data/ma_analyse/database |  | Standard-Ausgabeordner fuer aufbereitete Nutzdaten | ID=path.database_dir; MODE=literal; alle Hauptmodule, docs/ma_analyse/commands_analyse.md |
+| Ordner & Pfade | data/ma_analyse/output |  | Standard-Output-Ordner fuer Diagramme, PDFs und Excel | ID=path.output_dir; MODE=literal; Plot-/Analyse-/Heating-Module, docs/ma_analyse/commands_analyse.md |
+| Ordner & Pfade | data/test_output |  | Standard-Ordner fuer lokale Test- und Smoke-Test-Ausgaben | ID=path.test_output_dir; MODE=literal; docs/ma_analyse/commands_analyse.md, tests |
 | Ordner & Pfade | analyze_simulation |  | Unterordner fuer die Excel-Gesamtauswertung | ID=path.analyze_simulation; MODE=literal; analysis/excel.py |
 | Ordner & Pfade | HeatingComparison |  | Vergleichsname fuer Heiz-Ausgaben und Prefixe | ID=path.heating_comparison_root; MODE=literal; analysis/heating.py |
 
@@ -24,19 +24,19 @@ Regeln:
 
 | Kategorie | Aktueller Name | Neuer Name | Verwendung | Fundstellen/Hinweis |
 | --- | --- | --- | --- | --- |
-| Befehle & CLI | prepare |  | CLI-Befehl fuer Datenaufbereitung | ID=command.prepare; MODE=quoted; app/cli.py, app/commands.py, docs/commands.md |
-| Befehle & CLI | comfort |  | CLI-Befehl fuer Komfortausgaben | ID=command.comfort; MODE=quoted; app/cli.py, app/commands.py, analysis/comfort/main.py, docs/commands.md |
-| Befehle & CLI | analyze_data |  | CLI-Befehl fuer Excel-Auswertung | ID=command.analyze_data; MODE=literal; app/cli.py, app/commands.py, docs/commands.md |
-| Befehle & CLI | heating |  | CLI-Befehl fuer Heizvergleich | ID=command.heating; MODE=quoted; app/cli.py, app/commands.py, analysis/heating.py, docs/commands.md |
-| Befehle & CLI | all |  | CLI-Sammelbefehl fuer den kombinierten Lauf | ID=command.all; MODE=quoted; app/cli.py, app/commands.py, docs/commands.md |
-| Befehle & CLI | --input-dir |  | CLI-Option fuer den Input-Ordner | ID=option.input_dir; MODE=literal; app/cli.py, app/commands.py, docs/commands.md |
-| Befehle & CLI | --datenbank-dir |  | CLI-Option fuer den Datenbank-Ordner | ID=option.database_dir; MODE=literal; app/cli.py, app/commands.py, analysis/excel.py, analysis/comfort/main.py, docs/commands.md |
-| Befehle & CLI | --output-root |  | CLI-Option fuer das Ausgabe-Root | ID=option.output_root; MODE=literal; app/cli.py, app/commands.py, analysis/excel.py, analysis/comfort/main.py, analysis/heating.py, docs/commands.md |
-| Befehle & CLI | --run-id |  | CLI-Option fuer eine feste Lauf-ID | ID=option.run_id; MODE=literal; app/cli.py, app/commands.py, analysis/excel.py, analysis/comfort/main.py, analysis/heating.py, docs/commands.md |
-| Befehle & CLI | --variants |  | CLI-Option fuer Variantenlisten | ID=option.variants; MODE=literal; app/cli.py, app/commands.py, analysis/heating.py, docs/commands.md |
-| Befehle & CLI | --rooms |  | CLI-Option fuer Raumlisten | ID=option.rooms; MODE=literal; app/cli.py, app/commands.py, analysis/excel.py, docs/commands.md |
-| Befehle & CLI | --view |  | CLI-Option fuer Darstellungsmodus bei Heating | ID=option.view; MODE=literal; app/cli.py, app/commands.py, analysis/heating.py, docs/commands.md |
-| Befehle & CLI | --heating-mode |  | CLI-Option fuer Vergleichs- oder Einzelmodus | ID=option.heating_mode; MODE=literal; app/cli.py, app/commands.py, docs/commands.md |
+| Befehle & CLI | prepare |  | CLI-Befehl fuer Datenaufbereitung | ID=command.prepare; MODE=quoted; app/cli.py, app/commands.py, docs/ma_analyse/commands_analyse.md |
+| Befehle & CLI | comfort |  | CLI-Befehl fuer Komfortausgaben | ID=command.comfort; MODE=quoted; app/cli.py, app/commands.py, analysis/comfort/main.py, docs/ma_analyse/commands_analyse.md |
+| Befehle & CLI | analyze_data |  | CLI-Befehl fuer Excel-Auswertung | ID=command.analyze_data; MODE=literal; app/cli.py, app/commands.py, docs/ma_analyse/commands_analyse.md |
+| Befehle & CLI | heating |  | CLI-Befehl fuer Heizvergleich | ID=command.heating; MODE=quoted; app/cli.py, app/commands.py, analysis/heating.py, docs/ma_analyse/commands_analyse.md |
+| Befehle & CLI | all |  | CLI-Sammelbefehl fuer den kombinierten Lauf | ID=command.all; MODE=quoted; app/cli.py, app/commands.py, docs/ma_analyse/commands_analyse.md |
+| Befehle & CLI | --input-dir |  | CLI-Option fuer den Input-Ordner | ID=option.input_dir; MODE=literal; app/cli.py, app/commands.py, docs/ma_analyse/commands_analyse.md |
+| Befehle & CLI | --datenbank-dir |  | CLI-Option fuer den Datenbank-Ordner | ID=option.database_dir; MODE=literal; app/cli.py, app/commands.py, analysis/excel.py, analysis/comfort/main.py, docs/ma_analyse/commands_analyse.md |
+| Befehle & CLI | --output-root |  | CLI-Option fuer das Ausgabe-Root | ID=option.output_root; MODE=literal; app/cli.py, app/commands.py, analysis/excel.py, analysis/comfort/main.py, analysis/heating.py, docs/ma_analyse/commands_analyse.md |
+| Befehle & CLI | --run-id |  | CLI-Option fuer eine feste Lauf-ID | ID=option.run_id; MODE=literal; app/cli.py, app/commands.py, analysis/excel.py, analysis/comfort/main.py, analysis/heating.py, docs/ma_analyse/commands_analyse.md |
+| Befehle & CLI | --variants |  | CLI-Option fuer Variantenlisten | ID=option.variants; MODE=literal; app/cli.py, app/commands.py, analysis/heating.py, docs/ma_analyse/commands_analyse.md |
+| Befehle & CLI | --rooms |  | CLI-Option fuer Raumlisten | ID=option.rooms; MODE=literal; app/cli.py, app/commands.py, analysis/excel.py, docs/ma_analyse/commands_analyse.md |
+| Befehle & CLI | --view |  | CLI-Option fuer Darstellungsmodus bei Heating | ID=option.view; MODE=literal; app/cli.py, app/commands.py, analysis/heating.py, docs/ma_analyse/commands_analyse.md |
+| Befehle & CLI | --heating-mode |  | CLI-Option fuer Vergleichs- oder Einzelmodus | ID=option.heating_mode; MODE=literal; app/cli.py, app/commands.py, docs/ma_analyse/commands_analyse.md |
 
 ## Output-Struktur
 
@@ -82,11 +82,11 @@ Regeln:
 
 | Kategorie | Aktueller Name | Neuer Name | Verwendung | Fundstellen/Hinweis |
 | --- | --- | --- | --- | --- |
-| Raeume | 101 lobby |  | Raumname in ROOMS-Listen, Dateinamen und GUI | ID=room.101_lobby; MODE=literal; alle Hauptmodule, docs/commands.md |
-| Raeume | 109 office |  | Raumname in ROOMS-Listen, Dateinamen und GUI | ID=room.109_office; MODE=literal; alle Hauptmodule, docs/commands.md |
-| Raeume | 113 meeting |  | Raumname in ROOMS-Listen, Dateinamen und GUI | ID=room.113_meeting; MODE=literal; alle Hauptmodule, docs/commands.md |
-| Raeume | 208 office |  | Raumname in ROOMS-Listen, Dateinamen und GUI | ID=room.208_office; MODE=literal; alle Hauptmodule, docs/commands.md |
-| Raeume | 214 meeting |  | Raumname in ROOMS-Listen, Dateinamen und GUI | ID=room.214_meeting; MODE=literal; alle Hauptmodule, docs/commands.md |
+| Raeume | 101 lobby |  | Raumname in ROOMS-Listen, Dateinamen und GUI | ID=room.101_lobby; MODE=literal; alle Hauptmodule, docs/ma_analyse/commands_analyse.md |
+| Raeume | 109 office |  | Raumname in ROOMS-Listen, Dateinamen und GUI | ID=room.109_office; MODE=literal; alle Hauptmodule, docs/ma_analyse/commands_analyse.md |
+| Raeume | 113 meeting |  | Raumname in ROOMS-Listen, Dateinamen und GUI | ID=room.113_meeting; MODE=literal; alle Hauptmodule, docs/ma_analyse/commands_analyse.md |
+| Raeume | 208 office |  | Raumname in ROOMS-Listen, Dateinamen und GUI | ID=room.208_office; MODE=literal; alle Hauptmodule, docs/ma_analyse/commands_analyse.md |
+| Raeume | 214 meeting |  | Raumname in ROOMS-Listen, Dateinamen und GUI | ID=room.214_meeting; MODE=literal; alle Hauptmodule, docs/ma_analyse/commands_analyse.md |
 
 
 

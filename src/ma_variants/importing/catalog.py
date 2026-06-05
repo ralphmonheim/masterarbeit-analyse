@@ -8,7 +8,7 @@ from ..option_catalog.importer import import_options
 from ..parameter_catalog.importer import import_parameters
 from .reports import CatalogImportResult, ImportValidationError, write_import_report
 
-DEFAULT_IMPORT_REPORT = Path("data/imports/import_report.json")
+DEFAULT_IMPORT_REPORT = Path("data/ma_variants/imports/import_report.json")
 
 
 def import_catalog(

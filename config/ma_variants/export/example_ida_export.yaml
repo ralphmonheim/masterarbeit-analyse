@@ -1,0 +1,10 @@
+ida_export:
+  output_root: data/ma_variants/ida_exports
+  variant_folder_template: "{variant_key}"
+  metadata_filename: metadata.json
+  resolved_parameters_filename: resolved_parameters.json
+  export_log_filename: export_log.txt
+  notes:
+    - Vorbereitete Uebergabestruktur fuer IDA ICE.
+    - Bestehende IDA-Dateien werden in diesem Abschnitt nicht veraendert.
+    - Der IDA-ICE-Variantenmanager wird nicht gestartet.

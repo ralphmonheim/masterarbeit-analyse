@@ -11,8 +11,8 @@ from ma_variants.variant_manager import (
 
 def _load_example_catalog(tmp_path):
     return import_catalog(
-        "config/parameters/example_parameters.yaml",
-        "config/options/example_options.yaml",
+        "config/ma_variants/parameters/example_parameters.yaml",
+        "config/ma_variants/options/example_options.yaml",
         report_path=tmp_path / "import_report.json",
     )
 

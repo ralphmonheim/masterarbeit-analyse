@@ -1,7 +1,7 @@
 """Erzeugt Excel-Auswertungen aus aufbereiteten Simulationsdaten.
 
 Eingaben:
-    Raum-CSV-Dateien aus ``data/database/<Variante>_nutzdaten``.
+    Raum-CSV-Dateien aus ``data/ma_analyse/database/<Variante>_nutzdaten``.
 
 Ausgaben:
     Excel-Dateien mit zusammengefassten Kennwerten. Im Modus ``compare`` wird
@@ -164,10 +164,10 @@ def main():
     parser.add_argument(
         "--datenbank-dir",
         default=DATENBANK_DIR,
-        help="Verzeichnis mit aufbereiteten Raum-CSV-Dateien (default: data/database)",
+        help="Verzeichnis mit aufbereiteten Raum-CSV-Dateien (default: data/ma_analyse/database)",
     )
     parser.add_argument(
-        "--output-root", default=None, help="Wurzelverzeichnis für die Excel-Ausgabe (default: data/output)"
+        "--output-root", default=None, help="Wurzelverzeichnis für die Excel-Ausgabe (default: data/ma_analyse/output)"
     )
     parser.add_argument("--run-id", default=None, help="Optionale Lauf-ID für die Ausgabestruktur")
     parser.add_argument(

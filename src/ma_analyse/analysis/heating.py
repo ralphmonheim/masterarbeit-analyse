@@ -1,10 +1,10 @@
 """Erzeugt Heating-Diagramme aus aufbereiteten Raumdaten.
 
 Eingaben:
-    CSV-Dateien je Raum aus ``data/database/<Variante>_nutzdaten``.
+    CSV-Dateien je Raum aus ``data/ma_analyse/database/<Variante>_nutzdaten``.
 
 Ausgaben:
-    PNG-Diagramme fuer Balken- und Zeitansichten unter ``data/output`` oder
+    PNG-Diagramme fuer Balken- und Zeitansichten unter ``data/ma_analyse/output`` oder
     einem per CLI/GUI uebergebenen Ausgabeordner.
 
 Wichtige Annahmen:
@@ -988,7 +988,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--datenbank_dir",
         default=DATENBANK_DIR,
-        help="Verzeichnis mit Varianten-Unterordnern (Standard: data/database)",
+        help="Verzeichnis mit Varianten-Unterordnern (Standard: data/ma_analyse/database)",
     )
     parser.add_argument(
         "--variants",
@@ -1026,7 +1026,7 @@ if __name__ == "__main__":
         help="Diagrammausgabe: separate fuer Variantenplots oder combined fuer Sammelplots",
     )
     parser.add_argument(
-        "--output-root", default=None, help="Zielverzeichnis für erzeugte Ausgabeordner (Standard: data/output)"
+        "--output-root", default=None, help="Zielverzeichnis für erzeugte Ausgabeordner (Standard: data/ma_analyse/output)"
     )
     parser.add_argument("--run-id", default=None, help="Optionale Lauf-ID fuer die Ablage")
     parser.add_argument("--debug", action="store_true", help="Debug-Ausgaben aktivieren")

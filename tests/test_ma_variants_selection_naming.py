@@ -20,8 +20,8 @@ from ma_variants.variant_manager import export_variants_to_json, generate_varian
 
 def _load_example_variants(tmp_path):
     catalog = import_catalog(
-        "config/parameters/example_parameters.yaml",
-        "config/options/example_options.yaml",
+        "config/ma_variants/parameters/example_parameters.yaml",
+        "config/ma_variants/options/example_options.yaml",
         report_path=tmp_path / "import_report.json",
     )
     return generate_variants(catalog.parameters, catalog.option_values)
@@ -70,7 +70,7 @@ def test_random_select_variants_is_reproducible(tmp_path):
 
 def test_apply_variant_names_uses_naming_rules(tmp_path):
     variants = _load_example_variants(tmp_path)
-    naming_rules = load_naming_rules("config/naming/example_naming_rules.yaml")
+    naming_rules = load_naming_rules("config/ma_variants/naming/example_naming_rules.yaml")
     selected = select_variants_by_key(variants, ["variant_0001", "variant_0005", "variant_0008"])
 
     named_variants = apply_variant_names(selected, naming_rules)
@@ -107,7 +107,7 @@ def test_apply_variant_names_rejects_duplicates(tmp_path):
 
 def test_export_selected_named_variants_to_json(tmp_path):
     variants = _load_example_variants(tmp_path)
-    naming_rules = load_naming_rules("config/naming/example_naming_rules.yaml")
+    naming_rules = load_naming_rules("config/ma_variants/naming/example_naming_rules.yaml")
     selected = select_variants_by_key(variants, ["variant_0001", "variant_0005", "variant_0008"])
     named_variants = apply_variant_names(selected, naming_rules)
 

@@ -6,6 +6,12 @@ from ma_analyse.analysis.templates import (
 from ma_analyse.gui.selection import resolve_variant_list_state
 
 
+def test_gui_app_imports_without_starting_window():
+    from ma_analyse.gui import app
+
+    assert hasattr(app, "run_gui")
+
+
 def test_variant_list_state_starts_without_selection():
     state = resolve_variant_list_state(variant_count=3, scope="", current_selection=(0,))
 

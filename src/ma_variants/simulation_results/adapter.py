@@ -24,7 +24,7 @@ def _result_folder_key(path: Path) -> str:
     return _strip_result_suffix(path.name)
 
 
-def discover_result_folders(results_root: str | Path = "data/database") -> list[SimulationResultFolder]:
+def discover_result_folders(results_root: str | Path = "data/ma_analyse/database") -> list[SimulationResultFolder]:
     """Findet vorhandene aufbereitete Variantenordner."""
     root = Path(results_root)
     if not root.exists() or not root.is_dir():
@@ -71,7 +71,7 @@ def resolve_result_folder(
 
 def map_result_folders_to_variants(
     variants: list[Variant],
-    results_root: str | Path = "data/database",
+    results_root: str | Path = "data/ma_analyse/database",
     folder_overrides: dict[str, str] | None = None,
 ) -> list[VariantResultMapping]:
     """Ordnet vorhandene Ergebnisordner einer Variantenliste zu."""

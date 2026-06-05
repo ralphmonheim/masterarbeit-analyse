@@ -21,7 +21,12 @@ from ..components.rooms import get_room_data_file
 from ..components.runtime import annotate_timestamp, get_run_id, sanitize_file_name
 from ..components.time_windows import build_energy_time_axis_config
 from ..components.variants import get_variant_display_name, normalize_variant_name, strip_variant_suffix
-from .catalog import HEATING_OVERLAY_TEMPLATE, HEATING_YEAR_TEMPLATE, get_plot_template_spec, template_requires_single_room
+from .catalog import (
+    HEATING_OVERLAY_TEMPLATE,
+    HEATING_YEAR_TEMPLATE,
+    get_plot_template_spec,
+    template_requires_single_room,
+)
 from .timeline import validate_timeline_template_time_selection
 
 REQUIRED_HEATING_COLUMN = "zone_energy_q_heat"

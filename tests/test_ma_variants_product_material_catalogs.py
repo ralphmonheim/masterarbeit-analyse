@@ -7,7 +7,7 @@ from ma_variants.source_catalog import import_sources
 
 
 def test_import_products_loads_example_catalog():
-    result = import_products("config/products/example_products.yaml")
+    result = import_products("config/ma_variants/products/example_products.yaml")
 
     assert result.errors == []
     assert [product.product_key for product in result.products] == [
@@ -15,7 +15,7 @@ def test_import_products_loads_example_catalog():
         "example_pv_module_01",
     ]
     assert result.products[0].nominal_power == 25
-    assert result.products[0].document_path == "data/documents/products/example_heat_pump_01_datasheet.pdf"
+    assert result.products[0].document_path == "data/catalogs/documents/products/example_heat_pump_01_datasheet.pdf"
     assert [property_.property_key for property_ in result.product_properties] == ["scop", "module_area_m2"]
 
 
@@ -34,7 +34,7 @@ products:
     gwp_value: 100
     gwp_unit: kgCO2e/unit
     product_url: https://example.invalid/product_a
-    document_path: data/documents/products/product_a.pdf
+    document_path: data/catalogs/documents/products/product_a.pdf
     source: source_a
     data_quality: example
   - product_key: product_a
@@ -47,7 +47,7 @@ products:
     gwp_value: 120
     gwp_unit: kgCO2e/unit
     product_url: https://example.invalid/product_a_copy
-    document_path: data/documents/products/product_a_copy.pdf
+    document_path: data/catalogs/documents/products/product_a_copy.pdf
     source: source_a
     data_quality: example
   - product_key: product_b
@@ -60,7 +60,7 @@ products:
     gwp_value: 90
     gwp_unit: kgCO2e/unit
     product_url: https://example.invalid/product_b
-    document_path: data/documents/products/product_b.pdf
+    document_path: data/catalogs/documents/products/product_b.pdf
     source: source_a
     data_quality: example
 """,
@@ -74,7 +74,7 @@ products:
 
 
 def test_import_materials_loads_example_catalog():
-    result = import_materials("config/materials/example_materials.yaml")
+    result = import_materials("config/ma_variants/materials/example_materials.yaml")
 
     assert result.errors == []
     assert [material.material_key for material in result.materials] == [
@@ -82,7 +82,7 @@ def test_import_materials_loads_example_catalog():
         "example_concrete_01",
     ]
     assert result.materials[0].lambda_value == 0.035
-    assert result.materials[0].document_path == "data/documents/materials/example_insulation_01_datasheet.pdf"
+    assert result.materials[0].document_path == "data/catalogs/documents/materials/example_insulation_01_datasheet.pdf"
     assert [property_.property_key for property_ in result.material_properties] == [
         "fire_class",
         "compressive_strength_mpa",
@@ -119,7 +119,7 @@ def test_import_materials_supports_csv(tmp_path):
                 "price": "20",
                 "gwp_value": "1.5",
                 "gwp_unit": "kgCO2e/kg",
-                "document_path": "data/documents/materials/csv_material_01.pdf",
+                "document_path": "data/catalogs/documents/materials/csv_material_01.pdf",
                 "source": "csv_source",
                 "data_quality": "example",
             }
@@ -133,8 +133,8 @@ def test_import_materials_supports_csv(tmp_path):
 
 
 def test_import_sources_and_documents_load_example_catalogs():
-    source_result = import_sources("config/sources/example_sources.yaml")
-    document_result = import_documents("config/documents/example_documents.yaml")
+    source_result = import_sources("config/ma_variants/sources/example_sources.yaml")
+    document_result = import_documents("config/ma_variants/documents/example_documents.yaml")
 
     assert source_result.errors == []
     assert document_result.errors == []
@@ -142,4 +142,4 @@ def test_import_sources_and_documents_load_example_catalogs():
         "example_product_source",
         "example_material_source",
     ]
-    assert document_result.documents[0].document_path.startswith("data/documents/products/")
+    assert document_result.documents[0].document_path.startswith("data/catalogs/documents/products/")

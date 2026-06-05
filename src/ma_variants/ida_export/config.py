@@ -9,7 +9,7 @@ from typing import Any
 from ..importing.io import load_config_file
 from ..validation import require_non_empty
 
-DEFAULT_IDA_EXPORT_CONFIG = Path("config/export/example_ida_export.yaml")
+DEFAULT_IDA_EXPORT_CONFIG = Path("config/ma_variants/export/example_ida_export.yaml")
 
 
 @dataclass(frozen=True, slots=True)
@@ -46,7 +46,7 @@ def load_ida_export_settings(config_path: str | Path = DEFAULT_IDA_EXPORT_CONFIG
     if not isinstance(raw_config, dict):
         raise ValueError("Konfiguration muss ein Objekt 'ida_export' enthalten.")
 
-    output_root = raw_config.get("output_root", "data/ida_exports")
+    output_root = raw_config.get("output_root", "data/ma_variants/ida_exports")
     if not isinstance(output_root, str):
         raise ValueError("ida_export.output_root muss ein Textwert sein.")
 

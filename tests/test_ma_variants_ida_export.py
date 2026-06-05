@@ -30,10 +30,10 @@ def _variant_with_values(
 
 
 def test_ida_export_creates_variant_folder_and_required_files(tmp_path):
-    settings = load_ida_export_settings("config/export/example_ida_export.yaml")
+    settings = load_ida_export_settings("config/ma_variants/export/example_ida_export.yaml")
     settings = replace(settings, output_root=tmp_path / "ida_exports")
     variant, variant_values = _variant_with_values()
-    system_catalog = import_system_catalog("config/systems/example_system_templates.yaml")
+    system_catalog = import_system_catalog("config/ma_variants/systems/example_system_templates.yaml")
     resolution = resolve_system_templates_for_variant(
         variant=variant,
         variant_values=variant_values,
@@ -62,15 +62,15 @@ def test_ida_export_creates_variant_folder_and_required_files(tmp_path):
         "variant_name": "IDA Export Variante",
         "export_time": FIXED_EXPORT_TIME,
         "status": "selected",
-        "source_config": "config/export/example_ida_export.yaml",
+        "source_config": "config/ma_variants/export/example_ida_export.yaml",
     }
 
 
 def test_ida_export_writes_resolved_variant_and_system_parameters(tmp_path):
-    settings = load_ida_export_settings("config/export/example_ida_export.yaml")
+    settings = load_ida_export_settings("config/ma_variants/export/example_ida_export.yaml")
     settings = replace(settings, output_root=tmp_path / "ida_exports")
     variant, variant_values = _variant_with_values()
-    system_catalog = import_system_catalog("config/systems/example_system_templates.yaml")
+    system_catalog = import_system_catalog("config/ma_variants/systems/example_system_templates.yaml")
     resolution = resolve_system_templates_for_variant(
         variant=variant,
         variant_values=variant_values,
@@ -99,7 +99,7 @@ def test_ida_export_writes_resolved_variant_and_system_parameters(tmp_path):
 
 
 def test_ida_export_log_documents_no_ida_file_changes(tmp_path):
-    settings = load_ida_export_settings("config/export/example_ida_export.yaml")
+    settings = load_ida_export_settings("config/ma_variants/export/example_ida_export.yaml")
     settings = replace(settings, output_root=tmp_path / "ida_exports")
     variant, variant_values = _variant_with_values()
 
@@ -116,7 +116,7 @@ def test_ida_export_log_documents_no_ida_file_changes(tmp_path):
 
 
 def test_ida_export_creates_safe_folders_for_multiple_variants(tmp_path):
-    settings = load_ida_export_settings("config/export/example_ida_export.yaml")
+    settings = load_ida_export_settings("config/ma_variants/export/example_ida_export.yaml")
     settings = replace(
         settings,
         output_root=tmp_path / "ida_exports",

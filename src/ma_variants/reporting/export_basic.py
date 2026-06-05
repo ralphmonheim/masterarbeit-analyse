@@ -232,7 +232,7 @@ def export_variant_overview(
     selected_variants: list[GeneratedVariant],
     parameters: list[Parameter],
     option_sets: list[OptionSet],
-    output_dir: str | Path = Path("data/exports"),
+    output_dir: str | Path = Path("data/ma_variants/exports"),
     option_values: list[OptionValue] | None = None,
     exported_at: str | None = None,
 ) -> VariantExportResult:

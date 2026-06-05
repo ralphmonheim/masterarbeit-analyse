@@ -4,7 +4,42 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
-Noch keine Aenderungen seit `0.4.0`.
+Keine offenen Aenderungen.
+
+## 0.5.0 - 2026-06-05
+
+### Changed
+- Dokumentation modularisiert: aktive Projektsteuerung liegt nun unter `docs/project/`, Fachdocumentation unter `docs/ma_analyse/`, `docs/ma_variants/`, `docs/ma_weather/` und gemeinsame Hinweise unter `docs/common/`.
+- `docs/PLAN.md` aus der aktiven Steuerung geloest und als abgelegter Plan nach `docs/project/plans/archived/PLAN_Projektplan_Version_1_0_0.md` verschoben.
+- `PLAN_STATUS.md` nach Modulen neu strukturiert und nach `docs/project/plans/PLAN_STATUS.md` verschoben.
+- Umgesetzten Strukturplan P003 nach `docs/project/plans/archived/` verschoben und Planindex/Planstatus entsprechend aktualisiert.
+- Plan-Inbox auf konsistente Markdown-Dateinamen fuer P001 und P002 normalisiert.
+- `ma_variants`-Konfigurationen nach `config/ma_variants/` verschoben.
+- Variantenbezogene Import-, Export- und IDA-Uebergabeordner nach `data/ma_variants/` verschoben.
+- `ma_analyse` hart auf `data/ma_analyse/input`, `data/ma_analyse/database` und `data/ma_analyse/output` migriert; alte Root-Pfade werden nicht mehr unterstuetzt.
+- Produkt- und Materialdokument-Platzhalter nach `data/catalogs/documents/` verschoben.
+- `plot-template-examples` schreibt die Galerie-Dokumentation nun nach `docs/ma_analyse/plot_template_examples.md`.
+- `.gitignore` an die neuen Datenbereiche angepasst.
+- Variantenoberflaeche unter `src/ma_variants/ui/app.py` nach P001 in getrennte Bereiche fuer Parameter/Optionen, Variantenraum, Auswahl, Namensgebung, Export, Ergebnisse und Status gegliedert.
+
+### Added
+- Planindex, Strukturreview, Cleanup-Plan, Implementierungshinweise und getrennte Nutzerentscheidungsdateien unter `docs/project/` ergaenzt.
+- Vorbereitete Modulbereiche fuer `ma_weather`, `data/ma_analyse`, `data/ma_weather`, `config/ma_analyse` und `config/ma_weather` angelegt.
+- `data/test_output/README.md` dokumentiert den Ordner als lokalen, semi-wichtigen Arbeits- und Smoke-Test-Bereich.
+- Testbare UI-Services fuer manuelle Variantenauswahl, reproduzierbare Zufallsauswahl, Filterauswahl und Namensgenerierung ergaenzt.
+- Modulbezogene Befehlsuebersichten fuer `ma_variants`, `ma_weather` und gemeinsame Projektbefehle unter `docs/*/commands_<modul>.md` ergaenzt.
+- `docs/project/UPDATE_ROUTINES.md` als feste Codex-Routine fuer `update repo`, `direkt update repo` und `update planung` ergaenzt.
+
+### Removed
+- Leeren, nicht versionierten Ordner `scripts/` entfernt.
+- Alte Root-Datenordner fuer Analyse-Eingaben, Nutzdaten und regulaere Ausgaben nach erfolgreichem Datentransfer entfernt.
+- Alten leeren Dokumentenordner `data/documents/` entfernt; aktive Produkt- und Materialdatenblaetter liegen unter `data/catalogs/documents/`.
+
+### Fixed
+- `COMMAND_DOC` zeigt nun auf `docs/ma_analyse/commands_analyse.md`.
+- GUI-Import korrigiert: `get_heating_year_template_defaults` wird aus `ma_analyse.settings.plot_templates` geladen.
+- Falschen relativen Import in `src/ma_analyse/analysis/comfort/plots.py` korrigiert, damit die `ma_analyse`-Tests wieder gesammelt werden koennen.
+- Comfort-Template-Builder akzeptiert den vom gemeinsamen Plot-Template-Dispatcher uebergebenen `plot_template_config`-Parameter.
 
 ## 0.4.0 - 2026-06-04
 

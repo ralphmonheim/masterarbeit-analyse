@@ -28,7 +28,7 @@ def _variant_with_templates(*template_keys: str) -> tuple[Variant, list[VariantV
 
 
 def test_import_system_catalog_loads_example_systems():
-    result = import_system_catalog("config/systems/example_system_templates.yaml")
+    result = import_system_catalog("config/ma_variants/systems/example_system_templates.yaml")
 
     assert result.errors == []
     assert [template.system_template_key for template in result.system_templates] == [
@@ -42,7 +42,7 @@ def test_import_system_catalog_loads_example_systems():
 
 
 def test_resolve_system_template_expands_pv_template_values():
-    catalog = import_system_catalog("config/systems/example_system_templates.yaml")
+    catalog = import_system_catalog("config/ma_variants/systems/example_system_templates.yaml")
     variant, variant_values = _variant_with_templates("PV_01")
 
     resolution = resolve_system_templates_for_variant(
@@ -67,7 +67,7 @@ def test_resolve_system_template_expands_pv_template_values():
 
 
 def test_resolve_system_template_checks_dependency_rules():
-    catalog = import_system_catalog("config/systems/example_system_templates.yaml")
+    catalog = import_system_catalog("config/ma_variants/systems/example_system_templates.yaml")
     variant, variant_values = _variant_with_templates("COOL_01")
 
     with pytest.raises(SystemTemplateResolutionError, match="VENT_01"):
@@ -81,7 +81,7 @@ def test_resolve_system_template_checks_dependency_rules():
 
 
 def test_resolve_system_template_allows_dependency_when_required_template_is_selected():
-    catalog = import_system_catalog("config/systems/example_system_templates.yaml")
+    catalog = import_system_catalog("config/ma_variants/systems/example_system_templates.yaml")
     variant, variant_values = _variant_with_templates("COOL_01", "VENT_01")
 
     resolution = resolve_system_templates_for_variant(
@@ -105,7 +105,7 @@ def test_resolve_system_template_allows_dependency_when_required_template_is_sel
 
 
 def test_resolve_system_templates_for_variants_returns_mapping():
-    catalog = import_system_catalog("config/systems/example_system_templates.yaml")
+    catalog = import_system_catalog("config/ma_variants/systems/example_system_templates.yaml")
     variant, variant_values = _variant_with_templates("HEAT_01", "PV_01")
 
     resolutions = resolve_system_templates_for_variants(
