@@ -78,7 +78,7 @@ Stand: 2026-06-08
 
 - Datum: 2026-06-04
 - Thema: Datenstruktur
-- Entscheidung: `ma_analyse` nutzt ab jetzt die neuen Modulpfade `data/ma_analyse/input`, `data/ma_analyse/database` und `data/ma_analyse/output`; bisherige Daten werden transferiert und alte Root-Strukturen geloescht.
+- Entscheidung: `ma_analyse` nutzt ab jetzt die neuen Modulpfade `data/ma_analyse/ida_imports`, `data/ma_analyse/database` und `data/ma_analyse/output`; bisherige Daten werden transferiert und alte Root-Strukturen geloescht.
 - Begruendung: Die Datenstruktur soll konsequent modular werden und keine parallelen Altpfade behalten.
 - Auswirkung: CLI, GUI, Tests und Dokumentation verwenden keine Fallbacks auf die frueheren Root-Pfade fuer Analyse-Eingaben, Nutzdaten oder Ausgaben.
 - Betroffene Module oder Dateien: `src/ma_analyse/`, `tests/`, `docs/ma_analyse/`, `data/ma_analyse/`, `.gitignore`
@@ -121,3 +121,123 @@ Stand: 2026-06-08
 - Status: getroffen
 - Offene Folgefragen: Soll dieselbe relative/absolute Logik spaeter auch fuer den regulaeren `cooling`-Befehl und die GUI-Auswahl gelten?
 - Quelle oder Chatbezug: aktueller Codex-Chat zu Cooling-Plot-Templates
+
+## UD-011 Website- und Portfolio-Chats ausschliessen
+
+- Datum: 2026-06-08
+- Thema: Chat-Analyse und Nutzerentscheidungen
+- Entscheidung: Chats aus Codex oder Copilot zur Erstellung oder Bearbeitung einer Website fuer Portfolio und bearbeitete Projekte gehoeren nicht zur Masterarbeit und werden von der Entscheidungsanalyse ausgeschlossen.
+- Begruendung: Nutzerentscheidungen fuer das Masterarbeitsprojekt sollen nicht mit Entscheidungen aus anderen Projekten vermischt werden.
+- Auswirkung: Website- und Portfolio-Chats werden in `docs/project/decisions/chat_analysis/excluded_chats.md` dokumentiert und nicht in `USER_DECISIONS_MASTERTHESIS_CODE.md` ausgewertet.
+- Betroffene Module oder Dateien: `docs/project/decisions/chat_analysis/`, `docs/project/decisions/USER_DECISIONS_OPEN_POINTS.md`
+- Status: getroffen
+- Offene Folgefragen: Konkrete Chat-Exportdateien erst nach Ablage im Repo einzeln zuordnen.
+- Quelle oder Chatbezug: aktueller Codex-Chat zu Nutzerentscheidungen
+
+## UD-012 Produkt-, Material- und Datenbankinhalte nicht versionieren
+
+- Datum: 2026-06-08
+- Thema: Produkt-, Material- und Datenbankdaten
+- Entscheidung: Echte Produkt-, Material- und Datenbankinhalte werden nicht ins Git-Repo uebernommen; versioniert werden nur die Ordnerstruktur und bei Bedarf klar gekennzeichnete Beispieldaten.
+- Begruendung: Das Repo soll keine echten Katalog-, Hersteller- oder Datenbankinhalte enthalten, sondern nur die Projektstruktur und reproduzierbare Beispielgrundlagen.
+- Auswirkung: `data/catalogs/documents/` bleibt als Struktur erhalten; echte Datenblaetter und Datenbankinhalte werden extern abgelegt oder nur ueber Pfade/Metadaten referenziert.
+- Betroffene Module oder Dateien: `data/catalogs/documents/`, `.gitignore`, spaetere Produkt- und Materialkataloge
+- Status: getroffen
+- Offene Folgefragen: Bei spaeteren Beispieldaten klar kennzeichnen, dass sie Test- oder Demodaten sind.
+- Quelle oder Chatbezug: aktueller Codex-Chat zu Produkt- und Materialdaten
+
+## UD-013 Relative/absolute Cooling-Logik bleibt vorerst in Templates
+
+- Datum: 2026-06-08
+- Thema: ma_analyse Cooling-Auswertung
+- Entscheidung: Relative und absolute Cooling-Logik wird vorerst nur in den Plot-Templates getrennt. Der regulaere `cooling`-Befehl und die GUI-Auswahl werden noch nicht angepasst.
+- Begruendung: Die Diagrammlogik soll zuerst fertig bearbeitet und geprueft werden, bevor sie in das Hauptportal uebernommen wird.
+- Auswirkung: `cooling-year`, `cooling-month`, `cooling-week`, `cooling-day` und `cooling-absolute-*` bleiben die aktuelle Trennung. `python -m ma_analyse cooling ...` und die GUI behalten vorerst ihr bestehendes Verhalten.
+- Betroffene Module oder Dateien: `src/ma_analyse/analysis/templates/`, `src/ma_analyse/analysis/cooling.py`, `src/ma_analyse/app/cli.py`, `src/ma_analyse/gui/app.py`
+- Status: getroffen
+- Offene Folgefragen: Nach Abschluss der Diagrammbearbeitung pruefen, ob regulaerer Cooling-Befehl und GUI die Trennung ebenfalls erhalten sollen.
+- Quelle oder Chatbezug: aktueller Codex-Chat zu Cooling-Logik
+
+## UD-014 ma_parameters ersetzt ma_input
+
+- Datum: 2026-06-08
+- Thema: Gesamtmodulstruktur
+- Entscheidung: `ma_input` wird nicht als Zielmodul verwendet. Parameter- und Optionslogik soll perspektivisch unter `ma_parameters` gefuehrt werden.
+- Begruendung: Parameterdefinitionen sind fachlich mehr als reine Eingabedaten und sollen klar vom Dateieingang getrennt werden.
+- Auswirkung: Bestehende Parameterlogik in `ma_variants.parameter_catalog` bleibt vorerst unveraendert; eine spaetere Extraktion nach `ma_parameters` braucht einen eigenen Plan.
+- Betroffene Module oder Dateien: `src/ma_variants/parameter_catalog/`, spaeter `src/ma_parameters/`
+- Status: getroffen
+- Offene Folgefragen: Wann wird die Parameterlogik aus `ma_variants` herausgeloest?
+- Quelle oder Chatbezug: P005 Gesamtmodulstruktur
+
+## UD-015 ma_ui und ma_workflow als getrennte Zielmodule
+
+- Datum: 2026-06-08
+- Thema: Oberflaeche und Workflowsteuerung
+- Entscheidung: `ma_ui` wird die spaetere gemeinsame Oberflaeche; `ma_workflow` wird die Orchestrierungsebene zwischen Oberflaeche und Fachmodulen.
+- Begruendung: UI, Workflowsteuerung und Fachlogik sollen nicht vermischt werden.
+- Auswirkung: Fachlogik bleibt in den Fachmodulen. Dashboard-Buttons sollen spaeter `ma_workflow`-Aktionen ausloesen, nicht direkt Fachlogik in der Oberflaeche enthalten.
+- Betroffene Module oder Dateien: spaeter `src/ma_ui/`, `src/ma_workflow/`, bestehend `src/ma_analyse/gui/`, `src/ma_variants/ui/`
+- Status: getroffen
+- Offene Folgefragen: konkrete Umsetzung der Streamlit-App erfolgt nach separatem Plan.
+- Quelle oder Chatbezug: P005 Gesamtmodulstruktur
+
+## UD-016 ma_analyse-Fachlogik bleibt in ma_analyse
+
+- Datum: 2026-06-08
+- Thema: Analysemodul und UI-Auslagerung
+- Entscheidung: Fachliche Analysefunktionen verbleiben in `ma_analyse`. Allgemein nutzbare UI-Bestandteile aus `ma_analyse` duerfen spaeter geprueft und nach Freigabe in `ma_ui` oder Legacy-Bestandteile in `ma_ui_legacy` ueberfuehrt werden.
+- Begruendung: Die bestehende Analysepipeline ist funktionsfaehig und soll nicht durch eine direkte GUI-Verschiebung gefaehrdet werden.
+- Auswirkung: `src/ma_analyse/gui/app.py` wird zuerst dokumentarisch bewertet. Eine Auslagerung braucht einen separaten Refactoring-Plan.
+- Betroffene Module oder Dateien: `src/ma_analyse/gui/`, spaeter `src/ma_ui/pages/analyse.py`, `src/ma_ui_legacy/`
+- Status: getroffen
+- Offene Folgefragen: Welche Bestandteile der Tkinter-GUI sind fachliche Analyse, welche Legacy-UI und welche neutralen Helfer?
+- Quelle oder Chatbezug: P005 Gesamtmodulstruktur
+
+## UD-017 IDA-Export, IDA-Import, Simulation-Setup, Assessment und Feedback trennen
+
+- Datum: 2026-06-08
+- Thema: Gesamtworkflow
+- Entscheidung: `ma_simulation_setup`, `ma_export_ida`, `ma_import_ida`, `ma_assessment` und `ma_feedback` werden als eigene Zielmodule gefuehrt. `ma_assessment` soll intern in Economics und Sustainability trennen.
+- Begruendung: Simulationsrandbedingungen, IDA-Uebergabe, Ergebnisimport, Bewertung und Rueckkopplung haben unterschiedliche Verantwortlichkeiten.
+- Auswirkung: Bestehende Logik in `ma_variants.ida_export`, `ma_variants.simulation_results` und `ma_variants.economic_analysis` bleibt vorerst bestehen und wird nur als spaetere Extraktionsquelle dokumentiert.
+- Betroffene Module oder Dateien: `src/ma_variants/ida_export.py`, `src/ma_variants/simulation_results.py`, `src/ma_variants/economic_analysis/`, spaeter neue Zielmodule
+- Status: getroffen
+- Offene Folgefragen: Nach P005-UI-Migrationsplan zuerst `ma_analyse`-Bestandsanalyse und Schnittstellenentwurf pruefen.
+- Quelle oder Chatbezug: P005 Gesamtmodulstruktur
+
+## UD-018 Streamlit als Zieltechnik fuer ma_ui
+
+- Datum: 2026-06-08
+- Thema: zentrale Oberflaeche
+- Entscheidung: `ma_ui` wird als neue zentrale lokale Oberflaeche mit Streamlit geplant.
+- Begruendung: Streamlit passt besser zur schrittweisen Bedienoberflaeche fuer Tabellen, Diagramme, Statusanzeigen und Modulnavigation als eine direkte Erweiterung der bestehenden Tkinter-GUI.
+- Auswirkung: Streamlit-Importe sollen spaeter auf `ma_ui` begrenzt werden. Fachmodule liefern Services und neutrale Ergebnisse.
+- Betroffene Module oder Dateien: spaeter `src/ma_ui/`, `docs/project/architecture/`
+- Status: getroffen
+- Offene Folgefragen: konkrete App-Shell erst nach separater Freigabe anlegen.
+- Quelle oder Chatbezug: P005 Anpassung Streamlit-Ziel-UI
+
+## UD-019 Tkinter bleibt Legacy und wird nicht mit Streamlit vermischt
+
+- Datum: 2026-06-08
+- Thema: Umgang mit bestehender Tkinter-GUI
+- Entscheidung: Die bestehende Tkinter-Oberflaeche aus `ma_analyse` wird vorerst als Legacy-Bestand behandelt und nicht direkt mit Streamlit vermischt. Eine spaetere Auslagerung nach `ma_ui_legacy` wird geplant.
+- Begruendung: Die bestehende Arbeit soll gesichert werden, ohne die neue Streamlit-Zielarchitektur technisch zu vermischen.
+- Auswirkung: `src/ma_analyse/gui/` bleibt zunaechst bestehen. Eine Verschiebung nach `src/ma_ui_legacy/` erfolgt nur nach Bestandsanalyse und Freigabe.
+- Betroffene Module oder Dateien: `src/ma_analyse/gui/`, spaeter `src/ma_ui_legacy/`
+- Status: getroffen
+- Offene Folgefragen: konkrete Auslagerung erst nach Tkinter-Bestandsanalyse.
+- Quelle oder Chatbezug: P005 Anpassung Streamlit-Ziel-UI
+
+## UD-020 ma_analyse soll eine UI-neutrale Service-Schnittstelle erhalten
+
+- Datum: 2026-06-08
+- Thema: Analysemodul und Service-Schnittstelle
+- Entscheidung: `ma_analyse` soll langfristig ueber neutrale Modelle wie `AnalysisConfig` und `AnalysisResult` sowie eine Service-Funktion `run_analysis(config)` von Oberflaechen nutzbar werden.
+- Begruendung: Streamlit, Tkinter oder andere UIs sollen dieselbe fachliche Analyse verwenden koennen, ohne Berechnungslogik in die UI zu verschieben.
+- Auswirkung: Der naechste P005-Schritt ist eine Bestandsanalyse von `ma_analyse` und ein Schnittstellenentwurf. Es wird noch keine Funktion umgesetzt.
+- Betroffene Module oder Dateien: spaeter `src/ma_analyse/services.py`, `src/ma_analyse/models.py`, `src/ma_ui/pages/analyse.py`
+- Status: getroffen
+- Offene Folgefragen: genaue Felder und Rueckgabeobjekte erst nach Bestandsanalyse festlegen.
+- Quelle oder Chatbezug: P005 Anpassung Streamlit-Ziel-UI

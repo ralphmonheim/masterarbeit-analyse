@@ -34,12 +34,31 @@ git diff --stat
 Diese Ausloesephrasen sind dokumentierte Arbeitsroutinen fuer Codex. Sie sind
 keine Python-CLI-Befehle.
 
+- `tagesstart` oder `Guten Morgen, es ist ein neuer Tag.`: Projektstand lesen,
+  offene Nutzerentscheidungen bei Bedarf pflegen und offene Aufgaben nach
+  Modulen im Chat ausgeben.
+- `tagesende` oder `Gute Nacht.`: Tagesstand dokumentieren, Planstatus und
+  Changelog bei Bedarf aktualisieren und Terminal-Code fuer Git ausgeben.
+- `tagesende direkt` oder `Gute Nacht direkt.`: wie `tagesende`, aber Commit,
+  Tag und Push durch Codex ausfuehren, sofern keine Blocker bestehen.
+- `wochenabschluss` oder `Eine schoene Woche.`: Wochenbericht unter
+  `docs/project/weekly_reviews/` erstellen und archivierungsfaehige Plaene
+  benennen.
+
 - `update repo`: Versionen, Root-`CHANGELOG.md` und Release-Stand vorbereiten;
   Codex gibt danach den Terminal-Code fuer Commit, Tag und Push aus.
 - `direkt update repo`: denselben Repo-Update-Ablauf ausfuehren und Commit, Tag
   sowie Push durch Codex erledigen, sofern Git-Zugriff moeglich ist.
 - `update planung`: Plan-Inbox, Planindex, Planstatus, Nutzerentscheidungen und
   technische Entscheidungen pruefen und aktualisieren.
+- `projektlage`: kompakte Lage zu Git-Stand, Version, Plaenen und offenen
+  Entscheidungen ausgeben.
+- `plan aufnehmen`: neue Plaene aus `docs/project/plans/inbox/` in Planindex
+  und Planstatus einordnen.
+- `entscheidung festhalten`: echte Nutzerentscheidung dokumentieren und
+  passende offene Punkte schliessen.
+- `release check`: pruefen, ob Version, Changelog, Tags und Tests fuer ein
+  Release bereit sind.
 
 Details stehen in `docs/project/UPDATE_ROUTINES.md`.
 

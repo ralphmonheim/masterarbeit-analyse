@@ -4,7 +4,7 @@
 
 ## Datenfluss
 
-1. `prepare` liest Varianten aus `data/ma_analyse/input/` und schreibt Raumtabellen nach `data/ma_analyse/database/`.
+1. `prepare` liest Varianten aus `data/ma_analyse/ida_imports/` und schreibt Raumtabellen nach `data/ma_analyse/database/`.
 2. `comfort`, `heating`, `cooling` und `analyze-data` lesen aus `data/ma_analyse/database/`.
 3. Regulaere Ergebnisse landen in `data/ma_analyse/output/`, Smoke-Tests und Experimente in `data/test_output/`.
 4. CLI-Analysebefehle spiegeln Konsolenausgaben automatisch nach `logs/`.

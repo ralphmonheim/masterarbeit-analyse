@@ -1,7 +1,7 @@
 """Bereitet Rohdaten-PRN-Dateien fuer die Analysepipeline auf.
 
 Eingaben:
-    Variantenordner unter ``data/ma_analyse/input`` mit Raumunterordnern und den erwarteten
+    Variantenordner unter ``data/ma_analyse/ida_imports`` mit Raumunterordnern und den erwarteten
     PRN-Dateien je Raum.
 
 Ausgaben:
@@ -252,7 +252,7 @@ def strip_variant_suffix(variant_name):
 
 def is_input_variant_dir(variant_path, rooms=None):
     """Prueft, ob ein Ordner wie ein Rohdaten-Variantenordner aussieht."""
-    """Erkennt einen Input-Variantenordner ueber vorhandene Raum-Unterordner."""
+    """Erkennt einen IDA-Import-Variantenordner ueber vorhandene Raum-Unterordner."""
     if not os.path.isdir(variant_path):
         return False
 
@@ -262,7 +262,7 @@ def is_input_variant_dir(variant_path, rooms=None):
 
 def discover_variant_dirs(input_root, rooms=None, debug=False, selected_variants=None):
     """Findet passende Variantenordner im Input-Root."""
-    """Findet Variantenordner unter data/ma_analyse/input, auch ohne Suffix _rohdaten."""
+    """Findet Variantenordner unter data/ma_analyse/ida_imports, auch ohne Suffix _rohdaten."""
     if not os.path.exists(input_root):
         return []
 

@@ -1,0 +1,11 @@
+weather_datasets:
+  - weather_key: TRY_FFM_2015
+    display_name: TRY Frankfurt 2015 Jahr
+    file_path: data/ma_weather/input/TRY_501262086894/TRY2015_501262086894_Jahr.dat
+    file_format: TRY
+    source: DWD TRY
+    location: Frankfurt am Main
+    year_type: reference_year
+    climate_scenario: present
+    is_active: true
+    notes: Lokale TRY-Datei wird vom Nutzer bereitgestellt und nicht im Repo versioniert.

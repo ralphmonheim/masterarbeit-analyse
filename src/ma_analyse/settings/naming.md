@@ -13,7 +13,7 @@ Regeln:
 
 | Kategorie | Aktueller Name | Neuer Name | Verwendung | Fundstellen/Hinweis |
 | --- | --- | --- | --- | --- |
-| Ordner & Pfade | data/ma_analyse/input |  | Standard-Input-Ordner fuer Rohdatenvarianten | ID=path.input_dir; MODE=literal; core/config.py, app/cli.py, preprocessing/prepare.py, docs/ma_analyse/commands_analyse.md |
+| Ordner & Pfade | data/ma_analyse/ida_imports |  | Standard-Input-Ordner fuer IDA-Rohdatenvarianten | ID=path.input_dir; MODE=literal; core/config.py, app/cli.py, preprocessing/prepare.py, docs/ma_analyse/commands_analyse.md |
 | Ordner & Pfade | data/ma_analyse/database |  | Standard-Ausgabeordner fuer aufbereitete Nutzdaten | ID=path.database_dir; MODE=literal; alle Hauptmodule, docs/ma_analyse/commands_analyse.md |
 | Ordner & Pfade | data/ma_analyse/output |  | Standard-Output-Ordner fuer Diagramme, PDFs und Excel | ID=path.output_dir; MODE=literal; Plot-/Analyse-/Heating-Module, docs/ma_analyse/commands_analyse.md |
 | Ordner & Pfade | data/test_output |  | Standard-Ordner fuer lokale Test- und Smoke-Test-Ausgaben | ID=path.test_output_dir; MODE=literal; docs/ma_analyse/commands_analyse.md, tests |

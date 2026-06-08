@@ -12,16 +12,17 @@ python -m pip install -e ".[dev]"
 
 | Ordner | Zweck |
 |---|---|
-| `data/ma_analyse/input/` | Rohdaten und Variantenordner |
+| `data/ma_analyse/ida_imports/` | IDA-Importdaten und Variantenordner |
 | `data/ma_analyse/database/` | aufbereitete Raumdaten |
 | `data/ma_analyse/output/` | regulaere Analyseausgaben |
 | `data/test_output/` | lokale Test- und Smoke-Test-Ausgaben |
 | `data/ma_variants/` | Import-, Export- und IDA-Uebergabedaten des Variantenkerns |
+| `data/ma_weather/` | lokale TRY-Dateien, aufbereitete Wetterdaten, Wetterdiagramme und Berichte |
 | `data/catalogs/` | Produkt-, Material-, Quellen- und Dokumentkataloge |
 | `docs/project/` | Planstatus, Planindex, Entscheidungen und Strukturreviews |
 | `docs/ma_analyse/` | Befehle, Architektur und Plot-Template-Beispiele der Analysepipeline |
 | `docs/ma_variants/` | Workflow, Datenmodell und Wirtschaftlichkeitsmodell des Variantenkerns |
-| `docs/ma_weather/` | geplanter Bereich fuer Wetterdatenanalyse und TRY-Integration |
+| `docs/ma_weather/` | Wetterdatenanalyse und TRY-Integration |
 | `src/ma_analyse/app/` | CLI und Befehlssteuerung |
 | `src/ma_analyse/core/` | zentrale Konfiguration und Logging |
 | `src/ma_analyse/preprocessing/` | Datenvorbereitung aus Rohdaten |
@@ -29,6 +30,7 @@ python -m pip install -e ".[dev]"
 | `src/ma_analyse/settings/` | Naming- und Formatlogik plus zugehoerige Markdown-Dateien |
 | `src/ma_analyse/gui/` | grafische Oberflaeche |
 | `src/ma_variants/` | modularer Varianten-, Export-, Katalog- und Bewertungskern |
+| `src/ma_weather/` | vorbereiteter Wetterkatalog und spaeteres TRY-Modul |
 | `tests/` | automatisierte Code-Tests |
 | `logs/` | automatisch erzeugte Laufprotokolle der Analysebefehle |
 

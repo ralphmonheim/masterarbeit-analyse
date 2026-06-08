@@ -1,9 +1,16 @@
 # ma_weather
 
-Geplanter Dokumentationsbereich fuer Wetterdatenanalyse und TRY-Integration.
+Modulbereich fuer Wetterdatenanalyse und TRY-Integration.
 
-Aktuell gibt es noch kein Codepaket `src/ma_weather/`. Der vorhandene TRY-Plan soll zuerst in `docs/project/plans/inbox/` abgelegt, gelesen und in `docs/project/plans/PLAN_STATUS.md` eingeordnet werden.
+Der erste P002-Struktur-Slice legt das Paket `src/ma_weather/` und einen
+einfachen Wetterkatalog an. Die fachliche TRY-Importlogik, Validierung,
+Kennwerte, Diagramme und Berichte folgen in spaeteren Slices.
+
+Reale TRY-Dateien werden vom Nutzer lokal unter `data/ma_weather/input/`
+bereitgestellt und nicht im Git-Repo versioniert.
 
 ## Dateien
 
-- `commands_weather.md`: vorbereitete Befehlsuebersicht fuer das spaetere Wettermodul.
+- `commands_weather.md`: Befehle und Pruefungen fuer das Wettermodul.
+- `workflow.md`: geplanter Ablauf von Wetterkatalog bis spaeterem Bericht.
+- `data_model.md`: Datenmodell des Wetterkatalogs.

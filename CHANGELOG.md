@@ -4,7 +4,30 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
-- Keine offenen Aenderungen.
+Noch keine Eintraege.
+
+## 0.6.0 - 2026-06-08
+
+### Added
+- Codex-Arbeitsroutinen fuer `tagesstart`, `tagesende`, `tagesende direkt`, `wochenabschluss`, `projektlage`, `plan aufnehmen`, `entscheidung festhalten` und `release check` dokumentiert.
+- `docs/project/weekly_reviews/` als Ablage fuer Wochenzusammenfassungen vorbereitet.
+- P002 Struktur-Slice fuer `ma_weather` mit Paket-Skeleton, Wetterkatalog, Beispielkatalog, Dokumentation und Katalogtests vorbereitet.
+- P005 `Gesamtmodulstruktur, Pre-/Post-Process und Dashboard` in Planindex und Planstatus aufgenommen.
+- Architektur-Dokumente fuer P005 unter `docs/project/architecture/` ergaenzt.
+- `docs/project/architecture/UI_MIGRATION_PLAN.md` als Phasenplan fuer Streamlit-Ziel-UI, Tkinter-Legacy und UI-neutrale Analyse-Services ergaenzt.
+
+### Changed
+- Nutzerentscheidungen zu Website-/Portfolio-Chat-Ausschluss und zum Umgang mit echten Produkt-, Material- und Datenbankinhalten dokumentiert.
+- Nutzerentscheidung dokumentiert, dass die relative/absolute Cooling-Trennung vorerst nur in Plot-Templates bleibt und das Hauptportal spaeter geprueft wird.
+- `USER_DECISIONS_OPEN_POINTS.md` auf offene Punkte beschraenkt und `tagesstart` um Pflege offener Nutzerentscheidungen ergaenzt.
+- P001 `Variantenmodul GUI und Logikpruefung` finalisiert, Planstatus aktualisiert und Plan nach `docs/project/plans/archived/` verschoben.
+- PowerShell-Testbefehl fuer komplette `ma_variants`-Tests in der Befehlsdokumentation korrigiert.
+- Reale TRY-Dateien als lokale Eingabedaten dokumentiert; der Wetterkatalog darf auf nicht versionierte Dateien unter `data/ma_weather/input/` verweisen.
+- `ma_weather`-Datenpfade angepasst: aufbereitete Wetterdaten unter `data/ma_weather/database/`, Wetterdiagramme unter `data/ma_weather/output/`.
+- `ma_analyse`-Eingangsordner auf `data/ma_analyse/ida_imports/` umbenannt und aktive Code-, Test- und Dokumentationsverweise aktualisiert.
+- Nutzerentscheidungen zur P005-Zielmodulstruktur, UI-/Workflowtrennung und spaeterer Auslagerung der `ma_analyse`-Oberflaeche dokumentiert.
+- P005-Zielarchitektur auf Streamlit als verbindliche Zieltechnik fuer `ma_ui`, Tkinter als Legacy-Bestand und eine spaetere `ma_analyse`-Service-Schnittstelle ausgerichtet.
+- P005-Planstatus und Planindex auf den naechsten Schritt `ma_analyse`-Bestandsanalyse mit `AnalysisConfig`, `AnalysisResult` und `run_analysis(config)` aktualisiert.
 
 ## 0.5.1 - 2026-06-08
 
@@ -31,7 +54,7 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 - Plan-Inbox auf konsistente Markdown-Dateinamen fuer P001 und P002 normalisiert.
 - `ma_variants`-Konfigurationen nach `config/ma_variants/` verschoben.
 - Variantenbezogene Import-, Export- und IDA-Uebergabeordner nach `data/ma_variants/` verschoben.
-- `ma_analyse` hart auf `data/ma_analyse/input`, `data/ma_analyse/database` und `data/ma_analyse/output` migriert; alte Root-Pfade werden nicht mehr unterstuetzt.
+- `ma_analyse` hart auf modulare Analyse-Datenpfade migriert; alte Root-Pfade werden nicht mehr unterstuetzt.
 - Produkt- und Materialdokument-Platzhalter nach `data/catalogs/documents/` verschoben.
 - `plot-template-examples` schreibt die Galerie-Dokumentation nun nach `docs/ma_analyse/plot_template_examples.md`.
 - `.gitignore` an die neuen Datenbereiche angepasst.

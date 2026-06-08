@@ -1,7 +1,10 @@
 # Ausgeschlossene Chats
 
-Stand: 2026-06-04
+Stand: 2026-06-08
 
-Noch keine Chat-Exporte ausgeschlossen.
+## Website- und Portfolio-Chats
 
-Website-Chats werden hier mit kurzem Ausschlussgrund dokumentiert.
+- Quelle: Codex- oder Copilot-Chats, sofern sie die Erstellung oder Bearbeitung einer Website fuer Portfolio und bearbeitete Projekte betreffen.
+- Ausschlussgrund: Gehoert nicht zum Masterarbeits-Python-Projekt.
+- Status: ausgeschlossen
+- Hinweis: Konkrete Chat-Exportdateien werden nach Ablage im Repo einzeln ergaenzt.

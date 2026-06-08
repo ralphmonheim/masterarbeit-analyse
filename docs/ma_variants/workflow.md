@@ -6,7 +6,7 @@ Dieses Dokument beschreibt den geplanten Ablauf des modularen Varianten-, Simula
 
 ## Ausgangslage
 
-Das bestehende Paket `ma_analyse` wertet bereits IDA-ICE-Simulationsergebnisse aus. Die aktuelle Pipeline liest Rohdaten aus `data/ma_analyse/input`, erzeugt Nutzdaten unter `data/ma_analyse/database` und schreibt Auswertungen nach `data/ma_analyse/output` oder `data/test_output`.
+Das bestehende Paket `ma_analyse` wertet bereits IDA-ICE-Simulationsergebnisse aus. Die aktuelle Pipeline liest IDA-Importdaten aus `data/ma_analyse/ida_imports`, erzeugt Nutzdaten unter `data/ma_analyse/database` und schreibt Auswertungen nach `data/ma_analyse/output` oder `data/test_output`.
 
 Diese Analysepipeline bleibt bestehen und wird nicht ungeprueft umgebaut. Der neue Varianten- und Bewertungskern wird zunaechst daneben geplant.
 
@@ -154,7 +154,7 @@ Abschnitt 9 fuehrt `ma_variants.simulation_results` als Adapter auf das vorhande
 
 ### Erwartete Eingabedateien
 
-Die Rohdatenaufbereitung `ma_analyse prepare` erwartet unter `data/ma_analyse/input/<Variante>/<Raum>/` pro Raum diese IDA-ICE-PRN-Dateien:
+Die Rohdatenaufbereitung `ma_analyse prepare` erwartet unter `data/ma_analyse/ida_imports/<Variante>/<Raum>/` pro Raum diese IDA-ICE-PRN-Dateien:
 
 - `HEAT_BALANCE.prn`
 - `IAQ.prn`
@@ -169,7 +169,7 @@ Die Rohdateien muessen eine Zeitspalte `time` enthalten. `prepare` fuehrt die Da
 Rohdaten:
 
 ```text
-data/ma_analyse/input/<Variante>/<Raum>/<PRN-Datei>
+data/ma_analyse/ida_imports/<Variante>/<Raum>/<PRN-Datei>
 ```
 
 Aufbereitete Nutzdaten:
@@ -334,7 +334,7 @@ Manuelle Testhinweise:
 - `config/ma_variants/`: bearbeitbare Variantenkonfigurationen fuer Parameter, Optionen, Systeme, Namensregeln, Wirtschaftlichkeit, IDA-Export, Datenbank, Produkte, Materialien, Dokumente und Quellen.
 - `config/ma_analyse/`: vorbereiteter Bereich fuer spaetere Analysekonfigurationen.
 - `config/ma_weather/`: vorbereiteter Bereich fuer spaetere Wetterdatenkonfigurationen.
-- `data/ma_analyse/input/`: verbindlicher Pfad fuer vorhandene IDA-ICE-Rohdaten und Variantenordner der bestehenden Analysepipeline.
+- `data/ma_analyse/ida_imports/`: verbindlicher Pfad fuer vorhandene IDA-ICE-Rohdaten und Variantenordner der bestehenden Analysepipeline.
 - `data/ma_analyse/database/`: verbindlicher Pfad fuer vorhandene aufbereitete Nutzdaten aus der Analysepipeline.
 - `data/ma_analyse/output/`: verbindlicher Pfad fuer regulaere Analyseausgaben.
 - `data/test_output/`: lokaler, semi-wichtiger Smoke-Test- und Arbeitsordner; der Ordner wird bewusst separat gefuehrt und regelmaessig manuell geleert.

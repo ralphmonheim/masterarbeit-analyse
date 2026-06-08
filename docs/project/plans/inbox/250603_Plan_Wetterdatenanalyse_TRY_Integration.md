@@ -49,7 +49,7 @@ Schlage nach der Analyse eine passende Zielstruktur vor.
 
 Orientiere dich an der bestehenden Projektstruktur. Wenn es noch keine passende Struktur gibt, verwende diese Zielstruktur als Vorschlag
 
-src/weather/
+src/ma_weather/
 **init**.py
 try_importer.py
 weather_validation.py
@@ -61,10 +61,10 @@ run_weather_analysis.py
 
 Datenordner
 
-data/weather/raw/
-data/weather/processed/
-data/weather/plots/
-data/weather/reports/
+data/ma_weather/input/
+data/ma_weather/database/
+data/ma_weather/output/
+data/ma_weather/reports/
 
 Falls das Projekt bereits andere Ordnernamen nutzt, passe die Struktur daran an und begründe die Entscheidung kurz.
 
@@ -93,9 +93,9 @@ notes
 
 Wenn PostgreSQL im aktuellen Projekt noch nicht stabil angebunden ist, dann erstelle zunächst eine YAML oder JSON Vorlage, zum Beispiel
 
-config/weather/example_weather_datasets.yaml
+config/ma_weather/datasets/example_weather_datasets.yaml
 
-Die Datei soll Wetterdatensätze über einen weather_key beschreiben und auf Dateien in data/weather/raw verweisen.
+Die Datei soll Wetterdatensaetze ueber einen weather_key beschreiben und auf Dateien in data/ma_weather/input verweisen.
 
 ## Aufgabe 4
 
@@ -105,7 +105,7 @@ Erstelle ein Importmodul für TRY-Wetterdaten.
 
 Datei
 
-src/weather/try_importer.py
+src/ma_weather/try_importer.py
 
 Die Importfunktion soll eine TRY-Datei einlesen können, bei der der eigentliche Datenblock nach einer Zeile mit drei Sternen beginnt.
 
@@ -142,7 +142,7 @@ Erstelle ein eigenes Validierungsmodul.
 
 Datei
 
-src/weather/weather_validation.py
+src/ma_weather/weather_validation.py
 
 Die Prüfung soll deutliche Warnungen erzeugen, aber nicht unnötig abbrechen.
 
@@ -178,7 +178,7 @@ Erstelle ein eigenes Modul für Wetterkennwerte.
 
 Datei
 
-src/weather/weather_metrics.py
+src/ma_weather/weather_metrics.py
 
 Die Kennwerte sollen getrennt von den Diagrammen berechnet werden. Diagrammfunktionen dürfen keine versteckten Kennwertberechnungen enthalten.
 
@@ -206,7 +206,7 @@ Erstelle ein eigenes Diagrammmodul.
 
 Datei
 
-src/weather/weather_plots.py
+src/ma_weather/weather_plots.py
 
 Jede Diagrammfunktion soll genau ein Diagramm erzeugen und speichern.
 
@@ -239,7 +239,7 @@ Erstelle ein Berichtsmodul.
 
 Datei
 
-src/weather/weather_report.py
+src/ma_weather/weather_report.py
 
 Der Bericht soll zunächst als Markdown-Datei ausgegeben werden.
 
@@ -266,7 +266,7 @@ Erstelle ein zentrales Skript für die Wetteranalyse.
 
 Datei
 
-src/weather/run_weather_analysis.py
+src/ma_weather/run_weather_analysis.py
 
 Dieses Skript soll nur die Wetteranalyse ausführen und keine Zonenwertanalyse starten.
 

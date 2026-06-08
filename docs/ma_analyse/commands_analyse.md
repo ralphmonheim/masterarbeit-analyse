@@ -26,7 +26,7 @@ python -m ma_analyse gui
 
 Relative Standardpfade:
 
-- Rohdaten: `data/ma_analyse/input/`
+- IDA-Importdaten: `data/ma_analyse/ida_imports/`
 - Aufbereitete Daten: `data/ma_analyse/database/`
 - Ausgaben: `data/ma_analyse/output/`
 - Testausgaben: `data/test_output/`

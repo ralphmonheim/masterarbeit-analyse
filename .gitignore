@@ -17,8 +17,8 @@ __pycache__/
 data/test_output/*
 !data/test_output/.gitkeep
 !data/test_output/README.md
-data/ma_analyse/input/*
-!data/ma_analyse/input/.gitkeep
+data/ma_analyse/ida_imports/*
+!data/ma_analyse/ida_imports/.gitkeep
 data/ma_analyse/database/*
 !data/ma_analyse/database/.gitkeep
 data/ma_analyse/output/*
@@ -37,8 +37,10 @@ data/ma_variants/database/*
 !data/ma_variants/database/.gitkeep
 data/ma_weather/input/*
 !data/ma_weather/input/.gitkeep
-data/ma_weather/processed/*
-!data/ma_weather/processed/.gitkeep
+data/ma_weather/database/*
+!data/ma_weather/database/.gitkeep
+data/ma_weather/output/*
+!data/ma_weather/output/.gitkeep
 data/ma_weather/exports/*
 !data/ma_weather/exports/.gitkeep
 data/ma_weather/reports/*

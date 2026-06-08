@@ -1,0 +1,1201 @@
+Du arbeitest in einem bestehenden Python Projekt für Variantenplanung, Wetterdatenanalyse, Simulationsergebnisanalyse und spätere Bewertung von IDA ICE Varianten im Rahmen einer Masterarbeit.
+
+Ziel dieses Schritts ist es, die heute aktualisierte oberste Projektstruktur vollständig zu prüfen, zu dokumentieren und als technische Zielarchitektur vorzubereiten.
+
+Zusätzlich soll geprüft werden, ob die bereits in `ma_analyse` begonnene App oder Oberfläche in eine übergeordnete UI-Struktur ausgelagert werden kann. Ziel ist eine gemeinsame Oberfläche, auf die später alle Module zugreifen können, sofern eine Bedienoberfläche für das jeweilige Modul vorgesehen ist.
+
+Der aktuelle oberste Workflow besteht aus
+
+Pre-Process
+Simulation
+Post-Process
+Problembehandlung und Rückführung in den Pre-Process
+
+Die Workflow Übersicht soll später als grafische Startoberfläche dienen. Die Kästen im Workflow sollen perspektivisch als Buttons funktionieren und die jeweiligen Module oder Workflow-Funktionen aufrufen.
+
+Deshalb müssen Fachlogik, Workflowsteuerung und Oberfläche sauber getrennt werden.
+
+Setze in diesem Schritt noch keine vollständige Fachlogik um. Prüfe zuerst die bestehende Projektstruktur, dokumentiere die Zielarchitektur, gleiche vorhandene Module mit der neuen Zielstruktur ab und bereite nur risikoarme Dateien oder Platzhalter vor.
+
+## Aktuelle Zielmodule
+
+Die aktuelle Modulstruktur lautet
+
+```text
+ma_ui
+ma_workflow
+
+ma_parameters
+ma_weather
+ma_building
+ma_variants
+ma_simulation_setup
+ma_export_ida
+
+ma_import_ida
+ma_analyse
+ma_assessment
+ma_feedback
+```
+
+## Wichtige Nutzerentscheidungen
+
+Folgende Entscheidungen sind gesetzt und sollen dokumentiert werden
+
+```text
+ma_input wird nicht verwendet und durch ma_parameters ersetzt
+
+ma_weather ist das Modul für Wetterdaten, TRY Import, Wetterkennwerte und Wetteranalyse
+
+ma_analyse ist das bereits bestehende Modul zur Analyse der IDA ICE Simulationsergebnisse
+
+in ma_analyse existiert bereits eine begonnene App oder Oberfläche
+
+diese bestehende App oder Oberfläche soll geprüft werden
+
+allgemein nutzbare UI Bestandteile aus ma_analyse sollen perspektivisch in ma_ui überführt werden
+
+analyse spezifische Ansichten können später als analyse_view unter ma_ui geführt werden
+
+fachliche Analysefunktionen verbleiben in ma_analyse
+
+ma_export_ida ist das eigene Modul für den Exportprozess vor der IDA ICE Simulation
+
+ma_import_ida ist das eigene Modul für den Importprozess nach der IDA ICE Simulation
+
+ma_simulation_setup wird im Pre-Process zwischen ma_variants und ma_export_ida eingefügt
+
+ma_simulation_setup definiert Simulationsrandbedingungen wie Startdatum, Enddatum, Standard Jahressimulation, Zeitschritt, Ausgabeintervall und Run Metadaten
+
+ma_assessment ist das neue Bewertungsmodul für Wirtschaftlichkeitsanalyse und Nachhaltigkeitsanalyse
+
+ma_assessment soll intern in economics und sustainability getrennt werden
+
+ma_ui ist die spätere Oberfläche mit dem obersten Workflow als klickbare Übersicht
+
+ma_workflow ist die Orchestrierungsebene zwischen Oberfläche und Fachmodulen
+
+ma_feedback ist die spätere Problembehandlung und Rückkopplungslogik aus dem Post-Process in den Pre-Process
+```
+
+## Aufgabe 1
+
+## Bestehende Projektstruktur prüfen
+
+Analysiere zuerst die vorhandene Projektstruktur.
+
+Prüfe insbesondere
+
+```text
+welche Module bereits existieren
+ob ma_analyse bereits vorhanden ist
+ob in ma_analyse bereits App, GUI, Display oder Oberflächenlogik existiert
+ob Variantenlogik bereits vorhanden ist
+ob Wetterlogik bereits vorhanden ist
+ob Export oder Import Logik bereits vorhanden ist
+ob eine GUI oder Displaylogik außerhalb von ma_analyse bereits vorhanden ist
+ob zentrale Workflowlogik existiert
+ob Dokumentationsordner existieren
+ob Planungsdateien existieren
+ob Entscheidungsdateien existieren
+ob Tests existieren
+ob Konfigurationsordner existieren
+ob Datenordner für Input, Output, Reports oder Exporte existieren
+```
+
+Nimm bis zu diesem Punkt keine größeren Änderungen vor.
+
+Gib zuerst eine Bestandsaufnahme aus mit
+
+```text
+vorhandene Module
+vorhandene zentrale Skripte
+vorhandene GUI Dateien
+vorhandene App oder Oberflächenbestandteile in ma_analyse
+vorhandene Konfigurationsordner
+vorhandene Datenordner
+vorhandene Dokumentation
+vorhandene Tests
+auffällige Strukturprobleme
+Konflikte mit der neuen Zielstruktur
+Empfehlung für den nächsten Schritt
+```
+
+## Aufgabe 2
+
+## Zielstruktur kritisch mit Bestand abgleichen
+
+Prüfe kritisch, ob die aktuelle Zielstruktur zur bestehenden Projektstruktur passt.
+
+Bewerte jedes geplante Modul nach folgendem Schema
+
+```text
+Modul
+Zweck
+bereits vorhanden ja nein teilweise
+empfohlene Aktion
+Risiko
+Kommentar
+```
+
+Bewerte mindestens diese Module
+
+```text
+ma_ui
+ma_workflow
+ma_parameters
+ma_weather
+ma_building
+ma_variants
+ma_simulation_setup
+ma_export_ida
+ma_import_ida
+ma_analyse
+ma_assessment
+ma_feedback
+```
+
+Wichtig
+
+Wenn ein Modul bereits unter anderem Namen existiert, nicht direkt umbenennen.
+
+Wenn bestehende Logik sinnvoll wiederverwendet werden kann, Wiederverwendung vorschlagen.
+
+Wenn eine Struktur doppelt, unklar oder widersprüchlich ist, kritisch benennen.
+
+Keine Dateien verschieben, löschen oder umbenennen ohne Rückfrage.
+
+## Aufgabe 3
+
+## Bestehende App oder Oberfläche aus ma_analyse prüfen
+
+Prüfe gezielt die bereits begonnene App oder Oberfläche in `ma_analyse`.
+
+Ziel ist zu klären, ob und wie diese Oberfläche in eine übergeordnete UI-Struktur ausgelagert werden kann.
+
+Prüfe mindestens
+
+```text
+welche Dateien in ma_analyse zur Oberfläche gehören
+welche Dateien reine Fachlogik enthalten
+welche Dateien gemischte GUI und Fachlogik enthalten
+welche UI Bestandteile allgemein wiederverwendbar sind
+welche UI Bestandteile analyse spezifisch sind
+welche Bestandteile in ma_ui/shared passen würden
+welche Bestandteile in ma_ui/module_views/analyse_view.py passen würden
+welche Bestandteile zwingend in ma_analyse bleiben müssen
+welche Importabhängigkeiten durch eine Auslagerung betroffen wären
+```
+
+Bewerte die Bestandteile nach diesem Schema
+
+```text
+Datei oder Funktion
+aktuelle Rolle
+allgemein nutzbar ja nein teilweise
+empfohlener Zielort
+Risiko der Auslagerung
+Kommentar
+```
+
+Wichtig
+
+Keine GUI Dateien automatisch verschieben.
+
+Keine Imports automatisch ändern.
+
+Keine Analysefunktionen umbauen.
+
+Erstelle zuerst nur einen Vorschlag.
+
+## Aufgabe 4
+
+## Zielstruktur für ma_ui planen
+
+Plane das Modul `ma_ui` als übergeordnete Oberfläche.
+
+Zweck
+
+```text
+grafische Startoberfläche
+Workflow Übersicht anzeigen
+Pre-Process und Post-Process sichtbar machen
+Workflow Kästen als Buttons vorbereiten
+Status und Logs anzeigen
+Modulansichten öffnen
+gemeinsame UI Bestandteile bereitstellen
+keine Fachlogik direkt in der Oberfläche ausführen
+```
+
+Mögliche Struktur
+
+```text
+src/
+  ma_ui/
+    __init__.py
+    main_dashboard.py
+    workflow_view.py
+    pre_process_view.py
+    post_process_view.py
+    status_view.py
+
+    shared/
+      __init__.py
+      layout.py
+      widgets.py
+      status_panel.py
+      log_panel.py
+      file_selectors.py
+      tables.py
+      plot_viewer.py
+
+    module_views/
+      __init__.py
+      analyse_view.py
+      weather_view.py
+      variants_view.py
+      parameters_view.py
+      building_view.py
+      simulation_setup_view.py
+      assessment_view.py
+      feedback_view.py
+```
+
+Aufgabe von `ma_ui`
+
+```text
+Buttons anzeigen
+Status anzeigen
+Dateiauswahl ermöglichen
+Logs anzeigen
+Tabellen anzeigen
+Diagramme anzeigen
+Ergebnisordner verlinken
+ma_workflow Aktionen starten
+```
+
+Nicht Aufgabe von `ma_ui`
+
+```text
+Parameter fachlich validieren
+Varianten erzeugen
+TRY Dateien analysieren
+IDA ICE Dateien schreiben
+Simulationsergebnisse fachlich auswerten
+Kosten oder CO2 berechnen
+```
+
+## Aufgabe 5
+
+## Zielstruktur für ma_workflow planen
+
+Plane das Modul `ma_workflow`.
+
+Zweck
+
+```text
+zentrale Steuerung zwischen Oberfläche und Fachmodulen
+Pre-Process Schritte koordinieren
+Post-Process Schritte koordinieren
+Button Aktionen aus ma_ui in fachliche Prozessketten übersetzen
+Status und Logs bündeln
+Rücksprünge aus ma_feedback vorbereiten
+```
+
+Mögliche Struktur
+
+```text
+src/
+  ma_workflow/
+    __init__.py
+    workflow_manager.py
+    pre_process_runner.py
+    post_process_runner.py
+    dashboard_actions.py
+    feedback_router.py
+```
+
+Beispiele für Workflow Aktionen
+
+```text
+open_parameters
+run_weather_analysis
+open_building_data
+generate_variants
+select_variants
+open_simulation_setup
+export_to_ida
+import_from_ida
+run_analysis
+run_assessment
+show_feedback
+```
+
+Nicht Aufgabe von `ma_workflow`
+
+```text
+eigene Fachberechnungen durchführen
+Fachlogik duplizieren
+Datenmodelle der Fachmodule ersetzen
+```
+
+## Aufgabe 6
+
+## Obersten Workflow dokumentieren
+
+Dokumentiere den aktuellen obersten Workflow als Hauptstruktur des Projekts.
+
+Bevorzugte Datei
+
+```text
+docs/planning/250608_Plan_Gesamtmodulstruktur_Dashboard_UI_Auslagerung.md
+```
+
+Falls eine andere Planungsstruktur existiert, nutze diese Struktur und frage bei Unsicherheit nach.
+
+Der Workflow soll wie folgt dokumentiert werden
+
+```text
+Pre-Process
+ma_parameters
+ma_weather
+ma_building
+ma_variants
+ma_simulation_setup
+ma_export_ida
+
+Simulation
+IDA ICE
+
+Post-Process
+ma_import_ida
+ma_analyse
+ma_assessment
+ma_feedback
+```
+
+Zusätzlich dokumentieren
+
+```text
+Der Workflow soll später als grafische Startübersicht dienen.
+Die Kästen sollen perspektivisch als Buttons funktionieren.
+Die Buttons rufen nicht direkt Fachlogik auf.
+Die Buttons rufen ma_workflow Aktionen auf.
+ma_workflow ruft die Fachmodule auf.
+Allgemein nutzbare UI Bestandteile sollen in ma_ui liegen.
+Analyse spezifische Ansichten sollen über ma_ui/module_views/analyse_view.py eingebunden werden.
+Fachliche Analysefunktionen verbleiben in ma_analyse.
+```
+
+## Aufgabe 7
+
+## Modul ma_parameters planen
+
+Plane das Modul `ma_parameters`.
+
+Dieses Modul ersetzt die frühere Idee `ma_input`.
+
+Zweck
+
+```text
+Parameterkatalog verwalten
+Optionskatalog verwalten
+Parameterklassen verwalten
+Eingaben prüfen
+Parameter aus YAML, JSON, später Excel oder Prisma importieren
+Optionsgruppen prüfen
+technische Keys bereitstellen
+Parameter für Variantenbildung bereitstellen
+```
+
+Mögliche Struktur
+
+```text
+src/
+  ma_parameters/
+    __init__.py
+    models.py
+    parameter_importer.py
+    option_importer.py
+    parameter_validation.py
+    parameter_catalog.py
+    option_catalog.py
+```
+
+Konfigurationsordner
+
+```text
+config/
+  parameters/
+  options/
+```
+
+Nicht Aufgabe von `ma_parameters`
+
+```text
+Varianten erzeugen
+Wetterdaten analysieren
+Gebäudemodell auswerten
+IDA ICE Export schreiben
+Simulationsergebnisse analysieren
+```
+
+## Aufgabe 8
+
+## Modul ma_weather planen
+
+Plane das Modul `ma_weather`.
+
+Zweck
+
+```text
+Wetterdatensätze verwalten
+TRY Dateien einlesen
+TRY Daten prüfen
+Wetterkennwerte berechnen
+Wetterdiagramme erzeugen
+Wetterberichte schreiben
+Standort und Ortsanalyse vorbereiten
+weather_key für Varianten bereitstellen
+```
+
+Mögliche Struktur
+
+```text
+src/
+  ma_weather/
+    __init__.py
+    weather_catalog.py
+    try_importer.py
+    weather_validation.py
+    weather_metrics.py
+    weather_plots.py
+    weather_report.py
+    location_analysis.py
+    run_weather_analysis.py
+```
+
+Datenordner
+
+```text
+data/
+  weather/
+    raw/
+    processed/
+    plots/
+    reports/
+```
+
+Schnittstelle zu `ma_variants`
+
+```text
+weather_key
+```
+
+## Aufgabe 9
+
+## Modul ma_building planen
+
+Plane das Modul `ma_building`.
+
+Zweck
+
+```text
+Gebäudestruktur verwalten
+Modellinformationen beschreiben
+Bauteile und Hüllparameter vorbereiten
+Zonenstruktur dokumentieren
+gebäudebezogene Eingaben für Varianten bereitstellen
+```
+
+Mögliche Struktur
+
+```text
+src/
+  ma_building/
+    __init__.py
+    building_model.py
+    zones.py
+    components.py
+    envelope.py
+    building_validation.py
+```
+
+Hinweis
+
+Für Version 1 kann `ma_building` zunächst als geplantes Modul oder Platzhalter dokumentiert werden. Der Umfang muss begrenzt werden, damit das Projekt nicht zu groß wird.
+
+## Aufgabe 10
+
+## Modul ma_variants planen
+
+Plane das Modul `ma_variants`.
+
+Zweck
+
+```text
+Variantenkatalog aufbauen
+theoretische Variantenanzahl berechnen
+gültige Variantenanzahl vorbereiten
+Varianten erzeugen
+Varianten auswählen
+Variantennamen erzeugen
+Variantenübersicht exportieren
+```
+
+Mögliche Struktur
+
+```text
+src/
+  ma_variants/
+    __init__.py
+    models.py
+    variant_counter.py
+    variant_generator.py
+    variant_selection.py
+    variant_naming.py
+    variant_export.py
+    run_variant_workflow.py
+```
+
+Optional später
+
+```text
+src/
+  ma_variants/
+    selection_methods/
+      random_selection.py
+      monte_carlo_selection.py
+      parameter_filter_selection.py
+      structured_coverage_selection.py
+      sensitivity_selection.py
+      rule_based_selection.py
+```
+
+Eingaben
+
+```text
+Parameter und Optionen aus ma_parameters
+weather_key aus ma_weather
+Gebäudedaten aus ma_building
+```
+
+Ausgaben
+
+```text
+Variantenkatalog
+selected_variants
+variant_metadata
+resolved_variant_values
+Variantennamen
+Variantenübersicht
+```
+
+Nicht Aufgabe von `ma_variants`
+
+```text
+Simulationszeitraum definieren
+IDA ICE Dateien schreiben
+Simulation starten
+Simulationsergebnisse analysieren
+Wirtschaftlichkeit berechnen
+```
+
+## Aufgabe 11
+
+## Modul ma_simulation_setup planen
+
+Plane das neue Modul `ma_simulation_setup`.
+
+Dieses Modul liegt im Pre-Process zwischen `ma_variants` und `ma_export_ida`.
+
+Zweck
+
+```text
+ma_variants definiert, welche Varianten untersucht werden
+ma_simulation_setup definiert, wie diese Varianten simuliert werden
+ma_export_ida bereitet Varianten und Simulationssetup für IDA ICE vor
+```
+
+Version 1 soll mindestens enthalten
+
+```text
+Simulationszeitraum
+Default Jahressimulation
+Startdatum
+Enddatum
+erwartete Stundenanzahl
+Ausgabeintervall
+Zeitschritt oder IDA Standard
+optional Warm-up Einstellung
+Simulationsszenario
+Run Metadaten
+```
+
+Standard für Version 1
+
+```text
+simulation_setup_key = full_year_default
+display_name = Jahressimulation Standard
+period_type = full_year
+start_month = 1
+start_day = 1
+start_hour = 0
+end_month = 12
+end_day = 31
+end_hour = 23
+expected_hours = 8760
+output_interval = hourly
+timestep = ida_default
+warmup_enabled = false
+```
+
+Mögliche Struktur
+
+```text
+src/
+  ma_simulation_setup/
+    __init__.py
+    models.py
+    setup_loader.py
+    setup_validation.py
+    setup_export.py
+    run_simulation_setup_check.py
+
+config/
+  simulation_setup/
+    default_simulation_setup.yaml
+```
+
+Nicht Aufgabe von `ma_simulation_setup`
+
+```text
+Varianten erzeugen
+IDA ICE Dateien direkt schreiben
+Simulation starten
+Simulationsergebnisse importieren
+```
+
+## Aufgabe 12
+
+## Modul ma_export_ida planen
+
+Plane das Modul `ma_export_ida`.
+
+Zweck
+
+```text
+ausgewählte Varianten und Simulationssetup für IDA ICE vorbereiten
+Exportordner erzeugen
+Metadaten schreiben
+aufgelöste Parameter schreiben
+Simulationssetup je Exportlauf dokumentieren
+Exportlog schreiben
+später IDA ICE Übergabestruktur vorbereiten
+```
+
+Mögliche Struktur
+
+```text
+src/
+  ma_export_ida/
+    __init__.py
+    ida_exporter.py
+    folder_builder.py
+    manifest_writer.py
+    export_validation.py
+    run_ida_export.py
+```
+
+Mögliche Ausgabe
+
+```text
+data/
+  ida_exports/
+    V001_CL_FFM_HEAT_WP/
+      metadata.json
+      resolved_parameters.json
+      simulation_setup.json
+      export_log.txt
+```
+
+## Aufgabe 13
+
+## Modul ma_import_ida planen
+
+Plane das Modul `ma_import_ida`.
+
+Zweck
+
+```text
+IDA ICE Ergebnisordner auffinden
+Ergebnisdateien prüfen
+Ergebnisordner Varianten zuordnen
+Importstatus dokumentieren
+Daten strukturiert an ma_analyse übergeben
+```
+
+Mögliche Struktur
+
+```text
+src/
+  ma_import_ida/
+    __init__.py
+    result_finder.py
+    result_manifest.py
+    result_validation.py
+    import_log.py
+    run_ida_import.py
+```
+
+Nicht Aufgabe von `ma_import_ida`
+
+```text
+fachliche Energieauswertung
+Komfortauswertung
+Diagrammerstellung
+Wirtschaftlichkeitsanalyse
+Nachhaltigkeitsanalyse
+```
+
+## Aufgabe 14
+
+## Modul ma_analyse einordnen
+
+`ma_analyse` ist das bestehende Modul für die Analyse der IDA ICE Simulationsergebnisse.
+
+Zweck
+
+```text
+Energiekennwerte auswerten
+Komfortkennwerte auswerten
+Lasten auswerten
+Diagramme erzeugen
+Berichte oder Excel Auswertungen erzeugen
+Simulationsergebnisse vergleichbar machen
+```
+
+Eingabe
+
+```text
+standardisierte Ergebnisdaten aus ma_import_ida
+oder bisherige manuell abgelegte Simulationsergebnisse
+```
+
+Ausgabe
+
+```text
+Analysekennwerte
+Diagramme
+Tabellen
+Reports
+aufbereitete Daten für ma_assessment
+```
+
+Nicht Aufgabe von `ma_analyse`
+
+```text
+allgemeine App Steuerung
+allgemeine UI Komponenten
+Varianten erzeugen
+Wetterdaten analysieren
+Simulationsrandbedingungen festlegen
+Wirtschaftlichkeit berechnen
+Nachhaltigkeit berechnen
+```
+
+Wichtig
+
+Bestehende Funktionen in `ma_analyse` nicht ungeprüft verändern.
+
+Bestehende App oder Oberfläche in `ma_analyse` zuerst analysieren und nur nach Freigabe in `ma_ui` überführen.
+
+## Aufgabe 15
+
+## Modul ma_assessment planen
+
+Plane das Modul `ma_assessment`.
+
+Zweck
+
+```text
+Wirtschaftlichkeitsanalyse
+Nachhaltigkeitsanalyse
+Bewertung der durch ma_analyse aufbereiteten Simulationsergebnisse
+generische Systemkosten für alle Varianten
+detaillierte Produktdaten für ausgewählte Varianten
+betriebsbedingte CO2 Emissionen
+später GWP von Produkten und Materialien
+```
+
+Interne Struktur
+
+```text
+src/
+  ma_assessment/
+    __init__.py
+
+    common/
+      __init__.py
+      assessment_models.py
+      scenario_models.py
+      source_models.py
+      data_quality.py
+
+    economics/
+      __init__.py
+      generic_system_costs.py
+      energy_costs.py
+      lifecycle_costs.py
+      annuity.py
+      economic_results.py
+      economic_export.py
+
+    sustainability/
+      __init__.py
+      emission_factors.py
+      operational_emissions.py
+      embodied_gwp.py
+      sustainability_results.py
+      sustainability_export.py
+
+    adapters/
+      ma_analyse_adapter.py
+```
+
+Konfiguration
+
+```text
+config/
+  assessment/
+    economic_scenarios.yaml
+    generic_system_costs.yaml
+    energy_prices.yaml
+    emission_factors.yaml
+```
+
+Umsetzungsstufen
+
+```text
+Stufe 1
+generische Wirtschaftlichkeitsanalyse für alle Varianten
+
+Stufe 2
+betriebsbedingte Nachhaltigkeitsanalyse über Emissionsfaktoren
+
+Stufe 3
+detaillierte Produktbewertung für ausgewählte Varianten
+
+Stufe 4
+Material und Bauteilbezug, falls im Masterarbeitsumfang sinnvoll
+```
+
+## Aufgabe 16
+
+## Modul ma_feedback planen
+
+Plane das Modul `ma_feedback`.
+
+Zweck
+
+```text
+Analyseergebnisse prüfen
+Probleme klassifizieren
+Grenzwertüberschreitungen dokumentieren
+Rücksprungziel in den Pre-Process bestimmen
+Iterationsentscheidung vorbereiten
+```
+
+Mögliche Struktur
+
+```text
+src/
+  ma_feedback/
+    __init__.py
+    issue_models.py
+    issue_classifier.py
+    feedback_router.py
+    feedback_report.py
+```
+
+Problemtypen
+
+```text
+Grenzwerte überschritten
+neue Parameter oder Optionen erforderlich
+Änderungen im Modell erforderlich
+Rahmenbedingungen geändert
+Variante ungeeignet
+Daten fehlen
+Simulation fehlerhaft
+```
+
+Rücksprungziele
+
+```text
+ma_parameters
+ma_weather
+ma_building
+ma_variants
+ma_simulation_setup
+ma_export_ida
+```
+
+Hinweis
+
+Für Version 1 reicht eine Dokumentation und spätere Vorbereitung. Die vollständige Implementierung kann später erfolgen.
+
+## Aufgabe 17
+
+## Schnittstellen zwischen allen Modulen dokumentieren
+
+Dokumentiere mindestens diese Schnittstellen
+
+```text
+ma_ui zu ma_workflow
+ma_workflow zu allen Fachmodulen
+
+ma_parameters zu ma_variants
+ma_weather zu ma_variants
+ma_building zu ma_variants
+
+ma_variants zu ma_simulation_setup
+ma_simulation_setup zu ma_export_ida
+ma_export_ida zu IDA ICE
+
+IDA ICE zu ma_import_ida
+ma_import_ida zu ma_analyse
+ma_analyse zu ma_assessment
+ma_assessment zu ma_feedback
+
+ma_feedback zurück zu ma_parameters
+ma_feedback zurück zu ma_weather
+ma_feedback zurück zu ma_building
+ma_feedback zurück zu ma_variants
+ma_feedback zurück zu ma_simulation_setup
+```
+
+## Aufgabe 18
+
+## Workflow Buttons dem Modulmodell zuordnen
+
+Dokumentiere, welcher Button im späteren Dashboard welches Modul oder welche Workflow Aktion aufruft.
+
+Beispiel
+
+```text
+Button Parameter und Optionen
+ma_ui ruft ma_workflow.open_parameters
+ma_workflow ruft ma_parameters
+
+Button Wetterdaten
+ma_ui ruft ma_workflow.open_weather
+ma_workflow ruft ma_weather
+
+Button Gebäudestruktur
+ma_ui ruft ma_workflow.open_building
+ma_workflow ruft ma_building
+
+Button Variantenkatalog
+ma_ui ruft ma_workflow.open_variants
+ma_workflow ruft ma_variants
+
+Button Simulationsrandbedingungen
+ma_ui ruft ma_workflow.open_simulation_setup
+ma_workflow ruft ma_simulation_setup
+
+Button IDA ICE Export
+ma_ui ruft ma_workflow.run_ida_export
+ma_workflow ruft ma_export_ida
+
+Button IDA ICE Import
+ma_ui ruft ma_workflow.run_ida_import
+ma_workflow ruft ma_import_ida
+
+Button Analyse
+ma_ui ruft ma_workflow.run_analysis
+ma_workflow ruft ma_analyse
+
+Button Wirtschaftlichkeit und Nachhaltigkeit
+ma_ui ruft ma_workflow.run_assessment
+ma_workflow ruft ma_assessment
+
+Button Problembehandlung
+ma_ui ruft ma_workflow.open_feedback
+ma_workflow ruft ma_feedback
+```
+
+## Aufgabe 19
+
+## App Auslagerung aus ma_analyse in den Plan aufnehmen
+
+Dokumentiere einen eigenen Prüf- und Migrationsplan für die bestehende App oder Oberfläche aus `ma_analyse`.
+
+Der Plan soll enthalten
+
+```text
+Bestandsaufnahme der vorhandenen App Dateien
+Trennung zwischen UI Code und Analyse Fachlogik
+Identifikation wiederverwendbarer UI Komponenten
+Identifikation analyse spezifischer UI Ansichten
+Vorschlag für Zielstruktur in ma_ui
+Vorschlag für analyse_view unter ma_ui/module_views
+Risikoanalyse für Importpfade
+manuelle Testhinweise
+Rückfragebedarf vor tatsächlicher Verschiebung
+```
+
+Zielbild
+
+```text
+allgemeine UI Bestandteile
+ma_ui/shared
+
+analyse spezifische Ansicht
+ma_ui/module_views/analyse_view.py
+
+Analyse Fachlogik
+ma_analyse
+```
+
+Wichtig
+
+Keine Auslagerung automatisch durchführen. Erst prüfen, dokumentieren und Freigabe einholen.
+
+## Aufgabe 20
+
+## Umsetzungsprioritäten festlegen
+
+Dokumentiere eine sinnvolle Umsetzungsreihenfolge.
+
+Empfohlene Reihenfolge
+
+```text
+Phase 1
+Projektstruktur prüfen und Dokumentation aktualisieren
+
+Phase 2
+bestehende App oder Oberfläche in ma_analyse prüfen
+
+Phase 3
+ma_ui und ma_workflow als Zielstruktur dokumentieren
+
+Phase 4
+ma_parameters und ma_variants stabilisieren
+
+Phase 5
+ma_weather integrieren
+
+Phase 6
+ma_simulation_setup vorbereiten
+
+Phase 7
+ma_export_ida vorbereiten
+
+Phase 8
+ma_import_ida vorbereiten und Schnittstelle zu ma_analyse prüfen
+
+Phase 9
+ma_assessment planen und generische Wirtschaftlichkeit vorbereiten
+
+Phase 10
+ma_building fachlich abgrenzen und minimal vorbereiten
+
+Phase 11
+ma_feedback dokumentieren und später implementieren
+
+Phase 12
+nach Freigabe allgemeine UI Bestandteile aus ma_analyse nach ma_ui auslagern
+```
+
+## Aufgabe 21
+
+## Dokumentation aktualisieren
+
+Aktualisiere oder erstelle, soweit passend
+
+```text
+docs/WORKFLOW.md
+docs/DATA_MODEL.md
+docs/planning/PLAN_INDEX.md
+docs/planning/PLAN_STATUS.md
+docs/planning/250608_Plan_Gesamtmodulstruktur_Dashboard_UI_Auslagerung.md
+docs/decisions/USER_DECISIONS_MASTERTHESIS_CODE.md
+docs/decisions/USER_DECISIONS_OPEN_POINTS.md
+```
+
+Falls diese Dateien oder Ordner nicht existieren, lege sie nicht blind neu an, sondern prüfe zuerst die bestehende Dokumentationsstruktur.
+
+Dokumentiere die heute besprochenen Nutzerentscheidungen.
+
+## Aufgabe 22
+
+## Keine riskanten Änderungen ohne Freigabe
+
+Nicht automatisch durchführen
+
+```text
+bestehende Module umbenennen
+bestehende Dateien verschieben
+bestehende GUI umbauen
+bestehende Analysefunktionen ändern
+Importpfade ändern
+IDA ICE Dateien erzeugen oder verändern
+Simulationen starten
+alte Dateien löschen
+App aus ma_analyse direkt verschieben
+```
+
+Wenn eine dieser Änderungen sinnvoll erscheint, dokumentiere sie als Vorschlag mit Rückfragebedarf.
+
+## Aufgabe 23
+
+## Abschlussübersicht ausgeben
+
+Gib am Ende eine strukturierte Zusammenfassung aus.
+
+Die Zusammenfassung soll enthalten
+
+```text
+analysierte vorhandene Struktur
+empfohlene endgültige Modulstruktur
+Bewertung je Modul
+Bewertung der bestehenden ma_analyse App oder Oberfläche
+Vorschlag zur UI Auslagerung
+neu angelegte Dateien
+geänderte Dateien
+nicht geänderte Dateien trotz Auffälligkeit
+offene Rückfragen
+empfohlene nächste Umsetzungsschritte
+Risiken
+```
+
+## Arbeitsregeln
+
+Arbeite kritisch und strukturiert.
+
+Keine Annahmen über bestehende Dateien treffen, sondern zuerst prüfen.
+
+Keine vorhandenen Dateien löschen.
+
+Keine vorhandenen Dateien verschieben.
+
+Keine bestehenden Module umbenennen ohne Rückfrage.
+
+Keine Fachlogik in die GUI schreiben.
+
+GUI, Workflowsteuerung und Fachmodule klar trennen.
+
+Bestehende Analyse mit `ma_analyse` nicht ungeprüft verändern.
+
+Bestehende App oder Oberfläche in `ma_analyse` nicht automatisch verschieben.
+
+`ma_simulation_setup` klar von `ma_variants` und `ma_export_ida` trennen.
+
+`ma_export_ida` und `ma_import_ida` getrennt behandeln.
+
+`ma_assessment` klar von `ma_analyse` trennen.
+
+Website Themen oder andere nicht zur Masterarbeit gehörende Themen nicht in die Masterarbeitsdokumentation aufnehmen.
+
+Beginne mit Aufgabe 1 und gib zuerst eine Bestandsaufnahme der vorhandenen Projektstruktur aus. Danach schlage die konkrete Integration der aktualisierten Gesamtmodulstruktur und den Prüfplan für die Auslagerung der bestehenden ma_analyse App vor. Warte mit größeren Änderungen auf Freigabe.

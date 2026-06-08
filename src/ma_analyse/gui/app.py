@@ -3066,7 +3066,7 @@ class PipelineGUI(SettingsDialogMixin):
         if self.command.get() == "prepare":
             if scope == "Alle Varianten":
                 self.variant_note.configure(
-                    text=f"Alle Input-Varianten aus {INPUT_DIR} sind aktiv und werden vorbereitet."
+                    text=f"Alle IDA-Import-Varianten aus {INPUT_DIR} sind aktiv und werden vorbereitet."
                 )
                 return
 
@@ -3089,7 +3089,7 @@ class PipelineGUI(SettingsDialogMixin):
                 return
 
             self.variant_note.configure(
-                text="Mehrere Input-Varianten sind aktiv. Es werden nur die ausgewaehlten Varianten vorbereitet."
+                text="Mehrere IDA-Import-Varianten sind aktiv. Es werden nur die ausgewaehlten Varianten vorbereitet."
             )
             return
 

@@ -15,7 +15,7 @@ OUTPUT_FORMATS_DOC = SETTINGS_DIR / "output_formats.md"
 PLOT_TEMPLATES_CONFIG = SETTINGS_DIR / "plot_templates.toml"
 PLOT_TEMPLATES_CONFIG_DIR = SETTINGS_DIR / "plot_templates"
 
-INPUT_DIR = "data/ma_analyse/input"
+INPUT_DIR = "data/ma_analyse/ida_imports"
 DATENBANK_DIR = "data/ma_analyse/database"
 OUTPUT_DIR = "data/ma_analyse/output"
 TEST_OUTPUT_DIR = "data/test_output"

@@ -26,7 +26,7 @@ Standardpfade:
 Komplette Varianten-Tests:
 
 ```powershell
-.\.venv\Scripts\python.exe -m pytest tests\test_ma_variants_*.py
+.\.venv\Scripts\python.exe -m pytest tests -k ma_variants
 ```
 
 ## Hinweise

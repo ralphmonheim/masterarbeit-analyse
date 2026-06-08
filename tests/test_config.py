@@ -2,7 +2,7 @@ from ma_analyse.core import config
 
 
 def test_default_data_paths_live_under_data_dir():
-    assert config.INPUT_DIR == "data/ma_analyse/input"
+    assert config.INPUT_DIR == "data/ma_analyse/ida_imports"
     assert config.DATENBANK_DIR == "data/ma_analyse/database"
     assert config.OUTPUT_DIR == "data/ma_analyse/output"
     assert config.TEST_OUTPUT_DIR == "data/test_output"

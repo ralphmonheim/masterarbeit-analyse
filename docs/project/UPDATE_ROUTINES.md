@@ -11,6 +11,14 @@ Dokumentationsroutine, kein Python-CLI-Befehl.
 | `update repo` | Versionen, Changelog und Release-Stand vorbereiten | Codex aktualisiert Dateien und gibt Terminal-Code fuer Commit, Tag und Push aus. |
 | `direkt update repo` | Repo-Update vollstaendig durch Codex ausfuehren | Codex aktualisiert Dateien und fuehrt Commit, Tag und Push aus, sofern Git-Zugriff moeglich ist. |
 | `update planung` | Plan- und Entscheidungsstruktur aktualisieren | Codex prueft Plan-Inbox, Planindex, Planstatus und offene Entscheidungen. |
+| `tagesstart` / `Guten Morgen, es ist ein neuer Tag.` | Tagesuebersicht erstellen | Codex liest den Projektstand, pflegt bei Bedarf offene Nutzerentscheidungen und gibt offene Aufgaben nach Modulen aus. |
+| `tagesende` / `Gute Nacht.` | Tagesstand dokumentieren und Repo-Update vorbereiten | Codex aktualisiert Planstatus, Entscheidungen und Changelog, falls noetig, und gibt Terminal-Code fuer Commit, Tag und Push aus. |
+| `tagesende direkt` / `Gute Nacht direkt.` | Tagesstand dokumentieren und Repo direkt aktualisieren | Codex aktualisiert Dokumente und fuehrt Commit, Tag und Push aus, sofern keine Blocker bestehen. |
+| `wochenabschluss` / `Eine schoene Woche.` | Wochenstand dokumentieren | Codex erstellt eine Wochenzusammenfassung unter `docs/project/weekly_reviews/` und prueft archivierungsfaehige Plaene. |
+| `projektlage` | Kurze Projektlage lesen | Codex berichtet Git-Stand, Version, aktive Plaene, offene Entscheidungen und naechste sinnvolle Schritte. |
+| `plan aufnehmen` | neuen Plan einordnen | Codex liest neue Plaene aus der Inbox und aktualisiert Planindex sowie Planstatus. |
+| `entscheidung festhalten` | Nutzerentscheidung dokumentieren | Codex dokumentiert echte Nutzerentscheidungen und bereinigt passende offene Punkte. |
+| `release check` | Release-Bereitschaft pruefen | Codex prueft Versionen, Changelog, Tags, Tests und offene Aenderungen ohne Release auszufuehren. |
 
 ## Betroffene Dateien
 
@@ -28,6 +36,9 @@ Dokumentationsroutine, kein Python-CLI-Befehl.
 | Nutzerentscheidungen aktualisieren | `docs/project/decisions/USER_DECISIONS_MASTERTHESIS_CODE.md` | echte Nutzerentscheidungen | Keine technischen Empfehlungen eintragen. |
 | Offene Entscheidungen aktualisieren | `docs/project/decisions/USER_DECISIONS_OPEN_POINTS.md` | offene Nutzerentscheidungen | Offene Punkte klar von getroffenen Entscheidungen trennen. |
 | Technische Entscheidungen aktualisieren | `docs/project/decisions/TECHNICAL_DECISIONS.md` | Architektur- und Umsetzungsentscheidungen | Nicht mit Nutzerentscheidungen vermischen. |
+| Tagesstart | `docs/project/plans/PLAN_STATUS.md`, `docs/project/plans/PLAN_INDEX.md`, `docs/project/decisions/USER_DECISIONS_OPEN_POINTS.md` | offene Aufgaben, aktive Plaene, offene Entscheidungen | Offene Entscheidungsdatei bereinigen oder ergaenzen; allgemeine Aufgaben nur berichten. |
+| Tagesende | `PLAN_STATUS.md`, Nutzerentscheidungen, `CHANGELOG.md`, Git-Arbeitsbaum | Tagesstand, offene Punkte, Release-/Commit-Vorschlag | Dokumente nur bei tatsaechlicher Aenderung aktualisieren. |
+| Wochenabschluss | `docs/project/weekly_reviews/` | Wochenbericht `YYYY-KWxx.md` | Erledigte Arbeiten, offene Punkte und naechste Woche dokumentieren. |
 
 ## Routine `update repo`
 
@@ -71,6 +82,53 @@ git push origin vx.y.z
 7. Technische Entscheidungen getrennt in `TECHNICAL_DECISIONS.md` dokumentieren.
 8. `CHANGELOG.md` nur aktualisieren, wenn tatsaechlich Dateien, Struktur, Code oder Verhalten geaendert wurden.
 
+## Routine `tagesstart`
+
+1. Git-Stand, Branch, letzten Commit und letzten Tag lesen.
+2. `CHANGELOG.md` auf offene Eintraege unter `Unreleased` pruefen.
+3. `PLAN_INDEX.md` und `PLAN_STATUS.md` lesen.
+4. `USER_DECISIONS_OPEN_POINTS.md` bereinigen:
+   - geschlossene Punkte entfernen, wenn sie als `UD-*` dokumentiert sind.
+   - neue offene Nutzerentscheidungen nur ergaenzen, wenn sie eindeutig sind.
+   - allgemeine Aufgaben nicht in diese Datei schreiben.
+5. Offene Nutzerentscheidungen im Chat ausgeben.
+6. Plan-Inbox auf neue Plaene pruefen.
+7. Eine kurze Aufgabenliste nach Modulen im Chat ausgeben.
+8. Die wichtigsten ein bis drei Tagesprioritaeten empfehlen.
+9. Keine Git-Aktionen ausfuehren.
+
+## Routine `tagesende`
+
+1. Git-Stand und geaenderte Dateien pruefen.
+2. Falls Arbeiten abgeschlossen wurden, `PLAN_STATUS.md` aktualisieren.
+3. Falls Nutzerentscheidungen getroffen wurden, diese dokumentieren und passende offene Punkte schliessen.
+4. Falls Code, Struktur oder Dokumentation geaendert wurden, `CHANGELOG.md` unter `Unreleased` aktualisieren.
+5. Tests nur bei Code- oder Testaenderungen ausfuehren.
+6. Terminal-Code fuer Commit, Tag und Push ausgeben.
+7. Keine Git-Aktionen selbst ausfuehren.
+
+## Routine `tagesende direkt`
+
+1. Dieselben Schritte wie `tagesende` ausfuehren.
+2. Bei unklaren, riskanten oder unerwarteten Aenderungen stoppen und Rueckfrage stellen.
+3. Wenn der Stand eindeutig ist, Commit, Tag und Push durch Codex ausfuehren.
+
+## Routine `wochenabschluss`
+
+1. Git-Stand, Releases, Tags und Planstatus der Woche pruefen.
+2. Erledigte Arbeiten nach Modulen zusammenfassen.
+3. Offene Aufgaben, offene Entscheidungen und Risiken dokumentieren.
+4. Archivierungsfaehige Plaene benennen und nur nach Freigabe verschieben.
+5. Wochenbericht unter `docs/project/weekly_reviews/` als Markdown-Datei ablegen.
+6. Naechste Wochenprioritaeten vorschlagen.
+
+## Kurze Zusatzroutinen
+
+- `projektlage`: liest Projektstand und gibt eine kompakte Lage aus.
+- `plan aufnehmen`: ordnet neue Plaene aus `docs/project/plans/inbox/` ein.
+- `entscheidung festhalten`: dokumentiert echte Nutzerentscheidungen getrennt von technischen Empfehlungen.
+- `release check`: prueft Release-Bereitschaft ohne Commit, Tag oder Push.
+
 ## Versionslogik
 
 - Patch-Version fuer Dokumentation, Bugfixes und kleine Strukturkorrekturen.
@@ -84,3 +142,6 @@ git push origin vx.y.z
 - Nutzerentscheidungen und technische Empfehlungen werden getrennt dokumentiert.
 - Plaene werden nicht automatisch geloescht.
 - Git-Push wird nur bei `direkt update repo` durch Codex ausgefuehrt.
+- `tagesstart` darf `USER_DECISIONS_OPEN_POINTS.md` pflegen, fuehrt aber keine Git-Aktionen aus.
+- `projektlage` ist eine rein lesende Routine.
+- `tagesende direkt` fuehrt Git-Aktionen nur aus, wenn der Arbeitsstand eindeutig ist.

@@ -66,7 +66,7 @@ Begruendung:
 
 ## Entscheidung 7: ma_analyse-Datenpfade hart migriert
 
-`ma_analyse` nutzt ab dem 2026-06-04 nur noch die Modulpfade `data/ma_analyse/input`, `data/ma_analyse/database` und `data/ma_analyse/output`.
+`ma_analyse` nutzt ab dem 2026-06-04 nur noch die Modulpfade `data/ma_analyse/ida_imports`, `data/ma_analyse/database` und `data/ma_analyse/output`.
 
 Begruendung:
 
@@ -103,3 +103,15 @@ Begruendung:
 - Die Galerie unter `docs/examples/plot_templates/` kann fuer jede fachliche Darstellung ein stabiles Referenzbild enthalten.
 - Die CLI bleibt fuer einzelne Diagrammideen eindeutig: `heating-overlay` und `cooling-absolute-year` beschreiben direkt die gewuenschte Darstellung.
 - Bestehende Templates bleiben rueckwaertskompatibel nutzbar, ohne eine zusaetzliche globale Modusoption einzufuehren.
+
+## Entscheidung 11: ma_weather getrennt von ma_analyse
+
+Das Wettermodul wird als eigenes Paket `src/ma_weather/` aufgebaut. TRY-Dateien
+bleiben lokale Eingangs- und Randbedingungsdaten unter `data/ma_weather/input/`
+und werden nicht mit den IDA-ICE-Zonenwerten aus `ma_analyse` vermischt.
+
+Begruendung:
+
+- Wetterdaten beschreiben Randbedingungen, waehrend `ma_analyse` Simulationsergebnisse auswertet.
+- Reale TRY-Dateien sollen lokal bereitgestellt und nicht im Git-Repo versioniert werden.
+- Die spaetere Verbindung zu Varianten kann ueber den technischen `weather_key` erfolgen.
