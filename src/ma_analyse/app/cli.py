@@ -130,10 +130,10 @@ def _should_apply_config_option(raw_argv, *option_names):
 def apply_plot_template_config_defaults(args, raw_argv):
     """Ueberschreibt nicht explizit gesetzte Plot-Template-Optionen aus einer Templatedatei."""
     config_path = getattr(args, "plot_template_config", None)
-    if config_path is None:
-        return
-
-    template_data = get_plot_template_defaults(args.template, config_path)
+    if config_path:
+        template_data = get_plot_template_defaults(args.template, config_path)
+    else:
+        template_data = get_plot_template_defaults(args.template)
     if not isinstance(template_data, dict) or not template_data:
         return
 

@@ -1,6 +1,6 @@
 # Nutzerentscheidungen Masterarbeit Code
 
-Stand: 2026-06-05
+Stand: 2026-06-08
 
 ## UD-001 Modulare Projektstruktur
 
@@ -109,3 +109,15 @@ Stand: 2026-06-05
 - Status: getroffen
 - Offene Folgefragen: Umgang mit echten Datenblaettern im Git-Repo klaeren.
 - Quelle oder Chatbezug: aktueller Codex-Chat zur Bereinigung alter Datenstrukturen
+
+## UD-010 Relative Cooling-Templates verwenden CSV-Rohwerte
+
+- Datum: 2026-06-08
+- Thema: ma_analyse Plot-Templates
+- Entscheidung: Relative Cooling-Plot-Templates sollen `zone_energy_q_cool` exakt wie in den CSV-Dateien darstellen. Absolute Cooling-Templates sollen separat den Betrag `abs(zone_energy_q_cool)` positiv nach oben zeigen.
+- Begruendung: Die relative Darstellung soll die Vorzeichenlogik der Simulation transparent zeigen und keine Werte stillschweigend umdrehen.
+- Auswirkung: `cooling-year`, `cooling-month`, `cooling-week` und `cooling-day` nutzen Rohwerte; `cooling-absolute-year`, `cooling-absolute-month`, `cooling-absolute-week` und `cooling-absolute-day` nutzen Betraege.
+- Betroffene Module oder Dateien: `src/ma_analyse/analysis/templates/`, `docs/ma_analyse/commands_analyse.md`, `docs/examples/plot_templates/`
+- Status: getroffen
+- Offene Folgefragen: Soll dieselbe relative/absolute Logik spaeter auch fuer den regulaeren `cooling`-Befehl und die GUI-Auswahl gelten?
+- Quelle oder Chatbezug: aktueller Codex-Chat zu Cooling-Plot-Templates

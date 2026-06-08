@@ -645,7 +645,7 @@ class PipelineGUI(SettingsDialogMixin):
         if isinstance(widget, str):
             try:
                 return self.root.nametowidget(widget)
-            except (tk.TclError, AttributeError):
+            except (KeyError, tk.TclError, AttributeError):
                 return None
         return widget
 
@@ -667,7 +667,10 @@ class PipelineGUI(SettingsDialogMixin):
             parent_name = current.winfo_parent()
             if not parent_name:
                 break
-            current = current.nametowidget(parent_name)
+            try:
+                current = current.nametowidget(parent_name)
+            except (KeyError, tk.TclError, AttributeError):
+                return False
         return False
 
     def _widget_is_in_right_scroll_area(self, widget):
@@ -681,7 +684,10 @@ class PipelineGUI(SettingsDialogMixin):
             parent_name = current.winfo_parent()
             if not parent_name:
                 break
-            current = current.nametowidget(parent_name)
+            try:
+                current = current.nametowidget(parent_name)
+            except (KeyError, tk.TclError, AttributeError):
+                return False
         return False
 
     def _on_mousewheel(self, event):

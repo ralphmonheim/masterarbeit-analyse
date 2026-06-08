@@ -1,6 +1,6 @@
 # Offene Nutzerentscheidungen
 
-Stand: 2026-06-05
+Stand: 2026-06-08
 
 ## Geschlossene Punkte
 
@@ -35,3 +35,10 @@ Stand: 2026-06-05
 - Status: offen
 - Frage: Sollen echte Produkt- und Materialdatenblaetter ins Git-Repo aufgenommen oder ausserhalb des Repos abgelegt und nur referenziert werden?
 - Auswirkung: Betrifft `data/catalogs/documents/`, `.gitignore` und spaetere Produkt-/Materialkataloge.
+
+### OP-005 Relative/absolute Cooling-Logik im regulaeren Cooling-Befehl
+
+- Thema: ma_analyse Cooling-Auswertung
+- Status: offen
+- Frage: Soll die neue Trennung aus den Plot-Templates auch in den normalen Befehl `python -m ma_analyse cooling ...` und die GUI-Auswahl uebernommen werden?
+- Auswirkung: Betrifft `src/ma_analyse/analysis/cooling.py`, `src/ma_analyse/app/cli.py` und `src/ma_analyse/gui/app.py`.

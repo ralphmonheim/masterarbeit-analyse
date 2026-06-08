@@ -13,6 +13,10 @@ COOLING_YEAR_TEMPLATE = "cooling-year"
 COOLING_MONTH_TEMPLATE = "cooling-month"
 COOLING_WEEK_TEMPLATE = "cooling-week"
 COOLING_DAY_TEMPLATE = "cooling-day"
+COOLING_ABSOLUTE_YEAR_TEMPLATE = "cooling-absolute-year"
+COOLING_ABSOLUTE_MONTH_TEMPLATE = "cooling-absolute-month"
+COOLING_ABSOLUTE_WEEK_TEMPLATE = "cooling-absolute-week"
+COOLING_ABSOLUTE_DAY_TEMPLATE = "cooling-absolute-day"
 HEATING_BAR_TEMPLATE = "heating-bar"
 COOLING_BAR_TEMPLATE = "cooling-bar"
 COMFORT_PLOT_TEMPLATE = "comfort-plot"
@@ -47,7 +51,7 @@ class PlotTemplateSpec:
 
 
 PLOT_TEMPLATE_SPECS = {
-    HEATING_YEAR_TEMPLATE: PlotTemplateSpec(HEATING_YEAR_TEMPLATE, "heating", "year", supports_overlays=True),
+    HEATING_YEAR_TEMPLATE: PlotTemplateSpec(HEATING_YEAR_TEMPLATE, "heating", "year"),
     HEATING_OVERLAY_TEMPLATE: PlotTemplateSpec(HEATING_OVERLAY_TEMPLATE, "heating", "year", supports_overlays=True),
     HEATING_MONTH_TEMPLATE: PlotTemplateSpec(HEATING_MONTH_TEMPLATE, "heating", "month"),
     HEATING_WEEK_TEMPLATE: PlotTemplateSpec(HEATING_WEEK_TEMPLATE, "heating", "week"),
@@ -57,6 +61,10 @@ PLOT_TEMPLATE_SPECS = {
     COOLING_MONTH_TEMPLATE: PlotTemplateSpec(COOLING_MONTH_TEMPLATE, "cooling", "month"),
     COOLING_WEEK_TEMPLATE: PlotTemplateSpec(COOLING_WEEK_TEMPLATE, "cooling", "week"),
     COOLING_DAY_TEMPLATE: PlotTemplateSpec(COOLING_DAY_TEMPLATE, "cooling", "day"),
+    COOLING_ABSOLUTE_YEAR_TEMPLATE: PlotTemplateSpec(COOLING_ABSOLUTE_YEAR_TEMPLATE, "cooling_absolute", "year"),
+    COOLING_ABSOLUTE_MONTH_TEMPLATE: PlotTemplateSpec(COOLING_ABSOLUTE_MONTH_TEMPLATE, "cooling_absolute", "month"),
+    COOLING_ABSOLUTE_WEEK_TEMPLATE: PlotTemplateSpec(COOLING_ABSOLUTE_WEEK_TEMPLATE, "cooling_absolute", "week"),
+    COOLING_ABSOLUTE_DAY_TEMPLATE: PlotTemplateSpec(COOLING_ABSOLUTE_DAY_TEMPLATE, "cooling_absolute", "day"),
     COOLING_BAR_TEMPLATE: PlotTemplateSpec(COOLING_BAR_TEMPLATE, "cooling_bar", "bar", requires_single_room=False),
     COMFORT_PLOT_TEMPLATE: PlotTemplateSpec(COMFORT_PLOT_TEMPLATE, "comfort", "plot"),
     COMFORT_PLOT_OVERVIEW_TEMPLATE: PlotTemplateSpec(

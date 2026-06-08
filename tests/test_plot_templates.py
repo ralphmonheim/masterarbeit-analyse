@@ -3,6 +3,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
+from ma_analyse.analysis import cooling
 from ma_analyse.analysis.components.time_windows import (
     MONTH_BOUNDARIES,
     MONTH_START_HOURS,
@@ -15,6 +16,7 @@ from ma_analyse.analysis.templates import (
     load_hourly_prn_series,
     validate_template_request,
 )
+from ma_analyse.analysis.templates.timeline import _build_template_plot_dataframe
 from ma_analyse.settings.plot_templates import (
     get_heating_year_template_defaults,
     get_plot_template_defaults,
@@ -225,6 +227,21 @@ def test_build_heating_overlay_template_creates_png(tmp_path):
     )
 
 
+def test_get_plot_template_defaults_separates_heating_year_and_overlay():
+    year_defaults = get_plot_template_defaults("heating-year")
+    overlay_defaults = get_plot_template_defaults("heating-overlay")
+
+    assert year_defaults["show_setpoint_band"] is False
+    assert year_defaults["show_outdoor_temperature"] is False
+    assert year_defaults["show_operative_temperature"] is False
+    assert year_defaults["default_overlays"] == []
+
+    assert overlay_defaults["show_setpoint_band"] is True
+    assert overlay_defaults["show_outdoor_temperature"] is True
+    assert overlay_defaults["show_operative_temperature"] is True
+    assert overlay_defaults["default_overlays"][0]["id"] == "outdoor_temperature"
+
+
 def test_get_plot_template_defaults_loads_heating_overlay_config(tmp_path):
     config_dir = tmp_path / "plot_templates"
     config_dir.mkdir()
@@ -249,6 +266,25 @@ def test_get_plot_template_defaults_loads_heating_overlay_config(tmp_path):
     assert defaults["temperature_ymin"] == -10.0
     assert defaults["temperature_ymax"] == 32.0
     assert defaults["outdoor_column"] == "tout"
+
+
+def test_cooling_template_value_modes_use_raw_and_absolute_values():
+    room_df = pd.DataFrame(
+        {
+            "time": [0, 1, 2],
+            "zone_energy_q_cool": [-500.0, 250.0, 0.0],
+        }
+    )
+
+    relative_df, _ = _build_template_plot_dataframe(room_df, "cooling", "year")
+    absolute_df, _ = _build_template_plot_dataframe(room_df, "cooling_absolute", "year")
+
+    assert relative_df["q_cool"].to_list() == [-500.0, 250.0, 0.0]
+    assert absolute_df["q_cool"].to_list() == [500.0, 250.0, 0.0]
+
+
+def test_cooling_template_primary_color_is_blue():
+    assert cooling.COOLING_LINE_COLORS[0] == "#2563eb"
 
 
 def test_build_heating_year_template_creates_png_for_multiple_variants(tmp_path):
@@ -303,6 +339,10 @@ def test_build_heating_year_template_creates_png_for_multiple_variants(tmp_path)
         ("cooling-month", "101_lobby_cooling_month_template.png", {"month": "Jan"}),
         ("cooling-week", "101_lobby_cooling_week_template.png", {"week": 7}),
         ("cooling-day", "101_lobby_cooling_day_template.png", {"month": "Feb", "day": 15}),
+        ("cooling-absolute-year", "101_lobby_cooling_absolute_year_template.png", {}),
+        ("cooling-absolute-month", "101_lobby_cooling_absolute_month_template.png", {"month": "Jan"}),
+        ("cooling-absolute-week", "101_lobby_cooling_absolute_week_template.png", {"week": 7}),
+        ("cooling-absolute-day", "101_lobby_cooling_absolute_day_template.png", {"month": "Feb", "day": 15}),
     ],
 )
 def test_build_plot_template_creates_timeline_pngs(tmp_path, template, expected_name, kwargs):

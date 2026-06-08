@@ -19,6 +19,17 @@ DEFAULT_PLOT_TEMPLATE_CONFIG = {
         "setpoint_max": 26.0,
         "temperature_ymin": -20.0,
         "temperature_ymax": 40.0,
+        "show_setpoint_band": False,
+        "show_outdoor_temperature": False,
+        "show_operative_temperature": False,
+        "outdoor_column": "tair",
+        "default_overlays": [],
+    },
+    HEATING_OVERLAY_KEY: {
+        "setpoint_min": 21.0,
+        "setpoint_max": 26.0,
+        "temperature_ymin": -20.0,
+        "temperature_ymax": 40.0,
         "show_setpoint_band": True,
         "show_outdoor_temperature": True,
         "show_operative_temperature": True,
@@ -133,8 +144,8 @@ def _normalize_overlay(raw_overlay):
     return overlay
 
 
-def _merge_heating_year_config(loaded):
-    defaults = copy.deepcopy(DEFAULT_PLOT_TEMPLATE_CONFIG[HEATING_YEAR_KEY])
+def _merge_heating_config(loaded, defaults_key=HEATING_YEAR_KEY):
+    defaults = copy.deepcopy(DEFAULT_PLOT_TEMPLATE_CONFIG[defaults_key])
     if not isinstance(loaded, dict):
         return defaults
 
@@ -193,15 +204,15 @@ def load_plot_template_config(config_path=PLOT_TEMPLATES_CONFIG):
     result: dict[str, dict] = {}
     for key, config in loaded.items():
         if key == HEATING_YEAR_KEY or key == HEATING_OVERLAY_KEY:
-            result[key] = _merge_heating_year_config(config)
+            result[key] = _merge_heating_config(config, key)
         elif isinstance(config, dict):
             result[key] = copy.deepcopy(config)
         else:
             result[key] = {}
     if HEATING_YEAR_KEY not in result:
-        result[HEATING_YEAR_KEY] = _merge_heating_year_config(None)
+        result[HEATING_YEAR_KEY] = _merge_heating_config(None, HEATING_YEAR_KEY)
     if HEATING_OVERLAY_KEY not in result:
-        result[HEATING_OVERLAY_KEY] = _merge_heating_year_config(None)
+        result[HEATING_OVERLAY_KEY] = _merge_heating_config(None, HEATING_OVERLAY_KEY)
     return result
 
 

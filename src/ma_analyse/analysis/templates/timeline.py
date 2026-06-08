@@ -10,6 +10,7 @@ import pandas as pd
 from ...core.config import DATENBANK_DIR, TEST_OUTPUT_DIR
 from .. import cooling as cooling_analysis
 from .. import heating as heating_analysis
+from ..components.heating_year_layout import draw_heating_year_line_plot
 from ..components.rooms import get_room_data_file
 from ..components.runtime import get_run_id, sanitize_file_name
 from ..components.time_windows import (
@@ -25,10 +26,27 @@ from .catalog import HEATING_YEAR_TEMPLATE, get_plot_template_spec
 METRIC_MODULES = {
     "heating": heating_analysis,
     "cooling": cooling_analysis,
+    "cooling_absolute": cooling_analysis,
 }
 METRIC_VALUE_COLUMNS = {
     "heating": ("zone_energy_q_heat", "q_heat"),
     "cooling": ("zone_energy_q_cool", "q_cool"),
+    "cooling_absolute": ("zone_energy_q_cool", "q_cool"),
+}
+METRIC_LABELS = {
+    "heating": "Heating",
+    "cooling": "Cooling",
+    "cooling_absolute": "Cooling Absolut",
+}
+METRIC_Y_LABELS = {
+    "heating": "Heizleistung [W]",
+    "cooling": "Kuehlleistung [W]",
+    "cooling_absolute": "Kuehlleistung [W]",
+}
+METRIC_COLORS = {
+    "heating": heating_analysis.HEATING_LINE_COLORS,
+    "cooling": cooling_analysis.COOLING_LINE_COLORS,
+    "cooling_absolute": cooling_analysis.COOLING_LINE_COLORS,
 }
 VIEW_TITLES = {
     "year": "Jahresansicht",
@@ -77,15 +95,35 @@ def _resolve_processed_variant_dir(datenbank_dir: str | Path, variant_name: str)
     return variant_dir
 
 
+def _load_template_room_data(room_file: str | Path, source_column: str) -> pd.DataFrame | None:
+    df = pd.read_csv(room_file)
+    if "time" not in df.columns or source_column not in df.columns:
+        return None
+    df = df[["time", source_column]].copy()
+    df["time"] = pd.to_numeric(df["time"], errors="coerce")
+    df[source_column] = pd.to_numeric(df[source_column], errors="coerce")
+    df = df.dropna(subset=["time", source_column])
+    if df.empty:
+        return None
+    return df.sort_values(by="time").reset_index(drop=True)
+
+
+def _resolve_metric_values(values: pd.Series, metric: str) -> pd.Series:
+    if metric == "cooling_absolute":
+        return values.abs()
+    return values
+
+
 def _build_template_plot_dataframe(room_df: pd.DataFrame, metric: str, view: str, month=None, week=None, day=None):
     source_column, value_column = METRIC_VALUE_COLUMNS[metric]
+    values = _resolve_metric_values(room_df[source_column], metric)
     if view == "year":
         return (
             pd.DataFrame(
                 {
                     "time_axis": room_df["time"],
                     "series": "Leistung",
-                    value_column: room_df[source_column],
+                    value_column: values,
                 }
             ),
             None,
@@ -103,12 +141,13 @@ def _build_template_plot_dataframe(room_df: pd.DataFrame, metric: str, view: str
     filtered = filter_time_window(room_df[["time", source_column]].copy(), time_window)
     if filtered.empty:
         return pd.DataFrame(columns=["time_axis", "series", value_column]), time_window
+    filtered_values = _resolve_metric_values(filtered[source_column], metric)
     return (
         pd.DataFrame(
             {
                 "time_axis": filtered["time_window"],
                 "series": "Leistung",
-                value_column: filtered[source_column],
+                value_column: filtered_values,
             }
         ),
         time_window,
@@ -116,7 +155,7 @@ def _build_template_plot_dataframe(room_df: pd.DataFrame, metric: str, view: str
 
 
 def _build_template_title(metric: str, view: str, variant_name: str, room_name: str) -> str:
-    metric_label = "Heating" if metric == "heating" else "Cooling"
+    metric_label = METRIC_LABELS[metric]
     return f"{metric_label} {VIEW_TITLES[view]} - {variant_name} / {room_name}"
 
 
@@ -149,7 +188,6 @@ def build_timeline_template(
     if time_errors:
         raise ValueError("; ".join(time_errors))
 
-    metric_module = METRIC_MODULES[spec.metric]
     source_column, value_column = METRIC_VALUE_COLUMNS[spec.metric]
     room_name = rooms[0]
     output_base = Path(output_root or TEST_OUTPUT_DIR)
@@ -162,7 +200,7 @@ def build_timeline_template(
         if not os.path.exists(room_file):
             raise FileNotFoundError(f"Raum-CSV nicht gefunden: {room_file}")
 
-        room_df = metric_module.get_room_hourly_data(room_file, debug=debug)
+        room_df = _load_template_room_data(room_file, source_column)
         if room_df is None or room_df.empty:
             raise ValueError(f"Keine Daten fuer {variant_name} / {room_name} gefunden.")
 
@@ -187,20 +225,52 @@ def build_timeline_template(
             print(f"Template-Variante: {variant_name}")
             print(f"Template-Datenpunkte: {len(plot_df)}")
 
-        metric_module.draw_technical_line_plot(
-            plot_df,
-            x_col="time_axis",
-            group_col="series",
-            title=_build_template_title(spec.metric, spec.view, variant_display_name, room_name),
-            subtitle=metric_module.build_plot_subtitle(
-                spec.view,
-                month_name=month,
-                week_number=week,
-                day_number=day,
-            ),
-            axis_config=metric_module.build_time_axis_config(spec.view, time_window=time_window),
-            output_file=output_file,
+        title = _build_template_title(spec.metric, spec.view, variant_display_name, room_name)
+        subtitle = METRIC_MODULES[spec.metric].build_plot_subtitle(
+            spec.view,
+            month_name=month,
+            week_number=week,
+            day_number=day,
         )
+        axis_config = METRIC_MODULES[spec.metric].build_time_axis_config(spec.view, time_window=time_window)
+
+        if spec.metric == "cooling_absolute" and spec.view == "year":
+            draw_heating_year_line_plot(
+                plot_df,
+                x_col="time_axis",
+                group_col="series",
+                title=title,
+                subtitle=subtitle,
+                output_file=output_file,
+                line_colors=METRIC_COLORS[spec.metric],
+                value_col=value_column,
+                y_label=METRIC_Y_LABELS[spec.metric],
+                single_line_color=METRIC_COLORS[spec.metric][0],
+                single_series_legend_label="Kuehlleistung",
+            )
+        elif spec.metric == "cooling_absolute":
+            heating_analysis.draw_technical_line_plot(
+                plot_df,
+                x_col="time_axis",
+                group_col="series",
+                title=title,
+                subtitle=subtitle,
+                axis_config=axis_config,
+                output_file=output_file,
+                value_col=value_column,
+                y_label=METRIC_Y_LABELS[spec.metric],
+                line_colors=METRIC_COLORS[spec.metric],
+            )
+        else:
+            METRIC_MODULES[spec.metric].draw_technical_line_plot(
+                plot_df,
+                x_col="time_axis",
+                group_col="series",
+                title=title,
+                subtitle=subtitle,
+                axis_config=axis_config,
+                output_file=output_file,
+            )
         output_files.append(str(output_file))
 
         if source_column not in room_df.columns or value_column not in plot_df.columns:

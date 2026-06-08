@@ -76,7 +76,7 @@ TECHNICAL_PLOT_BG = "#fbfbfb"
 TECHNICAL_GRID_COLOR = "#b8b8b8"
 TECHNICAL_SPINE_COLOR = "#2e2e2e"
 TECHNICAL_TEXT_COLOR = "#1f1f1f"
-COOLING_LINE_COLORS = ["#d62828", "#2563eb", "#2a9d8f", "#f77f00", "#7c3aed", "#0081a7"]
+COOLING_LINE_COLORS = ["#2563eb", "#0ea5e9", "#2a9d8f", "#7c3aed", "#f77f00", "#475569"]
 COOLING_OUTPUT_SPEC = EnergyOutputSpec(
     metric="cooling",
     output_prefix_label="CoolingComparison",
@@ -146,6 +146,11 @@ def build_time_axis_config(view, time_window=None):
 def get_line_color(index):
     """Waehlt eine wiederholbare Linienfarbe fuer die Datenreihe."""
     return COOLING_LINE_COLORS[index % len(COOLING_LINE_COLORS)]
+
+
+def _round_axis_limit(value, tick_step):
+    """Rundet Achsengrenzen fuer technische Cooling-Plots auf glatte Werte."""
+    return int(((abs(value) + tick_step - 1) // tick_step) * tick_step)
 
 
 def style_technical_axis(ax, title, subtitle, axis_config, series_count, show_legend, legend_y_anchor=-0.18):
@@ -294,12 +299,22 @@ def draw_technical_line_plot(plot_df, x_col, group_col, title, subtitle, axis_co
         )
 
     min_value = float(plot_df["q_cool"].min()) if not plot_df.empty else 0.0
-    y_floor = min(-100.0, min_value * 1.08)
-    tick_step = 500 if abs(y_floor) > 1000 else 100
-    y_floor = -1 * (((abs(y_floor) + tick_step - 1) // tick_step) * tick_step)
-    ax.set_ylim(y_floor, max(100.0, abs(y_floor) * 0.03))
+    max_value = float(plot_df["q_cool"].max()) if not plot_df.empty else 0.0
+    max_abs_value = max(abs(min_value), abs(max_value))
+    tick_step = 500 if max_abs_value > 1000 else 100
+    if min_value < 0 < max_value:
+        y_limit = max(100, _round_axis_limit(max_abs_value * 1.08, tick_step))
+        ax.set_ylim(-y_limit, y_limit)
+        ax.set_yticks(list(range(-y_limit, y_limit + 1, tick_step)))
+    elif max_value > 0:
+        y_top = max(100, _round_axis_limit(max_value * 1.08, tick_step))
+        ax.set_ylim(0, y_top)
+        ax.set_yticks(list(range(0, y_top + 1, tick_step)))
+    else:
+        y_floor = -max(100, _round_axis_limit(abs(min_value) * 1.08, tick_step))
+        ax.set_ylim(y_floor, max(100.0, abs(y_floor) * 0.03))
+        ax.set_yticks(list(range(0, int(y_floor) - 1, -tick_step)))
     ax.axhline(0, color=get_line_color(0), linewidth=0.9, alpha=0.95)
-    ax.set_yticks(list(range(0, int(y_floor) - 1, -tick_step)))
 
     legend_y_anchor = -0.43 if show_legend else -0.18
     style_technical_axis(
@@ -824,7 +839,7 @@ def main(
             df_plot = pd.DataFrame(all_data)
 
             fig, ax = plt.subplots(figsize=get_figure_size_inches("cooling.bar.png", (10, 6)))
-            ax.bar(df_plot["room"], df_plot["max_q_cool"], color="#ff0000", edgecolor="#b00000", linewidth=0.8)
+            ax.bar(df_plot["room"], df_plot["max_q_cool"], color="#2563eb", edgecolor="#1d4ed8", linewidth=0.8)
             ax.axhline(0, color=TECHNICAL_SPINE_COLOR, linewidth=1.1)
             ax.set_title(f"Vergleich der maximalen Kuehlleistungen (q-cool) - {variant_display_name}")
             ax.set_xlabel("Raum")

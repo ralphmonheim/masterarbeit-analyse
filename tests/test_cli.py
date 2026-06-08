@@ -64,6 +64,10 @@ def test_cli_parser_accepts_all_plot_template_views():
         "cooling-month",
         "cooling-week",
         "cooling-day",
+        "cooling-absolute-year",
+        "cooling-absolute-month",
+        "cooling-absolute-week",
+        "cooling-absolute-day",
         "cooling-bar",
         "comfort-plot",
         "comfort-plot-overview",
@@ -95,6 +99,26 @@ def test_cli_parser_accepts_heating_overlay_template():
     args = parser.parse_args(["plot-template", "--template", "heating-overlay"])
 
     assert args.template == "heating-overlay"
+
+
+def test_cli_applies_template_defaults_for_heating_year_and_overlay():
+    parser = build_parser()
+
+    year_args = parser.parse_args(["plot-template", "--template", "heating-year"])
+    apply_plot_template_config_defaults(year_args, ["plot-template", "--template", "heating-year"])
+
+    assert year_args.show_setpoint_band is False
+    assert year_args.show_outdoor_temperature is False
+    assert year_args.show_operative_temperature is False
+    assert year_args.fixed_overlays == []
+
+    overlay_args = parser.parse_args(["plot-template", "--template", "heating-overlay"])
+    apply_plot_template_config_defaults(overlay_args, ["plot-template", "--template", "heating-overlay"])
+
+    assert overlay_args.show_setpoint_band is True
+    assert overlay_args.show_outdoor_temperature is True
+    assert overlay_args.show_operative_temperature is True
+    assert overlay_args.fixed_overlays[0]["id"] == "outdoor_temperature"
 
 
 def test_cli_parser_uses_plot_template_config_defaults(tmp_path):

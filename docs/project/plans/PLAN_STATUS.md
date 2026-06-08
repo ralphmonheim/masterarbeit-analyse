@@ -1,6 +1,6 @@
 # Plan Status
 
-Stand: 2026-06-05
+Stand: 2026-06-08
 
 Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt und nach jeder Planumsetzung aktualisiert. Vollstaendige alte Planstaende liegen unter `docs/project/plans/archived/`.
 
@@ -25,22 +25,31 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 
 ## Modul ma_analyse
 
+### Abgeschlossen
+
+- Plot-Template-Katalog aktualisiert: `heating-year` ist overlayfrei, `heating-overlay` fuehrt die festen Heating-Overlays separat.
+- Cooling-Plot-Templates getrennt: `cooling-year`, `cooling-month`, `cooling-week` und `cooling-day` verwenden Rohwerte aus `zone_energy_q_cool`; `cooling-absolute-year`, `cooling-absolute-month`, `cooling-absolute-week` und `cooling-absolute-day` zeigen Betraege positiv nach oben.
+- Plot-Template-Referenzgalerie unter `docs/examples/plot_templates/` wurde mit 33 aktuellen Beispielen neu erzeugt.
+- GUI-Mousewheel-Handler faengt nicht aufloesbare Tkinter-Combobox-Popups robust ab und verhindert `KeyError: 'popdown'`.
+
 ### Teilweise umgesetzt
 
 - Plot-Template-Katalog: Referenzbilder liegen unter `docs/examples/plot_templates/`; die Dokumentation liegt unter `docs/ma_analyse/plot_template_examples.md`.
-- Heating-Jahresplot nutzt eine gemeinsame Layoutbasis. Cooling nutzt weiterhin sein eigenes Jahreslayout.
+- Heating-Jahresplot nutzt eine gemeinsame Layoutbasis. Absolute Cooling-Jahresplots koennen diese Layoutbasis ebenfalls nutzen; relative Cooling-Templates bleiben als eigene signierte Darstellung erhalten.
 - Interne Lasten und Energiebilanz sind als Plot-Template-Experimente vorhanden.
 - Harte Datenpfadmigration: `ma_analyse` nutzt `data/ma_analyse/input`, `data/ma_analyse/database` und `data/ma_analyse/output`; alte Root-Pfade wurden entfernt.
 
 ### Offen
 
 - Overlay-Uebernahme in Hauptfunktionen klaeren. Betroffen: `src/ma_analyse/analysis/heating.py`, `src/ma_analyse/analysis/cooling.py`, `src/ma_analyse/gui/app.py`, `src/ma_analyse/app/cli.py`.
+- Klaeren, ob der normale `cooling`-Befehl spaeter ebenfalls relative Rohwerte und absolute Betraege als eigene Modi erhalten soll.
 - GUI in kleinere Komponenten fuer Layout, Dialoge, Auswahl und Laufsteuerung aufteilen. Betroffen: `src/ma_analyse/gui/app.py`.
 - Heating und Cooling weiter in Datenladen, Runner und Plotmodule zerlegen. Betroffen: `src/ma_analyse/analysis/heating.py`, `src/ma_analyse/analysis/cooling.py`, `src/ma_analyse/analysis/energy/`.
 
 ### Unklar
 
 - Welche Overlays sollen in Hauptfunktionen sichtbar werden: feste Standard-Overlays, freie Nutzer-Overlays oder nur CLI/Config?
+- Soll die relative/absolute Cooling-Logik auch in den regulaeren `cooling`-Befehl und die GUI uebernommen werden?
 - Soll aus den Internal-Loads-Templates ein eigener Befehl entstehen oder eine Integration in bestehende Auswertungen?
 - Soll die Energiebilanz absolute Leistung `[W]` behalten oder spaeter auf `[W/m2]` umgerechnet werden?
 

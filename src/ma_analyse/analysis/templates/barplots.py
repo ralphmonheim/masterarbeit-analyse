@@ -79,7 +79,7 @@ def _draw_heating_barplot(plot_df: pd.DataFrame, variant_name: str, output_file:
 
 def _draw_cooling_barplot(plot_df: pd.DataFrame, variant_name: str, output_file: str | Path) -> None:
     figure, ax = plt.subplots(figsize=get_figure_size_inches("cooling.bar.png", (10, 6)))
-    ax.bar(plot_df["room"], plot_df["max_q_cool"], color="#ff0000", edgecolor="#b00000", linewidth=0.8)
+    ax.bar(plot_df["room"], plot_df["max_q_cool"], color="#2563eb", edgecolor="#1d4ed8", linewidth=0.8)
     ax.axhline(0, color="#2e2e2e", linewidth=1.1)
     ax.set_title(f"{BAR_TITLES['cooling_bar']} - {variant_name}")
     ax.set_xlabel("Raum")

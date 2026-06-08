@@ -149,7 +149,16 @@ def get_line_color(index):
     return HEATING_LINE_COLORS[index % len(HEATING_LINE_COLORS)]
 
 
-def style_technical_axis(ax, title, subtitle, axis_config, series_count, show_legend, legend_y_anchor=-0.18):
+def style_technical_axis(
+    ax,
+    title,
+    subtitle,
+    axis_config,
+    series_count,
+    show_legend,
+    legend_y_anchor=-0.18,
+    y_label="Heizleistung [W]",
+):
     """Formatiert das Hauptdiagramm ohne sichtbare x-Achsenbeschriftung."""
     ax.set_facecolor(TECHNICAL_PLOT_BG)
     display_title = title
@@ -166,7 +175,7 @@ def style_technical_axis(ax, title, subtitle, axis_config, series_count, show_le
         fontsize=9,
         color=TECHNICAL_TEXT_COLOR,
     )
-    ax.set_ylabel("Heizleistung [W]", fontsize=10, color=TECHNICAL_TEXT_COLOR)
+    ax.set_ylabel(y_label, fontsize=10, color=TECHNICAL_TEXT_COLOR)
     ax.set_xticks(axis_config.get("grid_ticks", axis_config["ticks"]))
     ax.set_xticklabels([])
     ax.set_xlim(axis_config["x_lim"])
@@ -273,7 +282,18 @@ def add_timeline_axis(figure, ax, axis_config):
     return timeline_ax
 
 
-def draw_technical_line_plot(plot_df, x_col, group_col, title, subtitle, axis_config, output_file):
+def draw_technical_line_plot(
+    plot_df,
+    x_col,
+    group_col,
+    title,
+    subtitle,
+    axis_config,
+    output_file,
+    value_col="q_heat",
+    y_label="Heizleistung [W]",
+    line_colors=None,
+):
     """Rendert ein technisches Heating-Zeitdiagramm als PNG.
 
     ``plot_df`` enthaelt eine oder mehrere Datenreihen. Die Anzahl der
@@ -292,10 +312,11 @@ def draw_technical_line_plot(plot_df, x_col, group_col, title, subtitle, axis_co
         display_title = f"{title} - {series_names[0]}"
     for index, series_name in enumerate(series_names):
         series_df = plot_df[plot_df[group_col] == series_name].sort_values(by=x_col)
+        colors = line_colors or HEATING_LINE_COLORS
         ax.plot(
             series_df[x_col],
-            series_df["q_heat"],
-            color=get_line_color(index),
+            series_df[value_col],
+            color=colors[index % len(colors)],
             linewidth=1.15,
             alpha=0.95,
             label=series_name,
@@ -310,6 +331,7 @@ def draw_technical_line_plot(plot_df, x_col, group_col, title, subtitle, axis_co
         len(series_names),
         show_legend=show_legend,
         legend_y_anchor=legend_y_anchor,
+        y_label=y_label,
     )
     bottom_margin = 0.36 if show_legend else 0.28
     figure.subplots_adjust(left=0.08, right=0.98, top=0.78, bottom=bottom_margin)

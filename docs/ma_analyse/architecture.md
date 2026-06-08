@@ -52,8 +52,8 @@ Wenn eine Template-Idee in eine Hauptfunktion uebernommen wird, gilt die Methode
 Aktuelle Beispiele:
 
 - `analysis/components/heating_year_layout.py` enthaelt die geteilte
-  Jahreslayoutbasis fuer `plot-template heating-year` und die regulaere
-  Heating-Jahresansicht.
+  Jahreslayoutbasis fuer `plot-template heating-year`, `plot-template
+  heating-overlay` und die regulaere Heating-Jahresansicht.
 - `analysis/templates/catalog.py` und `analysis/templates/timeline.py`
   strukturieren die Template-Sandbox fuer Heating-/Cooling-Zeitansichten.
 

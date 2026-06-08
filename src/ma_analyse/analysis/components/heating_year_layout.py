@@ -103,6 +103,9 @@ def draw_heating_year_line_plot(
     subtitle: str,
     output_file: str | Path,
     line_colors: list[str] | tuple[str, ...] | None = None,
+    value_col: str = "q_heat",
+    y_label: str = "Heizleistung [W]",
+    single_line_color: str = HEATING_SINGLE_LINE_COLOR,
     single_series_legend_label: str | None = None,
 ):
     """Rendert ein Heating-Jahresdiagramm im Plot-Template-Stil ohne Overlays."""
@@ -129,10 +132,10 @@ def draw_heating_year_line_plot(
     for index, series_name in enumerate(series_names):
         series_df = plot_df[plot_df[group_col] == series_name].sort_values(by=x_col)
         label = single_series_legend_label if len(series_names) == 1 and single_series_legend_label else series_name
-        color = HEATING_SINGLE_LINE_COLOR if len(series_names) == 1 else colors[index % len(colors)]
+        color = single_line_color if len(series_names) == 1 else colors[index % len(colors)]
         line = ax_heat.plot(
             series_df[x_col],
-            series_df["q_heat"],
+            series_df[value_col],
             color=color,
             linewidth=0.8 if len(series_names) == 1 else 1.0,
             alpha=0.95,
@@ -142,11 +145,11 @@ def draw_heating_year_line_plot(
         handles.append(line)
 
     heat_ymin = 0
-    heat_min = plot_df["q_heat"].min()
+    heat_min = plot_df[value_col].min()
     if pd.notna(heat_min) and heat_min < 0:
         heat_ymin = heat_min * 1.08
 
-    style_heating_year_power_axis(ax_heat, axis_config, heat_ymin=heat_ymin)
+    style_heating_year_power_axis(ax_heat, axis_config, heat_ymin=heat_ymin, heat_ylabel=y_label)
     figure.subplots_adjust(left=0.08, right=0.92, top=0.80, bottom=0.298)
     add_heating_year_timeline_axis(figure, axis_config, timeline_bottom=0.145)
 

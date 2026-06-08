@@ -12,6 +12,12 @@ Die Bilder liegen unter `docs/examples/plot_templates/`.
 
 ![heating-year](../examples/plot_templates/heating-year.png)
 
+### `heating-overlay`
+
+**Beispielbefehl:** `python -m ma_analyse plot-template --template heating-overlay --variants Dimensionierung --rooms "208 office"`
+
+![heating-overlay](../examples/plot_templates/heating-overlay.png)
+
 ### `heating-month`
 
 **Beispielbefehl:** `python -m ma_analyse plot-template --template heating-month --variants Dimensionierung --rooms "208 office" --month Jul`
@@ -56,6 +62,30 @@ Die Bilder liegen unter `docs/examples/plot_templates/`.
 **Beispielbefehl:** `python -m ma_analyse plot-template --template cooling-day --variants Dimensionierung --rooms "208 office" --month Jul --day 20`
 
 ![cooling-day](../examples/plot_templates/cooling-day.png)
+
+### `cooling-absolute-year`
+
+**Beispielbefehl:** `python -m ma_analyse plot-template --template cooling-absolute-year --variants Dimensionierung --rooms "208 office"`
+
+![cooling-absolute-year](../examples/plot_templates/cooling-absolute-year.png)
+
+### `cooling-absolute-month`
+
+**Beispielbefehl:** `python -m ma_analyse plot-template --template cooling-absolute-month --variants Dimensionierung --rooms "208 office" --month Jul`
+
+![cooling-absolute-month](../examples/plot_templates/cooling-absolute-month.png)
+
+### `cooling-absolute-week`
+
+**Beispielbefehl:** `python -m ma_analyse plot-template --template cooling-absolute-week --variants Dimensionierung --rooms "208 office" --week 29`
+
+![cooling-absolute-week](../examples/plot_templates/cooling-absolute-week.png)
+
+### `cooling-absolute-day`
+
+**Beispielbefehl:** `python -m ma_analyse plot-template --template cooling-absolute-day --variants Dimensionierung --rooms "208 office" --month Jul --day 20`
+
+![cooling-absolute-day](../examples/plot_templates/cooling-absolute-day.png)
 
 
 ## Barplots

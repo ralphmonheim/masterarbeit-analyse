@@ -4,7 +4,22 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
-Keine offenen Aenderungen.
+- Keine offenen Aenderungen.
+
+## 0.5.1 - 2026-06-08
+
+### Changed
+- `heating-year` ist nun das overlayfreie Plot-Template fuer den normalen Heating-Jahresplot; `heating-overlay` fuehrt Sollwertband, Aussenlufttemperatur und operative Temperatur separat.
+- Relative Cooling-Plot-Templates verwenden nun die Rohwerte aus `zone_energy_q_cool`; absolute Cooling-Templates zeigen die Betraege positiv nach oben.
+- Cooling-Template-Ausgaben verwenden Blau als Primaerfarbe.
+- Planstatus, Planindex und Entscheidungsdokumente wurden auf den aktuellen Plot-Template- und GUI-Fix-Stand aktualisiert.
+
+### Added
+- `plot-template-examples` erzeugt zusaetzlich ein Beispielbild fuer `heating-overlay`; die Befehlsdokumentation fuehrt den Kurzbegriff `heating year overlay`.
+- Neue Plot-Templates `cooling-absolute-year`, `cooling-absolute-month`, `cooling-absolute-week` und `cooling-absolute-day` ergaenzt.
+
+### Fixed
+- GUI-Mousewheel-Handler ignoriert nicht aufloesbare Tkinter-Combobox-Popups robust, statt bei `popdown`-Widgets einen `KeyError` auszugeben.
 
 ## 0.5.0 - 2026-06-05
 

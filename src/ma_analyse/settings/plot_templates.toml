@@ -10,27 +10,10 @@ setpoint_min = 21.0
 setpoint_max = 26.0
 temperature_ymin = -20.0
 temperature_ymax = 40.0
-show_setpoint_band = true
-show_outdoor_temperature = true
-show_operative_temperature = true
+show_setpoint_band = false
+show_outdoor_temperature = false
+show_operative_temperature = false
 outdoor_column = "tair"
-
-[[heating_year.default_overlays]]
-id = "outdoor_temperature"
-label = "Außenlufttemperatur"
-source = "aux"
-column = "tair"
-axis = "temperature"
-enabled = true
-
-[[heating_year.default_overlays]]
-id = "operative_temperature"
-label = "Operative Temperatur"
-source = "csv"
-column = "temperatures_top"
-fallback_columns = ["local_de_comf_diag_t_top"]
-axis = "temperature"
-enabled = true
 
 [heating_overlay]
 setpoint_min = 21.0
@@ -82,6 +65,18 @@ enabled = true
 
 [cooling_day]
 # Optional: Template-spezifische Einstellungen fuer cooling-day
+
+[cooling_absolute_year]
+# Optional: Template-spezifische Einstellungen fuer cooling-absolute-year
+
+[cooling_absolute_month]
+# Optional: Template-spezifische Einstellungen fuer cooling-absolute-month
+
+[cooling_absolute_week]
+# Optional: Template-spezifische Einstellungen fuer cooling-absolute-week
+
+[cooling_absolute_day]
+# Optional: Template-spezifische Einstellungen fuer cooling-absolute-day
 
 [cooling_bar]
 # Optional: Template-spezifische Einstellungen fuer cooling-bar

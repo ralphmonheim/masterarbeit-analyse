@@ -7,6 +7,10 @@ from .catalog import (
     COMFORT_ANALYSIS_TEMPLATE,
     COMFORT_PLOT_OVERVIEW_TEMPLATE,
     COMFORT_PLOT_TEMPLATE,
+    COOLING_ABSOLUTE_DAY_TEMPLATE,
+    COOLING_ABSOLUTE_MONTH_TEMPLATE,
+    COOLING_ABSOLUTE_WEEK_TEMPLATE,
+    COOLING_ABSOLUTE_YEAR_TEMPLATE,
     COOLING_BAR_TEMPLATE,
     COOLING_DAY_TEMPLATE,
     COOLING_MONTH_TEMPLATE,
@@ -91,6 +95,13 @@ def build_plot_template(
 ):
     """Fuehrt das passende Plot-Template anhand des Template-Namens aus."""
     if template in {HEATING_YEAR_TEMPLATE, HEATING_OVERLAY_TEMPLATE}:
+        if template == HEATING_YEAR_TEMPLATE:
+            show_setpoint_band = False
+            show_outdoor_temperature = False
+            show_operative_temperature = False
+            overlay_lines = None
+            fixed_overlays = []
+
         return build_heating_year_template(
             datenbank_dir=datenbank_dir,
             input_dir=input_dir,
@@ -200,6 +211,10 @@ __all__ = [
     "COMFORT_ANALYSIS_TEMPLATE",
     "COMFORT_PLOT_OVERVIEW_TEMPLATE",
     "COMFORT_PLOT_TEMPLATE",
+    "COOLING_ABSOLUTE_DAY_TEMPLATE",
+    "COOLING_ABSOLUTE_MONTH_TEMPLATE",
+    "COOLING_ABSOLUTE_WEEK_TEMPLATE",
+    "COOLING_ABSOLUTE_YEAR_TEMPLATE",
     "COOLING_BAR_TEMPLATE",
     "COOLING_DAY_TEMPLATE",
     "COOLING_MONTH_TEMPLATE",

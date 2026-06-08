@@ -12,6 +12,22 @@ def test_gui_app_imports_without_starting_window():
     assert hasattr(app, "run_gui")
 
 
+def test_gui_mousewheel_resolver_ignores_tk_popdown_widget():
+    from ma_analyse.gui.app import PipelineGUI
+
+    class FakeRoot:
+        def nametowidget(self, widget_name):
+            if "popdown" in widget_name:
+                raise KeyError("popdown")
+            raise AssertionError(f"Unexpected widget lookup: {widget_name}")
+
+    gui = object.__new__(PipelineGUI)
+    gui.root = FakeRoot()
+
+    assert gui._resolve_widget(".!combobox.popdown.f.l") is None
+    assert gui._should_skip_mousewheel(".!combobox.popdown.f.l") is False
+
+
 def test_variant_list_state_starts_without_selection():
     state = resolve_variant_list_state(variant_count=3, scope="", current_selection=(0,))
 
@@ -50,12 +66,18 @@ def test_variant_list_state_clears_all_variants_when_scope_changes():
 
 
 def test_plot_template_gui_visibility_helpers_distinguish_time_and_overlay_templates():
-    assert template_uses_overlay_options("heating-year") is True
+    assert template_uses_overlay_options("heating-year") is False
     assert is_time_filtered_template("heating-year") is False
+    assert template_uses_overlay_options("heating-overlay") is True
+    assert is_time_filtered_template("heating-overlay") is False
     assert template_uses_overlay_options("heating-month") is False
     assert is_time_filtered_template("heating-month") is True
     assert template_uses_overlay_options("cooling-day") is False
     assert is_time_filtered_template("cooling-day") is True
+    assert template_uses_overlay_options("cooling-absolute-year") is False
+    assert is_time_filtered_template("cooling-absolute-year") is False
+    assert template_uses_overlay_options("cooling-absolute-day") is False
+    assert is_time_filtered_template("cooling-absolute-day") is True
     assert template_uses_overlay_options("energy-balance-week") is False
     assert is_time_filtered_template("energy-balance-week") is True
     assert template_uses_overlay_options("internal-loads-month") is False

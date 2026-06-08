@@ -1,6 +1,6 @@
 # Entscheidungen
 
-Stand: 2026-06-05
+Stand: 2026-06-08
 
 Dieses Dokument sammelt technische und architektonische Entscheidungen. Echte Nutzerentscheidungen stehen getrennt in `USER_DECISIONS_MASTERTHESIS_CODE.md`.
 
@@ -93,3 +93,13 @@ Begruendung:
 - Die Ablaeufe betreffen Git, Changelog, Versionierung und Planstatus, nicht die Fachlogik des Python-Pakets.
 - Eine Dokumentationsroutine ist fuer den Nutzer transparenter als ein zusaetzlicher CLI-Befehl.
 - Die Dateien `pyproject.toml`, `src/ma_analyse/__init__.py`, `CHANGELOG.md`, `PLAN_INDEX.md`, `PLAN_STATUS.md` und die Entscheidungsdateien bleiben explizit als Pruefstellen dokumentiert.
+
+## Entscheidung 10: Plot-Template-Varianten ueber Template-Namen statt Modusoption
+
+Heating-Overlay und Cooling-Absolute werden als eigene Plot-Template-Namen gefuehrt.
+
+Begruendung:
+
+- Die Galerie unter `docs/examples/plot_templates/` kann fuer jede fachliche Darstellung ein stabiles Referenzbild enthalten.
+- Die CLI bleibt fuer einzelne Diagrammideen eindeutig: `heating-overlay` und `cooling-absolute-year` beschreiben direkt die gewuenschte Darstellung.
+- Bestehende Templates bleiben rueckwaertskompatibel nutzbar, ohne eine zusaetzliche globale Modusoption einzufuehren.

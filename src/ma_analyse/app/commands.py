@@ -249,6 +249,12 @@ def _get_plot_template_example_specs() -> list[dict[str, object]]:
             "command": 'python -m ma_analyse plot-template --template heating-year --variants Dimensionierung --rooms "208 office"',
         },
         {
+            "template": "heating-overlay",
+            "rooms": ["208 office"],
+            "kwargs": {},
+            "command": 'python -m ma_analyse plot-template --template heating-overlay --variants Dimensionierung --rooms "208 office"',
+        },
+        {
             "template": "heating-month",
             "rooms": ["208 office"],
             "kwargs": {"month": "Jul"},
@@ -289,6 +295,30 @@ def _get_plot_template_example_specs() -> list[dict[str, object]]:
             "rooms": ["208 office"],
             "kwargs": {"month": "Jul", "day": 20},
             "command": 'python -m ma_analyse plot-template --template cooling-day --variants Dimensionierung --rooms "208 office" --month Jul --day 20',
+        },
+        {
+            "template": "cooling-absolute-year",
+            "rooms": ["208 office"],
+            "kwargs": {},
+            "command": 'python -m ma_analyse plot-template --template cooling-absolute-year --variants Dimensionierung --rooms "208 office"',
+        },
+        {
+            "template": "cooling-absolute-month",
+            "rooms": ["208 office"],
+            "kwargs": {"month": "Jul"},
+            "command": 'python -m ma_analyse plot-template --template cooling-absolute-month --variants Dimensionierung --rooms "208 office" --month Jul',
+        },
+        {
+            "template": "cooling-absolute-week",
+            "rooms": ["208 office"],
+            "kwargs": {"week": 29},
+            "command": 'python -m ma_analyse plot-template --template cooling-absolute-week --variants Dimensionierung --rooms "208 office" --week 29',
+        },
+        {
+            "template": "cooling-absolute-day",
+            "rooms": ["208 office"],
+            "kwargs": {"month": "Jul", "day": 20},
+            "command": 'python -m ma_analyse plot-template --template cooling-absolute-day --variants Dimensionierung --rooms "208 office" --month Jul --day 20',
         },
         {
             "template": "heating-bar",
@@ -437,6 +467,7 @@ def _render_gallery_markdown(entries: list[dict[str, object]], output_file: Path
     groups = {
         "Heating": [
             "heating-year",
+            "heating-overlay",
             "heating-month",
             "heating-week",
             "heating-day",
@@ -446,6 +477,10 @@ def _render_gallery_markdown(entries: list[dict[str, object]], output_file: Path
             "cooling-month",
             "cooling-week",
             "cooling-day",
+            "cooling-absolute-year",
+            "cooling-absolute-month",
+            "cooling-absolute-week",
+            "cooling-absolute-day",
         ],
         "Barplots": ["heating-bar", "cooling-bar"],
         "Comfort": [
