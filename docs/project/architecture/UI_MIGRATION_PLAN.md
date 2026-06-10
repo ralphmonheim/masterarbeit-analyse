@@ -1,12 +1,12 @@
 # UI-Migrationsplan
 
-Stand: 2026-06-08
+Stand: 2026-06-10
 
 ## Zweck
 
-Dieser Plan beschreibt die spaetere Trennung von Fachlogik und Oberflaeche.
-In diesem Dokumentationsschritt wird keine Fachlogik umgesetzt, kein Paket
-angelegt und keine bestehende Tkinter-Datei verschoben.
+Dieser Plan beschreibt die Trennung von Fachlogik und Oberflaeche. Die ersten
+kleinen Code-Slices fuer `ma_analyse.services`, `ma_workflow` und `ma_ui` sind
+umgesetzt. Bestehende Tkinter-Dateien wurden nicht verschoben.
 
 ## Grundsatzentscheidung
 
@@ -23,7 +23,11 @@ angelegt und keine bestehende Tkinter-Datei verschoben.
 
 ```text
 ma_ui
-  Streamlit-Oberflaeche, Navigation, Seiten, Komponenten, Projektzustand
+  Streamlit-Oberflaeche, Dashboard, Workflow-Ansichten, geteilte UI-Bausteine,
+  modulbezogene Views und Projektzustand
+
+ma_workflow
+  UI-Aktionen, Pre-Process-Runner, Post-Process-Runner und Feedback-Routing
 
 ma_ui_legacy
   optionale Uebergangsablage fuer bestehende Tkinter-Oberflaeche
@@ -35,9 +39,52 @@ ma_analyse
 Die UI ruft Services auf. Die Fachmodule liefern neutrale Ergebnisobjekte
 zurueck.
 
-## Geplante Schnittstelle fuer ma_analyse
+Aktueller Zwischenstand: `ma_ui` nutzt weiterhin `pages/` als
+Kompatibilitaetsschicht. Zusaetzlich sind `module_views/` und `shared/` als
+Zielstruktur vorbereitet. `ma_workflow` nutzt weiterhin `actions.py` und
+`analysis.py`, besitzt aber zusaetzlich die geplanten Dateien fuer
+Dashboard-Aktionen, Pre-/Post-Process und Feedback. Die verschaerfte
+Zielstruktur ist:
 
-Noch nicht implementieren:
+```text
+ma_ui/
+  app.py
+  main_dashboard.py
+  workflow_view.py
+  pre_process_view.py
+  post_process_view.py
+  shared/
+    layout.py
+    widgets.py
+    status_panel.py
+    log_panel.py
+    file_selectors.py
+    tables.py
+    plot_viewer.py
+  module_views/
+    parameters_view.py
+    weather_view.py
+    building_view.py
+    variants_view.py
+    simulation_setup_view.py
+    export_ida_view.py
+    import_ida_view.py
+    analyse_view.py
+    assessment_view.py
+    feedback_view.py
+
+ma_workflow/
+  workflow_manager.py
+  dashboard_actions.py
+  pre_process_runner.py
+  post_process_runner.py
+  feedback_router.py
+```
+
+Die bestehende `pages/`-Shell wird nicht geloescht, weil sie als stabiler
+Zwischenstand und Kompatibilitaetsschicht dient.
+
+## Schnittstelle fuer ma_analyse
 
 ```python
 from ma_analyse.models import AnalysisConfig, AnalysisResult
@@ -46,7 +93,7 @@ def run_analysis(config: AnalysisConfig) -> AnalysisResult:
     ...
 ```
 
-Geplante Modelle:
+Umgesetzte Modelle:
 
 - `AnalysisConfig`: Eingabeordner, Ausgabeordner, Varianten, Raeume,
   Report-Optionen.
@@ -56,6 +103,8 @@ Geplante Modelle:
 ## Phase 1 Bestandsanalyse
 
 Ziel: Bestehenden Code analysieren, ohne ihn direkt umzubauen.
+
+Status: Dokumentiert in `MA_ANALYSE_INVENTORY.md`.
 
 Aufgaben:
 
@@ -71,9 +120,18 @@ Aufgaben:
 Ergebnis: Eine klare Liste, welche Bestandteile in `ma_analyse` bleiben und
 welche spaeter in einen UI- oder Legacy-Bereich gehoeren.
 
+Zusatz aus der P005-Verschaerfung:
+
+- Die bestehende Tkinter-GUI wird als fachliche Ablaufvorlage analysiert.
+- Sie wird nicht direkt in Streamlit uebersetzt.
+- Der reale Ablauf wird aus dem Code abgeleitet, nicht aus Vermutungen.
+- Unklare Punkte werden als offene Fragen dokumentiert.
+
 ## Phase 2 Schnittstellenentwurf
 
 Ziel: Eine stabile Schnittstelle zwischen UI und Analysemodul planen.
+
+Status: Dokumentiert in `MA_ANALYSE_SERVICE_INTERFACE.md`.
 
 Aufgaben:
 
@@ -86,6 +144,17 @@ Aufgaben:
 
 Ergebnis: Ein freigegebener Vorschlag fuer die Service-Struktur von
 `ma_analyse`.
+
+## Phase 2a Erster Service-Code-Slice
+
+Ziel: Die geplante Schnittstelle minimal als Fassade verfuegbar machen.
+
+Status: Umgesetzt mit `ma_analyse.models.AnalysisConfig`,
+`ma_analyse.models.AnalysisResult` und `ma_analyse.services.run_analysis`.
+
+Ergebnis: Die Fassade ist importierbar, faengt CLI-nahe Fehler ab und gibt ein
+UI-neutrales Ergebnisobjekt zurueck. Bestehende Tkinter-Dateien bleiben
+unveraendert.
 
 ## Phase 3 Bereinigung von ma_analyse
 
@@ -117,9 +186,20 @@ Aufgaben:
 Ergebnis: Die alte Oberflaeche bleibt optional nutzbar, ist aber nicht mehr
 Teil des fachlichen Analysekerns.
 
+Nicht in dieser Phase erlaubt ohne Freigabe:
+
+- `src/ma_analyse/gui/app.py` umbenennen.
+- Tkinter-Code direkt in `ma_ui` kopieren.
+- Streamlit-Widgets in `ma_analyse` einbauen.
+- Fachliche Analysefunktionen im selben Schritt verschieben.
+
 ## Phase 5 Aufbau der Streamlit-Grundstruktur
 
 Ziel: Neue zentrale UI-Struktur anlegen.
+
+Status: Minimal umgesetzt mit `src/ma_ui/app.py`, Navigation, Projektzustand,
+Startseite, Analyse-Seite, Zielordnern `module_views/` und `shared/` sowie
+Platzhalter-Views fuer geplante Module.
 
 Aufgaben:
 
@@ -135,11 +215,29 @@ Startbefehl:
 streamlit run src/ma_ui/app.py
 ```
 
-Ergebnis: Die Streamlit-App kann lokal gestartet werden.
+Ergebnis: Die Streamlit-App kann lokal gestartet werden. Weitere Seiten sind
+als Platzhalter erreichbar, aber noch nicht fachlich angebunden.
+
+Verschaerfter Zielzuschnitt:
+
+- `main_dashboard.py` zeigt den aktuellen Projekt- und Modulstatus.
+- `workflow_view.py` bildet den Gesamtworkflow ab.
+- `pre_process_view.py` sammelt Parameter, Wetter, Gebaeude, Varianten,
+  Simulation-Setup und IDA-Export.
+- `post_process_view.py` sammelt IDA-Import, Analyse, Assessment und Feedback.
+- `shared/` enthaelt nur allgemeine UI-Bausteine.
+- `module_views/` enthaelt modulbezogene Bedienseiten.
+
+Dieser Zielzuschnitt wird erst umgesetzt, wenn der vorhandene Zwischenstand
+bewusst migriert wird.
 
 ## Phase 6 Anbindung von ma_analyse an Streamlit
 
 Ziel: Simulationsergebnisanalyse ueber Streamlit bedienbar machen.
+
+Status: Teilweise umgesetzt. Die Analyse-Seite erzeugt eine `AnalysisConfig`
+und ruft `ma_workflow.run_analysis_action(config)` auf. Sie bildet erste
+befehlsspezifische Optionen ab, ohne Fachlogik in die UI zu verschieben.
 
 Aufgaben:
 
@@ -155,6 +253,33 @@ Aufgaben:
 Ergebnis: Die Analyse wird ueber Streamlit bedient, bleibt aber fachlich in
 `ma_analyse`.
 
+Aktueller Umsetzungsstand:
+
+- Prepare-Exportformat wird abgefragt.
+- Comfort-Ausgabeprofil wird abgefragt.
+- `analyze-data`/Excel-Auswertung mit `separate` oder `combined` wird
+  abgefragt.
+- Analyseumfang wird abgefragt. Bei `Alle Varianten` wird `variants=None` an
+  die Service-Fassade uebergeben.
+- Varianten und Raeume werden ueber `ma_analyse.services` fuer die UI
+  bereitgestellt. Manuelle Texteingabe bleibt als Fallback erhalten.
+- Heating-/Cooling-Zeitansicht, Variantenmodus und Reihenlayout werden
+  abgefragt.
+- Plot-Template, Zeitfilter, Sollwertband und Temperaturachsen werden
+  abgefragt.
+- Freie Overlay-Linien koennen als einfache Textzeilen im Format
+  `source,column,label,axis` uebergeben werden.
+- Eine einfache Overlay-Katalogauswahl liest CSV-/AUX-Spalten ueber
+  `ma_analyse.services.list_plot_overlay_sources` aus der ersten gewaehlten
+  Variante und dem ersten Raum.
+- Die alte `pages/analyse.py` bleibt Wrapper; die Ziel-View liegt unter
+  `module_views/analyse_view.py`.
+
+Noch offen aus dem Tkinter-Abgleich:
+
+- vollstaendige Overlay-Verwaltung wie in Tkinter mit mehreren auswaehlbaren
+  Katalogzeilen, Bearbeiten und Entfernen.
+
 ## Phase 7 Einbindung weiterer Module
 
 Ziel: Streamlit als zentrale Oberflaeche fuer den Gesamtworkflow erweitern.
@@ -168,6 +293,21 @@ Aufgaben:
 - spaeter `ma_import_ida`, `ma_export_ida` und `ma_assessment` anbinden.
 
 Ergebnis: Die UI bildet den Workflow der Masterarbeit ab.
+
+Workflow-Aktionen als Zielvertrag:
+
+| UI-Befehl | Workflow-Aktion | Ziel |
+|---|---|---|
+| Parameter oeffnen | `open_parameters` | Parameter- und Optionskatalog |
+| Wetterdaten oeffnen | `open_weather` | Wetterdaten und TRY |
+| Gebaeude oeffnen | `open_building` | Gebaeude-/Zonenbasis |
+| Varianten oeffnen | `open_variants` | Variantenkatalog |
+| Simulation konfigurieren | `open_simulation_setup` | Zeitraum, Zeitschritt, Szenario |
+| IDA-Export starten | `run_ida_export` | Uebergabestruktur |
+| IDA-Import starten | `run_ida_import` | Ergebnisordner standardisieren |
+| Analyse starten | `run_analysis` | Simulationsergebnisanalyse |
+| Bewertung starten | `run_assessment` | Wirtschaftlichkeit und Nachhaltigkeit |
+| Feedback oeffnen | `open_feedback` | Rueckfuehrung und Problembehandlung |
 
 ## Phase 8 Dokumentation und Planstatus
 

@@ -1,6 +1,6 @@
 # Plan Status
 
-Stand: 2026-06-08
+Stand: 2026-06-11
 
 Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt und nach jeder Planumsetzung aktualisiert. Vollstaendige alte Planstaende liegen unter `docs/project/plans/archived/`.
 
@@ -24,6 +24,8 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - Nutzerentscheidung dokumentiert: Relative/absolute Cooling-Logik bleibt vorerst nur in Plot-Templates; Hauptportal und regulaerer `cooling`-Befehl werden erst nach Abschluss der Diagrammbearbeitung erneut geprueft.
 - Nutzerentscheidungen aus P005 dokumentiert: `ma_parameters` ersetzt `ma_input`, `ma_ui` und `ma_workflow` werden getrennte Zielmodule, `ma_analyse`-Fachlogik bleibt in `ma_analyse`, IDA-Export/-Import, Simulation-Setup, Assessment und Feedback werden getrennt geplant.
 - Nutzerentscheidungen aus P005 ergaenzt: Streamlit ist Zieltechnik fuer `ma_ui`; Tkinter bleibt Legacy-Bestand und wird nicht mit Streamlit vermischt; `ma_analyse` soll langfristig eine UI-neutrale Service-Schnittstelle erhalten.
+- Nutzerentscheidungen aus P005 verschaerft: `ma_simulation_setup` liegt zwischen Varianten und IDA-Export; die Tkinter-GUI dient als fachliche Ablaufvorlage, nicht als technische Streamlit-Vorlage; `ma_ui` zielt auf Dashboard, Workflow-Views, Shared-Komponenten und Module-Views; `ma_assessment` buendelt Economics und Sustainability.
+- P005 Phase 1/2 dokumentiert: `ma_analyse`-Bestandsanalyse und Service-Schnittstellenentwurf liegen unter `docs/project/architecture/`.
 
 ### Teilweise umgesetzt
 
@@ -31,12 +33,54 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - P005 ordnet den Workflow als Pre-Process, Simulation, Post-Process und Feedback ein.
 - P005 bewertet bestehende Oberflaechen: `src/ma_analyse/gui/app.py` bleibt vorerst unveraendert; `src/ma_variants/ui/services.py` dient als positives Muster fuer Trennung von UI und Fachlogik.
 - P005 Streamlit-/Tkinter-Anpassung dokumentiert: `docs/project/architecture/UI_MIGRATION_PLAN.md` beschreibt Bestandsanalyse, Schnittstellenentwurf, Bereinigung, Legacy-Auslagerung, Streamlit-Aufbau und spaetere Modulanbindung.
+- P005 Bestandsanalyse dokumentiert: Tkinter sitzt nur in `src/ma_analyse/gui/app.py` und `dialogs.py`; `ma_analyse` hat keine Streamlit-Abhaengigkeit.
+- P005 Schnittstellenentwurf dokumentiert: `AnalysisConfig`, `AnalysisResult` und `run_analysis(config)` bilden die UI-neutrale Service-Fassade.
+- P005 erster Service-Code-Slice umgesetzt: `src/ma_analyse/models.py` und `src/ma_analyse/services.py` stellen `AnalysisConfig`, `AnalysisResult` und `run_analysis(config)` als UI-neutrale Fassade bereit.
+- P005 Workflow-/UI-Shell umgesetzt: `src/ma_workflow/` enthaelt Workflow-Katalog und Analyse-Adapter; `src/ma_ui/` enthaelt eine minimale Streamlit-Shell mit Startseite, Analyse-Seite, Navigation und Projektzustand.
+- P005 Analyse-Seite erweitert: `ma_analyse` sammelt erzeugte Dateien in `AnalysisResult.created_files`; `ma_ui` zeigt Status, Fehler, Hinweise, erzeugte Dateien und Log strukturiert an.
+- P005 Varianten-Uebersicht in `ma_ui` ergaenzt: Parameter, Optionen, Variantenraum, Auswahlmethoden und Exportdateien werden ueber bestehende `ma_variants`-Services angezeigt.
+- P005 Wetter-Uebersicht in `ma_ui` ergaenzt: lokale TRY-Datensaetze werden aus dem `ma_weather`-Katalog angezeigt, ohne TRY-Dateien zu importieren.
+- P005 Bewertungs-Uebersicht in `ma_ui` ergaenzt: generische Systemkosten, Energiepreise und Szenarien werden aus bestehenden Wirtschaftlichkeitsannahmen angezeigt, ohne Variantenkosten zu berechnen.
+- P005 Planoptimierung nach verschaerfter Nutzer-Ausarbeitung umgesetzt: Zielstruktur fuer `ma_ui`, `ma_workflow`, `ma_assessment`, `ma_simulation_setup` und Tkinter-Legacy ist dokumentiert, ohne bestehende Dateien zu verschieben.
+- P005 kompatibler Struktur-Slice umgesetzt: `ma_ui/shared/`, `ma_ui/module_views/`,
+  `ma_ui/main_dashboard.py`, `ma_ui/workflow_view.py`, `ma_ui/pre_process_view.py`,
+  `ma_ui/post_process_view.py` sowie die geplanten `ma_workflow`-Dateien fuer
+  Dashboard-Aktionen, Pre-/Post-Process und Feedback sind vorbereitet.
+- P005 Analyse-View fachlich erweitert: `ma_ui/module_views/analyse_view.py`
+  bildet Prepare-, Comfort-, Heating-/Cooling- und Plot-Template-Optionen auf
+  `AnalysisConfig` ab; `pages/analyse.py` bleibt Kompatibilitaetswrapper.
+- P005 Analyse-View gegen Tkinter-Ablauf weiter abgeglichen: `analyze-data`
+  ist als eigener Excel-Auswertungsschritt mit `separate`/`combined`
+  abgebildet.
+- P005 Analyseumfang in Streamlit ergaenzt: `Eine Variante`, `Mehrere Varianten`
+  und `Alle Varianten` werden erfasst; `Alle Varianten` wird als automatische
+  Variantenauswahl an die Service-Fassade uebergeben.
+- P005 automatische Analyseauswahl ergaenzt: Variantenlisten fuer Prepare- und
+  Datenbankaufrufe sowie Raumlisten werden ueber `ma_analyse.services`
+  bereitgestellt; manuelle Texteingabe bleibt als Fallback.
+- P005 freie Overlay-Linien in der Analyse-View ergaenzt: einfache Texteingabe
+  im Format `source,column,label,axis` wird in Plot-Template-Optionen
+  uebersetzt.
+- P005 einfache Overlay-Katalogauswahl ergaenzt: `ma_analyse.services`
+  stellt CSV-/AUX-Spalten fuer Plot-Template-Overlays bereit; die Analyse-View
+  kann daraus eine Overlay-Zeile uebernehmen.
+- P005 Streamlit-Importrobustheit ergaenzt: optionale Overlay-Katalogfunktion
+  wird in der Analyse-View defensiv zur Laufzeit geladen; Startdokumentation
+  empfiehlt den venv-basierten Modulaufruf.
+- P005 Platzhalter-Views erweitert: Parameter, Gebaeude, Simulation-Setup,
+  IDA-Export, IDA-Import und Feedback zeigen ihren Workflow-Kontext aus
+  `ma_workflow`, ohne eigene Fachlogik zu implementieren.
 
 ### Offen
 
 - P002 liegt mit vollstaendigem Planinhalt als Markdown-Datei in `docs/project/plans/inbox/`.
-- P005 naechster Schritt: `ma_analyse`-Bestandsanalyse durchfuehren und Schnittstellenentwurf fuer `AnalysisConfig`, `AnalysisResult` und `run_analysis(config)` vorbereiten.
-- P005 spaeterer Schritt: erst nach Freigabe eine minimale Streamlit-`ma_ui`-Shell und anschliessend die Analyse-Anbindung planen.
+- P005 naechster Schritt: Analyse-View in laufender Streamlit-App manuell gegen
+  reale `ida_imports`-/Datenbankordner pruefen.
+- P005 offener Analyse-View-Punkt: vollstaendige Overlay-Verwaltung wie in der
+  Tkinter-GUI bleibt optionaler spaeterer Ausbau.
+- P005 spaeterer Schritt: Tkinter-GUI erst nach separater Freigabe nach `ma_ui_legacy` auslagern.
+- P005 spaeterer Schritt: `ma_workflow`-Aktionsdateien mit echten Fachservice-Aufrufen erweitern.
+- P005 spaeterer Schritt: `ma_assessment` als separates Bewertungsmodul planen, bevor Wirtschaftlichkeitslogik aus `ma_variants` verschoben wird.
 - Neue externe Plaene nach manueller Ablage in `docs/project/plans/inbox/` pruefen und in `PLAN_INDEX.md` sowie in diese Statusdatei uebernehmen.
 - Nach groesseren Aenderungen pruefen, ob alte Planstaende nach `docs/project/plans/archived/` ausgelagert werden sollen.
 

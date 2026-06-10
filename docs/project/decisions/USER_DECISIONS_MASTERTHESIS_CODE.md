@@ -1,6 +1,6 @@
 # Nutzerentscheidungen Masterarbeit Code
 
-Stand: 2026-06-08
+Stand: 2026-06-10
 
 ## UD-001 Modulare Projektstruktur
 
@@ -174,12 +174,12 @@ Stand: 2026-06-08
 
 - Datum: 2026-06-08
 - Thema: Oberflaeche und Workflowsteuerung
-- Entscheidung: `ma_ui` wird die spaetere gemeinsame Oberflaeche; `ma_workflow` wird die Orchestrierungsebene zwischen Oberflaeche und Fachmodulen.
+- Entscheidung: `ma_ui` wird die gemeinsame Oberflaeche; `ma_workflow` wird die Orchestrierungsebene zwischen Oberflaeche und Fachmodulen.
 - Begruendung: UI, Workflowsteuerung und Fachlogik sollen nicht vermischt werden.
-- Auswirkung: Fachlogik bleibt in den Fachmodulen. Dashboard-Buttons sollen spaeter `ma_workflow`-Aktionen ausloesen, nicht direkt Fachlogik in der Oberflaeche enthalten.
-- Betroffene Module oder Dateien: spaeter `src/ma_ui/`, `src/ma_workflow/`, bestehend `src/ma_analyse/gui/`, `src/ma_variants/ui/`
+- Auswirkung: Fachlogik bleibt in den Fachmodulen. Die minimale `ma_ui`-/`ma_workflow`-Shell ist umgesetzt und dient als Einstieg fuer spaetere Modulansichten.
+- Betroffene Module oder Dateien: `src/ma_ui/`, `src/ma_workflow/`, bestehend `src/ma_analyse/gui/`, `src/ma_variants/ui/`
 - Status: getroffen
-- Offene Folgefragen: konkrete Umsetzung der Streamlit-App erfolgt nach separatem Plan.
+- Offene Folgefragen: Welche Fachseite wird als naechstes konkret angebunden?
 - Quelle oder Chatbezug: P005 Gesamtmodulstruktur
 
 ## UD-016 ma_analyse-Fachlogik bleibt in ma_analyse
@@ -210,12 +210,12 @@ Stand: 2026-06-08
 
 - Datum: 2026-06-08
 - Thema: zentrale Oberflaeche
-- Entscheidung: `ma_ui` wird als neue zentrale lokale Oberflaeche mit Streamlit geplant.
+- Entscheidung: `ma_ui` wird als neue zentrale lokale Oberflaeche mit Streamlit umgesetzt.
 - Begruendung: Streamlit passt besser zur schrittweisen Bedienoberflaeche fuer Tabellen, Diagramme, Statusanzeigen und Modulnavigation als eine direkte Erweiterung der bestehenden Tkinter-GUI.
-- Auswirkung: Streamlit-Importe sollen spaeter auf `ma_ui` begrenzt werden. Fachmodule liefern Services und neutrale Ergebnisse.
-- Betroffene Module oder Dateien: spaeter `src/ma_ui/`, `docs/project/architecture/`
+- Auswirkung: Streamlit-Importe bleiben auf `ma_ui` begrenzt. Fachmodule liefern Services und neutrale Ergebnisse.
+- Betroffene Module oder Dateien: `src/ma_ui/`, `docs/project/architecture/`
 - Status: getroffen
-- Offene Folgefragen: konkrete App-Shell erst nach separater Freigabe anlegen.
+- Offene Folgefragen: Analyse-Seite erweitern oder weitere Moduluebersichten anbinden.
 - Quelle oder Chatbezug: P005 Anpassung Streamlit-Ziel-UI
 
 ## UD-019 Tkinter bleibt Legacy und wird nicht mit Streamlit vermischt
@@ -230,14 +230,62 @@ Stand: 2026-06-08
 - Offene Folgefragen: konkrete Auslagerung erst nach Tkinter-Bestandsanalyse.
 - Quelle oder Chatbezug: P005 Anpassung Streamlit-Ziel-UI
 
-## UD-020 ma_analyse soll eine UI-neutrale Service-Schnittstelle erhalten
+## UD-020 ma_analyse erhaelt eine UI-neutrale Service-Schnittstelle
 
 - Datum: 2026-06-08
 - Thema: Analysemodul und Service-Schnittstelle
-- Entscheidung: `ma_analyse` soll langfristig ueber neutrale Modelle wie `AnalysisConfig` und `AnalysisResult` sowie eine Service-Funktion `run_analysis(config)` von Oberflaechen nutzbar werden.
+- Entscheidung: `ma_analyse` wird ueber neutrale Modelle wie `AnalysisConfig` und `AnalysisResult` sowie eine Service-Funktion `run_analysis(config)` fuer Oberflaechen nutzbar gemacht.
 - Begruendung: Streamlit, Tkinter oder andere UIs sollen dieselbe fachliche Analyse verwenden koennen, ohne Berechnungslogik in die UI zu verschieben.
-- Auswirkung: Der naechste P005-Schritt ist eine Bestandsanalyse von `ma_analyse` und ein Schnittstellenentwurf. Es wird noch keine Funktion umgesetzt.
-- Betroffene Module oder Dateien: spaeter `src/ma_analyse/services.py`, `src/ma_analyse/models.py`, `src/ma_ui/pages/analyse.py`
+- Auswirkung: Bestandsanalyse, Schnittstellenentwurf und erster Service-Code-Slice sind umgesetzt. Die minimale `ma_ui`-Analyse-Seite nutzt die Service-Fassade bereits ueber `ma_workflow`.
+- Betroffene Module oder Dateien: `src/ma_analyse/services.py`, `src/ma_analyse/models.py`, `src/ma_ui/pages/analyse.py`
 - Status: getroffen
-- Offene Folgefragen: genaue Felder und Rueckgabeobjekte erst nach Bestandsanalyse festlegen.
+- Offene Folgefragen: Service-Fassade fachlich erweitern und Ergebnisobjekte detaillierter fuellen.
 - Quelle oder Chatbezug: P005 Anpassung Streamlit-Ziel-UI
+
+## UD-021 ma_simulation_setup liegt zwischen Varianten und IDA-Export
+
+- Datum: 2026-06-10
+- Thema: Gesamtworkflow
+- Entscheidung: `ma_simulation_setup` wird als eigener Zielschritt zwischen `ma_variants` und `ma_export_ida` eingeordnet.
+- Begruendung: Varianten legen fest, was simuliert wird. Das Simulation-Setup legt fest, wie simuliert wird, zum Beispiel Zeitraum, Zeitschritt, Szenario und Run-Metadaten.
+- Auswirkung: `ma_export_ida` soll spaeter nicht selbst Variantenlogik oder Simulationsrandbedingungen definieren, sondern eine bereits konfigurierte Simulationsuebergabe vorbereiten.
+- Betroffene Module oder Dateien: spaeter `src/ma_simulation_setup/`, `src/ma_export_ida/`, `src/ma_variants/`
+- Status: getroffen
+- Offene Folgefragen: Welche Simulationsrandbedingungen werden im ersten Slice von `ma_simulation_setup` benoetigt?
+- Quelle oder Chatbezug: P005 verschaerfte Modulstruktur
+
+## UD-022 Tkinter-GUI ist fachliche Ablaufvorlage, keine technische Vorlage
+
+- Datum: 2026-06-10
+- Thema: UI-Migration
+- Entscheidung: Die bestehende Tkinter-GUI aus `ma_analyse` wird fuer den fachlichen Ablauf ausgewertet, aber nicht direkt nach Streamlit kopiert oder uebersetzt.
+- Begruendung: Die Tkinter-Dateien enthalten wertvolle Bedienlogik, sind technisch aber stark mit Widgets, Messageboxen, Threads und GUI-State gekoppelt.
+- Auswirkung: Streamlit-Ansichten werden neu ueber `ma_ui`, `ma_workflow` und UI-neutrale Fachservices aufgebaut. Tkinter bleibt bis zu einem separaten Refactoring-Slice Legacy-Bestand.
+- Betroffene Module oder Dateien: `src/ma_analyse/gui/`, spaeter `src/ma_ui/module_views/analyse_view.py`, `src/ma_ui_legacy/`
+- Status: getroffen
+- Offene Folgefragen: Welche konkreten GUI-Validierungen sollen in die Service-Schicht uebernommen werden?
+- Quelle oder Chatbezug: P005 verschaerfte UI-Ueberfuehrung
+
+## UD-023 ma_ui nutzt Dashboard, Workflow-Views, Shared-Komponenten und Module-Views
+
+- Datum: 2026-06-10
+- Thema: Streamlit-Zieloberflaeche
+- Entscheidung: `ma_ui` soll langfristig aus Dashboard, Workflow-Ansichten, gemeinsamen UI-Komponenten und modulbezogenen Views bestehen.
+- Begruendung: Die Oberflaeche soll den Gesamtworkflow fuehren, aber keine Fachlogik enthalten. Gemeinsame UI-Bausteine sollen nicht in einzelnen Modulseiten dupliziert werden.
+- Auswirkung: Die bestehende `src/ma_ui/pages/`-Shell bleibt ein Zwischenstand. Eine spaetere Migration nach `module_views/` und `shared/` braucht einen eigenen Umsetzungsslice.
+- Betroffene Module oder Dateien: `src/ma_ui/`, `docs/project/architecture/TARGET_ARCHITECTURE.md`
+- Status: getroffen
+- Offene Folgefragen: Wann wird die bestehende `pages/`-Shell auf die Zielstruktur migriert?
+- Quelle oder Chatbezug: P005 verschaerfte Streamlit-Struktur
+
+## UD-024 ma_assessment buendelt Economics und Sustainability
+
+- Datum: 2026-06-10
+- Thema: Bewertung
+- Entscheidung: `ma_assessment` wird als Bewertungsoberstruktur fuer Wirtschaftlichkeit und Nachhaltigkeit geplant.
+- Begruendung: Wirtschaftlichkeitsanalyse, betriebsbezogene Nachhaltigkeit, Produktdaten und spaetere Material-/Bauteilbezuege gehoeren fachlich zusammen, sollen intern aber getrennt bleiben.
+- Auswirkung: Bestehende Wirtschaftlichkeitslogik in `ma_variants.economic_analysis` bleibt vorerst bestehen. Eine spaetere Extraktion nach `ma_assessment/economics/` erfolgt nur nach eigenem Plan.
+- Betroffene Module oder Dateien: `src/ma_variants/economic_analysis/`, spaeter `src/ma_assessment/`
+- Status: getroffen
+- Offene Folgefragen: Wann beginnt die Trennung von Economics und Sustainability?
+- Quelle oder Chatbezug: P005 verschaerfte Bewertungsstruktur

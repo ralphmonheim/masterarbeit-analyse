@@ -1,6 +1,6 @@
 # Entscheidungen
 
-Stand: 2026-06-08
+Stand: 2026-06-10
 
 Dieses Dokument sammelt technische und architektonische Entscheidungen. Echte Nutzerentscheidungen stehen getrennt in `USER_DECISIONS_MASTERTHESIS_CODE.md`.
 
@@ -115,3 +115,81 @@ Begruendung:
 - Wetterdaten beschreiben Randbedingungen, waehrend `ma_analyse` Simulationsergebnisse auswertet.
 - Reale TRY-Dateien sollen lokal bereitgestellt und nicht im Git-Repo versioniert werden.
 - Die spaetere Verbindung zu Varianten kann ueber den technischen `weather_key` erfolgen.
+
+## Entscheidung 12: ma_analyse-Service zuerst als Fassade umsetzen
+
+Die UI-neutrale Service-Schnittstelle fuer `ma_analyse` wird zuerst als Fassade
+ueber bestehender Logik umgesetzt. `AnalysisConfig`, `AnalysisResult` und
+`run_analysis(config)` ermoeglichen die spaetere UI-Anbindung, ohne die
+bestehende CLI, Tkinter-GUI oder Fachmodule sofort umzubauen.
+
+Begruendung:
+
+- `src/ma_analyse/gui/app.py` ist stark mit Tkinter-State, Worker-Thread und
+  Pipelineaufrufen gekoppelt.
+- `src/ma_analyse/app/commands.py` ist bereits ein guter Einstiegspunkt, aber
+  noch CLI-nah durch `argparse.Namespace`, `print()` und `SystemExit`.
+- Eine Fassade reduziert Risiko, weil sie bestehende Funktionen nutzt und
+  spaeter schrittweise bessere Rueckgabeobjekte ermoeglicht.
+- Streamlit kann spaeter ueber `ma_ui` dieselbe Service-Schicht nutzen, ohne
+  Fachlogik in der Oberflaeche zu duplizieren.
+
+## Entscheidung 13: ma_workflow und ma_ui zuerst als minimale Shell
+
+`ma_workflow` wird zuerst als neutrale Orchestrierungsschicht mit Workflow-
+Katalog und Analyse-Adapter umgesetzt. `ma_ui` wird zuerst als minimale
+Streamlit-Shell mit Startseite, Navigation, Projektzustand und Analyse-Seite
+umgesetzt.
+
+Begruendung:
+
+- Die neue UI braucht stabile Einstiegspunkte, darf aber keine Fachlogik
+  enthalten.
+- `ma_workflow` trennt UI-Bedienaktionen von Fachmodulaufrufen.
+- Die bestehende Tkinter-GUI bleibt unveraendert, bis ein eigener
+  Legacy-Auslagerungsslice freigegeben ist.
+- Weitere Fachseiten koennen spaeter einzeln angebunden werden.
+
+## Entscheidung 14: P005-Zielstruktur strenger als aktueller Codezustand
+
+Die aktuelle `ma_ui`- und `ma_workflow`-Implementierung ist ein bewusst kleiner
+Zwischenstand. Die Zielstruktur sieht spaeter eine klarere Aufteilung vor:
+
+- `ma_ui/main_dashboard.py`
+- `ma_ui/workflow_view.py`
+- `ma_ui/pre_process_view.py`
+- `ma_ui/post_process_view.py`
+- `ma_ui/shared/`
+- `ma_ui/module_views/`
+- `ma_workflow/workflow_manager.py`
+- `ma_workflow/dashboard_actions.py`
+- `ma_workflow/pre_process_runner.py`
+- `ma_workflow/post_process_runner.py`
+- `ma_workflow/feedback_router.py`
+
+Begruendung:
+
+- Die UI soll den Gesamtworkflow fuehren und gemeinsame Komponenten nicht in
+  einzelnen Seiten duplizieren.
+- `ma_workflow` soll Button-/Dashboard-Aktionen von Fachservices trennen.
+- Eine sofortige Umbenennung bestehender Dateien waere unnoetiges Risiko,
+  weil Tests und Importpfade betroffen sind.
+
+## Entscheidung 15: Tkinter wird nicht technisch nach Streamlit uebersetzt
+
+Die bestehende Tkinter-GUI in `src/ma_analyse/gui/` wird als fachliche
+Ablaufquelle genutzt, aber nicht als technische Vorlage fuer Streamlit.
+
+Begruendung:
+
+- Tkinter-Widgets, Messageboxen, Worker-Threads und GUI-State sind eng mit der
+  aktuellen Datei `src/ma_analyse/gui/app.py` gekoppelt.
+- Streamlit braucht eine andere Zustands- und Anzeigeform.
+- Die fachliche Analyse muss ueber neutrale Services nutzbar bleiben.
+
+Technische Folge:
+
+- Allgemeine Anzeige- und Bedienbausteine entstehen spaeter in `ma_ui/shared/`.
+- Analysebezogene Bedienung entsteht spaeter in
+  `ma_ui/module_views/analyse_view.py`.
+- Fachliche Analysefunktionen bleiben in `ma_analyse`.

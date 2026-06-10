@@ -6,6 +6,42 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 Noch keine Eintraege.
 
+## 0.7.0 - 2026-06-11
+
+### Added
+- P005 `ma_analyse`-Bestandsanalyse und Service-Schnittstellenentwurf unter `docs/project/architecture/` ergaenzt.
+- `ma_analyse.models.AnalysisConfig`, `ma_analyse.models.AnalysisResult` und `ma_analyse.services.run_analysis(config)` als erste UI-neutrale Service-Fassade ergaenzt.
+- `ma_workflow` als neutrale Workflow-Schicht mit Workflow-Katalog und Analyse-Adapter ergaenzt.
+- `ma_ui` als minimale Streamlit-Shell mit Startseite, Analyse-Seite, Navigation und Projektzustand ergaenzt.
+- `ma_ui/shared/` und `ma_ui/module_views/` als kompatible Zielstruktur fuer gemeinsame UI-Bausteine und modulbezogene Views vorbereitet.
+- `ma_ui/main_dashboard.py`, `ma_ui/workflow_view.py`, `ma_ui/pre_process_view.py` und `ma_ui/post_process_view.py` als vorbereitete Uebersichtshelfer ergaenzt.
+- `ma_workflow` um vorbereitete Zielmodule fuer `workflow_manager`, `dashboard_actions`, `pre_process_runner`, `post_process_runner` und `feedback_router` erweitert.
+- Varianten-Uebersicht in `ma_ui` ergaenzt; sie nutzt bestehende `ma_variants`-Services fuer Parameter, Optionen, Variantenraum, Auswahlmethoden und Exportdateien.
+- Wetter-Uebersicht in `ma_ui` ergaenzt; sie nutzt den bestehenden `ma_weather`-Katalog und importiert keine TRY-Dateien.
+- Bewertungs-Uebersicht in `ma_ui` ergaenzt; sie zeigt generische Systemkosten, Energiepreise und Szenarien ohne Variantenkosten in der UI zu berechnen.
+- Analyse-View in `ma_ui/module_views/analyse_view.py` um befehlsspezifische Konfiguration fuer Prepare, Comfort, Heating, Cooling und Plot-Templates erweitert.
+- Analyse-View um `analyze-data` als eigenen Excel-Auswertungsschritt mit `separate`/`combined` erweitert.
+- Analyse-View um Analyseumfang erweitert; `Alle Varianten` wird als automatische Variantenauswahl an `AnalysisConfig` uebergeben.
+- `ma_analyse.services` um UI-neutrale Listenfunktionen fuer Varianten und Raeume erweitert; die Analyse-View nutzt diese Listen mit manueller Eingabe als Fallback.
+- Analyse-View um freie Plot-Template-Overlay-Linien als einfache Textangabe im Format `source,column,label,axis` erweitert.
+- `ma_analyse.services` um eine UI-neutrale Overlay-Katalogfunktion erweitert; die Analyse-View kann CSV-/AUX-Spalten fuer Plot-Template-Overlays aus vorhandenen lokalen Daten anbieten.
+- `ma_ui`-Platzhalterseiten fuer Parameter, Gebaeude, Simulation-Setup, IDA-Export, IDA-Import und Feedback zeigen nun Workflow-Kontext aus `ma_workflow`.
+- Tests fuer `ma_workflow`, `ma_ui`-Navigation, Projektzustand, Analyse-Ergebnisanzeige sowie Wetter- und Bewertungsuebersichten ergaenzt.
+
+### Changed
+- P005-Zielarchitektur nach verschaerfter Nutzer-Ausarbeitung optimiert: `ma_ui` zielt nun dokumentiert auf Dashboard, Workflow-Views, Shared-Komponenten und Module-Views; `ma_workflow` auf Dashboard-Aktionen, Pre-/Post-Process-Runner und Feedback-Routing.
+- P005-Planung geschaerft: `ma_simulation_setup` liegt zwischen Variantenbildung und IDA-Export, `ma_assessment` wird als Bewertungsoberstruktur fuer Economics und Sustainability geplant, und die bestehende Tkinter-GUI gilt als fachliche Ablaufvorlage statt technischer Streamlit-Vorlage.
+- P005-Inventar und UI-Auslagerungsreview um konkrete Tkinter-Bedienlogik, spaeteres Analyse-View-Mapping und offene Inventarfragen erweitert.
+- P005-Planstatus, Architekturunterlagen und Modul-READMEs auf den kompatiblen `ma_ui`-/`ma_workflow`-Struktur-Slice aktualisiert.
+- `src/ma_ui/pages/analyse.py` bleibt als Kompatibilitaetswrapper bestehen; die aktive Analyse-View liegt unter `src/ma_ui/module_views/analyse_view.py`.
+- P005-Planstatus, Planindex, Strukturreview und Cleanup-Plan nach Umsetzung der ersten Service-Fassade aktualisiert.
+- P005-Planstatus und Architekturunterlagen nach Umsetzung der minimalen `ma_ui`-/`ma_workflow`-Shell aktualisiert.
+- Die `ma_analyse`-Service-Fassade normalisiert CLI-nahe Schritt-Aliase wie `analyze-data` auf interne Analyse-Schritte.
+- Die `ma_analyse`-Service-Fassade sammelt neu erzeugte Dateien aus Datenbank- und Ausgabeordnern fuer die UI-Anzeige.
+- Die `ma_ui`-Analyse-Seite zeigt Status, Fehler, Hinweise, erzeugte Dateien und Logs ueber eine eigene Ergebnis-Komponente.
+- Die `ma_ui`-Analyse-Seite laedt die optionale Overlay-Katalogfunktion defensiv zur Laufzeit, damit Streamlit-Hot-Reloads mit alten Modulstaenden nicht am Import abbrechen.
+- Der empfohlene Startbefehl fuer `ma_ui` nutzt explizit `.\.venv\Scripts\python.exe -m streamlit`.
+
 ## 0.6.0 - 2026-06-08
 
 ### Added
