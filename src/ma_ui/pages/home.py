@@ -190,7 +190,7 @@ def render() -> None:
 
     _render_feedback_paths()
 
-    with st.expander("Detailtabellen"):
+    with st.expander("Technische Detailtabellen", expanded=False):
         st.subheader("Workflow-Phasen")
         st.dataframe(pd.DataFrame(workflow_phase_summary_rows(workflow_rows)), hide_index=True, use_container_width=True)
 

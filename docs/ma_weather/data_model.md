@@ -52,3 +52,19 @@ Der aktuelle Katalogimport prueft:
 
 Die Datei selbst muss im Struktur-Slice nicht existieren. Ein spaeterer
 Integrationstest kann echte TRY-Dateien bewusst voraussetzen.
+
+## Analyse-Ergebnisse
+
+Die Wetteranalyse nutzt zusaetzliche strukturierte Rueckgaben:
+
+| Modell | Zweck |
+|---|---|
+| `TryImportResult` | eingelesener DataFrame, Quelle, Spalten, Warnungen |
+| `WeatherValidationReport` | Status, Warnungen, Fehler, Zeilenanzahl, fehlende Werte |
+| `WeatherMetrics` | abgeleitete Wetterkennwerte |
+| `WeatherPlotResult` | Status und Pfad je Diagramm |
+| `WeatherAnalysisResult` | Gesamtergebnis des Runners |
+
+Abgeleitete Kennwerte wie Stunden ueber 25/30 Grad C, Heizgradstunden und
+Kuehlgradstunden stehen nicht direkt in der TRY-Datei. Sie werden aus der
+Aussentemperatur berechnet und als Klimakennwerte dokumentiert.

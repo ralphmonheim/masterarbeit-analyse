@@ -69,6 +69,6 @@ Details stehen in `docs/project/UPDATE_ROUTINES.md`.
 
 - `docs/ma_analyse/commands_analyse.md`: Analysepipeline, GUI und Plot-Templates.
 - `docs/ma_variants/commands_variants.md`: Variantenkern und Varianten-UI.
-- `docs/ma_weather/commands_weather.md`: Wettermodul, aktuell vorbereitet.
+- `docs/ma_weather/commands_weather.md`: Wettermodul und lokale TRY-Analyse.
 - `docs/ma_ui/commands_ui.md`: zentrale Streamlit-Oberflaeche, aktuell als minimale Shell.
 - `docs/ma_workflow/commands_workflow.md`: interne Workflow-Schicht, aktuell ohne eigene CLI.

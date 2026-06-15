@@ -4,6 +4,21 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.9.0 - 2026-06-15
+
+### Changed
+- `ma_analyse`-Plot-Template-Beispielgalerie unter `docs/examples/plot_templates/` mit aktueller Logik neu erzeugt.
+- P005 fortgefuehrt: geplante `ma_ui`-Modulansichten zeigen vorhandene Projektressourcen und relevante Pfade ohne neue Fachlogik.
+- P002 fortgefuehrt: `ma_weather` besitzt nun TRY-Import, Validierung, Wetterkennwerte, Diagramme, Markdown-Bericht und einen lokalen Runner.
+- `ma_weather` um eine dokumentierte Zuordnung lokaler TRY-Kennungen zu Frankfurt am Main, Muenchen und Hamburg ergaenzt.
+- Wetterkatalog um aktive 2015-Jahresdatensaetze fuer Muenchen und Hamburg ergaenzt.
+- Wetterkatalog um aktive 2045-Jahresdatensaetze fuer Frankfurt am Main, Muenchen und Hamburg ergaenzt.
+- Streamlit-Standardnavigation fuer `ma_ui` ausgeblendet, damit nur die fachliche Projektnavigation sichtbar bleibt.
+- Technische Workflow- und Dashboard-Tabellen aus den geplanten `ma_ui`-Modulansichten entfernt und auf der Startseite eingeklappt gebuendelt.
+- Ressourcenlisten aus leeren `ma_ui`-Modulansichten entfernt; geplante Module zeigen nur noch Titel, Untertitel und Hinweisbox.
+- Regel abgesichert, dass der grafische Workflow nur auf der `ma_ui`-Startseite gerendert wird.
+- P005 Analyse-View in Streamlit auf eine schrittweise Wizard-Bedienung nach Tkinter-Zustandslogik umgestellt; technische Pfade liegen nun unter `Erweiterte Pfade`.
+
 ## 0.8.0 - 2026-06-15
 
 ### Added

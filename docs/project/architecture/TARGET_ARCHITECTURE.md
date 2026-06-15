@@ -29,7 +29,7 @@ Wichtig:
 |---|---|---|
 | `ma_analyse` | vorhanden | Bestehende Analysepipeline fuer IDA-ICE-Simulationsergebnisse mit CLI, Tkinter-GUI, Preprocessing, Analyse und Plot-Templates. |
 | `ma_variants` | vorhanden | Variantenkern mit Parametern, Optionen, Varianten, IDA-Uebergabestruktur, Simulationsergebnisadapter, Wirtschaftlichkeit, Produkt-/Materialkatalogen und Streamlit-UI. |
-| `ma_weather` | teilweise vorhanden | Struktur-Slice mit Wetterkatalog, Beispielkonfiguration und Tests; TRY-Importlogik folgt spaeter. |
+| `ma_weather` | teilweise vorhanden | Wetterkatalog, TRY-Importer, Validierung, Kennwerte, Diagramme, Markdown-Bericht und Runner sind als lokale Pipeline vorhanden. |
 | `ma_ui` | teilweise vorhanden | Minimale Streamlit-Shell mit Startseite, Analyse-Seite, Varianten-Uebersicht, Wetter-Uebersicht, Bewertungs-Uebersicht, Navigation und Projektzustand. |
 | `ma_ui_legacy` | nicht vorhanden | Zielbereich fuer die bestehende Tkinter-Arbeit, falls sie spaeter aus `ma_analyse` ausgelagert wird. |
 | `ma_workflow` | teilweise vorhanden | Neutraler Workflow-Katalog und Analyse-Adapter zwischen UI und Fachmodulen. |
@@ -43,7 +43,7 @@ Wichtig:
 | `ma_ui_legacy` | Uebergangsbereich fuer bestehende Tkinter-Oberflaechen | nein | Erst nach Bestandsanalyse und Freigabe auslagern | hoch |
 | `ma_workflow` | Orchestrierung zwischen Oberflaeche und Fachmodulen | teilweise | Prozessaktionen schrittweise mit Fachservices verbinden | mittel |
 | `ma_parameters` | Parameter- und Optionskatalog als eigenes Zielmodul | nein, Logik liegt in `ma_variants` | Vorerst nicht verschieben; spaeter Extraktion planen | hoch |
-| `ma_weather` | Wetterdaten, TRY-Import, Wetterkennwerte, Wetteranalyse | teilweise | P002 weiter in Import, Validierung, Kennwerte, Diagramme gliedern | mittel |
+| `ma_weather` | Wetterdaten, TRY-Import, Wetterkennwerte, Wetteranalyse | teilweise | Reale TRY-Datei lokal pruefen und Diagrammgestaltung fachlich abstimmen | mittel |
 | `ma_building` | Gebaeude- und Zonendaten fuer Varianten und Simulation | nein | Nur fachlich abgrenzen, spaeter minimal vorbereiten | mittel |
 | `ma_variants` | Variantenbildung, Auswahl, Naming, Variantenuebersichten | ja | Stabil halten; Parameter-Extraktion spaeter pruefen | mittel |
 | `ma_simulation_setup` | Simulationsrandbedingungen und Run-Metadaten | nein | Als separaten Slice zwischen Varianten und IDA-Export planen | gering bis mittel |

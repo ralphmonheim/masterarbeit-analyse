@@ -17,17 +17,28 @@ Masterarbeitsprojekt.
 - `shared/` enthaelt erste allgemeine Anzeigehelfer fuer Tabellen, Status,
   Logs, Layout, Pfade und Plotdateien.
 - `pages/` bleibt vorerst als Kompatibilitaets- und Zwischenstand erhalten.
+- Die automatische Streamlit-Multipage-Navigation ist in
+  `.streamlit/config.toml` ausgeblendet, damit nur die fachliche
+  Projektnavigation unter `Bereich` sichtbar ist.
 - Startseite mit grafischem Workflow-Dashboard, Statuskennzahlen,
   Phasenkarten, Navigationsbuttons, Iterationspfaden und optionalen
-  Detailtabellen ist vorbereitet.
+  technischen Detailtabellen ist vorbereitet.
+- Der grafische Workflow gehoert ausschliesslich auf die Startseite. Modulviews
+  zeigen nur eigene Inhalte oder bei geplantem Stand eine blaue Hinweisbox.
 - Analyse-Seite ruft die UI-neutrale `ma_analyse`-Service-Fassade ueber
   `ma_workflow` auf.
 - Analyse-Seite kann die bestehende Tkinter-Analyse als separates
   Legacy-Fenster starten, falls eine Bedienfunktion in Streamlit noch fehlt.
-- Analyse-Seite bildet die wichtigsten fachlichen Optionen aus dem bisherigen
-  `ma_analyse`-Ablauf ab: Prepare-Format, Comfort-Profil, Heating-/Cooling-
-  Ansicht, Variantenmodus, Reihenlayout, `analyze-data`-Excel-Ausgabe und
-  Plot-Template-Optionen.
+- Analyse-Seite nutzt eine schrittweise Bedienung nach der vorhandenen
+  Tkinter-Zustandslogik: Zuerst wird nur der Befehl gewaehlt, danach erscheinen
+  passend dazu Unterbefehl, Optionen, Analyseumfang, Varianten und Raeume.
+- Vorherige Analyse-Schritte werden in der Streamlit-Analyse als kurze
+  Zusammenfassung angezeigt. Technische Pfade liegen im eingeklappten Bereich
+  `Erweiterte Pfade`.
+- Analyse-Seite bildet die fachlichen Optionen aus dem bisherigen
+  `ma_analyse`-Ablauf ab: Prepare-Format, Comfort-Unterbefehle und
+  Analyseebene, Heating-/Cooling-Unterbefehle, Zeitansichten, Variantenmodus,
+  Reihenlayout, `analyze_data`-Excel-Ausgabe und Plot-Template-Optionen.
 - Analyseumfang wird abgebildet: Bei `Alle Varianten` uebergibt die UI
   `variants=None` an die Service-Fassade, damit die bestehende Analyse-Logik
   alle verfuegbaren Varianten nutzen kann.
@@ -50,8 +61,12 @@ Masterarbeitsprojekt.
   den vorhandenen Beispielannahmen. Variantenbezogene Kostenberechnung wird dort
   noch nicht gestartet.
 - Geplante Zielseiten fuer Parameter, Gebaeude, Simulation-Setup, IDA-Export,
-  IDA-Import und Feedback sind als Platzhalter erreichbar und zeigen ihren
-  aktuellen Workflow-Kontext aus `ma_workflow`.
+  IDA-Import und Feedback sind als Platzhalter erreichbar. Solange dort keine
+  eigene Fach- oder Kataloglogik umgesetzt ist, zeigen sie nur Titel, Untertitel
+  und eine blaue Hinweisbox.
+- Allgemeine Workflow- und Dashboard-Tabellen werden nicht in jeder
+  Modulansicht angezeigt. Sie bleiben nur als eingeklappte technische
+  Detailtabellen auf der Startseite erreichbar.
 
 ## Start
 
@@ -69,3 +84,5 @@ Alternativ:
 
 Wenn Streamlit nach Codeaenderungen alte Importfehler zeigt, den laufenden
 Streamlit-Prozess stoppen und mit dem empfohlenen venv-Befehl neu starten.
+Das gilt auch, wenn alte Workflow- oder Navigationsinhalte weiterhin sichtbar
+sind.

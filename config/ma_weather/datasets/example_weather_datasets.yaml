@@ -9,3 +9,53 @@ weather_datasets:
     climate_scenario: present
     is_active: true
     notes: Lokale TRY-Datei wird vom Nutzer bereitgestellt und nicht im Repo versioniert.
+  - weather_key: TRY_FFM_2045
+    display_name: TRY Frankfurt 2045 Jahr
+    file_path: data/ma_weather/input/TRY_501262086894/TRY2045_501262086894_Jahr.dat
+    file_format: TRY
+    source: DWD TRY
+    location: Frankfurt am Main
+    year_type: future_year
+    climate_scenario: future_2045
+    is_active: true
+    notes: Lokale TRY-Datei wird vom Nutzer bereitgestellt und nicht im Repo versioniert.
+  - weather_key: TRY_MUC_2015
+    display_name: TRY Muenchen 2015 Jahr
+    file_path: data/ma_weather/input/TRY_481399115778/TRY2015_481399115778_Jahr.dat
+    file_format: TRY
+    source: DWD TRY
+    location: Muenchen
+    year_type: reference_year
+    climate_scenario: present
+    is_active: true
+    notes: Lokale TRY-Datei wird vom Nutzer bereitgestellt und nicht im Repo versioniert.
+  - weather_key: TRY_MUC_2045
+    display_name: TRY Muenchen 2045 Jahr
+    file_path: data/ma_weather/input/TRY_481399115778/TRY2045_481399115778_Jahr.dat
+    file_format: TRY
+    source: DWD TRY
+    location: Muenchen
+    year_type: future_year
+    climate_scenario: future_2045
+    is_active: true
+    notes: Lokale TRY-Datei wird vom Nutzer bereitgestellt und nicht im Repo versioniert.
+  - weather_key: TRY_HAM_2015
+    display_name: TRY Hamburg 2015 Jahr
+    file_path: data/ma_weather/input/TRY_535578099766/TRY2015_535578099766_Jahr.dat
+    file_format: TRY
+    source: DWD TRY
+    location: Hamburg
+    year_type: reference_year
+    climate_scenario: present
+    is_active: true
+    notes: Lokale TRY-Datei wird vom Nutzer bereitgestellt und nicht im Repo versioniert.
+  - weather_key: TRY_HAM_2045
+    display_name: TRY Hamburg 2045 Jahr
+    file_path: data/ma_weather/input/TRY_535578099766/TRY2045_535578099766_Jahr.dat
+    file_format: TRY
+    source: DWD TRY
+    location: Hamburg
+    year_type: future_year
+    climate_scenario: future_2045
+    is_active: true
+    notes: Lokale TRY-Datei wird vom Nutzer bereitgestellt und nicht im Repo versioniert.

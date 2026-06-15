@@ -129,7 +129,7 @@ Analyse-Seite. Die minimale `ma_ui`-/`ma_workflow`-Shell ist bereits umgesetzt.
 
 Bereits abgebildet:
 
-- Befehlsauswahl fuer `prepare`, `comfort`, `analysis`, `analyze-data`,
+- Befehlsauswahl fuer `prepare`, `comfort`, `analyze_data`,
   `heating`, `cooling`, `plot-template` und `all`.
 - Analyseumfang mit `Eine Variante`, `Mehrere Varianten` und `Alle Varianten`.
 - Prepare-Exportformat.
@@ -138,7 +138,8 @@ Bereits abgebildet:
 - Heating-/Cooling-Zeitansicht, Variantenmodus und Reihenlayout.
 - Plot-Template-Auswahl, Zeitfilter, Sollwertband, Temperaturachsen und
   Aussenluft-Spalte.
-- Pfade, Varianten, Raeume, Run-ID und Debug-Flag.
+- Pfade, Varianten, Raeume, Run-ID und Debug-Flag; technische Pfade werden in
+  Streamlit unter `Erweiterte Pfade` gebuendelt.
 - automatische Variantenlisten fuer Prepare- und Datenbankaufrufe ueber
   `ma_analyse.services`.
 - automatische Raumliste aus der `ma_analyse`-Konfiguration.

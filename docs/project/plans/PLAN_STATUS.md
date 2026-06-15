@@ -71,10 +71,14 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   wird in der Analyse-View defensiv zur Laufzeit geladen; Startdokumentation
   empfiehlt den venv-basierten Modulaufruf.
 - P005 Plot-Template-Auswahl in Streamlit an Tkinter-Logik angenaehert:
-  `plot-template` ist Standardauswahl, Zeitfelder werden aus dem Template
+  Nach Auswahl des Befehls `plot-template` werden Zeitfelder aus dem Template
   abgeleitet, Einzelraum-/Mehrraumlogik wird beachtet, Template-Defaults werden
   geladen, feste/freie Overlays sind bedienbar und erzeugte Bilddateien werden
   direkt als Vorschau angezeigt.
+- P005 Analyse-Wizard umgesetzt: Die Streamlit-Analyse-Seite startet mit der
+  Befehlsauswahl, blendet Folgeschritte nach der vorhandenen Tkinter-
+  Zustandslogik ein, fasst vorherige Schritte zusammen und fuehrt technische
+  Pfade unter `Erweiterte Pfade`.
 - P005 Hybrid-Bedienung vorbereitet: Die Streamlit-Analyse-Seite kann die
   bestehende Tkinter-Analyse als separates Legacy-Fenster starten, ohne Tkinter
   in Streamlit einzubetten.
@@ -84,13 +88,17 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - P005 Platzhalter-Views erweitert: Parameter, Gebaeude, Simulation-Setup,
   IDA-Export, IDA-Import und Feedback zeigen ihren Workflow-Kontext aus
   `ma_workflow`, ohne eigene Fachlogik zu implementieren.
+- P005 Platzhalter-Views weiter konkretisiert: Parameter, Gebaeude,
+  Simulation-Setup, IDA-Export, IDA-Import und Feedback zeigen vorhandene
+  Projektressourcen, relevante Pfade und Dateizaehlungen ueber eine
+  UI-neutrale `ma_ui.resource_status`-Schicht.
 
 ### Offen
 
 - P002 liegt mit vollstaendigem Planinhalt als Markdown-Datei in `docs/project/plans/inbox/`.
 - P005 naechster Schritt: Analyse-View in laufender Streamlit-App manuell gegen
   reale `ida_imports`-/Datenbankordner pruefen.
-- P005 offener Analyse-View-Punkt: Plot-Template-Bedienung in der laufenden
+- P005 offener Analyse-View-Punkt: Schrittweisen Analyse-Wizard in der laufenden
   Streamlit-App fachlich gegen den bisherigen Tkinter-Ablauf pruefen.
 - P005 spaeterer Schritt: Tkinter-GUI erst nach separater Freigabe nach `ma_ui_legacy` auslagern.
 - P005 spaeterer Schritt: `ma_workflow`-Aktionsdateien mit echten Fachservice-Aufrufen erweitern.
@@ -157,13 +165,15 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - `data/ma_weather/database/` ist fuer spaeter aufbereitete Wetterdaten vorbereitet.
 - `data/ma_weather/output/` ist fuer spaeter erzeugte Wetterdiagramme vorbereitet.
 - Dokumentation liegt unter `docs/ma_weather/README.md`, `docs/ma_weather/workflow.md`, `docs/ma_weather/data_model.md` und `docs/ma_weather/commands_weather.md`.
+- P002 Analyse-Slice umgesetzt: TRY-Importer, Wettervalidierung, Kennwerte,
+  Diagramme, Markdown-Bericht und Runner sind als erste lokale Pipeline
+  vorhanden.
 
 ### Offen
 
-- TRY-Importer fuer lokale TRY-Dateien implementieren.
-- Plausibilitaetspruefung fuer Wetterdaten implementieren.
-- Wetterkennwerte, Diagramme, Markdown-Bericht und Runner in separaten Slices umsetzen.
-- P002 erst archivieren, wenn Import, Validierung, Kennwerte, Diagramme und Bericht umgesetzt und geprueft sind.
+- Echte lokale TRY-Datei am Katalogpfad pruefen und 8760-Stunden-Integrationstest ausfuehren.
+- Diagrammgestaltung fachlich pruefen und bei Bedarf an Masterarbeitslayout anpassen.
+- P002 erst archivieren, wenn die reale TRY-Datei lokal erfolgreich verarbeitet wurde.
 
 ## Offene Nutzerentscheidungen
 

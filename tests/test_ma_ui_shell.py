@@ -1,5 +1,12 @@
 from pathlib import Path
 
+from ma_analyse.analysis_wizard import (
+    AnalysisWizardState,
+    analysis_step_complete,
+    analysis_step_summary,
+    first_incomplete_step,
+    visible_analysis_steps,
+)
 from ma_ui.app import get_renderable_page_keys
 from ma_ui.components import created_file_rows, is_preview_image, preview_image_paths
 from ma_ui.legacy_launchers import build_tkinter_analyse_command, launch_tkinter_analyse
@@ -45,6 +52,7 @@ from ma_ui.pages.home import workflow_phase_summary_rows, workflow_status_counts
 from ma_ui.pages.weather import weather_dataset_rows
 from ma_ui.post_process_view import post_process_step_rows
 from ma_ui.pre_process_view import pre_process_step_rows
+from ma_ui.resource_status import ResourceSpec, resource_status, resource_status_rows, resource_statuses_for_step
 from ma_ui.shared.workflow_context import workflow_context_rows
 from ma_ui.state import ProjectState
 from ma_ui.workflow_graph import (
@@ -75,9 +83,12 @@ def test_ui_navigation_contains_home_and_analysis():
 
 def test_ui_navigation_page_metadata():
     analyse_page = get_navigation_page("analyse")
+    weather_page = get_navigation_page("weather")
 
     assert analyse_page.module_key == "ma_analyse"
     assert analyse_page.status == "partial"
+    assert weather_page.module_key == "ma_weather"
+    assert weather_page.status == "partial"
 
 
 def test_renderable_pages_include_variants():
@@ -179,6 +190,22 @@ def test_workflow_graph_feedback_paths_target_existing_pages():
     assert all(row["Zielseite"] in page_keys for row in rows)
 
 
+def test_graphical_workflow_is_home_only():
+    home_source = Path("src/ma_ui/pages/home.py").read_text(encoding="utf-8")
+    module_sources = [
+        path.read_text(encoding="utf-8")
+        for path in Path("src/ma_ui/module_views").glob("*.py")
+        if path.name != "home_view.py"
+    ]
+
+    assert "Grafischer Workflow" in home_source
+    assert "Iterationspfade" in home_source
+    assert "ma_ui.workflow_graph" in home_source
+    assert all("ma_ui.workflow_graph" not in source for source in module_sources)
+    assert all("Grafischer Workflow" not in source for source in module_sources)
+    assert all("Iterationspfade" not in source for source in module_sources)
+
+
 def test_workflow_context_rows_show_module_status_and_action():
     rows = workflow_context_rows(("parameters", "ida_export"))
 
@@ -186,6 +213,63 @@ def test_workflow_context_rows_show_module_status_and_action():
     assert rows[0]["Dashboard-Aktion"] == "Parameter oeffnen"
     assert rows[1]["Modul"] == "ma_export_ida"
     assert rows[1]["Status"] == "partial"
+
+
+def test_resource_status_detects_existing_file(tmp_path):
+    config_file = tmp_path / "config" / "example.yaml"
+    config_file.parent.mkdir()
+    config_file.write_text("example: true", encoding="utf-8")
+
+    status = resource_status(
+        ResourceSpec("Beispiel", "config/example.yaml", "Test"),
+        project_root=tmp_path,
+    )
+
+    assert status.exists is True
+    assert status.status == "vorhanden"
+    assert status.file_count == 1
+    assert status.directory_count == 0
+
+
+def test_resource_status_treats_gitkeep_only_directory_as_structure(tmp_path):
+    data_dir = tmp_path / "data" / "module"
+    data_dir.mkdir(parents=True)
+    (data_dir / ".gitkeep").write_text("", encoding="utf-8")
+
+    status = resource_status(
+        ResourceSpec("Datenordner", "data/module", "Test"),
+        project_root=tmp_path,
+    )
+
+    assert status.exists is True
+    assert status.status == "Struktur vorhanden"
+    assert status.file_count == 0
+
+
+def test_resource_status_counts_nested_files_and_directories(tmp_path):
+    nested_dir = tmp_path / "data" / "module" / "variant" / "room"
+    nested_dir.mkdir(parents=True)
+    (nested_dir / "ZONE-ENERGY.prn").write_text("time,value", encoding="utf-8")
+    (nested_dir / "__pycache__").mkdir()
+
+    status = resource_status(
+        ResourceSpec("Datenordner", "data/module", "Test"),
+        project_root=tmp_path,
+    )
+
+    assert status.status == "vorhanden"
+    assert status.file_count == 1
+    assert status.directory_count == 2
+
+
+def test_resource_status_rows_cover_p005_placeholder_views():
+    assert resource_status_rows("parameters")
+    assert resource_status_rows("building")
+    assert resource_status_rows("simulation_setup")
+    assert resource_status_rows("ida_export")
+    assert resource_status_rows("ida_import")
+    assert resource_status_rows("feedback")
+    assert resource_statuses_for_step("unknown") == ()
 
 
 def test_project_state_uses_independent_lists():
@@ -213,7 +297,88 @@ def test_analyse_view_splits_csv_text():
 
 
 def test_analyse_view_defaults_to_plot_template():
+    assert PLOT_TEMPLATE_STEP in COMMAND_OPTIONS
     assert COMMAND_OPTIONS[DEFAULT_COMMAND_INDEX] == PLOT_TEMPLATE_STEP
+
+
+def test_analysis_wizard_initially_shows_command_only():
+    state = AnalysisWizardState()
+
+    assert visible_analysis_steps(state) == ("command",)
+    assert first_incomplete_step(state, ("command",)) == "command"
+
+
+def test_analysis_wizard_uses_tkinter_visibility_for_prepare():
+    state = AnalysisWizardState(command="prepare")
+
+    assert visible_analysis_steps(state) == ("command", "prepare_export", "analysis_scope", "variants")
+
+
+def test_analysis_wizard_hides_load_options_until_subcommand_is_selected():
+    state = AnalysisWizardState(command="heating")
+
+    assert visible_analysis_steps(state) == ("command", "subcommand", "analysis_scope", "variants", "rooms")
+
+    timeline_state = AnalysisWizardState(command="heating", load_subcommand="timeline")
+
+    assert visible_analysis_steps(timeline_state) == (
+        "command",
+        "subcommand",
+        "options",
+        "analysis_scope",
+        "variants",
+        "rooms",
+    )
+
+
+def test_analysis_wizard_shows_plot_template_overlays_only_when_supported():
+    state = AnalysisWizardState(command=PLOT_TEMPLATE_STEP, plot_template="heating-overlay")
+
+    assert visible_analysis_steps(state, template_supports_overlays=False) == (
+        "command",
+        "options",
+        "analysis_scope",
+        "variants",
+        "rooms",
+    )
+    assert visible_analysis_steps(state, template_supports_overlays=True) == (
+        "command",
+        "options",
+        "overlays",
+        "analysis_scope",
+        "variants",
+        "rooms",
+    )
+
+
+def test_analysis_wizard_completes_heating_timeline_like_tkinter():
+    incomplete = AnalysisWizardState(command="heating", load_subcommand="timeline", variant_mode="compare")
+
+    assert analysis_step_complete(incomplete, "options", template_view="") is False
+
+    complete = AnalysisWizardState(
+        command="heating",
+        load_subcommand="timeline",
+        variant_mode="compare",
+        series_layout="combined",
+        view="week",
+        week=7,
+    )
+
+    assert analysis_step_complete(complete, "options", template_view="") is True
+    assert analysis_step_summary(complete, "options") == "Optionen: Modus compare, Ausgabe combined, Ansicht week KW 7"
+
+
+def test_analysis_wizard_limits_comfort_outputs_by_analysis_level():
+    room_state = AnalysisWizardState(command="comfort", comfort_type="plot_analysis")
+    variant_state = AnalysisWizardState(
+        command="comfort",
+        comfort_type="plot_analysis",
+        analysis_level="Analyse Variante",
+    )
+
+    assert analysis_step_complete(room_state, "subcommand") is True
+    assert analysis_step_complete(variant_state, "subcommand") is False
 
 
 def test_tkinter_analyse_launcher_uses_module_command():

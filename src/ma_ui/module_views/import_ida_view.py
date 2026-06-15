@@ -4,11 +4,9 @@ from __future__ import annotations
 
 from ma_ui.shared.layout import render_page_header
 from ma_ui.shared.widgets import render_placeholder
-from ma_ui.shared.workflow_context import render_workflow_context
 
 
 def render() -> None:
     """Zeigt den geplanten IDA-Importbereich ohne eigene Fachlogik."""
     render_page_header("IDA Import", "Zuordnung und Standardisierung von Ergebnisordnern")
     render_placeholder("ma_import_ida ist als spaeterer Post-Process-Schritt geplant.")
-    render_workflow_context(("ida_import",))

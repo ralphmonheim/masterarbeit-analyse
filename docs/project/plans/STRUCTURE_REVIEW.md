@@ -9,7 +9,7 @@ Das Projekt besteht aktuell aus zwei produktiven Python-Paketen:
 - `ma_analyse`: bestehende Analysepipeline fuer IDA-ICE-Simulationsergebnisse.
 - `ma_variants`: neuer Varianten-, Export-, Katalog- und Bewertungskern.
 
-`ma_weather` ist als eigenes Paket fuer Wetterdatenanalyse und TRY-Integration vorbereitet. Der aktuelle Stand umfasst Struktur, Katalog und Tests; fachliche TRY-Importlogik folgt spaeter.
+`ma_weather` ist als eigenes Paket fuer Wetterdatenanalyse und TRY-Integration vorbereitet. Der aktuelle Stand umfasst Struktur, Katalog, TRY-Importer, Validierung, Kennwerte, Diagramme, Markdown-Bericht, Runner und Tests.
 
 P005 ergaenzt eine Zielarchitektur mit Streamlit als Zieltechnik fuer `ma_ui`,
 `ma_ui_legacy` fuer bestehenden Tkinter-Bestand, `ma_workflow`,
@@ -29,7 +29,7 @@ technische Vorlage fuer Streamlit.
 
 - `src/ma_analyse/`: Analyse, CLI, GUI, Preprocessing, Plot-Templates.
 - `src/ma_variants/`: Parameter, Optionen, Varianten, Datenbank, IDA-Export, Simulationsergebnisse, Wirtschaftlichkeit, Kataloge, UI.
-- `src/ma_weather/`: vorbereiteter Wetterkatalog und Platzhalter fuer TRY-Import, Validierung, Kennwerte, Plots und Reports.
+- `src/ma_weather/`: Wetterkatalog, TRY-Import, Validierung, Kennwerte, Plots, Reports und Runner.
 - `src/ma_workflow/`: neutraler Workflow-Katalog und Analyse-Adapter.
 - `src/ma_ui/`: minimale Streamlit-Shell mit Startseite, Analyse-Seite, Navigation und Projektzustand.
 - Ziel fuer `src/ma_ui/`: Dashboard, Workflow-Views, `shared/`-Komponenten und
@@ -65,7 +65,7 @@ technische Vorlage fuer Streamlit.
 - `src/ma_analyse/gui/app.py` ist sehr gross und sollte spaeter aufgeteilt werden.
 - `src/ma_analyse/analysis/heating.py` und `src/ma_analyse/analysis/cooling.py` enthalten aehnliche Strukturen und sollten spaeter ueber gemeinsame Runner/Helper weiter vereinheitlicht werden.
 - In `data/test_output/` liegen lokale Arbeits- und Testartefakte verschiedener Pruefungen. Der Ordner ist bewusst nicht als Referenzbereich gedacht.
-- `ma_weather` besitzt noch keine fachliche TRY-Importlogik, Validierung, Kennwerte oder Diagramme.
+- `ma_weather` benoetigt noch reale lokale TRY-Pruefung und fachliche Diagrammabstimmung.
 - Mehrere Zielmodule aus P005 existieren noch nicht als Code. `ma_ui` und `ma_workflow` sind nur minimale Shells. Gleichzeitig liegen Teilverantwortlichkeiten bereits in `ma_variants`, zum Beispiel Parameterkatalog, IDA-Uebergabe, Simulationsergebnisadapter und Wirtschaftlichkeit.
 - Es gibt zwei unterschiedliche UI-Bestaende: Tkinter in `ma_analyse` und Streamlit in `ma_variants`. Streamlit ist nun Zieltechnik; Tkinter bleibt Legacy-Bestand.
 - Der aktuelle `ma_ui`-Code nutzt noch eine einfache `pages/`-Struktur, waehrend

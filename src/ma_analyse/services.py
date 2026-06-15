@@ -24,6 +24,7 @@ ALLOWED_STEPS = {
     "analyze_data",
     "heating",
     "cooling",
+    "comfort",
     "plot_template",
     "plot-template",
     "all",
@@ -248,6 +249,15 @@ def run_analysis(config: AnalysisConfig) -> AnalysisResult:
         with contextlib.redirect_stdout(log_buffer), contextlib.redirect_stderr(log_buffer):
             if normalized_steps == ("all",):
                 run_all(args)
+            elif normalized_steps == ("comfort",):
+                comfort_settings = get_comfort_output_settings(config.comfort_output_type or "plot_analysis_overview")
+                execute_steps(
+                    args,
+                    steps=tuple(comfort_settings["steps"]),
+                    variants=config.variants,
+                    rooms=config.rooms,
+                    comfort_options=comfort_settings,
+                )
             else:
                 execute_steps(
                     args,

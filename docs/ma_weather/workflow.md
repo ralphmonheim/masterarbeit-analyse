@@ -6,7 +6,7 @@
 sind Eingangs- und Randbedingungsdaten. Sie werden nicht mit den
 IDA-ICE-Zonenwerten aus `ma_analyse` vermischt.
 
-## Struktur-Slice P002
+## P002 Stand
 
 Der aktuelle Stand umfasst:
 
@@ -14,26 +14,23 @@ Der aktuelle Stand umfasst:
 - Wetterkatalog unter `config/ma_weather/datasets/`
 - lokale Eingabeordner unter `data/ma_weather/`
 - Tests fuer Katalogstruktur und Pflichtfelder
-
-Noch nicht umgesetzt:
-
 - TRY-Datei einlesen
 - Plausibilitaetspruefung
 - Wetterkennwerte berechnen
 - Wetterdiagramme erzeugen
 - Markdown-Wetterbericht schreiben
-- CLI oder Runner fuer die Wetteranalyse
+- Runner fuer die lokale Wetteranalyse
 
 ## Geplanter Ablauf
 
 1. TRY-Dateien lokal unter `data/ma_weather/input/` ablegen.
 2. Datensatz in `config/ma_weather/datasets/example_weather_datasets.yaml` registrieren.
 3. Datensatz ueber `weather_key` aus dem Katalog auswaehlen.
-4. Spaeter: TRY-Datei importieren und validieren.
-5. Spaeter: Wetterkennwerte berechnen.
-6. Spaeter: aufbereitete Wetterdaten unter `data/ma_weather/database/` schreiben.
-7. Spaeter: Diagramme unter `data/ma_weather/output/` schreiben.
-8. Spaeter: Bericht unter `data/ma_weather/reports/` schreiben.
+4. TRY-Datei importieren und validieren.
+5. Wetterkennwerte berechnen.
+6. Aufbereitete Wetterdaten unter `data/ma_weather/database/` schreiben.
+7. Diagramme unter `data/ma_weather/output/` schreiben.
+8. Bericht unter `data/ma_weather/reports/` schreiben.
 
 ## Verbindung zu Varianten
 

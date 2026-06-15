@@ -20,7 +20,7 @@ class NavigationPage:
 _NAVIGATION_PAGES: tuple[NavigationPage, ...] = (
     NavigationPage("home", "Start", "project", "available"),
     NavigationPage("parameters", "Parameter", "ma_parameters", "planned"),
-    NavigationPage("weather", "Wetterdaten", "ma_weather", "planned"),
+    NavigationPage("weather", "Wetterdaten", "ma_weather", "partial"),
     NavigationPage("building", "Gebaeude", "ma_building", "planned"),
     NavigationPage("variants", "Varianten", "ma_variants", "partial"),
     NavigationPage("simulation_setup", "Simulation Setup", "ma_simulation_setup", "planned"),
