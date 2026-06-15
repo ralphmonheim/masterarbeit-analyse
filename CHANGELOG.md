@@ -4,7 +4,14 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
-Noch keine Eintraege.
+## 0.8.0 - 2026-06-15
+
+### Added
+- `ma_ui`-Startseite um Statuskennzahlen, Phasenuebersicht und Dashboard-Aktionen aus `ma_workflow` erweitert.
+- `ma_ui`-Analyse-Seite um Tkinter-nahe Plot-Template-Auswahl mit dynamischen Zeitfeldern, Single-/Multi-Room-Logik, Template-Defaults, festen/freien Overlays und Bildvorschau erweitert.
+- Codex-Routinen aktualisiert: `tagesstart` startet `ma_ui` bei Bedarf ueber die Projekt-venv; `tagesende` und `tagesende direkt` melden laufende Projekt-Streamlit-Prozesse ohne sie automatisch zu beenden.
+- `ma_ui`-Startseite zu einem grafischen Workflow-Dashboard mit Phasenkarten, Statusfarben, Iterationspfaden und Navigationsbuttons erweitert.
+- `ma_ui`-Analyse-Seite um einen Legacy-Button erweitert, der die bestehende Tkinter-Analyse als separaten Prozess startet.
 
 ## 0.7.0 - 2026-06-11
 

@@ -35,12 +35,15 @@ Diese Ausloesephrasen sind dokumentierte Arbeitsroutinen fuer Codex. Sie sind
 keine Python-CLI-Befehle.
 
 - `tagesstart` oder `Guten Morgen, es ist ein neuer Tag.`: Projektstand lesen,
-  offene Nutzerentscheidungen bei Bedarf pflegen und offene Aufgaben nach
+  offene Nutzerentscheidungen bei Bedarf pflegen, `ma_ui` ueber die
+  Projekt-venv starten, falls es noch nicht laeuft, und offene Aufgaben nach
   Modulen im Chat ausgeben.
 - `tagesende` oder `Gute Nacht.`: Tagesstand dokumentieren, Planstatus und
-  Changelog bei Bedarf aktualisieren und Terminal-Code fuer Git ausgeben.
+  Changelog bei Bedarf aktualisieren, laufende Projekt-Streamlit-Prozesse nur
+  melden und Terminal-Code fuer Git ausgeben.
 - `tagesende direkt` oder `Gute Nacht direkt.`: wie `tagesende`, aber Commit,
-  Tag und Push durch Codex ausfuehren, sofern keine Blocker bestehen.
+  Tag und Push durch Codex ausfuehren, sofern keine Blocker bestehen; laufende
+  Projekt-Streamlit-Prozesse werden nur gemeldet.
 - `wochenabschluss` oder `Eine schoene Woche.`: Wochenbericht unter
   `docs/project/weekly_reviews/` erstellen und archivierungsfaehige Plaene
   benennen.

@@ -9,10 +9,22 @@ import streamlit as st
 from ma_analyse.models import AnalysisResult
 from ma_ui.shared import file_rows
 
+IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg"}
+
 
 def created_file_rows(paths: list[Path]) -> list[dict[str, object]]:
     """Bereitet erzeugte Dateien fuer eine UI-Tabelle auf."""
     return file_rows(paths)
+
+
+def is_preview_image(path: Path) -> bool:
+    """Prueft, ob eine erzeugte Datei als Bildvorschau angezeigt werden kann."""
+    return path.suffix.lower() in IMAGE_SUFFIXES
+
+
+def preview_image_paths(paths: list[Path]) -> list[Path]:
+    """Filtert erzeugte Dateien auf lokal vorhandene Bilddateien."""
+    return [path for path in paths if is_preview_image(path) and path.exists()]
 
 
 def render_analysis_result(result: AnalysisResult) -> None:
@@ -31,6 +43,12 @@ def render_analysis_result(result: AnalysisResult) -> None:
         st.json(result.warnings)
 
     if result.created_files:
+        images = preview_image_paths(result.created_files)
+        if images:
+            st.subheader("Diagrammvorschau")
+            for image_path in images:
+                st.image(str(image_path), caption=image_path.name)
+
         st.subheader("Erzeugte Dateien")
         st.dataframe(created_file_rows(result.created_files), hide_index=True, use_container_width=True)
 

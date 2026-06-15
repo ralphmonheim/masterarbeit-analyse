@@ -84,6 +84,13 @@ ma_workflow/
 Die bestehende `pages/`-Shell wird nicht geloescht, weil sie als stabiler
 Zwischenstand und Kompatibilitaetsschicht dient.
 
+Die Analyse-View nutzt `plot-template` inzwischen als Standardauswahl. Die
+Streamlit-Bedienung leitet Zeitfelder, Einzelraum-/Mehrraumlogik,
+Template-Defaults und Overlay-Optionen aus den bestehenden `ma_analyse`
+Template-Spezifikationen ab. Damit ist fachliche Bedienparitaet zur relevanten
+Tkinter-Plot-Template-Auswahl vorbereitet, ohne Diagrammlogik in die UI zu
+verschieben.
+
 ## Schnittstelle fuer ma_analyse
 
 ```python

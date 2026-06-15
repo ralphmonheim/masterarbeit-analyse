@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+CURRENT_PAGE_SESSION_KEY = "ma_ui_current_page"
+
 
 @dataclass(frozen=True, slots=True)
 class NavigationPage:
@@ -41,3 +43,10 @@ def get_navigation_page(page_key: str) -> NavigationPage:
         if page.page_key == page_key:
             return page
     raise KeyError(f"Unbekannte UI-Seite: {page_key}")
+
+
+def normalize_page_key(page_key: object, available_page_keys: tuple[str, ...]) -> str:
+    """Normalisiert eine Session-State-Seite auf einen bekannten Zielwert."""
+    if isinstance(page_key, str) and page_key in available_page_keys:
+        return page_key
+    return available_page_keys[0]

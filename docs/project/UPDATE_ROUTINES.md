@@ -11,9 +11,9 @@ Dokumentationsroutine, kein Python-CLI-Befehl.
 | `update repo` | Versionen, Changelog und Release-Stand vorbereiten | Codex aktualisiert Dateien und gibt Terminal-Code fuer Commit, Tag und Push aus. |
 | `direkt update repo` | Repo-Update vollstaendig durch Codex ausfuehren | Codex aktualisiert Dateien und fuehrt Commit, Tag und Push aus, sofern Git-Zugriff moeglich ist. |
 | `update planung` | Plan- und Entscheidungsstruktur aktualisieren | Codex prueft Plan-Inbox, Planindex, Planstatus und offene Entscheidungen. |
-| `tagesstart` / `Guten Morgen, es ist ein neuer Tag.` | Tagesuebersicht erstellen | Codex liest den Projektstand, pflegt bei Bedarf offene Nutzerentscheidungen und gibt offene Aufgaben nach Modulen aus. |
-| `tagesende` / `Gute Nacht.` | Tagesstand dokumentieren und Repo-Update vorbereiten | Codex aktualisiert Planstatus, Entscheidungen und Changelog, falls noetig, und gibt Terminal-Code fuer Commit, Tag und Push aus. |
-| `tagesende direkt` / `Gute Nacht direkt.` | Tagesstand dokumentieren und Repo direkt aktualisieren | Codex aktualisiert Dokumente und fuehrt Commit, Tag und Push aus, sofern keine Blocker bestehen. |
+| `tagesstart` / `Guten Morgen, es ist ein neuer Tag.` | Tagesuebersicht und UI-Start vorbereiten | Codex liest den Projektstand, pflegt bei Bedarf offene Nutzerentscheidungen, startet `ma_ui` bei Bedarf ueber die Projekt-venv und gibt offene Aufgaben nach Modulen aus. |
+| `tagesende` / `Gute Nacht.` | Tagesstand dokumentieren und Repo-Update vorbereiten | Codex meldet laufende Projekt-Streamlit-Prozesse, aktualisiert Planstatus, Entscheidungen und Changelog, falls noetig, und gibt Terminal-Code fuer Commit, Tag und Push aus. |
+| `tagesende direkt` / `Gute Nacht direkt.` | Tagesstand dokumentieren und Repo direkt aktualisieren | Codex meldet laufende Projekt-Streamlit-Prozesse, aktualisiert Dokumente und fuehrt Commit, Tag und Push aus, sofern keine Blocker bestehen. |
 | `wochenabschluss` / `Eine schoene Woche.` | Wochenstand dokumentieren | Codex erstellt eine Wochenzusammenfassung unter `docs/project/weekly_reviews/` und prueft archivierungsfaehige Plaene. |
 | `projektlage` | Kurze Projektlage lesen | Codex berichtet Git-Stand, Version, aktive Plaene, offene Entscheidungen und naechste sinnvolle Schritte. |
 | `plan aufnehmen` | neuen Plan einordnen | Codex liest neue Plaene aus der Inbox und aktualisiert Planindex sowie Planstatus. |
@@ -36,8 +36,8 @@ Dokumentationsroutine, kein Python-CLI-Befehl.
 | Nutzerentscheidungen aktualisieren | `docs/project/decisions/USER_DECISIONS_MASTERTHESIS_CODE.md` | echte Nutzerentscheidungen | Keine technischen Empfehlungen eintragen. |
 | Offene Entscheidungen aktualisieren | `docs/project/decisions/USER_DECISIONS_OPEN_POINTS.md` | offene Nutzerentscheidungen | Offene Punkte klar von getroffenen Entscheidungen trennen. |
 | Technische Entscheidungen aktualisieren | `docs/project/decisions/TECHNICAL_DECISIONS.md` | Architektur- und Umsetzungsentscheidungen | Nicht mit Nutzerentscheidungen vermischen. |
-| Tagesstart | `docs/project/plans/PLAN_STATUS.md`, `docs/project/plans/PLAN_INDEX.md`, `docs/project/decisions/USER_DECISIONS_OPEN_POINTS.md` | offene Aufgaben, aktive Plaene, offene Entscheidungen | Offene Entscheidungsdatei bereinigen oder ergaenzen; allgemeine Aufgaben nur berichten. |
-| Tagesende | `PLAN_STATUS.md`, Nutzerentscheidungen, `CHANGELOG.md`, Git-Arbeitsbaum | Tagesstand, offene Punkte, Release-/Commit-Vorschlag | Dokumente nur bei tatsaechlicher Aenderung aktualisieren. |
+| Tagesstart | `docs/project/plans/PLAN_STATUS.md`, `docs/project/plans/PLAN_INDEX.md`, `docs/project/decisions/USER_DECISIONS_OPEN_POINTS.md`, `src/ma_ui/app.py` | offene Aufgaben, aktive Plaene, offene Entscheidungen, Streamlit-Start | Offene Entscheidungsdatei bereinigen oder ergaenzen; allgemeine Aufgaben nur berichten; `ma_ui` nur ueber die Projekt-venv starten. |
+| Tagesende | `PLAN_STATUS.md`, Nutzerentscheidungen, `CHANGELOG.md`, Git-Arbeitsbaum, laufende Streamlit-Prozesse | Tagesstand, offene Punkte, Release-/Commit-Vorschlag, Prozesshinweis | Dokumente nur bei tatsaechlicher Aenderung aktualisieren; Prozesse nur melden, nicht automatisch beenden. |
 | Wochenabschluss | `docs/project/weekly_reviews/` | Wochenbericht `YYYY-KWxx.md` | Erledigte Arbeiten, offene Punkte und naechste Woche dokumentieren. |
 
 ## Routine `update repo`
@@ -95,23 +95,35 @@ git push origin vx.y.z
 6. Plan-Inbox auf neue Plaene pruefen.
 7. Eine kurze Aufgabenliste nach Modulen im Chat ausgeben.
 8. Die wichtigsten ein bis drei Tagesprioritaeten empfehlen.
-9. Keine Git-Aktionen ausfuehren.
+9. Projekt-venv und `ma_ui`-Startbefehl pruefen.
+10. Wenn Port `8501` frei ist, `ma_ui` ueber die Projekt-venv starten:
+
+    ```powershell
+    .\.venv\Scripts\python.exe -m streamlit run src\ma_ui\app.py --server.headless true --server.port 8501
+    ```
+
+11. Wenn `http://localhost:8501` bereits durch die Projekt-App erreichbar ist, nicht neu starten und die URL melden.
+12. Wenn Port `8501` durch einen unklaren Prozess belegt ist, nicht ueberschreiben und den Konflikt melden.
+13. Keine Git-Aktionen ausfuehren.
 
 ## Routine `tagesende`
 
 1. Git-Stand und geaenderte Dateien pruefen.
-2. Falls Arbeiten abgeschlossen wurden, `PLAN_STATUS.md` aktualisieren.
-3. Falls Nutzerentscheidungen getroffen wurden, diese dokumentieren und passende offene Punkte schliessen.
-4. Falls Code, Struktur oder Dokumentation geaendert wurden, `CHANGELOG.md` unter `Unreleased` aktualisieren.
-5. Tests nur bei Code- oder Testaenderungen ausfuehren.
-6. Terminal-Code fuer Commit, Tag und Push ausgeben.
-7. Keine Git-Aktionen selbst ausfuehren.
+2. Laufende projektbezogene Streamlit-Prozesse pruefen.
+3. Wenn `ma_ui` noch laeuft, Prozess und URL melden; nicht automatisch beenden.
+4. Falls Arbeiten abgeschlossen wurden, `PLAN_STATUS.md` aktualisieren.
+5. Falls Nutzerentscheidungen getroffen wurden, diese dokumentieren und passende offene Punkte schliessen.
+6. Falls Code, Struktur oder Dokumentation geaendert wurden, `CHANGELOG.md` unter `Unreleased` aktualisieren.
+7. Tests nur bei Code- oder Testaenderungen ausfuehren.
+8. Terminal-Code fuer Commit, Tag und Push ausgeben.
+9. Keine Git-Aktionen selbst ausfuehren.
 
 ## Routine `tagesende direkt`
 
 1. Dieselben Schritte wie `tagesende` ausfuehren.
-2. Bei unklaren, riskanten oder unerwarteten Aenderungen stoppen und Rueckfrage stellen.
-3. Wenn der Stand eindeutig ist, Commit, Tag und Push durch Codex ausfuehren.
+2. Laufende projektbezogene Streamlit-Prozesse nur melden, nicht automatisch beenden.
+3. Bei unklaren, riskanten oder unerwarteten Aenderungen stoppen und Rueckfrage stellen.
+4. Wenn der Stand eindeutig ist, Commit, Tag und Push durch Codex ausfuehren.
 
 ## Routine `wochenabschluss`
 
@@ -142,6 +154,7 @@ git push origin vx.y.z
 - Nutzerentscheidungen und technische Empfehlungen werden getrennt dokumentiert.
 - Plaene werden nicht automatisch geloescht.
 - Git-Push wird nur bei `direkt update repo` durch Codex ausgefuehrt.
-- `tagesstart` darf `USER_DECISIONS_OPEN_POINTS.md` pflegen, fuehrt aber keine Git-Aktionen aus.
+- `tagesstart` darf `USER_DECISIONS_OPEN_POINTS.md` pflegen und `ma_ui` ueber die Projekt-venv starten, fuehrt aber keine Git-Aktionen aus.
 - `projektlage` ist eine rein lesende Routine.
+- `tagesende` und `tagesende direkt` melden laufende Projekt-Streamlit-Prozesse, beenden sie aber nicht automatisch.
 - `tagesende direkt` fuehrt Git-Aktionen nur aus, wenn der Arbeitsstand eindeutig ist.

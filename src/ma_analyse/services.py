@@ -8,10 +8,11 @@ import io
 import traceback
 from pathlib import Path
 
-from .analysis.templates import DEFAULT_OUTDOOR_COLUMN, list_heating_year_overlay_sources
+from .analysis.templates import DEFAULT_OUTDOOR_COLUMN, get_plot_template_spec, list_heating_year_overlay_sources
 from .app.commands import execute_steps, get_comfort_output_settings, run_all
 from .core.config import ROOMS
 from .models import AnalysisConfig, AnalysisResult
+from .settings.plot_templates import get_plot_template_defaults
 
 ALLOWED_STEPS = {
     "prepare",
@@ -111,6 +112,33 @@ def list_plot_overlay_sources(
         )
     except Exception:  # noqa: BLE001 - Katalog ist UI-Komfort, kein harter Analysefehler.
         return {"csv": [], "aux": []}
+
+
+def get_plot_template_ui_defaults(template: str, config_path: str | Path | None = None) -> dict[str, object]:
+    """Gibt Plot-Template-Defaults fuer UI-Adapter zurueck."""
+    if config_path is None:
+        return get_plot_template_defaults(template)
+    return get_plot_template_defaults(template, config_path)
+
+
+def get_plot_template_ui_spec(template: str) -> dict[str, object]:
+    """Gibt die UI-relevante Plot-Template-Spezifikation als Plain-Dict zurueck."""
+    spec = get_plot_template_spec(template)
+    if spec is None:
+        return {
+            "name": template,
+            "metric": "",
+            "view": "",
+            "supports_overlays": False,
+            "requires_single_room": True,
+        }
+    return {
+        "name": spec.name,
+        "metric": spec.metric,
+        "view": spec.view,
+        "supports_overlays": spec.supports_overlays,
+        "requires_single_room": spec.requires_single_room,
+    }
 
 
 def _normalize_steps(steps: tuple[str, ...]) -> tuple[str, ...]:

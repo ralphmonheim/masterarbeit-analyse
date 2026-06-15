@@ -17,9 +17,13 @@ Masterarbeitsprojekt.
 - `shared/` enthaelt erste allgemeine Anzeigehelfer fuer Tabellen, Status,
   Logs, Layout, Pfade und Plotdateien.
 - `pages/` bleibt vorerst als Kompatibilitaets- und Zwischenstand erhalten.
-- Startseite mit Workflow-Uebersicht ist vorbereitet.
+- Startseite mit grafischem Workflow-Dashboard, Statuskennzahlen,
+  Phasenkarten, Navigationsbuttons, Iterationspfaden und optionalen
+  Detailtabellen ist vorbereitet.
 - Analyse-Seite ruft die UI-neutrale `ma_analyse`-Service-Fassade ueber
   `ma_workflow` auf.
+- Analyse-Seite kann die bestehende Tkinter-Analyse als separates
+  Legacy-Fenster starten, falls eine Bedienfunktion in Streamlit noch fehlt.
 - Analyse-Seite bildet die wichtigsten fachlichen Optionen aus dem bisherigen
   `ma_analyse`-Ablauf ab: Prepare-Format, Comfort-Profil, Heating-/Cooling-
   Ansicht, Variantenmodus, Reihenlayout, `analyze-data`-Excel-Ausgabe und
@@ -31,9 +35,13 @@ Masterarbeitsprojekt.
   Daten vorhanden sind. Manuelle Texteingabe bleibt als Fallback bestehen.
 - Plot-Template-Overlays koennen aus einem einfachen Katalog der ersten
   gewaehlten Variante und des ersten Raums ausgewaehlt werden. Freie
-  Overlay-Linien im Format `source,column,label,axis` bleiben als Fallback
+  Overlay-Linien koennen ueber Eingabefelder hinzugefuegt und entfernt werden;
+  ein Expertenmodus im Format `source,column,label,axis` bleibt als Fallback
   moeglich.
-- Analyse-Ergebnisse zeigen Status, Fehler, Hinweise, erzeugte Dateien und Log.
+- Plot-Template-Zeitfelder, Single-/Multi-Room-Auswahl und Overlay-Defaults
+  werden aus der bestehenden `ma_analyse`-Template-Spezifikation abgeleitet.
+- Analyse-Ergebnisse zeigen Status, Fehler, Hinweise, erzeugte Dateien,
+  Diagrammvorschau fuer Bilddateien und Log.
 - Varianten-Seite zeigt Parameter, Optionen, Variantenraum, Auswahlmethoden und
   vorhandene Exportdateien ueber bestehende `ma_variants`-Services.
 - Wetter-Seite zeigt lokale TRY-Datensaetze aus dem `ma_weather`-Katalog und ob

@@ -1,6 +1,13 @@
 from ma_analyse import services
 from ma_analyse.models import AnalysisConfig, AnalysisResult
-from ma_analyse.services import list_analysis_rooms, list_analysis_variants, list_plot_overlay_sources, run_analysis
+from ma_analyse.services import (
+    get_plot_template_ui_defaults,
+    get_plot_template_ui_spec,
+    list_analysis_rooms,
+    list_analysis_variants,
+    list_plot_overlay_sources,
+    run_analysis,
+)
 
 
 def test_analysis_config_normalizes_paths_and_sequences(tmp_path):
@@ -98,6 +105,34 @@ def test_list_analysis_rooms_returns_defaults():
     rooms = list_analysis_rooms()
 
     assert "208 office" in rooms
+
+
+def test_get_plot_template_ui_spec_returns_plain_dict():
+    spec = get_plot_template_ui_spec("heating-overlay")
+
+    assert spec["name"] == "heating-overlay"
+    assert spec["view"] == "year"
+    assert spec["supports_overlays"] is True
+    assert spec["requires_single_room"] is True
+
+
+def test_get_plot_template_ui_spec_falls_back_for_unknown_template():
+    spec = get_plot_template_ui_spec("unknown-template")
+
+    assert spec == {
+        "name": "unknown-template",
+        "metric": "",
+        "view": "",
+        "supports_overlays": False,
+        "requires_single_room": True,
+    }
+
+
+def test_get_plot_template_ui_defaults_reads_existing_template_defaults():
+    defaults = get_plot_template_ui_defaults("heating-overlay")
+
+    assert defaults["show_setpoint_band"] is True
+    assert defaults["default_overlays"][0]["id"] == "outdoor_temperature"
 
 
 def test_list_plot_overlay_sources_reads_csv_and_aux_columns(tmp_path):

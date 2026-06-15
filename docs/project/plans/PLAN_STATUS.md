@@ -1,6 +1,6 @@
 # Plan Status
 
-Stand: 2026-06-11
+Stand: 2026-06-12
 
 Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt und nach jeder Planumsetzung aktualisiert. Vollstaendige alte Planstaende liegen unter `docs/project/plans/archived/`.
 
@@ -36,7 +36,10 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - P005 Bestandsanalyse dokumentiert: Tkinter sitzt nur in `src/ma_analyse/gui/app.py` und `dialogs.py`; `ma_analyse` hat keine Streamlit-Abhaengigkeit.
 - P005 Schnittstellenentwurf dokumentiert: `AnalysisConfig`, `AnalysisResult` und `run_analysis(config)` bilden die UI-neutrale Service-Fassade.
 - P005 erster Service-Code-Slice umgesetzt: `src/ma_analyse/models.py` und `src/ma_analyse/services.py` stellen `AnalysisConfig`, `AnalysisResult` und `run_analysis(config)` als UI-neutrale Fassade bereit.
-- P005 Workflow-/UI-Shell umgesetzt: `src/ma_workflow/` enthaelt Workflow-Katalog und Analyse-Adapter; `src/ma_ui/` enthaelt eine minimale Streamlit-Shell mit Startseite, Analyse-Seite, Navigation und Projektzustand.
+- P005 Workflow-/UI-Shell umgesetzt: `src/ma_workflow/` enthaelt Workflow-Katalog und Analyse-Adapter; `src/ma_ui/` enthaelt eine Streamlit-Shell mit Startseite, Analyse-Seite, Navigation und Projektzustand.
+- P005 Startseite erweitert: `ma_ui` zeigt Workflow-Statuskennzahlen,
+  Phasenuebersicht, Workflow-Schritte und Dashboard-Aktionen aus
+  `ma_workflow`.
 - P005 Analyse-Seite erweitert: `ma_analyse` sammelt erzeugte Dateien in `AnalysisResult.created_files`; `ma_ui` zeigt Status, Fehler, Hinweise, erzeugte Dateien und Log strukturiert an.
 - P005 Varianten-Uebersicht in `ma_ui` ergaenzt: Parameter, Optionen, Variantenraum, Auswahlmethoden und Exportdateien werden ueber bestehende `ma_variants`-Services angezeigt.
 - P005 Wetter-Uebersicht in `ma_ui` ergaenzt: lokale TRY-Datensaetze werden aus dem `ma_weather`-Katalog angezeigt, ohne TRY-Dateien zu importieren.
@@ -67,6 +70,17 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - P005 Streamlit-Importrobustheit ergaenzt: optionale Overlay-Katalogfunktion
   wird in der Analyse-View defensiv zur Laufzeit geladen; Startdokumentation
   empfiehlt den venv-basierten Modulaufruf.
+- P005 Plot-Template-Auswahl in Streamlit an Tkinter-Logik angenaehert:
+  `plot-template` ist Standardauswahl, Zeitfelder werden aus dem Template
+  abgeleitet, Einzelraum-/Mehrraumlogik wird beachtet, Template-Defaults werden
+  geladen, feste/freie Overlays sind bedienbar und erzeugte Bilddateien werden
+  direkt als Vorschau angezeigt.
+- P005 Hybrid-Bedienung vorbereitet: Die Streamlit-Analyse-Seite kann die
+  bestehende Tkinter-Analyse als separates Legacy-Fenster starten, ohne Tkinter
+  in Streamlit einzubetten.
+- P005 grafisches Workflow-Dashboard umgesetzt: Die `ma_ui`-Startseite zeigt
+  Phasen, Workflow-Karten, Statusfarben, Iterationspfade und Buttons zu
+  vorhandenen Modulansichten; Detailtabellen bleiben im Expander erreichbar.
 - P005 Platzhalter-Views erweitert: Parameter, Gebaeude, Simulation-Setup,
   IDA-Export, IDA-Import und Feedback zeigen ihren Workflow-Kontext aus
   `ma_workflow`, ohne eigene Fachlogik zu implementieren.
@@ -76,8 +90,8 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - P002 liegt mit vollstaendigem Planinhalt als Markdown-Datei in `docs/project/plans/inbox/`.
 - P005 naechster Schritt: Analyse-View in laufender Streamlit-App manuell gegen
   reale `ida_imports`-/Datenbankordner pruefen.
-- P005 offener Analyse-View-Punkt: vollstaendige Overlay-Verwaltung wie in der
-  Tkinter-GUI bleibt optionaler spaeterer Ausbau.
+- P005 offener Analyse-View-Punkt: Plot-Template-Bedienung in der laufenden
+  Streamlit-App fachlich gegen den bisherigen Tkinter-Ablauf pruefen.
 - P005 spaeterer Schritt: Tkinter-GUI erst nach separater Freigabe nach `ma_ui_legacy` auslagern.
 - P005 spaeterer Schritt: `ma_workflow`-Aktionsdateien mit echten Fachservice-Aufrufen erweitern.
 - P005 spaeterer Schritt: `ma_assessment` als separates Bewertungsmodul planen, bevor Wirtschaftlichkeitslogik aus `ma_variants` verschoben wird.
