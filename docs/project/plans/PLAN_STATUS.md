@@ -168,12 +168,15 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - P002 Analyse-Slice umgesetzt: TRY-Importer, Wettervalidierung, Kennwerte,
   Diagramme, Markdown-Bericht und Runner sind als erste lokale Pipeline
   vorhanden.
+- P002 Real-Testlauf fuer `TRY_FFM_2015` erfolgreich: Validierung `ok`, 8760 Stunden,
+  sechs Diagramme, aufbereitete CSV und Markdown-Bericht wurden lokal erzeugt.
 
 ### Offen
 
-- Echte lokale TRY-Datei am Katalogpfad pruefen und 8760-Stunden-Integrationstest ausfuehren.
+- Weitere aktive Jahresdatensaetze `TRY_FFM_2045`, `TRY_MUC_2015`,
+  `TRY_MUC_2045`, `TRY_HAM_2015` und `TRY_HAM_2045` real pruefen.
 - Diagrammgestaltung fachlich pruefen und bei Bedarf an Masterarbeitslayout anpassen.
-- P002 erst archivieren, wenn die reale TRY-Datei lokal erfolgreich verarbeitet wurde.
+- P002 erst archivieren, wenn die vorgesehenen realen TRY-Datensaetze lokal erfolgreich verarbeitet wurden.
 
 ## Offene Nutzerentscheidungen
 

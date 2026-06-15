@@ -4,6 +4,11 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.9.1 - 2026-06-15
+
+### Changed
+- P002 Real-Testlauf fuer `TRY_FFM_2015` dokumentiert: Validierung `ok`, 8760 Stunden, sechs Wetterdiagramme, aufbereitete CSV und Markdown-Bericht wurden lokal erzeugt.
+
 ## 0.9.0 - 2026-06-15
 
 ### Changed
