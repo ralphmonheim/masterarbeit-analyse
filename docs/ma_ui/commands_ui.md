@@ -1,6 +1,8 @@
 # Befehle ma_ui
 
-## Zentrale Streamlit-Oberflaeche starten
+## Sammelbefehle
+
+### Zentrale Streamlit-Oberflaeche starten
 
 Empfohlen ist der Modulaufruf ueber die Projekt-venv:
 
@@ -8,13 +10,20 @@ Empfohlen ist der Modulaufruf ueber die Projekt-venv:
 .\.venv\Scripts\python.exe -m streamlit run src\ma_ui\app.py
 ```
 
+Dieser Befehl startet die zentrale Projektoberflaeche mit Startseite,
+Navigation und Modulansichten.
+
+## Einzelbefehle
+
+### Alternativer Streamlit-Start
+
 Alternative:
 
 ```powershell
 .\.venv\Scripts\streamlit.exe run src\ma_ui\app.py
 ```
 
-## Hinweise
+## Referenz und Hinweise
 
 - `ma_ui` ist aktuell eine minimale Shell mit Zielstruktur fuer
   `module_views/` und `shared/`.

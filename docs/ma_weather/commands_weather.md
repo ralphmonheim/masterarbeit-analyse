@@ -15,16 +15,12 @@ Markdown-Bericht.
 - Der Runner kann als Modul gestartet werden.
 - Der Plan liegt unter `docs/project/plans/inbox/250603_Plan_Wetterdatenanalyse_TRY_Integration.md`.
 
-## Aktuelle Pruefung
+## Sammelbefehle
 
-Katalog- und Strukturtests fuer den aktuellen Stand:
+### Wetteranalyse starten
 
-```powershell
-.\.venv\Scripts\python.exe -m pytest tests -k ma_weather
-.\.venv\Scripts\python.exe -m ruff check src tests --no-cache
-```
-
-## Wetteranalyse starten
+Der Runner fuehrt Import, Validierung, Kennwerte, Diagramme und Bericht fuer
+einen `weather_key` aus.
 
 ```powershell
 .\.venv\Scripts\python.exe -m ma_weather.run_weather_analysis --weather-key TRY_FFM_2015
@@ -49,7 +45,18 @@ Der Befehl fuehrt folgende Schritte aus:
 - Diagramme unter `data/ma_weather/output/` erzeugen
 - Markdown-Bericht unter `data/ma_weather/reports/` schreiben
 
-## Hinweise
+## Einzelbefehle
+
+### Aktuelle Pruefung
+
+Katalog- und Strukturtests fuer den aktuellen Stand:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest tests -k ma_weather
+.\.venv\Scripts\python.exe -m ruff check src tests --no-cache
+```
+
+## Referenz und Hinweise
 
 - Der Katalog darf auf lokale TRY-Dateien verweisen, die nicht im Repo liegen.
 - `weather_key` ist die spaetere Verbindung zum Variantenmodul.

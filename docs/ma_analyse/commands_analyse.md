@@ -31,19 +31,32 @@ Relative Standardpfade:
 - Ausgaben: `data/ma_analyse/output/`
 - Testausgaben: `data/test_output/`
 
-## Hauptbefehle
+## Sammelbefehle
+
+Diese Befehle starten eine Oberflaeche, eine kombinierte Pipeline oder erzeugen
+mehrere Referenzartefakte.
 
 | Befehl | Zweck | Beispiel |
 |---|---|---|
 | `gui` | Grafische Oberflaeche starten | `python -m ma_analyse gui` |
+| `all` | Standardausgaben kombiniert erzeugen | `python -m ma_analyse all` |
+| `plot-template-examples` | Erzeugt die Beispielgalerie fuer alle Plot-Template-Werte | `python -m ma_analyse plot-template-examples` |
+
+## Einzelbefehle
+
+Diese Befehle fuehren einen konkreten Analyse-, Import-, Auswertungs- oder
+Plot-Schritt aus.
+
+| Befehl | Zweck | Beispiel |
+|---|---|---|
 | `prepare` | Rohdaten aufbereiten | `python -m ma_analyse prepare --export-format both` |
 | `comfort` | Komfortplots und Analyseausgaben | `python -m ma_analyse comfort --output-type plot_analysis_overview` |
 | `analyze-data` | Excel-Auswertung erstellen | `python -m ma_analyse analyze-data --series-layout separate` |
 | `heating` | Heizlastdiagramme | `python -m ma_analyse heating --view year --heating-mode single` |
 | `cooling` | Kuehllastdiagramme | `python -m ma_analyse cooling --view year --variant-mode single` |
 | `plot-template` | Manuell anpassbare Diagramm-Vorlagen | `python -m ma_analyse plot-template --template heating-year --variants Dimensionierung --rooms "101 lobby"` |
-| `plot-template-examples` | Erzeugt die Beispielgalerie fuer alle Plot-Template-Werte | `python -m ma_analyse plot-template-examples` |
-| `all` | Standardausgaben kombiniert erzeugen | `python -m ma_analyse all` |
+
+## Referenz und Optionen
 
 Gemeinsame Optionen:
 

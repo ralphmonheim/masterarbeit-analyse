@@ -4,6 +4,13 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.9.2 - 2026-06-16
+
+### Changed
+- Nutzerentscheidungen aus dem aktuellen Chat zu `ma_ui`-Modulansichten, Analyse-Wizard, Tkinter-Legacy-Start und `ma_weather`-TRY-Struktur dokumentiert.
+- Command-Dokumentation nach Sammelbefehlen, Einzelbefehlen und Test-/Referenzbefehlen strukturiert; `aktualisieren` und `aktualisiere tests` als Codex-Routinen dokumentiert.
+- `aktualisieren` erweitert: Command-Dokumentation wird bei geaenderten Befehlen, Routinen oder Startwegen mitgeprueft und bei Bedarf aktualisiert.
+
 ## 0.9.1 - 2026-06-15
 
 ### Changed

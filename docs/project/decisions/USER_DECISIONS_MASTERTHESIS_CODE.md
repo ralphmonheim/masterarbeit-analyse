@@ -1,6 +1,6 @@
 # Nutzerentscheidungen Masterarbeit Code
 
-Stand: 2026-06-10
+Stand: 2026-06-16
 
 ## UD-001 Modulare Projektstruktur
 
@@ -289,3 +289,87 @@ Stand: 2026-06-10
 - Status: getroffen
 - Offene Folgefragen: Wann beginnt die Trennung von Economics und Sustainability?
 - Quelle oder Chatbezug: P005 verschaerfte Bewertungsstruktur
+
+## UD-025 Globaler Workflow nur auf der ma_ui-Startseite
+
+- Datum: 2026-06-16
+- Thema: Streamlit-Oberflaeche und Workflow-Dashboard
+- Entscheidung: Der grafische Workflow, Workflow-Phasen, Workflow-Schritte, Dashboard-Aktionen und technische Detailtabellen sollen nur auf der `ma_ui`-Startseite erscheinen.
+- Begruendung: Modulansichten sollen nicht durch globale Projektsteuerung ueberladen werden und nur den jeweils relevanten Fachbereich zeigen.
+- Auswirkung: `src/ma_ui/pages/home.py` bleibt der zentrale Ort fuer die Gesamtuebersicht; Modulviews importieren keine Workflow-Graph-Komponenten und zeigen keine globalen Workflow-Tabellen.
+- Betroffene Module oder Dateien: `src/ma_ui/pages/home.py`, `src/ma_ui/module_views/`, `src/ma_ui/workflow_graph.py`
+- Status: getroffen
+- Offene Folgefragen: keine
+- Quelle oder Chatbezug: aktueller Codex-Chat zur Streamlit-UI-Bereinigung
+
+## UD-026 Modulansichten zeigen nur modulbezogene Inhalte
+
+- Datum: 2026-06-16
+- Thema: Streamlit-Modulansichten
+- Entscheidung: Modulbereiche in `ma_ui` zeigen nur Inhalte, die zum jeweiligen Modul gehoeren. Wenn ein Modul noch keine echte Bedienung oder Kataloganzeige besitzt, zeigt die Ansicht nur Seitentitel, Untertitel und eine blaue Hinweisbox.
+- Begruendung: Platzhalterbereiche sollen nicht durch technische Ressourcenlisten oder globale Workflow-Informationen groesser wirken als sie fachlich sind.
+- Auswirkung: Leere oder geplante Ansichten wie Parameter, Gebaeude, Simulation Setup, IDA Export, IDA Import und Feedback bleiben bewusst schlank; gefuellte Ansichten wie Wetterdaten, Varianten, Analyse und Bewertung behalten ihre fachlichen Inhalte.
+- Betroffene Module oder Dateien: `src/ma_ui/module_views/parameters_view.py`, `src/ma_ui/module_views/building_view.py`, `src/ma_ui/module_views/simulation_setup_view.py`, `src/ma_ui/module_views/export_ida_view.py`, `src/ma_ui/module_views/import_ida_view.py`, `src/ma_ui/module_views/feedback_view.py`
+- Status: getroffen
+- Offene Folgefragen: Wann werden die leeren Modulansichten mit echten Fachservices befuellt?
+- Quelle oder Chatbezug: aktueller Codex-Chat zur Streamlit-UI-Bereinigung
+
+## UD-027 Streamlit-Analyse folgt der Tkinter-Zustandslogik
+
+- Datum: 2026-06-16
+- Thema: ma_ui Analysebedienung
+- Entscheidung: Die Streamlit-Analyse soll sich fachlich an den bereits getroffenen Zustands- und Ablaufentscheidungen der bestehenden Tkinter-Analyse orientieren. Zuerst wird der Befehl gewaehlt; danach werden nur passende Folgeschritte eingeblendet, vorherige Schritte werden zusammengefasst und technische Pfade liegen unter `Erweiterte Pfade`.
+- Begruendung: Die Tkinter-Oberflaeche enthaelt bereits wichtige Nutzerentscheidungen zur Bedienlogik. Streamlit soll diese fachliche Logik uebernehmen, aber nicht die Tkinter-Technik kopieren.
+- Auswirkung: `src/ma_ui/module_views/analyse_view.py` bleibt als schrittweiser Analyse-Wizard ausgelegt; die weitere P005-Arbeit prueft die Streamlit-Bedienung gegen den bestehenden Tkinter-Ablauf.
+- Betroffene Module oder Dateien: `src/ma_ui/module_views/analyse_view.py`, `src/ma_analyse/gui/app.py`, `src/ma_analyse/services.py`
+- Status: getroffen
+- Offene Folgefragen: Welche weiteren Tkinter-Validierungen muessen noch in UI-neutrale Services uebernommen werden?
+- Quelle oder Chatbezug: aktueller Codex-Chat zu P005 und Streamlit-Analyse
+
+## UD-028 Tkinter-Analyse darf aus Streamlit als separates Legacy-Fenster starten
+
+- Datum: 2026-06-16
+- Thema: Hybrid-Bedienung waehrend der UI-Migration
+- Entscheidung: Solange die Streamlit-Analyse noch nicht alle gewuenschten Bedienentscheidungen der Tkinter-Analyse abbildet, darf `ma_ui` die bestehende Tkinter-Analyse als separates Legacy-Fenster starten.
+- Begruendung: Die vorhandene Tkinter-Analyse bleibt praktisch nutzbar, ohne Tkinter direkt in Streamlit einzubetten oder Fachlogik in die UI zu verschieben.
+- Auswirkung: Die Hybrid-Bedienung ist eine Uebergangsloesung. Tkinter bleibt Legacy; die langfristige Zieloberflaeche bleibt Streamlit ueber `ma_ui`.
+- Betroffene Module oder Dateien: `src/ma_ui/module_views/analyse_view.py`, `src/ma_analyse/gui/app.py`, spaeter optional `src/ma_ui_legacy/`
+- Status: getroffen
+- Offene Folgefragen: Wann ist die Streamlit-Analyse fachlich ausreichend, um die Legacy-Schaltflaeche zu entfernen?
+- Quelle oder Chatbezug: aktueller Codex-Chat zu Streamlit und Tkinter-Analyse
+
+## UD-029 ma_weather nutzt echte lokale TRY-Dateien
+
+- Datum: 2026-06-16
+- Thema: Wetterdatenanalyse und Testdaten
+- Entscheidung: Fuer `ma_weather` werden keine synthetischen TRY-Testdateien angelegt. Echte TRY-Dateien werden vom Nutzer lokal unter `data/ma_weather/input/` bereitgestellt und im Wetterkatalog referenziert.
+- Begruendung: Die Wetteranalyse soll mit realen Randbedingungsdaten geprueft werden; kuenstliche TRY-Dateien wuerden fuer die fachliche Bewertung nur begrenzt helfen.
+- Auswirkung: Tests duerfen Struktur, Pflichtfelder und Pfadauflösung pruefen, aber keine echte TRY-Datei im Git-Repo voraussetzen. Reale Testlaeufe laufen lokal gegen vorhandene Dateien.
+- Betroffene Module oder Dateien: `src/ma_weather/`, `config/ma_weather/datasets/example_weather_datasets.yaml`, `data/ma_weather/input/`, `.gitignore`
+- Status: getroffen
+- Offene Folgefragen: Welche weiteren realen TRY-Datensaetze werden als naechstes lokal durchlaufen?
+- Quelle oder Chatbezug: aktueller Codex-Chat zu P002 und TRY-Dateien
+
+## UD-030 ma_weather nutzt database fuer aufbereitete Daten und output fuer Diagramme
+
+- Datum: 2026-06-16
+- Thema: Wetterdatenpfade
+- Entscheidung: `data/ma_weather/database/` ist der Bereich fuer aufbereitete Wetterdaten; `data/ma_weather/output/` ist der Bereich fuer erzeugte Wetterdiagramme.
+- Begruendung: Die Begriffe sollen konsistent zur restlichen Projektstruktur sein und klar zwischen Datenbasis und grafischen Ausgaben trennen.
+- Auswirkung: `processed/` wird nicht als Zielordner fuer aufbereitete Wetterdaten verwendet. Wetterdiagramme liegen nicht in `plots/`, sondern unter `output/`.
+- Betroffene Module oder Dateien: `data/ma_weather/database/`, `data/ma_weather/output/`, `docs/ma_weather/`
+- Status: getroffen
+- Offene Folgefragen: keine
+- Quelle oder Chatbezug: aktueller Codex-Chat zu ma_weather-Datenstruktur
+
+## UD-031 TRY-Zuordnung mit vollstaendigen Kennungen ohne Kuerzel
+
+- Datum: 2026-06-16
+- Thema: TRY-Dokumentation
+- Entscheidung: Die TRY-Zuordnungsdatei soll vollstaendige Datei- oder Ordnerkennungen verwenden und keine zusaetzlichen Kuerzel in der Tabelle fuehren. Nach dem Einfuegen oder Importieren neuer TRY-Dateien soll die Zuordnung aktualisiert werden.
+- Begruendung: Der Nutzer liefert teilweise nur Anfangszahlen; fuer spaetere Nachvollziehbarkeit muss die Dokumentation die vollstaendige lokale Kennung enthalten.
+- Auswirkung: `docs/ma_weather/try_locations.md` bleibt die zentrale Zuordnung zwischen TRY-Dateien und Staedten wie Frankfurt am Main, Muenchen und Hamburg.
+- Betroffene Module oder Dateien: `docs/ma_weather/try_locations.md`, `config/ma_weather/datasets/example_weather_datasets.yaml`
+- Status: getroffen
+- Offene Folgefragen: Bei neuen TRY-Dateien Stadt, Jahr und vollstaendige Kennung pruefen.
+- Quelle oder Chatbezug: aktueller Codex-Chat zu TRY-Zuordnung

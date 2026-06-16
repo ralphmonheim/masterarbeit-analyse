@@ -2,27 +2,29 @@
 
 Diese Befehle gelten moduluebergreifend fuer das lokale Projekt.
 
-## Projekt starten
+## Grundbefehle
+
+Projektordner oeffnen und virtuelle Umgebung aktivieren:
 
 ```powershell
 cd "C:\Users\ralph\Documents\Master\5.Semester\Masterarbeit - lokal\TEIL1_Fach-Anwendungskompetenz\260524_Masterarbeit_Analyse"
 .\.venv\Scripts\Activate.ps1
 ```
 
-## Installation
+Installation:
 
 ```powershell
 python -m pip install -e ".[dev]"
 ```
 
-## Pruefung
+Allgemeine Pruefung:
 
 ```powershell
 .\.venv\Scripts\python.exe -m ruff check src tests --no-cache
 .\.venv\Scripts\python.exe -m pytest
 ```
 
-## Git-Status
+Git-Status:
 
 ```powershell
 git status --short
@@ -34,6 +36,13 @@ git diff --stat
 Diese Ausloesephrasen sind dokumentierte Arbeitsroutinen fuer Codex. Sie sind
 keine Python-CLI-Befehle.
 
+### Sammelbefehle
+
+Sammelbefehle buendeln mehrere Routinen oder Arbeitsbereiche.
+
+- `aktualisieren`: Projektlage, Planung, Entscheidungen, Changelog,
+  Command-Dokumentation und Versionskonsistenz pruefen; naechste Version nur
+  vorschlagen; keine Git-Aktionen und keine Beispieloutputs erzeugen.
 - `tagesstart` oder `Guten Morgen, es ist ein neuer Tag.`: Projektstand lesen,
   offene Nutzerentscheidungen bei Bedarf pflegen, `ma_ui` ueber die
   Projekt-venv starten, falls es noch nicht laeuft, und offene Aufgaben nach
@@ -47,6 +56,11 @@ keine Python-CLI-Befehle.
 - `wochenabschluss` oder `Eine schoene Woche.`: Wochenbericht unter
   `docs/project/weekly_reviews/` erstellen und archivierungsfaehige Plaene
   benennen.
+
+### Einzelbefehle
+
+Einzelbefehle haben ein klar abgegrenztes Ziel, auch wenn sie intern mehrere
+Pruefschritte enthalten.
 
 - `update repo`: Versionen, Root-`CHANGELOG.md` und Release-Stand vorbereiten;
   Codex gibt danach den Terminal-Code fuer Commit, Tag und Push aus.
@@ -63,7 +77,23 @@ keine Python-CLI-Befehle.
 - `release check`: pruefen, ob Version, Changelog, Tags und Tests fuer ein
   Release bereit sind.
 
+### Test-/Referenzbefehle
+
+- `aktualisiere tests`: Beispielbilder, Referenzoutputs und passende Testlaeufe
+  gezielt aktualisieren; keine Git-Aktionen ausfuehren.
+
 Details stehen in `docs/project/UPDATE_ROUTINES.md`.
+
+## Klassifikation
+
+- Sammelbefehl: buendelt mehrere Routinen oder Arbeitsbereiche zu einem
+  Tages-, Wochen- oder Gesamtupdate.
+- Einzelbefehl: hat einen klar abgegrenzten Zweck, zum Beispiel Repo
+  aktualisieren, Planung aktualisieren, Entscheidung festhalten oder Release
+  pruefen.
+- Test-/Referenzbefehl: aktualisiert oder prueft Referenzbilder,
+  Beispieloutputs und Tests.
+- Referenz/Optionen: Parameterlisten, Pfade, Hinweise oder Template-Tabellen.
 
 ## Dokumentationsbereiche
 
