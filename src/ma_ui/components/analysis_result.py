@@ -7,7 +7,7 @@ from pathlib import Path
 import streamlit as st
 
 from ma_analyse.models import AnalysisResult
-from ma_ui.shared import file_rows
+from ma_ui.shared import file_rows, normalize_table_for_streamlit
 
 IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg"}
 
@@ -50,7 +50,11 @@ def render_analysis_result(result: AnalysisResult) -> None:
                 st.image(str(image_path), caption=image_path.name)
 
         st.subheader("Erzeugte Dateien")
-        st.dataframe(created_file_rows(result.created_files), hide_index=True, use_container_width=True)
+        st.dataframe(
+            normalize_table_for_streamlit(created_file_rows(result.created_files)),
+            hide_index=True,
+            width="stretch",
+        )
 
     if result.log_text:
         st.subheader("Log")

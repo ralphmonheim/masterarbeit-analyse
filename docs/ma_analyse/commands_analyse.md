@@ -66,6 +66,45 @@ Gemeinsame Optionen:
 - `--run-id "<Lauf-ID>"`
 - `--debug` / `--no-debug`
 
+## GUI-Struktur
+
+Die grafischen Oberflaechen fuer `ma_analyse` werden fachlich nach denselben
+Bereichen sortiert:
+
+- `Befehl`
+- `Unterbefehl`
+- `Export / Ausgabe`
+- `Template / Diagramm`
+- `Varianten`
+- `Raeume`
+- `Analyse starten`
+
+`Optionen` ist kein eigener allgemeiner Bereich mehr. Einstellungen liegen dort,
+wo sie fachlich gebraucht werden:
+
+- `prepare`: Exportformat `csv`, `excel` oder `both`; danach Varianten.
+- `analyze_data`: Excel-Ausgabe `separate` oder `combined`; danach Varianten
+  und Raeume.
+- `comfort`: Unterbefehl `t_op / rel_hum`; die vier bisherigen
+  Comfort-Ausgaben `plot`, `plot_analysis`, `plot_overview` und
+  `plot_analysis_overview` liegen unter `Template / Diagramm`.
+- `heating` und `cooling`: Unterbefehl `bar` oder `timeline`;
+  `single`/`compare` liegt unter `Export / Ausgabe`; Zeitansicht, Overlay und
+  Diagrammanpassung liegen unter `Template / Diagramm`.
+- `plot-template-analyse`: Diagrammgruppe unter `Unterbefehl`,
+  `single`/`compare` unter `Export / Ausgabe`; Zeitansicht, Template-Auswahl,
+  Overlay, Diagrammbearbeitung und Vorschau liegen unter
+  `Template / Diagramm`. Intern nutzt dieser UI-Befehl weiter den bestehenden
+  Backend-Befehl `plot-template`.
+- Die Tkinter-GUI besitzt unten die Reihenfolge `Zuruecksetzen`,
+  `Vorschau aktualisieren`, `Start`. Der Vorschau-Button nutzt aktuell den
+  bestehenden Analysepfad mit den aktuellen Einstellungen; ein eingebettetes
+  Bild-Vorschaufenster bleibt ein geplanter Folgeschritt.
+
+Varianten werden als `Eine Variante`, `Mehrere Varianten` oder `Alle Varianten`
+gewaehlt. Raeume werden als `Ein Raum`, `Mehrere Raeume` oder `Alle Raeume`
+gewaehlt.
+
 `plot-template` nutzt standardmaessig `data/test_output/` und startet mit `heating-year`.
 Option `--plot-template-config <path>` erlaubt die Angabe eines benutzerdefinierten Plot-Template-Config-Verzeichnisses oder einer TOML-Datei.
 Verfuegbare Templates sind:

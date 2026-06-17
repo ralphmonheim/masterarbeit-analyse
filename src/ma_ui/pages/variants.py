@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import streamlit as st
 
+from ma_ui.shared import normalize_table_for_streamlit
 from ma_variants.ui.services import (
     list_result_files,
     load_variant_ui_data,
@@ -34,16 +35,24 @@ def render() -> None:
     tabs = st.tabs(["Parameter", "Optionen", "Varianten", "Auswahlmethoden", "Exportdateien"])
 
     with tabs[0]:
-        st.dataframe(parameter_rows(ui_data.parameters), hide_index=True, use_container_width=True)
+        st.dataframe(normalize_table_for_streamlit(parameter_rows(ui_data.parameters)), hide_index=True, width="stretch")
 
     with tabs[1]:
-        st.dataframe(option_value_rows(ui_data.option_sets, ui_data.option_values), hide_index=True, use_container_width=True)
+        st.dataframe(
+            normalize_table_for_streamlit(option_value_rows(ui_data.option_sets, ui_data.option_values)),
+            hide_index=True,
+            width="stretch",
+        )
 
     with tabs[2]:
-        st.dataframe(variant_rows(ui_data.generated_variants), hide_index=True, use_container_width=True)
+        st.dataframe(
+            normalize_table_for_streamlit(variant_rows(ui_data.generated_variants)),
+            hide_index=True,
+            width="stretch",
+        )
 
     with tabs[3]:
-        st.dataframe(selection_method_rows(), hide_index=True, use_container_width=True)
+        st.dataframe(normalize_table_for_streamlit(selection_method_rows()), hide_index=True, width="stretch")
 
     with tabs[4]:
         rows = [
@@ -55,4 +64,4 @@ def render() -> None:
             }
             for result_file in list_result_files()
         ]
-        st.dataframe(rows, hide_index=True, use_container_width=True)
+        st.dataframe(normalize_table_for_streamlit(rows), hide_index=True, width="stretch")

@@ -29,19 +29,23 @@ Masterarbeitsprojekt.
   `ma_workflow` auf.
 - Analyse-Seite kann die bestehende Tkinter-Analyse als separates
   Legacy-Fenster starten, falls eine Bedienfunktion in Streamlit noch fehlt.
-- Analyse-Seite nutzt eine schrittweise Bedienung nach der vorhandenen
-  Tkinter-Zustandslogik: Zuerst wird nur der Befehl gewaehlt, danach erscheinen
-  passend dazu Unterbefehl, Optionen, Analyseumfang, Varianten und Raeume.
-- Vorherige Analyse-Schritte werden in der Streamlit-Analyse als kurze
-  Zusammenfassung angezeigt. Technische Pfade liegen im eingeklappten Bereich
-  `Erweiterte Pfade`.
-- Analyse-Seite bildet die fachlichen Optionen aus dem bisherigen
-  `ma_analyse`-Ablauf ab: Prepare-Format, Comfort-Unterbefehle und
-  Analyseebene, Heating-/Cooling-Unterbefehle, Zeitansichten, Variantenmodus,
-  Reihenlayout, `analyze_data`-Excel-Ausgabe und Plot-Template-Optionen.
-- Analyseumfang wird abgebildet: Bei `Alle Varianten` uebergibt die UI
-  `variants=None` an die Service-Fassade, damit die bestehende Analyse-Logik
-  alle verfuegbaren Varianten nutzen kann.
+- Analyse-Seite nutzt eine sichtbare Schrittstruktur nach der vorhandenen
+  Tkinter-Zustandslogik: `Befehl`, `Unterbefehl`, `Export / Ausgabe`,
+  `Template / Diagramm`, `Varianten`, `Raeume` und einen festen Aktionsbereich.
+- Nicht relevante Analyse-Bereiche zeigen nur einen kurzen Hinweis. Technische
+  Pfade liegen im eingeklappten Bereich `Erweiterte Pfade`.
+- Analyse-Seite bildet die fachlichen Einstellungen aus dem bisherigen
+  `ma_analyse`-Ablauf dort ab, wo sie gebraucht werden: Prepare und
+  `analyze_data` unter `Export / Ausgabe`, Heating/Cooling mit
+  `single`/`compare` unter `Export / Ausgabe` und Diagrammdetails unter
+  `Template / Diagramm`.
+- Comfort hat keine separate Analyseebene mehr. Der Unterbefehl
+  `t_op / rel_hum` fuehrt die vier bisherigen Comfort-Ausgaben im Bereich
+  `Template / Diagramm`.
+- Variantenumfang wird im Bereich `Varianten` abgebildet: Bei `Alle Varianten`
+  uebergibt die UI `variants=None` an die Service-Fassade.
+- Raumumfang wird im Bereich `Raeume` abgebildet: `Ein Raum`,
+  `Mehrere Raeume` oder `Alle Raeume`.
 - Varianten und Raeume werden aus `ma_analyse`-Services gelesen, falls lokale
   Daten vorhanden sind. Manuelle Texteingabe bleibt als Fallback bestehen.
 - Plot-Template-Overlays koennen aus einem einfachen Katalog der ersten

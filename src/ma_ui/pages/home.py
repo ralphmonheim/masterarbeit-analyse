@@ -9,7 +9,8 @@ import pandas as pd
 import streamlit as st
 
 from ma_ui.main_dashboard import dashboard_action_rows
-from ma_ui.navigation import get_navigation_pages
+from ma_ui.navigation import CURRENT_PAGE_SESSION_KEY, get_navigation_pages
+from ma_ui.shared import normalize_table_for_streamlit
 from ma_ui.workflow_graph import (
     VISUAL_PHASES,
     WorkflowCard,
@@ -25,7 +26,7 @@ STATUS_LABELS = {
     "planned": "Geplant",
     "manual": "Manuell",
 }
-CURRENT_PAGE_SESSION_KEY = "ma_ui_current_page"
+CARDS_PER_ROW = 4
 
 
 def workflow_status_counts(rows: list[dict[str, object]] | None = None) -> dict[str, int]:
@@ -139,10 +140,24 @@ def _workflow_card_html(card: WorkflowCard) -> str:
 def _render_workflow_card(card: WorkflowCard) -> None:
     st.markdown(_workflow_card_html(card), unsafe_allow_html=True)
     if card.target_page_key:
-        if st.button("Oeffnen", key=f"workflow_card_open_{card.step_key}", use_container_width=True):
+        if st.button("Oeffnen", key=f"workflow_card_open_{card.step_key}", width="stretch"):
             _navigate_to(card.target_page_key)
     else:
         st.caption("Manueller oder externer Schritt.")
+
+
+def _render_phase_cards(phase: str, phase_cards: list[WorkflowCard]) -> None:
+    st.markdown(f"### {phase}")
+    if not phase_cards:
+        st.caption("Noch keine Schritte.")
+        return
+
+    for start_index in range(0, len(phase_cards), CARDS_PER_ROW):
+        row_cards = phase_cards[start_index : start_index + CARDS_PER_ROW]
+        columns = st.columns(len(row_cards))
+        for column, card in zip(columns, row_cards, strict=False):
+            with column:
+                _render_workflow_card(card)
 
 
 def _render_feedback_paths() -> None:
@@ -159,7 +174,7 @@ def _render_feedback_paths() -> None:
                 """,
                 unsafe_allow_html=True,
             )
-            if st.button("Ziel oeffnen", key=f"feedback_open_{row['Zielseite']}", use_container_width=True):
+            if st.button("Ziel oeffnen", key=f"feedback_open_{row['Zielseite']}", width="stretch"):
                 _navigate_to(row["Zielseite"])
 
 
@@ -178,24 +193,25 @@ def render() -> None:
     st.subheader("Grafischer Workflow")
     cards = workflow_card_rows(available_page_keys=_available_page_keys())
     cards_by_phase = workflow_cards_by_phase(cards)
-    phase_columns = st.columns(len(VISUAL_PHASES))
-    for column, phase in zip(phase_columns, VISUAL_PHASES, strict=False):
-        with column:
-            st.markdown(f"### {phase}")
-            phase_cards = cards_by_phase.get(phase, [])
-            if not phase_cards:
-                st.caption("Noch keine Schritte.")
-            for card in phase_cards:
-                _render_workflow_card(card)
+    for phase in VISUAL_PHASES:
+        _render_phase_cards(phase, cards_by_phase.get(phase, []))
 
     _render_feedback_paths()
 
     with st.expander("Technische Detailtabellen", expanded=False):
         st.subheader("Workflow-Phasen")
-        st.dataframe(pd.DataFrame(workflow_phase_summary_rows(workflow_rows)), hide_index=True, use_container_width=True)
+        st.dataframe(
+            normalize_table_for_streamlit(pd.DataFrame(workflow_phase_summary_rows(workflow_rows))),
+            hide_index=True,
+            width="stretch",
+        )
 
         st.subheader("Workflow-Schritte")
-        st.dataframe(pd.DataFrame(workflow_rows), hide_index=True, use_container_width=True)
+        st.dataframe(normalize_table_for_streamlit(pd.DataFrame(workflow_rows)), hide_index=True, width="stretch")
 
         st.subheader("Dashboard-Aktionen")
-        st.dataframe(pd.DataFrame(dashboard_action_rows()), hide_index=True, use_container_width=True)
+        st.dataframe(
+            normalize_table_for_streamlit(pd.DataFrame(dashboard_action_rows())),
+            hide_index=True,
+            width="stretch",
+        )

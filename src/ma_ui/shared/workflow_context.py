@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import streamlit as st
 
+from ma_ui.shared.tables import normalize_table_for_streamlit
 from ma_workflow import get_workflow_step, list_dashboard_actions
 
 
@@ -28,4 +29,4 @@ def workflow_context_rows(step_keys: tuple[str, ...]) -> list[dict[str, str]]:
 
 def render_workflow_context(step_keys: tuple[str, ...]) -> None:
     """Zeigt den geplanten Workflow-Kontext fuer eine Modulansicht."""
-    st.dataframe(workflow_context_rows(step_keys), hide_index=True, use_container_width=True)
+    st.dataframe(normalize_table_for_streamlit(workflow_context_rows(step_keys)), hide_index=True, width="stretch")

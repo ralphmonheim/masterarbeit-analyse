@@ -84,12 +84,16 @@ ma_workflow/
 Die bestehende `pages/`-Shell wird nicht geloescht, weil sie als stabiler
 Zwischenstand und Kompatibilitaetsschicht dient.
 
-Die Analyse-View nutzt inzwischen eine schrittweise Befehlsauswahl nach der
-Tkinter-Zustandslogik. Nach Auswahl von `plot-template` leitet die
-Streamlit-Bedienung Zeitfelder, Einzelraum-/Mehrraumlogik, Template-Defaults
-und Overlay-Optionen aus den bestehenden `ma_analyse`-Template-Spezifikationen
-ab. Damit ist fachliche Bedienparitaet zur relevanten Tkinter-Plot-Template-
-Auswahl vorbereitet, ohne Diagrammlogik in die UI zu verschieben.
+Die Analyse-View nutzt inzwischen eine sichtbare Schrittstruktur nach der
+fachlichen Tkinter-Zustandslogik. Die aktiven Bereiche lauten `Befehl`,
+`Unterbefehl`, `Export / Ausgabe`, `Template / Diagramm`, `Varianten`,
+`Raeume` und ein fester Aktionsbereich. Einen allgemeinen Bereich `Optionen`
+gibt es nicht mehr. `plot-template-analyse` ist der UI-Befehl fuer
+Analyse-Templates und wird intern auf den bestehenden Backend-Befehl
+`plot-template` abgebildet. Nach Auswahl von Diagrammgruppe, Ausgabemodus und
+Zeitansicht leitet die Streamlit-Bedienung Einzelraum-/Mehrraumlogik,
+Template-Defaults und Overlay-Optionen aus den bestehenden
+`ma_analyse`-Template-Spezifikationen ab.
 
 ## Schnittstelle fuer ma_analyse
 
@@ -263,17 +267,29 @@ Ergebnis: Die Analyse wird ueber Streamlit bedient, bleibt aber fachlich in
 Aktueller Umsetzungsstand:
 
 - Prepare-Exportformat wird abgefragt.
-- Comfort-Ausgabeprofil wird abgefragt.
+- Comfort nutzt `t_op / rel_hum` als Unterbefehl; das konkrete
+  Comfort-Ausgabeprofil wird unter `Template / Diagramm` abgefragt.
 - `analyze-data`/Excel-Auswertung mit `separate` oder `combined` wird
   abgefragt.
-- Analyseumfang wird abgefragt. Bei `Alle Varianten` wird `variants=None` an
-  die Service-Fassade uebergeben.
+- Der Variantenumfang liegt im Bereich `Varianten`. Bei `Alle Varianten` wird
+  `variants=None` an die Service-Fassade uebergeben.
+- Der Raumumfang liegt im Bereich `Raeume` mit `Ein Raum`, `Mehrere Raeume`
+  und `Alle Raeume`.
 - Varianten und Raeume werden ueber `ma_analyse.services` fuer die UI
   bereitgestellt. Manuelle Texteingabe bleibt als Fallback erhalten.
-- Heating-/Cooling-Zeitansicht, Variantenmodus und Reihenlayout werden
-  abgefragt.
+- Heating-/Cooling-Unterbefehle `bar`/`timeline` werden abgefragt.
+  `single`/`compare` und bei Bedarf `separate`/`combined` liegen unter
+  `Export / Ausgabe`; Zeitansicht, Overlay und Diagrammanpassung liegen unter
+  `Template / Diagramm`.
 - Plot-Template, Zeitfilter, Sollwertband und Temperaturachsen werden
   abgefragt.
+- Comfort hat keine separate Analyseebene mehr. Die vier bisherigen
+  Comfort-Ausgaben bleiben als Diagrammauswahl unter `Template / Diagramm`
+  erhalten; Varianten- und Raumumfang steuern die Auswahl.
+- Der Aktionsbereich mit `Vorschau aktualisieren` und `Analyse starten` ist in
+  Streamlit nicht einklappbar.
+- Plot-Template-Overlays werden erst nach Varianten- und Raumauswahl
+  angeboten, damit der Overlay-Katalog gezielt aus lokalen Daten gelesen wird.
 - Freie Overlay-Linien koennen als einfache Textzeilen im Format
   `source,column,label,axis` uebergeben werden.
 - Eine einfache Overlay-Katalogauswahl liest CSV-/AUX-Spalten ueber
@@ -281,11 +297,24 @@ Aktueller Umsetzungsstand:
   Variante und dem ersten Raum.
 - Die alte `pages/analyse.py` bleibt Wrapper; die Ziel-View liegt unter
   `module_views/analyse_view.py`.
+- UI-neutrale Auswahl-, Zeit-, Overlay- und Config-Helfer liegen in
+  `ma_analyse.analysis_ui`; die Streamlit-View rendert diese Regeln nur noch.
+- Die UI-neutrale Wizardlogik liegt in `ma_analyse.analysis_wizard` und wird
+  von Tests gegen die neue Schrittstruktur geprueft.
 
 Noch offen aus dem Tkinter-Abgleich:
 
-- vollstaendige Overlay-Verwaltung wie in Tkinter mit mehreren auswaehlbaren
-  Katalogzeilen, Bearbeiten und Entfernen.
+- laufende Streamlit-App mit realen `ida_imports`-/Datenbankordnern manuell
+  gegen den bisherigen Tkinter-Ablauf pruefen.
+- Overlay-Bedienung fachlich testen: feste Overlays, freie Overlay-Linien,
+  Entfernen und Experten-Textarea.
+- Tkinter-Oberflaeche weiter reduzieren: Overlay und Diagrammbearbeitung
+  langfristig in echte einklappbare Bereiche innerhalb `Template / Diagramm`
+  ueberfuehren.
+- Tkinter-Oberflaeche weiter an die neue Struktur angleichen: `single`/`compare`
+  nach `Export / Ausgabe`, Comfort-Unterbefehl `t_op / rel_hum`, Comfort-
+  Diagramme nach `Template / Diagramm` und Vorschau-Button zwischen
+  `Zuruecksetzen` und `Start`.
 
 ## Phase 7 Einbindung weiterer Module
 

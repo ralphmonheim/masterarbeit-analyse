@@ -50,3 +50,17 @@ def normalize_page_key(page_key: object, available_page_keys: tuple[str, ...]) -
     if isinstance(page_key, str) and page_key in available_page_keys:
         return page_key
     return available_page_keys[0]
+
+
+def previous_page_key(page_key: str, available_page_keys: tuple[str, ...]) -> str:
+    """Gibt die vorherige Seite in der fachlichen Workflow-Reihenfolge zurueck."""
+    normalized_page_key = normalize_page_key(page_key, available_page_keys)
+    current_index = available_page_keys.index(normalized_page_key)
+    return available_page_keys[max(0, current_index - 1)]
+
+
+def next_page_key(page_key: str, available_page_keys: tuple[str, ...]) -> str:
+    """Gibt die naechste Seite in der fachlichen Workflow-Reihenfolge zurueck."""
+    normalized_page_key = normalize_page_key(page_key, available_page_keys)
+    current_index = available_page_keys.index(normalized_page_key)
+    return available_page_keys[min(len(available_page_keys) - 1, current_index + 1)]

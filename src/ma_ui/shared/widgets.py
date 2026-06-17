@@ -5,6 +5,7 @@ from __future__ import annotations
 import streamlit as st
 
 from ma_ui.resource_status import resource_status_rows
+from ma_ui.shared.tables import normalize_table_for_streamlit
 
 
 def render_placeholder(message: str) -> None:
@@ -18,4 +19,4 @@ def render_resource_status(step_key: str) -> None:
     if not rows:
         return
     st.subheader("Vorhandene Projektressourcen")
-    st.dataframe(rows, hide_index=True, use_container_width=True)
+    st.dataframe(normalize_table_for_streamlit(rows), hide_index=True, width="stretch")

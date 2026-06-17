@@ -7,6 +7,7 @@ from pathlib import Path
 
 import streamlit as st
 
+from ma_ui.shared import normalize_table_for_streamlit
 from ma_variants.economic_analysis import EconomicAssumptions, import_economic_assumptions
 
 DEFAULT_ECONOMIC_CONFIG = Path("config/ma_variants/economic/example_economic_assumptions.yaml")
@@ -39,8 +40,8 @@ def render() -> None:
 
     tabs = st.tabs(["Systemkosten", "Energiepreise", "Szenarien"])
     with tabs[0]:
-        st.dataframe(rows["system_costs"], hide_index=True, use_container_width=True)
+        st.dataframe(normalize_table_for_streamlit(rows["system_costs"]), hide_index=True, width="stretch")
     with tabs[1]:
-        st.dataframe(rows["energy_prices"], hide_index=True, use_container_width=True)
+        st.dataframe(normalize_table_for_streamlit(rows["energy_prices"]), hide_index=True, width="stretch")
     with tabs[2]:
-        st.dataframe(rows["scenarios"], hide_index=True, use_container_width=True)
+        st.dataframe(normalize_table_for_streamlit(rows["scenarios"]), hide_index=True, width="stretch")

@@ -140,11 +140,11 @@ def main() -> None:
 
     with catalog_tab:
         st.subheader("Parameter")
-        st.dataframe(parameter_rows(ui_data.parameters), use_container_width=True, hide_index=True)
+        st.dataframe(parameter_rows(ui_data.parameters), width="stretch", hide_index=True)
         st.subheader("Optionsgruppen und Optionswerte")
         st.dataframe(
             option_value_rows(ui_data.option_sets, ui_data.option_values),
-            use_container_width=True,
+            width="stretch",
             hide_index=True,
         )
 
@@ -155,7 +155,7 @@ def main() -> None:
     with variant_space_tab:
         st.info("Die Variantenanzahl basiert aktuell nur auf aktiven Parametern und aktiven Optionen.")
         st.caption("Komplexe Regeln, Monte Carlo, Sensitivitaet und Optimierung sind noch nicht beruecksichtigt.")
-        st.dataframe(variant_table_rows[:max_preview_rows], use_container_width=True, hide_index=True)
+        st.dataframe(variant_table_rows[:max_preview_rows], width="stretch", hide_index=True)
 
     selected_variants = select_variants_for_export(ui_data.generated_variants, default_selection)
 
@@ -204,17 +204,17 @@ def main() -> None:
             )
 
         st.metric("Ausgewaehlt", len(selected_variants))
-        st.dataframe(variant_rows(selected_variants), use_container_width=True, hide_index=True)
+        st.dataframe(variant_rows(selected_variants), width="stretch", hide_index=True)
 
     with naming_tab:
         st.write({"config": str(naming_config), "angewendet": apply_naming})
         if st.button("Namensgenerierung pruefen"):
             st.success("Namensgenerierung ist eindeutig und ausfuehrbar.")
-        st.dataframe(variant_table_rows[:max_preview_rows], use_container_width=True, hide_index=True)
+        st.dataframe(variant_table_rows[:max_preview_rows], width="stretch", hide_index=True)
 
     with export_tab:
         st.metric("Exportvarianten", len(selected_variants))
-        st.dataframe(variant_rows(selected_variants), use_container_width=True, hide_index=True)
+        st.dataframe(variant_rows(selected_variants), width="stretch", hide_index=True)
         if st.button("Export starten", type="primary", disabled=not selected_variants):
             export_result = run_variant_export(ui_data, selected_variants, export_dir)
             st.success("Export abgeschlossen")
@@ -228,7 +228,7 @@ def main() -> None:
 
     with result_tab:
         result_files = list_result_files(export_dir)
-        st.dataframe(_result_file_rows(result_files), use_container_width=True, hide_index=True)
+        st.dataframe(_result_file_rows(result_files), width="stretch", hide_index=True)
         file_by_name = {result_file.file_name: result_file.path for result_file in result_files}
         if file_by_name:
             selected_file_name = st.selectbox("Datei", options=list(file_by_name), index=0)
@@ -240,7 +240,7 @@ def main() -> None:
 
     with status_tab:
         st.subheader("Auswahlmethoden")
-        st.dataframe(selection_method_rows(), use_container_width=True, hide_index=True)
+        st.dataframe(selection_method_rows(), width="stretch", hide_index=True)
         st.subheader("Log")
         for message in status_messages:
             st.write(message)

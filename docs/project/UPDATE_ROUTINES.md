@@ -17,7 +17,7 @@ Dokumentationsroutine, kein Python-CLI-Befehl.
 | Ausloesephrase | Ziel | Ergebnis |
 | --- | --- | --- |
 | `aktualisieren` | Projektsteuerung und Versionslage aktualisieren | Codex prueft Projektlage, Planung, Entscheidungen, Command-Dokumentation, Changelog und Versionskonsistenz; die naechste Version wird vorgeschlagen, aber nicht automatisch geschrieben. |
-| `tagesstart` / `Guten Morgen, es ist ein neuer Tag.` | Tagesuebersicht und UI-Start vorbereiten | Codex liest den Projektstand, pflegt bei Bedarf offene Nutzerentscheidungen, startet `ma_ui` bei Bedarf ueber die Projekt-venv und gibt offene Aufgaben nach Modulen aus. |
+| `tagesstart` / `Guten Morgen, es ist ein neuer Tag.` | Tagesuebersicht vorbereiten | Codex liest den Projektstand, pflegt bei Bedarf offene Nutzerentscheidungen und gibt offene Aufgaben nach Modulen aus; `ma_ui` wird nicht automatisch gestartet. |
 | `tagesende` / `Gute Nacht.` | Tagesstand dokumentieren und Repo-Update vorbereiten | Codex meldet laufende Projekt-Streamlit-Prozesse, aktualisiert Planstatus, Entscheidungen und Changelog, falls noetig, und gibt Terminal-Code fuer Commit, Tag und Push aus. |
 | `tagesende direkt` / `Gute Nacht direkt.` | Tagesstand dokumentieren und Repo direkt aktualisieren | Codex meldet laufende Projekt-Streamlit-Prozesse, aktualisiert Dokumente und fuehrt Commit, Tag und Push aus, sofern keine Blocker bestehen. |
 | `wochenabschluss` / `Eine schoene Woche.` | Wochenstand dokumentieren | Codex erstellt eine Wochenzusammenfassung unter `docs/project/weekly_reviews/` und prueft archivierungsfaehige Plaene. |
@@ -86,16 +86,9 @@ Dokumentationsroutine, kein Python-CLI-Befehl.
 6. Plan-Inbox auf neue Plaene pruefen.
 7. Eine kurze Aufgabenliste nach Modulen im Chat ausgeben.
 8. Die wichtigsten ein bis drei Tagesprioritaeten empfehlen.
-9. Projekt-venv und `ma_ui`-Startbefehl pruefen.
-10. Wenn Port `8501` frei ist, `ma_ui` ueber die Projekt-venv starten:
-
-    ```powershell
-    .\.venv\Scripts\python.exe -m streamlit run src\ma_ui\app.py --server.headless true --server.port 8501
-    ```
-
-11. Wenn `http://localhost:8501` bereits durch die Projekt-App erreichbar ist, nicht neu starten und die URL melden.
-12. Wenn Port `8501` durch einen unklaren Prozess belegt ist, nicht ueberschreiben und den Konflikt melden.
-13. Keine Git-Aktionen ausfuehren.
+9. `ma_ui` nicht automatisch starten.
+10. Bei Bedarf den dokumentierten Startbefehl aus `docs/ma_ui/commands_ui.md` nennen.
+11. Keine Git-Aktionen ausfuehren.
 
 ## Routine `tagesende`
 
@@ -197,7 +190,7 @@ git push origin vx.y.z
 - `aktualisieren` macht keine Git-Aktionen und erzeugt keine Beispieloutputs.
 - `aktualisiere tests` ist fuer Referenzbilder, Beispieloutputs und passende Testlaeufe zustaendig.
 - Git-Push wird nur bei `direkt update repo` oder `tagesende direkt` durch Codex ausgefuehrt.
-- `tagesstart` darf `USER_DECISIONS_OPEN_POINTS.md` pflegen und `ma_ui` ueber die Projekt-venv starten, fuehrt aber keine Git-Aktionen aus.
+- `tagesstart` darf `USER_DECISIONS_OPEN_POINTS.md` pflegen, startet aber keine Oberflaeche und fuehrt keine Git-Aktionen aus.
 - `projektlage` ist eine rein lesende Routine.
 - `tagesende` und `tagesende direkt` melden laufende Projekt-Streamlit-Prozesse, beenden sie aber nicht automatisch.
 - `tagesende direkt` fuehrt Git-Aktionen nur aus, wenn der Arbeitsstand eindeutig ist.

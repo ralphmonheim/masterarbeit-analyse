@@ -4,6 +4,23 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+### Changed
+
+## 0.10.0 - 2026-06-17
+
+### Changed
+- `ma_ui`-Navigation stabilisiert: Die Sidebar-Auswahl wurde durch eine Kopfzeilen-Navigation mit `Start`, `Zurueck` und `Weiter` ersetzt.
+- Streamlit-Tabellen und Buttons auf die aktuelle `width="stretch"`-API umgestellt und gemischte UI-Tabellenspalten fuer Arrow-kompatible Anzeige normalisiert.
+- Grafischen Workflow auf der Startseite phasenweise als Kartenraster neu angeordnet.
+- Streamlit-Analyse-Wizard weiter an Tkinter-Zustandslogik angepasst: Comfort-Unterbefehle bleiben ohne separate Analyseebene sichtbar; Plot-Template-Overlays erscheinen erst nach Varianten- und Raumauswahl.
+- Streamlit-Analyse-Wizard auf eingeklappte Schrittstruktur umgestellt: `Export`, `Template / Diagramm`, `Varianten`, `Raeume` und `Analyse starten` ersetzen den allgemeinen Bereich `Optionen`; Comfort nutzt keine separate Analyseebene mehr.
+- Streamlit-Analyse-Wizard weiter strukturiert: `plot-template-analyse` ist der UI-Befehl fuer Analyse-Templates, `single`/`compare` liegt unter `Export / Ausgabe`, Comfort nutzt den Unterbefehl `t_op / rel_hum`, und der Aktionsbereich mit Vorschau und Analyse-Start ist nicht mehr einklappbar.
+- Tkinter-Analyse um den Button `Vorschau aktualisieren` zwischen `Zuruecksetzen` und `Start` erweitert; der Button nutzt vorerst den bestehenden Analysepfad mit aktuellen Einstellungen.
+- Tkinter-Analyse pragmatisch an dieselbe Fachstruktur angenaehert: Variantenumfang und Raumumfang liegen in den jeweiligen Karten, `plot-template` besitzt einen Unterbefehl `single`/`compare`.
+- UI-neutrale Analyse-Helfer fuer Auswahl-, Zeit-, Overlay- und Config-Aufbereitung nach `ma_analyse.analysis_ui` ausgelagert.
+- `tagesstart` angepasst: Die Routine startet `ma_ui` nicht mehr automatisch und verweist bei Bedarf nur noch auf den dokumentierten Streamlit-Startbefehl.
+- `ma_ui`-Wetterdaten-Seite erweitert: aktive Wetterdatensaetze koennen ausgewaehlt, ueber `ma_weather` analysiert und erzeugte Diagramme direkt angezeigt werden.
+
 ## 0.9.2 - 2026-06-16
 
 ### Changed

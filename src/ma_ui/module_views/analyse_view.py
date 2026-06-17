@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import Any, MutableMapping
 
 import streamlit as st
@@ -20,27 +19,68 @@ from ma_analyse.analysis.templates import (
     HEATING_YEAR_TEMPLATE,
     PLOT_TEMPLATE_CHOICES,
 )
+from ma_analyse.analysis_ui import (
+    build_analysis_config,
+    build_catalog_overlay_line,
+    build_plot_template_options,
+    build_template_time_options,
+    first_selected_value,
+    normalize_overlay_line,
+    parse_overlay_lines_text,
+    plot_template_requires_single_room,
+    plot_template_supports_overlays,
+    plot_template_view,
+    split_csv_text,
+)
+from ma_analyse.analysis_ui import (
+    coerce_bool_default as _default_bool,
+)
+from ma_analyse.analysis_ui import (
+    coerce_float_default as _default_float,
+)
+from ma_analyse.analysis_ui import (
+    coerce_text_default as _default_text,
+)
+from ma_analyse.analysis_ui import (
+    default_fixed_overlays as _default_fixed_overlays,
+)
 from ma_analyse.analysis_wizard import (
     ANALYSIS_SCOPE_OPTIONS,
+    ANALYSIS_SECTION_ORDER,
     COMFORT_ANALYSIS_LEVEL_OPTIONS,
-    COMMAND_OPTIONS,
+    COMFORT_SUBCOMMAND_OPTIONS,
     EXPORT_FORMAT_OPTIONS,
     LOAD_SUBCOMMAND_OPTIONS,
     LOAD_VIEW_OPTIONS,
+    PLOT_TEMPLATE_ANALYSIS_GROUP_OPTIONS,
+    PLOT_TEMPLATE_MODE_OPTIONS,
     PLOT_TEMPLATE_SCOPE_OPTIONS,
+    ROOM_SCOPE_OPTIONS,
     SERIES_LAYOUT_OPTIONS,
+    STREAMLIT_COMMAND_OPTIONS,
     VARIANT_MODE_OPTIONS,
     AnalysisWizardState,
     allowed_comfort_outputs,
+    analysis_ready,
     analysis_step_complete,
     analysis_step_summary,
+    backend_command,
+    comfort_subcommand_label,
     command_label,
+    filter_templates_by_group_mode_and_view,
     first_incomplete_step,
+    irrelevant_section_hint,
     normalize_command,
-    visible_analysis_steps,
+    plot_template_group_label,
+    room_selection_disabled,
+    sanitize_comfort_output,
+    section_complete,
+    section_label,
+    section_relevant,
+    section_summary,
+    select_rooms_for_template,
 )
 from ma_analyse.core.config import DATENBANK_DIR, INPUT_DIR, OUTPUT_DIR
-from ma_analyse.models import AnalysisConfig
 from ma_analyse.services import (
     get_plot_template_ui_defaults,
     get_plot_template_ui_spec,
@@ -52,15 +92,19 @@ from ma_ui.legacy_launchers import launch_tkinter_analyse
 from ma_ui.shared.layout import render_page_header
 from ma_workflow import run_analysis_action
 
-PLOT_TEMPLATE_STEP = "plot-template"
+PLOT_TEMPLATE_STEP = "plot-template-analyse"
+COMMAND_OPTIONS = STREAMLIT_COMMAND_OPTIONS
 DEFAULT_COMMAND_INDEX = COMMAND_OPTIONS.index(PLOT_TEMPLATE_STEP)
 FREE_OVERLAY_LINES_SESSION_KEY = "ma_ui_plot_template_free_overlay_lines"
 LAST_ANALYSIS_RESULT_SESSION_KEY = "ma_ui_last_analysis_result"
 ACTIVE_ANALYSIS_STEP_SESSION_KEY = "ma_ui_analysis_active_step"
 LAST_ANALYSIS_COMMAND_SESSION_KEY = "ma_ui_analysis_last_command"
+LAST_ANALYSIS_LEVEL_SESSION_KEY = "ma_ui_analysis_last_level"
 PLOT_TEMPLATE_OPTIONS_SESSION_KEY = "ma_ui_plot_template_options"
 COMMAND_WIDGET_KEY = "ma_ui_analysis_command"
 LOAD_SUBCOMMAND_WIDGET_KEY = "ma_ui_analysis_load_subcommand"
+COMFORT_SUBCOMMAND_WIDGET_KEY = "ma_ui_analysis_comfort_subcommand"
+PLOT_TEMPLATE_GROUP_WIDGET_KEY = "ma_ui_analysis_plot_template_group"
 PREPARE_EXPORT_WIDGET_KEY = "ma_ui_analysis_prepare_export_format"
 COMFORT_TYPE_WIDGET_KEY = "ma_ui_analysis_comfort_type"
 ANALYSIS_LEVEL_WIDGET_KEY = "ma_ui_analysis_level"
@@ -71,7 +115,9 @@ MONTH_WIDGET_KEY = "ma_ui_analysis_month"
 WEEK_WIDGET_KEY = "ma_ui_analysis_week"
 DAY_WIDGET_KEY = "ma_ui_analysis_day"
 PLOT_TEMPLATE_WIDGET_KEY = "ma_ui_analysis_plot_template"
+PLOT_TEMPLATE_MODE_WIDGET_KEY = "ma_ui_analysis_plot_template_mode"
 ANALYSIS_SCOPE_WIDGET_KEY = "ma_ui_analysis_scope"
+ROOM_SCOPE_WIDGET_KEY = "ma_ui_analysis_room_scope"
 VARIANT_SELECT_WIDGET_KEY = "ma_ui_analysis_selected_variants"
 VARIANT_SINGLE_WIDGET_KEY = "ma_ui_analysis_selected_variant"
 VARIANT_MULTI_WIDGET_KEY = "ma_ui_analysis_selected_variants"
@@ -81,107 +127,11 @@ ROOM_SINGLE_WIDGET_KEY = "ma_ui_analysis_selected_room"
 ROOM_MULTI_WIDGET_KEY = "ma_ui_analysis_selected_rooms"
 ROOM_MANUAL_WIDGET_KEY = "ma_ui_analysis_manual_rooms"
 DEBUG_WIDGET_KEY = "ma_ui_analysis_debug"
+OVERLAY_ENABLED_WIDGET_KEY = "ma_ui_analysis_overlay_enabled"
 FIXED_OVERLAY_LABELS = {
     "outdoor_temperature": "Aussenlufttemperatur",
     "operative_temperature": "Operative Temperatur",
 }
-
-
-def split_csv_text(value: str) -> list[str]:
-    """Wandelt eine kommaseparierte UI-Eingabe in eine Liste um."""
-    return [item.strip() for item in value.split(",") if item.strip()]
-
-
-def optional_text(value: str) -> str | None:
-    """Normalisiert leere Textfelder auf None."""
-    stripped = value.strip()
-    return stripped or None
-
-
-def variant_selection_from_scope(value: str, analysis_scope: str) -> list[str] | None:
-    """Leitet die Variantenauswahl aus Analyseumfang und Texteingabe ab."""
-    if analysis_scope == "Alle Varianten":
-        return None
-    return split_csv_text(value)
-
-
-def variant_text_from_selection(analysis_scope: str, selected_variants: list[str], manual_value: str) -> str:
-    """Baut die Varianteneingabe aus Auswahlfeld oder manueller Eingabe."""
-    if analysis_scope == "Alle Varianten":
-        return ""
-    if selected_variants:
-        if analysis_scope == "Eine Variante":
-            return selected_variants[0]
-        return ",".join(selected_variants)
-    return manual_value
-
-
-def room_text_from_selection(selected_rooms: list[str], manual_value: str) -> str:
-    """Baut die Raumeingabe aus Auswahlfeld oder manueller Eingabe."""
-    if selected_rooms:
-        return ",".join(selected_rooms)
-    return manual_value
-
-
-def first_selected_value(selected_values: list[str], fallback_values: list[str]) -> str | None:
-    """Waehlt einen stabilen Referenzwert fuer optionale Katalogabfragen."""
-    if selected_values:
-        return selected_values[0]
-    if fallback_values:
-        return fallback_values[0]
-    return None
-
-
-def plot_template_view(template_spec: dict[str, object]) -> str:
-    """Liest die Zeitlogik aus der Template-Spezifikation."""
-    return str(template_spec.get("view") or "")
-
-
-def plot_template_supports_overlays(template_spec: dict[str, object]) -> bool:
-    """Prueft, ob feste und freie Overlays fuer ein Template sichtbar sein sollen."""
-    return bool(template_spec.get("supports_overlays", False))
-
-
-def plot_template_requires_single_room(template_spec: dict[str, object]) -> bool:
-    """Prueft, ob die Streamlit-Auswahl auf genau einen Raum begrenzt wird."""
-    return bool(template_spec.get("requires_single_room", True))
-
-
-def build_template_time_options(
-    template_spec: dict[str, object],
-    *,
-    month: str | None = None,
-    week: int | None = None,
-    day: int | None = None,
-) -> dict[str, str | int | None]:
-    """Gibt nur die Zeitfelder weiter, die das Template wirklich erwartet."""
-    view = plot_template_view(template_spec)
-    return {
-        "month": month if view in {"month", "day"} else None,
-        "week": week if view == "week" else None,
-        "day": day if view == "day" else None,
-    }
-
-
-def room_values_from_template_selection(
-    *,
-    selected_rooms: list[str],
-    manual_value: str,
-    template_spec: dict[str, object],
-) -> list[str]:
-    """Normalisiert die Raumauswahl passend zur Template-Spezifikation."""
-    rooms = split_csv_text(room_text_from_selection(selected_rooms, manual_value))
-    if plot_template_requires_single_room(template_spec):
-        return rooms[:1]
-    return rooms
-
-
-def _normalize_overlay_line(raw_line: dict[str, object]) -> dict[str, str] | None:
-    source = str(raw_line.get("source") or "").strip()
-    column = str(raw_line.get("column") or "").strip()
-    label = str(raw_line.get("label") or "").strip() or column
-    axis = str(raw_line.get("axis") or "").strip()
-    return build_catalog_overlay_line(source, column, label, axis)
 
 
 def get_session_overlay_lines(
@@ -193,7 +143,7 @@ def get_session_overlay_lines(
     if not isinstance(raw_lines, list):
         return []
 
-    normalized = [_normalize_overlay_line(raw_line) for raw_line in raw_lines if isinstance(raw_line, dict)]
+    normalized = [normalize_overlay_line(raw_line) for raw_line in raw_lines if isinstance(raw_line, dict)]
     return [line for line in normalized if line is not None]
 
 
@@ -203,7 +153,7 @@ def add_session_overlay_line(
 ) -> bool:
     """Fuegt eine freie Overlay-Linie hinzu und vermeidet Dubletten."""
     state = st.session_state if session_state is None else session_state
-    normalized_line = _normalize_overlay_line(line)
+    normalized_line = normalize_overlay_line(line)
     if normalized_line is None:
         return False
 
@@ -233,42 +183,6 @@ def format_overlay_line(line: dict[str, str]) -> str:
     return f"{line['source']}:{line['column']} -> {line['label']} ({line['axis']})"
 
 
-def _default_float(defaults: dict[str, object], key: str, fallback: float) -> float:
-    try:
-        return float(defaults.get(key, fallback))
-    except (TypeError, ValueError):
-        return fallback
-
-
-def _default_bool(defaults: dict[str, object], key: str, fallback: bool) -> bool:
-    value = defaults.get(key, fallback)
-    return value if isinstance(value, bool) else fallback
-
-
-def _default_text(defaults: dict[str, object], key: str, fallback: str) -> str:
-    value = defaults.get(key, fallback)
-    return value.strip() if isinstance(value, str) and value.strip() else fallback
-
-
-def _default_fixed_overlays(defaults: dict[str, object]) -> list[dict[str, object]]:
-    raw_overlays = defaults.get("default_overlays", [])
-    if not isinstance(raw_overlays, list):
-        return []
-    return [overlay for overlay in raw_overlays if isinstance(overlay, dict)]
-
-
-def build_catalog_overlay_line(source: str, column: str, label: str, axis: str) -> dict[str, str] | None:
-    """Baut eine Overlay-Zeile aus Katalogauswahlwerten."""
-    if source not in {"csv", "aux"} or axis not in {"heat", "temperature"} or not column:
-        return None
-    return {
-        "source": source,
-        "column": column,
-        "label": label.strip() or column,
-        "axis": axis,
-    }
-
-
 def safe_list_plot_overlay_sources(
     *,
     database_dir: str,
@@ -294,113 +208,6 @@ def safe_list_plot_overlay_sources(
         variant_name=variant_name,
         room_name=room_name,
         outdoor_column=outdoor_column,
-    )
-
-
-def parse_overlay_lines_text(value: str) -> list[dict[str, str]]:
-    """Liest freie Overlay-Linien aus einfachen CSV-Textzeilen.
-
-    Format je Zeile: source,column,label,axis
-    source: csv oder aux
-    axis: heat oder temperature
-    """
-    overlay_lines: list[dict[str, str]] = []
-    for raw_line in value.splitlines():
-        parts = [part.strip() for part in raw_line.split(",")]
-        if len(parts) != 4:
-            continue
-        source, column, label, axis = parts
-        if source not in {"csv", "aux"} or axis not in {"heat", "temperature"} or not column:
-            continue
-        overlay_lines.append(
-            {
-                "source": source,
-                "column": column,
-                "label": label or column,
-                "axis": axis,
-            }
-        )
-    return overlay_lines
-
-
-def build_plot_template_options(
-    *,
-    template: str,
-    month: str | None = None,
-    week: int | None = None,
-    day: int | None = None,
-    show_setpoint_band: bool = DEFAULT_SHOW_SETPOINT_BAND,
-    show_outdoor_temperature: bool = DEFAULT_SHOW_OUTDOOR_TEMPERATURE,
-    show_operative_temperature: bool = DEFAULT_SHOW_OPERATIVE_TEMPERATURE,
-    setpoint_min: float = DEFAULT_SETPOINT_MIN,
-    setpoint_max: float = DEFAULT_SETPOINT_MAX,
-    temperature_ymin: float = DEFAULT_TEMPERATURE_YMIN,
-    temperature_ymax: float = DEFAULT_TEMPERATURE_YMAX,
-    outdoor_column: str = DEFAULT_OUTDOOR_COLUMN,
-    overlay_lines: list[dict[str, str]] | None = None,
-    fixed_overlays: list[dict[str, object]] | None = None,
-) -> dict[str, Any]:
-    """Baut die UI-neutralen Plot-Template-Optionen fuer AnalysisConfig."""
-    return {
-        "template": template,
-        "month": month,
-        "week": week,
-        "day": day,
-        "show_setpoint_band": show_setpoint_band,
-        "show_outdoor_temperature": show_outdoor_temperature,
-        "show_operative_temperature": show_operative_temperature,
-        "setpoint_min": setpoint_min,
-        "setpoint_max": setpoint_max,
-        "temperature_ymin": temperature_ymin,
-        "temperature_ymax": temperature_ymax,
-        "outdoor_column": outdoor_column,
-        "overlay_lines": overlay_lines or [],
-        "fixed_overlays": fixed_overlays or [],
-    }
-
-
-def build_analysis_config(
-    *,
-    step: str,
-    input_dir: str,
-    database_dir: str,
-    output_root: str,
-    run_id: str,
-    variants: str,
-    rooms: str,
-    debug: bool,
-    analysis_scope: str = "Mehrere Varianten",
-    export_format: str = "csv",
-    comfort_output_type: str | None = None,
-    view: str | None = None,
-    month: str | None = None,
-    week: int | None = None,
-    day: int | None = None,
-    variant_mode: str | None = None,
-    series_layout: str | None = None,
-    plot_template: str | None = None,
-    plot_template_options: dict[str, Any] | None = None,
-) -> AnalysisConfig:
-    """Baut den UI-neutralen Analyseauftrag aus Formularwerten."""
-    return AnalysisConfig(
-        steps=(step,),
-        input_dir=Path(input_dir),
-        database_dir=Path(database_dir),
-        output_root=Path(output_root),
-        run_id=optional_text(run_id),
-        variants=variant_selection_from_scope(variants, analysis_scope),
-        rooms=split_csv_text(rooms),
-        debug=debug,
-        export_format=export_format,
-        comfort_output_type=comfort_output_type,
-        view=view,
-        month=month,
-        week=week,
-        day=day,
-        variant_mode=variant_mode,
-        series_layout=series_layout,
-        plot_template=plot_template,
-        plot_template_options=plot_template_options or {},
     )
 
 
@@ -640,6 +447,8 @@ def _reset_downstream_analysis_state() -> None:
     """Entfernt alte Auswahlen, wenn der Hauptbefehl gewechselt wurde."""
     for key in (
         LOAD_SUBCOMMAND_WIDGET_KEY,
+        COMFORT_SUBCOMMAND_WIDGET_KEY,
+        PLOT_TEMPLATE_GROUP_WIDGET_KEY,
         PREPARE_EXPORT_WIDGET_KEY,
         COMFORT_TYPE_WIDGET_KEY,
         ANALYSIS_LEVEL_WIDGET_KEY,
@@ -650,19 +459,23 @@ def _reset_downstream_analysis_state() -> None:
         WEEK_WIDGET_KEY,
         DAY_WIDGET_KEY,
         ANALYSIS_SCOPE_WIDGET_KEY,
+        ROOM_SCOPE_WIDGET_KEY,
+        PLOT_TEMPLATE_MODE_WIDGET_KEY,
         VARIANT_SINGLE_WIDGET_KEY,
         VARIANT_MULTI_WIDGET_KEY,
         VARIANT_MANUAL_WIDGET_KEY,
         ROOM_SINGLE_WIDGET_KEY,
         ROOM_MULTI_WIDGET_KEY,
         ROOM_MANUAL_WIDGET_KEY,
+        LAST_ANALYSIS_LEVEL_SESSION_KEY,
         PLOT_TEMPLATE_OPTIONS_SESSION_KEY,
+        OVERLAY_ENABLED_WIDGET_KEY,
     ):
         st.session_state.pop(key, None)
 
 
 def _sync_command_change() -> None:
-    command = normalize_command(str(st.session_state.get(COMMAND_WIDGET_KEY, "") or ""))
+    command = normalize_command(str(st.session_state.get(COMMAND_WIDGET_KEY, "") or ""), streamlit=True)
     previous_command = st.session_state.get(LAST_ANALYSIS_COMMAND_SESSION_KEY)
     if command == previous_command:
         return
@@ -696,12 +509,15 @@ def _selected_variants_from_state(analysis_scope: str, available_variants: list[
 def _selected_rooms_from_state(
     *,
     command: str,
-    analysis_level: str,
+    room_scope: str,
     available_rooms: list[str],
     template_spec: dict[str, object],
 ) -> tuple[str, ...]:
-    if command == "comfort" and analysis_level == "Analyse Variante":
+    if room_scope == "Alle Räume":
         return tuple(available_rooms)
+    if available_rooms and room_scope == "Ein Raum":
+        value = str(st.session_state.get(ROOM_SINGLE_WIDGET_KEY, "") or "")
+        return (value,) if value else ()
     if command == PLOT_TEMPLATE_STEP and plot_template_requires_single_room(template_spec):
         value = str(st.session_state.get(ROOM_SINGLE_WIDGET_KEY, "") or "")
         return (value,) if value else ()
@@ -717,13 +533,14 @@ def _current_wizard_state(
     available_rooms: list[str],
     template_spec: dict[str, object],
 ) -> AnalysisWizardState:
-    command = normalize_command(str(st.session_state.get(COMMAND_WIDGET_KEY, "") or ""))
+    command = normalize_command(str(st.session_state.get(COMMAND_WIDGET_KEY, "") or ""), streamlit=True)
     analysis_scope = str(st.session_state.get(ANALYSIS_SCOPE_WIDGET_KEY, "") or "")
     analysis_level = str(st.session_state.get(ANALYSIS_LEVEL_WIDGET_KEY, "") or "")
+    room_scope = str(st.session_state.get(ROOM_SCOPE_WIDGET_KEY, "") or "")
     selected_variants = _selected_variants_from_state(analysis_scope, available_variants)
     selected_rooms = _selected_rooms_from_state(
         command=command,
-        analysis_level=analysis_level,
+        room_scope=room_scope,
         available_rooms=available_rooms,
         template_spec=template_spec,
     )
@@ -732,11 +549,14 @@ def _current_wizard_state(
 
     return AnalysisWizardState(
         command=command,
+        comfort_subcommand=str(st.session_state.get(COMFORT_SUBCOMMAND_WIDGET_KEY, "") or ""),
+        plot_template_group=str(st.session_state.get(PLOT_TEMPLATE_GROUP_WIDGET_KEY, "") or ""),
         load_subcommand=str(st.session_state.get(LOAD_SUBCOMMAND_WIDGET_KEY, "") or ""),
         prepare_export_format=str(st.session_state.get(PREPARE_EXPORT_WIDGET_KEY, "") or ""),
         comfort_type=str(st.session_state.get(COMFORT_TYPE_WIDGET_KEY, "") or ""),
         analysis_level=analysis_level,
         variant_mode=str(st.session_state.get(VARIANT_MODE_WIDGET_KEY, "") or ""),
+        plot_template_mode=str(st.session_state.get(PLOT_TEMPLATE_MODE_WIDGET_KEY, "") or ""),
         series_layout=str(st.session_state.get(SERIES_LAYOUT_WIDGET_KEY, "") or ""),
         view=str(st.session_state.get(LOAD_VIEW_WIDGET_KEY, "") or ""),
         month=str(st.session_state.get(MONTH_WIDGET_KEY, "") or "") or None,
@@ -744,10 +564,13 @@ def _current_wizard_state(
         day=_int_session_value(DAY_WIDGET_KEY),
         plot_template=str(st.session_state.get(PLOT_TEMPLATE_WIDGET_KEY, HEATING_YEAR_TEMPLATE) or HEATING_YEAR_TEMPLATE),
         analysis_scope=analysis_scope,
+        room_scope=room_scope,
         selected_variants=selected_variants,
         selected_rooms=selected_rooms,
         variant_count=len(available_variants),
+        room_count=len(available_rooms),
         overlay_count=len(overlay_lines) if isinstance(overlay_lines, list) else 0,
+        overlay_enabled=bool(st.session_state.get(OVERLAY_ENABLED_WIDGET_KEY, False)),
         show_setpoint_band=bool(overlay_options.get("show_setpoint_band", False)) if isinstance(overlay_options, dict) else False,
         show_outdoor_temperature=bool(overlay_options.get("show_outdoor_temperature", False))
         if isinstance(overlay_options, dict)
@@ -756,10 +579,6 @@ def _current_wizard_state(
         if isinstance(overlay_options, dict)
         else False,
     )
-
-
-def _room_selection_disabled(state: AnalysisWizardState) -> bool:
-    return normalize_command(state.command) == "comfort" and state.analysis_level == "Analyse Variante"
 
 
 def _render_advanced_paths() -> tuple[str, str, str, str]:
@@ -872,13 +691,20 @@ def _render_options_step(state: AnalysisWizardState, template_spec: dict[str, ob
         _render_plot_template_selection_step(template_spec)
         return
     if command == "comfort":
+        previous_level = str(st.session_state.get(LAST_ANALYSIS_LEVEL_SESSION_KEY, "") or "")
         options = ("", *COMFORT_ANALYSIS_LEVEL_OPTIONS)
-        st.selectbox(
+        selected_level = st.selectbox(
             "Analyseebene",
             options=options,
             index=_selectbox_index(options, st.session_state.get(ANALYSIS_LEVEL_WIDGET_KEY)),
             key=ANALYSIS_LEVEL_WIDGET_KEY,
         )
+        if selected_level != previous_level:
+            st.session_state[COMFORT_TYPE_WIDGET_KEY] = sanitize_comfort_output(
+                selected_level,
+                str(st.session_state.get(COMFORT_TYPE_WIDGET_KEY, "") or ""),
+            )
+            st.session_state[LAST_ANALYSIS_LEVEL_SESSION_KEY] = selected_level
         return
     if command == "analyze_data":
         options = ("", *SERIES_LAYOUT_OPTIONS)
@@ -996,7 +822,7 @@ def _render_variants_step(state: AnalysisWizardState, available_variants: list[s
 
 
 def _render_rooms_step(state: AnalysisWizardState, available_rooms: list[str], template_spec: dict[str, object]) -> None:
-    if _room_selection_disabled(state):
+    if room_selection_disabled(state):
         st.info("Bei Analyse Variante werden alle bekannten Raeume verwendet.")
         return
     if normalize_command(state.command) == PLOT_TEMPLATE_STEP and plot_template_requires_single_room(template_spec):
@@ -1137,8 +963,504 @@ def _build_plot_template_options_for_run(
     return _build_plot_template_options_from_state(state, template_defaults)
 
 
+def _plot_template_specs_by_name() -> dict[str, dict[str, object]]:
+    return {template: get_plot_template_ui_spec(template) for template in PLOT_TEMPLATE_CHOICES}
+
+
+def _filtered_plot_template_choices(group: str, mode: str, view: str) -> list[str]:
+    specs = _plot_template_specs_by_name()
+    return filter_templates_by_group_mode_and_view(
+        PLOT_TEMPLATE_CHOICES,
+        specs,
+        group=group,
+        mode=mode,
+        view=view,
+    )
+
+
+def _render_expander_summary(state: AnalysisWizardState, section: str) -> None:
+    summary = section_summary(state, section)
+    if summary and summary != "-":
+        st.caption(f"Auswahl: {summary}")
+
+
+def _render_section(
+    *,
+    section: str,
+    state: AnalysisWizardState,
+    expanded: bool,
+    template_defaults: dict[str, object],
+    template_spec: dict[str, object],
+    input_dir: str,
+    database_dir: str,
+    output_root: str,
+    run_id: str,
+    available_variants: list[str],
+    available_rooms: list[str],
+) -> None:
+    label = section_label(section)
+    with st.container(border=True):
+        st.markdown(f"**{label}**")
+        if not section_relevant(state.command, section):
+            st.info(irrelevant_section_hint(state.command, section))
+            return
+        if section != "command":
+            _render_expander_summary(state, section)
+
+        if section == "command":
+            _render_command_step()
+        elif section == "subcommand":
+            _render_subcommand_section(state)
+        elif section == "export":
+            _render_export_section(state)
+        elif section == "template_diagram":
+            _render_template_diagram_section(
+                state=state,
+                template_defaults=template_defaults,
+                template_spec=template_spec,
+                input_dir=input_dir,
+                database_dir=database_dir,
+                available_variants=available_variants,
+            )
+        elif section == "variants":
+            _render_variant_scope_section(available_variants)
+        elif section == "rooms":
+            _render_room_scope_section(
+                state=state,
+                available_rooms=available_rooms,
+                template_spec=template_spec,
+            )
+
+
+def _render_subcommand_section(state: AnalysisWizardState) -> None:
+    command = normalize_command(state.command, streamlit=True)
+    if command == "comfort":
+        options = ("", *COMFORT_SUBCOMMAND_OPTIONS)
+        st.selectbox(
+            "Comfort-Unterbefehl",
+            options=options,
+            index=_selectbox_index(options, st.session_state.get(COMFORT_SUBCOMMAND_WIDGET_KEY)),
+            format_func=comfort_subcommand_label,
+            key=COMFORT_SUBCOMMAND_WIDGET_KEY,
+        )
+        st.caption("Die konkrete Comfort-Ausgabe wird im Bereich Template / Diagramm gewaehlt.")
+        return
+
+    if command in {"heating", "cooling"}:
+        options = ("", *LOAD_SUBCOMMAND_OPTIONS)
+        label = "Cooling-Unterbefehl" if command == "cooling" else "Heating-Unterbefehl"
+        st.selectbox(
+            label,
+            options=options,
+            index=_selectbox_index(options, st.session_state.get(LOAD_SUBCOMMAND_WIDGET_KEY)),
+            key=LOAD_SUBCOMMAND_WIDGET_KEY,
+        )
+        st.caption("bar erzeugt Balkendiagramme. timeline aktiviert Zeitansichten.")
+        return
+
+    if command == PLOT_TEMPLATE_STEP:
+        options = ("", *PLOT_TEMPLATE_ANALYSIS_GROUP_OPTIONS)
+        st.selectbox(
+            "Diagrammgruppe",
+            options=options,
+            index=_selectbox_index(options, st.session_state.get(PLOT_TEMPLATE_GROUP_WIDGET_KEY)),
+            format_func=plot_template_group_label,
+            key=PLOT_TEMPLATE_GROUP_WIDGET_KEY,
+        )
+        st.caption("Die Gruppe filtert die verfuegbaren Analyse-Templates.")
+
+
+def _render_export_section(state: AnalysisWizardState) -> None:
+    command = normalize_command(state.command, streamlit=True)
+    if command == "prepare":
+        _render_prepare_export_step()
+        return
+    if command == "analyze_data":
+        options = ("", *SERIES_LAYOUT_OPTIONS)
+        st.selectbox(
+            "Excel-Ausgabe",
+            options=options,
+            index=_selectbox_index(options, st.session_state.get(SERIES_LAYOUT_WIDGET_KEY)),
+            key=SERIES_LAYOUT_WIDGET_KEY,
+        )
+        st.caption("separate erzeugt eine Excel pro Variante. combined erzeugt eine gemeinsame Excel.")
+        return
+
+    if command in {"heating", "cooling"}:
+        options = ("", *VARIANT_MODE_OPTIONS)
+        st.selectbox(
+            "Ausgabemodus",
+            options=options,
+            index=_selectbox_index(options, st.session_state.get(VARIANT_MODE_WIDGET_KEY)),
+            key=VARIANT_MODE_WIDGET_KEY,
+        )
+        if st.session_state.get(VARIANT_MODE_WIDGET_KEY) == "compare":
+            layout_options = ("", *SERIES_LAYOUT_OPTIONS)
+            st.selectbox(
+                "Diagrammausgabe",
+                options=layout_options,
+                index=_selectbox_index(layout_options, st.session_state.get(SERIES_LAYOUT_WIDGET_KEY)),
+                key=SERIES_LAYOUT_WIDGET_KEY,
+            )
+        st.caption("single nutzt eine Auswahl, compare erzeugt Vergleichsdarstellungen.")
+        return
+
+    if command == PLOT_TEMPLATE_STEP:
+        options = ("", *PLOT_TEMPLATE_MODE_OPTIONS)
+        st.selectbox(
+            "Ausgabemodus",
+            options=options,
+            index=_selectbox_index(options, st.session_state.get(PLOT_TEMPLATE_MODE_WIDGET_KEY)),
+            key=PLOT_TEMPLATE_MODE_WIDGET_KEY,
+        )
+        st.caption("single ist fuer Einzelraum-Templates gedacht, compare fuer Vergleichsansichten.")
+
+
+def _render_template_diagram_section(
+    *,
+    state: AnalysisWizardState,
+    template_defaults: dict[str, object],
+    template_spec: dict[str, object],
+    input_dir: str,
+    database_dir: str,
+    available_variants: list[str],
+) -> None:
+    command = normalize_command(state.command, streamlit=True)
+    if command == "comfort":
+        _render_comfort_template_diagram_options()
+        return
+    if command in {"heating", "cooling"}:
+        _render_load_template_diagram_options(state)
+        return
+    if command == PLOT_TEMPLATE_STEP:
+        _render_plot_template_diagram_options(
+            state=state,
+            template_defaults=template_defaults,
+            template_spec=template_spec,
+            input_dir=input_dir,
+            database_dir=database_dir,
+            available_variants=available_variants,
+        )
+
+
+def _render_comfort_template_diagram_options() -> None:
+    options = ("", *allowed_comfort_outputs())
+    st.selectbox(
+        "Comfort-Diagramm",
+        options=options,
+        index=_selectbox_index(options, st.session_state.get(COMFORT_TYPE_WIDGET_KEY)),
+        key=COMFORT_TYPE_WIDGET_KEY,
+    )
+    st.caption("Diese vier Ausgaben gehoeren aktuell zur Comfort-Gruppe t_op / rel_hum.")
+
+
+def _render_load_template_diagram_options(state: AnalysisWizardState) -> None:
+    if state.load_subcommand == "timeline":
+        view_options = ("", *LOAD_VIEW_OPTIONS)
+        view = st.selectbox(
+            "Zeitansicht",
+            options=view_options,
+            index=_selectbox_index(view_options, st.session_state.get(LOAD_VIEW_WIDGET_KEY)),
+            key=LOAD_VIEW_WIDGET_KEY,
+        )
+        if view:
+            _render_time_options("Diagramm", view)
+        with st.expander("Overlay", expanded=False):
+            st.caption("Overlay-Optionen fuer Heating/Cooling werden hier vorbereitet. Die bestehende Backend-Ausfuehrung nutzt aktuell die Hauptdiagrammwerte.")
+        with st.expander("Diagrammanpassung", expanded=False):
+            st.caption("Achsen, Beschriftungen und Darstellungsoptionen werden hier gebuendelt. Konkrete Werte werden in einem Folgeslice an die Analysefunktionen angebunden.")
+    elif state.load_subcommand == "bar":
+        st.caption("Balkendiagramme verwenden keine Zeitansicht.")
+        with st.expander("Overlay", expanded=False):
+            st.caption("Overlay ist fuer Balkendiagramme aktuell nicht aktiv.")
+        with st.expander("Diagrammanpassung", expanded=False):
+            st.caption("Diagrammanpassungen fuer Balkenplots werden in einem Folgeslice angebunden.")
+    else:
+        st.info("Waehle zuerst den Unterbefehl bar oder timeline.")
+
+
+def _render_plot_template_diagram_options(
+    *,
+    state: AnalysisWizardState,
+    template_defaults: dict[str, object],
+    template_spec: dict[str, object],
+    input_dir: str,
+    database_dir: str,
+    available_variants: list[str],
+) -> None:
+    group = str(st.session_state.get(PLOT_TEMPLATE_GROUP_WIDGET_KEY, "") or "")
+    if group not in PLOT_TEMPLATE_ANALYSIS_GROUP_OPTIONS:
+        st.info("Waehle zuerst die Diagrammgruppe im Bereich Unterbefehl.")
+        return
+
+    mode = str(st.session_state.get(PLOT_TEMPLATE_MODE_WIDGET_KEY, "") or "")
+    if mode not in PLOT_TEMPLATE_MODE_OPTIONS:
+        st.info("Waehle zuerst single oder compare im Bereich Export / Ausgabe.")
+        return
+
+    view_options = ("", *LOAD_VIEW_OPTIONS)
+    view = st.selectbox(
+        "Zeitansicht",
+        options=view_options,
+        index=_selectbox_index(view_options, st.session_state.get(LOAD_VIEW_WIDGET_KEY)),
+        key=LOAD_VIEW_WIDGET_KEY,
+    )
+    if not view:
+        st.info("Nach der Zeitansicht wird die Template-Auswahl gefiltert.")
+        return
+    _render_time_options("Template", view)
+
+    template_choices = _filtered_plot_template_choices(group, mode, view)
+    if not template_choices:
+        st.warning("Fuer diese Kombination aus Diagrammgruppe, Ausgabemodus und Zeitansicht gibt es aktuell kein Template.")
+        return
+    current_template = str(st.session_state.get(PLOT_TEMPLATE_WIDGET_KEY, HEATING_YEAR_TEMPLATE) or HEATING_YEAR_TEMPLATE)
+    if current_template not in template_choices:
+        current_template = template_choices[0]
+        st.session_state[PLOT_TEMPLATE_WIDGET_KEY] = current_template
+        st.session_state.pop(PLOT_TEMPLATE_OPTIONS_SESSION_KEY, None)
+    template = st.selectbox(
+        "Template",
+        options=template_choices,
+        index=template_choices.index(current_template),
+        key=PLOT_TEMPLATE_WIDGET_KEY,
+    )
+    if template != current_template:
+        st.session_state.pop(PLOT_TEMPLATE_OPTIONS_SESSION_KEY, None)
+
+    template_defaults = get_plot_template_ui_defaults(template)
+    template_spec = get_plot_template_ui_spec(template)
+    room_mode = "Einzelraum" if plot_template_requires_single_room(template_spec) else "Mehrere Raeume"
+    st.caption(
+        "Template-Spezifikation: "
+        f"{template_spec.get('metric', '-')} / {template_spec.get('view', '-')} / {room_mode}"
+    )
+
+    supports_overlays = plot_template_supports_overlays(template_spec)
+    if supports_overlays:
+        st.checkbox("Overlay aktivieren", value=bool(st.session_state.get(OVERLAY_ENABLED_WIDGET_KEY, True)), key=OVERLAY_ENABLED_WIDGET_KEY)
+    else:
+        st.session_state[OVERLAY_ENABLED_WIDGET_KEY] = False
+        st.caption("Dieses Template unterstuetzt keine Overlay-Auswahl.")
+
+    can_load_overlay_catalog = section_complete(state, "variants") and section_complete(state, "rooms")
+    if supports_overlays and st.session_state.get(OVERLAY_ENABLED_WIDGET_KEY):
+        if not can_load_overlay_catalog:
+            st.info("Overlay-Kataloge werden geladen, sobald Varianten und Raeume gewaehlt sind.")
+        else:
+            options = _render_plot_template_options(
+                template=template,
+                template_defaults=template_defaults,
+                template_spec=template_spec,
+                input_dir=input_dir,
+                database_dir=database_dir,
+                selected_variants=list(state.selected_variants),
+                available_variants=available_variants,
+                selected_rooms=list(state.selected_rooms),
+                month=state.month,
+                week=state.week,
+                day=state.day,
+                render_time_options=False,
+            )
+            st.session_state[PLOT_TEMPLATE_OPTIONS_SESSION_KEY] = options
+    else:
+        st.session_state[PLOT_TEMPLATE_OPTIONS_SESSION_KEY] = _build_plot_template_options_from_state(
+            AnalysisWizardState(
+                command=state.command,
+                plot_template=template,
+                month=state.month,
+                week=state.week,
+                day=state.day,
+            ),
+            template_defaults,
+        )
+
+    with st.expander("Diagrammbearbeitung", expanded=False):
+        st.caption("Achs- und Overlay-Details werden aus den Template-Defaults geladen und koennen spaeter erweitert werden.")
+
+
+def _render_variant_scope_section(available_variants: list[str]) -> None:
+    options = ("", *ANALYSIS_SCOPE_OPTIONS)
+    st.selectbox(
+        "Variantenauswahl",
+        options=options,
+        index=_selectbox_index(options, st.session_state.get(ANALYSIS_SCOPE_WIDGET_KEY)),
+        key=ANALYSIS_SCOPE_WIDGET_KEY,
+    )
+    scope = str(st.session_state.get(ANALYSIS_SCOPE_WIDGET_KEY, "") or "")
+    if scope == "Alle Varianten":
+        st.caption(f"Alle gefundenen Varianten werden verwendet: {len(available_variants)}")
+        return
+    if available_variants and scope == "Eine Variante":
+        current = st.session_state.get(VARIANT_SINGLE_WIDGET_KEY)
+        index = available_variants.index(current) if current in available_variants else 0
+        st.selectbox("Variante", options=available_variants, index=index, key=VARIANT_SINGLE_WIDGET_KEY)
+        return
+    if available_variants and scope == "Mehrere Varianten":
+        default = st.session_state.get(VARIANT_MULTI_WIDGET_KEY)
+        if not isinstance(default, list):
+            default = available_variants[:1]
+        st.multiselect("Varianten", options=available_variants, default=default, key=VARIANT_MULTI_WIDGET_KEY)
+        return
+    if scope:
+        st.text_input("Varianten manuell", value="", key=VARIANT_MANUAL_WIDGET_KEY)
+
+
+def _render_room_scope_section(
+    *,
+    state: AnalysisWizardState,
+    available_rooms: list[str],
+    template_spec: dict[str, object],
+) -> None:
+    options = ("", *ROOM_SCOPE_OPTIONS)
+    st.selectbox(
+        "Raumauswahl",
+        options=options,
+        index=_selectbox_index(options, st.session_state.get(ROOM_SCOPE_WIDGET_KEY)),
+        key=ROOM_SCOPE_WIDGET_KEY,
+    )
+    scope = str(st.session_state.get(ROOM_SCOPE_WIDGET_KEY, "") or "")
+    requires_single_room = normalize_command(state.command, streamlit=True) == PLOT_TEMPLATE_STEP and plot_template_requires_single_room(template_spec)
+    if scope == "Alle Räume":
+        rooms, note = select_rooms_for_template(
+            room_scope=scope,
+            selected_rooms=(),
+            available_rooms=available_rooms,
+            requires_single_room=requires_single_room,
+        )
+        st.caption(f"Gefundene Raeume: {len(available_rooms)}")
+        if note:
+            st.info(note)
+        if rooms:
+            st.caption("Verwendete Raeume: " + ", ".join(rooms[:5]))
+        return
+    if available_rooms and scope == "Ein Raum":
+        default_room = "208 office" if "208 office" in available_rooms else available_rooms[0]
+        current = st.session_state.get(ROOM_SINGLE_WIDGET_KEY, default_room)
+        index = available_rooms.index(current) if current in available_rooms else available_rooms.index(default_room)
+        st.selectbox("Raum", options=available_rooms, index=index, key=ROOM_SINGLE_WIDGET_KEY)
+        return
+    if available_rooms and scope == "Mehrere Räume":
+        default_rooms = ["208 office"] if "208 office" in available_rooms else available_rooms[:1]
+        current_default = st.session_state.get(ROOM_MULTI_WIDGET_KEY)
+        if not isinstance(current_default, list):
+            current_default = default_rooms
+        st.multiselect("Raeume", options=available_rooms, default=current_default, key=ROOM_MULTI_WIDGET_KEY)
+        if requires_single_room:
+            st.info("Dieses Template nutzt genau einen Raum. Bei mehreren Raeumen wird der erste verwendet.")
+        return
+    if scope:
+        st.text_input("Raeume manuell", value="", key=ROOM_MANUAL_WIDGET_KEY)
+
+
+def _resolved_rooms_for_run(state: AnalysisWizardState, available_rooms: list[str], template_spec: dict[str, object]) -> tuple[str, ...]:
+    if normalize_command(state.command, streamlit=True) != PLOT_TEMPLATE_STEP:
+        return state.selected_rooms
+    rooms, _ = select_rooms_for_template(
+        room_scope=state.room_scope,
+        selected_rooms=state.selected_rooms,
+        available_rooms=available_rooms,
+        requires_single_room=plot_template_requires_single_room(template_spec),
+    )
+    return rooms
+
+
+def _render_run_section(
+    *,
+    state: AnalysisWizardState,
+    template_defaults: dict[str, object],
+    template_spec: dict[str, object],
+    input_dir: str,
+    database_dir: str,
+    output_root: str,
+    run_id: str,
+    available_rooms: list[str],
+) -> None:
+    st.markdown("**Aktionsbereich**")
+    ready = analysis_ready(state)
+    debug = st.checkbox("Debug-Ausgabe", value=False, key=DEBUG_WIDGET_KEY)
+    if not ready:
+        missing_step = first_incomplete_step(state)
+        st.info(f"Analyse noch nicht startbereit. Naechster fehlender Bereich: {section_label(missing_step or 'run')}")
+
+    preview_col, run_col = st.columns(2)
+    with preview_col:
+        if st.button("Vorschau aktualisieren", type="secondary", disabled=not ready):
+            config = _build_run_config(
+                state=state,
+                template_defaults=template_defaults,
+                template_spec=template_spec,
+                input_dir=input_dir,
+                database_dir=database_dir,
+                output_root=output_root,
+                run_id=run_id,
+                available_rooms=available_rooms,
+                debug=debug,
+            )
+            st.session_state[LAST_ANALYSIS_RESULT_SESSION_KEY] = run_analysis_action(config)
+    with run_col:
+        if st.button("Analyse starten", type="primary", disabled=not ready):
+            config = _build_run_config(
+                state=state,
+                template_defaults=template_defaults,
+                template_spec=template_spec,
+                input_dir=input_dir,
+                database_dir=database_dir,
+                output_root=output_root,
+                run_id=run_id,
+                available_rooms=available_rooms,
+                debug=debug,
+            )
+            st.session_state[LAST_ANALYSIS_RESULT_SESSION_KEY] = run_analysis_action(config)
+
+
+def _build_run_config(
+    *,
+    state: AnalysisWizardState,
+    template_defaults: dict[str, object],
+    template_spec: dict[str, object],
+    input_dir: str,
+    database_dir: str,
+    output_root: str,
+    run_id: str,
+    available_rooms: list[str],
+    debug: bool,
+):
+    view = "bar" if state.load_subcommand == "bar" else state.view or None
+    plot_template_options = {}
+    command = normalize_command(state.command, streamlit=True)
+    if command == PLOT_TEMPLATE_STEP:
+        plot_template_options = _build_plot_template_options_for_run(
+            state,
+            template_defaults,
+            plot_template_supports_overlays(template_spec),
+        )
+    rooms = _resolved_rooms_for_run(state, available_rooms, template_spec)
+    return build_analysis_config(
+        step=backend_command(command),
+        input_dir=input_dir,
+        database_dir=database_dir,
+        output_root=output_root,
+        run_id=run_id,
+        variants="" if state.analysis_scope == "Alle Varianten" else ",".join(state.selected_variants),
+        analysis_scope=state.analysis_scope,
+        rooms=",".join(rooms),
+        debug=debug,
+        export_format=state.prepare_export_format or "csv",
+        comfort_output_type=state.comfort_type or None,
+        view=view,
+        month=state.month,
+        week=state.week,
+        day=state.day,
+        variant_mode=state.variant_mode or None,
+        series_layout=state.series_layout or None,
+        plot_template=state.plot_template if command == PLOT_TEMPLATE_STEP else None,
+        plot_template_options=plot_template_options,
+    )
+
+
 def render() -> None:
-    """Zeigt die ma_analyse-Bedienung als schrittweisen Wizard."""
+    """Zeigt die ma_analyse-Bedienung als eingeklappte Schrittstruktur."""
     render_page_header("Analyse", "Simulationsergebnisanalyse")
     _render_tkinter_legacy_launcher()
 
@@ -1148,114 +1470,54 @@ def render() -> None:
     current_template = str(st.session_state.get(PLOT_TEMPLATE_WIDGET_KEY, HEATING_YEAR_TEMPLATE) or HEATING_YEAR_TEMPLATE)
     template_defaults = get_plot_template_ui_defaults(current_template)
     template_spec = get_plot_template_ui_spec(current_template)
-    template_view = plot_template_view(template_spec)
-    template_supports_overlays = plot_template_supports_overlays(template_spec)
 
-    current_command = normalize_command(str(st.session_state.get(COMMAND_WIDGET_KEY, "") or ""))
+    current_command = normalize_command(str(st.session_state.get(COMMAND_WIDGET_KEY, "") or ""), streamlit=True)
     available_variants = list_analysis_variants(current_command, input_dir, database_dir) if current_command else []
     state = _current_wizard_state(
         available_variants=available_variants,
         available_rooms=available_rooms,
         template_spec=template_spec,
     )
-    visible_steps = visible_analysis_steps(state, template_supports_overlays=template_supports_overlays)
-    active_step = str(st.session_state.get(ACTIVE_ANALYSIS_STEP_SESSION_KEY, "command") or "command")
-    if active_step not in visible_steps:
-        active_step = first_incomplete_step(
-            state,
-            visible_steps,
-            template_view=template_view,
-            room_selection_disabled=_room_selection_disabled(state),
-        )
-        st.session_state[ACTIVE_ANALYSIS_STEP_SESSION_KEY] = active_step
-    else:
-        first_open_step = first_incomplete_step(
-            state,
-            visible_steps,
-            template_view=template_view,
-            room_selection_disabled=_room_selection_disabled(state),
-        )
-        if visible_steps.index(first_open_step) < visible_steps.index(active_step):
-            active_step = first_open_step
-            st.session_state[ACTIVE_ANALYSIS_STEP_SESSION_KEY] = active_step
 
-    _render_step_summaries(
-        visible_steps=visible_steps,
-        active_step=active_step,
-        state=state,
-        template_view=template_view,
-    )
-    _render_active_step(
-        active_step=active_step,
+    first_open_step = first_incomplete_step(state) or "run"
+    for section in ANALYSIS_SECTION_ORDER:
+        if section == "run":
+            continue
+        _render_section(
+            section=section,
+            state=state,
+            expanded=section == first_open_step,
+            template_defaults=template_defaults,
+            template_spec=template_spec,
+            input_dir=input_dir,
+            database_dir=database_dir,
+            output_root=output_root,
+            run_id=run_id,
+            available_variants=available_variants,
+            available_rooms=available_rooms,
+        )
+
+        current_template = str(st.session_state.get(PLOT_TEMPLATE_WIDGET_KEY, current_template) or current_template)
+        template_defaults = get_plot_template_ui_defaults(current_template)
+        template_spec = get_plot_template_ui_spec(current_template)
+        current_command = normalize_command(str(st.session_state.get(COMMAND_WIDGET_KEY, "") or ""), streamlit=True)
+        available_variants = list_analysis_variants(current_command, input_dir, database_dir) if current_command else []
+        state = _current_wizard_state(
+            available_variants=available_variants,
+            available_rooms=available_rooms,
+            template_spec=template_spec,
+        )
+
+    _render_run_section(
         state=state,
         template_defaults=template_defaults,
         template_spec=template_spec,
         input_dir=input_dir,
         database_dir=database_dir,
-        available_variants=available_variants,
+        output_root=output_root,
+        run_id=run_id,
         available_rooms=available_rooms,
     )
-
-    current_template = str(st.session_state.get(PLOT_TEMPLATE_WIDGET_KEY, current_template) or current_template)
-    template_defaults = get_plot_template_ui_defaults(current_template)
-    template_spec = get_plot_template_ui_spec(current_template)
-    template_view = plot_template_view(template_spec)
-    template_supports_overlays = plot_template_supports_overlays(template_spec)
-    state = _current_wizard_state(
-        available_variants=available_variants,
-        available_rooms=available_rooms,
-        template_spec=template_spec,
-    )
-    visible_steps = visible_analysis_steps(state, template_supports_overlays=template_supports_overlays)
-    room_selection_disabled = _room_selection_disabled(state)
-    _render_step_navigation(
-        active_step=active_step,
-        visible_steps=visible_steps,
-        state=state,
-        template_view=template_view,
-        room_selection_disabled=room_selection_disabled,
-    )
-
-    ready = _analysis_ready(
-        state,
-        visible_steps,
-        template_view=template_view,
-        room_selection_disabled=room_selection_disabled,
-    )
-    if ready and active_step == visible_steps[-1]:
-        st.divider()
-        debug = st.checkbox("Debug-Ausgabe", value=False, key=DEBUG_WIDGET_KEY)
-        if st.button("Analyse starten", type="primary"):
-            view = "bar" if state.load_subcommand == "bar" else state.view or None
-            plot_template_options = {}
-            if normalize_command(state.command) == PLOT_TEMPLATE_STEP:
-                plot_template_options = _build_plot_template_options_for_run(
-                    state,
-                    template_defaults,
-                    template_supports_overlays,
-                )
-            config = build_analysis_config(
-                step=normalize_command(state.command),
-                input_dir=input_dir,
-                database_dir=database_dir,
-                output_root=output_root,
-                run_id=run_id,
-                variants="" if state.analysis_scope == "Alle Varianten" else ",".join(state.selected_variants),
-                analysis_scope=state.analysis_scope,
-                rooms=",".join(state.selected_rooms),
-                debug=debug,
-                export_format=state.prepare_export_format or "csv",
-                comfort_output_type=state.comfort_type or None,
-                view=view,
-                month=state.month,
-                week=state.week,
-                day=state.day,
-                variant_mode=state.variant_mode or None,
-                series_layout=state.series_layout or None,
-                plot_template=state.plot_template if normalize_command(state.command) == PLOT_TEMPLATE_STEP else None,
-                plot_template_options=plot_template_options,
-            )
-            st.session_state[LAST_ANALYSIS_RESULT_SESSION_KEY] = run_analysis_action(config)
 
     result = st.session_state.get(LAST_ANALYSIS_RESULT_SESSION_KEY)
     if result is not None:

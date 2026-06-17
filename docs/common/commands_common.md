@@ -44,9 +44,8 @@ Sammelbefehle buendeln mehrere Routinen oder Arbeitsbereiche.
   Command-Dokumentation und Versionskonsistenz pruefen; naechste Version nur
   vorschlagen; keine Git-Aktionen und keine Beispieloutputs erzeugen.
 - `tagesstart` oder `Guten Morgen, es ist ein neuer Tag.`: Projektstand lesen,
-  offene Nutzerentscheidungen bei Bedarf pflegen, `ma_ui` ueber die
-  Projekt-venv starten, falls es noch nicht laeuft, und offene Aufgaben nach
-  Modulen im Chat ausgeben.
+  offene Nutzerentscheidungen bei Bedarf pflegen und offene Aufgaben nach
+  Modulen im Chat ausgeben; `ma_ui` wird nicht automatisch gestartet.
 - `tagesende` oder `Gute Nacht.`: Tagesstand dokumentieren, Planstatus und
   Changelog bei Bedarf aktualisieren, laufende Projekt-Streamlit-Prozesse nur
   melden und Terminal-Code fuer Git ausgeben.

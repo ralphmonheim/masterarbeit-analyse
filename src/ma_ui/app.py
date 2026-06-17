@@ -17,9 +17,14 @@ from ma_ui.module_views import (
     variants_view,
     weather_view,
 )
-from ma_ui.navigation import get_navigation_pages
-
-CURRENT_PAGE_SESSION_KEY = "ma_ui_current_page"
+from ma_ui.navigation import (
+    CURRENT_PAGE_SESSION_KEY,
+    NavigationPage,
+    get_navigation_pages,
+    next_page_key,
+    normalize_page_key,
+    previous_page_key,
+)
 
 _PAGE_RENDERERS = {
     "home": home_view.render,
@@ -41,11 +46,31 @@ def get_renderable_page_keys() -> tuple[str, ...]:
     return tuple(_PAGE_RENDERERS)
 
 
-def normalize_page_key(page_key: object, available_page_keys: tuple[str, ...]) -> str:
-    """Normalisiert eine Session-State-Seite auf einen bekannten Zielwert."""
-    if isinstance(page_key, str) and page_key in available_page_keys:
-        return page_key
-    return available_page_keys[0]
+def _navigate_to(page_key: str) -> None:
+    """Setzt die aktive Seite und startet Streamlit neu."""
+    st.session_state[CURRENT_PAGE_SESSION_KEY] = page_key
+    st.rerun()
+
+
+def _render_top_navigation(current_page_key: str, available_pages: list[NavigationPage]) -> None:
+    """Zeigt die fachliche Navigation als Kopfzeile."""
+    available_page_keys = tuple(page.page_key for page in available_pages)
+    labels_by_key = {page.page_key: page.label for page in available_pages}
+    previous_key = previous_page_key(current_page_key, available_page_keys)
+    next_key = next_page_key(current_page_key, available_page_keys)
+
+    start_column, previous_column, next_column, label_column = st.columns([1, 1, 1, 5])
+    with start_column:
+        if st.button("Start", width="stretch", disabled=current_page_key == "home"):
+            _navigate_to("home")
+    with previous_column:
+        if st.button("Zurueck", width="stretch", disabled=previous_key == current_page_key):
+            _navigate_to(previous_key)
+    with next_column:
+        if st.button("Weiter", width="stretch", disabled=next_key == current_page_key):
+            _navigate_to(next_key)
+    with label_column:
+        st.caption(f"Aktueller Bereich: {labels_by_key[current_page_key]}")
 
 
 def main() -> None:
@@ -55,19 +80,11 @@ def main() -> None:
     pages = get_navigation_pages()
     available_pages = [page for page in pages if page.page_key in _PAGE_RENDERERS]
     available_page_keys = tuple(page.page_key for page in available_pages)
-    labels_by_key = {page.page_key: page.label for page in available_pages}
     current_page_key = normalize_page_key(st.session_state.get(CURRENT_PAGE_SESSION_KEY), available_page_keys)
     st.session_state[CURRENT_PAGE_SESSION_KEY] = current_page_key
-    page_key = st.sidebar.radio(
-        "Bereich",
-        options=list(available_page_keys),
-        index=available_page_keys.index(current_page_key),
-        format_func=lambda key: labels_by_key[key],
-    )
-    if page_key != current_page_key:
-        st.session_state[CURRENT_PAGE_SESSION_KEY] = page_key
+    _render_top_navigation(current_page_key, available_pages)
 
-    _PAGE_RENDERERS[page_key]()
+    _PAGE_RENDERERS[current_page_key]()
 
 
 if __name__ == "__main__":

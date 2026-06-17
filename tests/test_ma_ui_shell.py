@@ -1,10 +1,28 @@
 from pathlib import Path
 
+from ma_analyse.analysis_ui import (
+    build_analysis_config,
+    build_catalog_overlay_line,
+    build_plot_template_options,
+    build_template_time_options,
+    first_selected_value,
+    parse_overlay_lines_text,
+    plot_template_requires_single_room,
+    plot_template_supports_overlays,
+    room_text_from_selection,
+    room_values_from_template_selection,
+    split_csv_text,
+    variant_selection_from_scope,
+    variant_text_from_selection,
+)
 from ma_analyse.analysis_wizard import (
     AnalysisWizardState,
     analysis_step_complete,
     analysis_step_summary,
+    backend_command,
     first_incomplete_step,
+    room_selection_disabled,
+    sanitize_comfort_output,
     visible_analysis_steps,
 )
 from ma_ui.app import get_renderable_page_keys
@@ -29,30 +47,31 @@ from ma_ui.module_views.analyse_view import (
     DEFAULT_COMMAND_INDEX,
     PLOT_TEMPLATE_STEP,
     add_session_overlay_line,
-    build_analysis_config,
-    build_catalog_overlay_line,
-    build_plot_template_options,
-    build_template_time_options,
-    first_selected_value,
     get_session_overlay_lines,
-    parse_overlay_lines_text,
-    plot_template_requires_single_room,
-    plot_template_supports_overlays,
     remove_session_overlay_line,
-    room_text_from_selection,
-    room_values_from_template_selection,
     safe_list_plot_overlay_sources,
-    split_csv_text,
-    variant_selection_from_scope,
-    variant_text_from_selection,
 )
-from ma_ui.navigation import CURRENT_PAGE_SESSION_KEY, get_navigation_page, get_navigation_pages, normalize_page_key
+from ma_ui.navigation import (
+    CURRENT_PAGE_SESSION_KEY,
+    get_navigation_page,
+    get_navigation_pages,
+    next_page_key,
+    normalize_page_key,
+    previous_page_key,
+)
 from ma_ui.pages.assessment import economic_assumption_rows
 from ma_ui.pages.home import workflow_phase_summary_rows, workflow_status_counts
-from ma_ui.pages.weather import weather_dataset_rows
+from ma_ui.pages.weather import (
+    created_weather_plot_paths,
+    weather_dataset_rows,
+    weather_metric_rows,
+    weather_plot_rows,
+    weather_start_year,
+)
 from ma_ui.post_process_view import post_process_step_rows
 from ma_ui.pre_process_view import pre_process_step_rows
 from ma_ui.resource_status import ResourceSpec, resource_status, resource_status_rows, resource_statuses_for_step
+from ma_ui.shared import normalize_table_for_streamlit
 from ma_ui.shared.workflow_context import workflow_context_rows
 from ma_ui.state import ProjectState
 from ma_ui.workflow_graph import (
@@ -65,7 +84,7 @@ from ma_ui.workflow_graph import (
 )
 from ma_ui.workflow_view import workflow_step_rows
 from ma_variants.economic_analysis import import_economic_assumptions
-from ma_weather import WeatherDataset
+from ma_weather import WeatherDataset, WeatherMetrics, WeatherPlotResult
 
 
 def test_ui_navigation_contains_home_and_analysis():
@@ -112,6 +131,16 @@ def test_navigation_normalizes_unknown_session_page_key():
     assert normalize_page_key("analyse", ("home", "analyse")) == "analyse"
     assert normalize_page_key("missing", ("home", "analyse")) == "home"
     assert normalize_page_key(None, ("home", "analyse")) == "home"
+
+
+def test_navigation_previous_and_next_page_keys_are_stable():
+    page_keys = ("home", "parameters", "weather")
+
+    assert previous_page_key("home", page_keys) == "home"
+    assert previous_page_key("weather", page_keys) == "parameters"
+    assert next_page_key("home", page_keys) == "parameters"
+    assert next_page_key("weather", page_keys) == "weather"
+    assert next_page_key("missing", page_keys) == "parameters"
 
 
 def test_module_views_are_importable():
@@ -204,6 +233,34 @@ def test_graphical_workflow_is_home_only():
     assert all("ma_ui.workflow_graph" not in source for source in module_sources)
     assert all("Grafischer Workflow" not in source for source in module_sources)
     assert all("Iterationspfade" not in source for source in module_sources)
+
+
+def test_ui_uses_top_navigation_instead_of_sidebar_radio():
+    app_source = Path("src/ma_ui/app.py").read_text(encoding="utf-8")
+
+    assert "st.sidebar.radio" not in app_source
+    assert "Start" in app_source
+    assert "Zurueck" in app_source
+    assert "Weiter" in app_source
+
+
+def test_streamlit_width_api_is_current():
+    source_paths = list(Path("src/ma_ui").rglob("*.py")) + list(Path("src/ma_variants/ui").rglob("*.py"))
+    sources = [path.read_text(encoding="utf-8") for path in source_paths]
+
+    assert all("use_container_width" not in source for source in sources)
+
+
+def test_normalize_table_for_streamlit_converts_mixed_object_columns():
+    rows = [
+        {"name": "numeric", "value": 1, "active": True},
+        {"name": "text", "value": "co2", "active": False},
+    ]
+
+    dataframe = normalize_table_for_streamlit(rows)
+
+    assert dataframe["value"].tolist() == ["1", "co2"]
+    assert dataframe["name"].tolist() == ["numeric", "text"]
 
 
 def test_workflow_context_rows_show_module_status_and_action():
@@ -299,6 +356,8 @@ def test_analyse_view_splits_csv_text():
 def test_analyse_view_defaults_to_plot_template():
     assert PLOT_TEMPLATE_STEP in COMMAND_OPTIONS
     assert COMMAND_OPTIONS[DEFAULT_COMMAND_INDEX] == PLOT_TEMPLATE_STEP
+    assert PLOT_TEMPLATE_STEP == "plot-template-analyse"
+    assert backend_command(PLOT_TEMPLATE_STEP) == "plot-template"
 
 
 def test_analysis_wizard_initially_shows_command_only():
@@ -311,50 +370,88 @@ def test_analysis_wizard_initially_shows_command_only():
 def test_analysis_wizard_uses_tkinter_visibility_for_prepare():
     state = AnalysisWizardState(command="prepare")
 
-    assert visible_analysis_steps(state) == ("command", "prepare_export", "analysis_scope", "variants")
+    assert visible_analysis_steps(state) == ("command", "export", "variants", "run")
 
 
 def test_analysis_wizard_hides_load_options_until_subcommand_is_selected():
     state = AnalysisWizardState(command="heating")
 
-    assert visible_analysis_steps(state) == ("command", "subcommand", "analysis_scope", "variants", "rooms")
+    assert visible_analysis_steps(state) == (
+        "command",
+        "subcommand",
+        "export",
+        "template_diagram",
+        "variants",
+        "rooms",
+        "run",
+    )
 
     timeline_state = AnalysisWizardState(command="heating", load_subcommand="timeline")
 
     assert visible_analysis_steps(timeline_state) == (
         "command",
         "subcommand",
-        "options",
-        "analysis_scope",
+        "export",
+        "template_diagram",
         "variants",
         "rooms",
+        "run",
     )
 
 
-def test_analysis_wizard_shows_plot_template_overlays_only_when_supported():
+def test_analysis_wizard_uses_comfort_subcommand_without_analysis_level():
+    state = AnalysisWizardState(command="comfort")
+
+    assert visible_analysis_steps(state) == (
+        "command",
+        "subcommand",
+        "template_diagram",
+        "variants",
+        "rooms",
+        "run",
+    )
+
+
+def test_analysis_wizard_keeps_all_comfort_outputs_available():
+    assert sanitize_comfort_output("Analyse Raum", "plot_analysis") == "plot_analysis"
+    assert sanitize_comfort_output("Analyse Variante", "plot_analysis") == "plot_analysis"
+    assert sanitize_comfort_output("Analyse Variante", "plot_overview") == "plot_overview"
+
+
+def test_analysis_wizard_uses_room_scope_for_comfort_rooms():
+    state = AnalysisWizardState(command="comfort", room_scope="Alle Räume", room_count=2)
+
+    assert room_selection_disabled(state) is False
+    assert analysis_step_complete(state, "rooms", room_selection_disabled=True) is True
+
+
+def test_analysis_wizard_groups_plot_template_options_in_template_diagram():
     state = AnalysisWizardState(command=PLOT_TEMPLATE_STEP, plot_template="heating-overlay")
 
     assert visible_analysis_steps(state, template_supports_overlays=False) == (
         "command",
-        "options",
-        "analysis_scope",
+        "subcommand",
+        "export",
+        "template_diagram",
         "variants",
         "rooms",
+        "run",
     )
     assert visible_analysis_steps(state, template_supports_overlays=True) == (
         "command",
-        "options",
-        "overlays",
-        "analysis_scope",
+        "subcommand",
+        "export",
+        "template_diagram",
         "variants",
         "rooms",
+        "run",
     )
 
 
 def test_analysis_wizard_completes_heating_timeline_like_tkinter():
     incomplete = AnalysisWizardState(command="heating", load_subcommand="timeline", variant_mode="compare")
 
-    assert analysis_step_complete(incomplete, "options", template_view="") is False
+    assert analysis_step_complete(incomplete, "template_diagram", template_view="") is False
 
     complete = AnalysisWizardState(
         command="heating",
@@ -365,20 +462,42 @@ def test_analysis_wizard_completes_heating_timeline_like_tkinter():
         week=7,
     )
 
-    assert analysis_step_complete(complete, "options", template_view="") is True
-    assert analysis_step_summary(complete, "options") == "Optionen: Modus compare, Ausgabe combined, Ansicht week KW 7"
+    assert analysis_step_complete(complete, "template_diagram", template_view="") is True
+    assert analysis_step_summary(complete, "export") == "compare, combined"
+    assert analysis_step_summary(complete, "template_diagram") == "Woche 7"
 
 
-def test_analysis_wizard_limits_comfort_outputs_by_analysis_level():
-    room_state = AnalysisWizardState(command="comfort", comfort_type="plot_analysis")
+def test_analysis_wizard_places_single_compare_in_export():
+    state = AnalysisWizardState(
+        command="plot-template-analyse",
+        plot_template_group="heating",
+        plot_template_mode="single",
+        plot_template="heating-year",
+        view="year",
+    )
+
+    assert analysis_step_complete(state, "subcommand") is True
+    assert analysis_step_complete(state, "export") is True
+    assert analysis_step_summary(state, "export") == "single"
+
+
+def test_analysis_wizard_does_not_limit_comfort_outputs_by_analysis_level():
+    room_state = AnalysisWizardState(
+        command="comfort",
+        comfort_subcommand="t_op_rel_hum",
+        comfort_type="plot_analysis",
+    )
     variant_state = AnalysisWizardState(
         command="comfort",
+        comfort_subcommand="t_op_rel_hum",
         comfort_type="plot_analysis",
         analysis_level="Analyse Variante",
     )
 
     assert analysis_step_complete(room_state, "subcommand") is True
-    assert analysis_step_complete(variant_state, "subcommand") is False
+    assert analysis_step_complete(variant_state, "subcommand") is True
+    assert analysis_step_complete(room_state, "template_diagram") is True
+    assert analysis_step_complete(variant_state, "template_diagram") is True
 
 
 def test_tkinter_analyse_launcher_uses_module_command():
@@ -655,6 +774,50 @@ def test_weather_dataset_rows_report_missing_local_file():
 
     assert rows[0]["weather_key"] == "TRY_TEST"
     assert rows[0]["Datei vorhanden"] is False
+
+
+def test_weather_ui_helpers_prepare_metrics_and_plot_rows(tmp_path):
+    metrics = WeatherMetrics(
+        mean_temperature_c=10.123,
+        min_temperature_c=-5.0,
+        max_temperature_c=31.0,
+        mean_relative_humidity_pct=70.0,
+        mean_wind_speed_m_s=2.5,
+        max_wind_speed_m_s=7.0,
+        global_radiation_kwh_m2a=1200.0,
+        hours_above_25c=80,
+        hours_above_30c=12,
+        heating_degree_hours_kh=1234.56,
+        cooling_degree_hours_kh=98.76,
+    )
+    image_path = tmp_path / "TRY_TEST_temperature_year.png"
+    image_path.write_text("image", encoding="utf-8")
+    plot_results = (
+        WeatherPlotResult("temperature_year", image_path, "created"),
+        WeatherPlotResult("wind_rose", None, "skipped", ("missing wind",)),
+    )
+
+    metric_rows = weather_metric_rows(metrics)
+    plot_rows = weather_plot_rows(plot_results)
+
+    assert metric_rows[0] == {"Kennwert": "Mittlere Temperatur [Grad C]", "Wert": 10.12}
+    assert plot_rows[0]["Vorhanden"] is True
+    assert plot_rows[1]["Hinweise"] == "missing wind"
+    assert created_weather_plot_paths(plot_results) == [image_path]
+
+
+def test_weather_start_year_uses_dataset_metadata():
+    dataset = WeatherDataset(
+        weather_key="TRY_FFM_2045",
+        display_name="TRY Frankfurt 2045 Jahr",
+        file_path=Path("data/ma_weather/input/TRY_501262086894/TRY2045_501262086894_Jahr.dat"),
+        file_format="TRY",
+        source="DWD",
+        location="Frankfurt",
+        year_type="future_year",
+    )
+
+    assert weather_start_year(dataset) == 2045
 
 
 def test_economic_assumption_rows_use_existing_importer():

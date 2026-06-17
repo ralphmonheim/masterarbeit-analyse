@@ -1,6 +1,6 @@
 # Plan Status
 
-Stand: 2026-06-12
+Stand: 2026-06-17
 
 Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt und nach jeder Planumsetzung aktualisiert. Vollstaendige alte Planstaende liegen unter `docs/project/plans/archived/`.
 
@@ -79,6 +79,37 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   Befehlsauswahl, blendet Folgeschritte nach der vorhandenen Tkinter-
   Zustandslogik ein, fasst vorherige Schritte zusammen und fuehrt technische
   Pfade unter `Erweiterte Pfade`.
+- P005 Analyse-Wizard weiter angepasst: Streamlit nutzt eine eingeklappte
+  Schrittstruktur mit `Befehl`, `Unterbefehl`, `Export`,
+  `Template / Diagramm`, `Varianten`, `Raeume` und `Analyse starten`.
+- P005 Analyse-Wizard bereinigt: Der allgemeine Bereich `Optionen` wurde aus
+  der aktiven UI-Struktur entfernt; befehlsspezifische Einstellungen liegen in
+  `Export` oder `Template / Diagramm`.
+- P005 Comfort-Ablauf angepasst: Die separate Analyseebene wurde entfernt;
+  alle vier Comfort-Unterbefehle bleiben sichtbar und Varianten-/Raumumfang
+  steuern die Auswahl.
+- P005 Varianten- und Raumauswahl angepasst: Variantenumfang und Raumumfang
+  liegen in den jeweiligen Bereichen; `Alle Varianten` wird an die
+  Service-Fassade als automatische Variantenauswahl uebergeben.
+- P005 Plot-Template-Ablauf angepasst: Template-Modus, Zeitansicht, gefilterte
+  Template-Auswahl, Overlay, Diagrammbearbeitung und Vorschau liegen im
+  Bereich `Template / Diagramm`; Overlay-Katalog und freie Overlay-Linien
+  werden erst nach Varianten- und Raumauswahl angeboten.
+- P005 Analyse-Wizard weiter strukturiert: `plot-template-analyse` ist in
+  Streamlit der UI-Befehl fuer Analyse-Templates, `single`/`compare` liegt
+  unter `Export / Ausgabe`, Comfort nutzt `t_op / rel_hum` als Unterbefehl und
+  die vier bisherigen Comfort-Ausgaben liegen unter `Template / Diagramm`.
+- P005 Aktionsbereich angepasst: In Streamlit stehen `Vorschau aktualisieren`
+  und `Analyse starten` sichtbar ausserhalb der Hauptschritte.
+- P005 Tkinter-Vorschau vorbereitet: In der Tkinter-Analyse steht
+  `Vorschau aktualisieren` zwischen `Zuruecksetzen` und `Start` und nutzt
+  vorerst den bestehenden Analysepfad mit aktuellen Einstellungen.
+- P005 Tkinter-Analyse pragmatisch angeglichen: Variantenumfang und
+  Raumumfang liegen in den jeweiligen Karten, Comfort nutzt keine verpflichtende
+  Analyseebene mehr und `plot-template` besitzt einen Unterbefehl
+  `single`/`compare`.
+- P005 UI-neutrale Analyse-Helfer ausgelagert: Auswahl-, Zeit-, Overlay- und
+  Config-Aufbereitung liegen in `src/ma_analyse/analysis_ui.py`.
 - P005 Hybrid-Bedienung vorbereitet: Die Streamlit-Analyse-Seite kann die
   bestehende Tkinter-Analyse als separates Legacy-Fenster starten, ohne Tkinter
   in Streamlit einzubetten.
@@ -99,7 +130,16 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - P005 naechster Schritt: Analyse-View in laufender Streamlit-App manuell gegen
   reale `ida_imports`-/Datenbankordner pruefen.
 - P005 offener Analyse-View-Punkt: Schrittweisen Analyse-Wizard in der laufenden
-  Streamlit-App fachlich gegen den bisherigen Tkinter-Ablauf pruefen.
+  Streamlit-App fachlich gegen den bisherigen Tkinter-Ablauf pruefen,
+  insbesondere Comfort, Heating/Cooling, Plot-Template-Overlays,
+  Diagrammbearbeitung und Vorschau.
+- P005 offener Tkinter-Punkt: Tkinter vollstaendig auf dieselbe neue
+  `Export / Ausgabe`-, `Template / Diagramm`- und Vorschau-Struktur bringen.
+  Der Umbau bleibt getrennt, damit die bestehende Legacy-GUI nicht instabil
+  wird.
+- P005 offener Tkinter-Punkt: Eingebettetes Bild-Vorschaufenster fuer den
+  Vorschau-Button ergaenzen; aktuell startet der Button den bestehenden
+  Analysepfad.
 - P005 spaeterer Schritt: Tkinter-GUI erst nach separater Freigabe nach `ma_ui_legacy` auslagern.
 - P005 spaeterer Schritt: `ma_workflow`-Aktionsdateien mit echten Fachservice-Aufrufen erweitern.
 - P005 spaeterer Schritt: `ma_assessment` als separates Bewertungsmodul planen, bevor Wirtschaftlichkeitslogik aus `ma_variants` verschoben wird.

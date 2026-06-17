@@ -45,6 +45,10 @@ Der Befehl fuehrt folgende Schritte aus:
 - Diagramme unter `data/ma_weather/output/` erzeugen
 - Markdown-Bericht unter `data/ma_weather/reports/` schreiben
 
+Die gleiche Pipeline kann auch in `ma_ui` ueber die Seite `Wetterdaten`
+gestartet werden. Dort wird ein aktiver `weather_key` ausgewaehlt und die
+erzeugten Diagramme werden direkt angezeigt.
+
 ## Einzelbefehle
 
 ### Aktuelle Pruefung

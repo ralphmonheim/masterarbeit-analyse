@@ -293,11 +293,13 @@ class PipelineGUI(SettingsDialogMixin):
         self.fixed_plot_overlays = self.plot_template_defaults.get("default_overlays", [])
 
         self.analysis_scope = tk.StringVar(value="")
+        self.room_scope = tk.StringVar(value="")
         self.command = tk.StringVar(value="")
         self.prepare_export_format = tk.StringVar(value="")
         self.comfort_type = tk.StringVar(value="")
         self.analysis_level = tk.StringVar(value="")
         self.load_subcommand = tk.StringVar(value="")
+        self.plot_template_mode = tk.StringVar(value="")
         self.heating_mode = tk.StringVar(value="")
         self.heating_view = tk.StringVar(value="")
         self.heating_series_layout = tk.StringVar(value="")
@@ -366,8 +368,8 @@ class PipelineGUI(SettingsDialogMixin):
         self.overlay_catalog = {"csv": [], "aux": []}
 
         self.comfort_allowed_by_level = {
-            "Analyse Raum": {"plot", "plot_analysis"},
-            "Analyse Variante": {"plot_overview", "plot_analysis_overview"},
+            "Analyse Raum": {"plot", "plot_analysis", "plot_overview", "plot_analysis_overview"},
+            "Analyse Variante": {"plot", "plot_analysis", "plot_overview", "plot_analysis_overview"},
         }
         self.comfort_default_by_level = {
             "Analyse Raum": "plot",
@@ -1350,7 +1352,6 @@ class PipelineGUI(SettingsDialogMixin):
         self._build_prepare_export_step()
         self._build_step_3()
         self._build_overlay_step()
-        self._build_step_1()
         self._build_step_4()
         self._build_step_5()
         self.step_card_order = [
@@ -1359,17 +1360,15 @@ class PipelineGUI(SettingsDialogMixin):
             self.prepare_export_card,
             self.step_3_card,
             self.overlay_card,
-            self.step_1_card,
             self.step_4_card,
             self.step_5_card,
         ]
         self.step_card_descriptions = {
             self.step_2_card: "Befehl festlegen",
             self.subcommand_card: "Unterbefehl passend zum Befehl waehlen",
-            self.prepare_export_card: "Exportformat fuer prepare waehlen",
-            self.step_3_card: "Template auswaehlen",
+            self.prepare_export_card: "Exportformat waehlen",
+            self.step_3_card: "Template / Diagramm auswaehlen",
             self.overlay_card: "Datenlinien fuer Plot-Templates auswaehlen",
-            self.step_1_card: "Analyseumfang waehlen",
             self.step_4_card: "Varianten passend zum Befehl auswaehlen",
             self.step_5_card: "Raeume auswaehlen oder automatisch uebernehmen",
         }
@@ -1464,6 +1463,29 @@ class PipelineGUI(SettingsDialogMixin):
         )
         self.load_subcommand_note.pack(anchor=tk.W, pady=(6, 0))
 
+        self.plot_template_mode_section = tk.Frame(content, bg=self.color_panel)
+        ttk.Label(
+            self.plot_template_mode_section,
+            text="Template-Modus",
+            style="Dark.TLabel",
+        ).pack(anchor=tk.W, pady=(0, 6))
+        _, self.plot_template_mode_buttons = self._create_selection_button_group(
+            self.plot_template_mode_section,
+            [
+                ("single", "single"),
+                ("compare", "compare"),
+            ],
+            self._set_plot_template_mode,
+        )
+        self.plot_template_mode_note = ttk.Label(
+            self.plot_template_mode_section,
+            text="single ist fuer Einzelraum-Templates gedacht, compare fuer Vergleichsansichten.",
+            style="Muted.TLabel",
+            wraplength=640,
+            justify=tk.LEFT,
+        )
+        self.plot_template_mode_note.pack(anchor=tk.W, pady=(6, 0))
+
     def _build_prepare_export_step(self):
         self.prepare_export_card, content = self._create_step_card(self.left_column, 3, "Exportformat")
 
@@ -1551,7 +1573,7 @@ class PipelineGUI(SettingsDialogMixin):
             button.grid_configure(sticky="nsew")
 
     def _build_step_3(self):
-        self.step_3_card, content = self._create_step_card(self.left_column, 4, "Template")
+        self.step_3_card, content = self._create_step_card(self.left_column, 4, "Template / Diagramm")
 
         self.heating_mode_section = tk.Frame(content, bg=self.color_panel)
         self.load_mode_title = ttk.Label(self.heating_mode_section, text="Heizvergleich Modus", style="Dark.TLabel")
@@ -1958,11 +1980,24 @@ class PipelineGUI(SettingsDialogMixin):
     def _build_step_4(self):
         self.step_4_card, content = self._create_step_card(self.left_column, 6, "Varianten")
 
+        ttk.Label(content, text="Variantenauswahl", style="Dark.TLabel").pack(anchor=tk.W, pady=(0, 6))
+        _, self.scope_buttons = self._create_selection_button_group(
+            content,
+            [
+                ("Eine Variante", "Eine Variante"),
+                ("Mehrere Varianten", "Mehrere Varianten"),
+                ("Alle Varianten", "Alle Varianten"),
+            ],
+            self._set_analysis_scope,
+            columns=3,
+            wraplength=180,
+        )
+
         left = tk.Frame(content, bg=self.color_panel)
-        left.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 20))
+        left.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 20), pady=(12, 0))
 
         right = tk.Frame(content, bg=self.color_panel)
-        right.pack(side=tk.RIGHT, fill=tk.X, expand=True)
+        right.pack(side=tk.RIGHT, fill=tk.X, expand=True, pady=(12, 0))
 
         self.variants_listbox = tk.Listbox(
             left,
@@ -1992,11 +2027,24 @@ class PipelineGUI(SettingsDialogMixin):
     def _build_step_5(self):
         self.step_5_card, content = self._create_step_card(self.left_column, 7, "Raeume")
 
+        ttk.Label(content, text="Raumauswahl", style="Dark.TLabel").pack(anchor=tk.W, pady=(0, 6))
+        _, self.room_scope_buttons = self._create_selection_button_group(
+            content,
+            [
+                ("Ein Raum", "Ein Raum"),
+                ("Mehrere Räume", "Mehrere Räume"),
+                ("Alle Räume", "Alle Räume"),
+            ],
+            self._set_room_scope,
+            columns=3,
+            wraplength=180,
+        )
+
         self.step_5_left = tk.Frame(content, bg=self.color_panel)
-        self.step_5_left.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 20))
+        self.step_5_left.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 20), pady=(12, 0))
 
         self.step_5_right = tk.Frame(content, bg=self.color_panel)
-        self.step_5_right.pack(side=tk.RIGHT, fill=tk.X, expand=True)
+        self.step_5_right.pack(side=tk.RIGHT, fill=tk.X, expand=True, pady=(12, 0))
 
         self.rooms_listbox = tk.Listbox(
             self.step_5_left,
@@ -2068,6 +2116,8 @@ class PipelineGUI(SettingsDialogMixin):
                 return bool(self.comfort_type.get())
             if selected_command in {"heating", "cooling"}:
                 return self.load_subcommand.get() in {"bar", "timeline"}
+            if selected_command == "plot-template":
+                return self.plot_template_mode.get() in {"single", "compare"}
             return False
 
         if card is self.prepare_export_card:
@@ -2076,8 +2126,6 @@ class PipelineGUI(SettingsDialogMixin):
         if card is self.step_3_card:
             if selected_command == "plot-template":
                 return bool(self.plot_template.get())
-            if selected_command == "comfort":
-                return bool(self.analysis_level.get())
             if selected_command == "analyze_data":
                 return bool(self.heating_series_layout.get())
             if selected_command in {"heating", "cooling"}:
@@ -2148,6 +2196,8 @@ class PipelineGUI(SettingsDialogMixin):
                 return f"Unterbefehl: {self.comfort_type.get()}"
             if self.command.get() in {"heating", "cooling"} and self.load_subcommand.get():
                 return f"Unterbefehl: {self.load_subcommand.get()}"
+            if self.command.get() == "plot-template" and self.plot_template_mode.get():
+                return f"Unterbefehl: {self.plot_template_mode.get()}"
             return ""
 
         if card is self.prepare_export_card and self.prepare_export_format.get():
@@ -2167,8 +2217,6 @@ class PipelineGUI(SettingsDialogMixin):
                 if spec.view == "day":
                     return f"Template: {template_label}, {self.heating_day.get()}. {self.heating_month.get()}"
                 return f"Template: {template_label}"
-            if selected_command == "comfort" and self.analysis_level.get():
-                return f"Analyseebene: {self.analysis_level.get()}"
             if selected_command == "analyze_data" and self.heating_series_layout.get():
                 return f"Excel-Ausgabe: {self.heating_series_layout.get()}"
             if selected_command in {"heating", "cooling"}:
@@ -2202,7 +2250,7 @@ class PipelineGUI(SettingsDialogMixin):
                 parts.append(f"{len(self.free_overlay_lines)} {line_label}")
             return f"Überlagerungen: {', '.join(parts)}" if parts else ""
 
-        if card is self.step_1_card and self.analysis_scope.get():
+        if hasattr(self, "step_1_card") and card is self.step_1_card and self.analysis_scope.get():
             return f"Analyseumfang: {self.analysis_scope.get()}"
 
         if card is self.step_4_card:
@@ -2525,6 +2573,7 @@ class PipelineGUI(SettingsDialogMixin):
         self.pipeline_thread = None
         self.pipeline_queue = None
         self.start_button.configure(state=tk.NORMAL)
+        self.preview_button.configure(state=tk.NORMAL)
         self.reset_button.configure(state=tk.NORMAL)
 
         if success:
@@ -2590,6 +2639,14 @@ class PipelineGUI(SettingsDialogMixin):
         )
         self.start_button.pack(side=tk.RIGHT)
 
+        self.preview_button = ttk.Button(
+            self.bottom_button_frame,
+            text="Vorschau aktualisieren",
+            style="Secondary.TButton",
+            command=self._start_preview,
+        )
+        self.preview_button.pack(side=tk.RIGHT, padx=(0, 12))
+
         self.reset_button = ttk.Button(
             self.bottom_button_frame,
             text="Zuruecksetzen",
@@ -2648,13 +2705,18 @@ class PipelineGUI(SettingsDialogMixin):
     def _set_analysis_scope(self, value):
         self.analysis_scope.set(value)
         self._update_dynamic_fields()
-        self._activate_step(self.step_4_card)
+
+    def _set_room_scope(self, value):
+        self.room_scope.set(value)
+        self._update_dynamic_fields()
+        self._activate_step(self.step_5_card)
 
     def _set_command(self, value):
         if value in DISABLED_GUI_COMMANDS:
             return
         self.command.set(value)
         self.load_subcommand.set("")
+        self.plot_template_mode.set("")
         self._update_dynamic_fields()
         self._activate_next_available_step_after(self.step_2_card)
 
@@ -2687,6 +2749,11 @@ class PipelineGUI(SettingsDialogMixin):
         self._update_dynamic_fields()
         self._advance_after_completed_single_choice(self.subcommand_card)
 
+    def _set_plot_template_mode(self, value):
+        self.plot_template_mode.set(value)
+        self._update_dynamic_fields()
+        self._advance_after_completed_single_choice(self.subcommand_card)
+
     def _set_comfort_type(self, value):
         self.comfort_type.set(value)
         self._update_dynamic_fields()
@@ -2701,12 +2768,14 @@ class PipelineGUI(SettingsDialogMixin):
         self._refresh_plot_template_defaults()
         self._populate_variants()
         self._update_scope_buttons()
+        self._update_room_scope_buttons()
         self._update_command_buttons()
         self._update_prepare_export_buttons()
         self._update_analysis_level_buttons()
         self._update_heating_mode_buttons()
         self._update_heating_layout_buttons()
         self._update_load_subcommand_buttons()
+        self._update_plot_template_mode_buttons()
         self._update_heating_view_buttons()
         self._update_step_visibility()
         self._update_subcommand_dependent_fields()
@@ -2724,19 +2793,29 @@ class PipelineGUI(SettingsDialogMixin):
         selected_command = self.command.get()
         no_command = not selected_command
         is_prepare = selected_command == "prepare"
-        show_subcommands = selected_command in {"comfort", "heating", "cooling"}
+        show_subcommands = selected_command in {"comfort", "heating", "cooling", "plot-template"}
         load_without_subcommand = selected_command in {"heating", "cooling"} and self.load_subcommand.get() not in {
             "bar",
             "timeline",
         }
-        hide_options_step = no_command or selected_command in {"prepare", "all"} or load_without_subcommand
-        show_overlays = selected_command == "plot-template" and template_uses_overlay_options(self.plot_template.get())
+        plot_template_without_mode = selected_command == "plot-template" and not self.plot_template_mode.get()
+        hide_options_step = (
+            no_command
+            or selected_command in {"prepare", "all", "comfort"}
+            or load_without_subcommand
+            or plot_template_without_mode
+        )
+        show_overlays = (
+            selected_command == "plot-template"
+            and bool(self.plot_template_mode.get())
+            and template_uses_overlay_options(self.plot_template.get())
+        )
         self._set_card_visible(self.subcommand_card, show_subcommands)
         self._set_card_visible(self.prepare_export_card, is_prepare)
         self._set_card_visible(self.step_3_card, not hide_options_step)
         self._set_card_visible(self.overlay_card, show_overlays)
-        self._set_card_visible(self.step_4_card, True)
-        self._set_card_visible(self.step_5_card, not is_prepare)
+        self._set_card_visible(self.step_4_card, not no_command)
+        self._set_card_visible(self.step_5_card, not no_command and not is_prepare)
 
     def _set_card_visible(self, card, visible):
         card.step_available = visible
@@ -2759,6 +2838,13 @@ class PipelineGUI(SettingsDialogMixin):
     def _update_scope_buttons(self):
         for scope, button in self.scope_buttons.items():
             if self.analysis_scope.get() == scope:
+                button.configure(bg=self.color_blue, fg="white")
+            else:
+                button.configure(bg=self.color_panel_light, fg=self.color_text)
+
+    def _update_room_scope_buttons(self):
+        for scope, button in self.room_scope_buttons.items():
+            if self.room_scope.get() == scope:
                 button.configure(bg=self.color_blue, fg="white")
             else:
                 button.configure(bg=self.color_panel_light, fg=self.color_text)
@@ -2827,6 +2913,12 @@ class PipelineGUI(SettingsDialogMixin):
             self.load_subcommand.get(),
         )
 
+    def _update_plot_template_mode_buttons(self):
+        self._update_selection_button_group(
+            self.plot_template_mode_buttons,
+            self.plot_template_mode.get(),
+        )
+
     def _update_heating_view_buttons(self):
         self._update_selection_button_group(
             self.heating_view_buttons,
@@ -2855,6 +2947,7 @@ class PipelineGUI(SettingsDialogMixin):
         for section in [
             self.comfort_section,
             self.load_subcommand_section,
+            self.plot_template_mode_section,
         ]:
             section.pack_forget()
 
@@ -2870,6 +2963,10 @@ class PipelineGUI(SettingsDialogMixin):
                 text="bar erzeugt Maximalwertdiagramme. timeline aktiviert die Zeitansichten."
             )
             self.load_subcommand_section.pack(fill=tk.X)
+            return
+
+        if selected_command == "plot-template":
+            self.plot_template_mode_section.pack(fill=tk.X)
 
     def _update_command_dependent_fields(self):
         selected_command = self.command.get()
@@ -2881,7 +2978,6 @@ class PipelineGUI(SettingsDialogMixin):
         heating_active = "heating" in steps
         cooling_active = "cooling" in steps
         load_active = heating_active or cooling_active
-        comfort_active = selected_command == "comfort"
 
         for section in [
             self.heating_mode_section,
@@ -2931,10 +3027,6 @@ class PipelineGUI(SettingsDialogMixin):
                 self.heating_view_section.pack(fill=tk.X, pady=(12, 0))
             return
 
-        if comfort_active:
-            self.analysis_section.pack(fill=tk.X)
-            return
-
         if analyze_active:
             self.heating_layout_title.configure(text="Excel-Ausgabe")
             self.heating_layout_section.pack(fill=tk.X, pady=(0, 12))
@@ -2963,23 +3055,9 @@ class PipelineGUI(SettingsDialogMixin):
             self.heating_time_view_buttons_section.pack_forget()
 
     def _update_comfort_options_for_analysis_level(self):
-        allowed_values = self.comfort_allowed_by_level.get(
-            self.analysis_level.get(),
-            self.comfort_allowed_by_level["Analyse Raum"],
-        )
-
-        if (
-            self.command.get() == "comfort"
-            and self.comfort_type.get()
-            and self.comfort_type.get() not in allowed_values
-        ):
-            self.comfort_type.set("")
-
-        disabled_values = {value for value in self.comfort_type_widgets if value not in allowed_values}
         self._update_selection_button_group(
             self.comfort_type_widgets,
             self.comfort_type.get(),
-            disabled_values=disabled_values,
         )
 
     def _update_heating_detail_fields(self):
@@ -3122,46 +3200,34 @@ class PipelineGUI(SettingsDialogMixin):
         )
 
     def _update_room_field(self):
-        if self.command.get() == "plot-template":
-            requires_single_room = template_requires_single_room(self.plot_template.get())
-            selectmode = tk.BROWSE if requires_single_room else tk.MULTIPLE
-            self.rooms_listbox.configure(state=tk.NORMAL, selectmode=selectmode)
-            self._set_step_5_enabled(True)
-            if not self.rooms_listbox.curselection():
-                self.room_note.configure(text="Fuer plot-template ist aktuell kein Raum ausgewaehlt.")
-                return
-            if requires_single_room:
-                self.room_note.configure(text="Dieses plot-template nutzt genau einen Raum fuer die Diagrammvorlage.")
-                return
-            self.room_note.configure(text="Dieses plot-template nutzt die ausgewaehlten Raeume fuer den Raumvergleich.")
+        if self.command.get() == "prepare":
             return
 
-        if self.command.get() in {"heating", "cooling", "analyze_data", "all"}:
-            self.rooms_listbox.configure(state=tk.NORMAL, selectmode=tk.MULTIPLE)
-            self._set_step_5_enabled(True)
-            if self.command.get() == "all":
-                self._update_room_note_state("All")
-                return
-            self._update_room_note_state(
-                "AnalyzeData"
-                if self.command.get() == "analyze_data"
-                else "Cooling"
-                if self.command.get() == "cooling"
-                else "Heating"
-            )
-            return
-
-        level = self.analysis_level.get()
-        if level == "Analyse Variante":
-            self.rooms_listbox.selection_clear(0, tk.END)
-            self.rooms_listbox.configure(state=tk.DISABLED, selectmode=tk.MULTIPLE)
-            self._set_step_5_enabled(False)
-            self._update_room_note_state(level)
-            return
-
-        self.rooms_listbox.configure(state=tk.NORMAL, selectmode=tk.MULTIPLE)
+        scope = self.room_scope.get()
         self._set_step_5_enabled(True)
-        self._update_room_note_state(level)
+        if not scope:
+            self.rooms_listbox.configure(state=tk.DISABLED, selectmode=tk.MULTIPLE)
+            self.room_note.configure(text="Bitte waehlen Sie zuerst den Raumumfang.")
+            return
+
+        if scope == "Alle Räume":
+            self.rooms_listbox.configure(state=tk.NORMAL, selectmode=tk.MULTIPLE)
+            self.rooms_listbox.selection_set(0, tk.END)
+            self.rooms_listbox.configure(state=tk.DISABLED, selectmode=tk.MULTIPLE)
+            if self.command.get() == "plot-template" and template_requires_single_room(self.plot_template.get()):
+                first_room = self.rooms_listbox.get(0) if self.rooms_listbox.size() else "-"
+                self.room_note.configure(
+                    text=f"Alle Raeume sind gewaehlt. Dieses plot-template nutzt genau einen Raum; verwendet wird: {first_room}."
+                )
+                return
+            self.room_note.configure(text="Alle bekannten Raeume werden verwendet.")
+            return
+
+        selectmode = tk.BROWSE if scope == "Ein Raum" else tk.MULTIPLE
+        if self.command.get() == "plot-template" and template_requires_single_room(self.plot_template.get()):
+            selectmode = tk.BROWSE
+        self.rooms_listbox.configure(state=tk.NORMAL, selectmode=selectmode)
+        self._update_room_note_state(scope)
 
     def _set_step_5_enabled(self, enabled):
         card_bg = self.color_panel if enabled else self.color_panel_light
@@ -3190,6 +3256,26 @@ class PipelineGUI(SettingsDialogMixin):
         self.room_note.configure(foreground=note_color)
 
     def _update_room_note_state(self, level):
+        if level == "Ein Raum":
+            if not self.rooms_listbox.curselection():
+                self.room_note.configure(text="Es ist aktuell kein Raum ausgewaehlt. Bitte waehlen Sie einen Raum.")
+                return
+            self.room_note.configure(text="Ein Raum ist aktiv. Es wird genau dieser Raum verwendet.")
+            return
+
+        if level == "Mehrere Räume":
+            if not self.rooms_listbox.curselection():
+                self.room_note.configure(
+                    text="Es ist aktuell kein Raum ausgewaehlt. Bitte waehlen Sie mindestens einen Raum."
+                )
+                return
+            self.room_note.configure(text="Mehrere Raeume sind aktiv. Es werden die ausgewaehlten Raeume verwendet.")
+            return
+
+        if level == "Alle Räume":
+            self.room_note.configure(text="Alle bekannten Raeume werden verwendet.")
+            return
+
         if level == "AnalyzeData":
             if not self.rooms_listbox.curselection():
                 self.room_note.configure(
@@ -3277,7 +3363,7 @@ class PipelineGUI(SettingsDialogMixin):
                     text="Dieses plot-template nutzt die ausgewaehlten Raeume fuer den Raumvergleich."
                 )
         else:
-            self._update_room_note_state(self.analysis_level.get())
+            self._update_room_note_state(self.room_scope.get())
         self._refresh_overlay_catalog()
         self._update_step_summaries()
 
@@ -3431,11 +3517,13 @@ class PipelineGUI(SettingsDialogMixin):
 
     def _reset_fields(self):
         self.analysis_scope.set("")
+        self.room_scope.set("")
         self.command.set("")
         self.prepare_export_format.set("")
         self.comfort_type.set("")
         self.analysis_level.set("")
         self.load_subcommand.set("")
+        self.plot_template_mode.set("")
         self.heating_mode.set("")
         self.heating_view.set("")
         self.heating_series_layout.set("")
@@ -3619,13 +3707,16 @@ class PipelineGUI(SettingsDialogMixin):
     def _get_selected_rooms(self):
         if self.command.get() == "prepare":
             return ROOMS.copy()
-        if self.command.get() in {"heating", "cooling", "analyze_data", "all", "plot-template"}:
-            selected_indices = self.rooms_listbox.curselection()
-            return [self.rooms_listbox.get(index) for index in selected_indices]
-        if self.analysis_level.get() == "Analyse Variante":
-            return ROOMS.copy()
+        if self.room_scope.get() == "Alle Räume":
+            rooms = ROOMS.copy()
+            if self.command.get() == "plot-template" and template_requires_single_room(self.plot_template.get()):
+                return rooms[:1]
+            return rooms
         selected_indices = self.rooms_listbox.curselection()
-        return [self.rooms_listbox.get(index) for index in selected_indices]
+        rooms = [self.rooms_listbox.get(index) for index in selected_indices]
+        if self.command.get() == "plot-template" and template_requires_single_room(self.plot_template.get()):
+            return rooms[:1]
+        return rooms
 
     def _validate_variant_sources(self, steps, variants):
         if not variants:
@@ -3633,6 +3724,10 @@ class PipelineGUI(SettingsDialogMixin):
             return False
 
         return True
+
+    def _start_preview(self):
+        self._set_status("Vorschau wird mit aktuellen Einstellungen erzeugt.")
+        self._start_pipeline()
 
     def _start_pipeline(self):
         if self.is_running_pipeline:
@@ -3648,9 +3743,6 @@ class PipelineGUI(SettingsDialogMixin):
             return
 
         if selected_command == "comfort":
-            if not self.analysis_level.get():
-                messagebox.showwarning("Warnung", "Bitte waehlen Sie eine Analyseebene.")
-                return
             if not self.comfort_type.get():
                 messagebox.showwarning("Warnung", "Bitte waehlen Sie einen Comfort-Unterbefehl.")
                 return
@@ -3659,8 +3751,16 @@ class PipelineGUI(SettingsDialogMixin):
             messagebox.showwarning("Warnung", "Bitte waehlen Sie eine Excel-Ausgabe.")
             return
 
+        if selected_command == "plot-template" and self.plot_template_mode.get() not in {"single", "compare"}:
+            messagebox.showwarning("Warnung", "Bitte waehlen Sie den Template-Modus single oder compare.")
+            return
+
         if not self.analysis_scope.get():
             messagebox.showwarning("Warnung", "Bitte waehlen Sie den Analyseumfang.")
+            return
+
+        if selected_command != "prepare" and not self.room_scope.get():
+            messagebox.showwarning("Warnung", "Bitte waehlen Sie den Raumumfang.")
             return
 
         if selected_command == "comfort":
@@ -3759,6 +3859,7 @@ class PipelineGUI(SettingsDialogMixin):
 
         self.is_running_pipeline = True
         self.start_button.configure(state=tk.DISABLED)
+        self.preview_button.configure(state=tk.DISABLED)
         self.reset_button.configure(state=tk.DISABLED)
         self._create_analysis_log_window(selected_command)
         self._set_status(f"Pipeline läuft: {selected_command}")
