@@ -42,6 +42,11 @@ from ..analysis.templates import (
     template_uses_overlay_options,
     validate_template_request,
 )
+from ..analysis_wizard import (
+    PLOT_TEMPLATE_ANALYSIS_GROUP_OPTIONS,
+    filter_templates_by_group_mode_and_view,
+    plot_template_group_label,
+)
 from ..app.commands import build_runtime_args, execute_steps, get_comfort_output_settings, run_all
 from ..core.config import DATENBANK_DIR, INPUT_DIR, OUTPUT_DIR, ROOMS
 from ..core.logging import command_log, should_log_command
@@ -299,6 +304,7 @@ class PipelineGUI(SettingsDialogMixin):
         self.comfort_type = tk.StringVar(value="")
         self.analysis_level = tk.StringVar(value="")
         self.load_subcommand = tk.StringVar(value="")
+        self.plot_template_group = tk.StringVar(value="")
         self.plot_template_mode = tk.StringVar(value="")
         self.heating_mode = tk.StringVar(value="")
         self.heating_view = tk.StringVar(value="")
@@ -1366,7 +1372,7 @@ class PipelineGUI(SettingsDialogMixin):
         self.step_card_descriptions = {
             self.step_2_card: "Befehl festlegen",
             self.subcommand_card: "Unterbefehl passend zum Befehl waehlen",
-            self.prepare_export_card: "Exportformat waehlen",
+            self.prepare_export_card: "Export oder Ausgabe waehlen",
             self.step_3_card: "Template / Diagramm auswaehlen",
             self.overlay_card: "Datenlinien fuer Plot-Templates auswaehlen",
             self.step_4_card: "Varianten passend zum Befehl auswaehlen",
@@ -1463,33 +1469,33 @@ class PipelineGUI(SettingsDialogMixin):
         )
         self.load_subcommand_note.pack(anchor=tk.W, pady=(6, 0))
 
-        self.plot_template_mode_section = tk.Frame(content, bg=self.color_panel)
+        self.plot_template_group_section = tk.Frame(content, bg=self.color_panel)
         ttk.Label(
-            self.plot_template_mode_section,
-            text="Template-Modus",
+            self.plot_template_group_section,
+            text="Diagrammgruppe",
             style="Dark.TLabel",
         ).pack(anchor=tk.W, pady=(0, 6))
-        _, self.plot_template_mode_buttons = self._create_selection_button_group(
-            self.plot_template_mode_section,
-            [
-                ("single", "single"),
-                ("compare", "compare"),
-            ],
-            self._set_plot_template_mode,
+        _, self.plot_template_group_buttons = self._create_selection_button_group(
+            self.plot_template_group_section,
+            [(value, plot_template_group_label(value)) for value in PLOT_TEMPLATE_ANALYSIS_GROUP_OPTIONS],
+            self._set_plot_template_group,
+            columns=3,
         )
-        self.plot_template_mode_note = ttk.Label(
-            self.plot_template_mode_section,
-            text="single ist fuer Einzelraum-Templates gedacht, compare fuer Vergleichsansichten.",
+        self.plot_template_group_note = ttk.Label(
+            self.plot_template_group_section,
+            text="Die Diagrammgruppe filtert die verfuegbaren Analyse-Templates.",
             style="Muted.TLabel",
             wraplength=640,
             justify=tk.LEFT,
         )
-        self.plot_template_mode_note.pack(anchor=tk.W, pady=(6, 0))
+        self.plot_template_group_note.pack(anchor=tk.W, pady=(6, 0))
 
     def _build_prepare_export_step(self):
-        self.prepare_export_card, content = self._create_step_card(self.left_column, 3, "Exportformat")
+        self.prepare_export_card, content = self._create_step_card(self.left_column, 3, "Export / Ausgabe")
 
-        button_frame = tk.Frame(content, bg=self.color_panel)
+        self.prepare_export_section = tk.Frame(content, bg=self.color_panel)
+        ttk.Label(self.prepare_export_section, text="Exportformat", style="Dark.TLabel").pack(anchor=tk.W, pady=(0, 6))
+        button_frame = tk.Frame(self.prepare_export_section, bg=self.color_panel)
         button_frame.pack(fill=tk.X)
         self.prepare_export_buttons = {}
         export_options = [
@@ -1515,13 +1521,35 @@ class PipelineGUI(SettingsDialogMixin):
             self.prepare_export_buttons[value] = button
 
         self.prepare_export_note = ttk.Label(
-            content,
+            self.prepare_export_section,
             text="CSV ist das operative Standardformat fuer die Folgeskripte.",
             style="Muted.TLabel",
             wraplength=640,
             justify=tk.LEFT,
         )
         self.prepare_export_note.pack(anchor=tk.W, pady=(10, 0))
+
+        self.plot_template_export_section = tk.Frame(content, bg=self.color_panel)
+        ttk.Label(self.plot_template_export_section, text="Ausgabemodus", style="Dark.TLabel").pack(
+            anchor=tk.W,
+            pady=(0, 6),
+        )
+        _, self.plot_template_mode_buttons = self._create_selection_button_group(
+            self.plot_template_export_section,
+            [
+                ("single", "single"),
+                ("compare", "compare"),
+            ],
+            self._set_plot_template_mode,
+        )
+        self.plot_template_mode_note = ttk.Label(
+            self.plot_template_export_section,
+            text="single ist fuer Einzelraum-Templates gedacht, compare fuer Vergleichsansichten.",
+            style="Muted.TLabel",
+            wraplength=640,
+            justify=tk.LEFT,
+        )
+        self.plot_template_mode_note.pack(anchor=tk.W, pady=(6, 0))
 
     def _create_selection_button_group(self, parent, options, command, columns=2, wraplength=240):
         """Erzeugt eine Einzelauswahl als Button-Raster mit festem 2-Spalten-Muster."""
@@ -2117,11 +2145,15 @@ class PipelineGUI(SettingsDialogMixin):
             if selected_command in {"heating", "cooling"}:
                 return self.load_subcommand.get() in {"bar", "timeline"}
             if selected_command == "plot-template":
-                return self.plot_template_mode.get() in {"single", "compare"}
+                return self.plot_template_group.get() in PLOT_TEMPLATE_ANALYSIS_GROUP_OPTIONS
             return False
 
         if card is self.prepare_export_card:
-            return bool(self.prepare_export_format.get())
+            if selected_command == "prepare":
+                return bool(self.prepare_export_format.get())
+            if selected_command == "plot-template":
+                return self.plot_template_mode.get() in {"single", "compare"}
+            return False
 
         if card is self.step_3_card:
             if selected_command == "plot-template":
@@ -2196,12 +2228,16 @@ class PipelineGUI(SettingsDialogMixin):
                 return f"Unterbefehl: {self.comfort_type.get()}"
             if self.command.get() in {"heating", "cooling"} and self.load_subcommand.get():
                 return f"Unterbefehl: {self.load_subcommand.get()}"
-            if self.command.get() == "plot-template" and self.plot_template_mode.get():
-                return f"Unterbefehl: {self.plot_template_mode.get()}"
+            if self.command.get() == "plot-template" and self.plot_template_group.get():
+                return f"Unterbefehl: {plot_template_group_label(self.plot_template_group.get())}"
             return ""
 
-        if card is self.prepare_export_card and self.prepare_export_format.get():
-            return f"Exportformat: {self.prepare_export_format.get()}"
+        if card is self.prepare_export_card:
+            if self.command.get() == "prepare" and self.prepare_export_format.get():
+                return f"Exportformat: {self.prepare_export_format.get()}"
+            if self.command.get() == "plot-template" and self.plot_template_mode.get():
+                return f"Ausgabe: {self.plot_template_mode.get()}"
+            return ""
 
         if card is self.step_3_card:
             selected_command = self.command.get()
@@ -2716,6 +2752,7 @@ class PipelineGUI(SettingsDialogMixin):
             return
         self.command.set(value)
         self.load_subcommand.set("")
+        self.plot_template_group.set("")
         self.plot_template_mode.set("")
         self._update_dynamic_fields()
         self._activate_next_available_step_after(self.step_2_card)
@@ -2752,6 +2789,11 @@ class PipelineGUI(SettingsDialogMixin):
     def _set_plot_template_mode(self, value):
         self.plot_template_mode.set(value)
         self._update_dynamic_fields()
+        self._advance_after_completed_single_choice(self.prepare_export_card)
+
+    def _set_plot_template_group(self, value):
+        self.plot_template_group.set(value)
+        self._update_dynamic_fields()
         self._advance_after_completed_single_choice(self.subcommand_card)
 
     def _set_comfort_type(self, value):
@@ -2765,6 +2807,7 @@ class PipelineGUI(SettingsDialogMixin):
         self._advance_after_completed_single_choice(self.step_3_card)
 
     def _update_dynamic_fields(self):
+        self._update_plot_template_choices()
         self._refresh_plot_template_defaults()
         self._populate_variants()
         self._update_scope_buttons()
@@ -2775,6 +2818,7 @@ class PipelineGUI(SettingsDialogMixin):
         self._update_heating_mode_buttons()
         self._update_heating_layout_buttons()
         self._update_load_subcommand_buttons()
+        self._update_plot_template_group_buttons()
         self._update_plot_template_mode_buttons()
         self._update_heating_view_buttons()
         self._update_step_visibility()
@@ -2793,25 +2837,29 @@ class PipelineGUI(SettingsDialogMixin):
         selected_command = self.command.get()
         no_command = not selected_command
         is_prepare = selected_command == "prepare"
+        is_plot_template = selected_command == "plot-template"
         show_subcommands = selected_command in {"comfort", "heating", "cooling", "plot-template"}
         load_without_subcommand = selected_command in {"heating", "cooling"} and self.load_subcommand.get() not in {
             "bar",
             "timeline",
         }
-        plot_template_without_mode = selected_command == "plot-template" and not self.plot_template_mode.get()
+        plot_template_without_group = is_plot_template and not self.plot_template_group.get()
+        plot_template_without_mode = is_plot_template and not self.plot_template_mode.get()
         hide_options_step = (
             no_command
             or selected_command in {"prepare", "all", "comfort"}
             or load_without_subcommand
+            or plot_template_without_group
             or plot_template_without_mode
         )
         show_overlays = (
-            selected_command == "plot-template"
+            is_plot_template
+            and bool(self.plot_template_group.get())
             and bool(self.plot_template_mode.get())
             and template_uses_overlay_options(self.plot_template.get())
         )
         self._set_card_visible(self.subcommand_card, show_subcommands)
-        self._set_card_visible(self.prepare_export_card, is_prepare)
+        self._set_card_visible(self.prepare_export_card, is_prepare or is_plot_template)
         self._set_card_visible(self.step_3_card, not hide_options_step)
         self._set_card_visible(self.overlay_card, show_overlays)
         self._set_card_visible(self.step_4_card, not no_command)
@@ -2919,6 +2967,12 @@ class PipelineGUI(SettingsDialogMixin):
             self.plot_template_mode.get(),
         )
 
+    def _update_plot_template_group_buttons(self):
+        self._update_selection_button_group(
+            self.plot_template_group_buttons,
+            self.plot_template_group.get(),
+        )
+
     def _update_heating_view_buttons(self):
         self._update_selection_button_group(
             self.heating_view_buttons,
@@ -2926,6 +2980,19 @@ class PipelineGUI(SettingsDialogMixin):
         )
 
     def _update_prepare_export_note(self):
+        if hasattr(self, "prepare_export_section"):
+            self.prepare_export_section.pack_forget()
+        if hasattr(self, "plot_template_export_section"):
+            self.plot_template_export_section.pack_forget()
+
+        if self.command.get() == "plot-template":
+            self.plot_template_export_section.pack(fill=tk.X)
+            return
+
+        if self.command.get() != "prepare":
+            return
+
+        self.prepare_export_section.pack(fill=tk.X)
         selected_format = self.prepare_export_format.get()
         if selected_format == "csv":
             self.prepare_export_note.configure(text="CSV ist das operative Standardformat fuer die Folgeskripte.")
@@ -2947,7 +3014,7 @@ class PipelineGUI(SettingsDialogMixin):
         for section in [
             self.comfort_section,
             self.load_subcommand_section,
-            self.plot_template_mode_section,
+            self.plot_template_group_section,
         ]:
             section.pack_forget()
 
@@ -2966,7 +3033,7 @@ class PipelineGUI(SettingsDialogMixin):
             return
 
         if selected_command == "plot-template":
-            self.plot_template_mode_section.pack(fill=tk.X)
+            self.plot_template_group_section.pack(fill=tk.X)
 
     def _update_command_dependent_fields(self):
         selected_command = self.command.get()
@@ -3017,6 +3084,7 @@ class PipelineGUI(SettingsDialogMixin):
             return
 
         if selected_command == "plot-template":
+            self._update_plot_template_choices()
             self.plot_template_section.pack(fill=tk.X)
             spec = get_plot_template_spec(self.plot_template.get())
             if spec is not None and is_time_filtered_template(self.plot_template.get()):
@@ -3417,6 +3485,51 @@ class PipelineGUI(SettingsDialogMixin):
         elif not columns:
             self.overlay_column.set("")
 
+    def _plot_template_specs_by_name(self):
+        return {template: get_plot_template_spec(template) for template in PLOT_TEMPLATE_CHOICES}
+
+    def _filtered_plot_template_choices(self):
+        group = self.plot_template_group.get()
+        mode = self.plot_template_mode.get()
+        if group not in PLOT_TEMPLATE_ANALYSIS_GROUP_OPTIONS or mode not in {"single", "compare"}:
+            return list(PLOT_TEMPLATE_CHOICES)
+
+        specs = self._plot_template_specs_by_name()
+        choices = []
+        views = [
+            "year",
+            "month",
+            "week",
+            "day",
+            "bar",
+            "plot",
+            "analysis",
+            "plot-overview",
+            "analysis-overview",
+            "monthly-sum",
+            "room-comparison",
+        ]
+        for view in views:
+            for template in filter_templates_by_group_mode_and_view(
+                PLOT_TEMPLATE_CHOICES,
+                specs,
+                group=group,
+                mode=mode,
+                view=view,
+            ):
+                if template not in choices:
+                    choices.append(template)
+        return choices or list(PLOT_TEMPLATE_CHOICES)
+
+    def _update_plot_template_choices(self):
+        if not hasattr(self, "plot_template_combo"):
+            return
+        choices = self._filtered_plot_template_choices()
+        self.plot_template_combo.configure(values=choices)
+        if choices and self.plot_template.get() not in choices:
+            self.plot_template.set(choices[0])
+            self._active_plot_template = None
+
     def _load_plot_template_defaults(self, template: str | None = None):
         template = template or self.plot_template.get()
         return get_plot_template_defaults(template, self.plot_template_config_path)
@@ -3751,9 +3864,13 @@ class PipelineGUI(SettingsDialogMixin):
             messagebox.showwarning("Warnung", "Bitte waehlen Sie eine Excel-Ausgabe.")
             return
 
-        if selected_command == "plot-template" and self.plot_template_mode.get() not in {"single", "compare"}:
-            messagebox.showwarning("Warnung", "Bitte waehlen Sie den Template-Modus single oder compare.")
-            return
+        if selected_command == "plot-template":
+            if self.plot_template_group.get() not in PLOT_TEMPLATE_ANALYSIS_GROUP_OPTIONS:
+                messagebox.showwarning("Warnung", "Bitte waehlen Sie eine Diagrammgruppe.")
+                return
+            if self.plot_template_mode.get() not in {"single", "compare"}:
+                messagebox.showwarning("Warnung", "Bitte waehlen Sie unter Export / Ausgabe single oder compare.")
+                return
 
         if not self.analysis_scope.get():
             messagebox.showwarning("Warnung", "Bitte waehlen Sie den Analyseumfang.")

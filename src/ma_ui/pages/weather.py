@@ -176,11 +176,18 @@ def render() -> None:
 
     active_datasets = catalog.active_datasets()
     active_count = len(active_datasets)
-    st.metric("Aktive Wetterdatensaetze", active_count)
-    st.dataframe(normalize_table_for_streamlit(weather_dataset_rows(catalog.datasets)), hide_index=True, width="stretch")
+
+    st.subheader("Analyse")
 
     if not active_datasets:
         st.info("Im Wetterkatalog ist aktuell kein aktiver Wetterdatensatz vorhanden.")
+        st.subheader("Wetterdatensaetze")
+        st.metric("Aktive Wetterdatensaetze", active_count)
+        st.dataframe(
+            normalize_table_for_streamlit(weather_dataset_rows(catalog.datasets)),
+            hide_index=True,
+            width="stretch",
+        )
         return
 
     datasets_by_key = {dataset.weather_key: dataset for dataset in active_datasets}
@@ -223,3 +230,11 @@ def render() -> None:
                 "Es liegt ein Analyseergebnis fuer einen anderen Wetterdatensatz vor. "
                 "Starte die Analyse fuer die aktuelle Auswahl neu."
             )
+
+    st.subheader("Wetterdatensaetze")
+    st.metric("Aktive Wetterdatensaetze", active_count)
+    st.dataframe(
+        normalize_table_for_streamlit(weather_dataset_rows(catalog.datasets)),
+        hide_index=True,
+        width="stretch",
+    )

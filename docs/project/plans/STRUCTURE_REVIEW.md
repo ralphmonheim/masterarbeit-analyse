@@ -44,7 +44,7 @@ technische Vorlage fuer Streamlit.
 - `data/catalogs/`: separater Bereich fuer Produkt-/Material-/Quellkataloge und Datenblaetter.
 - `data/test_output/`: lokaler, semi-wichtiger Arbeits- und Smoke-Test-Ordner.
 - `docs/project/plans/inbox/`: aktuelle, noch nicht archivierte Umsetzungsplaene.
-- `docs/project/plans/archived/`: umgesetzte oder alte Plaene.
+- `docs/project/archive/plans/`: umgesetzte oder alte Plaene.
 - `docs/project/architecture/`: Zielarchitektur, UI-Auslagerungsreview, UI-Migrationsplan, `ma_analyse`-Inventar und Service-Schnittstellenentwurf fuer P005.
 
 ## Staerken
@@ -77,7 +77,7 @@ technische Vorlage fuer Streamlit.
 ## Risiken
 
 - Eine weitere GUI-Aufteilung sollte nicht parallel zu groesseren Analyse-Refactorings erfolgen.
-- Die Plan-Inbox enthaelt aktive Plaene. Umgesetzte Plaene muessen konsequent nach `docs/project/plans/archived/` verschoben werden.
+- Die Plan-Inbox enthaelt aktive Plaene. Umgesetzte Plaene muessen konsequent nach `docs/project/archive/plans/` verschoben werden.
 - Eine direkte Verschiebung von `ma_analyse/gui/app.py` in `ma_ui` waere hohes Risiko, weil dort UI, Prozesssteuerung und Analyseoptionen eng gekoppelt sind.
 - Eine direkte Vermischung von Tkinter und Streamlit wuerde die Zielarchitektur unklar machen.
 - Eine zu fruehe Extraktion von `ma_parameters`, `ma_export_ida` oder `ma_assessment` aus `ma_variants` kann funktionierende Tests und Importpfade destabilisieren.

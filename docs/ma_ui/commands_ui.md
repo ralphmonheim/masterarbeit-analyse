@@ -82,7 +82,8 @@ Alternative:
   der Overlay-Katalog gezielt aus lokalen CSV-/AUX-Daten gelesen wird.
 - Die Seite `Wetterdaten` erlaubt die Auswahl eines aktiven `weather_key`,
   startet die lokale `ma_weather`-Analyse und zeigt erzeugte Wetterdiagramme
-  direkt in Streamlit an.
+  direkt in Streamlit an. Die Analysebedienung steht oben; die Uebersicht der
+  Wetterdatensaetze steht darunter.
 - Die bestehende Tkinter-GUI von `ma_analyse` bleibt separat bestehen.
 - Wenn Streamlit nach Codeaenderungen alte Importfehler zeigt, den laufenden
   Streamlit-Prozess stoppen und mit dem empfohlenen venv-Befehl neu starten.

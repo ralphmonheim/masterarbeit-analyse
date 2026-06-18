@@ -95,3 +95,39 @@ def test_plot_template_gui_room_requirement_helper_allows_room_comparison():
     assert template_requires_single_room("comfort-plot-overview") is False
     assert template_requires_single_room("heating-bar") is False
     assert template_requires_single_room("cooling-bar") is False
+
+
+def test_tkinter_plot_template_choices_follow_selected_diagram_group():
+    from ma_analyse.gui.app import PipelineGUI
+
+    class FakeVariable:
+        def __init__(self, value):
+            self.value = value
+
+        def get(self):
+            return self.value
+
+    gui = object.__new__(PipelineGUI)
+    gui.plot_template_group = FakeVariable("heating")
+    gui.plot_template_mode = FakeVariable("single")
+
+    choices = gui._filtered_plot_template_choices()
+
+    assert "heating-year" in choices
+    assert "heating-overlay" in choices
+    assert all(choice.startswith("heating-") for choice in choices)
+
+
+def test_tkinter_plot_template_choices_fall_back_before_group_and_mode_selection():
+    from ma_analyse.analysis.templates import PLOT_TEMPLATE_CHOICES
+    from ma_analyse.gui.app import PipelineGUI
+
+    class FakeVariable:
+        def get(self):
+            return ""
+
+    gui = object.__new__(PipelineGUI)
+    gui.plot_template_group = FakeVariable()
+    gui.plot_template_mode = FakeVariable()
+
+    assert gui._filtered_plot_template_choices() == list(PLOT_TEMPLATE_CHOICES)

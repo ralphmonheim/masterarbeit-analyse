@@ -14,3 +14,8 @@ Die Dokumentation ist nach Projektorganisation und Fachmodulen gegliedert.
 | `examples/` | belastbare Beispielausgaben, aktuell vor allem Plot-Template-Galerie |
 
 `CHANGELOG.md` bleibt im Projekt-Root und dokumentiert nur tatsaechlich umgesetzte Aenderungen.
+
+Der zentrale Orientierungsleitfaden fuer die Masterarbeit liegt unter
+`project/MASTERARBEIT_LEITFADEN.md`. Aeltere Leitfadenfassungen und externe
+Referenzen liegen unter `project/archive/leitfaeden/`. Ersetzte
+Workflow-Fassungen liegen unter `project/archive/workflow/`.

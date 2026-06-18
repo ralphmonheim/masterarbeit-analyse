@@ -1,6 +1,6 @@
 # Zielarchitektur
 
-Stand: 2026-06-10
+Stand: 2026-06-18
 
 ## Zweck
 
@@ -50,7 +50,9 @@ Wichtig:
 | `ma_export_ida` | Exportprozess vor der IDA-ICE-Simulation | teilweise in `ma_variants.ida_export` | Vorerst bestehende Logik nicht verschieben; spaeter Zielmodul pruefen | mittel |
 | `ma_import_ida` | Import und Standardisierung nach der IDA-ICE-Simulation | teilweise ueber `ma_variants.simulation_results` und `ma_analyse` | Schnittstelle erst dokumentieren, dann Importadapter planen | hoch |
 | `ma_analyse` | Analyse der IDA-ICE-Simulationsergebnisse | ja | Fachlogik dort belassen; GUI-Auslagerung separat pruefen | hoch |
-| `ma_assessment` | Wirtschaftlichkeit und Nachhaltigkeit | teilweise in `ma_variants.economic_analysis` | Economics/Sustainability als spaetere Oberstruktur planen | mittel |
+| `ma_economy` | Wirtschaftlichkeitsbewertung | teilweise in `ma_variants.economic_analysis` | Spaetere Extraktion separat planen; bestehende Logik vorerst nicht verschieben | mittel |
+| `ma_sustainability` | Nachhaltigkeits- und CO2-/GWP-Bewertung | nein | Zunaechst Datenbasis, Systemgrenzen und Quellen klaeren | mittel |
+| `ma_assessment` | Gesamtbewertung, Scoring, Ranking, Factsheets und Berichte | nein | Als Aggregator ueber `ma_analyse`, `ma_economy` und `ma_sustainability` planen | mittel |
 | `ma_feedback` | Problembehandlung und Rueckfuehrung in den Pre-Process | nein | Zunaechst nur dokumentieren; Implementierung erst nach stabilen Ergebnissen | mittel |
 | `ma_shared` | Gemeinsame technische Grundlagen | nein | Nur anlegen, wenn echte Wiederverwendung entsteht | mittel |
 
@@ -93,28 +95,42 @@ Simulation.
 |---|---|---|
 | 1 | `ma_import_ida` | IDA-ICE-Ergebnisordner erkennen, pruefen und standardisieren. |
 | 2 | `ma_analyse` | Simulationsergebnisse auswerten, Kennwerte, Diagramme und Reports erzeugen. |
-| 3 | `ma_assessment` | Bewertung ueber Wirtschaftlichkeit und spaeter Nachhaltigkeit. |
-| 4 | `ma_feedback` | Auffaelligkeiten und Rueckspruenge in Pre-Process-Module dokumentieren. |
+| 3 | `ma_economy` | Wirtschaftlichkeit, Kosten, Energiepreise, Lebensdauer und Szenarien bewerten. |
+| 4 | `ma_sustainability` | CO2, GWP, Emissionsfaktoren und Nachhaltigkeitskennwerte bewerten. |
+| 5 | `ma_assessment` | Ergebnisse aus Analyse, Economy und Sustainability zusammenfuehren und berichten. |
+
+### Feedback
+
+| Reihenfolge | Zielmodul | Aufgabe |
+|---|---|---|
+| 1 | `ma_feedback` | Auffaelligkeiten und Rueckspruenge in Pre-Process-Module dokumentieren. |
 
 ## ma_assessment Zielzuschnitt
 
-`ma_assessment` wird nicht als reine Wirtschaftlichkeitsdatei verstanden,
-sondern als Bewertungsoberstruktur.
+`ma_assessment` wird nicht als Rechenmodul fuer Wirtschaftlichkeit oder
+Nachhaltigkeit verstanden. Die eigentliche Fachlogik wird langfristig getrennt
+in `ma_economy` und `ma_sustainability` geplant.
+
+`ma_assessment` ist die uebergeordnete Bewertungs-, Scoring- und
+Berichtsschicht. Es sammelt Ergebnisse aus `ma_analyse`, `ma_economy` und
+`ma_sustainability` und erzeugt daraus Berichte, Factsheets, Rankings,
+Ampellogiken oder Entscheidungsvorlagen.
 
 ```text
 ma_assessment/
-  common/
-  economics/
-  sustainability/
+  scoring/
+  reports/
+  factsheets/
   adapters/
 ```
 
 Geplante Ausbaustufen:
 
-1. Generische Wirtschaftlichkeitsbewertung.
-2. Betriebsbezogene Nachhaltigkeit auf Basis von Simulationsergebnissen.
-3. Detailbewertung mit Produktdaten.
-4. Material- und Bauteilbezug, falls fachlich noetig.
+1. Reine Berichtsschicht fuer vorhandene Analyseergebnisse.
+2. Einbindung von `ma_economy`-Ergebnissen.
+3. Einbindung von `ma_sustainability`-Ergebnissen.
+4. Bewertungslogik mit Gewichtungen, Ampeln oder Ranking.
+5. Factsheets und Entscheidungsvorlagen fuer Varianten.
 
 ## Geplante Zielstruktur
 
@@ -195,10 +211,18 @@ src/
     services.py
     models.py
 
+  ma_economy/
+    services.py
+    models.py
+
+  ma_sustainability/
+    services.py
+    models.py
+
   ma_assessment/
-    common/
-    economics/
-    sustainability/
+    scoring/
+    reports/
+    factsheets/
     adapters/
 
   ma_shared/
@@ -254,9 +278,11 @@ Simulation
 Post-Process
   ma_import_ida
   ma_analyse
+  ma_economy
+  ma_sustainability
   ma_assessment
 
-Problembehandlung und Rueckfuehrung
+Feedback
   ma_feedback
   Ruecksprung in ma_parameters, ma_weather, ma_building,
   ma_variants oder ma_simulation_setup

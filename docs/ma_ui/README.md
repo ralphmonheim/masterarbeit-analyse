@@ -23,6 +23,8 @@ Masterarbeitsprojekt.
 - Startseite mit grafischem Workflow-Dashboard, Statuskennzahlen,
   Phasenkarten, Navigationsbuttons, Iterationspfaden und optionalen
   technischen Detailtabellen ist vorbereitet.
+- Workflow-Karten, Statuskennzahlen, Navigation und Detailtabellen verwenden
+  die zentral gepflegten Modulumsetzungsstaende aus `ma_workflow`.
 - Der grafische Workflow gehoert ausschliesslich auf die Startseite. Modulviews
   zeigen nur eigene Inhalte oder bei geplantem Stand eine blaue Hinweisbox.
 - Analyse-Seite ruft die UI-neutrale `ma_analyse`-Service-Fassade ueber
@@ -59,8 +61,9 @@ Masterarbeitsprojekt.
   Diagrammvorschau fuer Bilddateien und Log.
 - Varianten-Seite zeigt Parameter, Optionen, Variantenraum, Auswahlmethoden und
   vorhandene Exportdateien ueber bestehende `ma_variants`-Services.
-- Wetter-Seite zeigt lokale TRY-Datensaetze aus dem `ma_weather`-Katalog und ob
-  die referenzierten Dateien lokal vorhanden sind.
+- Wetter-Seite zeigt zuerst die Analysebedienung fuer einen aktiven
+  Wetterdatensatz und darunter die lokalen TRY-Datensaetze aus dem
+  `ma_weather`-Katalog inklusive Dateistatus.
 - Bewertungsseite zeigt generische Systemkosten, Energiepreise und Szenarien aus
   den vorhandenen Beispielannahmen. Variantenbezogene Kostenberechnung wird dort
   noch nicht gestartet.

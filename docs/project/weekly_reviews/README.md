@@ -37,4 +37,4 @@ Neue Wochenberichte sollen nach Kalenderwoche benannt werden, zum Beispiel:
 ## Archivregel
 
 Wochenberichte bleiben in diesem Ordner. Umgesetzte Plaene werden weiterhin
-unter `docs/project/plans/archived/` archiviert.
+unter `docs/project/archive/plans/` archiviert.

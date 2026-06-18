@@ -8,6 +8,6 @@ Vorgehen:
 2. Plan in `../PLAN_INDEX.md` eintragen.
 3. Relevante offene Punkte in `../PLAN_STATUS.md` zusammenfassen.
 4. Plan erst nach Pruefung und Freigabe umsetzen.
-5. Nach Umsetzung den Plan nach `../archived/` verschieben und `../PLAN_INDEX.md` sowie `../PLAN_STATUS.md` aktualisieren.
+5. Nach Umsetzung den Plan nach `../../archive/plans/` verschieben und `../PLAN_INDEX.md` sowie `../PLAN_STATUS.md` aktualisieren.
 
-Umgesetzte oder alte Plaene liegen unter `../archived/`.
+Umgesetzte oder alte Plaene liegen unter `../../archive/plans/`.

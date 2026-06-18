@@ -26,6 +26,11 @@ def render() -> None:
     """Zeigt vorbereitete Bewertungsannahmen ohne Variantenberechnung."""
     st.title("Bewertung")
     st.caption("Generische Kostenannahmen und Szenarien")
+    st.info(
+        "Diese Seite zeigt derzeit nur vorhandene Wirtschaftlichkeitsannahmen aus ma_variants. "
+        "ma_economy, ma_sustainability und die zusammenfassende ma_assessment-Logik "
+        "sind noch nicht als eigene Fachmodule umgesetzt."
+    )
 
     assumptions, errors = import_economic_assumptions(DEFAULT_ECONOMIC_CONFIG)
     if errors:

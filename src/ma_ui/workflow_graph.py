@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from ma_workflow import list_workflow_steps
 from ma_workflow.models import WorkflowStep
 
-VISUAL_PHASES = ("Pre-Process", "Simulation", "Post-Process", "Assessment", "Feedback/Abschluss")
+VISUAL_PHASES = ("Pre-Process", "Simulation", "Post-Process", "Feedback/Abschluss")
 
 STATUS_STYLES = {
     "available": {"label": "Verfuegbar", "color": "#1F8F4D", "background": "#E7F6EC"},
@@ -47,8 +47,6 @@ def status_style(status: str) -> dict[str, str]:
 
 def visual_phase_for_step(step: WorkflowStep) -> str:
     """Ordnet Workflow-Schritte dem visuellen Dashboard-Phasenmodell zu."""
-    if step.step_key == "assessment":
-        return "Assessment"
     if step.step_key == "feedback":
         return "Feedback/Abschluss"
     return step.phase

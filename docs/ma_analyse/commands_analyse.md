@@ -91,11 +91,12 @@ wo sie fachlich gebraucht werden:
 - `heating` und `cooling`: Unterbefehl `bar` oder `timeline`;
   `single`/`compare` liegt unter `Export / Ausgabe`; Zeitansicht, Overlay und
   Diagrammanpassung liegen unter `Template / Diagramm`.
-- `plot-template-analyse`: Diagrammgruppe unter `Unterbefehl`,
-  `single`/`compare` unter `Export / Ausgabe`; Zeitansicht, Template-Auswahl,
-  Overlay, Diagrammbearbeitung und Vorschau liegen unter
-  `Template / Diagramm`. Intern nutzt dieser UI-Befehl weiter den bestehenden
-  Backend-Befehl `plot-template`.
+- `plot-template` in Tkinter und `plot-template-analyse` in Streamlit:
+  Diagrammgruppe unter `Unterbefehl`, `single`/`compare` unter
+  `Export / Ausgabe`; Zeitansicht, Template-Auswahl, Overlay,
+  Diagrammbearbeitung und Vorschau liegen unter `Template / Diagramm`.
+  Intern nutzt die Streamlit-Variante weiter den bestehenden Backend-Befehl
+  `plot-template`.
 - Die Tkinter-GUI besitzt unten die Reihenfolge `Zuruecksetzen`,
   `Vorschau aktualisieren`, `Start`. Der Vorschau-Button nutzt aktuell den
   bestehenden Analysepfad mit den aktuellen Einstellungen; ein eingebettetes
@@ -186,6 +187,9 @@ spezifische Leistung `[W/m²]`.
 Thermal-Room-Climate-Templates kombinieren Sollwertband, interne Lasten total,
 Lueftung, Raumkaelte, Raumlufttemperatur und Aussenlufttemperatur als feste
 Raumklima-Vorlage. Die Leistungsachse zeigt aktuell absolute Leistung `[W]`.
+Die Frage nach absoluten oder flaechenbezogen normierten Werten wird spaeter
+nicht nur fuer einzelne Energy-Balance-Templates, sondern als allgemeine
+`ma_analyse`-Normierungsstrategie fuer passende Auswertungen geplant.
 Die Defaultwerte fuer Achsen, Sollwertband und Standard-Overlays liegen in
 `src/ma_analyse/settings/plot_templates.toml` oder in separaten Dateien im
 `src/ma_analyse/settings/plot_templates/`-Verzeichnis. Dort koennen einzelne

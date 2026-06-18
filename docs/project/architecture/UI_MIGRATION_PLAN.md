@@ -308,6 +308,9 @@ Noch offen aus dem Tkinter-Abgleich:
   gegen den bisherigen Tkinter-Ablauf pruefen.
 - Overlay-Bedienung fachlich testen: feste Overlays, freie Overlay-Linien,
   Entfernen und Experten-Textarea.
+- Overlay-Strategie umsetzen: freie Datenreihen sollen aus lokalen Analyse-/
+  Datenbankdaten in Diagramme geladen werden koennen; feste Additionen wie
+  Temperaturband und Achsenbereiche bleiben kontrollierte Diagrammoptionen.
 - Tkinter-Oberflaeche weiter reduzieren: Overlay und Diagrammbearbeitung
   langfristig in echte einklappbare Bereiche innerhalb `Template / Diagramm`
   ueberfuehren.
@@ -315,6 +318,9 @@ Noch offen aus dem Tkinter-Abgleich:
   nach `Export / Ausgabe`, Comfort-Unterbefehl `t_op / rel_hum`, Comfort-
   Diagramme nach `Template / Diagramm` und Vorschau-Button zwischen
   `Zuruecksetzen` und `Start`.
+- Tkinter-Vorschau so umsetzen, dass Vorschaubilder in einem temporaeren
+  Vorschau-/Cachebereich entstehen und den regulaeren Output-Ordner nicht
+  mit Testdiagrammen fuellen.
 
 ## Phase 7 Einbindung weiterer Module
 
@@ -323,10 +329,13 @@ Ziel: Streamlit als zentrale Oberflaeche fuer den Gesamtworkflow erweitern.
 Aufgaben:
 
 - `ma_weather` anbinden.
+- Wetterdiagramme bleiben zunaechst im Modulbereich `ma_weather`; ein eigener
+  UI-Befehl `plot-template-weather` bleibt ein offener spaeterer Strukturpunkt.
 - `ma_variants` anbinden.
 - `ma_parameters` anbinden.
 - `ma_simulation_setup` anbinden.
-- spaeter `ma_import_ida`, `ma_export_ida` und `ma_assessment` anbinden.
+- spaeter `ma_import_ida`, `ma_export_ida`, `ma_economy`,
+  `ma_sustainability` und `ma_assessment` anbinden.
 
 Ergebnis: Die UI bildet den Workflow der Masterarbeit ab.
 
@@ -342,7 +351,7 @@ Workflow-Aktionen als Zielvertrag:
 | IDA-Export starten | `run_ida_export` | Uebergabestruktur |
 | IDA-Import starten | `run_ida_import` | Ergebnisordner standardisieren |
 | Analyse starten | `run_analysis` | Simulationsergebnisanalyse |
-| Bewertung starten | `run_assessment` | Wirtschaftlichkeit und Nachhaltigkeit |
+| Bewertung starten | `run_assessment` | Gesamtbewertung, Scoring, Factsheets und Berichte |
 | Feedback oeffnen | `open_feedback` | Rueckfuehrung und Problembehandlung |
 
 ## Phase 8 Dokumentation und Planstatus

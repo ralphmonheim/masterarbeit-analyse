@@ -22,6 +22,7 @@ Keine. `ma_workflow` wird aktuell nicht direkt gestartet.
 Aktuelle pruefbare Bausteine:
 
 - Workflow-Katalog
+- zentrale Modulumsetzungsstaende fuer Streamlit
 - Dashboard-Aktionen
 - Pre-Process- und Post-Process-Listen
 - Feedback-Zielmodule

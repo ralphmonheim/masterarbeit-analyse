@@ -16,7 +16,7 @@ Dokumentationsroutine, kein Python-CLI-Befehl.
 
 | Ausloesephrase | Ziel | Ergebnis |
 | --- | --- | --- |
-| `aktualisieren` | Projektsteuerung und Versionslage aktualisieren | Codex prueft Projektlage, Planung, Entscheidungen, Command-Dokumentation, Changelog und Versionskonsistenz; die naechste Version wird vorgeschlagen, aber nicht automatisch geschrieben. |
+| `aktualisieren` | Projektsteuerung, Modulstatus und Versionslage aktualisieren | Codex prueft Projektlage, Planung, Entscheidungen, Command-Dokumentation, den Umsetzungsstand der Module, Streamlit-Statusanzeigen, Changelog und Versionskonsistenz; die naechste Version wird vorgeschlagen, aber nicht automatisch geschrieben. |
 | `tagesstart` / `Guten Morgen, es ist ein neuer Tag.` | Tagesuebersicht vorbereiten | Codex liest den Projektstand, pflegt bei Bedarf offene Nutzerentscheidungen und gibt offene Aufgaben nach Modulen aus; `ma_ui` wird nicht automatisch gestartet. |
 | `tagesende` / `Gute Nacht.` | Tagesstand dokumentieren und Repo-Update vorbereiten | Codex meldet laufende Projekt-Streamlit-Prozesse, aktualisiert Planstatus, Entscheidungen und Changelog, falls noetig, und gibt Terminal-Code fuer Commit, Tag und Push aus. |
 | `tagesende direkt` / `Gute Nacht direkt.` | Tagesstand dokumentieren und Repo direkt aktualisieren | Codex meldet laufende Projekt-Streamlit-Prozesse, aktualisiert Dokumente und fuehrt Commit, Tag und Push aus, sofern keine Blocker bestehen. |
@@ -54,6 +54,7 @@ Dokumentationsroutine, kein Python-CLI-Befehl.
 | Offene Entscheidungen aktualisieren | `docs/project/decisions/USER_DECISIONS_OPEN_POINTS.md` | offene Nutzerentscheidungen | Offene Punkte klar von getroffenen Entscheidungen trennen. |
 | Technische Entscheidungen aktualisieren | `docs/project/decisions/TECHNICAL_DECISIONS.md` | Architektur- und Umsetzungsentscheidungen | Nicht mit Nutzerentscheidungen vermischen. |
 | Command-Dokumentation aktualisieren | `docs/common/commands_common.md`, `docs/*/commands_*.md`, `docs/project/UPDATE_ROUTINES.md` | Sammelbefehle, Einzelbefehle, Test-/Referenzbefehle | Wenn Befehle, Routinen oder Startwege geaendert wurden, muessen die passenden Command-Dateien aktualisiert werden. |
+| Modulstatus pruefen | `src/`, `tests/`, modulbezogene Dokumentation, `src/ma_workflow/actions.py`, `src/ma_ui/navigation.py` | Fachpakete, Services, Views, Tests und zentrale Statuswerte | Status nur anhand vorhandener Implementierung und belastbarer Tests setzen; Streamlit bezieht Status aus dem Workflow-Katalog. |
 | Referenzen aktualisieren | `docs/examples/`, modulbezogene Beispielordner | Beispielbilder und Referenzoutputs | Nur durch `aktualisiere tests` oder expliziten Nutzerauftrag erzeugen. |
 
 ## Routine `aktualisieren`
@@ -66,12 +67,26 @@ Dokumentationsroutine, kein Python-CLI-Befehl.
    - modulbezogene `docs/*/commands_*.md`
    - `docs/project/UPDATE_ROUTINES.md`
 5. Fehlende oder veraltete Command-Eintraege aktualisieren, wenn Befehle, Routinen oder Startwege geaendert wurden.
-6. `CHANGELOG.md` unter `Unreleased` aktualisieren, wenn dokumentierte Aenderungen fehlen.
-7. Versionskonsistenz zwischen `pyproject.toml` und `src/ma_analyse/__init__.py` pruefen.
-8. Naechste sinnvolle Version vorschlagen.
-9. Eine konkrete Version nur schreiben, wenn sie im Nutzerbefehl genannt wird, zum Beispiel `aktualisieren 0.9.2`.
-10. Keine Git-Aktionen ausfuehren.
-11. Keine Beispielbilder, Wetteroutputs oder Plot-Galerien neu erzeugen.
+6. Umsetzungsstand aller Workflow-Module pruefen:
+   - vorhandene Pakete und zentrale Services unter `src/`
+   - nutzbare Modulansichten und Adapter
+   - vorhandene Tests und dokumentierte reale Testlaeufe
+   - noch ausgelagerte Logik in anderen Modulen
+7. Zentrale Statuswerte in `src/ma_workflow/actions.py` bei nachweisbarer
+   Abweichung aktualisieren. Statusbedeutung:
+   - `available`: Fachmodul ist fuer seinen aktuellen Umfang nutzbar und getestet.
+   - `partial`: wesentliche Logik existiert, liegt aber noch unvollstaendig oder in einem anderen Modul.
+   - `planned`: Zielmodul oder wesentliche Fachlogik fehlt.
+   - `manual`: externer oder bewusst manueller Prozessschritt.
+8. Pruefen, ob Streamlit-Navigation, Workflow-Karten, Kennzahlen und
+   Detailtabellen die zentralen Statuswerte korrekt anzeigen. Keine zweite
+   unabhaengige Statusliste pflegen.
+9. `CHANGELOG.md` unter `Unreleased` aktualisieren, wenn dokumentierte Aenderungen fehlen.
+10. Versionskonsistenz zwischen `pyproject.toml` und `src/ma_analyse/__init__.py` pruefen.
+11. Naechste sinnvolle Version vorschlagen.
+12. Eine konkrete Version nur schreiben, wenn sie im Nutzerbefehl genannt wird, zum Beispiel `aktualisieren 0.9.2`.
+13. Keine Git-Aktionen ausfuehren.
+14. Keine Beispielbilder, Wetteroutputs oder Plot-Galerien neu erzeugen.
 
 ## Routine `tagesstart`
 
@@ -154,7 +169,7 @@ git push origin vx.y.z
 1. Neue Plaene in `docs/project/plans/inbox/` lesen.
 2. `PLAN_INDEX.md` pruefen und fehlende Plaene ergaenzen.
 3. `PLAN_STATUS.md` nach Modulen aktualisieren.
-4. Umgesetzte Plaene nur nach Freigabe oder eindeutigem Abschluss nach `archived/` verschieben.
+4. Umgesetzte Plaene nur nach Freigabe oder eindeutigem Abschluss nach `docs/project/archive/plans/` verschieben.
 5. Nutzerentscheidungen in `USER_DECISIONS_MASTERTHESIS_CODE.md` dokumentieren.
 6. Offene Entscheidungen in `USER_DECISIONS_OPEN_POINTS.md` festhalten.
 7. Technische Entscheidungen getrennt in `TECHNICAL_DECISIONS.md` dokumentieren.

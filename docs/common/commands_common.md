@@ -40,9 +40,11 @@ keine Python-CLI-Befehle.
 
 Sammelbefehle buendeln mehrere Routinen oder Arbeitsbereiche.
 
+- `aktualisieren und tagesende direkt`
 - `aktualisieren`: Projektlage, Planung, Entscheidungen, Changelog,
-  Command-Dokumentation und Versionskonsistenz pruefen; naechste Version nur
-  vorschlagen; keine Git-Aktionen und keine Beispieloutputs erzeugen.
+  Command-Dokumentation, Modulumsetzungsstaende, zentrale
+  Streamlit-Statusanzeigen und Versionskonsistenz pruefen; naechste Version
+  nur vorschlagen; keine Git-Aktionen und keine Beispieloutputs erzeugen.
 - `tagesstart` oder `Guten Morgen, es ist ein neuer Tag.`: Projektstand lesen,
   offene Nutzerentscheidungen bei Bedarf pflegen und offene Aufgaben nach
   Modulen im Chat ausgeben; `ma_ui` wird nicht automatisch gestartet.

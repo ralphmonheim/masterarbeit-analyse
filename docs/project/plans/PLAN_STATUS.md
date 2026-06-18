@@ -1,17 +1,17 @@
 # Plan Status
 
-Stand: 2026-06-17
+Stand: 2026-06-18
 
-Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt und nach jeder Planumsetzung aktualisiert. Vollstaendige alte Planstaende liegen unter `docs/project/plans/archived/`.
+Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt und nach jeder Planumsetzung aktualisiert. Vollstaendige alte Planstaende liegen unter `docs/project/archive/plans/`.
 
 ## Projektorganisation
 
 ### Abgeschlossen
 
 - P003 Projektstruktur, Planungsbereich und Nutzerentscheidungen: modulare Dokumentationsstruktur, Planindex, Strukturreview, Cleanup-Plan, Implementierungshinweise und getrennter Bereich fuer Nutzerentscheidungen wurden vorbereitet. Betroffen: `docs/project/`, `docs/ma_analyse/`, `docs/ma_variants/`, `docs/ma_weather/`, `docs/common/`.
-- `docs/project/plans/archived/250604_Plan_Projektstruktur_Review_Planungsbereich_Nutzerentscheidungen.md` ist nach Umsetzung archiviert.
-- `docs/project/plans/archived/250603_Plan_Variantenmodul_GUI_Logikpruefung.md` ist nach Abschluss von P001 archiviert.
-- `docs/project/plans/archived/PLAN_Projektplan_Version_1_0_0.md` ist ein abgelegter Plan und nicht mehr die aktive Steuerdatei.
+- `docs/project/archive/plans/250604_Plan_Projektstruktur_Review_Planungsbereich_Nutzerentscheidungen.md` ist nach Umsetzung archiviert.
+- `docs/project/archive/plans/250603_Plan_Variantenmodul_GUI_Logikpruefung.md` ist nach Abschluss von P001 archiviert.
+- `docs/project/archive/plans/PLAN_Projektplan_Version_1_0_0.md` ist ein abgelegter Plan und nicht mehr die aktive Steuerdatei.
 - `data/test_output/` bleibt ein lokaler, semi-wichtiger Arbeits- und Smoke-Test-Ordner. Der Nutzer leert ihn regelmaessig manuell.
 - `docs/examples/plot_templates/` bleibt die belastbare Referenzgalerie fuer aktuelle `ma_analyse`-Plot-Template-Beispiele.
 - Der leere, nicht versionierte Ordner `scripts/` wurde entfernt.
@@ -24,8 +24,45 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - Nutzerentscheidung dokumentiert: Relative/absolute Cooling-Logik bleibt vorerst nur in Plot-Templates; Hauptportal und regulaerer `cooling`-Befehl werden erst nach Abschluss der Diagrammbearbeitung erneut geprueft.
 - Nutzerentscheidungen aus P005 dokumentiert: `ma_parameters` ersetzt `ma_input`, `ma_ui` und `ma_workflow` werden getrennte Zielmodule, `ma_analyse`-Fachlogik bleibt in `ma_analyse`, IDA-Export/-Import, Simulation-Setup, Assessment und Feedback werden getrennt geplant.
 - Nutzerentscheidungen aus P005 ergaenzt: Streamlit ist Zieltechnik fuer `ma_ui`; Tkinter bleibt Legacy-Bestand und wird nicht mit Streamlit vermischt; `ma_analyse` soll langfristig eine UI-neutrale Service-Schnittstelle erhalten.
-- Nutzerentscheidungen aus P005 verschaerft: `ma_simulation_setup` liegt zwischen Varianten und IDA-Export; die Tkinter-GUI dient als fachliche Ablaufvorlage, nicht als technische Streamlit-Vorlage; `ma_ui` zielt auf Dashboard, Workflow-Views, Shared-Komponenten und Module-Views; `ma_assessment` buendelt Economics und Sustainability.
+- Nutzerentscheidungen aus P005 verschaerft: `ma_simulation_setup` liegt zwischen Varianten und IDA-Export; die Tkinter-GUI dient als fachliche Ablaufvorlage, nicht als technische Streamlit-Vorlage; `ma_ui` zielt auf Dashboard, Workflow-Views, Shared-Komponenten und Module-Views.
+- Nutzerentscheidungen zu den naechsten Strukturpunkten dokumentiert: Tkinter-Vorschau soll ueber einen temporaeren Vorschau-/Cachebereich laufen, freie Overlay-Datenreihen sollen flexibel aus der Datenbasis geladen werden koennen, und Wetterdiagramme bleiben vorerst im Modul `ma_weather`.
+- Nutzerentscheidung dokumentiert: Normierungsfragen wie absolute Werte oder flaechenbezogene Werte `[W/m2]` sollen spaeter nicht nur fuer die Energiebilanz, sondern `ma_analyse`-weit fuer passende Auswertungen geplant werden.
+- Nutzerentscheidung dokumentiert: `ma_economy` und `ma_sustainability` werden als eigene Zielmodule geplant; `ma_assessment` bleibt als Bewertungs-, Scoring- und Berichtsschicht ueber Analyse, Economy und Sustainability bestehen.
+- Nutzerentscheidung dokumentiert: `ma_economy`, `ma_sustainability` und `ma_assessment` gehoeren in der Zielarchitektur zum Post-Process; `ma_feedback` bleibt eigener Feedback-Block.
+- Leitfaden-Versionierung eingefuehrt: alte Leitfadenfassungen liegen unter
+  `docs/project/archive/leitfaeden/`; Version 0.3.7 wurde vor der
+  Strukturueberarbeitung unveraendert archiviert. Die aktive Fassung ist
+  `MASTERARBEIT_LEITFADEN.md` Version 0.4.1 mit acht festen Hauptbereichen.
+- Methodische Untersuchungsdimension aufgenommen: manuellen, softwareunterstuetzten und automatisierten Prozessaufwand nach aktiver Arbeitszeit, Maschinenlaufzeit, Fehlerkorrektur und Wissensstand vergleichen; konkrete Messmethode bleibt offen.
+- Vollstaendigen Modulkatalog in den Leitfaden aufgenommen: Zweck, Eingaben, Ausgaben, Abgrenzung und Status sind fuer bestehende und geplante Module dokumentiert.
+- Miro-Workflow-Diagramm v0.1.1 als aktuellen Ist-Entwurf analysiert; die
+  korrigierte Zuordnung von `ma_economy`, `ma_sustainability` und
+  `ma_assessment` ist im Aenderungsreview dokumentiert. Original-JPG und
+  Review liegen versioniert unter `docs/project/architecture/workflow/`.
+- Ersetzte Workflow-Fassung v0.1.0 mit Grafik und Review nach
+  `docs/project/archive/workflow/` verschoben; v0.1.1 bleibt die aktive
+  Architekturreferenz.
+- Routine `aktualisieren` um einen belegbaren Modulstatusabgleich erweitert;
+  Streamlit-Navigation, Workflow-Karten, Kennzahlen und Detailtabellen leiten
+  ihre Statuswerte zentral aus `src/ma_workflow/actions.py` ab.
+- Aktuellen Modulstand abgeglichen: `ma_parameters`, `ma_export_ida`,
+  `ma_import_ida` und `ma_economy` sind teilweise vorhanden;
+  `ma_variants` und `ma_analyse` sind fuer ihren aktuellen Umfang verfuegbar;
+  `ma_building`, `ma_simulation_setup`, `ma_sustainability`,
+  `ma_assessment` und `ma_feedback` bleiben geplant.
 - P005 Phase 1/2 dokumentiert: `ma_analyse`-Bestandsanalyse und Service-Schnittstellenentwurf liegen unter `docs/project/architecture/`.
+
+### Entwurf
+
+- P006 `ma_export_ida`: Vollstaendiger Entwurfsplan liegt unter
+  `docs/project/plans/inbox/260618_Plan_ma_export_ida_IDM_Exportentwurf.md`.
+- Vor Umsetzung muessen `ma_variants.ida_export`, zentrale Pfade,
+  Variantenmodelle, bestehende Tests sowie lokale IDA-ICE-/IDM-/API-Hinweise
+  geprueft werden.
+- Erste Zielstufe: Referenzmodell kopieren, Exportordner pro Variante erzeugen,
+  Parameter und Metadaten dokumentieren sowie Exportindex schreiben.
+- Direkte IDM-Bearbeitung, Skriptbefehle und API-Aufrufe bleiben bis zur
+  technischen Verifikation offen.
 
 ### Teilweise umgesetzt
 
@@ -44,7 +81,7 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - P005 Varianten-Uebersicht in `ma_ui` ergaenzt: Parameter, Optionen, Variantenraum, Auswahlmethoden und Exportdateien werden ueber bestehende `ma_variants`-Services angezeigt.
 - P005 Wetter-Uebersicht in `ma_ui` ergaenzt: lokale TRY-Datensaetze werden aus dem `ma_weather`-Katalog angezeigt, ohne TRY-Dateien zu importieren.
 - P005 Bewertungs-Uebersicht in `ma_ui` ergaenzt: generische Systemkosten, Energiepreise und Szenarien werden aus bestehenden Wirtschaftlichkeitsannahmen angezeigt, ohne Variantenkosten zu berechnen.
-- P005 Planoptimierung nach verschaerfter Nutzer-Ausarbeitung umgesetzt: Zielstruktur fuer `ma_ui`, `ma_workflow`, `ma_assessment`, `ma_simulation_setup` und Tkinter-Legacy ist dokumentiert, ohne bestehende Dateien zu verschieben.
+- P005 Planoptimierung nach verschaerfter Nutzer-Ausarbeitung umgesetzt: Zielstruktur fuer `ma_ui`, `ma_workflow`, `ma_economy`, `ma_sustainability`, `ma_assessment`, `ma_simulation_setup` und Tkinter-Legacy ist dokumentiert, ohne bestehende Dateien zu verschieben.
 - P005 kompatibler Struktur-Slice umgesetzt: `ma_ui/shared/`, `ma_ui/module_views/`,
   `ma_ui/main_dashboard.py`, `ma_ui/workflow_view.py`, `ma_ui/pre_process_view.py`,
   `ma_ui/post_process_view.py` sowie die geplanten `ma_workflow`-Dateien fuer
@@ -91,7 +128,7 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - P005 Varianten- und Raumauswahl angepasst: Variantenumfang und Raumumfang
   liegen in den jeweiligen Bereichen; `Alle Varianten` wird an die
   Service-Fassade als automatische Variantenauswahl uebergeben.
-- P005 Plot-Template-Ablauf angepasst: Template-Modus, Zeitansicht, gefilterte
+- P005 Plot-Template-Ablauf angepasst: Zeitansicht, gefilterte
   Template-Auswahl, Overlay, Diagrammbearbeitung und Vorschau liegen im
   Bereich `Template / Diagramm`; Overlay-Katalog und freie Overlay-Linien
   werden erst nach Varianten- und Raumauswahl angeboten.
@@ -106,8 +143,13 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   vorerst den bestehenden Analysepfad mit aktuellen Einstellungen.
 - P005 Tkinter-Analyse pragmatisch angeglichen: Variantenumfang und
   Raumumfang liegen in den jeweiligen Karten, Comfort nutzt keine verpflichtende
-  Analyseebene mehr und `plot-template` besitzt einen Unterbefehl
-  `single`/`compare`.
+  Analyseebene mehr.
+- P005 Tkinter-Analyse korrigiert: Bei `plot-template` ist der Unterbefehl jetzt
+  die Diagrammgruppe; `single`/`compare` liegt wie in Streamlit im Schritt
+  `Export / Ausgabe`.
+- P005 Tkinter-Plot-Template-Auswahl durch automatisierte Tests fuer
+  Diagrammgruppenfilterung und den Fallback vor vollstaendiger Auswahl
+  abgesichert.
 - P005 UI-neutrale Analyse-Helfer ausgelagert: Auswahl-, Zeit-, Overlay- und
   Config-Aufbereitung liegen in `src/ma_analyse/analysis_ui.py`.
 - P005 Hybrid-Bedienung vorbereitet: Die Streamlit-Analyse-Seite kann die
@@ -138,13 +180,14 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   Der Umbau bleibt getrennt, damit die bestehende Legacy-GUI nicht instabil
   wird.
 - P005 offener Tkinter-Punkt: Eingebettetes Bild-Vorschaufenster fuer den
-  Vorschau-Button ergaenzen; aktuell startet der Button den bestehenden
-  Analysepfad.
+  Vorschau-Button ergaenzen. Die Vorschau soll einen temporaeren
+  Vorschau-/Cachebereich nutzen, damit der regulaere Output-Ordner nicht mit
+  fehlerhaften Testdiagrammen gefuellt wird.
 - P005 spaeterer Schritt: Tkinter-GUI erst nach separater Freigabe nach `ma_ui_legacy` auslagern.
 - P005 spaeterer Schritt: `ma_workflow`-Aktionsdateien mit echten Fachservice-Aufrufen erweitern.
-- P005 spaeterer Schritt: `ma_assessment` als separates Bewertungsmodul planen, bevor Wirtschaftlichkeitslogik aus `ma_variants` verschoben wird.
+- P005 spaeterer Schritt: `ma_economy`, `ma_sustainability` und `ma_assessment` getrennt planen, bevor Wirtschaftlichkeitslogik aus `ma_variants` verschoben oder erweitert wird.
 - Neue externe Plaene nach manueller Ablage in `docs/project/plans/inbox/` pruefen und in `PLAN_INDEX.md` sowie in diese Statusdatei uebernehmen.
-- Nach groesseren Aenderungen pruefen, ob alte Planstaende nach `docs/project/plans/archived/` ausgelagert werden sollen.
+- Nach groesseren Aenderungen pruefen, ob alte Planstaende nach `docs/project/archive/plans/` ausgelagert werden sollen.
 
 ## Modul ma_analyse
 
@@ -164,17 +207,22 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 
 ### Offen
 
-- Overlay-Uebernahme in Hauptfunktionen klaeren. Betroffen: `src/ma_analyse/analysis/heating.py`, `src/ma_analyse/analysis/cooling.py`, `src/ma_analyse/gui/app.py`, `src/ma_analyse/app/cli.py`.
+- Overlay-Uebernahme in Hauptfunktionen umsetzen: freie Datenreihen sollen aus
+  lokalen Analyse-/Datenbankdaten in die aktuelle Ansicht geladen werden
+  koennen; feste Additionen wie Temperaturband und Achsenbereiche bleiben
+  eigene kontrollierte Diagrammoptionen. Betroffen:
+  `src/ma_analyse/analysis/heating.py`, `src/ma_analyse/analysis/cooling.py`,
+  `src/ma_analyse/gui/app.py`, `src/ma_analyse/app/cli.py`.
 - Nach Abschluss der Diagrammbearbeitung pruefen, ob der normale `cooling`-Befehl und die GUI relative Rohwerte und absolute Betraege als eigene Modi erhalten sollen.
 - GUI in kleinere Komponenten fuer Layout, Dialoge, Auswahl und Laufsteuerung aufteilen. Betroffen: `src/ma_analyse/gui/app.py`.
 - Heating und Cooling weiter in Datenladen, Runner und Plotmodule zerlegen. Betroffen: `src/ma_analyse/analysis/heating.py`, `src/ma_analyse/analysis/cooling.py`, `src/ma_analyse/analysis/energy/`.
 
 ### Unklar
 
-- Welche Overlays sollen in Hauptfunktionen sichtbar werden: feste Standard-Overlays, freie Nutzer-Overlays oder nur CLI/Config?
 - Soll die relative/absolute Cooling-Logik nach Abschluss der Diagrammbearbeitung auch in den regulaeren `cooling`-Befehl und die GUI uebernommen werden?
 - Soll aus den Internal-Loads-Templates ein eigener Befehl entstehen oder eine Integration in bestehende Auswertungen?
-- Soll die Energiebilanz absolute Leistung `[W]` behalten oder spaeter auf `[W/m2]` umgerechnet werden?
+- Welche `ma_analyse`-Auswertungen sollen absolute Werte, flaechenbezogene Werte
+  wie `[W/m2]` oder beides anbieten, und welche Bezugsflaeche gilt dafuer?
 
 ## Modul ma_variants
 
@@ -188,7 +236,7 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - P001 Variantenoberflaeche: `src/ma_variants/ui/app.py` bildet Parameter/Optionen, Variantenraum, Auswahl, Namensgebung, Export, Ergebnisse und Status getrennt ab.
 - P001 UI-Services: `src/ma_variants/ui/services.py` kapselt manuelle Auswahl, reproduzierbare Zufallsauswahl, Filterauswahl und Namensgenerierung ausserhalb der Streamlit-Datei.
 - P001 Variantenmodul GUI und Logikpruefung ist abgeschlossen: `tests -k ma_variants` wurde erfolgreich ausgefuehrt und die Streamlit-App wurde headless gestartet.
-- P001 wurde nach `docs/project/plans/archived/250603_Plan_Variantenmodul_GUI_Logikpruefung.md` verschoben.
+- P001 wurde nach `docs/project/archive/plans/250603_Plan_Variantenmodul_GUI_Logikpruefung.md` verschoben.
 
 ### Offen
 
@@ -216,15 +264,22 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - Weitere aktive Jahresdatensaetze `TRY_FFM_2045`, `TRY_MUC_2015`,
   `TRY_MUC_2045`, `TRY_HAM_2015` und `TRY_HAM_2045` real pruefen.
 - Diagrammgestaltung fachlich pruefen und bei Bedarf an Masterarbeitslayout anpassen.
+- Offener Strukturpunkt: Wetterdiagramme bleiben vorerst im Modul `ma_weather`;
+  spaeter klaeren, ob zusaetzlich ein eigener UI-Hauptbefehl
+  `plot-template-weather` eingefuehrt wird.
 - P002 erst archivieren, wenn die vorgesehenen realen TRY-Datensaetze lokal erfolgreich verarbeitet wurden.
 
 ## Offene Nutzerentscheidungen
 
 - Nach Abschluss der Diagrammbearbeitung klaeren, ob relative/absolute Cooling-Logik in den regulaeren `cooling`-Befehl und in die GUI uebernommen wird.
+- Klaeren, ob `plot-template-weather` spaeter als eigener UI-Befehl eingefuehrt
+  wird oder Wetterdiagramme dauerhaft nur im Modulbereich `ma_weather` bleiben.
+- Klaeren, welche `ma_analyse`-Auswertungen absolute Werte, flaechenbezogene
+  Werte oder beides anbieten sollen und welche Bezugsflaeche verwendet wird.
 
 ## Archiv
 
-- `docs/project/plans/archived/2026-05-26.md`: alter Planstatus vor der modularen Struktur.
-- `docs/project/plans/archived/250603_Plan_Variantenmodul_GUI_Logikpruefung.md`: abgeschlossener P001-Plan.
-- `docs/project/plans/archived/250604_Plan_Projektstruktur_Review_Planungsbereich_Nutzerentscheidungen.md`: umgesetzter Strukturplan P003.
-- `docs/project/plans/archived/PLAN_Projektplan_Version_1_0_0.md`: abgelegter Projektplan Version 1.0.0.
+- `docs/project/archive/plans/2026-05-26.md`: alter Planstatus vor der modularen Struktur.
+- `docs/project/archive/plans/250603_Plan_Variantenmodul_GUI_Logikpruefung.md`: abgeschlossener P001-Plan.
+- `docs/project/archive/plans/250604_Plan_Projektstruktur_Review_Planungsbereich_Nutzerentscheidungen.md`: umgesetzter Strukturplan P003.
+- `docs/project/archive/plans/PLAN_Projektplan_Version_1_0_0.md`: abgelegter Projektplan Version 1.0.0.

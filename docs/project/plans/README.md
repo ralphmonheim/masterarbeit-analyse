@@ -10,6 +10,6 @@ Dieser Bereich steuert die Umsetzung. Er ersetzt keine Fachlogik und ist keine A
 - `STRUCTURE_REVIEW.md` dokumentiert Strukturstaerken, Schwachstellen und Risiken.
 - `CLEANUP_PLAN.md` trennt sichere Massnahmen von Aenderungen mit Rueckfragebedarf.
 - `IMPLEMENTATION_NOTES.md` enthaelt Regeln fuer spaetere Umsetzungen.
-- Alte Planstaende kommen nach `archived/`.
+- Alte Planstaende kommen nach `docs/project/archive/plans/`.
 
 Nicht alle Plaene werden gleichzeitig umgesetzt. Vor jeder Umsetzung wird der ausgewaehlte Plan gelesen, bewertet und erst danach umgesetzt.

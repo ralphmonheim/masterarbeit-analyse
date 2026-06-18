@@ -1,6 +1,6 @@
 # Cleanup Plan
 
-Stand: 2026-06-10
+Stand: 2026-06-18
 
 ## Sichere Sofortmassnahmen
 
@@ -29,13 +29,13 @@ Stand: 2026-06-10
 
 - Bestehende Analyse-GUI in mehrere Dateien aufteilen.
 - Allgemein nutzbare UI-Bestandteile aus `src/ma_analyse/gui/` nach `ma_ui` auslagern.
-- Neue Zielpakete `ma_parameters`, `ma_simulation_setup`, `ma_export_ida`, `ma_import_ida`, `ma_assessment`, `ma_building` oder `ma_feedback` anlegen.
+- Neue Zielpakete `ma_parameters`, `ma_simulation_setup`, `ma_export_ida`, `ma_import_ida`, `ma_economy`, `ma_sustainability`, `ma_assessment`, `ma_building` oder `ma_feedback` anlegen.
 - Bestehende `src/ma_ui/pages/`-Struktur nach und nach durch konkrete
   `src/ma_ui/module_views/` ersetzen.
 - Bestehendes `src/ma_workflow/actions.py` nach und nach durch echte
   Dashboard-Aktionen, Runner und Feedback-Routing ergaenzen.
-- `ma_variants.economic_analysis` in ein spaeteres `ma_assessment/economics/`
-  ueberfuehren.
+- `ma_variants.economic_analysis` in ein spaeteres `ma_economy` oder eine
+  passende Zwischenstruktur ueberfuehren.
 - Service-Fassade fachlich erweitern und Ergebnisobjekte detaillierter fuellen.
 - Bestehende Verantwortlichkeiten aus `ma_variants` in neue Zielmodule verschieben.
 - Heating-/Cooling-Dateien weiter zerlegen.
@@ -45,7 +45,7 @@ Stand: 2026-06-10
 
 - `src/ma_analyse/gui/app.py` in Layout, State, Dialoge, Runner und Ergebnisanzeige aufteilen.
 - `ma_ui` und `ma_workflow` schrittweise erweitern, ohne Fachlogik in die UI zu ziehen.
-- `ma_parameters`, `ma_export_ida` und `ma_assessment` erst nach stabilen Schnittstellen aus bestehenden `ma_variants`-Bereichen extrahieren.
+- `ma_parameters`, `ma_export_ida`, `ma_economy`, `ma_sustainability` und `ma_assessment` erst nach stabilen Schnittstellen aus bestehenden `ma_variants`-Bereichen extrahieren oder neu aufbauen.
 - `ma_simulation_setup` als eigenen Slice zwischen Variantenbildung und
   IDA-Export vorbereiten.
 - `src/ma_analyse/analysis/heating.py` und `cooling.py` ueber gemeinsame Energy-Komponenten weiter vereinheitlichen.

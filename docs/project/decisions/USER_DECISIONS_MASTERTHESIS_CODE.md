@@ -1,6 +1,6 @@
 # Nutzerentscheidungen Masterarbeit Code
 
-Stand: 2026-06-16
+Stand: 2026-06-18
 
 ## UD-001 Modulare Projektstruktur
 
@@ -198,13 +198,13 @@ Stand: 2026-06-16
 
 - Datum: 2026-06-08
 - Thema: Gesamtworkflow
-- Entscheidung: `ma_simulation_setup`, `ma_export_ida`, `ma_import_ida`, `ma_assessment` und `ma_feedback` werden als eigene Zielmodule gefuehrt. `ma_assessment` soll intern in Economics und Sustainability trennen.
+- Entscheidung: `ma_simulation_setup`, `ma_export_ida`, `ma_import_ida`, Bewertung und `ma_feedback` werden als eigene Zielbereiche gefuehrt. Die Bewertungsstruktur wurde spaeter durch UD-036 praezisiert.
 - Begruendung: Simulationsrandbedingungen, IDA-Uebergabe, Ergebnisimport, Bewertung und Rueckkopplung haben unterschiedliche Verantwortlichkeiten.
 - Auswirkung: Bestehende Logik in `ma_variants.ida_export`, `ma_variants.simulation_results` und `ma_variants.economic_analysis` bleibt vorerst bestehen und wird nur als spaetere Extraktionsquelle dokumentiert.
 - Betroffene Module oder Dateien: `src/ma_variants/ida_export.py`, `src/ma_variants/simulation_results.py`, `src/ma_variants/economic_analysis/`, spaeter neue Zielmodule
 - Status: getroffen
 - Offene Folgefragen: Nach P005-UI-Migrationsplan zuerst `ma_analyse`-Bestandsanalyse und Schnittstellenentwurf pruefen.
-- Quelle oder Chatbezug: P005 Gesamtmodulstruktur
+- Quelle oder Chatbezug: P005 Gesamtmodulstruktur, praezisiert durch UD-036
 
 ## UD-018 Streamlit als Zieltechnik fuer ma_ui
 
@@ -286,8 +286,8 @@ Stand: 2026-06-16
 - Begruendung: Wirtschaftlichkeitsanalyse, betriebsbezogene Nachhaltigkeit, Produktdaten und spaetere Material-/Bauteilbezuege gehoeren fachlich zusammen, sollen intern aber getrennt bleiben.
 - Auswirkung: Bestehende Wirtschaftlichkeitslogik in `ma_variants.economic_analysis` bleibt vorerst bestehen. Eine spaetere Extraktion nach `ma_assessment/economics/` erfolgt nur nach eigenem Plan.
 - Betroffene Module oder Dateien: `src/ma_variants/economic_analysis/`, spaeter `src/ma_assessment/`
-- Status: getroffen
-- Offene Folgefragen: Wann beginnt die Trennung von Economics und Sustainability?
+- Status: ueberholt durch UD-036
+- Offene Folgefragen: keine, durch getrennte Zielmodule `ma_economy`, `ma_sustainability` und Berichtsschicht `ma_assessment` ersetzt.
 - Quelle oder Chatbezug: P005 verschaerfte Bewertungsstruktur
 
 ## UD-025 Globaler Workflow nur auf der ma_ui-Startseite
@@ -373,3 +373,99 @@ Stand: 2026-06-16
 - Status: getroffen
 - Offene Folgefragen: Bei neuen TRY-Dateien Stadt, Jahr und vollstaendige Kennung pruefen.
 - Quelle oder Chatbezug: aktueller Codex-Chat zu TRY-Zuordnung
+
+## UD-032 Tkinter-Vorschau nutzt temporaeren Vorschauausgabeort
+
+- Datum: 2026-06-17
+- Thema: ma_analyse Tkinter-Vorschau
+- Entscheidung: Das Tkinter-Vorschaufenster soll Diagramme in einem temporaeren Vorschau- oder Cachebereich erzeugen, der automatisch geleert oder ueberschrieben werden kann.
+- Begruendung: Die Vorschau soll helfen, Diagramme vor dem finalen Export zu pruefen, ohne den regulaeren Output-Ordner mit vielen falschen Diagrammen zu fuellen.
+- Auswirkung: Der bestehende Button `Vorschau aktualisieren` soll perspektivisch nicht direkt dauerhaft in `data/ma_analyse/output/` schreiben, sondern einen getrennten Vorschaupfad nutzen und das Ergebnis im Vorschaufenster anzeigen.
+- Betroffene Module oder Dateien: `src/ma_analyse/gui/app.py`, spaeter Vorschau-/Cachepfad unter `data/test_output/` oder einem dedizierten Temp-Bereich
+- Status: getroffen
+- Offene Folgefragen: Konkreten Cachepfad und Loeschregel im Umsetzungsslice festlegen.
+- Quelle oder Chatbezug: aktueller Codex-Chat zu strukturellen Entscheidungen
+
+## UD-033 Overlay-Strategie bleibt frei, feste Additionen bleiben konfigurierbar
+
+- Datum: 2026-06-17
+- Thema: ma_analyse Diagramm-Overlays
+- Entscheidung: Overlays sollen grundsaetzlich frei gestaltet werden koennen. Linien oder Datenreihen aus der Datenbank sollen in die aktuelle Ansicht geladen werden koennen. Feste Additionen wie Temperaturband, Bandbreite und vorhandene Standardoptionen bleiben dagegen als eigene, klar konfigurierte Optionen gefuehrt.
+- Begruendung: Freie Datenreihen sind fuer flexible Diagrammvergleiche wichtig. Gleichzeitig brauchen fachlich feste Elemente wie Sollwert- oder Temperaturbaender stabile Optionen, damit sie nicht wie beliebige Datenreihen behandelt werden.
+- Auswirkung: Hauptfunktionen und Plot-Templates sollen langfristig freie Datenreihen aus lokalen Analyse-/Datenbankdaten ergaenzen koennen. Bestehende Bandlogik und Achsenbereiche bleiben kontrollierte Diagrammoptionen.
+- Betroffene Module oder Dateien: `src/ma_analyse/analysis/templates/`, `src/ma_analyse/analysis/heating.py`, `src/ma_analyse/analysis/cooling.py`, `src/ma_analyse/gui/app.py`, `src/ma_ui/module_views/analyse_view.py`
+- Status: getroffen
+- Offene Folgefragen: Bedienung und Validierung fuer freie Datenreihen in Hauptfunktionen separat umsetzen.
+- Quelle oder Chatbezug: aktueller Codex-Chat zu strukturellen Entscheidungen
+
+## UD-034 Wetterdiagramme bleiben vorerst in ma_weather
+
+- Datum: 2026-06-17
+- Thema: ma_weather und Plot-Template-Struktur
+- Entscheidung: Wetterdiagramme bleiben vorerst im Modul `ma_weather` und werden nicht sofort als eigener Hauptbefehl `plot-template-weather` in die `ma_analyse`-/Analyse-UI-Struktur integriert.
+- Begruendung: Wetterdatenanalyse ist fachlich ein eigenes Modul mit eigener Datensatzwahl. Eine Vermischung mit `ma_analyse`-Templates wuerde die aktuelle Analysebedienung unklarer machen.
+- Auswirkung: `ma_ui` zeigt Wetterdiagramme ueber die Wetterdaten-Seite. `plot-template-weather` bleibt als spaeterer Strukturpunkt offen.
+- Betroffene Module oder Dateien: `src/ma_weather/`, `src/ma_ui/module_views/weather_view.py`, spaeter optional `src/ma_ui/module_views/analyse_view.py`
+- Status: getroffen
+- Offene Folgefragen: Ob `plot-template-weather` spaeter als eigener UI-Befehl eingefuehrt wird, bleibt offen.
+- Quelle oder Chatbezug: aktueller Codex-Chat zu strukturellen Entscheidungen
+
+## UD-035 Normierung soll ma_analyse-weit gedacht werden
+
+- Datum: 2026-06-17
+- Thema: ma_analyse Ausgabe- und Diagrammnormierung
+- Entscheidung: Die Frage nach absoluten oder flaechenbezogen normierten Werten soll nicht nur fuer die Energiebilanz behandelt werden, sondern spaeter grundsaetzlich auf alle passenden Auswertungen unter `ma_analyse` anwendbar sein.
+- Begruendung: Die Einheit und Normierung beeinflussen Vergleichbarkeit, Diagrammgestaltung und spaetere Interpretation. Eine isolierte Sonderloesung nur fuer Energy Balance wuerde die Bedienung und Dokumentation inkonsistent machen.
+- Auswirkung: Kuenftige Auswertungen sollen eine einheitliche Strategie fuer absolute Werte, flaechenbezogene Werte wie `[W/m2]` und ggf. weitere Bezugsflaechen erhalten. Die konkrete Umsetzung erfolgt erst nach separater Planung.
+- Betroffene Module oder Dateien: `src/ma_analyse/analysis/`, `src/ma_analyse/analysis/templates/`, `src/ma_analyse/gui/app.py`, `src/ma_ui/module_views/analyse_view.py`, `docs/ma_analyse/`
+- Status: getroffen
+- Offene Folgefragen: Welche Bezugsflaeche gilt je Auswertung, woher kommt diese Flaeche, und welche Auswertungen duerfen fachlich normiert werden?
+- Quelle oder Chatbezug: aktueller Codex-Chat zu strukturellen Entscheidungen
+
+## UD-036 Economy, Sustainability und Assessment werden getrennt geplant
+
+- Datum: 2026-06-18
+- Thema: Bewertungsarchitektur
+- Entscheidung: `ma_economy` und `ma_sustainability` werden langfristig als eigene Fachmodule geplant. `ma_assessment` bleibt als uebergeordnete Bewertungs-, Scoring- und Berichtsschicht bestehen.
+- Begruendung: Der spaetere Umfang von Wirtschaftlichkeit und Nachhaltigkeit ist noch nicht sicher abschaetzbar. Getrennte Fachmodule verhindern, dass ein gemeinsames Bewertungsmodul zu breit wird. `ma_assessment` kann trotzdem spaeter Ergebnisse aus Analyse, Wirtschaftlichkeit und Nachhaltigkeit zu Berichten, Scores, Rankings oder Factsheets zusammenfuehren.
+- Auswirkung: `ma_assessment` wird nicht mehr als Ort fuer die eigentliche Economy- oder Sustainability-Rechenlogik verstanden. Bestehende Wirtschaftlichkeitslogik in `ma_variants.economic_analysis` bleibt vorerst bestehen und wird erst nach eigenem Plan nach `ma_economy` oder eine passende Zwischenstruktur ueberfuehrt.
+- Betroffene Module oder Dateien: spaeter `src/ma_economy/`, `src/ma_sustainability/`, `src/ma_assessment/`, aktuell `src/ma_variants/economic_analysis/`, `docs/project/MASTERARBEIT_LEITFADEN.md`, `docs/project/architecture/TARGET_ARCHITECTURE.md`
+- Status: getroffen
+- Offene Folgefragen: Wann werden `ma_economy`, `ma_sustainability` und `ma_assessment` als Codepakete angelegt?
+- Quelle oder Chatbezug: aktueller Codex-Chat zum zusammengefuehrten Masterarbeitsleitfaden
+
+## UD-037 Economy, Sustainability und Assessment gehoeren zum Post-Process
+
+- Datum: 2026-06-18
+- Thema: Workflow-Zielarchitektur
+- Entscheidung: `ma_economy`, `ma_sustainability` und `ma_assessment` gehoeren in der Zielarchitektur zum Post-Process. `ma_feedback` bleibt danach als eigener Feedback-Block bestehen.
+- Begruendung: Economy, Sustainability und Assessment bauen auf importierten, aufbereiteten und analysierten Simulationsdaten auf. Feedback hat eine andere Aufgabe: Auffaelligkeiten, Rueckspruenge und Folgearbeiten in Pre-Process-Module dokumentieren.
+- Auswirkung: Der Zielworkflow lautet: Pre-Process, Simulation, Post-Process mit `ma_import_ida`, `ma_analyse`, `ma_economy`, `ma_sustainability`, `ma_assessment`, danach Feedback mit `ma_feedback`.
+- Betroffene Module oder Dateien: `docs/project/MASTERARBEIT_LEITFADEN.md`, `docs/project/architecture/TARGET_ARCHITECTURE.md`, spaeter `src/ma_workflow/`
+- Status: getroffen
+- Offene Folgefragen: keine
+- Quelle oder Chatbezug: aktueller Codex-Chat zur Zielarchitektur
+
+## UD-038 Manuellen und automatisierten Prozessaufwand vergleichen
+
+- Datum: 2026-06-18
+- Thema: Methodik, Prozessinnovation und Wirtschaftlichkeit
+- Entscheidung: Die Masterarbeit soll abschaetzen und nach Moeglichkeit messen, welchen Zeitaufwand ein Mitarbeiter fuer den Workflow manuell, softwareunterstuetzt und automatisiert benoetigt. Unterschiedliche Wissensstaende sollen als Szenarien oder Vergleichsgruppen beruecksichtigt werden. Aus aktiver Arbeitszeit und dokumentierten Stundensaetzen kann ein Personalkostenvergleich abgeleitet werden.
+- Begruendung: Der Nutzen der entwickelten Software besteht nicht nur in technischen Ergebnissen, sondern auch in Zeitersparnis, geringerer Fehleranfaelligkeit, besserer Wiederholbarkeit und strukturierter Dokumentation.
+- Auswirkung: Zeitarten wie aktive Arbeitszeit, Maschinenlaufzeit, Wartezeit, Einarbeitung, Fehlerkorrektur und Wiederholungsaufwand werden getrennt betrachtet. Die Ergebnisse koennen spaeter in `ma_economy` und `ma_assessment` einfliessen.
+- Betroffene Module oder Dateien: `docs/project/MASTERARBEIT_LEITFADEN.md`, spaeter `ma_economy`, `ma_assessment` und eine methodische Erfassung der Prozesszeiten
+- Status: getroffen
+- Offene Folgefragen: Wissensprofile, Stundensaetze, Messmethode, Stichprobengroesse und Abgrenzung des betrachteten Workflows festlegen.
+- Quelle oder Chatbezug: aktueller Codex-Chat zur Ergaenzung des Masterarbeitsleitfadens
+
+## UD-039 Aktualisieren prueft Modulumsetzung und Streamlit-Status
+
+- Datum: 2026-06-18
+- Thema: Projektpflege und zentrale UI-Statusanzeigen
+- Entscheidung: Die Routine `aktualisieren` prueft kuenftig, in welchem Umfang die Workflow-Module fachlich umgesetzt sind, und gleicht die zentralen Statuswerte fuer die Streamlit-Anzeigen damit ab.
+- Begruendung: Statische, mehrfach gepflegte Statusangaben werden bei wachsendem Projekt schnell widerspruechlich. Die Startseite soll den tatsaechlichen, belegbaren Umsetzungsstand zeigen.
+- Auswirkung: Fachpakete, Services, Views, Tests und Dokumentation werden als Nachweise geprueft. Die Statuswerte `available`, `partial`, `planned` und `manual` werden zentral in `ma_workflow` gepflegt; Navigation und Dashboard leiten ihre Anzeige daraus ab.
+- Betroffene Module oder Dateien: `docs/project/UPDATE_ROUTINES.md`, `docs/common/commands_common.md`, `src/ma_workflow/actions.py`, `src/ma_ui/navigation.py`, `src/ma_ui/workflow_graph.py`
+- Status: getroffen
+- Offene Folgefragen: keine
+- Quelle oder Chatbezug: aktueller Codex-Chat zur Erweiterung von `aktualisieren`

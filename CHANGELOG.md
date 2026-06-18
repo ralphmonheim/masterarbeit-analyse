@@ -4,7 +4,31 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.11.0 - 2026-06-18
+
 ### Changed
+- Strukturelle Nutzerentscheidungen dokumentiert: Tkinter-Vorschau soll einen temporaeren Vorschau-/Cachebereich nutzen, Overlays sollen freie Datenreihen aus der Datenbasis plus feste Diagrammoptionen erlauben, und Wetterdiagramme bleiben vorerst im Modul `ma_weather`.
+- `ma_ui`-Wetterseite umsortiert: Analyseauswahl und Analyseergebnis stehen vor der Wetterdatensatzuebersicht.
+- Normierungsfrage fuer `ma_analyse` verallgemeinert: absolute und flaechenbezogene Werte sollen spaeter als modulweite Ausgabe-/Diagrammstrategie geplant werden, nicht nur als Energy-Balance-Sonderfall.
+- Tkinter-Analyse korrigiert: Bei `plot-template` ist der Unterbefehl jetzt die Diagrammgruppe; `single`/`compare` liegt im Schritt `Export / Ausgabe`.
+- Tkinter-Plot-Template-Auswahl mit Tests fuer Diagrammgruppenfilterung und den vollstaendigen Fallback vor der Auswahl abgesichert.
+- Zentralen Leitfaden `docs/project/MASTERARBEIT_LEITFADEN.md` als Orientierungsdatei fuer Ziel, Workflow, Module, Datenstruktur, UI und offene Strukturpunkte angelegt.
+- Leitfaden-Versionierung eingefuehrt: Codex-Erstfassung und ChatGPT-Referenz wurden unter `docs/project/archive/leitfaeden/` archiviert, die aktive Leitfadenversion 0.3.0 fuehrt beide Quellen mit der neuen Bewertungsarchitektur zusammen.
+- Bewertungsarchitektur dokumentiert: `ma_economy` und `ma_sustainability` werden als eigene Zielmodule geplant; `ma_assessment` bleibt als Bewertungs-, Scoring- und Berichtsschicht.
+- Leitfaden auf Version 0.3.1 aktualisiert: Economy, Sustainability und Assessment gehoeren im Zielworkflow zum Post-Process; Feedback bleibt eigener Block.
+- Archivierte Plaene aus `docs/project/plans/archived/` nach `docs/project/archive/plans/` verschoben und aktive Planverweise aktualisiert.
+- P006 als Entwurf fuer `ma_export_ida` aufgenommen und Leitfaden auf Version 0.3.2 um Grundsaetze fuer Referenzmodell, Variantenexport, IDM-Sicherheit, Mapping und optionale API-Anbindung erweitert.
+- Leitfaden auf Version 0.3.3 erweitert: manueller, softwareunterstuetzter und automatisierter Prozessaufwand soll nach Wissensstand, aktiver Arbeitszeit, Maschinenlaufzeit, Fehlerkorrektur und Personalkosten verglichen werden.
+- Leitfaden auf Version 0.3.4 erweitert: einheitlicher Modulkatalog dokumentiert Zweck, Ein- und Ausgaben, Abgrenzung und Status aller bestehenden und geplanten Module.
+- Leitfaden auf Version 0.3.5 erweitert und aktuellen Miro-Workflow als Ist-Entwurf fachlich analysiert; Workflow-Review und Ablagestruktur unter `docs/project/architecture/workflow/` ergaenzt.
+- Leitfaden auf Version 0.3.6 aktualisiert und Original-JPG des Miro-Workflows unter `docs/project/architecture/workflow/` versioniert sowie direkt verlinkt.
+- Leitfaden auf Version 0.3.7 aktualisiert: neu hochgeladenen Miro-Workflow v0.1.1 als aktuellen Ist-Entwurf dokumentiert, Aenderungsreview ergaenzt und die korrigierte Zuordnung von `ma_economy`, `ma_sustainability` und `ma_assessment` festgehalten.
+- Leitfaden-Version 0.3.7 unveraendert archiviert und die aktive Version 0.4.0 in acht feste Hauptbereiche gegliedert: Zweck, Gesamtworkflow, Moduluebersicht, Daten-/Dokumentationsstruktur, UI-/Workflow-Struktur, Arbeitsroutinen, wichtigste Entscheidungen und offene Strukturpunkte.
+- Workflow-Archiv unter `docs/project/archive/workflow/` angelegt und die ersetzte Grafik-/Review-Fassung v0.1.0 dorthin verschoben; v0.1.1 bleibt die aktive Architekturreferenz.
+- Routine `aktualisieren` erweitert: Fachpakete, Services, Views, Tests und Dokumentation werden zur Bewertung der Modulumsetzungsstaende geprueft.
+- Streamlit-Statusanzeigen zentralisiert: Navigation, Workflow-Karten, Kennzahlen und Detailtabellen verwenden die Statuswerte aus `ma_workflow`.
+- Workflow-Status an den belegbaren Projektstand angepasst und Economy, Sustainability sowie Assessment als getrennte Post-Process-Schritte dargestellt.
+- Leitfaden auf Version 0.4.1 aktualisiert und Modulstatus sowie Workflow-Archiv dokumentiert.
 
 ## 0.10.0 - 2026-06-17
 

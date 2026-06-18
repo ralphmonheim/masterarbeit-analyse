@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from ma_workflow import get_workflow_step
+
 CURRENT_PAGE_SESSION_KEY = "ma_ui_current_page"
 
 
@@ -17,18 +19,45 @@ class NavigationPage:
     status: str
 
 
-_NAVIGATION_PAGES: tuple[NavigationPage, ...] = (
-    NavigationPage("home", "Start", "project", "available"),
-    NavigationPage("parameters", "Parameter", "ma_parameters", "planned"),
-    NavigationPage("weather", "Wetterdaten", "ma_weather", "partial"),
-    NavigationPage("building", "Gebaeude", "ma_building", "planned"),
-    NavigationPage("variants", "Varianten", "ma_variants", "partial"),
-    NavigationPage("simulation_setup", "Simulation Setup", "ma_simulation_setup", "planned"),
-    NavigationPage("export_ida", "IDA Export", "ma_export_ida", "planned"),
-    NavigationPage("import_ida", "IDA Import", "ma_import_ida", "planned"),
-    NavigationPage("analyse", "Analyse", "ma_analyse", "partial"),
-    NavigationPage("assessment", "Bewertung", "ma_assessment", "planned"),
-    NavigationPage("feedback", "Feedback", "ma_feedback", "planned"),
+_PAGE_TO_WORKFLOW_STEP = {
+    "parameters": "parameters",
+    "weather": "weather",
+    "building": "building",
+    "variants": "variants",
+    "simulation_setup": "simulation_setup",
+    "export_ida": "ida_export",
+    "import_ida": "ida_import",
+    "analyse": "analyse",
+    "assessment": "assessment",
+    "feedback": "feedback",
+}
+
+
+def _workflow_status(page_key: str) -> str:
+    """Leitet den Seitenstatus aus dem zentralen Workflow-Katalog ab."""
+    step_key = _PAGE_TO_WORKFLOW_STEP.get(page_key)
+    if step_key is None:
+        return "available"
+    return get_workflow_step(step_key).status
+
+
+_NAVIGATION_PAGE_DEFINITIONS: tuple[tuple[str, str, str], ...] = (
+    ("home", "Start", "project"),
+    ("parameters", "Parameter", "ma_parameters"),
+    ("weather", "Wetterdaten", "ma_weather"),
+    ("building", "Gebaeude", "ma_building"),
+    ("variants", "Varianten", "ma_variants"),
+    ("simulation_setup", "Simulation Setup", "ma_simulation_setup"),
+    ("export_ida", "IDA Export", "ma_export_ida"),
+    ("import_ida", "IDA Import", "ma_import_ida"),
+    ("analyse", "Analyse", "ma_analyse"),
+    ("assessment", "Bewertung", "ma_assessment"),
+    ("feedback", "Feedback", "ma_feedback"),
+)
+
+_NAVIGATION_PAGES: tuple[NavigationPage, ...] = tuple(
+    NavigationPage(page_key, label, module_key, _workflow_status(page_key))
+    for page_key, label, module_key in _NAVIGATION_PAGE_DEFINITIONS
 )
 
 

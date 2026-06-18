@@ -10,6 +10,7 @@ Er ist Planungs- und Entscheidungsgrundlage, keine Fachlogik.
 - `UI_MIGRATION_PLAN.md`: Phasenplan fuer Streamlit-Ziel-UI, Tkinter-Legacy und UI-neutrale Fachlogik.
 - `MA_ANALYSE_INVENTORY.md`: Bestandsanalyse von `ma_analyse` fuer P005.
 - `MA_ANALYSE_SERVICE_INTERFACE.md`: Zielvertrag fuer `AnalysisConfig`, `AnalysisResult` und `run_analysis(config)`.
+- `workflow/`: aktuelle Workflow-Diagramme und fachliche Strukturreviews.
 
 ## Regeln
 

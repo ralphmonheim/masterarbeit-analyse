@@ -9,4 +9,7 @@ from ma_ui.shared.widgets import render_placeholder
 def render() -> None:
     """Zeigt den geplanten IDA-Importbereich ohne eigene Fachlogik."""
     render_page_header("IDA Import", "Zuordnung und Standardisierung von Ergebnisordnern")
-    render_placeholder("ma_import_ida ist als spaeterer Post-Process-Schritt geplant.")
+    render_placeholder(
+        "Ergebnisadapter und Aufbereitung sind teilweise vorhanden. "
+        "Das eigenstaendige Zielmodul ma_import_ida ist noch nicht umgesetzt."
+    )

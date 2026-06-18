@@ -85,6 +85,7 @@ from ma_ui.workflow_graph import (
 from ma_ui.workflow_view import workflow_step_rows
 from ma_variants.economic_analysis import import_economic_assumptions
 from ma_weather import WeatherDataset, WeatherMetrics, WeatherPlotResult
+from ma_workflow import get_step
 
 
 def test_ui_navigation_contains_home_and_analysis():
@@ -103,11 +104,33 @@ def test_ui_navigation_contains_home_and_analysis():
 def test_ui_navigation_page_metadata():
     analyse_page = get_navigation_page("analyse")
     weather_page = get_navigation_page("weather")
+    variants_page = get_navigation_page("variants")
+    import_page = get_navigation_page("import_ida")
 
     assert analyse_page.module_key == "ma_analyse"
-    assert analyse_page.status == "partial"
+    assert analyse_page.status == "available"
     assert weather_page.module_key == "ma_weather"
     assert weather_page.status == "partial"
+    assert variants_page.status == "available"
+    assert import_page.status == "partial"
+
+
+def test_navigation_statuses_follow_central_workflow_catalog():
+    page_to_step = {
+        "parameters": "parameters",
+        "weather": "weather",
+        "building": "building",
+        "variants": "variants",
+        "simulation_setup": "simulation_setup",
+        "export_ida": "ida_export",
+        "import_ida": "ida_import",
+        "analyse": "analyse",
+        "assessment": "assessment",
+        "feedback": "feedback",
+    }
+
+    for page_key, step_key in page_to_step.items():
+        assert get_navigation_page(page_key).status == get_step(step_key).status
 
 
 def test_renderable_pages_include_variants():
@@ -188,11 +211,13 @@ def test_workflow_graph_groups_steps_by_visual_phase():
     cards = workflow_card_rows(available_page_keys=get_renderable_page_keys())
     grouped = workflow_cards_by_phase(cards)
 
-    assert VISUAL_PHASES == ("Pre-Process", "Simulation", "Post-Process", "Assessment", "Feedback/Abschluss")
+    assert VISUAL_PHASES == ("Pre-Process", "Simulation", "Post-Process", "Feedback/Abschluss")
     assert any(card.step_key == "parameters" for card in grouped["Pre-Process"])
     assert any(card.step_key == "simulation" for card in grouped["Simulation"])
     assert any(card.step_key == "analyse" for card in grouped["Post-Process"])
-    assert any(card.step_key == "assessment" for card in grouped["Assessment"])
+    assert any(card.step_key == "economy" for card in grouped["Post-Process"])
+    assert any(card.step_key == "sustainability" for card in grouped["Post-Process"])
+    assert any(card.step_key == "assessment" for card in grouped["Post-Process"])
     assert any(card.step_key == "feedback" for card in grouped["Feedback/Abschluss"])
 
 

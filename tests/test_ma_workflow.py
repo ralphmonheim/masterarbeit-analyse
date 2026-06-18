@@ -30,6 +30,21 @@ def test_workflow_contains_analysis_step():
     assert analysis_step.status == "available"
 
 
+def test_workflow_statuses_reflect_current_module_implementation():
+    assert get_workflow_step("parameters").status == "partial"
+    assert get_workflow_step("variants").status == "available"
+    assert get_workflow_step("ida_import").status == "partial"
+    assert get_workflow_step("economy").status == "partial"
+    assert get_workflow_step("sustainability").status == "planned"
+    assert get_workflow_step("assessment").status == "planned"
+
+
+def test_post_process_contains_separate_economy_sustainability_and_assessment_steps():
+    step_keys = [step.step_key for step in list_post_process_steps()]
+
+    assert step_keys[-3:] == ["economy", "sustainability", "assessment"]
+
+
 def test_workflow_steps_have_unique_keys():
     steps = list_workflow_steps()
     step_keys = [step.step_key for step in steps]
