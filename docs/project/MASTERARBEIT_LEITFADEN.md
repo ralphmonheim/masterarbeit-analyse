@@ -1,6 +1,6 @@
 # Masterarbeit Leitfaden
 
-Leitfaden-Version: 0.4.1
+Leitfaden-Version: 0.4.2
 Stand: 2026-06-18
 
 Diese Datei ist der zentrale Orientierungsleitfaden fuer die Masterarbeit und
@@ -29,6 +29,7 @@ Der Leitfaden fuehrt zwei Quellen zusammen:
 | 0.3.7 | 2026-06-18 | Aktualisierten Miro-Workflow v0.1.1 mit korrigierter Bewertungs- und Berichtszuordnung dokumentiert |
 | 0.4.0 | 2026-06-18 | Leitfaden in acht feste Hauptbereiche umgegliedert; Version 0.3.7 zuvor unveraendert archiviert |
 | 0.4.1 | 2026-06-18 | Workflow-Archiv und zentral gepruefte Modulumsetzungsstaende ergaenzt |
+| 0.4.2 | 2026-06-18 | Plot-Template-Wizard, Overlay-Schritt, Achsenanpassung und Single-/Compare-Ausgabe aktualisiert |
 
 ## 1. Zweck der Software
 
@@ -806,8 +807,10 @@ stehen ausschliesslich in
 
 - Tkinter-Vorschau soll einen temporaeren Vorschau- oder Cachebereich nutzen,
   damit der regulaere Output-Ordner nicht mit Testdiagrammen gefuellt wird.
-- Overlay-Bedienung soll freie Datenreihen aus lokalen Analyse-/Datenbankdaten
-  erlauben; feste Additionen wie Temperaturband bleiben eigene Optionen.
+- Overlay-Bedienung erlaubt in der Plot-Template-Sandbox freie Datenreihen aus
+  lokalen Analyse-/Datenbankdaten; feste Additionen wie Temperaturband bleiben
+  eigene Optionen. Die bewusste Uebernahme in regulaere Hauptbefehle bleibt
+  offen.
 - `plot-template-weather` bleibt offen: Wetterdiagramme bleiben vorerst in
   `ma_weather`, ein eigener UI-Befehl kann spaeter geplant werden.
 - Cooling-Trennung relativ/absolut bleibt vorerst in Plot-Templates und wird

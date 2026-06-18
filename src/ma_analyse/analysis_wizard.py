@@ -28,10 +28,11 @@ STREAMLIT_COMMAND_OPTIONS: tuple[str, ...] = tuple(
 ANALYSIS_SECTION_ORDER: tuple[str, ...] = (
     "command",
     "subcommand",
-    "export",
     "template_diagram",
     "variants",
     "rooms",
+    "overlays",
+    "export",
     "run",
 )
 
@@ -64,6 +65,7 @@ COMFORT_OUTPUT_OPTIONS: tuple[str, ...] = (
 LOAD_SUBCOMMAND_OPTIONS: tuple[str, ...] = ("bar", "timeline")
 LOAD_VIEW_OPTIONS: tuple[str, ...] = ("year", "month", "week", "day")
 PLOT_TEMPLATE_MODE_OPTIONS: tuple[str, ...] = ("single", "compare")
+AXIS_RANGE_MODE_OPTIONS: tuple[str, ...] = ("automatic", "manual")
 PLOT_TEMPLATE_ANALYSIS_GROUP_OPTIONS: tuple[str, ...] = (
     "comfort",
     "heating",
@@ -112,6 +114,12 @@ class AnalysisWizardState:
     show_outdoor_temperature: bool = False
     show_operative_temperature: bool = False
     overlay_enabled: bool = False
+    primary_axis_mode: str = "automatic"
+    primary_ymin: float | None = None
+    primary_ymax: float | None = None
+    secondary_axis_mode: str = "automatic"
+    secondary_ymin: float | None = None
+    secondary_ymax: float | None = None
 
 
 def normalize_command(command: str | None, *, streamlit: bool = False) -> str:
@@ -156,14 +164,17 @@ def section_label(section: str) -> str:
         "template_diagram": "Template / Diagramm",
         "variants": "Varianten",
         "rooms": "Räume",
+        "overlays": "Overlay",
         "run": "Analyse starten",
     }
     return labels.get(section, section)
 
 
-def section_relevant(command: str, section: str) -> bool:
+def section_relevant(command_or_state: str | AnalysisWizardState, section: str) -> bool:
     """Return whether a wizard section is relevant for the selected command."""
 
+    state = command_or_state if isinstance(command_or_state, AnalysisWizardState) else None
+    command = state.command if state is not None else command_or_state
     if section == "command":
         return True
     if not command:
@@ -171,13 +182,17 @@ def section_relevant(command: str, section: str) -> bool:
     if section == "subcommand":
         return command in {"comfort", "heating", "cooling", "plot-template", "plot-template-analyse", "plot-template-weather"}
     if section == "export":
-        return command in {"prepare", "analyze_data", "heating", "cooling", "plot-template", "plot-template-analyse", "plot-template-weather"}
+        return bool(command)
     if section == "template_diagram":
         return command in {"comfort", "heating", "cooling", "plot-template", "plot-template-analyse", "plot-template-weather"}
     if section == "variants":
         return command in {"prepare", "comfort", "analyze_data", "heating", "cooling", "plot-template", "plot-template-analyse", "all"}
     if section == "rooms":
         return command not in {"", "prepare", "plot-template-weather"}
+    if section == "overlays":
+        if command not in {"plot-template", "plot-template-analyse"}:
+            return False
+        return bool(state.overlay_enabled) if state is not None else True
     if section == "run":
         return bool(command)
     return False
@@ -194,8 +209,8 @@ def visible_analysis_steps(
     Streamlit wizard. Overlay options now live inside ``Template / Diagramm``.
     """
 
-    command = command_or_state.command if isinstance(command_or_state, AnalysisWizardState) else command_or_state
-    return tuple(section for section in ANALYSIS_SECTION_ORDER if section_relevant(command, section))
+    relevance_source: str | AnalysisWizardState = command_or_state
+    return tuple(section for section in ANALYSIS_SECTION_ORDER if section_relevant(relevance_source, section))
 
 
 def irrelevant_section_hint(command: str, section: str) -> str:
@@ -207,6 +222,7 @@ def irrelevant_section_hint(command: str, section: str) -> str:
         "template_diagram": "Für diesen Befehl sind keine Diagramm- oder Template-Optionen nötig.",
         "variants": "Für diesen Befehl ist keine Variantenauswahl nötig.",
         "rooms": "Für diesen Befehl ist keine Raumauswahl nötig.",
+        "overlays": "Overlay wird unter Template / Diagramm aktiviert.",
         "run": "Wähle zuerst einen Befehl.",
     }
     return hints.get(section, "Dieser Bereich ist für den aktuellen Befehl nicht relevant.")
@@ -292,7 +308,7 @@ def section_complete(state: AnalysisWizardState, section: str) -> bool:
     """Return whether a section has all required values."""
 
     command = state.command
-    if not section_relevant(command, section):
+    if not section_relevant(state, section):
         return True
     if section == "command":
         return bool(command)
@@ -302,7 +318,7 @@ def section_complete(state: AnalysisWizardState, section: str) -> bool:
         if command in {"heating", "cooling"}:
             return state.load_subcommand in LOAD_SUBCOMMAND_OPTIONS
         if command in {"plot-template", "plot-template-analyse"}:
-            return state.plot_template_group in PLOT_TEMPLATE_ANALYSIS_GROUP_OPTIONS
+            return bool(state.plot_template)
         if command == "plot-template-weather":
             return bool(state.plot_template_group)
         return True
@@ -338,13 +354,20 @@ def section_complete(state: AnalysisWizardState, section: str) -> bool:
             return False
         if command in {"plot-template", "plot-template-analyse"}:
             return (
-                load_view_complete(
-                    state.view,
-                    month=state.month,
-                    week=state.week,
-                    day=state.day,
-                )
+                _plot_template_view_complete(state)
                 and bool(state.plot_template)
+                and state.primary_axis_mode in AXIS_RANGE_MODE_OPTIONS
+                and state.secondary_axis_mode in AXIS_RANGE_MODE_OPTIONS
+                and _manual_axis_range_complete(
+                    state.primary_axis_mode,
+                    state.primary_ymin,
+                    state.primary_ymax,
+                )
+                and _manual_axis_range_complete(
+                    state.secondary_axis_mode,
+                    state.secondary_ymin,
+                    state.secondary_ymax,
+                )
             )
         if command == "plot-template-weather":
             return bool(state.plot_template)
@@ -353,8 +376,10 @@ def section_complete(state: AnalysisWizardState, section: str) -> bool:
         return _has_variant_selection(state)
     if section == "rooms":
         return _has_room_selection(state)
+    if section == "overlays":
+        return True
     if section == "run":
-        return all(section_complete(state, item) for item in visible_analysis_steps(command) if item != "run")
+        return all(section_complete(state, item) for item in visible_analysis_steps(state) if item != "run")
     return True
 
 
@@ -369,7 +394,7 @@ def first_incomplete_step(
     visible_steps: Iterable[str] | None = None,
     **_: Any,
 ) -> str | None:
-    steps = list(visible_steps or visible_analysis_steps(state.command))
+    steps = list(visible_steps or visible_analysis_steps(state))
     for step in steps:
         if not section_complete(state, step):
             return step
@@ -381,7 +406,7 @@ def analysis_ready(state: AnalysisWizardState) -> bool:
 
 
 def section_summary(state: AnalysisWizardState, section: str) -> str:
-    if not section_relevant(state.command, section):
+    if not section_relevant(state, section):
         return "-"
     if section == "command":
         return command_label(state.command) if state.command else "nicht gewählt"
@@ -390,7 +415,9 @@ def section_summary(state: AnalysisWizardState, section: str) -> str:
             return comfort_subcommand_label(state.comfort_subcommand) if state.comfort_subcommand else "nicht gewählt"
         if state.command in {"heating", "cooling"}:
             return state.load_subcommand or "nicht gewählt"
-        if state.command in {"plot-template", "plot-template-analyse", "plot-template-weather"}:
+        if state.command in {"plot-template", "plot-template-analyse"}:
+            return state.plot_template or "nicht gewählt"
+        if state.command == "plot-template-weather":
             return plot_template_group_label(state.plot_template_group) if state.plot_template_group else "nicht gewählt"
     if section == "export":
         if state.command == "prepare":
@@ -418,17 +445,29 @@ def section_summary(state: AnalysisWizardState, section: str) -> str:
             if state.load_subcommand == "timeline" and state.view:
                 parts.append(_time_summary(state))
         elif state.command in {"plot-template", "plot-template-analyse"}:
-            if state.plot_template:
-                parts.append(state.plot_template)
             if state.view:
                 parts.append(_time_summary(state))
-            if state.overlay_count:
-                parts.append(f"{state.overlay_count} freie Overlay-Linien")
+            parts.append(
+                "Achsen automatisch"
+                if state.primary_axis_mode == "automatic" and state.secondary_axis_mode == "automatic"
+                else "Achsen angepasst"
+            )
         return ", ".join(parts) if parts else "nicht gewählt"
     if section == "variants":
         return _scope_summary(state.analysis_scope, state.selected_variants, state.variant_count)
     if section == "rooms":
         return _scope_summary(state.room_scope, state.selected_rooms, state.room_count)
+    if section == "overlays":
+        parts = []
+        if state.show_setpoint_band:
+            parts.append("Sollwertband")
+        if state.show_outdoor_temperature:
+            parts.append("Außenluft")
+        if state.show_operative_temperature:
+            parts.append("operative Temperatur")
+        if state.overlay_count:
+            parts.append(f"{state.overlay_count} freie Linien")
+        return ", ".join(parts) if parts else "aktiv, keine zusätzlichen Linien"
     if section == "run":
         return "bereit" if section_complete(state, "run") else "nicht vollständig"
     return ""
@@ -460,6 +499,25 @@ def _time_summary(state: AnalysisWizardState) -> str:
     if state.view == "day":
         return f"Tag {state.month} {state.day}"
     return state.view
+
+
+def _manual_axis_range_complete(mode: str, minimum: float | None, maximum: float | None) -> bool:
+    if mode == "automatic":
+        return True
+    if mode != "manual" or minimum is None or maximum is None:
+        return False
+    return minimum < maximum
+
+
+def _plot_template_view_complete(state: AnalysisWizardState) -> bool:
+    if state.view in LOAD_VIEW_OPTIONS:
+        return load_view_complete(
+            state.view,
+            month=state.month,
+            week=state.week,
+            day=state.day,
+        )
+    return bool(state.view)
 
 
 def select_values_by_scope(

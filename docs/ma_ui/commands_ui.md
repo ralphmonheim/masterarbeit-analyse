@@ -49,8 +49,8 @@ Alternative:
   bestehende `ma_analyse`-GUI als getrennten Legacy-Prozess startet:
   `python -m ma_analyse gui`.
 - Die Seite `Analyse` ist als sichtbare Schrittstruktur aufgebaut:
-  `Befehl`, `Unterbefehl`, `Export / Ausgabe`, `Template / Diagramm`,
-  `Varianten`, `Raeume` und einen festen Aktionsbereich.
+  `Befehl`, `Unterbefehl`, `Template / Diagramm`, `Varianten`, `Raeume`,
+  optional `Overlay`, `Export / Ausgabe` und einen festen Aktionsbereich.
 - Hauptschritte werden nicht wie `Erweiterte Pfade` eingeklappt, sondern als
   klare Auswahlbereiche angezeigt. Nicht relevante Bereiche zeigen nur einen
   kurzen Hinweis.
@@ -65,14 +65,20 @@ Alternative:
   `Export / Ausgabe`; Zeitansicht, Overlay und Diagrammanpassung liegen im
   Bereich `Template / Diagramm`.
 - Technische Pfade wie IDA-Importordner, Datenbankordner, Ausgabeordner und
-  Run-ID liegen unter `Erweiterte Pfade`.
+  Run-ID liegen in Streamlit im eingeklappten Bereich `Erweiterte Pfade`
+  innerhalb von `Export / Ausgabe`.
 - `plot-template-analyse` nutzt den Ablauf `Befehl -> Unterbefehl ->
-  Export / Ausgabe -> Template / Diagramm -> Varianten -> Raeume ->
-  Aktionsbereich`.
-- `plot-template-analyse` fuehrt die Diagrammgruppe im Bereich
-  `Unterbefehl`, `single`/`compare` unter `Export / Ausgabe` und Zeitansicht,
-  gefilterte Template-Auswahl, Overlay-Aktivierung sowie Diagrammbearbeitung im
-  Bereich `Template / Diagramm`.
+  Template / Diagramm -> Varianten -> Raeume -> optional Overlay ->
+  Export / Ausgabe -> Aktionsbereich`.
+- `plot-template-analyse` zeigt alle vorhandenen Diagramme direkt im Bereich
+  `Unterbefehl`; eine vorgelagerte Einteilung in Diagrammgruppen gibt es in der
+  Template-Sandbox nicht mehr.
+- `Template / Diagramm` enthaelt Zeitwahl, Overlay-Aktivierung und den
+  ausklappbaren Bereich `Diagrammanpassung`. Dort koennen primaere und
+  sekundaere Y-Achsen automatisch oder manuell skaliert werden. Ein Mock-up
+  zeigt die Wirkung der Achsengrenzen mit Beispieldaten.
+- Der optionale Bereich `Overlay` erscheint nach Varianten und Raeumen, wenn
+  das gewaehlte Template Overlays unterstuetzt und die Checkbox aktiviert ist.
 - Der Aktionsbereich mit `Vorschau aktualisieren` und `Analyse starten` ist
   nicht einklappbar.
 - Die Tkinter-Legacy-GUI besitzt ebenfalls einen Button
@@ -80,6 +86,14 @@ Alternative:
   aktuell den bestehenden Analysepfad mit den aktuellen Einstellungen.
 - Plot-Template-Overlays erscheinen erst nach Varianten- und Raumauswahl, damit
   der Overlay-Katalog gezielt aus lokalen CSV-/AUX-Daten gelesen wird.
+- Als Katalogreferenz dienen die erste gewaehlte Variante und der erste
+  gewaehlte Raum. Die Referenz wird sichtbar angezeigt; weitere ausgewaehlte
+  Kombinationen werden beim Analysestart validiert.
+- Bei Plot-Templates bedeutet `single`: eine eigene Diagrammdatei je
+  Variante-Raum-Kombination. `compare` erzeugt eine gemeinsame
+  Vergleichsausgabe. Zeitreihen werden gemeinsam auf einer Achse dargestellt;
+  komplexe Sammeltemplates werden als beschriftete Teilplots in einer
+  Vergleichsgrafik zusammengefuehrt.
 - Die Seite `Wetterdaten` erlaubt die Auswahl eines aktiven `weather_key`,
   startet die lokale `ma_weather`-Analyse und zeigt erzeugte Wetterdiagramme
   direkt in Streamlit an. Die Analysebedienung steht oben; die Uebersicht der

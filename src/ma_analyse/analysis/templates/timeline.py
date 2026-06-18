@@ -163,6 +163,78 @@ def _build_template_output_file(output_dir: Path, room_name: str, metric: str, v
     return output_dir / f"{sanitize_file_name(room_name)}_{metric}_{view}_template.png"
 
 
+def _draw_template_plot(
+    *,
+    spec,
+    plot_df,
+    title,
+    subtitle,
+    axis_config,
+    output_file,
+    value_column,
+    primary_axis_mode,
+    primary_ymin,
+    primary_ymax,
+):
+    y_min = primary_ymin if primary_axis_mode == "manual" else None
+    y_max = primary_ymax if primary_axis_mode == "manual" else None
+    if spec.metric == "cooling_absolute" and spec.view == "year":
+        draw_heating_year_line_plot(
+            plot_df,
+            x_col="time_axis",
+            group_col="series",
+            title=title,
+            subtitle=subtitle,
+            output_file=output_file,
+            line_colors=METRIC_COLORS[spec.metric],
+            value_col=value_column,
+            y_label=METRIC_Y_LABELS[spec.metric],
+            single_line_color=METRIC_COLORS[spec.metric][0],
+            single_series_legend_label="Kuehlleistung",
+            y_min=y_min,
+            y_max=y_max,
+        )
+    elif spec.metric == "cooling_absolute":
+        heating_analysis.draw_technical_line_plot(
+            plot_df,
+            x_col="time_axis",
+            group_col="series",
+            title=title,
+            subtitle=subtitle,
+            axis_config=axis_config,
+            output_file=output_file,
+            value_col=value_column,
+            y_label=METRIC_Y_LABELS[spec.metric],
+            line_colors=METRIC_COLORS[spec.metric],
+            y_min=y_min,
+            y_max=y_max,
+        )
+    elif spec.metric == "cooling":
+        METRIC_MODULES[spec.metric].draw_technical_line_plot(
+            plot_df,
+            x_col="time_axis",
+            group_col="series",
+            title=title,
+            subtitle=subtitle,
+            axis_config=axis_config,
+            output_file=output_file,
+            y_min=y_min,
+            y_max=y_max,
+        )
+    else:
+        METRIC_MODULES[spec.metric].draw_technical_line_plot(
+            plot_df,
+            x_col="time_axis",
+            group_col="series",
+            title=title,
+            subtitle=subtitle,
+            axis_config=axis_config,
+            output_file=output_file,
+            y_min=y_min,
+            y_max=y_max,
+        )
+
+
 def build_timeline_template(
     datenbank_dir: str | Path = DATENBANK_DIR,
     output_root: str | Path | None = TEST_OUTPUT_DIR,
@@ -172,6 +244,10 @@ def build_timeline_template(
     month: str | None = None,
     week: int | None = None,
     day: int | None = None,
+    output_mode: str = "single",
+    primary_axis_mode: str = "automatic",
+    primary_ymin: float | None = None,
+    primary_ymax: float | None = None,
     run_id: str | None = None,
     debug: bool = False,
 ) -> str | list[str]:
@@ -181,100 +257,114 @@ def build_timeline_template(
         raise ValueError(f"Unbekanntes Timeline-Template: {template}")
     if not selected_variants:
         raise ValueError("plot-template erwartet mindestens eine Variante.")
-    if not rooms or len(rooms) != 1:
-        raise ValueError("plot-template erwartet genau einen Raum.")
+    if not rooms:
+        raise ValueError("plot-template erwartet mindestens einen Raum.")
 
     time_errors = validate_timeline_template_time_selection(template, month=month, week=week, day=day)
     if time_errors:
         raise ValueError("; ".join(time_errors))
 
     source_column, value_column = METRIC_VALUE_COLUMNS[spec.metric]
-    room_name = rooms[0]
     output_base = Path(output_root or TEST_OUTPUT_DIR)
     resolved_run_id = get_run_id("plot_template", run_id=run_id)
     output_files = []
+    compare_frames = []
+    compare_time_window = None
 
     for variant_name in selected_variants:
-        processed_variant_dir = _resolve_processed_variant_dir(datenbank_dir, variant_name)
-        room_file = get_room_data_file(processed_variant_dir, room_name)
-        if not os.path.exists(room_file):
-            raise FileNotFoundError(f"Raum-CSV nicht gefunden: {room_file}")
+        for room_name in rooms:
+            processed_variant_dir = _resolve_processed_variant_dir(datenbank_dir, variant_name)
+            room_file = get_room_data_file(processed_variant_dir, room_name)
+            if not os.path.exists(room_file):
+                raise FileNotFoundError(f"Raum-CSV nicht gefunden: {room_file}")
 
-        room_df = _load_template_room_data(room_file, source_column)
-        if room_df is None or room_df.empty:
-            raise ValueError(f"Keine Daten fuer {variant_name} / {room_name} gefunden.")
+            room_df = _load_template_room_data(room_file, source_column)
+            if room_df is None or room_df.empty:
+                raise ValueError(f"Keine Daten fuer {variant_name} / {room_name} gefunden.")
 
-        plot_df, time_window = _build_template_plot_dataframe(
-            room_df,
-            spec.metric,
-            spec.view,
-            month=month,
-            week=week,
-            day=day,
-        )
-        if plot_df.empty:
-            raise ValueError(f"Keine Daten fuer {variant_name} / {room_name} im gewaehlten Zeitraum gefunden.")
+            plot_df, time_window = _build_template_plot_dataframe(
+                room_df,
+                spec.metric,
+                spec.view,
+                month=month,
+                week=week,
+                day=day,
+            )
+            if plot_df.empty:
+                raise ValueError(f"Keine Daten fuer {variant_name} / {room_name} im gewaehlten Zeitraum gefunden.")
 
-        variant_display_name = get_variant_display_name(processed_variant_dir)
-        output_dir = output_base / "PlotTemplates" / resolved_run_id / variant_display_name
+            variant_display_name = get_variant_display_name(processed_variant_dir)
+            if output_mode == "compare":
+                plot_df["series"] = f"{variant_display_name} | {room_name}"
+                compare_frames.append(plot_df)
+                compare_time_window = time_window
+                continue
+
+            output_dir = output_base / "PlotTemplates" / resolved_run_id / variant_display_name
+            output_dir.mkdir(parents=True, exist_ok=True)
+            output_file = _build_template_output_file(output_dir, room_name, spec.metric, spec.view)
+
+            if debug:
+                print(f"Template: {template}")
+                print(f"Template-Variante: {variant_name}")
+                print(f"Template-Datenpunkte: {len(plot_df)}")
+
+            title = _build_template_title(spec.metric, spec.view, variant_display_name, room_name)
+            subtitle = METRIC_MODULES[spec.metric].build_plot_subtitle(
+                spec.view,
+                month_name=month,
+                week_number=week,
+                day_number=day,
+            )
+            axis_config = METRIC_MODULES[spec.metric].build_time_axis_config(spec.view, time_window=time_window)
+
+            _draw_template_plot(
+                spec=spec,
+                plot_df=plot_df,
+                title=title,
+                subtitle=subtitle,
+                axis_config=axis_config,
+                output_file=output_file,
+                value_column=value_column,
+                primary_axis_mode=primary_axis_mode,
+                primary_ymin=primary_ymin,
+                primary_ymax=primary_ymax,
+            )
+            output_files.append(str(output_file))
+
+            if source_column not in room_df.columns or value_column not in plot_df.columns:
+                raise ValueError(f"Template-Daten konnten fuer {template} nicht vollstaendig aufgebaut werden.")
+
+    if output_mode == "compare":
+        if not compare_frames:
+            raise ValueError("Keine Daten fuer den Plot-Template-Vergleich gefunden.")
+        compare_df = pd.concat(compare_frames, ignore_index=True)
+        output_dir = output_base / "PlotTemplates" / resolved_run_id / "Compare"
         output_dir.mkdir(parents=True, exist_ok=True)
-        output_file = _build_template_output_file(output_dir, room_name, spec.metric, spec.view)
-
-        if debug:
-            print(f"Template: {template}")
-            print(f"Template-Variante: {variant_name}")
-            print(f"Template-Datenpunkte: {len(plot_df)}")
-
-        title = _build_template_title(spec.metric, spec.view, variant_display_name, room_name)
+        output_file = output_dir / f"{spec.metric}_{spec.view}_compare.png"
         subtitle = METRIC_MODULES[spec.metric].build_plot_subtitle(
             spec.view,
             month_name=month,
             week_number=week,
             day_number=day,
         )
-        axis_config = METRIC_MODULES[spec.metric].build_time_axis_config(spec.view, time_window=time_window)
-
-        if spec.metric == "cooling_absolute" and spec.view == "year":
-            draw_heating_year_line_plot(
-                plot_df,
-                x_col="time_axis",
-                group_col="series",
-                title=title,
-                subtitle=subtitle,
-                output_file=output_file,
-                line_colors=METRIC_COLORS[spec.metric],
-                value_col=value_column,
-                y_label=METRIC_Y_LABELS[spec.metric],
-                single_line_color=METRIC_COLORS[spec.metric][0],
-                single_series_legend_label="Kuehlleistung",
-            )
-        elif spec.metric == "cooling_absolute":
-            heating_analysis.draw_technical_line_plot(
-                plot_df,
-                x_col="time_axis",
-                group_col="series",
-                title=title,
-                subtitle=subtitle,
-                axis_config=axis_config,
-                output_file=output_file,
-                value_col=value_column,
-                y_label=METRIC_Y_LABELS[spec.metric],
-                line_colors=METRIC_COLORS[spec.metric],
-            )
-        else:
-            METRIC_MODULES[spec.metric].draw_technical_line_plot(
-                plot_df,
-                x_col="time_axis",
-                group_col="series",
-                title=title,
-                subtitle=subtitle,
-                axis_config=axis_config,
-                output_file=output_file,
-            )
-        output_files.append(str(output_file))
-
-        if source_column not in room_df.columns or value_column not in plot_df.columns:
-            raise ValueError(f"Template-Daten konnten fuer {template} nicht vollstaendig aufgebaut werden.")
+        axis_config = METRIC_MODULES[spec.metric].build_time_axis_config(
+            spec.view,
+            time_window=compare_time_window,
+        )
+        _draw_template_plot(
+            spec=spec,
+            plot_df=compare_df,
+            title=f"{METRIC_LABELS[spec.metric]} {VIEW_TITLES[spec.view]} - Vergleich",
+            subtitle=subtitle,
+            axis_config=axis_config,
+            output_file=output_file,
+            value_column=value_column,
+            primary_axis_mode=primary_axis_mode,
+            primary_ymin=primary_ymin,
+            primary_ymax=primary_ymax,
+        )
+        return str(output_file)
 
     if len(output_files) == 1:
         return output_files[0]

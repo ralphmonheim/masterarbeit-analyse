@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any, MutableMapping
 
+import matplotlib.pyplot as plt
 import streamlit as st
 
 from ma_analyse.analysis.components.time_windows import MAX_CALENDAR_WEEK, MONTH_DAY_COUNTS, MONTH_NAMES
@@ -47,12 +48,12 @@ from ma_analyse.analysis_ui import (
 from ma_analyse.analysis_wizard import (
     ANALYSIS_SCOPE_OPTIONS,
     ANALYSIS_SECTION_ORDER,
+    AXIS_RANGE_MODE_OPTIONS,
     COMFORT_ANALYSIS_LEVEL_OPTIONS,
     COMFORT_SUBCOMMAND_OPTIONS,
     EXPORT_FORMAT_OPTIONS,
     LOAD_SUBCOMMAND_OPTIONS,
     LOAD_VIEW_OPTIONS,
-    PLOT_TEMPLATE_ANALYSIS_GROUP_OPTIONS,
     PLOT_TEMPLATE_MODE_OPTIONS,
     PLOT_TEMPLATE_SCOPE_OPTIONS,
     ROOM_SCOPE_OPTIONS,
@@ -67,18 +68,15 @@ from ma_analyse.analysis_wizard import (
     backend_command,
     comfort_subcommand_label,
     command_label,
-    filter_templates_by_group_mode_and_view,
     first_incomplete_step,
     irrelevant_section_hint,
     normalize_command,
-    plot_template_group_label,
     room_selection_disabled,
     sanitize_comfort_output,
     section_complete,
     section_label,
     section_relevant,
     section_summary,
-    select_rooms_for_template,
 )
 from ma_analyse.core.config import DATENBANK_DIR, INPUT_DIR, OUTPUT_DIR
 from ma_analyse.services import (
@@ -104,7 +102,6 @@ PLOT_TEMPLATE_OPTIONS_SESSION_KEY = "ma_ui_plot_template_options"
 COMMAND_WIDGET_KEY = "ma_ui_analysis_command"
 LOAD_SUBCOMMAND_WIDGET_KEY = "ma_ui_analysis_load_subcommand"
 COMFORT_SUBCOMMAND_WIDGET_KEY = "ma_ui_analysis_comfort_subcommand"
-PLOT_TEMPLATE_GROUP_WIDGET_KEY = "ma_ui_analysis_plot_template_group"
 PREPARE_EXPORT_WIDGET_KEY = "ma_ui_analysis_prepare_export_format"
 COMFORT_TYPE_WIDGET_KEY = "ma_ui_analysis_comfort_type"
 ANALYSIS_LEVEL_WIDGET_KEY = "ma_ui_analysis_level"
@@ -128,6 +125,16 @@ ROOM_MULTI_WIDGET_KEY = "ma_ui_analysis_selected_rooms"
 ROOM_MANUAL_WIDGET_KEY = "ma_ui_analysis_manual_rooms"
 DEBUG_WIDGET_KEY = "ma_ui_analysis_debug"
 OVERLAY_ENABLED_WIDGET_KEY = "ma_ui_analysis_overlay_enabled"
+PRIMARY_AXIS_MODE_WIDGET_KEY = "ma_ui_analysis_primary_axis_mode"
+PRIMARY_YMIN_WIDGET_KEY = "ma_ui_analysis_primary_ymin"
+PRIMARY_YMAX_WIDGET_KEY = "ma_ui_analysis_primary_ymax"
+SECONDARY_AXIS_MODE_WIDGET_KEY = "ma_ui_analysis_secondary_axis_mode"
+SECONDARY_YMIN_WIDGET_KEY = "ma_ui_analysis_secondary_ymin"
+SECONDARY_YMAX_WIDGET_KEY = "ma_ui_analysis_secondary_ymax"
+INPUT_DIR_WIDGET_KEY = "ma_ui_analysis_input_dir"
+DATABASE_DIR_WIDGET_KEY = "ma_ui_analysis_database_dir"
+OUTPUT_ROOT_WIDGET_KEY = "ma_ui_analysis_output_root"
+RUN_ID_WIDGET_KEY = "ma_ui_analysis_run_id"
 FIXED_OVERLAY_LABELS = {
     "outdoor_temperature": "Aussenlufttemperatur",
     "operative_temperature": "Operative Temperatur",
@@ -303,8 +310,21 @@ def _render_plot_template_options(
     supports_overlays = plot_template_supports_overlays(template_spec)
     setpoint_min = _default_float(template_defaults, "setpoint_min", DEFAULT_SETPOINT_MIN)
     setpoint_max = _default_float(template_defaults, "setpoint_max", DEFAULT_SETPOINT_MAX)
-    temperature_ymin = _default_float(template_defaults, "temperature_ymin", DEFAULT_TEMPERATURE_YMIN)
-    temperature_ymax = _default_float(template_defaults, "temperature_ymax", DEFAULT_TEMPERATURE_YMAX)
+    secondary_axis_mode = str(
+        st.session_state.get(SECONDARY_AXIS_MODE_WIDGET_KEY, "automatic") or "automatic"
+    )
+    secondary_ymin = _float_session_value(SECONDARY_YMIN_WIDGET_KEY)
+    secondary_ymax = _float_session_value(SECONDARY_YMAX_WIDGET_KEY)
+    temperature_ymin = (
+        secondary_ymin
+        if secondary_axis_mode == "manual" and secondary_ymin is not None
+        else _default_float(template_defaults, "temperature_ymin", DEFAULT_TEMPERATURE_YMIN)
+    )
+    temperature_ymax = (
+        secondary_ymax
+        if secondary_axis_mode == "manual" and secondary_ymax is not None
+        else _default_float(template_defaults, "temperature_ymax", DEFAULT_TEMPERATURE_YMAX)
+    )
     outdoor_column = _default_text(template_defaults, "outdoor_column", DEFAULT_OUTDOOR_COLUMN)
     show_setpoint_band = _default_bool(template_defaults, "show_setpoint_band", DEFAULT_SHOW_SETPOINT_BAND)
     show_outdoor_temperature = _default_bool(
@@ -321,7 +341,7 @@ def _render_plot_template_options(
     fixed_overlays = _default_fixed_overlays(template_defaults) if supports_overlays else []
 
     if supports_overlays:
-        with st.expander("Overlay- und Achsoptionen", expanded=True):
+        with st.container(border=True):
             show_setpoint_band = st.checkbox("Sollwertband anzeigen", value=show_setpoint_band)
             show_outdoor_temperature = st.checkbox("Aussenlufttemperatur anzeigen", value=show_outdoor_temperature)
             show_operative_temperature = st.checkbox(
@@ -330,8 +350,6 @@ def _render_plot_template_options(
             )
             setpoint_min = st.number_input("Sollwert min [C]", value=float(setpoint_min))
             setpoint_max = st.number_input("Sollwert max [C]", value=float(setpoint_max))
-            temperature_ymin = st.number_input("Temperaturachse min [C]", value=float(temperature_ymin))
-            temperature_ymax = st.number_input("Temperaturachse max [C]", value=float(temperature_ymax))
             outdoor_column = st.text_input("Aussenluft-Spalte", value=outdoor_column)
 
             if fixed_overlays:
@@ -435,6 +453,14 @@ def _render_plot_template_options(
         outdoor_column=outdoor_column,
         overlay_lines=overlay_lines,
         fixed_overlays=fixed_overlays,
+        primary_axis_mode=str(
+            st.session_state.get(PRIMARY_AXIS_MODE_WIDGET_KEY, "automatic") or "automatic"
+        ),
+        primary_ymin=_float_session_value(PRIMARY_YMIN_WIDGET_KEY),
+        primary_ymax=_float_session_value(PRIMARY_YMAX_WIDGET_KEY),
+        secondary_axis_mode=secondary_axis_mode,
+        secondary_ymin=secondary_ymin,
+        secondary_ymax=secondary_ymax,
     )
 
 
@@ -448,7 +474,6 @@ def _reset_downstream_analysis_state() -> None:
     for key in (
         LOAD_SUBCOMMAND_WIDGET_KEY,
         COMFORT_SUBCOMMAND_WIDGET_KEY,
-        PLOT_TEMPLATE_GROUP_WIDGET_KEY,
         PREPARE_EXPORT_WIDGET_KEY,
         COMFORT_TYPE_WIDGET_KEY,
         ANALYSIS_LEVEL_WIDGET_KEY,
@@ -470,6 +495,12 @@ def _reset_downstream_analysis_state() -> None:
         LAST_ANALYSIS_LEVEL_SESSION_KEY,
         PLOT_TEMPLATE_OPTIONS_SESSION_KEY,
         OVERLAY_ENABLED_WIDGET_KEY,
+        PRIMARY_AXIS_MODE_WIDGET_KEY,
+        PRIMARY_YMIN_WIDGET_KEY,
+        PRIMARY_YMAX_WIDGET_KEY,
+        SECONDARY_AXIS_MODE_WIDGET_KEY,
+        SECONDARY_YMIN_WIDGET_KEY,
+        SECONDARY_YMAX_WIDGET_KEY,
     ):
         st.session_state.pop(key, None)
 
@@ -518,9 +549,6 @@ def _selected_rooms_from_state(
     if available_rooms and room_scope == "Ein Raum":
         value = str(st.session_state.get(ROOM_SINGLE_WIDGET_KEY, "") or "")
         return (value,) if value else ()
-    if command == PLOT_TEMPLATE_STEP and plot_template_requires_single_room(template_spec):
-        value = str(st.session_state.get(ROOM_SINGLE_WIDGET_KEY, "") or "")
-        return (value,) if value else ()
     selected_values = st.session_state.get(ROOM_MULTI_WIDGET_KEY, [])
     if isinstance(selected_values, list) and selected_values:
         return tuple(str(value) for value in selected_values if str(value).strip())
@@ -550,7 +578,6 @@ def _current_wizard_state(
     return AnalysisWizardState(
         command=command,
         comfort_subcommand=str(st.session_state.get(COMFORT_SUBCOMMAND_WIDGET_KEY, "") or ""),
-        plot_template_group=str(st.session_state.get(PLOT_TEMPLATE_GROUP_WIDGET_KEY, "") or ""),
         load_subcommand=str(st.session_state.get(LOAD_SUBCOMMAND_WIDGET_KEY, "") or ""),
         prepare_export_format=str(st.session_state.get(PREPARE_EXPORT_WIDGET_KEY, "") or ""),
         comfort_type=str(st.session_state.get(COMFORT_TYPE_WIDGET_KEY, "") or ""),
@@ -578,15 +605,42 @@ def _current_wizard_state(
         show_operative_temperature=bool(overlay_options.get("show_operative_temperature", False))
         if isinstance(overlay_options, dict)
         else False,
+        primary_axis_mode=str(
+            st.session_state.get(PRIMARY_AXIS_MODE_WIDGET_KEY, "automatic") or "automatic"
+        ),
+        primary_ymin=_float_session_value(PRIMARY_YMIN_WIDGET_KEY),
+        primary_ymax=_float_session_value(PRIMARY_YMAX_WIDGET_KEY),
+        secondary_axis_mode=str(
+            st.session_state.get(SECONDARY_AXIS_MODE_WIDGET_KEY, "automatic") or "automatic"
+        ),
+        secondary_ymin=_float_session_value(SECONDARY_YMIN_WIDGET_KEY),
+        secondary_ymax=_float_session_value(SECONDARY_YMAX_WIDGET_KEY),
+    )
+
+
+def _float_session_value(key: str) -> float | None:
+    value = st.session_state.get(key)
+    try:
+        return float(value) if value is not None else None
+    except (TypeError, ValueError):
+        return None
+
+
+def _advanced_path_values() -> tuple[str, str, str, str]:
+    return (
+        str(st.session_state.get(INPUT_DIR_WIDGET_KEY, INPUT_DIR)),
+        str(st.session_state.get(DATABASE_DIR_WIDGET_KEY, DATENBANK_DIR)),
+        str(st.session_state.get(OUTPUT_ROOT_WIDGET_KEY, OUTPUT_DIR)),
+        str(st.session_state.get(RUN_ID_WIDGET_KEY, "")),
     )
 
 
 def _render_advanced_paths() -> tuple[str, str, str, str]:
     with st.expander("Erweiterte Pfade", expanded=False):
-        input_dir = st.text_input("IDA-Importordner", value=str(INPUT_DIR))
-        database_dir = st.text_input("Datenbankordner", value=str(DATENBANK_DIR))
-        output_root = st.text_input("Ausgabeordner", value=str(OUTPUT_DIR))
-        run_id = st.text_input("Run-ID", value="")
+        input_dir = st.text_input("IDA-Importordner", value=str(INPUT_DIR), key=INPUT_DIR_WIDGET_KEY)
+        database_dir = st.text_input("Datenbankordner", value=str(DATENBANK_DIR), key=DATABASE_DIR_WIDGET_KEY)
+        output_root = st.text_input("Ausgabeordner", value=str(OUTPUT_DIR), key=OUTPUT_ROOT_WIDGET_KEY)
+        run_id = st.text_input("Run-ID", value="", key=RUN_ID_WIDGET_KEY)
     return input_dir, database_dir, output_root, run_id
 
 
@@ -752,15 +806,24 @@ def _build_plot_template_options_from_state(
         month=state.month,
         week=state.week,
         day=state.day,
-        show_setpoint_band=_default_bool(template_defaults, "show_setpoint_band", False),
-        show_outdoor_temperature=_default_bool(template_defaults, "show_outdoor_temperature", False),
-        show_operative_temperature=_default_bool(template_defaults, "show_operative_temperature", False),
+        show_setpoint_band=state.overlay_enabled
+        and _default_bool(template_defaults, "show_setpoint_band", False),
+        show_outdoor_temperature=state.overlay_enabled
+        and _default_bool(template_defaults, "show_outdoor_temperature", False),
+        show_operative_temperature=state.overlay_enabled
+        and _default_bool(template_defaults, "show_operative_temperature", False),
         setpoint_min=_default_float(template_defaults, "setpoint_min", DEFAULT_SETPOINT_MIN),
         setpoint_max=_default_float(template_defaults, "setpoint_max", DEFAULT_SETPOINT_MAX),
         temperature_ymin=_default_float(template_defaults, "temperature_ymin", DEFAULT_TEMPERATURE_YMIN),
         temperature_ymax=_default_float(template_defaults, "temperature_ymax", DEFAULT_TEMPERATURE_YMAX),
         outdoor_column=_default_text(template_defaults, "outdoor_column", DEFAULT_OUTDOOR_COLUMN),
-        fixed_overlays=_default_fixed_overlays(template_defaults),
+        fixed_overlays=_default_fixed_overlays(template_defaults) if state.overlay_enabled else [],
+        primary_axis_mode=state.primary_axis_mode,
+        primary_ymin=state.primary_ymin,
+        primary_ymax=state.primary_ymax,
+        secondary_axis_mode=state.secondary_axis_mode,
+        secondary_ymin=state.secondary_ymin,
+        secondary_ymax=state.secondary_ymax,
     )
 
 
@@ -956,7 +1019,7 @@ def _build_plot_template_options_for_run(
     template_defaults: dict[str, object],
     template_supports_overlays: bool,
 ) -> dict[str, Any]:
-    if template_supports_overlays:
+    if template_supports_overlays and state.overlay_enabled:
         stored_options = st.session_state.get(PLOT_TEMPLATE_OPTIONS_SESSION_KEY)
         if isinstance(stored_options, dict):
             return stored_options
@@ -969,13 +1032,11 @@ def _plot_template_specs_by_name() -> dict[str, dict[str, object]]:
 
 def _filtered_plot_template_choices(group: str, mode: str, view: str) -> list[str]:
     specs = _plot_template_specs_by_name()
-    return filter_templates_by_group_mode_and_view(
-        PLOT_TEMPLATE_CHOICES,
-        specs,
-        group=group,
-        mode=mode,
-        view=view,
-    )
+    return [
+        template
+        for template in PLOT_TEMPLATE_CHOICES
+        if str(specs.get(template, {}).get("view") or "") == view
+    ]
 
 
 def _render_expander_summary(state: AnalysisWizardState, section: str) -> None:
@@ -1001,7 +1062,7 @@ def _render_section(
     label = section_label(section)
     with st.container(border=True):
         st.markdown(f"**{label}**")
-        if not section_relevant(state.command, section):
+        if not section_relevant(state, section):
             st.info(irrelevant_section_hint(state.command, section))
             return
         if section != "command":
@@ -1029,6 +1090,15 @@ def _render_section(
                 state=state,
                 available_rooms=available_rooms,
                 template_spec=template_spec,
+            )
+        elif section == "overlays":
+            _render_overlay_section(
+                state=state,
+                template_defaults=template_defaults,
+                template_spec=template_spec,
+                input_dir=input_dir,
+                database_dir=database_dir,
+                available_variants=available_variants,
             )
 
 
@@ -1059,21 +1129,35 @@ def _render_subcommand_section(state: AnalysisWizardState) -> None:
         return
 
     if command == PLOT_TEMPLATE_STEP:
-        options = ("", *PLOT_TEMPLATE_ANALYSIS_GROUP_OPTIONS)
-        st.selectbox(
-            "Diagrammgruppe",
-            options=options,
-            index=_selectbox_index(options, st.session_state.get(PLOT_TEMPLATE_GROUP_WIDGET_KEY)),
-            format_func=plot_template_group_label,
-            key=PLOT_TEMPLATE_GROUP_WIDGET_KEY,
+        current_template = str(
+            st.session_state.get(PLOT_TEMPLATE_WIDGET_KEY, HEATING_YEAR_TEMPLATE)
+            or HEATING_YEAR_TEMPLATE
         )
-        st.caption("Die Gruppe filtert die verfuegbaren Analyse-Templates.")
+        if current_template not in PLOT_TEMPLATE_CHOICES:
+            current_template = HEATING_YEAR_TEMPLATE
+        template = st.selectbox(
+            "Diagramm",
+            options=PLOT_TEMPLATE_CHOICES,
+            index=PLOT_TEMPLATE_CHOICES.index(current_template),
+            key=PLOT_TEMPLATE_WIDGET_KEY,
+        )
+        if template != current_template:
+            st.session_state.pop(PLOT_TEMPLATE_OPTIONS_SESSION_KEY, None)
+            st.session_state[LOAD_VIEW_WIDGET_KEY] = plot_template_view(get_plot_template_ui_spec(template))
+        spec = get_plot_template_ui_spec(template)
+        st.session_state[LOAD_VIEW_WIDGET_KEY] = plot_template_view(spec)
+        room_mode = "Einzelplot" if plot_template_requires_single_room(spec) else "Sammeldiagramm"
+        st.caption(
+            f"{spec.get('metric', '-')} · {spec.get('view', '-')} · {room_mode}. "
+            "Die fachliche Gruppierung erfolgt erst bei der Übernahme in einen Hauptbefehl."
+        )
 
 
 def _render_export_section(state: AnalysisWizardState) -> None:
     command = normalize_command(state.command, streamlit=True)
     if command == "prepare":
         _render_prepare_export_step()
+        _render_advanced_paths()
         return
     if command == "analyze_data":
         options = ("", *SERIES_LAYOUT_OPTIONS)
@@ -1084,6 +1168,7 @@ def _render_export_section(state: AnalysisWizardState) -> None:
             key=SERIES_LAYOUT_WIDGET_KEY,
         )
         st.caption("separate erzeugt eine Excel pro Variante. combined erzeugt eine gemeinsame Excel.")
+        _render_advanced_paths()
         return
 
     if command in {"heating", "cooling"}:
@@ -1103,6 +1188,7 @@ def _render_export_section(state: AnalysisWizardState) -> None:
                 key=SERIES_LAYOUT_WIDGET_KEY,
             )
         st.caption("single nutzt eine Auswahl, compare erzeugt Vergleichsdarstellungen.")
+        _render_advanced_paths()
         return
 
     if command == PLOT_TEMPLATE_STEP:
@@ -1113,7 +1199,14 @@ def _render_export_section(state: AnalysisWizardState) -> None:
             index=_selectbox_index(options, st.session_state.get(PLOT_TEMPLATE_MODE_WIDGET_KEY)),
             key=PLOT_TEMPLATE_MODE_WIDGET_KEY,
         )
-        st.caption("single ist fuer Einzelraum-Templates gedacht, compare fuer Vergleichsansichten.")
+        st.caption(
+            "single erzeugt je Variante-Raum-Kombination ein eigenes Diagramm. "
+            "compare führt alle ausgewählten Kombinationen in einer gemeinsamen Ausgabe zusammen."
+        )
+        _render_advanced_paths()
+        return
+
+    _render_advanced_paths()
 
 
 def _render_template_diagram_section(
@@ -1188,48 +1281,17 @@ def _render_plot_template_diagram_options(
     database_dir: str,
     available_variants: list[str],
 ) -> None:
-    group = str(st.session_state.get(PLOT_TEMPLATE_GROUP_WIDGET_KEY, "") or "")
-    if group not in PLOT_TEMPLATE_ANALYSIS_GROUP_OPTIONS:
-        st.info("Waehle zuerst die Diagrammgruppe im Bereich Unterbefehl.")
-        return
-
-    mode = str(st.session_state.get(PLOT_TEMPLATE_MODE_WIDGET_KEY, "") or "")
-    if mode not in PLOT_TEMPLATE_MODE_OPTIONS:
-        st.info("Waehle zuerst single oder compare im Bereich Export / Ausgabe.")
-        return
-
-    view_options = ("", *LOAD_VIEW_OPTIONS)
-    view = st.selectbox(
-        "Zeitansicht",
-        options=view_options,
-        index=_selectbox_index(view_options, st.session_state.get(LOAD_VIEW_WIDGET_KEY)),
-        key=LOAD_VIEW_WIDGET_KEY,
-    )
-    if not view:
-        st.info("Nach der Zeitansicht wird die Template-Auswahl gefiltert.")
-        return
-    _render_time_options("Template", view)
-
-    template_choices = _filtered_plot_template_choices(group, mode, view)
-    if not template_choices:
-        st.warning("Fuer diese Kombination aus Diagrammgruppe, Ausgabemodus und Zeitansicht gibt es aktuell kein Template.")
-        return
-    current_template = str(st.session_state.get(PLOT_TEMPLATE_WIDGET_KEY, HEATING_YEAR_TEMPLATE) or HEATING_YEAR_TEMPLATE)
-    if current_template not in template_choices:
-        current_template = template_choices[0]
-        st.session_state[PLOT_TEMPLATE_WIDGET_KEY] = current_template
-        st.session_state.pop(PLOT_TEMPLATE_OPTIONS_SESSION_KEY, None)
-    template = st.selectbox(
-        "Template",
-        options=template_choices,
-        index=template_choices.index(current_template),
-        key=PLOT_TEMPLATE_WIDGET_KEY,
-    )
-    if template != current_template:
-        st.session_state.pop(PLOT_TEMPLATE_OPTIONS_SESSION_KEY, None)
-
+    template = str(st.session_state.get(PLOT_TEMPLATE_WIDGET_KEY, HEATING_YEAR_TEMPLATE) or HEATING_YEAR_TEMPLATE)
     template_defaults = get_plot_template_ui_defaults(template)
     template_spec = get_plot_template_ui_spec(template)
+    view = plot_template_view(template_spec)
+    st.session_state[LOAD_VIEW_WIDGET_KEY] = view
+    st.markdown(f"**Zeitansicht:** {view or '-'}")
+    if view in LOAD_VIEW_OPTIONS:
+        _render_time_options("Template", view)
+    else:
+        st.caption("Dieses Diagramm benötigt keine zusätzliche Monats-, Wochen- oder Tagesauswahl.")
+
     room_mode = "Einzelraum" if plot_template_requires_single_room(template_spec) else "Mehrere Raeume"
     st.caption(
         "Template-Spezifikation: "
@@ -1238,45 +1300,172 @@ def _render_plot_template_diagram_options(
 
     supports_overlays = plot_template_supports_overlays(template_spec)
     if supports_overlays:
-        st.checkbox("Overlay aktivieren", value=bool(st.session_state.get(OVERLAY_ENABLED_WIDGET_KEY, True)), key=OVERLAY_ENABLED_WIDGET_KEY)
+        st.checkbox(
+            "Overlay aktivieren",
+            value=bool(st.session_state.get(OVERLAY_ENABLED_WIDGET_KEY, False)),
+            key=OVERLAY_ENABLED_WIDGET_KEY,
+        )
+        st.caption("Nach Varianten und Räumen erscheint dafür ein eigener Overlay-Bereich.")
     else:
         st.session_state[OVERLAY_ENABLED_WIDGET_KEY] = False
         st.caption("Dieses Template unterstuetzt keine Overlay-Auswahl.")
 
-    can_load_overlay_catalog = section_complete(state, "variants") and section_complete(state, "rooms")
-    if supports_overlays and st.session_state.get(OVERLAY_ENABLED_WIDGET_KEY):
-        if not can_load_overlay_catalog:
-            st.info("Overlay-Kataloge werden geladen, sobald Varianten und Raeume gewaehlt sind.")
-        else:
-            options = _render_plot_template_options(
-                template=template,
-                template_defaults=template_defaults,
-                template_spec=template_spec,
-                input_dir=input_dir,
-                database_dir=database_dir,
-                selected_variants=list(state.selected_variants),
-                available_variants=available_variants,
-                selected_rooms=list(state.selected_rooms),
-                month=state.month,
-                week=state.week,
-                day=state.day,
-                render_time_options=False,
-            )
-            st.session_state[PLOT_TEMPLATE_OPTIONS_SESSION_KEY] = options
-    else:
-        st.session_state[PLOT_TEMPLATE_OPTIONS_SESSION_KEY] = _build_plot_template_options_from_state(
-            AnalysisWizardState(
-                command=state.command,
-                plot_template=template,
-                month=state.month,
-                week=state.week,
-                day=state.day,
-            ),
-            template_defaults,
-        )
+    _render_diagram_adjustment_mockup(template_spec, template_defaults)
 
-    with st.expander("Diagrammbearbeitung", expanded=False):
-        st.caption("Achs- und Overlay-Details werden aus den Template-Defaults geladen und koennen spaeter erweitert werden.")
+
+def _template_has_secondary_axis(template_spec: dict[str, object]) -> bool:
+    metric = str(template_spec.get("metric") or "")
+    return plot_template_supports_overlays(template_spec) or metric in {
+        "energy_balance",
+        "thermal_room_climate",
+    }
+
+
+def _render_diagram_adjustment_mockup(
+    template_spec: dict[str, object],
+    template_defaults: dict[str, object],
+) -> None:
+    with st.expander("Diagrammanpassung", expanded=False):
+        st.caption(
+            "Das Mock-up verwendet Beispieldaten. Die echte Vorschau wird erst mit den gewählten "
+            "Varianten und Räumen erzeugt."
+        )
+        mode_labels = {"automatic": "Automatisch", "manual": "Manuell"}
+        primary_mode = st.selectbox(
+            "Primäre Y-Achse",
+            options=AXIS_RANGE_MODE_OPTIONS,
+            index=_selectbox_index(
+                AXIS_RANGE_MODE_OPTIONS,
+                st.session_state.get(PRIMARY_AXIS_MODE_WIDGET_KEY, "automatic"),
+            ),
+            format_func=lambda value: mode_labels[value],
+            key=PRIMARY_AXIS_MODE_WIDGET_KEY,
+        )
+        primary_ymin = _float_session_value(PRIMARY_YMIN_WIDGET_KEY)
+        primary_ymax = _float_session_value(PRIMARY_YMAX_WIDGET_KEY)
+        if primary_mode == "manual":
+            primary_columns = st.columns(2)
+            primary_ymin = primary_columns[0].number_input(
+                "Primär Minimum",
+                value=float(primary_ymin if primary_ymin is not None else 0.0),
+                key=PRIMARY_YMIN_WIDGET_KEY,
+            )
+            primary_ymax = primary_columns[1].number_input(
+                "Primär Maximum",
+                value=float(primary_ymax if primary_ymax is not None else 1000.0),
+                key=PRIMARY_YMAX_WIDGET_KEY,
+            )
+
+        has_secondary_axis = _template_has_secondary_axis(template_spec)
+        secondary_mode = "automatic"
+        secondary_ymin = None
+        secondary_ymax = None
+        if has_secondary_axis:
+            secondary_mode = st.selectbox(
+                "Sekundäre Y-Achse",
+                options=AXIS_RANGE_MODE_OPTIONS,
+                index=_selectbox_index(
+                    AXIS_RANGE_MODE_OPTIONS,
+                    st.session_state.get(SECONDARY_AXIS_MODE_WIDGET_KEY, "automatic"),
+                ),
+                format_func=lambda value: mode_labels[value],
+                key=SECONDARY_AXIS_MODE_WIDGET_KEY,
+            )
+            secondary_ymin = _float_session_value(SECONDARY_YMIN_WIDGET_KEY)
+            secondary_ymax = _float_session_value(SECONDARY_YMAX_WIDGET_KEY)
+            if secondary_mode == "manual":
+                secondary_columns = st.columns(2)
+                secondary_ymin = secondary_columns[0].number_input(
+                    "Sekundär Minimum",
+                    value=float(
+                        secondary_ymin
+                        if secondary_ymin is not None
+                        else _default_float(template_defaults, "temperature_ymin", DEFAULT_TEMPERATURE_YMIN)
+                    ),
+                    key=SECONDARY_YMIN_WIDGET_KEY,
+                )
+                secondary_ymax = secondary_columns[1].number_input(
+                    "Sekundär Maximum",
+                    value=float(
+                        secondary_ymax
+                        if secondary_ymax is not None
+                        else _default_float(template_defaults, "temperature_ymax", DEFAULT_TEMPERATURE_YMAX)
+                    ),
+                    key=SECONDARY_YMAX_WIDGET_KEY,
+                )
+        else:
+            st.session_state[SECONDARY_AXIS_MODE_WIDGET_KEY] = "automatic"
+
+        figure, primary_axis = plt.subplots(figsize=(7.2, 3.2))
+        hours = list(range(25))
+        primary_values = [180 + ((hour % 8) * 85) for hour in hours]
+        primary_axis.plot(hours, primary_values, color="#d62828", label="Primäre Datenreihe")
+        primary_axis.set_xlabel("Zeit")
+        primary_axis.set_ylabel("Primäre Achse")
+        primary_axis.grid(True, alpha=0.25)
+        if primary_mode == "manual" and primary_ymin is not None and primary_ymax is not None:
+            if primary_ymin < primary_ymax:
+                primary_axis.set_ylim(primary_ymin, primary_ymax)
+            else:
+                st.warning("Das Minimum der primären Achse muss kleiner als das Maximum sein.")
+
+        handles, labels = primary_axis.get_legend_handles_labels()
+        if has_secondary_axis:
+            secondary_axis = primary_axis.twinx()
+            secondary_values = [8 + ((hour % 12) * 1.4) for hour in hours]
+            secondary_axis.plot(hours, secondary_values, color="#2563eb", label="Sekundäre Datenreihe")
+            secondary_axis.set_ylabel("Sekundäre Achse")
+            if secondary_mode == "manual" and secondary_ymin is not None and secondary_ymax is not None:
+                if secondary_ymin < secondary_ymax:
+                    secondary_axis.set_ylim(secondary_ymin, secondary_ymax)
+                else:
+                    st.warning("Das Minimum der sekundären Achse muss kleiner als das Maximum sein.")
+            secondary_handles, secondary_labels = secondary_axis.get_legend_handles_labels()
+            handles.extend(secondary_handles)
+            labels.extend(secondary_labels)
+        primary_axis.legend(handles, labels, loc="upper left", fontsize=8)
+        figure.tight_layout()
+        st.pyplot(figure, clear_figure=True)
+
+
+def _render_overlay_section(
+    *,
+    state: AnalysisWizardState,
+    template_defaults: dict[str, object],
+    template_spec: dict[str, object],
+    input_dir: str,
+    database_dir: str,
+    available_variants: list[str],
+) -> None:
+    if not plot_template_supports_overlays(template_spec):
+        st.info("Das ausgewählte Diagramm unterstützt keine zusätzlichen Overlay-Datenreihen.")
+        return
+    if not section_complete(state, "variants") or not section_complete(state, "rooms"):
+        st.info("Wähle zuerst Varianten und Räume, damit der Overlay-Katalog geladen werden kann.")
+        return
+
+    reference_variant = first_selected_value(list(state.selected_variants), available_variants)
+    reference_room = first_selected_value(list(state.selected_rooms), [])
+    st.info(
+        "Referenz für den Overlay-Katalog: "
+        f"{reference_variant or '-'} / {reference_room or '-'}. "
+        "Weitere ausgewählte Kombinationen werden beim Analysestart auf die benötigten Spalten geprüft."
+    )
+    options = _render_plot_template_options(
+        template=state.plot_template,
+        template_defaults=template_defaults,
+        template_spec=template_spec,
+        input_dir=input_dir,
+        database_dir=database_dir,
+        selected_variants=list(state.selected_variants),
+        available_variants=available_variants,
+        selected_rooms=list(state.selected_rooms),
+        month=state.month,
+        week=state.week,
+        day=state.day,
+        render_time_options=False,
+    )
+    st.session_state[PLOT_TEMPLATE_OPTIONS_SESSION_KEY] = options
 
 
 def _render_variant_scope_section(available_variants: list[str]) -> None:
@@ -1320,19 +1509,9 @@ def _render_room_scope_section(
         key=ROOM_SCOPE_WIDGET_KEY,
     )
     scope = str(st.session_state.get(ROOM_SCOPE_WIDGET_KEY, "") or "")
-    requires_single_room = normalize_command(state.command, streamlit=True) == PLOT_TEMPLATE_STEP and plot_template_requires_single_room(template_spec)
     if scope == "Alle Räume":
-        rooms, note = select_rooms_for_template(
-            room_scope=scope,
-            selected_rooms=(),
-            available_rooms=available_rooms,
-            requires_single_room=requires_single_room,
-        )
         st.caption(f"Gefundene Raeume: {len(available_rooms)}")
-        if note:
-            st.info(note)
-        if rooms:
-            st.caption("Verwendete Raeume: " + ", ".join(rooms[:5]))
+        st.caption("Alle Räume werden als eigene Auswahlkombinationen verarbeitet.")
         return
     if available_rooms and scope == "Ein Raum":
         default_room = "208 office" if "208 office" in available_rooms else available_rooms[0]
@@ -1346,23 +1525,13 @@ def _render_room_scope_section(
         if not isinstance(current_default, list):
             current_default = default_rooms
         st.multiselect("Raeume", options=available_rooms, default=current_default, key=ROOM_MULTI_WIDGET_KEY)
-        if requires_single_room:
-            st.info("Dieses Template nutzt genau einen Raum. Bei mehreren Raeumen wird der erste verwendet.")
         return
     if scope:
         st.text_input("Raeume manuell", value="", key=ROOM_MANUAL_WIDGET_KEY)
 
 
 def _resolved_rooms_for_run(state: AnalysisWizardState, available_rooms: list[str], template_spec: dict[str, object]) -> tuple[str, ...]:
-    if normalize_command(state.command, streamlit=True) != PLOT_TEMPLATE_STEP:
-        return state.selected_rooms
-    rooms, _ = select_rooms_for_template(
-        room_scope=state.room_scope,
-        selected_rooms=state.selected_rooms,
-        available_rooms=available_rooms,
-        requires_single_room=plot_template_requires_single_room(template_spec),
-    )
-    return rooms
+    return state.selected_rooms
 
 
 def _render_run_section(
@@ -1455,6 +1624,7 @@ def _build_run_config(
         variant_mode=state.variant_mode or None,
         series_layout=state.series_layout or None,
         plot_template=state.plot_template if command == PLOT_TEMPLATE_STEP else None,
+        plot_template_mode=state.plot_template_mode or "single",
         plot_template_options=plot_template_options,
     )
 
@@ -1464,7 +1634,7 @@ def render() -> None:
     render_page_header("Analyse", "Simulationsergebnisanalyse")
     _render_tkinter_legacy_launcher()
 
-    input_dir, database_dir, output_root, run_id = _render_advanced_paths()
+    input_dir, database_dir, output_root, run_id = _advanced_path_values()
     available_rooms = list_analysis_rooms()
 
     current_template = str(st.session_state.get(PLOT_TEMPLATE_WIDGET_KEY, HEATING_YEAR_TEMPLATE) or HEATING_YEAR_TEMPLATE)
@@ -1482,6 +1652,8 @@ def render() -> None:
     first_open_step = first_incomplete_step(state) or "run"
     for section in ANALYSIS_SECTION_ORDER:
         if section == "run":
+            continue
+        if section == "overlays" and not section_relevant(state, section):
             continue
         _render_section(
             section=section,
@@ -1508,6 +1680,7 @@ def render() -> None:
             template_spec=template_spec,
         )
 
+    input_dir, database_dir, output_root, run_id = _advanced_path_values()
     _render_run_section(
         state=state,
         template_defaults=template_defaults,

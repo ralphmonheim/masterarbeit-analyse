@@ -31,11 +31,12 @@ Masterarbeitsprojekt.
   `ma_workflow` auf.
 - Analyse-Seite kann die bestehende Tkinter-Analyse als separates
   Legacy-Fenster starten, falls eine Bedienfunktion in Streamlit noch fehlt.
-- Analyse-Seite nutzt eine sichtbare Schrittstruktur nach der vorhandenen
-  Tkinter-Zustandslogik: `Befehl`, `Unterbefehl`, `Export / Ausgabe`,
-  `Template / Diagramm`, `Varianten`, `Raeume` und einen festen Aktionsbereich.
+- Analyse-Seite nutzt eine sichtbare Schrittstruktur:
+  `Befehl`, `Unterbefehl`, `Template / Diagramm`, `Varianten`, `Raeume`,
+  optional `Overlay`, `Export / Ausgabe` und einen festen Aktionsbereich.
 - Nicht relevante Analyse-Bereiche zeigen nur einen kurzen Hinweis. Technische
-  Pfade liegen im eingeklappten Bereich `Erweiterte Pfade`.
+  Pfade liegen unter `Export / Ausgabe` im eingeklappten Bereich
+  `Erweiterte Pfade`.
 - Analyse-Seite bildet die fachlichen Einstellungen aus dem bisherigen
   `ma_analyse`-Ablauf dort ab, wo sie gebraucht werden: Prepare und
   `analyze_data` unter `Export / Ausgabe`, Heating/Cooling mit
@@ -57,6 +58,13 @@ Masterarbeitsprojekt.
   moeglich.
 - Plot-Template-Zeitfelder, Single-/Multi-Room-Auswahl und Overlay-Defaults
   werden aus der bestehenden `ma_analyse`-Template-Spezifikation abgeleitet.
+- Alle Plot-Templates werden ohne vorgelagerte Diagrammgruppe direkt als
+  Unterbefehle angeboten.
+- Die Diagrammanpassung bietet automatische Achsengrenzen als Standard und
+  optionale manuelle Grenzen fuer primaere und sekundaere Y-Achsen. Ein
+  Beispieldiagramm dient als direktes Mock-up.
+- `single` erzeugt getrennte Diagramme je Variante-Raum-Kombination;
+  `compare` erzeugt eine gemeinsame Vergleichsausgabe.
 - Analyse-Ergebnisse zeigen Status, Fehler, Hinweise, erzeugte Dateien,
   Diagrammvorschau fuer Bilddateien und Log.
 - Varianten-Seite zeigt Parameter, Optionen, Variantenraum, Auswahlmethoden und

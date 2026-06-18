@@ -38,14 +38,8 @@ from ..analysis.templates import (
     get_plot_template_spec,
     is_time_filtered_template,
     list_heating_year_overlay_sources,
-    template_requires_single_room,
     template_uses_overlay_options,
     validate_template_request,
-)
-from ..analysis_wizard import (
-    PLOT_TEMPLATE_ANALYSIS_GROUP_OPTIONS,
-    filter_templates_by_group_mode_and_view,
-    plot_template_group_label,
 )
 from ..app.commands import build_runtime_args, execute_steps, get_comfort_output_settings, run_all
 from ..core.config import DATENBANK_DIR, INPUT_DIR, OUTPUT_DIR, ROOMS
@@ -304,8 +298,12 @@ class PipelineGUI(SettingsDialogMixin):
         self.comfort_type = tk.StringVar(value="")
         self.analysis_level = tk.StringVar(value="")
         self.load_subcommand = tk.StringVar(value="")
-        self.plot_template_group = tk.StringVar(value="")
         self.plot_template_mode = tk.StringVar(value="")
+        self.overlay_enabled = tk.BooleanVar(value=False)
+        self.primary_axis_mode = tk.StringVar(value="automatic")
+        self.secondary_axis_mode = tk.StringVar(value="automatic")
+        self.primary_ymin = tk.StringVar(value="0")
+        self.primary_ymax = tk.StringVar(value="1000")
         self.heating_mode = tk.StringVar(value="")
         self.heating_view = tk.StringVar(value="")
         self.heating_series_layout = tk.StringVar(value="")
@@ -1355,28 +1353,28 @@ class PipelineGUI(SettingsDialogMixin):
     def _build_left_column(self):
         self._build_step_2()
         self._build_subcommand_step()
-        self._build_prepare_export_step()
         self._build_step_3()
-        self._build_overlay_step()
         self._build_step_4()
         self._build_step_5()
+        self._build_overlay_step()
+        self._build_prepare_export_step()
         self.step_card_order = [
             self.step_2_card,
             self.subcommand_card,
-            self.prepare_export_card,
             self.step_3_card,
-            self.overlay_card,
             self.step_4_card,
             self.step_5_card,
+            self.overlay_card,
+            self.prepare_export_card,
         ]
         self.step_card_descriptions = {
             self.step_2_card: "Befehl festlegen",
             self.subcommand_card: "Unterbefehl passend zum Befehl waehlen",
-            self.prepare_export_card: "Export oder Ausgabe waehlen",
             self.step_3_card: "Template / Diagramm auswaehlen",
-            self.overlay_card: "Datenlinien fuer Plot-Templates auswaehlen",
             self.step_4_card: "Varianten passend zum Befehl auswaehlen",
             self.step_5_card: "Raeume auswaehlen oder automatisch uebernehmen",
+            self.overlay_card: "Datenlinien fuer Plot-Templates auswaehlen",
+            self.prepare_export_card: "Export oder Ausgabe waehlen",
         }
 
     def _build_step_1(self):
@@ -1469,26 +1467,50 @@ class PipelineGUI(SettingsDialogMixin):
         )
         self.load_subcommand_note.pack(anchor=tk.W, pady=(6, 0))
 
-        self.plot_template_group_section = tk.Frame(content, bg=self.color_panel)
+        self.plot_template_list_section = tk.Frame(content, bg=self.color_panel)
         ttk.Label(
-            self.plot_template_group_section,
-            text="Diagrammgruppe",
+            self.plot_template_list_section,
+            text="Plot-Template",
             style="Dark.TLabel",
         ).pack(anchor=tk.W, pady=(0, 6))
-        _, self.plot_template_group_buttons = self._create_selection_button_group(
-            self.plot_template_group_section,
-            [(value, plot_template_group_label(value)) for value in PLOT_TEMPLATE_ANALYSIS_GROUP_OPTIONS],
-            self._set_plot_template_group,
-            columns=3,
+        template_list_frame = tk.Frame(self.plot_template_list_section, bg=self.color_panel)
+        template_list_frame.pack(fill=tk.BOTH, expand=True)
+        self.plot_template_listbox = tk.Listbox(
+            template_list_frame,
+            height=12,
+            selectmode=tk.BROWSE,
+            bg=self.color_panel_light,
+            fg=self.color_text,
+            selectbackground=self.color_blue,
+            selectforeground="white",
+            highlightbackground=self.color_border,
+            highlightcolor=self.color_blue,
+            relief=tk.FLAT,
+            exportselection=False,
+            font=("Segoe UI", 10),
         )
-        self.plot_template_group_note = ttk.Label(
-            self.plot_template_group_section,
-            text="Die Diagrammgruppe filtert die verfuegbaren Analyse-Templates.",
+        template_scrollbar = ttk.Scrollbar(
+            template_list_frame,
+            orient=tk.VERTICAL,
+            command=self.plot_template_listbox.yview,
+        )
+        self.plot_template_listbox.configure(yscrollcommand=template_scrollbar.set)
+        self.plot_template_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        template_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        for template_name in PLOT_TEMPLATE_CHOICES:
+            self.plot_template_listbox.insert(tk.END, template_name)
+        self.plot_template_listbox.bind(
+            "<<ListboxSelect>>",
+            lambda _event: self._select_plot_template_from_list(),
+        )
+        self.plot_template_list_note = ttk.Label(
+            self.plot_template_list_section,
+            text="Alle experimentellen Diagramme werden direkt angezeigt. Die Gruppierung erfolgt erst bei der Übernahme in einen Hauptbefehl.",
             style="Muted.TLabel",
             wraplength=640,
             justify=tk.LEFT,
         )
-        self.plot_template_group_note.pack(anchor=tk.W, pady=(6, 0))
+        self.plot_template_list_note.pack(anchor=tk.W, pady=(6, 0))
 
     def _build_prepare_export_step(self):
         self.prepare_export_card, content = self._create_step_card(self.left_column, 3, "Export / Ausgabe")
@@ -1550,6 +1572,71 @@ class PipelineGUI(SettingsDialogMixin):
             justify=tk.LEFT,
         )
         self.plot_template_mode_note.pack(anchor=tk.W, pady=(6, 0))
+
+        self.load_export_section = tk.Frame(content, bg=self.color_panel)
+        self.load_export_title = ttk.Label(
+            self.load_export_section,
+            text="Ausgabemodus",
+            style="Dark.TLabel",
+        )
+        self.load_export_title.pack(anchor=tk.W, pady=(0, 6))
+        _, self.heating_mode_buttons = self._create_selection_button_group(
+            self.load_export_section,
+            [("single", "single"), ("compare", "compare")],
+            self._set_heating_mode,
+        )
+        self.load_export_note = ttk.Label(
+            self.load_export_section,
+            text="single erzeugt getrennte Ausgaben, compare fasst Datenreihen zusammen.",
+            style="Muted.TLabel",
+            wraplength=640,
+            justify=tk.LEFT,
+        )
+        self.load_export_note.pack(anchor=tk.W, pady=(6, 10))
+        self.load_layout_title = ttk.Label(
+            self.load_export_section,
+            text="Diagrammausgabe",
+            style="Dark.TLabel",
+        )
+        _, self.heating_layout_buttons = self._create_selection_button_group(
+            self.load_export_section,
+            [("separate", "separate"), ("combined", "combined")],
+            self._set_heating_series_layout,
+        )
+        self.load_layout_note = ttk.Label(
+            self.load_export_section,
+            text="Diese Zusatzwahl wird bei compare verwendet.",
+            style="Muted.TLabel",
+            wraplength=640,
+            justify=tk.LEFT,
+        )
+
+        self.analysis_export_section = tk.Frame(content, bg=self.color_panel)
+        ttk.Label(self.analysis_export_section, text="Excel-Ausgabe", style="Dark.TLabel").pack(
+            anchor=tk.W,
+            pady=(0, 6),
+        )
+        _, self.analysis_export_buttons = self._create_selection_button_group(
+            self.analysis_export_section,
+            [("separate", "separate"), ("combined", "combined")],
+            self._set_heating_series_layout,
+        )
+        ttk.Label(
+            self.analysis_export_section,
+            text="separate erzeugt eine Excel pro Variante, combined eine gemeinsame Excel.",
+            style="Muted.TLabel",
+            wraplength=640,
+            justify=tk.LEFT,
+        ).pack(anchor=tk.W, pady=(6, 0))
+
+        self.generic_export_section = tk.Frame(content, bg=self.color_panel)
+        ttk.Label(
+            self.generic_export_section,
+            text="Für diesen Befehl ist keine zusätzliche Ausgabeart erforderlich.",
+            style="Muted.TLabel",
+            wraplength=640,
+            justify=tk.LEFT,
+        ).pack(anchor=tk.W)
 
     def _create_selection_button_group(self, parent, options, command, columns=2, wraplength=240):
         """Erzeugt eine Einzelauswahl als Button-Raster mit festem 2-Spalten-Muster."""
@@ -1752,30 +1839,113 @@ class PipelineGUI(SettingsDialogMixin):
         self.heating_day_combo.bind("<<ComboboxSelected>>", lambda event: self._update_dynamic_fields())
 
         self.plot_template_section = tk.Frame(content, bg=self.color_panel)
-        ttk.Label(self.plot_template_section, text="Template", style="Dark.TLabel").pack(anchor=tk.W, pady=(0, 6))
-
-        self.plot_template_grid = tk.Frame(self.plot_template_section, bg=self.color_panel)
-        self.plot_template_grid.pack(fill=tk.X)
-        for column in range(2):
-            self.plot_template_grid.grid_columnconfigure(column, weight=1)
-
-        self.plot_template_combo = self._create_labeled_entry(
-            self.plot_template_grid,
-            "Template",
-            self.plot_template,
-            row=0,
-            column=0,
-            values=PLOT_TEMPLATE_CHOICES,
+        ttk.Label(self.plot_template_section, text="Ausgewähltes Template", style="Dark.TLabel").pack(
+            anchor=tk.W,
+            pady=(0, 6),
         )
-        self.plot_template_combo.bind("<<ComboboxSelected>>", lambda event: self._update_dynamic_fields())
+        self.plot_template_selected_label = ttk.Label(
+            self.plot_template_section,
+            textvariable=self.plot_template,
+            style="Heading.TLabel",
+        )
+        self.plot_template_selected_label.pack(anchor=tk.W, pady=(0, 8))
         self.plot_template_note = ttk.Label(
             self.plot_template_section,
-            text="Templates nutzen eine oder mehrere Varianten. Die meisten Templates erwarten genau einen Raum; Raumvergleich-Templates erlauben mehrere Raeume.",
+            text="single erzeugt je Variante-Raum-Kombination eine eigene Ausgabe. compare führt die Auswahl in einer gemeinsamen Ausgabe zusammen.",
             style="Muted.TLabel",
             wraplength=640,
             justify=tk.LEFT,
         )
         self.plot_template_note.pack(anchor=tk.W, pady=(8, 0))
+
+        self.overlay_toggle = ttk.Checkbutton(
+            self.plot_template_section,
+            text="Overlay aktivieren",
+            variable=self.overlay_enabled,
+            command=self._update_dynamic_fields,
+            style="TCheckbutton",
+        )
+        self.overlay_toggle.pack(anchor=tk.W, pady=(14, 0))
+
+        self.diagram_adjustment_button = ttk.Button(
+            self.plot_template_section,
+            text="Diagrammanpassung anzeigen",
+            style="Secondary.TButton",
+            command=self._toggle_diagram_adjustment,
+        )
+        self.diagram_adjustment_button.pack(anchor=tk.W, pady=(14, 8))
+        self.diagram_adjustment_frame = tk.Frame(
+            self.plot_template_section,
+            bg=self.color_panel_light,
+            highlightbackground=self.color_border,
+            highlightthickness=1,
+        )
+        self.diagram_adjustment_expanded = False
+        adjustment_content = tk.Frame(self.diagram_adjustment_frame, bg=self.color_panel_light)
+        adjustment_content.pack(fill=tk.BOTH, expand=True, padx=12, pady=12)
+        ttk.Label(adjustment_content, text="Primäre Y-Achse", style="Dark.TLabel").pack(anchor=tk.W)
+        _, self.primary_axis_mode_buttons = self._create_selection_button_group(
+            adjustment_content,
+            [("automatic", "Automatisch"), ("manual", "Manuell")],
+            self._set_primary_axis_mode,
+        )
+        primary_grid = tk.Frame(adjustment_content, bg=self.color_panel_light)
+        primary_grid.pack(fill=tk.X, pady=(6, 10))
+        primary_grid.grid_columnconfigure(0, weight=1)
+        primary_grid.grid_columnconfigure(1, weight=1)
+        self.primary_ymin_entry = self._create_labeled_entry(
+            primary_grid,
+            "Primär Minimum",
+            self.primary_ymin,
+            row=0,
+            column=0,
+        )
+        self.primary_ymax_entry = self._create_labeled_entry(
+            primary_grid,
+            "Primär Maximum",
+            self.primary_ymax,
+            row=0,
+            column=1,
+        )
+        ttk.Label(adjustment_content, text="Sekundäre Y-Achse", style="Dark.TLabel").pack(anchor=tk.W)
+        _, self.secondary_axis_mode_buttons = self._create_selection_button_group(
+            adjustment_content,
+            [("automatic", "Automatisch"), ("manual", "Manuell")],
+            self._set_secondary_axis_mode,
+        )
+        secondary_grid = tk.Frame(adjustment_content, bg=self.color_panel_light)
+        secondary_grid.pack(fill=tk.X, pady=(6, 10))
+        secondary_grid.grid_columnconfigure(0, weight=1)
+        secondary_grid.grid_columnconfigure(1, weight=1)
+        self.plot_temperature_ymin_entry = self._create_labeled_entry(
+            secondary_grid,
+            "Sekundär Minimum",
+            self.plot_temperature_ymin,
+            row=0,
+            column=0,
+        )
+        self.plot_temperature_ymax_entry = self._create_labeled_entry(
+            secondary_grid,
+            "Sekundär Maximum",
+            self.plot_temperature_ymax,
+            row=0,
+            column=1,
+        )
+        for entry in (
+            self.primary_ymin_entry,
+            self.primary_ymax_entry,
+            self.plot_temperature_ymin_entry,
+            self.plot_temperature_ymax_entry,
+        ):
+            entry.bind("<KeyRelease>", lambda _event: self._redraw_axis_mockup())
+        self.axis_mockup = tk.Canvas(
+            adjustment_content,
+            height=210,
+            bg="white",
+            highlightbackground=self.color_border,
+            highlightthickness=1,
+        )
+        self.axis_mockup.pack(fill=tk.X, pady=(12, 0))
 
     def _get_fixed_plot_overlay(self, overlay_id, fallback=None):
         for overlay in self.fixed_plot_overlays:
@@ -1797,33 +1967,14 @@ class PipelineGUI(SettingsDialogMixin):
 
     def _build_overlay_step(self):
         self.overlay_card, content = self._create_step_card(self.left_column, 5, "Überlagerungen")
-
-        axis_section = tk.Frame(content, bg=self.color_panel)
-        axis_section.pack(fill=tk.X, pady=(0, 14))
-        ttk.Label(axis_section, text="Temperaturachse", style="Dark.TLabel").pack(anchor=tk.W, pady=(0, 8))
-        axis_grid = tk.Frame(
-            axis_section,
-            bg=self.color_panel_light,
-            highlightbackground=self.color_border,
-            highlightthickness=1,
+        self.overlay_reference_label = ttk.Label(
+            content,
+            text="Der Overlay-Katalog wird nach Varianten- und Raumauswahl geladen.",
+            style="Muted.TLabel",
+            wraplength=640,
+            justify=tk.LEFT,
         )
-        axis_grid.pack(fill=tk.X)
-        axis_grid.grid_columnconfigure(0, weight=1)
-        axis_grid.grid_columnconfigure(1, weight=1)
-        self.plot_temperature_ymin_entry = self._create_labeled_entry(
-            axis_grid,
-            "Min [°C]",
-            self.plot_temperature_ymin,
-            row=0,
-            column=0,
-        )
-        self.plot_temperature_ymax_entry = self._create_labeled_entry(
-            axis_grid,
-            "Max [°C]",
-            self.plot_temperature_ymax,
-            row=0,
-            column=1,
-        )
+        self.overlay_reference_label.pack(anchor=tk.W, pady=(0, 12))
 
         fixed_section = tk.Frame(content, bg=self.color_panel)
         fixed_section.pack(fill=tk.X, pady=(0, 14))
@@ -2145,7 +2296,7 @@ class PipelineGUI(SettingsDialogMixin):
             if selected_command in {"heating", "cooling"}:
                 return self.load_subcommand.get() in {"bar", "timeline"}
             if selected_command == "plot-template":
-                return self.plot_template_group.get() in PLOT_TEMPLATE_ANALYSIS_GROUP_OPTIONS
+                return self.plot_template.get() in PLOT_TEMPLATE_CHOICES
             return False
 
         if card is self.prepare_export_card:
@@ -2153,17 +2304,24 @@ class PipelineGUI(SettingsDialogMixin):
                 return bool(self.prepare_export_format.get())
             if selected_command == "plot-template":
                 return self.plot_template_mode.get() in {"single", "compare"}
+            if selected_command == "analyze_data":
+                return self.heating_series_layout.get() in {"separate", "combined"}
+            if selected_command in {"heating", "cooling"}:
+                if self.heating_mode.get() not in {"single", "compare"}:
+                    return False
+                return self.heating_mode.get() != "compare" or self.heating_series_layout.get() in {
+                    "separate",
+                    "combined",
+                }
             return False
 
         if card is self.step_3_card:
             if selected_command == "plot-template":
                 return bool(self.plot_template.get())
             if selected_command == "analyze_data":
-                return bool(self.heating_series_layout.get())
+                return True
             if selected_command in {"heating", "cooling"}:
-                if self.load_subcommand.get() not in {"bar", "timeline"} or not self.heating_mode.get():
-                    return False
-                if self.heating_mode.get() == "compare" and not self.heating_series_layout.get():
+                if self.load_subcommand.get() not in {"bar", "timeline"}:
                     return False
                 if self.load_subcommand.get() == "timeline" and self.heating_view.get() not in {
                     "year",
@@ -2228,8 +2386,8 @@ class PipelineGUI(SettingsDialogMixin):
                 return f"Unterbefehl: {self.comfort_type.get()}"
             if self.command.get() in {"heating", "cooling"} and self.load_subcommand.get():
                 return f"Unterbefehl: {self.load_subcommand.get()}"
-            if self.command.get() == "plot-template" and self.plot_template_group.get():
-                return f"Unterbefehl: {plot_template_group_label(self.plot_template_group.get())}"
+            if self.command.get() == "plot-template" and self.plot_template.get():
+                return f"Unterbefehl: {self.plot_template.get()}"
             return ""
 
         if card is self.prepare_export_card:
@@ -2237,6 +2395,13 @@ class PipelineGUI(SettingsDialogMixin):
                 return f"Exportformat: {self.prepare_export_format.get()}"
             if self.command.get() == "plot-template" and self.plot_template_mode.get():
                 return f"Ausgabe: {self.plot_template_mode.get()}"
+            if self.command.get() == "analyze_data" and self.heating_series_layout.get():
+                return f"Excel-Ausgabe: {self.heating_series_layout.get()}"
+            if self.command.get() in {"heating", "cooling"} and self.heating_mode.get():
+                parts = [self.heating_mode.get()]
+                if self.heating_mode.get() == "compare" and self.heating_series_layout.get():
+                    parts.append(self.heating_series_layout.get())
+                return f"Ausgabe: {', '.join(parts)}"
             return ""
 
         if card is self.step_3_card:
@@ -2257,10 +2422,6 @@ class PipelineGUI(SettingsDialogMixin):
                 return f"Excel-Ausgabe: {self.heating_series_layout.get()}"
             if selected_command in {"heating", "cooling"}:
                 parts = []
-                if self.heating_mode.get():
-                    parts.append(f"Modus {self.heating_mode.get()}")
-                if self.heating_mode.get() == "compare" and self.heating_series_layout.get():
-                    parts.append(f"Ausgabe {self.heating_series_layout.get()}")
                 if self.load_subcommand.get() == "timeline" and self.heating_view.get():
                     view_label = self.heating_view.get()
                     if view_label == "month":
@@ -2752,8 +2913,12 @@ class PipelineGUI(SettingsDialogMixin):
             return
         self.command.set(value)
         self.load_subcommand.set("")
-        self.plot_template_group.set("")
         self.plot_template_mode.set("")
+        self.overlay_enabled.set(False)
+        self.primary_axis_mode.set("automatic")
+        self.secondary_axis_mode.set("automatic")
+        self.primary_ymin.set("0")
+        self.primary_ymax.set("1000")
         self._update_dynamic_fields()
         self._activate_next_available_step_after(self.step_2_card)
 
@@ -2770,12 +2935,12 @@ class PipelineGUI(SettingsDialogMixin):
     def _set_heating_mode(self, value):
         self.heating_mode.set(value)
         self._update_dynamic_fields()
-        self._advance_after_completed_single_choice(self.step_3_card)
+        self._advance_after_completed_single_choice(self.prepare_export_card)
 
     def _set_heating_series_layout(self, value):
         self.heating_series_layout.set(value)
         self._update_dynamic_fields()
-        self._advance_after_completed_single_choice(self.step_3_card)
+        self._advance_after_completed_single_choice(self.prepare_export_card)
 
     def _set_load_subcommand(self, value):
         self.load_subcommand.set(value)
@@ -2791,10 +2956,65 @@ class PipelineGUI(SettingsDialogMixin):
         self._update_dynamic_fields()
         self._advance_after_completed_single_choice(self.prepare_export_card)
 
-    def _set_plot_template_group(self, value):
-        self.plot_template_group.set(value)
+    def _select_plot_template_from_list(self):
+        if not hasattr(self, "plot_template_listbox"):
+            return
+        selection = self.plot_template_listbox.curselection()
+        if not selection:
+            return
+        self.plot_template.set(self.plot_template_listbox.get(selection[0]))
+        self.overlay_enabled.set(False)
+        self.free_overlay_lines = []
         self._update_dynamic_fields()
         self._advance_after_completed_single_choice(self.subcommand_card)
+
+    def _set_primary_axis_mode(self, value):
+        self.primary_axis_mode.set(value)
+        self._update_dynamic_fields()
+
+    def _set_secondary_axis_mode(self, value):
+        self.secondary_axis_mode.set(value)
+        self._update_dynamic_fields()
+
+    def _toggle_diagram_adjustment(self):
+        self.diagram_adjustment_expanded = not self.diagram_adjustment_expanded
+        if self.diagram_adjustment_expanded:
+            self.diagram_adjustment_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 8))
+            self.diagram_adjustment_button.configure(text="Diagrammanpassung ausblenden")
+        else:
+            self.diagram_adjustment_frame.pack_forget()
+            self.diagram_adjustment_button.configure(text="Diagrammanpassung anzeigen")
+        self._redraw_axis_mockup()
+
+    def _redraw_axis_mockup(self):
+        if not hasattr(self, "axis_mockup"):
+            return
+        canvas = self.axis_mockup
+        canvas.delete("all")
+        width = max(canvas.winfo_width(), 560)
+        height = max(canvas.winfo_height(), 210)
+        left, right, top, bottom = 55, width - 55, 20, height - 35
+        canvas.create_rectangle(left, top, right, bottom, outline="#777777")
+        canvas.create_text(left, 8, text="Primäre Achse", anchor=tk.W, fill="#d62828")
+        canvas.create_text(right, 8, text="Sekundäre Achse", anchor=tk.E, fill="#2563eb")
+        primary_points = []
+        secondary_points = []
+        for index in range(13):
+            x_value = left + ((right - left) * index / 12)
+            primary_y = bottom - ((bottom - top) * ((index % 5) + 1) / 6)
+            secondary_y = bottom - ((bottom - top) * ((index % 7) + 1) / 8)
+            primary_points.extend((x_value, primary_y))
+            secondary_points.extend((x_value, secondary_y))
+        canvas.create_line(*primary_points, fill="#d62828", width=2, smooth=True)
+        canvas.create_line(*secondary_points, fill="#2563eb", width=2, smooth=True)
+        primary_text = "automatisch"
+        if self.primary_axis_mode.get() == "manual":
+            primary_text = f"{self.primary_ymin.get()} bis {self.primary_ymax.get()}"
+        secondary_text = "automatisch"
+        if self.secondary_axis_mode.get() == "manual":
+            secondary_text = f"{self.plot_temperature_ymin.get()} bis {self.plot_temperature_ymax.get()}"
+        canvas.create_text(left, height - 12, text=f"Primär: {primary_text}", anchor=tk.W, fill="#444444")
+        canvas.create_text(right, height - 12, text=f"Sekundär: {secondary_text}", anchor=tk.E, fill="#444444")
 
     def _set_comfort_type(self, value):
         self.comfort_type.set(value)
@@ -2818,9 +3038,10 @@ class PipelineGUI(SettingsDialogMixin):
         self._update_heating_mode_buttons()
         self._update_heating_layout_buttons()
         self._update_load_subcommand_buttons()
-        self._update_plot_template_group_buttons()
+        self._sync_plot_template_list_selection()
         self._update_plot_template_mode_buttons()
         self._update_heating_view_buttons()
+        self._update_axis_adjustment_fields()
         self._update_step_visibility()
         self._update_subcommand_dependent_fields()
         self._update_command_dependent_fields()
@@ -2832,6 +3053,7 @@ class PipelineGUI(SettingsDialogMixin):
         self._refresh_overlay_catalog()
         self._refresh_step_indicators()
         self._update_step_summaries()
+        self._redraw_axis_mockup()
 
     def _update_step_visibility(self):
         selected_command = self.command.get()
@@ -2843,27 +3065,25 @@ class PipelineGUI(SettingsDialogMixin):
             "bar",
             "timeline",
         }
-        plot_template_without_group = is_plot_template and not self.plot_template_group.get()
-        plot_template_without_mode = is_plot_template and not self.plot_template_mode.get()
         hide_options_step = (
             no_command
-            or selected_command in {"prepare", "all", "comfort"}
+            or selected_command in {"prepare", "analyze_data", "all"}
             or load_without_subcommand
-            or plot_template_without_group
-            or plot_template_without_mode
         )
         show_overlays = (
             is_plot_template
-            and bool(self.plot_template_group.get())
-            and bool(self.plot_template_mode.get())
+            and self.overlay_enabled.get()
             and template_uses_overlay_options(self.plot_template.get())
         )
         self._set_card_visible(self.subcommand_card, show_subcommands)
-        self._set_card_visible(self.prepare_export_card, is_prepare or is_plot_template)
         self._set_card_visible(self.step_3_card, not hide_options_step)
-        self._set_card_visible(self.overlay_card, show_overlays)
         self._set_card_visible(self.step_4_card, not no_command)
         self._set_card_visible(self.step_5_card, not no_command and not is_prepare)
+        self._set_card_visible(self.overlay_card, show_overlays)
+        self._set_card_visible(
+            self.prepare_export_card,
+            not no_command,
+        )
 
     def _set_card_visible(self, card, visible):
         card.step_available = visible
@@ -2954,6 +3174,11 @@ class PipelineGUI(SettingsDialogMixin):
             self.heating_layout_buttons,
             self.heating_series_layout.get(),
         )
+        if hasattr(self, "analysis_export_buttons"):
+            self._update_selection_button_group(
+                self.analysis_export_buttons,
+                self.heating_series_layout.get(),
+            )
 
     def _update_load_subcommand_buttons(self):
         self._update_selection_button_group(
@@ -2967,11 +3192,16 @@ class PipelineGUI(SettingsDialogMixin):
             self.plot_template_mode.get(),
         )
 
-    def _update_plot_template_group_buttons(self):
-        self._update_selection_button_group(
-            self.plot_template_group_buttons,
-            self.plot_template_group.get(),
-        )
+    def _sync_plot_template_list_selection(self):
+        if not hasattr(self, "plot_template_listbox"):
+            return
+        try:
+            index = PLOT_TEMPLATE_CHOICES.index(self.plot_template.get())
+        except ValueError:
+            return
+        self.plot_template_listbox.selection_clear(0, tk.END)
+        self.plot_template_listbox.selection_set(index)
+        self.plot_template_listbox.see(index)
 
     def _update_heating_view_buttons(self):
         self._update_selection_button_group(
@@ -2984,12 +3214,43 @@ class PipelineGUI(SettingsDialogMixin):
             self.prepare_export_section.pack_forget()
         if hasattr(self, "plot_template_export_section"):
             self.plot_template_export_section.pack_forget()
+        if hasattr(self, "load_export_section"):
+            self.load_export_section.pack_forget()
+        if hasattr(self, "analysis_export_section"):
+            self.analysis_export_section.pack_forget()
+        if hasattr(self, "generic_export_section"):
+            self.generic_export_section.pack_forget()
 
         if self.command.get() == "plot-template":
             self.plot_template_export_section.pack(fill=tk.X)
             return
 
+        if self.command.get() in {"heating", "cooling"}:
+            self.load_export_title.configure(
+                text="Kühlvergleich Ausgabemodus"
+                if self.command.get() == "cooling"
+                else "Heizvergleich Ausgabemodus"
+            )
+            self.load_export_section.pack(fill=tk.X)
+            if self.heating_mode.get() == "compare":
+                self.load_layout_title.pack(anchor=tk.W, pady=(8, 6))
+                for button in self.heating_layout_buttons.values():
+                    button.master.pack(fill=tk.X)
+                    break
+                self.load_layout_note.pack(anchor=tk.W, pady=(6, 0))
+            else:
+                self.load_layout_title.pack_forget()
+                if self.heating_layout_buttons:
+                    next(iter(self.heating_layout_buttons.values())).master.pack_forget()
+                self.load_layout_note.pack_forget()
+            return
+
+        if self.command.get() == "analyze_data":
+            self.analysis_export_section.pack(fill=tk.X)
+            return
+
         if self.command.get() != "prepare":
+            self.generic_export_section.pack(fill=tk.X)
             return
 
         self.prepare_export_section.pack(fill=tk.X)
@@ -3014,7 +3275,7 @@ class PipelineGUI(SettingsDialogMixin):
         for section in [
             self.comfort_section,
             self.load_subcommand_section,
-            self.plot_template_group_section,
+            self.plot_template_list_section,
         ]:
             section.pack_forget()
 
@@ -3033,7 +3294,7 @@ class PipelineGUI(SettingsDialogMixin):
             return
 
         if selected_command == "plot-template":
-            self.plot_template_group_section.pack(fill=tk.X)
+            self.plot_template_list_section.pack(fill=tk.X)
 
     def _update_command_dependent_fields(self):
         selected_command = self.command.get()
@@ -3070,23 +3331,19 @@ class PipelineGUI(SettingsDialogMixin):
             self.heating_layout_title.configure(text="Diagrammausgabe")
             if self.load_subcommand.get() not in {"bar", "timeline"}:
                 return
-            self.heating_mode_section.pack(fill=tk.X, pady=(0, 12))
-            if self.heating_mode.get() == "compare":
-                self.heating_layout_section.pack(fill=tk.X, pady=(0, 12))
-                self.heating_layout_note.configure(
-                    text="Waehlt, ob mehrere Linien einzeln oder gemeinsam dargestellt werden sollen."
-                )
             if self.load_subcommand.get() == "timeline":
                 self.heating_view_section.pack(fill=tk.X)
-            self.heating_note.configure(
-                text="single erzeugt getrennte Ausgaben. compare fasst mehrere Datenreihen oder Varianten in einer Ausgabe zusammen."
-            )
             return
 
         if selected_command == "plot-template":
             self._update_plot_template_choices()
             self.plot_template_section.pack(fill=tk.X)
             spec = get_plot_template_spec(self.plot_template.get())
+            if template_uses_overlay_options(self.plot_template.get()):
+                self.overlay_toggle.pack(anchor=tk.W, pady=(14, 0))
+            else:
+                self.overlay_enabled.set(False)
+                self.overlay_toggle.pack_forget()
             if spec is not None and is_time_filtered_template(self.plot_template.get()):
                 if self.heating_view.get() != spec.view:
                     self.heating_view.set(spec.view)
@@ -3096,11 +3353,6 @@ class PipelineGUI(SettingsDialogMixin):
             return
 
         if analyze_active:
-            self.heating_layout_title.configure(text="Excel-Ausgabe")
-            self.heating_layout_section.pack(fill=tk.X, pady=(0, 12))
-            self.heating_layout_note.configure(
-                text="separate erzeugt eine Excel pro Variante. combined erzeugt eine gemeinsame Excel fuer alle ausgewaehlten Varianten und Raeume."
-            )
             return
 
         if prepare_active:
@@ -3127,6 +3379,40 @@ class PipelineGUI(SettingsDialogMixin):
             self.comfort_type_widgets,
             self.comfort_type.get(),
         )
+
+    def _update_axis_adjustment_fields(self):
+        if not hasattr(self, "primary_axis_mode_buttons"):
+            return
+        self._update_selection_button_group(
+            self.primary_axis_mode_buttons,
+            self.primary_axis_mode.get(),
+        )
+        self._update_selection_button_group(
+            self.secondary_axis_mode_buttons,
+            self.secondary_axis_mode.get(),
+        )
+        spec = get_plot_template_spec(self.plot_template.get())
+        has_secondary_axis = bool(
+            spec
+            and (
+                spec.supports_overlays
+                or spec.metric in {"energy_balance", "thermal_room_climate"}
+            )
+        )
+        if not has_secondary_axis:
+            self.secondary_axis_mode.set("automatic")
+            for button in self.secondary_axis_mode_buttons.values():
+                button.configure(state=tk.DISABLED)
+        primary_state = tk.NORMAL if self.primary_axis_mode.get() == "manual" else tk.DISABLED
+        secondary_state = (
+            tk.NORMAL
+            if has_secondary_axis and self.secondary_axis_mode.get() == "manual"
+            else tk.DISABLED
+        )
+        self.primary_ymin_entry.configure(state=primary_state)
+        self.primary_ymax_entry.configure(state=primary_state)
+        self.plot_temperature_ymin_entry.configure(state=secondary_state)
+        self.plot_temperature_ymax_entry.configure(state=secondary_state)
 
     def _update_heating_detail_fields(self):
         selected_view = self.heating_view.get()
@@ -3282,18 +3568,12 @@ class PipelineGUI(SettingsDialogMixin):
             self.rooms_listbox.configure(state=tk.NORMAL, selectmode=tk.MULTIPLE)
             self.rooms_listbox.selection_set(0, tk.END)
             self.rooms_listbox.configure(state=tk.DISABLED, selectmode=tk.MULTIPLE)
-            if self.command.get() == "plot-template" and template_requires_single_room(self.plot_template.get()):
-                first_room = self.rooms_listbox.get(0) if self.rooms_listbox.size() else "-"
-                self.room_note.configure(
-                    text=f"Alle Raeume sind gewaehlt. Dieses plot-template nutzt genau einen Raum; verwendet wird: {first_room}."
-                )
-                return
-            self.room_note.configure(text="Alle bekannten Raeume werden verwendet.")
+            self.room_note.configure(
+                text="Alle bekannten Räume werden verwendet: bei single getrennt, bei compare gemeinsam."
+            )
             return
 
         selectmode = tk.BROWSE if scope == "Ein Raum" else tk.MULTIPLE
-        if self.command.get() == "plot-template" and template_requires_single_room(self.plot_template.get()):
-            selectmode = tk.BROWSE
         self.rooms_listbox.configure(state=tk.NORMAL, selectmode=selectmode)
         self._update_room_note_state(scope)
 
@@ -3424,12 +3704,9 @@ class PipelineGUI(SettingsDialogMixin):
 
     def _handle_room_selection_changed(self):
         if self.command.get() == "plot-template":
-            if template_requires_single_room(self.plot_template.get()):
-                self.room_note.configure(text="Dieses plot-template nutzt genau einen Raum fuer die Diagrammvorlage.")
-            else:
-                self.room_note.configure(
-                    text="Dieses plot-template nutzt die ausgewaehlten Raeume fuer den Raumvergleich."
-                )
+            self.room_note.configure(
+                text="Alle ausgewählten Räume werden verarbeitet: bei single getrennt, bei compare gemeinsam."
+            )
         else:
             self._update_room_note_state(self.room_scope.get())
         self._refresh_overlay_catalog()
@@ -3457,8 +3734,20 @@ class PipelineGUI(SettingsDialogMixin):
 
         if not variant_name or not room_name:
             self.overlay_catalog = {"csv": [], "aux": []}
+            if hasattr(self, "overlay_reference_label"):
+                self.overlay_reference_label.configure(
+                    text="Wähle mindestens eine Variante und einen Raum, um den Overlay-Katalog zu laden."
+                )
             self._refresh_overlay_column_options()
             return
+
+        if hasattr(self, "overlay_reference_label"):
+            self.overlay_reference_label.configure(
+                text=(
+                    f"Referenz für den Overlay-Katalog: {variant_name} / {room_name}. "
+                    "Weitere ausgewählte Kombinationen werden beim Start validiert."
+                )
+            )
 
         try:
             self.overlay_catalog = list_heating_year_overlay_sources(
@@ -3489,37 +3778,7 @@ class PipelineGUI(SettingsDialogMixin):
         return {template: get_plot_template_spec(template) for template in PLOT_TEMPLATE_CHOICES}
 
     def _filtered_plot_template_choices(self):
-        group = self.plot_template_group.get()
-        mode = self.plot_template_mode.get()
-        if group not in PLOT_TEMPLATE_ANALYSIS_GROUP_OPTIONS or mode not in {"single", "compare"}:
-            return list(PLOT_TEMPLATE_CHOICES)
-
-        specs = self._plot_template_specs_by_name()
-        choices = []
-        views = [
-            "year",
-            "month",
-            "week",
-            "day",
-            "bar",
-            "plot",
-            "analysis",
-            "plot-overview",
-            "analysis-overview",
-            "monthly-sum",
-            "room-comparison",
-        ]
-        for view in views:
-            for template in filter_templates_by_group_mode_and_view(
-                PLOT_TEMPLATE_CHOICES,
-                specs,
-                group=group,
-                mode=mode,
-                view=view,
-            ):
-                if template not in choices:
-                    choices.append(template)
-        return choices or list(PLOT_TEMPLATE_CHOICES)
+        return list(PLOT_TEMPLATE_CHOICES)
 
     def _update_plot_template_choices(self):
         if not hasattr(self, "plot_template_combo"):
@@ -3637,6 +3896,11 @@ class PipelineGUI(SettingsDialogMixin):
         self.analysis_level.set("")
         self.load_subcommand.set("")
         self.plot_template_mode.set("")
+        self.overlay_enabled.set(False)
+        self.primary_axis_mode.set("automatic")
+        self.secondary_axis_mode.set("automatic")
+        self.primary_ymin.set("0")
+        self.primary_ymax.set("1000")
         self.heating_mode.set("")
         self.heating_view.set("")
         self.heating_series_layout.set("")
@@ -3732,7 +3996,7 @@ class PipelineGUI(SettingsDialogMixin):
     def _get_plot_template_options(self, variants, rooms):
         template = self.plot_template.get()
         spec = get_plot_template_spec(template)
-        uses_overlay_options = template_uses_overlay_options(template)
+        uses_overlay_options = template_uses_overlay_options(template) and self.overlay_enabled.get()
         month = None
         week = None
         day = None
@@ -3761,7 +4025,7 @@ class PipelineGUI(SettingsDialogMixin):
         else:
             setpoint_min = self.plot_template_defaults.get("setpoint_min", DEFAULT_SETPOINT_MIN)
             setpoint_max = self.plot_template_defaults.get("setpoint_max", DEFAULT_SETPOINT_MAX)
-        if uses_overlay_options:
+        if self.secondary_axis_mode.get() == "manual":
             temperature_ymin = self._parse_float_option(self.plot_temperature_ymin.get(), "Temp.-Achse min")
             if temperature_ymin is None:
                 return None
@@ -3771,9 +4035,25 @@ class PipelineGUI(SettingsDialogMixin):
         else:
             temperature_ymin = self.plot_template_defaults.get("temperature_ymin", DEFAULT_TEMPERATURE_YMIN)
             temperature_ymax = self.plot_template_defaults.get("temperature_ymax", DEFAULT_TEMPERATURE_YMAX)
+        primary_ymin = None
+        primary_ymax = None
+        if self.primary_axis_mode.get() == "manual":
+            primary_ymin = self._parse_float_option(self.primary_ymin.get(), "Primärachse min")
+            if primary_ymin is None:
+                return None
+            primary_ymax = self._parse_float_option(self.primary_ymax.get(), "Primärachse max")
+            if primary_ymax is None:
+                return None
+            if primary_ymin >= primary_ymax:
+                messagebox.showwarning("Warnung", "Primärachse min muss kleiner als max sein.")
+                return None
+        if self.secondary_axis_mode.get() == "manual" and temperature_ymin >= temperature_ymax:
+            messagebox.showwarning("Warnung", "Sekundärachse min muss kleiner als max sein.")
+            return None
 
         options = {
             "template": template,
+            "output_mode": self.plot_template_mode.get(),
             "setpoint_min": setpoint_min,
             "setpoint_max": setpoint_max,
             "temperature_ymin": temperature_ymin,
@@ -3787,11 +4067,17 @@ class PipelineGUI(SettingsDialogMixin):
             "month": month,
             "week": week,
             "day": day,
+            "primary_axis_mode": self.primary_axis_mode.get(),
+            "primary_ymin": primary_ymin,
+            "primary_ymax": primary_ymax,
+            "secondary_axis_mode": self.secondary_axis_mode.get(),
+            "secondary_ymin": temperature_ymin if self.secondary_axis_mode.get() == "manual" else None,
+            "secondary_ymax": temperature_ymax if self.secondary_axis_mode.get() == "manual" else None,
         }
         errors = validate_template_request(
             options["template"],
             variants,
-            rooms,
+            rooms[:1],
             options["setpoint_min"],
             options["setpoint_max"],
             options["temperature_ymin"],
@@ -3821,14 +4107,9 @@ class PipelineGUI(SettingsDialogMixin):
         if self.command.get() == "prepare":
             return ROOMS.copy()
         if self.room_scope.get() == "Alle Räume":
-            rooms = ROOMS.copy()
-            if self.command.get() == "plot-template" and template_requires_single_room(self.plot_template.get()):
-                return rooms[:1]
-            return rooms
+            return ROOMS.copy()
         selected_indices = self.rooms_listbox.curselection()
         rooms = [self.rooms_listbox.get(index) for index in selected_indices]
-        if self.command.get() == "plot-template" and template_requires_single_room(self.plot_template.get()):
-            return rooms[:1]
         return rooms
 
     def _validate_variant_sources(self, steps, variants):
@@ -3865,8 +4146,8 @@ class PipelineGUI(SettingsDialogMixin):
             return
 
         if selected_command == "plot-template":
-            if self.plot_template_group.get() not in PLOT_TEMPLATE_ANALYSIS_GROUP_OPTIONS:
-                messagebox.showwarning("Warnung", "Bitte waehlen Sie eine Diagrammgruppe.")
+            if self.plot_template.get() not in PLOT_TEMPLATE_CHOICES:
+                messagebox.showwarning("Warnung", "Bitte waehlen Sie ein Plot-Template.")
                 return
             if self.plot_template_mode.get() not in {"single", "compare"}:
                 messagebox.showwarning("Warnung", "Bitte waehlen Sie unter Export / Ausgabe single oder compare.")

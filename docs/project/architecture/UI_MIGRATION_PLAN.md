@@ -86,14 +86,13 @@ Zwischenstand und Kompatibilitaetsschicht dient.
 
 Die Analyse-View nutzt inzwischen eine sichtbare Schrittstruktur nach der
 fachlichen Tkinter-Zustandslogik. Die aktiven Bereiche lauten `Befehl`,
-`Unterbefehl`, `Export / Ausgabe`, `Template / Diagramm`, `Varianten`,
-`Raeume` und ein fester Aktionsbereich. Einen allgemeinen Bereich `Optionen`
+`Unterbefehl`, `Template / Diagramm`, `Varianten`, `Raeume`, optional
+`Overlay`, `Export / Ausgabe` und ein fester Aktionsbereich. Einen allgemeinen Bereich `Optionen`
 gibt es nicht mehr. `plot-template-analyse` ist der UI-Befehl fuer
 Analyse-Templates und wird intern auf den bestehenden Backend-Befehl
-`plot-template` abgebildet. Nach Auswahl von Diagrammgruppe, Ausgabemodus und
-Zeitansicht leitet die Streamlit-Bedienung Einzelraum-/Mehrraumlogik,
-Template-Defaults und Overlay-Optionen aus den bestehenden
-`ma_analyse`-Template-Spezifikationen ab.
+`plot-template` abgebildet. Alle Templates werden direkt als Unterbefehle
+angezeigt. Zeitansicht, Achsen, Template-Defaults und Overlay-Optionen werden
+aus den bestehenden `ma_analyse`-Template-Spezifikationen abgeleitet.
 
 ## Schnittstelle fuer ma_analyse
 
@@ -281,8 +280,9 @@ Aktueller Umsetzungsstand:
   `single`/`compare` und bei Bedarf `separate`/`combined` liegen unter
   `Export / Ausgabe`; Zeitansicht, Overlay und Diagrammanpassung liegen unter
   `Template / Diagramm`.
-- Plot-Template, Zeitfilter, Sollwertband und Temperaturachsen werden
-  abgefragt.
+- Plot-Template und Zeitfilter werden abgefragt. Die Diagrammanpassung ist
+  ausklappbar und zeigt automatische oder manuelle Grenzen der primaeren und
+  sekundaeren Y-Achse in einem Beispieldiagramm.
 - Comfort hat keine separate Analyseebene mehr. Die vier bisherigen
   Comfort-Ausgaben bleiben als Diagrammauswahl unter `Template / Diagramm`
   erhalten; Varianten- und Raumumfang steuern die Auswahl.
@@ -290,11 +290,19 @@ Aktueller Umsetzungsstand:
   Streamlit nicht einklappbar.
 - Plot-Template-Overlays werden erst nach Varianten- und Raumauswahl
   angeboten, damit der Overlay-Katalog gezielt aus lokalen Daten gelesen wird.
+- Der Overlay-Bereich ist ein eigener optionaler Schritt. Er wird nur sichtbar,
+  wenn das Template Overlays unterstuetzt und die Checkbox unter
+  `Template / Diagramm` aktiviert wurde.
 - Freie Overlay-Linien koennen als einfache Textzeilen im Format
   `source,column,label,axis` uebergeben werden.
 - Eine einfache Overlay-Katalogauswahl liest CSV-/AUX-Spalten ueber
   `ma_analyse.services.list_plot_overlay_sources` aus der ersten gewaehlten
   Variante und dem ersten Raum.
+- `single` erzeugt je Variante-Raum-Kombination eine eigene Ausgabe.
+  `compare` fuehrt Zeitreihen datenreihenbasiert zusammen und buendelt
+  komplexe Sammeltemplates als Teilplots in einer gemeinsamen Grafik.
+- `Export / Ausgabe` ist die letzte Abfrage vor dem festen Aktionsbereich.
+  Der Streamlit-Expander `Erweiterte Pfade` liegt innerhalb dieses Schritts.
 - Die alte `pages/analyse.py` bleibt Wrapper; die Ziel-View liegt unter
   `module_views/analyse_view.py`.
 - UI-neutrale Auswahl-, Zeit-, Overlay- und Config-Helfer liegen in
@@ -311,13 +319,8 @@ Noch offen aus dem Tkinter-Abgleich:
 - Overlay-Strategie umsetzen: freie Datenreihen sollen aus lokalen Analyse-/
   Datenbankdaten in Diagramme geladen werden koennen; feste Additionen wie
   Temperaturband und Achsenbereiche bleiben kontrollierte Diagrammoptionen.
-- Tkinter-Oberflaeche weiter reduzieren: Overlay und Diagrammbearbeitung
-  langfristig in echte einklappbare Bereiche innerhalb `Template / Diagramm`
-  ueberfuehren.
-- Tkinter-Oberflaeche weiter an die neue Struktur angleichen: `single`/`compare`
-  nach `Export / Ausgabe`, Comfort-Unterbefehl `t_op / rel_hum`, Comfort-
-  Diagramme nach `Template / Diagramm` und Vorschau-Button zwischen
-  `Zuruecksetzen` und `Start`.
+- Comfort-Unterbefehl `t_op / rel_hum` und Comfort-Diagramme in Tkinter noch
+  vollstaendig an die Streamlit-Struktur angleichen.
 - Tkinter-Vorschau so umsetzen, dass Vorschaubilder in einem temporaeren
   Vorschau-/Cachebereich entstehen und den regulaeren Output-Ordner nicht
   mit Testdiagrammen fuellen.

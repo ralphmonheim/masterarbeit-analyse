@@ -293,6 +293,8 @@ def draw_technical_line_plot(
     value_col="q_heat",
     y_label="Heizleistung [W]",
     line_colors=None,
+    y_min=None,
+    y_max=None,
 ):
     """Rendert ein technisches Heating-Zeitdiagramm als PNG.
 
@@ -333,6 +335,8 @@ def draw_technical_line_plot(
         legend_y_anchor=legend_y_anchor,
         y_label=y_label,
     )
+    if y_min is not None and y_max is not None:
+        ax.set_ylim(y_min, y_max)
     bottom_margin = 0.36 if show_legend else 0.28
     figure.subplots_adjust(left=0.08, right=0.98, top=0.78, bottom=bottom_margin)
     add_timeline_axis(figure, ax, axis_config)

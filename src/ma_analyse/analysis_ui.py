@@ -195,6 +195,12 @@ def build_plot_template_options(
     outdoor_column: str = DEFAULT_OUTDOOR_COLUMN,
     overlay_lines: list[dict[str, str]] | None = None,
     fixed_overlays: list[dict[str, object]] | None = None,
+    primary_axis_mode: str = "automatic",
+    primary_ymin: float | None = None,
+    primary_ymax: float | None = None,
+    secondary_axis_mode: str = "automatic",
+    secondary_ymin: float | None = None,
+    secondary_ymax: float | None = None,
 ) -> dict[str, Any]:
     """Baut die UI-neutralen Plot-Template-Optionen fuer AnalysisConfig."""
     return {
@@ -212,6 +218,12 @@ def build_plot_template_options(
         "outdoor_column": outdoor_column,
         "overlay_lines": overlay_lines or [],
         "fixed_overlays": fixed_overlays or [],
+        "primary_axis_mode": primary_axis_mode,
+        "primary_ymin": primary_ymin,
+        "primary_ymax": primary_ymax,
+        "secondary_axis_mode": secondary_axis_mode,
+        "secondary_ymin": secondary_ymin,
+        "secondary_ymax": secondary_ymax,
     }
 
 
@@ -235,6 +247,7 @@ def build_analysis_config(
     variant_mode: str | None = None,
     series_layout: str | None = None,
     plot_template: str | None = None,
+    plot_template_mode: str = "single",
     plot_template_options: dict[str, Any] | None = None,
 ) -> AnalysisConfig:
     """Baut den UI-neutralen Analyseauftrag aus Formularwerten."""
@@ -256,5 +269,6 @@ def build_analysis_config(
         variant_mode=variant_mode,
         series_layout=series_layout,
         plot_template=plot_template,
+        plot_template_mode=plot_template_mode,
         plot_template_options=plot_template_options or {},
     )

@@ -73,10 +73,11 @@ Bereichen sortiert:
 
 - `Befehl`
 - `Unterbefehl`
-- `Export / Ausgabe`
 - `Template / Diagramm`
 - `Varianten`
 - `Raeume`
+- optional `Overlay`
+- `Export / Ausgabe`
 - `Analyse starten`
 
 `Optionen` ist kein eigener allgemeiner Bereich mehr. Einstellungen liegen dort,
@@ -92,11 +93,19 @@ wo sie fachlich gebraucht werden:
   `single`/`compare` liegt unter `Export / Ausgabe`; Zeitansicht, Overlay und
   Diagrammanpassung liegen unter `Template / Diagramm`.
 - `plot-template` in Tkinter und `plot-template-analyse` in Streamlit:
-  Diagrammgruppe unter `Unterbefehl`, `single`/`compare` unter
-  `Export / Ausgabe`; Zeitansicht, Template-Auswahl, Overlay,
-  Diagrammbearbeitung und Vorschau liegen unter `Template / Diagramm`.
+  alle Diagramme direkt unter `Unterbefehl`, `single`/`compare` unter
+  `Export / Ausgabe`; Zeitansicht, Overlay-Aktivierung und die ausklappbare
+  Diagrammanpassung liegen unter `Template / Diagramm`. Der eigene
+  Overlay-Bereich erscheint nach Varianten und Raeumen.
   Intern nutzt die Streamlit-Variante weiter den bestehenden Backend-Befehl
   `plot-template`.
+- `single` erzeugt fuer jede ausgewaehlte Variante-Raum-Kombination ein
+  eigenes Diagramm. `compare` erzeugt eine gemeinsame Vergleichsausgabe.
+  Zeitreihen werden als gemeinsame Datenreihen gezeichnet; komplexe
+  Sammeltemplates werden als Teilplots in einer Vergleichsgrafik gebuendelt.
+- Achsengrenzen stehen standardmaessig auf `Automatisch`. Bei `Manuell`
+  koennen Minimum und Maximum fuer primaere und – sofern vorhanden –
+  sekundaere Y-Achsen gesetzt werden.
 - Die Tkinter-GUI besitzt unten die Reihenfolge `Zuruecksetzen`,
   `Vorschau aktualisieren`, `Start`. Der Vorschau-Button nutzt aktuell den
   bestehenden Analysepfad mit den aktuellen Einstellungen; ein eingebettetes

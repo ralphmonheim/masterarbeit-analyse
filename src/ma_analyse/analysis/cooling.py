@@ -275,7 +275,17 @@ def add_timeline_axis(figure, ax, axis_config):
     return timeline_ax
 
 
-def draw_technical_line_plot(plot_df, x_col, group_col, title, subtitle, axis_config, output_file):
+def draw_technical_line_plot(
+    plot_df,
+    x_col,
+    group_col,
+    title,
+    subtitle,
+    axis_config,
+    output_file,
+    y_min=None,
+    y_max=None,
+):
     """Rendert ein technisches Cooling-Zeitdiagramm als PNG."""
     line_count = plot_df[group_col].nunique() if group_col in plot_df.columns else 1
     format_rule = "cooling.timeline.single.png" if line_count <= 1 else "cooling.timeline.compare.png"
@@ -326,6 +336,8 @@ def draw_technical_line_plot(plot_df, x_col, group_col, title, subtitle, axis_co
         show_legend=show_legend,
         legend_y_anchor=legend_y_anchor,
     )
+    if y_min is not None and y_max is not None:
+        ax.set_ylim(y_min, y_max)
     bottom_margin = 0.36 if show_legend else 0.28
     figure.subplots_adjust(left=0.08, right=0.98, top=0.78, bottom=bottom_margin)
     add_timeline_axis(figure, ax, axis_config)

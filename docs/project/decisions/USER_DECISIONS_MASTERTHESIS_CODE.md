@@ -469,3 +469,16 @@ Stand: 2026-06-18
 - Status: getroffen
 - Offene Folgefragen: keine
 - Quelle oder Chatbezug: aktueller Codex-Chat zur Erweiterung von `aktualisieren`
+
+## UD-040 Plot-Template-Bedienung bleibt gruppenfrei und trennt Ausgabe, Overlay und Diagrammanpassung
+
+- Datum: 2026-06-18
+- Thema: ma_analyse Plot-Template-Wizard in Tkinter und Streamlit
+- Entscheidung: Alle Plot-Templates werden ohne vorgelagerte Diagrammgruppen direkt als Unterbefehle angeboten. `Template / Diagramm` enthaelt Zeitwahl, Overlay-Aktivierung und eine ausklappbare Diagrammanpassung mit Mock-up. Der optionale Overlay-Schritt folgt erst nach Varianten und Raeumen. `Export / Ausgabe` ist die letzte Abfrage vor Vorschau und Analysestart.
+- Begruendung: Die Gruppen sind in der Template-Sandbox nicht erforderlich und erschweren den direkten Zugriff auf Diagramme. Der Overlay-Katalog braucht dagegen eine konkrete Variante und einen konkreten Raum. Achsenanpassungen sollen vor der echten Vorschau nachvollziehbar sein.
+- Auswirkung: Tkinter nutzt eine scrollbare Template-Liste. Streamlit und Tkinter verwenden die Reihenfolge `Befehl`, `Unterbefehl`, `Template / Diagramm`, `Varianten`, `Raeume`, optional `Overlay`, `Export / Ausgabe`, Aktionsbereich. Automatische Achsengrenzen sind Standard; manuelle Grenzen fuer primaere und sekundaere Y-Achsen sind moeglich. Als Overlay-Katalogreferenz dienen sichtbar die erste gewaehlte Variante und der erste Raum.
+- Ausgabedefinition: `single` erzeugt fuer jede Variante-Raum-Kombination ein eigenes Diagramm. `compare` erzeugt eine gemeinsame Vergleichsausgabe; Zeitreihen werden als gemeinsame Datenreihen gezeichnet, komplexe Sammeltemplates als Teilplots in einer gemeinsamen Grafik gebuendelt.
+- Betroffene Module oder Dateien: `src/ma_analyse/analysis_wizard.py`, `src/ma_analyse/analysis_ui.py`, `src/ma_analyse/analysis/templates/`, `src/ma_analyse/gui/app.py`, `src/ma_ui/module_views/analyse_view.py`, `docs/ma_ui/`, `docs/ma_analyse/`
+- Status: umgesetzt
+- Offene Folgefragen: Weitere Diagrammoptionen wie Farben, Linienstile, Legendenposition und Beschriftungen spaeter auf Basis gemeinsamer Renderer planen.
+- Quelle oder Chatbezug: aktueller Codex-Chat zur Plot-Template-Bedienung

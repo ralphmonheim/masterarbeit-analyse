@@ -31,6 +31,7 @@ class AnalysisConfig:
     variant_mode: str | None = None
     series_layout: str | None = None
     plot_template: str | None = None
+    plot_template_mode: str = "single"
     plot_template_options: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:

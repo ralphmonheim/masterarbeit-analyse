@@ -32,7 +32,7 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - Leitfaden-Versionierung eingefuehrt: alte Leitfadenfassungen liegen unter
   `docs/project/archive/leitfaeden/`; Version 0.3.7 wurde vor der
   Strukturueberarbeitung unveraendert archiviert. Die aktive Fassung ist
-  `MASTERARBEIT_LEITFADEN.md` Version 0.4.1 mit acht festen Hauptbereichen.
+  `MASTERARBEIT_LEITFADEN.md` Version 0.4.2 mit acht festen Hauptbereichen.
 - Methodische Untersuchungsdimension aufgenommen: manuellen, softwareunterstuetzten und automatisierten Prozessaufwand nach aktiver Arbeitszeit, Maschinenlaufzeit, Fehlerkorrektur und Wissensstand vergleichen; konkrete Messmethode bleibt offen.
 - Vollstaendigen Modulkatalog in den Leitfaden aufgenommen: Zweck, Eingaben, Ausgaben, Abgrenzung und Status sind fuer bestehende und geplante Module dokumentiert.
 - Miro-Workflow-Diagramm v0.1.1 als aktuellen Ist-Entwurf analysiert; die
@@ -68,7 +68,10 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 
 - P005 Architektur-Slice umgesetzt: Zielarchitektur und UI-Auslagerungsreview liegen unter `docs/project/architecture/`.
 - P005 ordnet den Workflow als Pre-Process, Simulation, Post-Process und Feedback ein.
-- P005 bewertet bestehende Oberflaechen: `src/ma_analyse/gui/app.py` bleibt vorerst unveraendert; `src/ma_variants/ui/services.py` dient als positives Muster fuer Trennung von UI und Fachlogik.
+- P005 bewertet bestehende Oberflaechen: `src/ma_analyse/gui/app.py` bleibt als
+  Legacy-Oberflaeche bestehen, wurde aber fachlich an den neuen
+  Plot-Template-Ablauf angeglichen; `src/ma_variants/ui/services.py` dient als
+  positives Muster fuer Trennung von UI und Fachlogik.
 - P005 Streamlit-/Tkinter-Anpassung dokumentiert: `docs/project/architecture/UI_MIGRATION_PLAN.md` beschreibt Bestandsanalyse, Schnittstellenentwurf, Bereinigung, Legacy-Auslagerung, Streamlit-Aufbau und spaetere Modulanbindung.
 - P005 Bestandsanalyse dokumentiert: Tkinter sitzt nur in `src/ma_analyse/gui/app.py` und `dialogs.py`; `ma_analyse` hat keine Streamlit-Abhaengigkeit.
 - P005 Schnittstellenentwurf dokumentiert: `AnalysisConfig`, `AnalysisResult` und `run_analysis(config)` bilden die UI-neutrale Service-Fassade.
@@ -116,9 +119,10 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   Befehlsauswahl, blendet Folgeschritte nach der vorhandenen Tkinter-
   Zustandslogik ein, fasst vorherige Schritte zusammen und fuehrt technische
   Pfade unter `Erweiterte Pfade`.
-- P005 Analyse-Wizard weiter angepasst: Streamlit nutzt eine eingeklappte
-  Schrittstruktur mit `Befehl`, `Unterbefehl`, `Export`,
-  `Template / Diagramm`, `Varianten`, `Raeume` und `Analyse starten`.
+- P005 Analyse-Wizard weiter angepasst: Streamlit nutzt eine sichtbare
+  Schrittstruktur mit `Befehl`, `Unterbefehl`, `Template / Diagramm`,
+  `Varianten`, `Raeume`, optional `Overlay`, abschliessend
+  `Export / Ausgabe` und `Analyse starten`.
 - P005 Analyse-Wizard bereinigt: Der allgemeine Bereich `Optionen` wurde aus
   der aktiven UI-Struktur entfernt; befehlsspezifische Einstellungen liegen in
   `Export` oder `Template / Diagramm`.
@@ -128,10 +132,10 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - P005 Varianten- und Raumauswahl angepasst: Variantenumfang und Raumumfang
   liegen in den jeweiligen Bereichen; `Alle Varianten` wird an die
   Service-Fassade als automatische Variantenauswahl uebergeben.
-- P005 Plot-Template-Ablauf angepasst: Zeitansicht, gefilterte
-  Template-Auswahl, Overlay, Diagrammbearbeitung und Vorschau liegen im
-  Bereich `Template / Diagramm`; Overlay-Katalog und freie Overlay-Linien
-  werden erst nach Varianten- und Raumauswahl angeboten.
+- P005 Plot-Template-Ablauf angepasst: Alle Templates werden direkt als
+  Unterbefehle angezeigt. Zeitansicht, Overlay-Aktivierung und ausklappbare
+  Diagrammanpassung liegen unter `Template / Diagramm`; der optionale
+  Overlay-Schritt folgt nach Varianten und Raeumen.
 - P005 Analyse-Wizard weiter strukturiert: `plot-template-analyse` ist in
   Streamlit der UI-Befehl fuer Analyse-Templates, `single`/`compare` liegt
   unter `Export / Ausgabe`, Comfort nutzt `t_op / rel_hum` als Unterbefehl und
@@ -144,12 +148,22 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - P005 Tkinter-Analyse pragmatisch angeglichen: Variantenumfang und
   Raumumfang liegen in den jeweiligen Karten, Comfort nutzt keine verpflichtende
   Analyseebene mehr.
-- P005 Tkinter-Analyse korrigiert: Bei `plot-template` ist der Unterbefehl jetzt
-  die Diagrammgruppe; `single`/`compare` liegt wie in Streamlit im Schritt
-  `Export / Ausgabe`.
-- P005 Tkinter-Plot-Template-Auswahl durch automatisierte Tests fuer
-  Diagrammgruppenfilterung und den Fallback vor vollstaendiger Auswahl
-  abgesichert.
+- P005 Tkinter-Analyse korrigiert: Bei `plot-template` zeigt eine scrollbare
+  Liste alle Diagramme direkt als Unterbefehle. `single`/`compare` liegt wie
+  in Streamlit im letzten Schritt `Export / Ausgabe`.
+- P005 Plot-Template-Ausgabe erweitert: `single` erzeugt je
+  Variante-Raum-Kombination eine eigene Datei. `compare` zeichnet
+  Heating-/Cooling-Zeitreihen gemeinsam und buendelt komplexe
+  Sammeltemplates als Teilplots in einer Vergleichsgrafik.
+- P005 Diagrammanpassung erweitert: Automatische Achsengrenzen sind Standard;
+  manuelle Grenzen fuer primaere und sekundaere Y-Achsen werden in einem
+  Mock-up sichtbar und an die unterstuetzten Plot-Renderer weitergegeben.
+- P005 Overlay-Ablauf erweitert: Der eigene Overlay-Schritt wird ueber eine
+  Checkbox aktiviert. Als Katalogreferenz dienen sichtbar die erste Variante
+  und der erste Raum; weitere Kombinationen werden beim Lauf validiert.
+- P005 Streamlit-Exportbereich verschoben: `Export / Ausgabe` ist die letzte
+  Abfrage vor dem Aktionsbereich und enthaelt den Expander
+  `Erweiterte Pfade`.
 - P005 UI-neutrale Analyse-Helfer ausgelagert: Auswahl-, Zeit-, Overlay- und
   Config-Aufbereitung liegen in `src/ma_analyse/analysis_ui.py`.
 - P005 Hybrid-Bedienung vorbereitet: Die Streamlit-Analyse-Seite kann die
@@ -175,10 +189,8 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   Streamlit-App fachlich gegen den bisherigen Tkinter-Ablauf pruefen,
   insbesondere Comfort, Heating/Cooling, Plot-Template-Overlays,
   Diagrammbearbeitung und Vorschau.
-- P005 offener Tkinter-Punkt: Tkinter vollstaendig auf dieselbe neue
-  `Export / Ausgabe`-, `Template / Diagramm`- und Vorschau-Struktur bringen.
-  Der Umbau bleibt getrennt, damit die bestehende Legacy-GUI nicht instabil
-  wird.
+- P005 offener Tkinter-Punkt: Comfort-Unterbefehl und Comfort-Diagrammauswahl
+  noch vollstaendig an die Streamlit-Struktur angleichen.
 - P005 offener Tkinter-Punkt: Eingebettetes Bild-Vorschaufenster fuer den
   Vorschau-Button ergaenzen. Die Vorschau soll einen temporaeren
   Vorschau-/Cachebereich nutzen, damit der regulaere Output-Ordner nicht mit

@@ -381,6 +381,77 @@ def test_build_plot_template_creates_timeline_pngs(tmp_path, template, expected_
     )
 
 
+def test_plot_template_single_creates_one_timeline_per_variant_room_pair(tmp_path):
+    datenbank_dir = tmp_path / "database"
+    output_root = tmp_path / "output"
+    variant_database = datenbank_dir / "Dimensionierung_nutzdaten"
+    variant_database.mkdir(parents=True)
+
+    hours = list(range(1200))
+    for room_stub, offset in (("101_lobby", 0), ("109_office", 100)):
+        pd.DataFrame(
+            {
+                "time": hours,
+                "zone_energy_q_heat": [500 + offset if hour % 24 < 12 else 0 for hour in hours],
+            }
+        ).to_csv(variant_database / f"{room_stub}.csv", index=False)
+
+    output_files = build_plot_template(
+        datenbank_dir=datenbank_dir,
+        output_root=output_root,
+        selected_variants=["Dimensionierung"],
+        rooms=["101 lobby", "109 office"],
+        template="heating-month",
+        output_mode="single",
+        month="Jan",
+        run_id="single-pairs",
+    )
+
+    assert isinstance(output_files, list)
+    assert len(output_files) == 2
+    assert all(Path(output_file).exists() for output_file in output_files)
+
+
+def test_plot_template_compare_combines_timeline_variant_room_pairs(tmp_path):
+    datenbank_dir = tmp_path / "database"
+    output_root = tmp_path / "output"
+    hours = list(range(1200))
+    for variant_name, variant_offset in (("Dimensionierung", 0), ("Variante_A", 200)):
+        variant_database = datenbank_dir / f"{variant_name}_nutzdaten"
+        variant_database.mkdir(parents=True)
+        for room_stub, room_offset in (("101_lobby", 0), ("109_office", 100)):
+            pd.DataFrame(
+                {
+                    "time": hours,
+                    "zone_energy_q_heat": [
+                        500 + variant_offset + room_offset if hour % 24 < 12 else 0
+                        for hour in hours
+                    ],
+                }
+            ).to_csv(variant_database / f"{room_stub}.csv", index=False)
+
+    output_file = build_plot_template(
+        datenbank_dir=datenbank_dir,
+        output_root=output_root,
+        selected_variants=["Dimensionierung", "Variante_A"],
+        rooms=["101 lobby", "109 office"],
+        template="heating-month",
+        output_mode="compare",
+        month="Jan",
+        run_id="compare-pairs",
+    )
+
+    output_path = Path(output_file)
+    assert output_path.exists()
+    assert output_path.stat().st_size > 1000
+    assert output_path.parts[-4:] == (
+        "PlotTemplates",
+        "compare-pairs",
+        "Compare",
+        "heating_month_compare.png",
+    )
+
+
 @pytest.mark.parametrize(
     ("template", "expected_name", "kwargs"),
     [
@@ -572,6 +643,42 @@ def test_build_plot_template_creates_comfort_outputs(tmp_path, template, expecte
     )
 
 
+def test_plot_template_compare_builds_one_sheet_for_comfort_overview(tmp_path):
+    datenbank_dir = tmp_path / "database"
+    output_root = tmp_path / "output"
+    variant_database = datenbank_dir / "Dimensionierung_nutzdaten"
+    variant_database.mkdir(parents=True)
+
+    hours = list(range(48))
+    for room_stub, offset in (("101_lobby", 0), ("109_office", 1)):
+        pd.DataFrame(
+            {
+                "time": hours,
+                "local_de_comf_diag_t_top": [21 + offset + (hour % 24) * 0.05 for hour in hours],
+                "iaq_relhum": [45 + (hour % 24) * 0.2 for hour in hours],
+            }
+        ).to_csv(variant_database / f"{room_stub}.csv", index=False)
+
+    output_file = build_plot_template(
+        datenbank_dir=datenbank_dir,
+        output_root=output_root,
+        selected_variants=["Dimensionierung"],
+        rooms=["101 lobby", "109 office"],
+        template="comfort-plot-overview",
+        output_mode="compare",
+        run_id="comfort-compare",
+    )
+
+    output_path = Path(output_file)
+    assert output_path.exists()
+    assert output_path.parts[-4:] == (
+        "PlotTemplates",
+        "comfort-compare",
+        "Compare",
+        "comfort_plot_overview_compare.png",
+    )
+
+
 @pytest.mark.parametrize(
     ("template", "expected_name"),
     [
@@ -612,6 +719,45 @@ def test_build_plot_template_creates_barplot_pngs(tmp_path, template, expected_n
         "bar-templates",
         "Dimensionierung",
         expected_name,
+    )
+
+
+def test_plot_template_compare_builds_one_sheet_for_bar_template(tmp_path):
+    datenbank_dir = tmp_path / "database"
+    output_root = tmp_path / "output"
+    hours = list(range(48))
+    for variant_name, offset in (("Dimensionierung", 0), ("Variante_A", 150)):
+        variant_database = datenbank_dir / f"{variant_name}_nutzdaten"
+        variant_database.mkdir(parents=True)
+        for room_stub, room_offset in (("101_lobby", 0), ("109_office", 100)):
+            pd.DataFrame(
+                {
+                    "time": hours,
+                    "zone_energy_q_heat": [
+                        400 + offset + room_offset if hour % 24 < 12 else 20
+                        for hour in hours
+                    ],
+                }
+            ).to_csv(variant_database / f"{room_stub}.csv", index=False)
+
+    output_file = build_plot_template(
+        datenbank_dir=datenbank_dir,
+        output_root=output_root,
+        selected_variants=["Dimensionierung", "Variante_A"],
+        rooms=["101 lobby", "109 office"],
+        template="heating-bar",
+        output_mode="compare",
+        run_id="bar-compare",
+    )
+
+    output_path = Path(output_file)
+    assert output_path.exists()
+    assert output_path.stat().st_size > 1000
+    assert output_path.parts[-4:] == (
+        "PlotTemplates",
+        "bar-compare",
+        "Compare",
+        "heating_bar_compare.png",
     )
 
 

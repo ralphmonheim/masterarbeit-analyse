@@ -4,6 +4,21 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.12.0 - 2026-06-18
+
+### Added
+- Plot-Template-Ausgabemodus technisch umgesetzt: `single` erzeugt eine Datei je Variante-Raum-Kombination, `compare` eine gemeinsame Vergleichsausgabe.
+- Diagrammanpassung in Streamlit und Tkinter um automatische beziehungsweise manuelle Grenzen der primaeren und sekundaeren Y-Achse sowie ein direktes Mock-up erweitert.
+- Eigenen optionalen Overlay-Schritt nach Varianten- und Raumauswahl eingefuehrt; die sichtbare Katalogreferenz nutzt die erste gewaehlte Variante und den ersten Raum.
+- Tests fuer Achsenvalidierung, direkte Template-Auswahl sowie Single-/Compare-Ausgaben von Zeitreihen, Balken- und Comfort-Templates ergaenzt.
+
+### Changed
+- Plot-Templates werden in Tkinter und Streamlit ohne vorgelagerte Diagrammgruppen direkt als Unterbefehle angeboten.
+- Analyse-Wizard neu geordnet: `Template / Diagramm`, Varianten, Raeume, optional Overlay und abschliessend `Export / Ausgabe` vor Vorschau und Analysestart.
+- Streamlit-`Erweiterte Pfade` in den abschliessenden Bereich `Export / Ausgabe` verschoben.
+- Heating-/Cooling-Zeitreihen werden im Compare-Modus als gemeinsame Datenreihen dargestellt; komplexe Sammeltemplates werden als beschriftete Teilplots in einer Vergleichsgrafik gebuendelt.
+- UI-, Architektur-, Planungs-, Entscheidungs- und Befehlsdokumentation an den neuen Plot-Template-Ablauf angepasst.
+
 ## 0.11.0 - 2026-06-18
 
 ### Changed

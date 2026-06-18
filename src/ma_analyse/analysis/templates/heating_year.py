@@ -431,7 +431,19 @@ def _add_year_timeline_axis(figure, axis_config, timeline_bottom=0.145):
     return add_heating_year_timeline_axis(figure, axis_config, timeline_bottom=timeline_bottom)
 
 
-def _style_main_axes(ax_heat, ax_temp, axis_config, temperature_ymin, temperature_ymax, heat_ymin=0, heat_ylabel=None):
+def _style_main_axes(
+    ax_heat,
+    ax_temp,
+    axis_config,
+    temperature_ymin,
+    temperature_ymax,
+    heat_ymin=0,
+    heat_ylabel=None,
+    primary_axis_mode="automatic",
+    primary_ymin=None,
+    primary_ymax=None,
+    secondary_axis_mode="automatic",
+):
     style_heating_year_power_axis(
         ax_heat,
         axis_config,
@@ -439,10 +451,14 @@ def _style_main_axes(ax_heat, ax_temp, axis_config, temperature_ymin, temperatur
         heat_ylabel=heat_ylabel or "Heizleistung [W]",
     )
 
-    ax_temp.set_ylim(temperature_ymin, temperature_ymax)
+    if primary_axis_mode == "manual" and primary_ymin is not None and primary_ymax is not None:
+        ax_heat.set_ylim(primary_ymin, primary_ymax)
+
+    if secondary_axis_mode == "manual":
+        ax_temp.set_ylim(temperature_ymin, temperature_ymax)
     ax_temp.set_ylabel("Temperatur [°C]", fontsize=10, color=TEXT_COLOR)
     ax_temp.tick_params(axis="y", colors=TEXT_COLOR, labelsize=9)
-    if temperature_ymin == -20 and temperature_ymax == 40:
+    if secondary_axis_mode == "manual" and temperature_ymin == -20 and temperature_ymax == 40:
         ax_temp.set_yticks([-20, -10, 0, 10, 20, 30, 40])
 
     for spine in ax_temp.spines.values():
@@ -464,13 +480,21 @@ def _draw_heating_year_template(
     show_operative_temperature: bool = DEFAULT_SHOW_OPERATIVE_TEMPERATURE,
     overlay_lines: list[dict] | tuple[dict, ...] | None = None,
     fixed_overlays: list[dict] | tuple[dict, ...] | None = None,
+    primary_axis_mode: str = "automatic",
+    primary_ymin: float | None = None,
+    primary_ymax: float | None = None,
+    secondary_axis_mode: str = "automatic",
 ):
     axis_config = build_energy_time_axis_config("year")
     figure, ax_heat = plt.subplots(figsize=get_figure_size_inches("heating.timeline.single.png", (12.8, 7.2)))
     figure.patch.set_facecolor("white")
     ax_temp = ax_heat.twinx()
 
-    title = f"Heating Jahresansicht - {variant_name} / {room_name}"
+    title = (
+        "Heating Jahresansicht - Vergleich"
+        if "series_label" in plot_df.columns
+        else f"Heating Jahresansicht - {variant_name} / {room_name}"
+    )
     ax_heat.set_title(title, loc="center", fontsize=14, fontweight="bold", color="black", pad=28)
     ax_heat.text(
         1.0,
@@ -490,45 +514,61 @@ def _draw_heating_year_template(
         band_label = f"Sollwertband {setpoint_min:g}-{setpoint_max:g} °C"
         band_handle = Patch(facecolor=band.get_facecolor(), edgecolor="none", alpha=0.35, label=band_label)
 
-    heat_line = ax_heat.plot(
-        plot_df["time"],
-        plot_df["q_heat"],
-        color=HEATING_COLOR,
-        linewidth=0.8,
-        alpha=0.95,
-        label="Heizleistung",
-        zorder=3,
-    )[0]
-    handles.append(heat_line)
+    grouped_frames = (
+        list(plot_df.groupby("series_label", sort=False))
+        if "series_label" in plot_df.columns
+        else [("Heizleistung", plot_df)]
+    )
+    for index, (series_label, series_df) in enumerate(grouped_frames):
+        heat_line = ax_heat.plot(
+            series_df["time"],
+            series_df["q_heat"],
+            color=FREE_OVERLAY_COLORS[index % len(FREE_OVERLAY_COLORS)]
+            if len(grouped_frames) > 1
+            else HEATING_COLOR,
+            linewidth=1.0 if len(grouped_frames) > 1 else 0.8,
+            alpha=0.95,
+            label=str(series_label),
+            zorder=3,
+        )[0]
+        handles.append(heat_line)
 
     temperature_axis_used = show_setpoint_band
     heat_axis_extra_used = False
     outdoor_overlay = _get_fixed_overlay(fixed_overlays, OUTDOOR_OVERLAY_ID, show_outdoor_temperature)
     operative_overlay = _get_fixed_overlay(fixed_overlays, OPERATIVE_OVERLAY_ID, show_operative_temperature)
     if outdoor_overlay is not None and "outdoor_temperature" in plot_df.columns:
-        outdoor_line = ax_temp.plot(
-            plot_df["time"],
-            plot_df["outdoor_temperature"],
-            color=outdoor_overlay["color"],
-            linewidth=1.0,
-            alpha=0.95,
-            label=outdoor_overlay["label"],
-            zorder=2,
-        )[0]
-        handles.append(outdoor_line)
+        for index, (series_label, series_df) in enumerate(grouped_frames):
+            outdoor_line = ax_temp.plot(
+                series_df["time"],
+                series_df["outdoor_temperature"],
+                color=outdoor_overlay["color"],
+                linestyle=(0, (3 + index % 3, 2)),
+                linewidth=1.0,
+                alpha=0.75,
+                label=outdoor_overlay["label"]
+                if len(grouped_frames) == 1
+                else f"{series_label} | {outdoor_overlay['label']}",
+                zorder=2,
+            )[0]
+            handles.append(outdoor_line)
         temperature_axis_used = True
 
     if operative_overlay is not None and "operative_temperature" in plot_df.columns:
-        operative_line = ax_temp.plot(
-            plot_df["time"],
-            plot_df["operative_temperature"],
-            color=operative_overlay["color"],
-            linewidth=1.1,
-            alpha=0.95,
-            label=operative_overlay["label"],
-            zorder=2,
-        )[0]
-        handles.append(operative_line)
+        for index, (series_label, series_df) in enumerate(grouped_frames):
+            operative_line = ax_temp.plot(
+                series_df["time"],
+                series_df["operative_temperature"],
+                color=operative_overlay["color"],
+                linestyle=(0, (2 + index % 4, 2)),
+                linewidth=1.1,
+                alpha=0.75,
+                label=operative_overlay["label"]
+                if len(grouped_frames) == 1
+                else f"{series_label} | {operative_overlay['label']}",
+                zorder=2,
+            )[0]
+            handles.append(operative_line)
         temperature_axis_used = True
 
     for overlay in _normalize_overlay_lines(overlay_lines):
@@ -536,16 +576,20 @@ def _draw_heating_year_template(
         if data_column not in plot_df.columns:
             raise ValueError(f"Overlay-Spalte '{overlay['column']}' fehlt in den Plotdaten.")
         target_axis = ax_heat if overlay["axis"] == "heat" else ax_temp
-        line = target_axis.plot(
-            plot_df["time"],
-            plot_df[data_column],
-            color=overlay["color"],
-            linewidth=1.0,
-            alpha=0.92,
-            label=overlay["label"],
-            zorder=2,
-        )[0]
-        handles.append(line)
+        for index, (series_label, series_df) in enumerate(grouped_frames):
+            line = target_axis.plot(
+                series_df["time"],
+                series_df[data_column],
+                color=overlay["color"],
+                linestyle=(0, (4 + index % 3, 2)),
+                linewidth=1.0,
+                alpha=0.82,
+                label=overlay["label"]
+                if len(grouped_frames) == 1
+                else f"{series_label} | {overlay['label']}",
+                zorder=2,
+            )[0]
+            handles.append(line)
         if overlay["axis"] == "heat":
             heat_axis_extra_used = True
         else:
@@ -582,6 +626,10 @@ def _draw_heating_year_template(
         temperature_ymax,
         heat_ymin=heat_ymin,
         heat_ylabel="Leistung [W]" if heat_axis_extra_used else "Heizleistung [W]",
+        primary_axis_mode=primary_axis_mode,
+        primary_ymin=primary_ymin,
+        primary_ymax=primary_ymax,
+        secondary_axis_mode=secondary_axis_mode,
     )
     if not temperature_axis_used:
         ax_temp.set_yticks([])
@@ -627,29 +675,87 @@ def build_heating_year_template(
     show_operative_temperature: bool = DEFAULT_SHOW_OPERATIVE_TEMPERATURE,
     overlay_lines: list[dict] | tuple[dict, ...] | None = None,
     fixed_overlays: list[dict] | tuple[dict, ...] | None = None,
+    output_mode: str = "single",
+    primary_axis_mode: str = "automatic",
+    primary_ymin: float | None = None,
+    primary_ymax: float | None = None,
+    secondary_axis_mode: str = "automatic",
+    secondary_ymin: float | None = None,
+    secondary_ymax: float | None = None,
     run_id: str | None = None,
     debug: bool = False,
 ) -> str | list[str]:
     """Erzeugt den Heating-Jahresplot fuer eine oder mehrere Varianten und genau einen Raum."""
+    validation_rooms = rooms[:1] if output_mode == "compare" and rooms else rooms
+    effective_temperature_ymin = (
+        secondary_ymin if secondary_axis_mode == "manual" and secondary_ymin is not None else temperature_ymin
+    )
+    effective_temperature_ymax = (
+        secondary_ymax if secondary_axis_mode == "manual" and secondary_ymax is not None else temperature_ymax
+    )
     errors = validate_template_request(
         template,
         selected_variants,
-        rooms,
+        validation_rooms,
         setpoint_min,
         setpoint_max,
-        temperature_ymin,
-        temperature_ymax,
+        effective_temperature_ymin,
+        effective_temperature_ymax,
         validate_setpoint_band=show_setpoint_band,
     )
     if errors:
         raise ValueError("; ".join(errors))
 
-    room_name = rooms[0]
     resolved_run_id = get_run_id("plot_template", run_id=run_id)
     output_base = Path(output_root or TEST_OUTPUT_DIR)
     output_files = []
 
-    for variant_name in selected_variants:
+    selected_pairs = [(variant_name, room_name) for variant_name in selected_variants for room_name in rooms]
+    if output_mode == "compare":
+        compare_frames = []
+        for variant_name, room_name in selected_pairs:
+            plot_df, variant_display_name = _build_template_dataframe(
+                datenbank_dir,
+                input_dir,
+                variant_name,
+                room_name,
+                outdoor_column,
+                show_outdoor_temperature=show_outdoor_temperature,
+                show_operative_temperature=show_operative_temperature,
+                overlay_lines=overlay_lines,
+                fixed_overlays=fixed_overlays,
+            )
+            if plot_df.empty:
+                raise ValueError(f"Keine Daten fuer {variant_name} / {room_name} gefunden.")
+            plot_df["series_label"] = f"{variant_display_name} | {room_name}"
+            compare_frames.append(plot_df)
+
+        compare_df = pd.concat(compare_frames, ignore_index=True)
+        output_dir = output_base / "PlotTemplates" / resolved_run_id / "Compare"
+        output_dir.mkdir(parents=True, exist_ok=True)
+        output_file = output_dir / f"{template.replace('-', '_')}_compare.png"
+        _draw_heating_year_template(
+            compare_df,
+            "Vergleich",
+            "mehrere Auswahlen",
+            output_file,
+            setpoint_min,
+            setpoint_max,
+            effective_temperature_ymin,
+            effective_temperature_ymax,
+            show_setpoint_band=show_setpoint_band,
+            show_outdoor_temperature=show_outdoor_temperature,
+            show_operative_temperature=show_operative_temperature,
+            overlay_lines=overlay_lines,
+            fixed_overlays=fixed_overlays,
+            primary_axis_mode=primary_axis_mode,
+            primary_ymin=primary_ymin,
+            primary_ymax=primary_ymax,
+            secondary_axis_mode=secondary_axis_mode,
+        )
+        return str(output_file)
+
+    for variant_name, room_name in selected_pairs:
         plot_df, variant_display_name = _build_template_dataframe(
             datenbank_dir,
             input_dir,
@@ -684,13 +790,17 @@ def build_heating_year_template(
             output_file,
             setpoint_min,
             setpoint_max,
-            temperature_ymin,
-            temperature_ymax,
+            effective_temperature_ymin,
+            effective_temperature_ymax,
             show_setpoint_band=show_setpoint_band,
             show_outdoor_temperature=show_outdoor_temperature,
             show_operative_temperature=show_operative_temperature,
             overlay_lines=overlay_lines,
             fixed_overlays=fixed_overlays,
+            primary_axis_mode=primary_axis_mode,
+            primary_ymin=primary_ymin,
+            primary_ymax=primary_ymax,
+            secondary_axis_mode=secondary_axis_mode,
         )
         output_files.append(str(output_file))
 

@@ -395,7 +395,7 @@ def test_analysis_wizard_initially_shows_command_only():
 def test_analysis_wizard_uses_tkinter_visibility_for_prepare():
     state = AnalysisWizardState(command="prepare")
 
-    assert visible_analysis_steps(state) == ("command", "export", "variants", "run")
+    assert visible_analysis_steps(state) == ("command", "variants", "export", "run")
 
 
 def test_analysis_wizard_hides_load_options_until_subcommand_is_selected():
@@ -404,10 +404,10 @@ def test_analysis_wizard_hides_load_options_until_subcommand_is_selected():
     assert visible_analysis_steps(state) == (
         "command",
         "subcommand",
-        "export",
         "template_diagram",
         "variants",
         "rooms",
+        "export",
         "run",
     )
 
@@ -416,10 +416,10 @@ def test_analysis_wizard_hides_load_options_until_subcommand_is_selected():
     assert visible_analysis_steps(timeline_state) == (
         "command",
         "subcommand",
-        "export",
         "template_diagram",
         "variants",
         "rooms",
+        "export",
         "run",
     )
 
@@ -433,6 +433,7 @@ def test_analysis_wizard_uses_comfort_subcommand_without_analysis_level():
         "template_diagram",
         "variants",
         "rooms",
+        "export",
         "run",
     )
 
@@ -450,25 +451,31 @@ def test_analysis_wizard_uses_room_scope_for_comfort_rooms():
     assert analysis_step_complete(state, "rooms", room_selection_disabled=True) is True
 
 
-def test_analysis_wizard_groups_plot_template_options_in_template_diagram():
+def test_analysis_wizard_places_optional_overlay_after_room_selection():
     state = AnalysisWizardState(command=PLOT_TEMPLATE_STEP, plot_template="heating-overlay")
 
     assert visible_analysis_steps(state, template_supports_overlays=False) == (
         "command",
         "subcommand",
-        "export",
         "template_diagram",
         "variants",
         "rooms",
+        "export",
         "run",
     )
-    assert visible_analysis_steps(state, template_supports_overlays=True) == (
+    overlay_state = AnalysisWizardState(
+        command=PLOT_TEMPLATE_STEP,
+        plot_template="heating-overlay",
+        overlay_enabled=True,
+    )
+    assert visible_analysis_steps(overlay_state, template_supports_overlays=True) == (
         "command",
         "subcommand",
-        "export",
         "template_diagram",
         "variants",
         "rooms",
+        "overlays",
+        "export",
         "run",
     )
 
@@ -495,7 +502,6 @@ def test_analysis_wizard_completes_heating_timeline_like_tkinter():
 def test_analysis_wizard_places_single_compare_in_export():
     state = AnalysisWizardState(
         command="plot-template-analyse",
-        plot_template_group="heating",
         plot_template_mode="single",
         plot_template="heating-year",
         view="year",
@@ -504,6 +510,28 @@ def test_analysis_wizard_places_single_compare_in_export():
     assert analysis_step_complete(state, "subcommand") is True
     assert analysis_step_complete(state, "export") is True
     assert analysis_step_summary(state, "export") == "single"
+
+
+def test_analysis_wizard_validates_manual_axis_ranges():
+    invalid = AnalysisWizardState(
+        command=PLOT_TEMPLATE_STEP,
+        plot_template="heating-year",
+        view="year",
+        primary_axis_mode="manual",
+        primary_ymin=1000,
+        primary_ymax=100,
+    )
+    valid = AnalysisWizardState(
+        command=PLOT_TEMPLATE_STEP,
+        plot_template="heating-year",
+        view="year",
+        primary_axis_mode="manual",
+        primary_ymin=0,
+        primary_ymax=1000,
+    )
+
+    assert analysis_step_complete(invalid, "template_diagram") is False
+    assert analysis_step_complete(valid, "template_diagram") is True
 
 
 def test_analysis_wizard_does_not_limit_comfort_outputs_by_analysis_level():

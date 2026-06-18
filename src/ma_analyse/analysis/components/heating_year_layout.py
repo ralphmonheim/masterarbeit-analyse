@@ -107,6 +107,8 @@ def draw_heating_year_line_plot(
     y_label: str = "Heizleistung [W]",
     single_line_color: str = HEATING_SINGLE_LINE_COLOR,
     single_series_legend_label: str | None = None,
+    y_min: float | None = None,
+    y_max: float | None = None,
 ):
     """Rendert ein Heating-Jahresdiagramm im Plot-Template-Stil ohne Overlays."""
     axis_config = build_energy_time_axis_config("year")
@@ -150,6 +152,8 @@ def draw_heating_year_line_plot(
         heat_ymin = heat_min * 1.08
 
     style_heating_year_power_axis(ax_heat, axis_config, heat_ymin=heat_ymin, heat_ylabel=y_label)
+    if y_min is not None and y_max is not None:
+        ax_heat.set_ylim(y_min, y_max)
     figure.subplots_adjust(left=0.08, right=0.92, top=0.80, bottom=0.298)
     add_heating_year_timeline_axis(figure, axis_config, timeline_bottom=0.145)
 

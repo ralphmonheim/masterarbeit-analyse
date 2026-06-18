@@ -160,6 +160,8 @@ def _validate_config(config: AnalysisConfig) -> list[str]:
 
     if config.export_format not in {"csv", "excel", "both"}:
         errors.append("export_format muss csv, excel oder both sein.")
+    if "plot_template" in _normalize_steps(config.steps) and config.plot_template_mode not in {"single", "compare"}:
+        errors.append("plot_template_mode muss single oder compare sein.")
 
     return errors
 
@@ -183,6 +185,7 @@ def _build_args(config: AnalysisConfig) -> argparse.Namespace:
         heating_mode=config.variant_mode,
         heating_series_layout=config.series_layout,
         template=config.plot_template or plot_options.get("template", "heating-year"),
+        plot_template_mode=config.plot_template_mode,
         setpoint_min=plot_options.get("setpoint_min", 21.0),
         setpoint_max=plot_options.get("setpoint_max", 26.0),
         temperature_ymin=plot_options.get("temperature_ymin", -20.0),
@@ -193,6 +196,12 @@ def _build_args(config: AnalysisConfig) -> argparse.Namespace:
         show_operative_temperature=plot_options.get("show_operative_temperature", True),
         overlay_lines=plot_options.get("overlay_lines"),
         fixed_overlays=plot_options.get("fixed_overlays"),
+        primary_axis_mode=plot_options.get("primary_axis_mode", "automatic"),
+        primary_ymin=plot_options.get("primary_ymin"),
+        primary_ymax=plot_options.get("primary_ymax"),
+        secondary_axis_mode=plot_options.get("secondary_axis_mode", "automatic"),
+        secondary_ymin=plot_options.get("secondary_ymin"),
+        secondary_ymax=plot_options.get("secondary_ymax"),
     )
 
 

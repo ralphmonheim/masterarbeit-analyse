@@ -1,6 +1,6 @@
 # Entscheidungen
 
-Stand: 2026-06-10
+Stand: 2026-06-18
 
 Dieses Dokument sammelt technische und architektonische Entscheidungen. Echte Nutzerentscheidungen stehen getrennt in `USER_DECISIONS_MASTERTHESIS_CODE.md`.
 
@@ -193,3 +193,28 @@ Technische Folge:
 - Analysebezogene Bedienung entsteht spaeter in
   `ma_ui/module_views/analyse_view.py`.
 - Fachliche Analysefunktionen bleiben in `ma_analyse`.
+
+## Entscheidung 16: Plot-Template-Ausgabemodus wird zentral orchestriert
+
+`single` und `compare` werden als fachliche Ausgabemodi der
+Plot-Template-Sandbox in der gemeinsamen Template-Orchestrierung umgesetzt.
+
+Technische Regeln:
+
+- `single` verarbeitet jede Variante-Raum-Kombination als eigene Ausgabe.
+- Heating-/Cooling-Zeitreihen und Heating-Overlay werden bei `compare`
+  datenreihenbasiert in einer gemeinsamen Grafik gerendert.
+- Komplexe Sammeltemplates, deren Renderer bereits mehrere fachliche Elemente
+  enthalten, werden bei `compare` als beschriftete Teilplots in einer
+  gemeinsamen Vergleichsgrafik gebuendelt.
+- Die UI gibt Achsen-, Overlay- und Ausgabeeinstellungen ueber die
+  UI-neutralen Modelle und Services an die Template-Orchestrierung weiter.
+
+Begruendung:
+
+- Tkinter, Streamlit und Backend sollen dieselbe Bedeutung von
+  `single`/`compare` verwenden.
+- Bestehende spezialisierte Renderer bleiben erhalten und werden nicht durch
+  eine grosse generische Plot-Engine ersetzt.
+- Der Ansatz ist fuer den aktuellen Masterarbeitsumfang nachvollziehbar und
+  kann spaeter templateweise weiter vereinheitlicht werden.
