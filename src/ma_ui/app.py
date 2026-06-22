@@ -7,19 +7,15 @@ import streamlit as st
 from ma_ui.module_views import (
     analyse_view,
     assessment_view,
-    building_view,
-    export_ida_view,
-    feedback_view,
     home_view,
-    import_ida_view,
-    parameters_view,
-    simulation_setup_view,
+    module_info_view,
     variants_view,
     weather_view,
 )
 from ma_ui.navigation import (
     CURRENT_PAGE_SESSION_KEY,
     NavigationPage,
+    get_navigation_page,
     get_navigation_pages,
     next_page_key,
     normalize_page_key,
@@ -28,22 +24,24 @@ from ma_ui.navigation import (
 
 _PAGE_RENDERERS = {
     "home": home_view.render,
-    "parameters": parameters_view.render,
     "weather": weather_view.render,
-    "building": building_view.render,
     "variants": variants_view.render,
-    "simulation_setup": simulation_setup_view.render,
-    "export_ida": export_ida_view.render,
-    "import_ida": import_ida_view.render,
     "analyse": analyse_view.render,
     "assessment": assessment_view.render,
-    "feedback": feedback_view.render,
 }
 
 
 def get_renderable_page_keys() -> tuple[str, ...]:
     """Gibt die aktuell aktiv gerenderten Seiten zurueck."""
-    return tuple(_PAGE_RENDERERS)
+    return tuple(page.page_key for page in get_navigation_pages())
+
+
+def _render_page(page: NavigationPage) -> None:
+    renderer = _PAGE_RENDERERS.get(page.page_key)
+    if renderer is not None:
+        renderer()
+        return
+    module_info_view.render(page.module_key)
 
 
 def _navigate_to(page_key: str) -> None:
@@ -78,13 +76,13 @@ def main() -> None:
     st.set_page_config(page_title="Masterarbeit", layout="wide")
 
     pages = get_navigation_pages()
-    available_pages = [page for page in pages if page.page_key in _PAGE_RENDERERS]
+    available_pages = list(pages)
     available_page_keys = tuple(page.page_key for page in available_pages)
     current_page_key = normalize_page_key(st.session_state.get(CURRENT_PAGE_SESSION_KEY), available_page_keys)
     st.session_state[CURRENT_PAGE_SESSION_KEY] = current_page_key
     _render_top_navigation(current_page_key, available_pages)
 
-    _PAGE_RENDERERS[current_page_key]()
+    _render_page(get_navigation_page(current_page_key))
 
 
 if __name__ == "__main__":

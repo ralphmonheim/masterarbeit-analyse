@@ -37,6 +37,7 @@ from ma_ui.module_views import (
     feedback_view,
     home_view,
     import_ida_view,
+    module_info_view,
     parameters_view,
     simulation_setup_view,
     variants_view,
@@ -76,6 +77,7 @@ from ma_ui.shared.workflow_context import workflow_context_rows
 from ma_ui.state import ProjectState
 from ma_ui.workflow_graph import (
     VISUAL_PHASES,
+    cross_cutting_card_rows,
     feedback_path_rows,
     status_style,
     target_page_for_step,
@@ -99,13 +101,22 @@ def test_ui_navigation_contains_home_and_analysis():
     assert "weather" in page_keys
     assert "assessment" in page_keys
     assert "feedback" in page_keys
+    assert "core" in page_keys
+    assert "project" in page_keys
+    assert "zones" in page_keys
+    assert "technical" in page_keys
+    assert "dimensioning" in page_keys
+    assert "export_simulation" in page_keys
+    assert "import_simulation" in page_keys
+    assert "reporting" in page_keys
+    assert "validation" in page_keys
 
 
 def test_ui_navigation_page_metadata():
     analyse_page = get_navigation_page("analyse")
     weather_page = get_navigation_page("weather")
     variants_page = get_navigation_page("variants")
-    import_page = get_navigation_page("import_ida")
+    import_page = get_navigation_page("import_simulation")
 
     assert analyse_page.module_key == "ma_analyse"
     assert analyse_page.status == "available"
@@ -113,6 +124,8 @@ def test_ui_navigation_page_metadata():
     assert weather_page.status == "partial"
     assert variants_page.status == "available"
     assert import_page.status == "partial"
+    assert get_navigation_page("import_ida") == import_page
+    assert get_navigation_page("ida_import") == import_page
 
 
 def test_navigation_statuses_follow_central_workflow_catalog():
@@ -122,8 +135,8 @@ def test_navigation_statuses_follow_central_workflow_catalog():
         "building": "building",
         "variants": "variants",
         "simulation_setup": "simulation_setup",
-        "export_ida": "ida_export",
-        "import_ida": "ida_import",
+        "export_simulation": "export_simulation",
+        "import_simulation": "import_simulation",
         "analyse": "analyse",
         "assessment": "assessment",
         "feedback": "feedback",
@@ -134,24 +147,23 @@ def test_navigation_statuses_follow_central_workflow_catalog():
 
 
 def test_renderable_pages_include_variants():
-    assert get_renderable_page_keys() == (
-        "home",
-        "parameters",
-        "weather",
-        "building",
-        "variants",
-        "simulation_setup",
-        "export_ida",
-        "import_ida",
-        "analyse",
-        "assessment",
-        "feedback",
-    )
+    page_keys = get_renderable_page_keys()
+
+    assert page_keys[0] == "home"
+    assert "variants" in page_keys
+    assert "weather" in page_keys
+    assert "export_simulation" in page_keys
+    assert "import_simulation" in page_keys
+    assert "documentation" in page_keys
 
 
 def test_navigation_normalizes_unknown_session_page_key():
     assert CURRENT_PAGE_SESSION_KEY == "ma_ui_current_page"
     assert normalize_page_key("analyse", ("home", "analyse")) == "analyse"
+    assert normalize_page_key(
+        "export_ida",
+        ("home", "export_simulation"),
+    ) == "export_simulation"
     assert normalize_page_key("missing", ("home", "analyse")) == "home"
     assert normalize_page_key(None, ("home", "analyse")) == "home"
 
@@ -179,6 +191,7 @@ def test_module_views_are_importable():
         analyse_view.render,
         assessment_view.render,
         feedback_view.render,
+        module_info_view.render,
     )
 
     assert all(callable(renderer) for renderer in renderers)
@@ -192,8 +205,8 @@ def test_dashboard_and_workflow_rows_cover_target_structure():
 
     assert any(row["Aktion"] == "open_simulation_setup" for row in dashboard_rows)
     assert any(row["Modul"] == "ma_simulation_setup" for row in workflow_rows)
-    assert pre_process_rows[-1]["Modul"] == "ma_export_ida"
-    assert post_process_rows[0]["Modul"] == "ma_import_ida"
+    assert pre_process_rows[-1]["Modul"] == "ma_export_simulation"
+    assert post_process_rows[0]["Modul"] == "ma_import_simulation"
 
 
 def test_home_page_summarizes_workflow_status_and_phases():
@@ -203,22 +216,31 @@ def test_home_page_summarizes_workflow_status_and_phases():
 
     assert status_counts["available"] >= 1
     assert status_counts["planned"] >= 1
-    assert any(row["Phase"] == "Pre-Process" for row in phase_rows)
-    assert any("ma_export_ida" in row["Module"] for row in phase_rows)
+    assert any(row["Phase"].startswith("Phase 0") for row in phase_rows)
+    assert any("ma_export_simulation" in row["Module"] for row in phase_rows)
 
 
 def test_workflow_graph_groups_steps_by_visual_phase():
     cards = workflow_card_rows(available_page_keys=get_renderable_page_keys())
     grouped = workflow_cards_by_phase(cards)
 
-    assert VISUAL_PHASES == ("Pre-Process", "Simulation", "Post-Process", "Feedback/Abschluss")
-    assert any(card.step_key == "parameters" for card in grouped["Pre-Process"])
-    assert any(card.step_key == "simulation" for card in grouped["Simulation"])
-    assert any(card.step_key == "analyse" for card in grouped["Post-Process"])
-    assert any(card.step_key == "economy" for card in grouped["Post-Process"])
-    assert any(card.step_key == "sustainability" for card in grouped["Post-Process"])
-    assert any(card.step_key == "assessment" for card in grouped["Post-Process"])
-    assert any(card.step_key == "feedback" for card in grouped["Feedback/Abschluss"])
+    assert len(VISUAL_PHASES) == 7
+    assert VISUAL_PHASES[0].startswith("Phase 0")
+    assert VISUAL_PHASES[-1].startswith("Phase 6")
+    assert any(card.step_key == "parameters" for card in grouped[VISUAL_PHASES[2]])
+    assert any(card.step_key == "simulation" for card in grouped[VISUAL_PHASES[4]])
+    assert any(card.step_key == "analyse" for card in grouped[VISUAL_PHASES[4]])
+    assert any(card.step_key == "economy" for card in grouped[VISUAL_PHASES[5]])
+    assert any(card.step_key == "sustainability" for card in grouped[VISUAL_PHASES[5]])
+    assert any(card.step_key == "assessment" for card in grouped[VISUAL_PHASES[5]])
+
+
+def test_workflow_graph_exposes_cross_cutting_modules_separately():
+    cards = cross_cutting_card_rows(available_page_keys=get_renderable_page_keys())
+
+    assert [card.module_key for card in cards] == ["ma_validation", "ma_feedback"]
+    assert all(card.visual_phase == "Phasenuebergreifend" for card in cards)
+    assert all(card.target_page_key for card in cards)
 
 
 def test_workflow_graph_uses_stable_status_styles():
@@ -231,9 +253,11 @@ def test_workflow_graph_maps_steps_to_renderable_pages():
     page_keys = get_renderable_page_keys()
 
     assert target_page_for_step("parameters", page_keys) == "parameters"
-    assert target_page_for_step("ida_export", page_keys) == "export_ida"
-    assert target_page_for_step("ida_import", page_keys) == "import_ida"
-    assert target_page_for_step("simulation", page_keys) is None
+    assert target_page_for_step("export_ida", page_keys) == "export_simulation"
+    assert target_page_for_step("import_ida", page_keys) == "import_simulation"
+    assert target_page_for_step("ida_export", page_keys) == "export_simulation"
+    assert target_page_for_step("ida_import", page_keys) == "import_simulation"
+    assert target_page_for_step("simulation", page_keys) == "ida_ice"
 
 
 def test_workflow_graph_feedback_paths_target_existing_pages():
@@ -293,7 +317,7 @@ def test_workflow_context_rows_show_module_status_and_action():
 
     assert rows[0]["Modul"] == "ma_parameters"
     assert rows[0]["Dashboard-Aktion"] == "Parameter oeffnen"
-    assert rows[1]["Modul"] == "ma_export_ida"
+    assert rows[1]["Modul"] == "ma_export_simulation"
     assert rows[1]["Status"] == "partial"
 
 
@@ -344,10 +368,12 @@ def test_resource_status_counts_nested_files_and_directories(tmp_path):
     assert status.directory_count == 2
 
 
-def test_resource_status_rows_cover_p005_placeholder_views():
+def test_resource_status_rows_cover_module_information_views():
     assert resource_status_rows("parameters")
     assert resource_status_rows("building")
     assert resource_status_rows("simulation_setup")
+    assert resource_status_rows("export_simulation")
+    assert resource_status_rows("import_simulation")
     assert resource_status_rows("ida_export")
     assert resource_status_rows("ida_import")
     assert resource_status_rows("feedback")

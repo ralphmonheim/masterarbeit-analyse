@@ -54,7 +54,7 @@ Dokumentationsroutine, kein Python-CLI-Befehl.
 | Offene Entscheidungen aktualisieren | `docs/project/decisions/USER_DECISIONS_OPEN_POINTS.md` | offene Nutzerentscheidungen | Offene Punkte klar von getroffenen Entscheidungen trennen. |
 | Technische Entscheidungen aktualisieren | `docs/project/decisions/TECHNICAL_DECISIONS.md` | Architektur- und Umsetzungsentscheidungen | Nicht mit Nutzerentscheidungen vermischen. |
 | Command-Dokumentation aktualisieren | `docs/common/commands_common.md`, `docs/*/commands_*.md`, `docs/project/UPDATE_ROUTINES.md` | Sammelbefehle, Einzelbefehle, Test-/Referenzbefehle | Wenn Befehle, Routinen oder Startwege geaendert wurden, muessen die passenden Command-Dateien aktualisiert werden. |
-| Modulstatus pruefen | `src/`, `tests/`, modulbezogene Dokumentation, `src/ma_workflow/actions.py`, `src/ma_ui/navigation.py` | Fachpakete, Services, Views, Tests und zentrale Statuswerte | Status nur anhand vorhandener Implementierung und belastbarer Tests setzen; Streamlit bezieht Status aus dem Workflow-Katalog. |
+| Modulstatus pruefen | `src/`, `tests/`, modulbezogene Dokumentation, `src/ma_workflow/catalog.py`, `src/ma_ui/navigation.py` | Fachpakete, Services, Views, Tests und zentrale Statuswerte | Status nur anhand vorhandener Implementierung und belastbarer Tests setzen; Streamlit bezieht Status aus dem Workflow-Katalog. |
 | Referenzen aktualisieren | `docs/examples/`, modulbezogene Beispielordner | Beispielbilder und Referenzoutputs | Nur durch `aktualisiere tests` oder expliziten Nutzerauftrag erzeugen. |
 
 ## Routine `aktualisieren`
@@ -72,8 +72,9 @@ Dokumentationsroutine, kein Python-CLI-Befehl.
    - nutzbare Modulansichten und Adapter
    - vorhandene Tests und dokumentierte reale Testlaeufe
    - noch ausgelagerte Logik in anderen Modulen
-7. Zentrale Statuswerte in `src/ma_workflow/actions.py` bei nachweisbarer
-   Abweichung aktualisieren. Statusbedeutung:
+7. Zentrale Statuswerte in `src/ma_workflow/catalog.py` bei nachweisbarer
+   Abweichung aktualisieren. `actions.py` bleibt nur
+   Kompatibilitaetszugriff. Statusbedeutung:
    - `available`: Fachmodul ist fuer seinen aktuellen Umfang nutzbar und getestet.
    - `partial`: wesentliche Logik existiert, liegt aber noch unvollstaendig oder in einem anderen Modul.
    - `planned`: Zielmodul oder wesentliche Fachlogik fehlt.

@@ -1,6 +1,6 @@
 # Entscheidungen
 
-Stand: 2026-06-18
+Stand: 2026-06-22
 
 Dieses Dokument sammelt technische und architektonische Entscheidungen. Echte Nutzerentscheidungen stehen getrennt in `USER_DECISIONS_MASTERTHESIS_CODE.md`.
 
@@ -218,3 +218,34 @@ Begruendung:
   eine grosse generische Plot-Engine ersetzt.
 - Der Ansatz ist fuer den aktuellen Masterarbeitsumfang nachvollziehbar und
   kann spaeter templateweise weiter vereinheitlicht werden.
+
+## Entscheidung 17: ma_workflow ist die zentrale Metadatenquelle
+
+Phasen, Module, Workflow-Schritte, Statuswerte, Abhaengigkeiten und naechste
+Schritte werden zentral in `ma_workflow.catalog` gepflegt.
+
+Technische Folgen:
+
+- Navigation und Dashboard leiten ihre Inhalte aus diesem Katalog ab.
+- Geplante Module werden nicht mehr ueber getrennte statische UI-Listen
+  beschrieben.
+- `list_workflow_phases()`, `list_module_definitions()` und
+  `get_module_definition()` bilden die oeffentliche Leseschnittstelle.
+- Historische IDA-spezifische Modul-, Schritt-, Seiten- und Aktionsschluessel
+  werden kontrolliert auf die allgemeinen Simulationsschnittstellen
+  abgebildet.
+
+## Entscheidung 18: Geplante Module erhalten leichte Pakete
+
+Ein bestaetigtes Zielmodul darf vor seiner Fachimplementierung als
+importierbares Paket mit Modulbeschreibung angelegt werden.
+
+Technische Regeln:
+
+- Keine leeren `services.py`, `models.py`, Konfigurationen oder Tests ohne
+  konkrete Verantwortung.
+- Der fachliche Status bleibt `planned` oder `partial`, bis belastbare Logik
+  und Tests vorhanden sind.
+- Modul-Infoseiten lesen ihre Inhalte aus dem zentralen Katalog.
+- Die Projektdokumentation bleibt unter `docs` und wird nicht als Python-Paket
+  gespiegelt.

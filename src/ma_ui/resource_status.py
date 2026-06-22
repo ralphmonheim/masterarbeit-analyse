@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from ma_analyse.core.config import PROJECT_ROOT
+from ma_workflow import resolve_step_key
 
 IGNORED_FILE_NAMES = {".gitkeep"}
 IGNORED_DIR_NAMES = {"__pycache__"}
@@ -75,23 +76,23 @@ RESOURCE_SPECS_BY_STEP: dict[str, tuple[ResourceSpec, ...]] = {
             "Vorhandene Konfiguration fuer spaetere Simulationsuebergabe.",
         ),
     ),
-    "ida_export": (
+    "export_simulation": (
         ResourceSpec(
             "IDA-Exportkonfiguration",
             "config/ma_variants/export/example_ida_export.yaml",
-            "Aktuell im Variantenmodul verankert.",
+            "Vorhandene IDA-ICE-Konfiguration fuer den allgemeinen Exportadapter.",
         ),
         ResourceSpec(
             "IDA-Exportordner",
             "data/ma_variants/ida_exports",
-            "Zielstruktur fuer exportierte Variantenpakete.",
+            "Bestehende Zielstruktur fuer exportierte Simulationspakete.",
         ),
     ),
-    "ida_import": (
+    "import_simulation": (
         ResourceSpec(
             "IDA-Importdaten",
             "data/ma_analyse/ida_imports",
-            "Aktueller Rohdatenordner fuer Simulationsergebnisse.",
+            "Aktueller Rohdatenordner des IDA-ICE-Importadapters.",
         ),
         ResourceSpec(
             "Analyse-Datenbankordner",
@@ -185,7 +186,7 @@ def resource_status(spec: ResourceSpec, *, project_root: Path = PROJECT_ROOT) ->
 
 def resource_statuses_for_step(step_key: str, *, project_root: Path = PROJECT_ROOT) -> tuple[ResourceStatus, ...]:
     """Gibt Ressourcenstatuswerte fuer einen Workflow-Schritt zurueck."""
-    specs = RESOURCE_SPECS_BY_STEP.get(step_key, ())
+    specs = RESOURCE_SPECS_BY_STEP.get(resolve_step_key(step_key), ())
     return tuple(resource_status(spec, project_root=project_root) for spec in specs)
 
 

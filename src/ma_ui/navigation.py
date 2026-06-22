@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from ma_workflow import get_workflow_step
+from ma_workflow import get_module_definition, list_module_definitions
 
 CURRENT_PAGE_SESSION_KEY = "ma_ui_current_page"
 
@@ -20,39 +20,28 @@ class NavigationPage:
 
 
 _PAGE_TO_WORKFLOW_STEP = {
-    "parameters": "parameters",
-    "weather": "weather",
-    "building": "building",
-    "variants": "variants",
-    "simulation_setup": "simulation_setup",
-    "export_ida": "ida_export",
-    "import_ida": "ida_import",
-    "analyse": "analyse",
-    "assessment": "assessment",
-    "feedback": "feedback",
+    module.page_key: module.module_key for module in list_module_definitions()
+}
+
+PAGE_KEY_ALIASES = {
+    "export_ida": "export_simulation",
+    "import_ida": "import_simulation",
+    "ida_export": "export_simulation",
+    "ida_import": "import_simulation",
 }
 
 
 def _workflow_status(page_key: str) -> str:
-    """Leitet den Seitenstatus aus dem zentralen Workflow-Katalog ab."""
-    step_key = _PAGE_TO_WORKFLOW_STEP.get(page_key)
-    if step_key is None:
+    """Leitet den Seitenstatus aus dem zentralen Modulkatalog ab."""
+    module_key = _PAGE_TO_WORKFLOW_STEP.get(page_key)
+    if module_key is None:
         return "available"
-    return get_workflow_step(step_key).status
+    return get_module_definition(module_key).status
 
 
 _NAVIGATION_PAGE_DEFINITIONS: tuple[tuple[str, str, str], ...] = (
     ("home", "Start", "project"),
-    ("parameters", "Parameter", "ma_parameters"),
-    ("weather", "Wetterdaten", "ma_weather"),
-    ("building", "Gebaeude", "ma_building"),
-    ("variants", "Varianten", "ma_variants"),
-    ("simulation_setup", "Simulation Setup", "ma_simulation_setup"),
-    ("export_ida", "IDA Export", "ma_export_ida"),
-    ("import_ida", "IDA Import", "ma_import_ida"),
-    ("analyse", "Analyse", "ma_analyse"),
-    ("assessment", "Bewertung", "ma_assessment"),
-    ("feedback", "Feedback", "ma_feedback"),
+    *tuple((module.page_key, module.label, module.module_key) for module in list_module_definitions()),
 )
 
 _NAVIGATION_PAGES: tuple[NavigationPage, ...] = tuple(
@@ -67,17 +56,20 @@ def get_navigation_pages() -> tuple[NavigationPage, ...]:
 
 
 def get_navigation_page(page_key: str) -> NavigationPage:
-    """Findet eine UI-Seite ueber ihren technischen Key."""
+    """Findet eine UI-Seite einschliesslich historischer Seitenaliase."""
+    canonical_key = PAGE_KEY_ALIASES.get(page_key, page_key)
     for page in _NAVIGATION_PAGES:
-        if page.page_key == page_key:
+        if page.page_key == canonical_key:
             return page
     raise KeyError(f"Unbekannte UI-Seite: {page_key}")
 
 
 def normalize_page_key(page_key: object, available_page_keys: tuple[str, ...]) -> str:
     """Normalisiert eine Session-State-Seite auf einen bekannten Zielwert."""
-    if isinstance(page_key, str) and page_key in available_page_keys:
-        return page_key
+    if isinstance(page_key, str):
+        canonical_key = PAGE_KEY_ALIASES.get(page_key, page_key)
+        if canonical_key in available_page_keys:
+            return canonical_key
     return available_page_keys[0]
 
 

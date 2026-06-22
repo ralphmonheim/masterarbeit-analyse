@@ -1,15 +1,10 @@
-"""Geplante View fuer den IDA-Import."""
+"""Kompatibilitaetsview fuer den allgemeinen Simulationsergebnisimport."""
 
 from __future__ import annotations
 
-from ma_ui.shared.layout import render_page_header
-from ma_ui.shared.widgets import render_placeholder
+from ma_ui.module_views.module_info_view import render as render_module_info
 
 
 def render() -> None:
-    """Zeigt den geplanten IDA-Importbereich ohne eigene Fachlogik."""
-    render_page_header("IDA Import", "Zuordnung und Standardisierung von Ergebnisordnern")
-    render_placeholder(
-        "Ergebnisadapter und Aufbereitung sind teilweise vorhanden. "
-        "Das eigenstaendige Zielmodul ma_import_ida ist noch nicht umgesetzt."
-    )
+    """Leitet den historischen View-Namen auf die kanonische Infoseite."""
+    render_module_info("ma_import_simulation")

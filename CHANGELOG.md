@@ -4,6 +4,35 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.13.0 - 2026-06-22
+
+### Added
+- Leichte, seiteneffektfreie Gerueste fuer die P007-Zielmodule einschliesslich
+  Modul-READMEs und IDA-ICE-Adaptergrenzen unter den allgemeinen
+  Simulationsschnittstellen angelegt.
+- Zentralen `ma_workflow`-Katalog mit Phase 0, sechs Fachphasen,
+  Moduldefinitionen, Workflow-Schritten und phasenuebergreifenden Funktionen
+  eingefuehrt.
+- P008 fuer den Wettermodulabschluss und P009 fuer die allgemeinen
+  Simulationsschnittstellen mit IDA-ICE-Adaptern angelegt.
+- Generische, klickbare Modul-Infoseiten und Strukturtests fuer Pakete,
+  Dokumentation, Phasen, Module und Kompatibilitaetsaliase ergaenzt.
+
+### Changed
+- P007 als verbindlichen Rahmenplan fuer die weitere VS-Code-Umsetzung aufgenommen; Planindex und Planstatus nennen die vorgelagerte Bestandsanalyse sowie den erforderlichen Abgleich mit der bestehenden Zielarchitektur.
+- Projektsteuerung mit P007-Nutzerentscheidung, offenen Architekturfragen sowie aktualisierten Beschreibungen von `ma_ui`, `ma_workflow` und dem Leitfaden abgeglichen.
+- Strukturreview und zentrale Projektuebersichten an den aktuellen Stand von Wetterpipeline, Streamlit-Oberflaeche, Workflow-Schicht und P007-Priorisierung angepasst.
+- P002, P005 und P006 unveraendert archiviert; ihre offenen Entscheidungen und
+  Restarbeiten kontrolliert nach P007, P008 und P009 uebernommen.
+- Dashboard und Navigation auf Phase 0 bis Phase 6 sowie einen eigenen
+  Querschnittsbereich fuer Validierung und Feedback umgestellt.
+- `ma_export_simulation` und `ma_import_simulation` als kanonische Namen
+  festgelegt; bisherige IDA-Schluessel bleiben dokumentierte
+  Kompatibilitaetsaliase.
+- Projektsteuerung, Modulstatus und Update-Routine auf den zentralen
+  `ma_workflow.catalog` sowie die vollstaendige P007-Komponentenliste
+  abgeglichen.
+
 ## 0.12.0 - 2026-06-18
 
 ### Added

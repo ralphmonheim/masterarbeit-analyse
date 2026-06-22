@@ -12,8 +12,10 @@ from ma_ui.main_dashboard import dashboard_action_rows
 from ma_ui.navigation import CURRENT_PAGE_SESSION_KEY, get_navigation_pages
 from ma_ui.shared import normalize_table_for_streamlit
 from ma_ui.workflow_graph import (
+    CROSS_CUTTING_LABEL,
     VISUAL_PHASES,
     WorkflowCard,
+    cross_cutting_card_rows,
     feedback_path_rows,
     workflow_card_rows,
     workflow_cards_by_phase,
@@ -195,6 +197,11 @@ def render() -> None:
     cards_by_phase = workflow_cards_by_phase(cards)
     for phase in VISUAL_PHASES:
         _render_phase_cards(phase, cards_by_phase.get(phase, []))
+
+    _render_phase_cards(
+        CROSS_CUTTING_LABEL,
+        cross_cutting_card_rows(available_page_keys=_available_page_keys()),
+    )
 
     _render_feedback_paths()
 

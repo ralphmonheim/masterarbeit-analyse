@@ -1,325 +1,131 @@
 # Zielarchitektur
 
-Stand: 2026-06-18
+Stand: 2026-06-22
+Grundlage: P007
 
 ## Zweck
 
-Dieses Dokument ordnet den geplanten Gesamtworkflow und die Zielmodule ein. Es
-setzt keine Fachlogik um und ersetzt keine bestehenden Module.
+Dieses Dokument beschreibt die verbindliche technische Einordnung der
+P007-Zielstruktur. Fachliche Detailumsetzungen werden weiterhin ueber
+gesonderte Teilplaene analysiert, freigegeben und getestet.
 
-## Praezisierung P005
+## Architekturregeln
 
-Die P005-Zielarchitektur wurde am 2026-06-10 verschaerft. Die bestehende
-Tkinter-Oberflaeche aus `ma_analyse` wird nicht technisch nach Streamlit
-uebersetzt. Sie dient nur als fachliche Ablaufvorlage fuer die spaetere
-Streamlit-Oberflaeche.
+- Phase 0 bildet die technische Plattform; danach folgen sechs fachliche Phasen.
+- Fachlogik bleibt UI-neutral und liegt in den Fachmodulen.
+- `ma_workflow` ist die zentrale Quelle fuer Phasen, Module und Status.
+- `ma_ui` zeigt Fachansichten oder neutrale Modul-Infoseiten.
+- Paketexistenz bedeutet nicht automatisch fachliche Verfuegbarkeit.
+- Bestehende Logik wird nicht ohne Migrationsplan verschoben.
+- IDA ICE bleibt der manuelle externe Simulationsschritt.
 
-Wichtig:
+## Phase 0 und sechs Hauptphasen
 
-- Keine bestehende GUI-Datei wird ohne eigenen Refactoring-Slice verschoben.
-- Keine bestehenden Analysefunktionen werden im Architektur-Slice umgebaut.
-- `ma_ui` ist die zentrale Zieloberflaeche.
-- `ma_workflow` ist die Vermittlung zwischen UI-Aktionen und Fachmodulen.
-- Fachmodule bleiben UI-neutral.
-- IDA ICE bleibt der externe Simulationsschritt zwischen Export und Import.
-
-## Aktueller Bestand
-
-| Bereich | Stand | Bewertung |
+| Phase | Module und Bereiche | Ziel |
 |---|---|---|
-| `ma_analyse` | vorhanden | Bestehende Analysepipeline fuer IDA-ICE-Simulationsergebnisse mit CLI, Tkinter-GUI, Preprocessing, Analyse und Plot-Templates. |
-| `ma_variants` | vorhanden | Variantenkern mit Parametern, Optionen, Varianten, IDA-Uebergabestruktur, Simulationsergebnisadapter, Wirtschaftlichkeit, Produkt-/Materialkatalogen und Streamlit-UI. |
-| `ma_weather` | teilweise vorhanden | Wetterkatalog, TRY-Importer, Validierung, Kennwerte, Diagramme, Markdown-Bericht und Runner sind als lokale Pipeline vorhanden. |
-| `ma_ui` | teilweise vorhanden | Minimale Streamlit-Shell mit Startseite, Analyse-Seite, Varianten-Uebersicht, Wetter-Uebersicht, Bewertungs-Uebersicht, Navigation und Projektzustand. |
-| `ma_ui_legacy` | nicht vorhanden | Zielbereich fuer die bestehende Tkinter-Arbeit, falls sie spaeter aus `ma_analyse` ausgelagert wird. |
-| `ma_workflow` | teilweise vorhanden | Neutraler Workflow-Katalog und Analyse-Adapter zwischen UI und Fachmodulen. |
-| `ma_shared` | nicht vorhanden | Zielbereich fuer wirklich gemeinsame Pfade, Konstanten, Exceptions und Ergebnisobjekte. |
+| Phase 0 | `ma_core`, `ma_database`, `ma_ui`, `ma_workflow`, Dokumentationsinfrastruktur | technische und organisatorische Plattform |
+| Phase 1 | `ma_project` | Projekt und Untersuchungsrahmen initialisieren |
+| Phase 2 | `ma_building`, `ma_weather`, `ma_zones`, `ma_technical`, `ma_parameters` | Eingaben erfassen, validieren und vereinheitlichen |
+| Phase 3 | `ma_analyse.stage_1_dimensioning`, `ma_variants`, `ma_simulation_setup`, `ma_export_simulation` | Referenz dimensionieren, Varianten und Run vorbereiten |
+| Phase 4 | IDA ICE, `ma_import_simulation`, `ma_analyse` Stufe 2 bis 4 | simulieren, importieren und technisch analysieren |
+| Phase 5 | `ma_economy`, `ma_sustainability`, `ma_assessment` | wirtschaftlich, oekologisch und gesamthaft bewerten |
+| Phase 6 | `ma_reporting`, `ma_data_export`, Projektdokumentation | Berichte, Datenpakete und Archivierung |
 
-## Zielmodule
+`ma_validation` und `ma_feedback` wirken phasenuebergreifend.
 
-| Modul | Zweck | Bestand | Empfohlene Aktion | Risiko |
-|---|---|---|---|---|
-| `ma_ui` | Gemeinsame lokale Streamlit-Oberflaeche mit Workflow-Dashboard | teilweise | Shell schrittweise ausbauen, keine Fachlogik in UI verschieben | mittel |
-| `ma_ui_legacy` | Uebergangsbereich fuer bestehende Tkinter-Oberflaechen | nein | Erst nach Bestandsanalyse und Freigabe auslagern | hoch |
-| `ma_workflow` | Orchestrierung zwischen Oberflaeche und Fachmodulen | teilweise | Prozessaktionen schrittweise mit Fachservices verbinden | mittel |
-| `ma_parameters` | Parameter- und Optionskatalog als eigenes Zielmodul | nein, Logik liegt in `ma_variants` | Vorerst nicht verschieben; spaeter Extraktion planen | hoch |
-| `ma_weather` | Wetterdaten, TRY-Import, Wetterkennwerte, Wetteranalyse | teilweise | Reale TRY-Datei lokal pruefen und Diagrammgestaltung fachlich abstimmen | mittel |
-| `ma_building` | Gebaeude- und Zonendaten fuer Varianten und Simulation | nein | Nur fachlich abgrenzen, spaeter minimal vorbereiten | mittel |
-| `ma_variants` | Variantenbildung, Auswahl, Naming, Variantenuebersichten | ja | Stabil halten; Parameter-Extraktion spaeter pruefen | mittel |
-| `ma_simulation_setup` | Simulationsrandbedingungen und Run-Metadaten | nein | Als separaten Slice zwischen Varianten und IDA-Export planen | gering bis mittel |
-| `ma_export_ida` | Exportprozess vor der IDA-ICE-Simulation | teilweise in `ma_variants.ida_export` | Vorerst bestehende Logik nicht verschieben; spaeter Zielmodul pruefen | mittel |
-| `ma_import_ida` | Import und Standardisierung nach der IDA-ICE-Simulation | teilweise ueber `ma_variants.simulation_results` und `ma_analyse` | Schnittstelle erst dokumentieren, dann Importadapter planen | hoch |
-| `ma_analyse` | Analyse der IDA-ICE-Simulationsergebnisse | ja | Fachlogik dort belassen; GUI-Auslagerung separat pruefen | hoch |
-| `ma_economy` | Wirtschaftlichkeitsbewertung | teilweise in `ma_variants.economic_analysis` | Spaetere Extraktion separat planen; bestehende Logik vorerst nicht verschieben | mittel |
-| `ma_sustainability` | Nachhaltigkeits- und CO2-/GWP-Bewertung | nein | Zunaechst Datenbasis, Systemgrenzen und Quellen klaeren | mittel |
-| `ma_assessment` | Gesamtbewertung, Scoring, Ranking, Factsheets und Berichte | nein | Als Aggregator ueber `ma_analyse`, `ma_economy` und `ma_sustainability` planen | mittel |
-| `ma_feedback` | Problembehandlung und Rueckfuehrung in den Pre-Process | nein | Zunaechst nur dokumentieren; Implementierung erst nach stabilen Ergebnissen | mittel |
-| `ma_shared` | Gemeinsame technische Grundlagen | nein | Nur anlegen, wenn echte Wiederverwendung entsteht | mittel |
-
-## Architekturregeln fuer UI und Fachlogik
-
-- Streamlit ist die Zieltechnik fuer die neue zentrale Oberflaeche `ma_ui`.
-- Tkinter und Streamlit werden nicht direkt miteinander kombiniert.
-- `streamlit` darf spaeter nur in `ma_ui` importiert werden.
-- `tkinter` darf spaeter nur in `ma_ui_legacy` oder voruebergehend in `ma_analyse/gui` vorkommen.
-- Fachmodule wie `ma_analyse`, `ma_variants` und `ma_weather` duerfen keine direkte Abhaengigkeit zu einer konkreten UI-Technik haben.
-- Berechnungslogik, Plot-Erzeugung, Excel-Report-Erzeugung und Variantenlogik gehoeren nicht direkt in `ma_ui`.
-- Die UI nimmt Eingaben entgegen, ruft Service-Funktionen auf und zeigt neutrale Ergebnisse an.
-
-## Rollen im Pre- und Post-Process
-
-### Pre-Process
-
-| Reihenfolge | Zielmodul | Aufgabe |
-|---|---|---|
-| 1 | `ma_parameters` | Technische Parameter, Optionsgruppen und spaetere Eingabekataloge verwalten. |
-| 2 | `ma_weather` | Wetterdaten und TRY-Randbedingungen vorbereiten. |
-| 3 | `ma_building` | Gebaeude-, Zonen- und Modellrandbedingungen vorbereiten. |
-| 4 | `ma_variants` | Variantenentscheidungen, Auswahl und Benennung erzeugen. |
-| 5 | `ma_simulation_setup` | Festlegen, wie Varianten simuliert werden: Zeitraum, Zeitschritt, Szenario, Run-Metadaten. |
-| 6 | `ma_export_ida` | Uebergabestruktur fuer IDA ICE vorbereiten. |
-
-`ma_simulation_setup` liegt bewusst zwischen `ma_variants` und `ma_export_ida`.
-Die Varianten definieren, was simuliert wird. Das Simulation-Setup definiert,
-wie simuliert wird. Erst danach wird die IDA-Uebergabe vorbereitet.
-
-### Simulation
-
-IDA ICE bleibt ausserhalb der Python-Fachmodule. Python bereitet Export und
-Import vor, startet aber in diesem Architekturplan keine vollautomatische
-Simulation.
-
-### Post-Process
-
-| Reihenfolge | Zielmodul | Aufgabe |
-|---|---|---|
-| 1 | `ma_import_ida` | IDA-ICE-Ergebnisordner erkennen, pruefen und standardisieren. |
-| 2 | `ma_analyse` | Simulationsergebnisse auswerten, Kennwerte, Diagramme und Reports erzeugen. |
-| 3 | `ma_economy` | Wirtschaftlichkeit, Kosten, Energiepreise, Lebensdauer und Szenarien bewerten. |
-| 4 | `ma_sustainability` | CO2, GWP, Emissionsfaktoren und Nachhaltigkeitskennwerte bewerten. |
-| 5 | `ma_assessment` | Ergebnisse aus Analyse, Economy und Sustainability zusammenfuehren und berichten. |
-
-### Feedback
-
-| Reihenfolge | Zielmodul | Aufgabe |
-|---|---|---|
-| 1 | `ma_feedback` | Auffaelligkeiten und Rueckspruenge in Pre-Process-Module dokumentieren. |
-
-## ma_assessment Zielzuschnitt
-
-`ma_assessment` wird nicht als Rechenmodul fuer Wirtschaftlichkeit oder
-Nachhaltigkeit verstanden. Die eigentliche Fachlogik wird langfristig getrennt
-in `ma_economy` und `ma_sustainability` geplant.
-
-`ma_assessment` ist die uebergeordnete Bewertungs-, Scoring- und
-Berichtsschicht. Es sammelt Ergebnisse aus `ma_analyse`, `ma_economy` und
-`ma_sustainability` und erzeugt daraus Berichte, Factsheets, Rankings,
-Ampellogiken oder Entscheidungsvorlagen.
+## Verbindlicher Datenfluss
 
 ```text
-ma_assessment/
-  scoring/
-  reports/
-  factsheets/
-  adapters/
+ma_building
+ma_weather
+ma_zones
+ma_technical
+    -> ma_parameters
+    -> ma_analyse.stage_1_dimensioning
+    -> ma_variants
+    -> ma_simulation_setup
+    -> ma_export_simulation
+       -> adapters.ida_ice
+    -> manuelle IDA-ICE-Simulation
+    -> ma_import_simulation
+       -> adapters.ida_ice
+    -> ma_analyse Stufe 2 bis 4
+    -> ma_economy
+    -> ma_sustainability
+    -> ma_assessment
+    -> ma_reporting
+    -> ma_data_export
+    -> Projektdokumentation und Archivierung
 ```
 
-Geplante Ausbaustufen:
+`ma_parameters` ist die einzige fachliche Eingangsquelle fuer
+`ma_variants`. Direkte Abhaengigkeiten von `ma_variants` zu Gebaeude, Wetter,
+Zonen oder Technik sind im Zielbild nicht vorgesehen.
 
-1. Reine Berichtsschicht fuer vorhandene Analyseergebnisse.
-2. Einbindung von `ma_economy`-Ergebnissen.
-3. Einbindung von `ma_sustainability`-Ergebnissen.
-4. Bewertungslogik mit Gewichtungen, Ampeln oder Ranking.
-5. Factsheets und Entscheidungsvorlagen fuer Varianten.
+## Simulationsschnittstellen
 
-## Geplante Zielstruktur
+Die kanonischen Hauptmodule sind:
 
-Diese Struktur ist das vollstaendige Zielbild. Ein minimaler erster Slice von
-`ma_ui` und `ma_workflow` ist umgesetzt; die restliche Struktur wird nur nach
-separater Freigabe ausgebaut.
+- `ma_export_simulation`
+- `ma_import_simulation`
+
+Programmspezifische Logik liegt ausschliesslich unter:
 
 ```text
-src/
-  ma_ui/
-    app.py
-    main_dashboard.py
-    workflow_view.py
-    pre_process_view.py
-    post_process_view.py
-    shared/
-      layout.py
-      widgets.py
-      status_panel.py
-      log_panel.py
-      file_selectors.py
-      tables.py
-      plot_viewer.py
-    module_views/
-      parameters_view.py
-      weather_view.py
-      building_view.py
-      variants_view.py
-      simulation_setup_view.py
-      export_ida_view.py
-      import_ida_view.py
-      analyse_view.py
-      assessment_view.py
-      feedback_view.py
-    state/
-      project_state.py
-
-  ma_workflow/
-    workflow_manager.py
-    dashboard_actions.py
-    pre_process_runner.py
-    post_process_runner.py
-    feedback_router.py
-
-  ma_ui_legacy/
-    tkinter_analyse_app.py
-
-  ma_analyse/
-    services.py
-    models.py
-    io.py
-    calculations.py
-    plots.py
-    export.py
-
-  ma_weather/
-    services.py
-    models.py
-    plots.py
-
-  ma_parameters/
-    services.py
-    models.py
-
-  ma_variants/
-    services.py
-    models.py
-
-  ma_simulation_setup/
-    services.py
-    models.py
-
-  ma_export_ida/
-    services.py
-    models.py
-
-  ma_import_ida/
-    services.py
-    models.py
-
-  ma_economy/
-    services.py
-    models.py
-
-  ma_sustainability/
-    services.py
-    models.py
-
-  ma_assessment/
-    scoring/
-    reports/
-    factsheets/
-    adapters/
-
-  ma_shared/
-    paths.py
-    constants.py
-    exceptions.py
-    result_types.py
+ma_export_simulation/adapters/ida_ice/
+ma_import_simulation/adapters/ida_ice/
 ```
 
-Aktueller Zwischenstand: `src/ma_ui/module_views/`, `src/ma_ui/shared/`,
-`src/ma_workflow/dashboard_actions.py`, `src/ma_workflow/pre_process_runner.py`,
-`src/ma_workflow/post_process_runner.py` und `src/ma_workflow/feedback_router.py`
-sind als kompatibler Struktur-Slice vorbereitet. Die bestehenden `pages/` und
-`actions.py` bleiben als Kompatibilitaets- und Zwischenstand erhalten.
+Historische Schluessel `ma_export_ida`, `ma_import_ida`, `export_ida` und
+`import_ida` werden voruebergehend als Aliase aufgeloest. Neue Fachlogik darf
+diese Namen nicht als neue Hauptmodule verwenden.
 
-## Service-Schnittstelle fuer ma_analyse
+Der vorhandene Basisexport unter `ma_variants.ida_export` bleibt bestehen, bis
+P009 einen sicheren Schnittstellenvertrag und Migrationsweg definiert.
 
-Der erste Code-Slice ist umgesetzt: `ma_analyse.models` enthaelt
-`AnalysisConfig` und `AnalysisResult`, `ma_analyse.services` enthaelt
-`run_analysis(config)` als UI-neutrale Fassade ueber bestehender Logik.
+## UI- und Workflow-Vertrag
 
-```python
-from ma_analyse.models import AnalysisConfig, AnalysisResult
+- Das Dashboard zeigt Phase 0 bis Phase 6 in dieser Reihenfolge.
+- `ma_validation` und `ma_feedback` stehen in einem eigenen
+  phasenuebergreifenden Bereich.
+- Jedes katalogisierte Modul besitzt eine klickbare Seite.
+- Nutzbare Module behalten ihre Fachansicht.
+- Geplante Module zeigen Zweck, Ein- und Ausgaben, Abgrenzung,
+  Abhaengigkeiten, Status und naechsten Schritt.
+- Geplante Seiten enthalten keine funktionslosen Fachbedienelemente.
+- Tkinter bleibt Legacy-Oberflaeche von `ma_analyse` und wird nicht technisch
+  mit Streamlit vermischt.
 
-def run_analysis(config: AnalysisConfig) -> AnalysisResult:
-    ...
-```
+## Ergebnisverarbeitung
 
-Neutrale Modelle:
+- `ma_assessment` aggregiert und bewertet Ergebnisse.
+- `ma_reporting` erzeugt menschlich lesbare Reports und Factsheets.
+- `ma_data_export` erzeugt maschinenlesbare Datenpakete.
+- Fachmodulspezifische Exporte bleiben in ihren Fachmodulen.
+- Die Projektdokumentation bleibt unter `docs` und ist kein Python-Paket.
 
-- `AnalysisConfig`: Eingabeordner, Ausgabeordner, Varianten, Raeume und Report-Optionen.
-- `AnalysisResult`: Tabellen, Diagramme, Reportpfade und Warnungen.
+## Aktueller Umsetzungsstand
 
-Wichtig: Im bestehenden Code existieren weiterhin Analyse-Runner und CLI-nahe
-Funktionen. Die neue Fassade ersetzt diese nicht, sondern ruft sie kontrolliert
-auf. Eine feinere fachliche Rueckgabe mit Tabellen, Diagrammen und Reportpfaden
-bleibt ein spaeterer Ausbauschritt.
+| Status | Module |
+|---|---|
+| verfuegbar | `ma_analyse`, `ma_variants`, Projektdokumentation |
+| teilweise | `ma_core`, `ma_database`, `ma_ui`, `ma_workflow`, `ma_weather`, `ma_parameters`, `ma_export_simulation`, `ma_import_simulation`, `ma_economy`, `ma_reporting`, `ma_data_export`, `ma_validation` |
+| geplant | `ma_project`, `ma_building`, `ma_zones`, `ma_technical`, `ma_analyse.stage_1_dimensioning`, `ma_simulation_setup`, `ma_sustainability`, `ma_assessment`, `ma_feedback` |
+| manuell | IDA ICE |
 
-## Oberster Workflow
+Die Statuswerte werden zentral in `ma_workflow` gepflegt und von Navigation
+und Dashboard uebernommen.
 
-```text
-Pre-Process
-  ma_parameters
-  ma_weather
-  ma_building
-  ma_variants
-  ma_simulation_setup
-  ma_export_ida
+## Aktive Teilplaene
 
-Simulation
-  IDA ICE
+- P008: Wettermodul abschliessen und `weather_key` an die P007-Grenzen anbinden.
+- P009: allgemeine Simulationsschnittstellen und sichere IDA-ICE-Adapter planen.
 
-Post-Process
-  ma_import_ida
-  ma_analyse
-  ma_economy
-  ma_sustainability
-  ma_assessment
+## Migrationsgrundsaetze
 
-Feedback
-  ma_feedback
-  Ruecksprung in ma_parameters, ma_weather, ma_building,
-  ma_variants oder ma_simulation_setup
-```
-
-## Dashboard-Zuordnung
-
-| Dashboard-Aktion | Workflow-Aktion | Zielmodul |
-|---|---|---|
-| Parameter oeffnen | `open_parameters` | `ma_parameters` |
-| Wetterdaten oeffnen | `open_weather` | `ma_weather` |
-| Gebaeudedaten oeffnen | `open_building` | `ma_building` |
-| Varianten oeffnen | `open_variants` | `ma_variants` |
-| Simulation konfigurieren | `open_simulation_setup` | `ma_simulation_setup` |
-| IDA-Export starten | `run_ida_export` | `ma_export_ida` |
-| IDA-Import starten | `run_ida_import` | `ma_import_ida` |
-| Analyse starten | `run_analysis` | `ma_analyse` |
-| Bewertung starten | `run_assessment` | `ma_assessment` |
-| Problembehandlung oeffnen | `open_feedback` | `ma_feedback` |
-
-Diese Tabelle ist der verbindliche Zielvertrag zwischen `ma_ui` und
-`ma_workflow`. UI-Buttons duerfen spaeter keine Fachmodule direkt verdrahten,
-sondern rufen Workflow-Aktionen auf. `ma_workflow` entscheidet dann, welcher
-Fachservice angesprochen wird.
-
-## Umsetzungshinweise
-
-- Die Zielmodule werden nicht automatisch als Python-Pakete angelegt.
-- Bestehende Logik wird erst nach separater Freigabe verschoben.
-- Die `ma_analyse`-Bestandsanalyse und der Schnittstellenentwurf liegen in `MA_ANALYSE_INVENTORY.md` und `MA_ANALYSE_SERVICE_INTERFACE.md`.
-- Der erste Code-Slice fuer `ma_analyse.models` und `ma_analyse.services` ist als Fassade ueber bestehender Logik umgesetzt.
-- Der erste Code-Slice fuer `ma_workflow` und `ma_ui` ist als minimale Shell umgesetzt.
-- Der zweite P005-Struktur-Slice bereitet `ma_ui/shared`, `ma_ui/module_views`
-  und die geplanten `ma_workflow`-Aktions-/Runner-Dateien kompatibel vor.
-- Die Varianten-Uebersicht nutzt bestehende `ma_variants`-Services und dupliziert keine Variantenlogik.
-- Die Wetter-Uebersicht nutzt den bestehenden `ma_weather`-Katalog und importiert keine TRY-Dateien.
-- Die Bewertungs-Uebersicht nutzt bestehende Wirtschaftlichkeitsannahmen und berechnet keine Variantenkosten in der UI.
-- Der naechste P005-Schritt ist die fachliche Erweiterung der Analyse-Seite oder
-  die schrittweise Befuellung der vorbereiteten Platzhalter-Views.
-- Bestehende `ma_analyse`-Fachfunktionen bleiben in `ma_analyse`.
+- Leichte Pakete duerfen frueh angelegt werden.
+- Fachservices, Modelle und Konfigurationen entstehen erst mit konkretem Bedarf.
+- Bestehende Importpfade werden bei Umbenennungen ueber Aliase oder
+  Kompatibilitaetswrapper abgesichert.
+- Verschiebungen von Fachlogik benoetigen Tests vor und nach der Migration.
+- P002, P005 und P006 bleiben als unveraenderte historische Quellen archiviert.

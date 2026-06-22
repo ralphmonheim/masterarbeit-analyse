@@ -2,6 +2,10 @@
 
 Stand: 2026-06-10
 
+Status: historische P005-Umsetzungsreferenz. P007 ersetzt seit 2026-06-21 die
+aktive Phasen- und Modulstruktur. Alte View- und Runner-Namen in diesem
+Dokument beschreiben ausschliesslich die bestehende Kompatibilitaetsschicht.
+
 ## Zweck
 
 Dieser Plan beschreibt die Trennung von Fachlogik und Oberflaeche. Die ersten

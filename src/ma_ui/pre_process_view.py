@@ -1,4 +1,4 @@
-"""Pre-Process-Uebersicht fuer die zentrale Streamlit-Oberflaeche."""
+"""Kompatibilitaetsuebersicht fuer die frueheren Pre-Process-Schritte."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from ma_workflow import list_pre_process_steps
 
 
 def pre_process_step_rows() -> list[dict[str, object]]:
-    """Bereitet die Pre-Process-Schritte fuer UI-Tabellen auf."""
+    """Bereitet die Phasen 2 und 3 fuer bestehende UI-Aufrufer auf."""
     return [
         {
             "Schritt": step.label,

@@ -3,7 +3,8 @@
 Review-Version: 0.1.1
 Stand: 2026-06-18
 Quelle: im Codex-Chat neu bereitgestellter Miro-Export
-Status: aktualisierter Ist-Entwurf, noch keine verbindliche Zielarchitektur
+Status: historische Diagrammreferenz; seit 2026-06-21 strukturell durch P007
+uebersteuert
 
 ## Originalgrafik
 
@@ -29,7 +30,8 @@ Zielarchitektur besser ab:
 
 - `ma_economy` berechnet wirtschaftliche Ergebnisse.
 - `ma_sustainability` berechnet Nachhaltigkeits- und Umweltkennwerte.
-- Beide Module liegen im Post-Process.
+- Beide Module lagen im damaligen Post-Process; P007 ordnet sie heute Phase 5
+  zu.
 
 ### Assessment der zusammenfassenden Dokumentation zugeordnet
 

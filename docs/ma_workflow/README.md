@@ -3,29 +3,76 @@
 `ma_workflow` ist die neutrale Orchestrierungsschicht zwischen Oberflaeche und
 Fachmodulen.
 
+## Zweck
+
+Phasen, Module, Status, Workflow-Schritte und UI-Aktionen zentral und
+UI-neutral beschreiben.
+
+## Eingaben
+
+- Moduldefinitionen und Umsetzungsstatus
+- neutrale Aufrufkonfigurationen aus `ma_ui`
+
+## Ausgaben
+
+- geordnete Phasen und Workflow-Schritte
+- Moduldefinitionen, Dashboard-Aktionen und Ruecksprungziele
+
+## Abgrenzung
+
+- keine Fachberechnung
+- keine Streamlit- oder Tkinter-Abhaengigkeit
+
+## Abhaengigkeiten
+
+- UI-neutrale Services der Fachmodule
+
+## Status
+
+Teilweise aktiv. Der zentrale Katalog und der Analyseadapter sind umgesetzt;
+weitere echte Fachservice-Aufrufe fehlen noch.
+
+## Naechster Schritt
+
+Katalog stabil halten und Fachservice-Aufrufe nur mit den jeweiligen
+freigegebenen Modulslices ergaenzen.
+
 ## Rolle
 
 - beschreibt den Gesamtworkflow der Masterarbeit
-- gruppiert Schritte nach Pre-Process, Simulation, Post-Process und Feedback
+- katalogisiert Phase 0 und die sechs fachlichen P007-Hauptphasen
+- beschreibt alle Module mit Zweck, Grenzen, Status und naechstem Schritt
+- fuehrt `ma_validation` und `ma_feedback` phasenuebergreifend
 - stellt Adapter fuer Fachmodulaufrufe bereit
 - enthaelt keine Streamlit- oder Tkinter-Abhaengigkeit
 - enthaelt keine fachliche Berechnungslogik
 
 ## Aktueller Stand
 
-- Workflow-Katalog ist umgesetzt und zentrale Quelle fuer die
-  Modulumsetzungsstaende in Streamlit.
+- Phasen-, Modul- und Workflow-Katalog ist umgesetzt und zentrale Quelle fuer
+  die Modulumsetzungsstaende in Streamlit.
 - Statuswerte werden bei `aktualisieren` gegen Fachpakete, Services, Views,
   Tests und Dokumentation geprueft.
 - `workflow_manager.py` stellt den zentralen Zugriff auf Workflow-Schritte bereit.
 - `dashboard_actions.py` dokumentiert UI-Aktionen wie `open_weather`,
   `open_simulation_setup`, `run_analysis` und `run_assessment`.
-- `pre_process_runner.py` und `post_process_runner.py` trennen die geplanten
-  Schritte vor und nach der IDA-ICE-Simulation.
+- `pre_process_runner.py` und `post_process_runner.py` bleiben
+  Kompatibilitaetswrapper fuer bestehende Aufrufer.
 - `feedback_router.py` enthaelt die geplanten Ruecksprungziele fuer Feedback.
 - Analyse-Adapter ruft `ma_analyse.services.run_analysis(config)` auf.
-- Weitere Adapter fuer Varianten, Wetterdaten, IDA-Export, IDA-Import und
+- Weitere Adapter fuer Varianten, Wetterdaten, Simulationsexport/-import und
   Bewertung folgen spaeter nach separaten Slices.
+
+Oeffentliche Katalogfunktionen:
+
+- `list_workflow_phases()`
+- `list_module_definitions()`
+- `get_module_definition(module_key)`
+- `list_workflow_steps()`
+- `list_cross_cutting_steps()`
+
+Historische Schluessel fuer IDA-spezifische Hauptmodule werden nur als
+Uebergangsaliase auf die allgemeinen Simulationsschnittstellen aufgeloest.
 
 Aktuelle Statusbedeutung:
 

@@ -2,6 +2,40 @@
 
 Modulbereich fuer Wetterdatenanalyse und TRY-Integration.
 
+## Zweck
+
+Reale TRY-Wetterdaten katalogisieren, importieren, validieren, analysieren und
+fuer nachfolgende Module referenzierbar machen.
+
+## Eingaben
+
+- lokale reale TRY-Dateien
+- Wetterkatalog und `weather_key`
+
+## Ausgaben
+
+- validierte Wetterdaten, Kennwerte, Diagramme, CSV und Bericht
+- dokumentierter `weather_key` fuer die spaetere Uebergabe an `ma_parameters`
+
+## Abgrenzung
+
+- keine synthetischen TRY-Daten
+- keine direkte fachliche Kopplung an `ma_variants`
+
+## Abhaengigkeiten
+
+- lokale TRY-Dateien unter `data/ma_weather/input/`
+- P008 fuer Abschlusspruefung und P007-Anbindung
+
+## Status
+
+Teilweise aktiv. Ein realer Jahresdatensatz ist geprueft; fuenf Realtests und
+die Diagrammabstimmung fehlen noch.
+
+## Naechster Schritt
+
+P008 mit den fuenf verbleibenden TRY-Realtests fortsetzen.
+
 Der erste P002-Struktur-Slice hat das Paket `src/ma_weather/` und einen
 einfachen Wetterkatalog angelegt. Der aktuelle Stand enthaelt zusaetzlich eine
 erste lokale TRY-Analyse mit Import, Validierung, Kennwerten, Diagrammen,

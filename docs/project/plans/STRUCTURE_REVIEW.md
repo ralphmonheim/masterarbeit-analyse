@@ -1,42 +1,47 @@
 # Strukturreview
 
-Datum der Pruefung: 2026-06-10
+Datum der Pruefung: 2026-06-22
 
 ## Projektuebersicht
 
-Das Projekt besteht aktuell aus zwei produktiven Python-Paketen:
+Das Projekt besitzt fachlich nutzbare Kernpakete und zusaetzliche leichte
+Zielpakete mit unterschiedlichem Reifegrad:
 
 - `ma_analyse`: bestehende Analysepipeline fuer IDA-ICE-Simulationsergebnisse.
 - `ma_variants`: neuer Varianten-, Export-, Katalog- und Bewertungskern.
+- `ma_weather`: Wetterkatalog und lokale TRY-Analysepipeline.
+- `ma_workflow`: zentraler Phasen-, Modul-, Workflow- und Statuskatalog.
+- `ma_ui`: zentrale Streamlit-Oberflaeche mit Dashboard und Modulansichten.
+- Die P007-Zielmodule sind als importierbare, seiteneffektfreie Pakete
+  vorbereitet. Ihre Paketexistenz aendert den fachlichen Status nicht.
+- `ma_export_simulation` und `ma_import_simulation` sind die allgemeinen
+  Schnittstellen; IDA ICE wird darunter als Adapter gefuehrt.
 
-`ma_weather` ist als eigenes Paket fuer Wetterdatenanalyse und TRY-Integration vorbereitet. Der aktuelle Stand umfasst Struktur, Katalog, TRY-Importer, Validierung, Kennwerte, Diagramme, Markdown-Bericht, Runner und Tests.
-
-P005 ergaenzt eine Zielarchitektur mit Streamlit als Zieltechnik fuer `ma_ui`,
-`ma_ui_legacy` fuer bestehenden Tkinter-Bestand, `ma_workflow`,
-`ma_parameters`, `ma_building`, `ma_simulation_setup`, `ma_export_ida`,
-`ma_import_ida`, `ma_assessment` und `ma_feedback`. `ma_ui` und `ma_workflow`
-sind als minimale Pakete vorhanden. Die uebrigen Zielmodule duerfen nicht ohne
-separaten Plan angelegt oder durch Verschiebung bestehender Logik erzwungen
-werden.
-
-Die verschaerfte P005-Planung legt zusaetzlich fest: `ma_simulation_setup`
-liegt zwischen Variantenbildung und IDA-Export, `ma_assessment` wird als
-Bewertungsoberstruktur fuer Economics und Sustainability geplant, und die
-bestehende Tkinter-GUI aus `ma_analyse` ist fachliche Ablaufvorlage, aber keine
-technische Vorlage fuer Streamlit.
+P007 ist seit 2026-06-21 die verbindliche Architektur- und
+Roadmap-Grundlage. P002, P005 und P006 sind unveraendert archiviert; ihre
+verbleibenden Facharbeiten werden in P007, P008 und P009 weitergefuehrt.
 
 ## Gefundene Ordnerstruktur
 
 - `src/ma_analyse/`: Analyse, CLI, GUI, Preprocessing, Plot-Templates.
 - `src/ma_variants/`: Parameter, Optionen, Varianten, Datenbank, IDA-Export, Simulationsergebnisse, Wirtschaftlichkeit, Kataloge, UI.
 - `src/ma_weather/`: Wetterkatalog, TRY-Import, Validierung, Kennwerte, Plots, Reports und Runner.
-- `src/ma_workflow/`: neutraler Workflow-Katalog und Analyse-Adapter.
-- `src/ma_ui/`: minimale Streamlit-Shell mit Startseite, Analyse-Seite, Navigation und Projektzustand.
-- Ziel fuer `src/ma_ui/`: Dashboard, Workflow-Views, `shared/`-Komponenten und
-  `module_views/`. Die aktuelle `pages/`-Struktur bleibt Zwischenstand.
-- Ziel fuer `src/ma_workflow/`: Workflow-Manager, Dashboard-Aktionen,
-  Pre-Process-Runner, Post-Process-Runner und Feedback-Routing.
-- `docs/`: wurde in `project`, `ma_analyse`, `ma_variants`, `ma_weather`, `common` und `examples` modularisiert.
+- `src/ma_workflow/`: zentraler Workflow- und Statuskatalog,
+  Dashboard-Aktionen, Prozesslisten, Feedback-Routing und Analyse-Adapter.
+- `src/ma_ui/`: Streamlit-Oberflaeche mit Workflow-Dashboard,
+  Kopfzeilen-Navigation, `shared/`-Komponenten, `module_views/` und
+  angebundenen Ansichten fuer Analyse, Varianten, Wetter und Bewertung.
+- `src/ma_export_simulation/adapters/ida_ice/` und
+  `src/ma_import_simulation/adapters/ida_ice/`: vorbereitete Adaptergrenzen
+  ohne ungesicherte IDM-Manipulation oder IDA-API.
+- Weitere Zielpakete: `ma_core`, `ma_database`, `ma_project`, `ma_building`,
+  `ma_zones`, `ma_technical`, `ma_parameters`, `ma_simulation_setup`,
+  `ma_economy`, `ma_sustainability`, `ma_assessment`, `ma_reporting`,
+  `ma_data_export`, `ma_validation` und `ma_feedback`.
+- Ziel fuer `src/ma_workflow/`: bestehende Katalog- und Adapterstruktur
+  schrittweise mit echten Fachservice-Aufrufen erweitern.
+- `docs/`: wurde in `project`, `ma_analyse`, `ma_variants`, `ma_weather`,
+  `ma_ui`, `ma_workflow`, `common` und `examples` modularisiert.
 - `config/ma_variants/`: Variantenbezogene Beispielkonfigurationen.
 - `data/ma_analyse/`: aktive Rohdaten, aufbereitete Nutzdaten und regulaere Analyseausgaben der Analysepipeline.
 - `data/ma_variants/`: Variantenbezogene Import-, Export- und IDA-Uebergabedaten.
@@ -54,25 +59,32 @@ technische Vorlage fuer Streamlit.
 - Die neue Dokumentationsstruktur ordnet Plaene und Modul-Dokumente klarer.
 - `CHANGELOG.md` bleibt als zentrale Aenderungshistorie im Root.
 - Produkt- und Materialdatenblaetter werden nicht in PostgreSQL gespeichert, sondern ueber Pfade referenziert.
-- P001 ist nach Pruefung archiviert; P002 liegt als Markdown-Plan in der Plan-Inbox vor.
-- P002 ist mit einem Struktur-Slice teilweise umgesetzt; reale TRY-Dateien bleiben lokal und werden nicht versioniert.
-- P005 liegt als Architektur-, Analyse- und erster UI-/Workflow-Slice teilweise umgesetzt vor und trennt Zielbild, UI, Workflowsteuerung, Fachmodule, `ma_analyse`-Bestand und Service-Fassade.
-- Die P005-Verschaerfung verhindert eine direkte Vermischung von Tkinter,
-  Streamlit, Workflowsteuerung und Fachlogik.
+- P001 bis P006 sind nach Pruefung archiviert; P008 und P009 bilden die
+  offenen Wetter- und Simulationsschnittstellenarbeiten ab.
+- Reale TRY-Dateien bleiben lokal und werden nicht versioniert.
+- Der zentrale Katalog prueft eindeutige Phasen, Module und Workflow-Schritte.
+- Die zentrale UI verwendet Fachansichten fuer nutzbare Module und
+  Informationsseiten fuer geplante Module.
 
 ## Schwachstellen
 
 - `src/ma_analyse/gui/app.py` ist sehr gross und sollte spaeter aufgeteilt werden.
 - `src/ma_analyse/analysis/heating.py` und `src/ma_analyse/analysis/cooling.py` enthalten aehnliche Strukturen und sollten spaeter ueber gemeinsame Runner/Helper weiter vereinheitlicht werden.
 - In `data/test_output/` liegen lokale Arbeits- und Testartefakte verschiedener Pruefungen. Der Ordner ist bewusst nicht als Referenzbereich gedacht.
-- `ma_weather` benoetigt noch reale lokale TRY-Pruefung und fachliche Diagrammabstimmung.
-- Mehrere Zielmodule aus P005 existieren noch nicht als Code. `ma_ui` und `ma_workflow` sind nur minimale Shells. Gleichzeitig liegen Teilverantwortlichkeiten bereits in `ma_variants`, zum Beispiel Parameterkatalog, IDA-Uebergabe, Simulationsergebnisadapter und Wirtschaftlichkeit.
-- Es gibt zwei unterschiedliche UI-Bestaende: Tkinter in `ma_analyse` und Streamlit in `ma_variants`. Streamlit ist nun Zieltechnik; Tkinter bleibt Legacy-Bestand.
-- Der aktuelle `ma_ui`-Code nutzt noch eine einfache `pages/`-Struktur, waehrend
-  die verschaerfte Zielarchitektur langfristig `module_views/` und `shared/`
-  vorsieht.
-- Der aktuelle `ma_workflow`-Code ist noch kein vollstaendiger Workflow-Manager,
-  sondern ein erster Katalog- und Analyse-Adapter.
+- `ma_weather` benoetigt noch reale lokale Pruefungen der verbleibenden fuenf
+  aktiven TRY-Jahresdatensaetze und eine fachliche Diagrammabstimmung.
+- Mehrere Zielmodule enthalten bewusst noch keine Fachlogik. Gleichzeitig
+  liegen Teilverantwortlichkeiten weiterhin in `ma_variants`, zum Beispiel
+  Parameterkatalog, IDA-Uebergabe, Simulationsergebnisadapter und
+  Wirtschaftlichkeit.
+- Es gibt weiterhin mehrere UI-Bestaende: Tkinter in `ma_analyse`, die
+  modulbezogene Streamlit-UI in `ma_variants` und die zentrale Streamlit-UI
+  `ma_ui`. `ma_ui` ist die Zieloberflaeche; Tkinter bleibt Legacy-Bestand.
+- Die Kompatibilitaetswrapper unter `ma_ui/pages/` bestehen parallel zu den
+  aktuellen `module_views/`; eine spaetere Bereinigung braucht einen eigenen
+  Refactoring-Slice.
+- Der aktuelle `ma_workflow`-Code ist noch kein vollstaendiger
+  Workflow-Manager, sondern vor allem Katalog, Statusquelle und Adapter.
 
 ## Risiken
 
@@ -80,29 +92,40 @@ technische Vorlage fuer Streamlit.
 - Die Plan-Inbox enthaelt aktive Plaene. Umgesetzte Plaene muessen konsequent nach `docs/project/archive/plans/` verschoben werden.
 - Eine direkte Verschiebung von `ma_analyse/gui/app.py` in `ma_ui` waere hohes Risiko, weil dort UI, Prozesssteuerung und Analyseoptionen eng gekoppelt sind.
 - Eine direkte Vermischung von Tkinter und Streamlit wuerde die Zielarchitektur unklar machen.
-- Eine zu fruehe Extraktion von `ma_parameters`, `ma_export_ida` oder `ma_assessment` aus `ma_variants` kann funktionierende Tests und Importpfade destabilisieren.
+- Eine zu fruehe Extraktion von `ma_parameters`, `ma_export_simulation` oder
+  `ma_assessment` aus `ma_variants` kann funktionierende Tests und Importpfade
+  destabilisieren.
 - Eine vorschnelle Umbenennung von `ma_ui/pages/` oder `ma_workflow/actions.py`
   kann den bereits getesteten Zwischenstand unnoetig brechen.
 
 ## Empfehlungen
 
-- P002 erst nach gesonderter Bestandspruefung des TRY-Plans vorbereiten.
-- P002 als naechstes ueber TRY-Importer und Validierung weiterfuehren.
+- P008 ueber reale Testlaeufe der verbleibenden TRY-Datensaetze, die
+  fachliche Pruefung der Wetterdiagramme und die `weather_key`-Uebergabe
+  weiterfuehren.
+- P009 fuer Referenzmodellkopie, Run-Manifest, Simulationssetup und
+  Adapter-Mapping verwenden; bestehendes `ma_variants.ida_export`
+  wiederverwenden.
 - `data/test_output/` regelmaessig manuell leeren, aber nicht als Referenzgalerie verwenden.
 - `docs/examples/plot_templates/` als wichtige Referenz fuer aktuelle `ma_analyse`-Plot-Templates behalten.
-- P005 nur in kleinen Slices fortsetzen: nach der ersten `ma_ui`-/`ma_workflow`-Shell entweder Analyse-Seite erweitern oder weitere Moduluebersichten anbinden.
+- Die aus P005 uebernommenen Restarbeiten nur in kleinen P007-Slices
+  fortsetzen: Streamlit-/Tkinter-Analyse mit realen Projektdaten pruefen und
+  erst danach Vorschau-Cache oder weitere Fachservice-Anbindungen planen.
 - Vor jeder UI-Auslagerung zuerst `docs/project/architecture/UI_EXTRACTION_REVIEW.md` pruefen.
 - Vor jeder Streamlit-Umsetzung zuerst `docs/project/architecture/UI_MIGRATION_PLAN.md` pruefen.
-- Vor jeder Umstrukturierung von `ma_ui` zuerst entscheiden, ob der aktuelle
-  Zwischenstand weiter ausgebaut oder auf die Zielstruktur migriert wird.
-- Vor jeder Bewertungserweiterung zuerst klaeren, ob sie noch in
-  `ma_variants.economic_analysis` bleibt oder als erster `ma_assessment`-Slice
-  geplant wird.
+- Vor einer Bereinigung von `ma_ui/pages/` zuerst die bestehenden
+  Kompatibilitaetsimporte und Tests erfassen.
+- Vor jeder Bewertungserweiterung `ma_economy`, `ma_sustainability` und
+  `ma_assessment` getrennt planen; bestehende Logik in
+  `ma_variants.economic_analysis` nicht ungeprueft verschieben.
+- P007 als verbindliche Strukturgrundlage pflegen; neue Fachlogik weiterhin
+  nur ueber freigegebene Teilplaene umsetzen.
 
 ## Offene Fragen
 
-- Welche naechsten Schritte ergeben sich nach Pruefung des P002-TRY-Plans?
-- Soll P005 vor P002 weitergefuehrt werden, oder bleibt P002 der naechste fachliche Umsetzungsschritt?
-- Soll als naechstes die Analyse-Seite fachlich erweitert werden oder zuerst eine weitere Moduluebersicht in `ma_ui` entstehen?
-- Soll die bestehende `ma_ui/pages/`-Shell vorerst bleiben oder als separater
-  Slice in `module_views/` und `shared/` ueberfuehrt werden?
+- Welcher der verbleibenden TRY-Datensaetze wird als naechstes real geprueft?
+- Soll als naechstes die Streamlit-/Tkinter-Analyse mit realen Projektdaten
+  geprueft oder der temporaere Vorschau-Cache geplant werden?
+- Welche fachlichen Felder muss das P009-Run-Manifest mindestens enthalten?
+- Wann koennen die Kompatibilitaetswrapper unter `ma_ui/pages/` ohne
+  Beeintraechtigung bestehender Importe und Tests bereinigt werden?

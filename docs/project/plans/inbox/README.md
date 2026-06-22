@@ -11,3 +11,8 @@ Vorgehen:
 5. Nach Umsetzung den Plan nach `../../archive/plans/` verschieben und `../PLAN_INDEX.md` sowie `../PLAN_STATUS.md` aktualisieren.
 
 Umgesetzte oder alte Plaene liegen unter `../../archive/plans/`.
+
+Aktuelle Besonderheit:
+
+- P007 bleibt als verbindlicher Rahmenplan bewusst in der Inbox.
+- P008 und P009 sind die aktiven fachlichen Teilplaene.

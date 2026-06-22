@@ -1,6 +1,6 @@
 # Plan Status
 
-Stand: 2026-06-18
+Stand: 2026-06-22
 
 Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt und nach jeder Planumsetzung aktualisiert. Vollstaendige alte Planstaende liegen unter `docs/project/archive/plans/`.
 
@@ -28,41 +28,79 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - Nutzerentscheidungen zu den naechsten Strukturpunkten dokumentiert: Tkinter-Vorschau soll ueber einen temporaeren Vorschau-/Cachebereich laufen, freie Overlay-Datenreihen sollen flexibel aus der Datenbasis geladen werden koennen, und Wetterdiagramme bleiben vorerst im Modul `ma_weather`.
 - Nutzerentscheidung dokumentiert: Normierungsfragen wie absolute Werte oder flaechenbezogene Werte `[W/m2]` sollen spaeter nicht nur fuer die Energiebilanz, sondern `ma_analyse`-weit fuer passende Auswertungen geplant werden.
 - Nutzerentscheidung dokumentiert: `ma_economy` und `ma_sustainability` werden als eigene Zielmodule geplant; `ma_assessment` bleibt als Bewertungs-, Scoring- und Berichtsschicht ueber Analyse, Economy und Sustainability bestehen.
-- Nutzerentscheidung dokumentiert: `ma_economy`, `ma_sustainability` und `ma_assessment` gehoeren in der Zielarchitektur zum Post-Process; `ma_feedback` bleibt eigener Feedback-Block.
+- Historische P005-Entscheidung dokumentiert: `ma_economy`,
+  `ma_sustainability` und `ma_assessment` wurden dem damaligen Post-Process
+  zugeordnet. P007 ersetzt diese aktive Gliederung durch Phase 5 und einen
+  phasenuebergreifenden Feedback-Bereich.
 - Leitfaden-Versionierung eingefuehrt: alte Leitfadenfassungen liegen unter
   `docs/project/archive/leitfaeden/`; Version 0.3.7 wurde vor der
   Strukturueberarbeitung unveraendert archiviert. Die aktive Fassung ist
-  `MASTERARBEIT_LEITFADEN.md` Version 0.4.2 mit acht festen Hauptbereichen.
+  `MASTERARBEIT_LEITFADEN.md` Version 0.5.0 mit acht festen Hauptbereichen.
 - Methodische Untersuchungsdimension aufgenommen: manuellen, softwareunterstuetzten und automatisierten Prozessaufwand nach aktiver Arbeitszeit, Maschinenlaufzeit, Fehlerkorrektur und Wissensstand vergleichen; konkrete Messmethode bleibt offen.
 - Vollstaendigen Modulkatalog in den Leitfaden aufgenommen: Zweck, Eingaben, Ausgaben, Abgrenzung und Status sind fuer bestehende und geplante Module dokumentiert.
-- Miro-Workflow-Diagramm v0.1.1 als aktuellen Ist-Entwurf analysiert; die
+- Miro-Workflow-Diagramm v0.1.1 als historischen Ist-Entwurf analysiert; die
   korrigierte Zuordnung von `ma_economy`, `ma_sustainability` und
   `ma_assessment` ist im Aenderungsreview dokumentiert. Original-JPG und
   Review liegen versioniert unter `docs/project/architecture/workflow/`.
 - Ersetzte Workflow-Fassung v0.1.0 mit Grafik und Review nach
-  `docs/project/archive/workflow/` verschoben; v0.1.1 bleibt die aktive
-  Architekturreferenz.
+  `docs/project/archive/workflow/` verschoben; v0.1.1 bleibt als
+  Diagrammreferenz erhalten, wird strukturell aber durch P007 uebersteuert.
 - Routine `aktualisieren` um einen belegbaren Modulstatusabgleich erweitert;
   Streamlit-Navigation, Workflow-Karten, Kennzahlen und Detailtabellen leiten
-  ihre Statuswerte zentral aus `src/ma_workflow/actions.py` ab.
-- Aktuellen Modulstand abgeglichen: `ma_parameters`, `ma_export_ida`,
-  `ma_import_ida` und `ma_economy` sind teilweise vorhanden;
-  `ma_variants` und `ma_analyse` sind fuer ihren aktuellen Umfang verfuegbar;
-  `ma_building`, `ma_simulation_setup`, `ma_sustainability`,
-  `ma_assessment` und `ma_feedback` bleiben geplant.
+  ihre Statuswerte zentral aus `src/ma_workflow/catalog.py` ab;
+  `actions.py` bleibt Kompatibilitaetszugriff.
+- Aktuellen Modulstand abgeglichen:
+  - verfuegbar: `ma_analyse`, `ma_variants` und Projektdokumentation;
+  - teilweise: `ma_core`, `ma_database`, `ma_ui`, `ma_workflow`,
+    `ma_weather`, `ma_parameters`, `ma_export_simulation`,
+    `ma_import_simulation`, `ma_economy`, `ma_reporting`,
+    `ma_data_export` und `ma_validation`;
+  - geplant: `ma_project`, `ma_building`, `ma_zones`, `ma_technical`,
+    `ma_analyse.stage_1_dimensioning`, `ma_simulation_setup`,
+    `ma_sustainability`, `ma_assessment` und `ma_feedback`;
+  - manuell: IDA ICE.
 - P005 Phase 1/2 dokumentiert: `ma_analyse`-Bestandsanalyse und Service-Schnittstellenentwurf liegen unter `docs/project/architecture/`.
+- P002, P005 und P006 wurden unveraendert archiviert. P007 ist die
+  verbindliche strukturelle Grundlage; P008 und P009 fuehren fachliche
+  Restarbeiten weiter.
+- Phase 0 und die sechs P007-Hauptphasen sind im zentralen Workflow-Katalog
+  abgebildet. `ma_validation` und `ma_feedback` werden phasenuebergreifend
+  gefuehrt.
+- Fehlende Zielmodule sind als leichte importierbare Pakete und dokumentierte
+  Infoseiten vorbereitet. Paketexistenz aendert den fachlichen Status nicht.
+- Alle 25 katalogisierten Komponenten besitzen einen dokumentierten
+  Modulsteckbrief; jede Dashboard-Karte oeffnet eine Fachansicht, eine
+  Infoseite oder einen klar gekennzeichneten externen Schritt.
 
-### Entwurf
+### Aktiver Rahmenplan
 
-- P006 `ma_export_ida`: Vollstaendiger Entwurfsplan liegt unter
-  `docs/project/plans/inbox/260618_Plan_ma_export_ida_IDM_Exportentwurf.md`.
-- Vor Umsetzung muessen `ma_variants.ida_export`, zentrale Pfade,
-  Variantenmodelle, bestehende Tests sowie lokale IDA-ICE-/IDM-/API-Hinweise
-  geprueft werden.
-- Erste Zielstufe: Referenzmodell kopieren, Exportordner pro Variante erzeugen,
-  Parameter und Metadaten dokumentieren sowie Exportindex schreiben.
-- Direkte IDM-Bearbeitung, Skriptbefehle und API-Aufrufe bleiben bis zur
-  technischen Verifikation offen.
+- P007 ist als verbindlicher Rahmenplan fuer die weitere VS-Code-Umsetzung
+  aufgenommen. Die beschriebene Modulstruktur wurde nach Bestandsanalyse als
+  leichtes Geruest umgesetzt; Fachstatus und bestehende Logik bleiben davon
+  unberuehrt.
+- Vor jeder Umsetzung aus P007 gilt die feste Reihenfolge Analyse, Planung,
+  Freigabe, Umsetzung, Test und Dokumentation.
+- Die P007-Bestandsanalyse und Strukturkonsolidierung sind abgeschlossen.
+  Weitere Fachlogik, Migrationen oder Verschiebungen brauchen weiterhin
+  getrennte Teilplaene und Freigaben.
+- `ma_export_simulation` und `ma_import_simulation` sind die kanonischen
+  allgemeinen Schnittstellenmodule. IDA ICE wird ueber Adapter angebunden;
+  historische IDA-spezifische Schluessel bleiben nur als Uebergangsaliase.
+- Phase 0 und die sechs P007-Hauptphasen ersetzen die bisherige aktive
+  Vierer-Gliederung im Workflow und Dashboard.
+- Paketexistenz allein aendert keinen Modulstatus von `planned` oder `partial`
+  auf `available`.
+
+### Aktive Teilplaene
+
+- P008 schliesst `ma_weather` mit fuenf realen TRY-Testlaeufen,
+  Diagrammpruefung und dokumentierter `weather_key`-Schnittstelle zu
+  `ma_parameters` ab.
+- P009 plant die allgemeinen Schnittstellen `ma_export_simulation` und
+  `ma_import_simulation` mit IDA-ICE-Adaptern. Der vorhandene Basisexport in
+  `ma_variants.ida_export` wird wiederverwendet, nicht dupliziert.
+- Direkte IDM-Manipulation, erfundene IDA-Befehle und automatischer
+  Simulationsstart bleiben bis zur lokalen Verifikation ausgeschlossen.
 
 ### Teilweise umgesetzt
 
@@ -172,32 +210,34 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - P005 grafisches Workflow-Dashboard umgesetzt: Die `ma_ui`-Startseite zeigt
   Phasen, Workflow-Karten, Statusfarben, Iterationspfade und Buttons zu
   vorhandenen Modulansichten; Detailtabellen bleiben im Expander erreichbar.
-- P005 Platzhalter-Views erweitert: Parameter, Gebaeude, Simulation-Setup,
-  IDA-Export, IDA-Import und Feedback zeigen ihren Workflow-Kontext aus
-  `ma_workflow`, ohne eigene Fachlogik zu implementieren.
-- P005 Platzhalter-Views weiter konkretisiert: Parameter, Gebaeude,
-  Simulation-Setup, IDA-Export, IDA-Import und Feedback zeigen vorhandene
-  Projektressourcen, relevante Pfade und Dateizaehlungen ueber eine
-  UI-neutrale `ma_ui.resource_status`-Schicht.
+- Historischer P005-Slice: Die damaligen Platzhalter-Views zeigten
+  Workflow-Kontext und vorhandene Projektressourcen. P007 ersetzt sie aktiv
+  durch kataloggesteuerte Modul-Infoseiten; historische IDA-Views bleiben
+  Kompatibilitaetswrapper auf die allgemeinen Schnittstellen.
 
 ### Offen
 
-- P002 liegt mit vollstaendigem Planinhalt als Markdown-Datei in `docs/project/plans/inbox/`.
-- P005 naechster Schritt: Analyse-View in laufender Streamlit-App manuell gegen
+- P008 liegt als aktiver Abschlussplan fuer das Wettermodul in der Plan-Inbox.
+- Aus P005 nach P007 uebernommen: Analyse-View in laufender Streamlit-App manuell gegen
   reale `ida_imports`-/Datenbankordner pruefen.
-- P005 offener Analyse-View-Punkt: Schrittweisen Analyse-Wizard in der laufenden
+- Aus P005 nach P007 uebernommen: Schrittweisen Analyse-Wizard in der laufenden
   Streamlit-App fachlich gegen den bisherigen Tkinter-Ablauf pruefen,
   insbesondere Comfort, Heating/Cooling, Plot-Template-Overlays,
   Diagrammbearbeitung und Vorschau.
-- P005 offener Tkinter-Punkt: Comfort-Unterbefehl und Comfort-Diagrammauswahl
+- Aus P005 nach P007 uebernommen: Comfort-Unterbefehl und
+  Comfort-Diagrammauswahl in Tkinter
   noch vollstaendig an die Streamlit-Struktur angleichen.
-- P005 offener Tkinter-Punkt: Eingebettetes Bild-Vorschaufenster fuer den
+- Aus P005 nach P007 uebernommen: Eingebettetes Bild-Vorschaufenster fuer den
   Vorschau-Button ergaenzen. Die Vorschau soll einen temporaeren
   Vorschau-/Cachebereich nutzen, damit der regulaere Output-Ordner nicht mit
   fehlerhaften Testdiagrammen gefuellt wird.
-- P005 spaeterer Schritt: Tkinter-GUI erst nach separater Freigabe nach `ma_ui_legacy` auslagern.
-- P005 spaeterer Schritt: `ma_workflow`-Aktionsdateien mit echten Fachservice-Aufrufen erweitern.
-- P005 spaeterer Schritt: `ma_economy`, `ma_sustainability` und `ma_assessment` getrennt planen, bevor Wirtschaftlichkeitslogik aus `ma_variants` verschoben oder erweitert wird.
+- P007 spaeterer Schritt: Tkinter-GUI erst nach separater Freigabe nach
+  `ma_ui_legacy` auslagern.
+- P007 spaeterer Schritt: `ma_workflow` schrittweise mit echten
+  Fachservice-Aufrufen erweitern.
+- P007 spaeterer Schritt: `ma_economy`, `ma_sustainability` und
+  `ma_assessment` getrennt planen, bevor Wirtschaftlichkeitslogik aus
+  `ma_variants` verschoben oder erweitert wird.
 - Neue externe Plaene nach manueller Ablage in `docs/project/plans/inbox/` pruefen und in `PLAN_INDEX.md` sowie in diese Statusdatei uebernehmen.
 - Nach groesseren Aenderungen pruefen, ob alte Planstaende nach `docs/project/archive/plans/` ausgelagert werden sollen.
 
@@ -279,7 +319,8 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - Offener Strukturpunkt: Wetterdiagramme bleiben vorerst im Modul `ma_weather`;
   spaeter klaeren, ob zusaetzlich ein eigener UI-Hauptbefehl
   `plot-template-weather` eingefuehrt wird.
-- P002 erst archivieren, wenn die vorgesehenen realen TRY-Datensaetze lokal erfolgreich verarbeitet wurden.
+- P008 erst archivieren, wenn die vorgesehenen realen TRY-Datensaetze lokal
+  erfolgreich verarbeitet und die P007-Schnittstelle dokumentiert wurden.
 
 ## Offene Nutzerentscheidungen
 
@@ -288,6 +329,9 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   wird oder Wetterdiagramme dauerhaft nur im Modulbereich `ma_weather` bleiben.
 - Klaeren, welche `ma_analyse`-Auswertungen absolute Werte, flaechenbezogene
   Werte oder beides anbieten sollen und welche Bezugsflaeche verwendet wird.
+- Wissensprofile, Stundensaetze, Prozessgrenzen und Messmethoden fuer den
+  Vergleich von manuellem, softwareunterstuetztem und automatisiertem Aufwand
+  festlegen.
 
 ## Archiv
 
@@ -295,3 +339,6 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - `docs/project/archive/plans/250603_Plan_Variantenmodul_GUI_Logikpruefung.md`: abgeschlossener P001-Plan.
 - `docs/project/archive/plans/250604_Plan_Projektstruktur_Review_Planungsbereich_Nutzerentscheidungen.md`: umgesetzter Strukturplan P003.
 - `docs/project/archive/plans/PLAN_Projektplan_Version_1_0_0.md`: abgelegter Projektplan Version 1.0.0.
+- `docs/project/archive/plans/250603_Plan_Wetterdatenanalyse_TRY_Integration.md`: teilweise umgesetzter P002-Ursprungsplan; Restarbeiten stehen in P008.
+- `docs/project/archive/plans/250608_Plan_Gesamtmodulstruktur_PreProcess_PostProcess_Dashboard.md.txt`: teilweise umgesetzter P005-Strukturplan; gueltige Inhalte sind in P007 konsolidiert.
+- `docs/project/archive/plans/260618_Plan_ma_export_ida_IDM_Exportentwurf.md`: historischer P006-Entwurf; verbleibende Schnittstellenarbeit steht in P009.

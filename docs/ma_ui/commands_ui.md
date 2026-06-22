@@ -25,8 +25,10 @@ Alternative:
 
 ## Referenz und Hinweise
 
-- `ma_ui` ist aktuell eine minimale Shell mit Zielstruktur fuer
-  `module_views/` und `shared/`.
+- `ma_ui` besitzt eine nutzbare Streamlit-Oberflaeche mit Workflow-Dashboard,
+  Kopfzeilen-Navigation, vorbereiteten Modulansichten und einem umfangreichen
+  Analyse-Wizard. Geplante Fachmodule bleiben als klar gekennzeichnete,
+  klickbare Modul-Infoseiten sichtbar.
 - Die technische Streamlit-Multipage-Navigation ist ueber
   `.streamlit/config.toml` ausgeblendet. Sichtbar bleiben soll nur die
   fachliche Projektnavigation.
@@ -35,13 +37,15 @@ Alternative:
 - Die Codex-Routine `tagesstart` startet diese Oberflaeche nicht automatisch.
   Zum Oeffnen den oben genannten venv-basierten Streamlit-Befehl nutzen.
 - Die Startseite zeigt ein grafisches Workflow-Dashboard mit Phasen,
-  Statuskarten, Iterationspfaden und Buttons zu den vorhandenen Modulansichten.
+  Statuskarten, Iterationspfaden und Buttons zu allen katalogisierten
+  Modulansichten. Dargestellt werden Phase 0 bis Phase 6 sowie ein eigener
+  phasenuebergreifender Bereich.
 - Der grafische Workflow soll nur auf der Startseite sichtbar sein.
 - Technische Workflow-Tabellen bleiben auf der Startseite unter
   `Technische Detailtabellen` eingeklappt und werden nicht in jeder
   Modulansicht angezeigt.
-- Geplante Modulbereiche ohne eigene Fachlogik zeigen nur Titel, Untertitel
-  und eine blaue Hinweisbox.
+- Geplante Modulbereiche ohne eigene Fachlogik zeigen eine neutrale Infoseite
+  mit Modulrolle, Grenzen, Status und naechstem Schritt.
 - Fachlogik wird nicht in der UI berechnet.
 - Analyseaufrufe laufen ueber `ma_workflow` und die Service-Fassade von
   `ma_analyse`.

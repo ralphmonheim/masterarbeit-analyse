@@ -23,6 +23,8 @@ python -m pip install -e ".[dev]"
 | `docs/ma_analyse/` | Befehle, Architektur und Plot-Template-Beispiele der Analysepipeline |
 | `docs/ma_variants/` | Workflow, Datenmodell und Wirtschaftlichkeitsmodell des Variantenkerns |
 | `docs/ma_weather/` | Wetterdatenanalyse und TRY-Integration |
+| `docs/ma_ui/` | Bedienung und Startwege der zentralen Streamlit-Oberflaeche |
+| `docs/ma_workflow/` | Workflow-Katalog, Statuswerte und interne Pruefbefehle |
 | `src/ma_analyse/app/` | CLI und Befehlssteuerung |
 | `src/ma_analyse/core/` | zentrale Konfiguration und Logging |
 | `src/ma_analyse/preprocessing/` | Datenvorbereitung aus Rohdaten |
@@ -30,7 +32,14 @@ python -m pip install -e ".[dev]"
 | `src/ma_analyse/settings/` | Naming- und Formatlogik plus zugehoerige Markdown-Dateien |
 | `src/ma_analyse/gui/` | grafische Oberflaeche |
 | `src/ma_variants/` | modularer Varianten-, Export-, Katalog- und Bewertungskern |
-| `src/ma_weather/` | vorbereiteter Wetterkatalog und spaeteres TRY-Modul |
+| `src/ma_weather/` | Wetterkatalog und lokale TRY-Analysepipeline |
+| `src/ma_ui/` | zentrale Streamlit-Oberflaeche mit Dashboard und Modulansichten |
+| `src/ma_workflow/` | zentraler Workflow- und Statuskatalog mit Adaptern |
+| `src/ma_core/`, `src/ma_database/`, `src/ma_project/` | leichte Zielpakete fuer Plattform und Projektinitialisierung |
+| `src/ma_building/`, `src/ma_zones/`, `src/ma_technical/`, `src/ma_parameters/` | leichte Zielpakete fuer Eingangsdaten |
+| `src/ma_simulation_setup/`, `src/ma_export_simulation/`, `src/ma_import_simulation/` | leichte Zielpakete fuer Runs und Simulationsschnittstellen |
+| `src/ma_economy/`, `src/ma_sustainability/`, `src/ma_assessment/` | leichte Zielpakete fuer Bewertung |
+| `src/ma_reporting/`, `src/ma_data_export/`, `src/ma_validation/`, `src/ma_feedback/` | leichte Zielpakete fuer Ergebnisse und Querschnittsfunktionen |
 | `tests/` | automatisierte Code-Tests |
 | `logs/` | automatisch erzeugte Laufprotokolle der Analysebefehle |
 
@@ -60,6 +69,7 @@ Lokale Daten- und Ausgabeordner unter `data/` sind in `.gitignore` ausgeschlosse
 
 ## Projektsteuerung
 
+- Verbindlicher Rahmenplan: `docs/project/plans/inbox/Masterarbeit_VSCode_Projektplan_2026-06-21.md`
 - Aktiver Planstatus: `docs/project/plans/PLAN_STATUS.md`
 - Planindex und Plan-Inbox: `docs/project/plans/`
 - Technische Entscheidungen: `docs/project/decisions/TECHNICAL_DECISIONS.md`

@@ -16,12 +16,15 @@ Er ist Planungs- und Entscheidungsgrundlage, keine Fachlogik.
 
 - Bestehende Module werden nicht automatisch umbenannt, verschoben oder aufgeteilt.
 - Fachlogik bleibt in den Fachmodulen.
-- `ma_ui` enthaelt aktuell eine minimale Streamlit-Shell; Ziel sind Dashboard,
-  Workflow-Views, `shared/`-Komponenten und `module_views/`.
+- `ma_ui` enthaelt aktuell ein Workflow-Dashboard, Kopfzeilen-Navigation,
+  vorbereitete `shared/`-Komponenten und `module_views/` sowie angebundene
+  Ansichten fuer Analyse, Varianten, Wetter und vorhandene
+  Wirtschaftlichkeitsannahmen.
 - Tkinter-Bestand bleibt zunaechst Legacy und wird nicht direkt mit Streamlit vermischt.
 - Die bestehende Tkinter-GUI dient als fachliche Ablaufvorlage, nicht als
   technische Streamlit-Vorlage.
-- `ma_workflow` enthaelt einen ersten neutralen Workflow-Katalog und
-  Prozessadapter zwischen UI und Fachmodulen; Ziel sind Dashboard-Aktionen,
-  Pre-/Post-Process-Runner und Feedback-Routing.
+- `ma_workflow` enthaelt den zentralen Phasen-, Modul-, Workflow- und
+  Statuskatalog, Dashboard-Aktionen, Kompatibilitaetslisten,
+  Feedback-Routing und den Analyse-Adapter. Echte Fachservice-Orchestrierung
+  bleibt ein spaeterer Ausbau.
 - Eine Auslagerung aus `ma_analyse/gui/` braucht einen eigenen freigegebenen Refactoring-Plan.

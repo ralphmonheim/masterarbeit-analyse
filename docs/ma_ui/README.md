@@ -3,6 +3,40 @@
 `ma_ui` ist die vorbereitete zentrale lokale Streamlit-Oberflaeche fuer das
 Masterarbeitsprojekt.
 
+## Zweck
+
+Den Gesamtworkflow, Fachansichten und Modulinformationen in einer zentralen
+lokalen Streamlit-Oberflaeche zugaenglich machen.
+
+## Eingaben
+
+- zentrale Phasen-, Modul- und Statusmetadaten aus `ma_workflow`
+- UI-neutrale Ergebnisse und Services der Fachmodule
+
+## Ausgaben
+
+- Dashboard, Navigation, Fachansichten und Modul-Infoseiten
+
+## Abgrenzung
+
+- keine fachliche Berechnungslogik
+- keine direkte Vermischung von Streamlit und Tkinter
+
+## Abhaengigkeiten
+
+- `ma_workflow`
+- angebundene Fachservices
+
+## Status
+
+Teilweise aktiv. Dashboard, Navigation und mehrere Fachansichten sind
+vorhanden; weitere Service-Anbindungen folgen schrittweise.
+
+## Naechster Schritt
+
+Analyse-UI real testen, Vorschau-Cache planen und weitere echte
+Workflow-Service-Aufrufe getrennt anbinden.
+
 ## Rolle
 
 - `ma_ui` zeigt Navigation, Workflow-Uebersicht und spaeter Modulansichten.
@@ -20,8 +54,8 @@ Masterarbeitsprojekt.
 - Die automatische Streamlit-Multipage-Navigation ist in
   `.streamlit/config.toml` ausgeblendet, damit nur die fachliche
   Projektnavigation unter `Bereich` sichtbar ist.
-- Startseite mit grafischem Workflow-Dashboard, Statuskennzahlen,
-  Phasenkarten, Navigationsbuttons, Iterationspfaden und optionalen
+- Startseite mit grafischem Workflow-Dashboard fuer Phase 0 bis Phase 6,
+  Statuskennzahlen, Phasenkarten, Navigationsbuttons, Iterationspfaden und optionalen
   technischen Detailtabellen ist vorbereitet.
 - Workflow-Karten, Statuskennzahlen, Navigation und Detailtabellen verwenden
   die zentral gepflegten Modulumsetzungsstaende aus `ma_workflow`.
@@ -75,10 +109,11 @@ Masterarbeitsprojekt.
 - Bewertungsseite zeigt generische Systemkosten, Energiepreise und Szenarien aus
   den vorhandenen Beispielannahmen. Variantenbezogene Kostenberechnung wird dort
   noch nicht gestartet.
-- Geplante Zielseiten fuer Parameter, Gebaeude, Simulation-Setup, IDA-Export,
-  IDA-Import und Feedback sind als Platzhalter erreichbar. Solange dort keine
-  eigene Fach- oder Kataloglogik umgesetzt ist, zeigen sie nur Titel, Untertitel
-  und eine blaue Hinweisbox.
+- Jedes katalogisierte Modul ist klickbar. Module ohne eigene Fachansicht
+  zeigen eine generische Infoseite mit Zweck, Ein- und Ausgaben, Abgrenzung,
+  Abhaengigkeiten, Status und naechstem Schritt.
+- `ma_validation` und `ma_feedback` werden in einem eigenen
+  phasenuebergreifenden Dashboard-Bereich angezeigt.
 - Allgemeine Workflow- und Dashboard-Tabellen werden nicht in jeder
   Modulansicht angezeigt. Sie bleiben nur als eingeklappte technische
   Detailtabellen auf der Startseite erreichbar.

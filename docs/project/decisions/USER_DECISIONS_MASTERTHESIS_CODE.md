@@ -1,6 +1,6 @@
 # Nutzerentscheidungen Masterarbeit Code
 
-Stand: 2026-06-18
+Stand: 2026-06-22
 
 ## UD-001 Modulare Projektstruktur
 
@@ -202,7 +202,8 @@ Stand: 2026-06-18
 - Begruendung: Simulationsrandbedingungen, IDA-Uebergabe, Ergebnisimport, Bewertung und Rueckkopplung haben unterschiedliche Verantwortlichkeiten.
 - Auswirkung: Bestehende Logik in `ma_variants.ida_export`, `ma_variants.simulation_results` und `ma_variants.economic_analysis` bleibt vorerst bestehen und wird nur als spaetere Extraktionsquelle dokumentiert.
 - Betroffene Module oder Dateien: `src/ma_variants/ida_export.py`, `src/ma_variants/simulation_results.py`, `src/ma_variants/economic_analysis/`, spaeter neue Zielmodule
-- Status: getroffen
+- Status: historisch, durch UD-043 auf allgemeine Simulationsschnittstellen
+  praezisiert
 - Offene Folgefragen: Nach P005-UI-Migrationsplan zuerst `ma_analyse`-Bestandsanalyse und Schnittstellenentwurf pruefen.
 - Quelle oder Chatbezug: P005 Gesamtmodulstruktur, praezisiert durch UD-036
 
@@ -250,7 +251,7 @@ Stand: 2026-06-18
 - Begruendung: Varianten legen fest, was simuliert wird. Das Simulation-Setup legt fest, wie simuliert wird, zum Beispiel Zeitraum, Zeitschritt, Szenario und Run-Metadaten.
 - Auswirkung: `ma_export_ida` soll spaeter nicht selbst Variantenlogik oder Simulationsrandbedingungen definieren, sondern eine bereits konfigurierte Simulationsuebergabe vorbereiten.
 - Betroffene Module oder Dateien: spaeter `src/ma_simulation_setup/`, `src/ma_export_ida/`, `src/ma_variants/`
-- Status: getroffen
+- Status: historisch, durch UD-043 auf `ma_export_simulation` praezisiert
 - Offene Folgefragen: Welche Simulationsrandbedingungen werden im ersten Slice von `ma_simulation_setup` benoetigt?
 - Quelle oder Chatbezug: P005 verschaerfte Modulstruktur
 
@@ -442,7 +443,8 @@ Stand: 2026-06-18
 - Begruendung: Economy, Sustainability und Assessment bauen auf importierten, aufbereiteten und analysierten Simulationsdaten auf. Feedback hat eine andere Aufgabe: Auffaelligkeiten, Rueckspruenge und Folgearbeiten in Pre-Process-Module dokumentieren.
 - Auswirkung: Der Zielworkflow lautet: Pre-Process, Simulation, Post-Process mit `ma_import_ida`, `ma_analyse`, `ma_economy`, `ma_sustainability`, `ma_assessment`, danach Feedback mit `ma_feedback`.
 - Betroffene Module oder Dateien: `docs/project/MASTERARBEIT_LEITFADEN.md`, `docs/project/architecture/TARGET_ARCHITECTURE.md`, spaeter `src/ma_workflow/`
-- Status: getroffen
+- Status: historisch, durch UD-042, UD-046 und UD-047 auf Phase 5 sowie
+  phasenuebergreifendes Feedback praezisiert
 - Offene Folgefragen: keine
 - Quelle oder Chatbezug: aktueller Codex-Chat zur Zielarchitektur
 
@@ -482,3 +484,99 @@ Stand: 2026-06-18
 - Status: umgesetzt
 - Offene Folgefragen: Weitere Diagrammoptionen wie Farben, Linienstile, Legendenposition und Beschriftungen spaeter auf Basis gemeinsamer Renderer planen.
 - Quelle oder Chatbezug: aktueller Codex-Chat zur Plot-Template-Bedienung
+
+## UD-041 P007 ist verbindlicher Rahmenplan fuer die VS-Code-Umsetzung
+
+- Datum: 2026-06-21
+- Thema: Gesamtprojektplanung und Umsetzungsreihenfolge
+- Entscheidung: Der Projektplan P007 ist die verbindliche Planungsgrundlage fuer die weitere Entwicklung. Seine Modulstruktur ist eine fachliche Zielstruktur und darf nicht ungeprueft als parallele neue Ordnerstruktur angelegt werden. Fuer groessere Aenderungen gilt die Reihenfolge Analyse, Planung, Freigabe, Umsetzung, Test und Dokumentation.
+- Begruendung: Die vorhandene Projektstruktur und bereits umgesetzte Logik sollen erhalten und kontrolliert in das erweiterte Zielbild eingeordnet werden.
+- Auswirkung: Der erste P007-Schritt ist Arbeitspaket 1 Bestandsanalyse. Neue Zielmodule, Verschiebungen oder Umbenennungen benoetigen danach einen konkreten Plan und eine separate Freigabe.
+- Betroffene Module oder Dateien: `docs/project/plans/inbox/Masterarbeit_VSCode_Projektplan_2026-06-21.md`, `docs/project/plans/PLAN_INDEX.md`, `docs/project/plans/PLAN_STATUS.md`, spaeter gesamtes Projekt
+- Status: getroffen
+- Offene Folgefragen: keine; Modulnamen und Phasenmodell sind durch UD-042 und UD-043 geklaert.
+- Quelle oder Chatbezug: Nutzerauftrag `plan aufnehmen` und anschliessende Freigabe am 2026-06-21
+
+## UD-042 Phase 0 und sechs fachliche Hauptphasen
+
+- Datum: 2026-06-21
+- Thema: Gesamtworkflow und Dashboard
+- Entscheidung: Die aktive Workflow-Struktur besteht aus Phase 0 als technischer Plattform sowie den sechs fachlichen P007-Hauptphasen. Diese Struktur ersetzt die bisherige aktive Gliederung in Pre-Process, Simulation, Post-Process und Feedback.
+- Begruendung: Technische Infrastruktur und fachlicher Arbeitsablauf werden klar getrennt, waehrend die fachlichen Phasen direkt dem Masterarbeitsprozess entsprechen.
+- Auswirkung: `ma_workflow`, Dashboard, Navigation, Leitfaden und Zielarchitektur verwenden Phase 0 bis Phase 6.
+- Betroffene Module oder Dateien: `src/ma_workflow/`, `src/ma_ui/`, P007, Leitfaden und Zielarchitektur
+- Status: getroffen
+- Offene Folgefragen: keine
+- Quelle oder Chatbezug: gemeinsamer P007-Abgleich am 2026-06-21
+
+## UD-043 Allgemeine Simulationsschnittstellen mit IDA-ICE-Adaptern
+
+- Datum: 2026-06-21
+- Thema: Export- und Importarchitektur
+- Entscheidung: Die kanonischen Zielmodule heissen `ma_export_simulation` und `ma_import_simulation`. IDA ICE wird jeweils ueber `adapters/ida_ice` angebunden. Historische IDA-spezifische Schluessel bleiben nur als dokumentierte Uebergangsaliase bestehen.
+- Begruendung: Die Kernarchitektur bleibt simulationsprogrammunabhaengig, ohne die Masterarbeit um eine echte Mehrprogrammunterstuetzung zu erweitern.
+- Auswirkung: P006 wird archiviert; P009 fuehrt die verbleibende IDA-Adapterarbeit weiter und verwendet den bestehenden Basisexport wieder.
+- Betroffene Module oder Dateien: `src/ma_export_simulation/`, `src/ma_import_simulation/`, `src/ma_workflow/`, P009
+- Status: getroffen
+- Offene Folgefragen: konkrete verifizierte IDA-Dateiformate, Mappings und Schnittstellen
+- Quelle oder Chatbezug: gemeinsamer P007-Abgleich am 2026-06-21
+
+## UD-044 Getrennte Eingabemodule und zentrale Parameterquelle
+
+- Datum: 2026-06-21
+- Thema: Eingangsdaten und Modulgrenzen
+- Entscheidung: `ma_building`, `ma_zones` und `ma_technical` bleiben getrennte Fachmodule. Zusammen mit `ma_weather` liefern sie ihre validierten Daten an `ma_parameters`. `ma_variants` bezieht fachliche Eingaben ausschliesslich aus `ma_parameters`.
+- Begruendung: Geometrie, Nutzung, technische Systeme und Variantenerzeugung besitzen unterschiedliche Datenlogiken und Verantwortlichkeiten.
+- Auswirkung: Direkte langfristige Abhaengigkeiten von `ma_variants` zu den Eingabefachmodulen werden ausgeschlossen.
+- Betroffene Module oder Dateien: spaeter `ma_building`, `ma_zones`, `ma_technical`, `ma_weather`, `ma_parameters`, `ma_variants`
+- Status: getroffen
+- Offene Folgefragen: konkrete Datenmodelle und Uebergabeformate
+- Quelle oder Chatbezug: gemeinsamer P007-Abgleich am 2026-06-21
+
+## UD-045 Leichte Zielpakete und klickbare Modul-Infoseiten
+
+- Datum: 2026-06-21
+- Thema: Sichtbarkeit der Gesamtstruktur
+- Entscheidung: Alle bestaetigten Zielmodule werden frueh als leichte importierbare Pakete angelegt. Der zentrale Katalog beschreibt Zweck, Ein- und Ausgaben, Abgrenzung, Abhaengigkeiten, Status und naechsten Schritt. Noch nicht umgesetzte Module erhalten klickbare Infoseiten ohne funktionslose Bedienfelder.
+- Begruendung: Die Gesamtstruktur soll in Code, Dokumentation und Dashboard vollstaendig nachvollziehbar sein, ohne einen fachlichen Reifegrad vorzutaeuschen.
+- Auswirkung: Paketexistenz allein aendert keinen Modulstatus. Services, Modelle und Konfigurationen entstehen erst mit konkreten Fachslices.
+- Betroffene Module oder Dateien: `src/`, `docs/`, `src/ma_workflow/`, `src/ma_ui/`
+- Status: getroffen
+- Offene Folgefragen: keine
+- Quelle oder Chatbezug: gemeinsamer P007-Abgleich am 2026-06-21
+
+## UD-046 Validation und Feedback sind phasenuebergreifend
+
+- Datum: 2026-06-21
+- Thema: Validierung, Freigabe und Iteration
+- Entscheidung: Fachmodule pruefen ihre Inhalte lokal. `ma_validation` sammelt Pruefergebnisse und verwaltet moduluebergreifende Freigaben. `ma_feedback` klassifiziert Auffaelligkeiten und steuert Rueckspruenge aus allen Phasen.
+- Begruendung: Pruefungen und Iterationen treten mehrfach auf und sind keine einmaligen sequenziellen Endschritte.
+- Auswirkung: Dashboard und Workflow zeigen beide Module in einem eigenen phasenuebergreifenden Bereich.
+- Betroffene Module oder Dateien: `ma_validation`, `ma_feedback`, `ma_workflow`, `ma_ui`
+- Status: getroffen
+- Offene Folgefragen: konkrete Freigabestufen und Ruecksprungregeln
+- Quelle oder Chatbezug: gemeinsamer P007-Abgleich am 2026-06-21
+
+## UD-047 Assessment, Reporting, Datenexport und Dokumentation bleiben getrennt
+
+- Datum: 2026-06-21
+- Thema: Ergebnisverarbeitung und Dokumentation
+- Entscheidung: `ma_assessment` bewertet und aggregiert Ergebnisse, `ma_reporting` erzeugt menschlich lesbare Berichte und Factsheets, `ma_data_export` paketiert maschinenlesbare Daten. Die Projektdokumentation bleibt unter `docs` und wird nicht als leeres Python-Paket angelegt.
+- Begruendung: Bewertung, Darstellung, Datenaustausch und Projektsteuerung haben unterschiedliche Verantwortlichkeiten.
+- Auswirkung: Phase 6 fuehrt Reporting, Datenexport und Dokumentations-/Archivierungsaktivitaeten getrennt.
+- Betroffene Module oder Dateien: `ma_assessment`, `ma_reporting`, `ma_data_export`, `docs/`
+- Status: getroffen
+- Offene Folgefragen: konkrete Berichtsvorlagen und Exportformate
+- Quelle oder Chatbezug: gemeinsamer P007-Abgleich am 2026-06-21
+
+## UD-048 Alte Plaene unveraendert archivieren und ueber Teilplaene fortfuehren
+
+- Datum: 2026-06-21
+- Thema: Planhistorie
+- Entscheidung: P002, P005 und P006 werden unveraendert archiviert. P007 uebernimmt die verbindliche Struktur. P008 fuehrt Wetter-Restarbeiten weiter; P009 fuehrt die allgemeinen Simulationsschnittstellen und IDA-Adapter weiter.
+- Begruendung: Historische Entscheidungen bleiben nachvollziehbar, waehrend aktive Plaene keine ueberholten Strukturannahmen enthalten.
+- Auswirkung: Planindex und Planstatus unterscheiden klar zwischen Archiv, Rahmenplan und aktiven Teilplaenen.
+- Betroffene Module oder Dateien: `docs/project/archive/plans/`, P007, P008, P009
+- Status: getroffen
+- Offene Folgefragen: keine
+- Quelle oder Chatbezug: gemeinsamer P007-Abgleich am 2026-06-21

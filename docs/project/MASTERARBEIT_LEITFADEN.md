@@ -1,7 +1,7 @@
 # Masterarbeit Leitfaden
 
-Leitfaden-Version: 0.4.2
-Stand: 2026-06-18
+Leitfaden-Version: 0.5.0
+Stand: 2026-06-22
 
 Diese Datei ist der zentrale Orientierungsleitfaden fuer die Masterarbeit und
 die begleitende Software. Sie ersetzt keine aktive Steuerdatei. Der operative
@@ -30,6 +30,8 @@ Der Leitfaden fuehrt zwei Quellen zusammen:
 | 0.4.0 | 2026-06-18 | Leitfaden in acht feste Hauptbereiche umgegliedert; Version 0.3.7 zuvor unveraendert archiviert |
 | 0.4.1 | 2026-06-18 | Workflow-Archiv und zentral gepruefte Modulumsetzungsstaende ergaenzt |
 | 0.4.2 | 2026-06-18 | Plot-Template-Wizard, Overlay-Schritt, Achsenanpassung und Single-/Compare-Ausgabe aktualisiert |
+| 0.4.3 | 2026-06-21 | P007 als verbindlichen Rahmenplan aufgenommen und offene Architekturabgleiche dokumentiert |
+| 0.5.0 | 2026-06-21 | Phase 0 bis Phase 6, allgemeine Simulationsschnittstellen, Modulgerueste und Planarchivierung konsolidiert |
 
 ## 1. Zweck der Software
 
@@ -180,12 +182,18 @@ Optionale Erweiterungen:
 
 ## 2. Gesamtworkflow der Masterarbeit
 
-Der Workflow der Masterarbeit ist in vier Hauptbereiche gegliedert:
+Die technische Plattform wird als Phase 0 dargestellt. Danach folgen die
+sechs fachlichen P007-Hauptphasen:
 
-1. Pre-Process
-2. Simulation
-3. Post-Process
-4. Feedback
+0. Technische Plattform
+1. Projektinitialisierung
+2. Eingangsdaten und Pre-Processing
+3. Variantenbildung und Simulationsvorbereitung
+4. Simulation und technische Analyse
+5. Wirtschaftlichkeit, Nachhaltigkeit und Gesamtbewertung
+6. Reporting, Datenexport und Dokumentation
+
+`ma_validation` und `ma_feedback` wirken phasenuebergreifend.
 
 Das aktuelle Miro-Workflow-Diagramm und sein fachliches Review werden unter
 `docs/project/architecture/workflow/` gefuehrt. Das Diagramm ist ein
@@ -195,127 +203,40 @@ Ist-Entwurf; verbindliche Zielmodule und Modulgrenzen stehen weiterhin in
 - [Aktuelles Workflow-Diagramm](architecture/workflow/WORKFLOW_DIAGRAM_v0.1.1_2026-06-18.jpg)
 - [Fachliches Workflow-Review](architecture/workflow/WORKFLOW_DIAGRAM_REVIEW_v0.1.1_2026-06-18.md)
 
-### Pre-Process
-
-Im Pre-Process werden alle Grundlagen vorbereitet, die fuer die Simulation
-erforderlich sind.
-
-| Reihenfolge | Zielmodul | Aufgabe |
+| Phase | Module und Bereiche | Aufgabe |
 |---|---|---|
-| 1 | `ma_parameters` | Parameter, Optionsgruppen und Eingabekataloge |
-| 2 | `ma_weather` | Wetterdaten, TRY-Dateien und klimatische Randbedingungen |
-| 3 | `ma_building` | Gebaeude-, Zonen- und Modellrandbedingungen |
-| 4 | `ma_variants` | Varianten bilden, auswaehlen und benennen |
-| 5 | `ma_simulation_setup` | Zeitraum, Zeitschritt, Szenario und Run-Metadaten |
-| 6 | `ma_export_ida` | IDA-ICE-Uebergabestruktur vorbereiten |
+| 0 | `ma_core`, `ma_database`, `ma_ui`, `ma_workflow`, Dokumentationsinfrastruktur | technische und organisatorische Grundlage |
+| 1 | `ma_project` | Projekt und Untersuchungsrahmen initialisieren |
+| 2 | `ma_building`, `ma_weather`, `ma_zones`, `ma_technical`, `ma_parameters` | Eingaben erfassen und vereinheitlichen |
+| 3 | `ma_analyse.stage_1_dimensioning`, `ma_variants`, `ma_simulation_setup`, `ma_export_simulation` | Referenz dimensionieren, Varianten und Run vorbereiten |
+| 4 | IDA ICE, `ma_import_simulation`, `ma_analyse` Stufe 2 bis 4 | simulieren, importieren und technisch auswerten |
+| 5 | `ma_economy`, `ma_sustainability`, `ma_assessment` | wirtschaftlich, oekologisch und gesamthaft bewerten |
+| 6 | `ma_reporting`, `ma_data_export`, Projektdokumentation | Berichte, Datenpakete und Archivierung |
 
-Typische Inhalte:
+### Allgemeine Simulationsschnittstellen
 
-- Referenzgebaeude
-- Untersuchungsraeume oder Zonen
-- TGA-relevante Parameter
-- Wetterdateien und Standort
-- Variantenkatalog
-- Simulationszeitraum und Ausgabeintervall
-- IDA-Modellversion und manuelle Anpassungshinweise
+`ma_export_simulation` und `ma_import_simulation` sind programmunabhaengige
+Hauptmodule. Die IDA-ICE-Anbindung liegt jeweils unter `adapters/ida_ice`.
 
-### Simulation
+Sicherheitsregeln:
 
-IDA ICE bleibt der externe Simulationsschritt. Python bereitet Daten vor,
-strukturiert die Ablage und wertet Ergebnisse aus. Der automatische Start von
-IDA ICE ist aktuell kein stabiler Bestandteil des Workflows.
+- keine freie Neuerzeugung kompletter IDM-Modelle
+- keine IDM-Manipulation ohne geprueften Parser
+- keine erfundenen IDA-ICE-Skript- oder API-Befehle
+- kein automatischer Simulationsstart in der ersten Zielstufe
+- bestehende Export- und Importlogik erst nach Schnittstellenplan migrieren
 
-Pro Simulationslauf sollten mindestens dokumentiert werden:
+P009 beschreibt die weitere Umsetzung. Der historische P006-Entwurf liegt
+unveraendert im Planarchiv.
 
-- Run-ID
-- Variante
-- IDA-ICE-Modellversion
-- Wetterdatensatz
-- Simulationszeitraum
-- bearbeitende Person oder Arbeitsstand
-- Ergebnisordner
-- Warnungen, Fehler oder Auffaelligkeiten
+### Fachliche Rollen nach der Simulation
 
-### Leitlinie fuer ma_export_ida
-
-`ma_export_ida` ist ein kontrolliertes Pre-Processing-Modul zwischen
-`ma_simulation_setup` und der externen IDA-ICE-Simulation. Python soll kein
-vollstaendiges IDM-Modell frei neu erzeugen. Ausgangspunkt ist ein in IDA ICE
-erstelltes und geprueftes Referenzmodell.
-
-Kernaufgaben:
-
-- ein geprueftes Referenzmodell erkennen und als Vorlage nutzen
-- pro Variante einen eindeutig zugeordneten Exportordner erzeugen
-- aufgeloeste Variantenparameter vor dem Export validieren
-- eine technische Mapping-Struktur zwischen Projektparametern und
-  IDA-ICE-Zielparametern fuehren
-- Parameter, Quellen, Modellstand und Exportmetadaten nachvollziehbar speichern
-- eine Exportuebersicht fuer alle verarbeiteten Varianten erzeugen
-- Fehler und Warnungen sichtbar dokumentieren
-
-Sicherheits- und Architekturregeln:
-
-- Keine IDM-Datei wird ohne geprueften Parser oder bestaetigte Schnittstelle
-  strukturell veraendert.
-- Eine lokal verfuegbare und dokumentierte IDA-ICE-API oder Skriptschnittstelle
-  wird gegenueber unsicherer Textmanipulation bevorzugt.
-- IDA-ICE-Befehle, Attribute oder API-Funktionen duerfen nicht erfunden werden.
-- Skriptvorlagen bleiben Platzhalter, bis reale Befehle lokal verifiziert sind.
-- Pfade, Mappings und Standardeinstellungen werden konfiguriert und nicht hart
-  im Code hinterlegt.
-- UI-Logik bleibt ausserhalb von `ma_export_ida`; CLI und Streamlit greifen
-  spaeter ueber eine neutrale Service-Schnittstelle zu.
-
-Vorgesehene Ausbaustufen:
-
-1. Sicheres Exportgeruest: Referenzmodell kopieren, Variantenordner,
-   Parameter-JSON, Metadaten-JSON und Exportindex.
-2. Fachlich gepruefte Parameter-Mappings und Plausibilitaetsvalidierung.
-3. Verifizierte IDA-ICE-Skriptvorlagen.
-4. Optionale API-Anbindung ueber einen austauschbaren Adapter.
-5. Einbindung in `ma_workflow` und `ma_ui`.
-
-Der zugehoerige Entwurfsplan ist P006:
-`docs/project/plans/inbox/260618_Plan_ma_export_ida_IDM_Exportentwurf.md`.
-
-### Post-Process
-
-Im Post-Process werden IDA-Ergebnisse importiert, standardisiert, analysiert
-und bewertet. Economy, Sustainability und Assessment gehoeren damit zum
-Post-Process, weil sie auf aufbereiteten Simulations- und Varianteninformationen
-aufbauen.
-
-| Reihenfolge | Zielmodul | Aufgabe |
-|---|---|---|
-| 1 | `ma_import_ida` | IDA-Ergebnisordner erkennen, pruefen und standardisieren |
-| 2 | `ma_analyse` | Simulationsergebnisse analysieren, Diagramme und Reports erzeugen |
-| 3 | `ma_economy` | Wirtschaftlichkeit, Kosten, Energiepreise, Lebensdauer und Szenarien bewerten |
-| 4 | `ma_sustainability` | CO2, GWP, Nachhaltigkeitskennwerte, Quellen und Produkt-/Materialbezug bewerten |
-| 5 | `ma_assessment` | Ergebnisse aus Analyse, Economy und Sustainability zusammenfuehren und Berichte erzeugen |
-
-`ma_analyse` beantwortet fachlich vor allem:
-
-- Was zeigen die Simulationsergebnisse?
-- Welche technischen Kennwerte entstehen?
-- Welche Diagramme und Reports koennen daraus erzeugt werden?
-- Welche Auffaelligkeiten gibt es in Komfort, Energie, Leistung oder Raumklima?
-
-### Feedback
-
-Feedback bleibt ein eigener Block nach dem Post-Process. Hier werden
-Auffaelligkeiten, Rueckspruenge und offene Folgearbeiten dokumentiert.
-
-| Zielmodul | Rolle |
-|---|---|
-| `ma_feedback` | Auffaelligkeiten und Rueckspruenge in Pre-Process-Module dokumentieren |
-
-Damit gilt:
-
-- `ma_analyse`: Was ist passiert?
-- `ma_economy`: Was kostet die Variante?
-- `ma_sustainability`: Welche Umweltwirkung hat die Variante?
-- `ma_assessment`: Wie ist die Variante insgesamt zu bewerten und zu dokumentieren?
+- `ma_analyse`: technische Ergebnisse und Auffaelligkeiten
+- `ma_economy`: wirtschaftliche Auswirkungen
+- `ma_sustainability`: Umweltwirkungen
+- `ma_assessment`: zusammenfassende Bewertung
+- `ma_reporting`: lesbare Berichte und Factsheets
+- `ma_data_export`: maschinenlesbare Datenpakete
 
 ## 3. Moduluebersicht
 
@@ -323,28 +244,54 @@ Damit gilt:
 
 | Modul | Status | Rolle |
 |---|---|---|
+| `ma_core` | teilweise vorhanden | technische Grundlagen liegen noch verteilt in bestehenden Modulen |
+| `ma_database` | teilweise vorhanden | Datenbanklogik liegt derzeit vor allem in `ma_variants` |
+| `ma_project` | geplant | Projektstammdaten, Randbedingungen und Projektstatus |
 | `ma_analyse` | aktiv | Analyse von IDA-ICE-Ergebnisdaten, CLI, Tkinter-GUI, Plot-Templates |
 | `ma_variants` | aktiv | Variantenkern, Datenmodelle, Auswahl, Naming, Export, Kataloge |
 | `ma_weather` | teilweise aktiv | TRY-Katalog, Import, Validierung, Kennwerte, Diagramme, Bericht |
 | `ma_ui` | teilweise aktiv | Zentrale Streamlit-Oberflaeche mit Startseite und Modulansichten |
-| `ma_workflow` | teilweise aktiv | Workflow-Katalog und Adapter zwischen UI und Fachmodulen |
+| `ma_workflow` | teilweise aktiv | zentraler Phasen-, Modul- und Statuskatalog mit Adaptern |
 | `ma_parameters` | teilweise vorhanden | Parameter- und Optionslogik liegt noch in `ma_variants` |
-| `ma_building` | geplant | Gebaeude-, Zonen- und Modellrandbedingungen |
+| `ma_building` | geplant | Gebaeudemodell, Bauteile und bauphysikalische Randbedingungen |
+| `ma_zones` | geplant | thermische Zonen, Nutzungen, Sollwerte und Profile |
+| `ma_technical` | geplant | technische Systeme, Komponenten und Regelung |
+| `ma_analyse.stage_1_dimensioning` | geplant | Referenzdimensionierung vor der Variantenbildung |
 | `ma_simulation_setup` | geplant | Simulationsrandbedingungen und Run-Definition |
-| `ma_export_ida` | teilweise vorhanden | Uebergabestruktur liegt noch in `ma_variants` |
-| `ma_import_ida` | teilweise vorhanden | Ergebnisadapter und Aufbereitung existieren noch ausserhalb des Zielmoduls |
+| `ma_export_simulation` | teilweise vorhanden | Basisexport liegt noch in `ma_variants`; IDA ICE wird Adapter |
+| `ma_import_simulation` | teilweise vorhanden | Ergebnisadapter und Aufbereitung existieren noch ausserhalb des Zielmoduls |
 | `ma_economy` | teilweise vorhanden | Wirtschaftlichkeitslogik liegt noch in `ma_variants` |
 | `ma_sustainability` | geplant | Nachhaltigkeitsbewertung als eigenes Fachmodul |
-| `ma_assessment` | geplant | Bewertungs-, Scoring- und Berichtsschicht ueber Analyse, Wirtschaft und Nachhaltigkeit |
-| `ma_feedback` | geplant | Rueckfuehrung von Auffaelligkeiten in den Pre-Process |
-| `ma_ui_legacy` | geplant | Spaeterer Ort fuer Tkinter-Legacy, falls ausgelagert |
-| `ma_shared` | geplant | Gemeinsame technische Grundlagen nur bei echter Wiederverwendung |
+| `ma_assessment` | geplant | Bewertungs- und Scoringschicht ueber Analyse, Wirtschaft und Nachhaltigkeit |
+| `ma_reporting` | teilweise vorhanden | Reportfunktionen liegen noch in Fachmodulen |
+| `ma_data_export` | teilweise vorhanden | Exporte liegen noch verteilt in Fachmodulen |
+| `ma_validation` | teilweise vorhanden | lokale Validierungen existieren, zentrale Freigaben fehlen |
+| `ma_feedback` | geplant | phasenuebergreifende Ruecksprungsteuerung |
 
 ### Vollstaendiger Modulkatalog
 
 Der Modulkatalog beschreibt die fachliche Zielrolle der Module. Bei geplanten
 Modulen ist dies noch kein Implementierungsnachweis. Bestehende Logik wird erst
 nach einem eigenen Plan und stabilen Schnittstellen verschoben.
+
+#### ma_core
+
+- **Zweck:** Gemeinsame Pfad-, Konfigurations-, Logging-, ID- und
+  Vorlagenregeln.
+- **Status:** Teilweise vorhanden; Logik liegt noch verteilt in bestehenden
+  Modulen.
+
+#### ma_database
+
+- **Zweck:** Spaetere moduluebergreifende Persistenz kapseln.
+- **Status:** Teilweise vorhanden; bestehende Datenbanklogik bleibt vorerst in
+  `ma_variants`.
+
+#### ma_project
+
+- **Zweck:** Projektstammdaten, Untersuchungsrahmen und Projektstatus
+  verwalten.
+- **Status:** Geplant.
 
 #### ma_parameters
 
@@ -383,6 +330,33 @@ nach einem eigenen Plan und stabilen Schnittstellen verschoben.
 - **Status:** Geplant; vor Implementierung muessen Datenumfang und Bezug zum
   IDA-ICE-Modell definiert werden.
 
+#### ma_zones
+
+- **Zweck:** Thermische Zonen, Nutzungen, Sollwerte, interne Lasten und
+  Profile verwalten.
+- **Ausgaben:** validierte Zonendaten fuer `ma_parameters`.
+- **Abgrenzung:** Keine Gebaeudegeometrie und keine Anlagenberechnung.
+- **Status:** Geplant.
+
+#### ma_technical
+
+- **Zweck:** Erzeugung, Verteilung, Uebergabe, Regelung und Komponenten
+  beschreiben.
+- **Ausgaben:** validierte Technikdaten fuer `ma_parameters`.
+- **Abgrenzung:** Keine Variantenbildung.
+- **Status:** Geplant.
+
+#### ma_analyse.stage_1_dimensioning
+
+- **Zweck:** Heizlast, Kuehllast und Luftmengen fuer die Referenz
+  nachvollziehbar dimensionieren.
+- **Eingaben:** validierte zentrale Parameterliste sowie dokumentierte Norm-
+  und Auslegungsannahmen.
+- **Ausgaben:** Dimensionierungsvorschlaege fuer die Referenz.
+- **Abgrenzung:** Keine Variantenbildung und keine Analyse von
+  Simulationsergebnissen.
+- **Status:** Geplant; Paket und Dokumentation bilden nur die Modulgrenze ab.
+
 #### ma_variants
 
 - **Zweck:** Varianten erzeugen, auswaehlen, benennen und nachvollziehbar
@@ -407,12 +381,12 @@ nach einem eigenen Plan und stabilen Schnittstellen verschoben.
 - **Abgrenzung:** Das Modul erzeugt keine Varianten und veraendert keine
   IDA-ICE-Dateien.
 - **Status:** Geplant; es liegt bewusst zwischen `ma_variants` und
-  `ma_export_ida`.
+  `ma_export_simulation`.
 
-#### ma_export_ida
+#### ma_export_simulation
 
-- **Zweck:** Varianten und Simulationssetup kontrolliert fuer IDA ICE
-  vorbereiten.
+- **Zweck:** Varianten und Simulationssetup programmunabhaengig fuer
+  Simulationsadapter vorbereiten.
 - **Eingaben:** Variante, aufgeloeste Parameter, Run-Definition, geprueftes
   Referenzmodell und verifiziertes Mapping.
 - **Ausgaben:** Exportordner, Modellkopie, Parameter- und Metadaten-JSON,
@@ -420,7 +394,8 @@ nach einem eigenen Plan und stabilen Schnittstellen verschoben.
 - **Abgrenzung:** Keine freie Neuerzeugung kompletter IDM-Modelle, keine
   ungesicherte Textmanipulation und kein Simulationsstart.
 - **Status:** Teilweise vorhanden; eine erste Uebergabestruktur existiert noch
-  in `ma_variants.ida_export`. P006 beschreibt den weiteren Entwurf.
+  in `ma_variants.ida_export`. P009 beschreibt die weitere Schnittstelle und
+  den IDA-ICE-Adapter.
 
 #### IDA ICE
 
@@ -431,12 +406,13 @@ nach einem eigenen Plan und stabilen Schnittstellen verschoben.
 - **Ausgaben:** IDA-ICE-Ergebnisdateien und Simulationsmeldungen.
 - **Abgrenzung:** IDA ICE ist kein Python-Modul dieses Projekts. Manuelle
   Arbeitsschritte bleiben zulaessig und muessen dokumentiert werden.
-- **Status:** Externer Prozess zwischen `ma_export_ida` und `ma_import_ida`.
+- **Status:** Externer Prozess zwischen den IDA-ICE-Adaptern von
+  `ma_export_simulation` und `ma_import_simulation`.
 
-#### ma_import_ida
+#### ma_import_simulation
 
-- **Zweck:** IDA-ICE-Ergebnisordner erkennen, pruefen, zuordnen und
-  standardisieren.
+- **Zweck:** Simulationsergebnisse programmunabhaengig erkennen, pruefen,
+  zuordnen und standardisieren.
 - **Eingaben:** lokale Ergebnisordner, Run-Metadaten, Varianten- und
   Raumzuordnungen.
 - **Ausgaben:** validierte und standardisierte Ergebnisdaten fuer
@@ -471,7 +447,8 @@ nach einem eigenen Plan und stabilen Schnittstellen verschoben.
 - **Abgrenzung:** Keine technische Simulation, keine Nachhaltigkeitsbewertung
   und kein abschliessendes Gesamt-Ranking.
 - **Status:** Teilweise vorhanden; generische Wirtschaftlichkeitslogik liegt
-  derzeit in `ma_variants.economic_analysis`, das eigene Zielpaket fehlt noch.
+  derzeit in `ma_variants.economic_analysis`, das eigene Zielpaket ist nur
+  als leichtes Geruest angelegt.
 
 #### ma_sustainability
 
@@ -492,12 +469,40 @@ nach einem eigenen Plan und stabilen Schnittstellen verschoben.
   nachvollziehbaren Gesamtbewertung zusammenfuehren.
 - **Eingaben:** technische, wirtschaftliche und oekologische Ergebnisse sowie
   spaeter Gewichtungen oder Bewertungsregeln.
-- **Ausgaben:** Scores, Ampeln, Rankings, Factsheets, Ergebnisberichte und
+- **Ausgaben:** Scores, Ampeln, Rankings, Pareto-Loesungen und
   Entscheidungsvorlagen.
 - **Abgrenzung:** Keine primaere Rechenlogik fuer Simulation,
-  Wirtschaftlichkeit oder Nachhaltigkeit.
-- **Status:** Geplant; Bewertungsregeln und Berichtsumfang muessen separat
-  definiert werden.
+  Wirtschaftlichkeit oder Nachhaltigkeit und keine Berichtserzeugung.
+- **Status:** Geplant; Bewertungsregeln muessen separat definiert werden.
+
+#### ma_reporting
+
+- **Zweck:** Menschlich lesbare Berichte, Factsheets und
+  Ergebnisdarstellungen erzeugen.
+- **Eingaben:** Analyse- und Bewertungsergebnisse sowie Berichtsvorlagen.
+- **Ausgaben:** Berichte, Factsheets und Abbildungen.
+- **Abgrenzung:** Keine primaere Berechnung und keine technische
+  Datenpaketierung.
+- **Status:** Teilweise vorhanden; Reportfunktionen liegen noch verteilt in
+  Fachmodulen.
+
+#### ma_data_export
+
+- **Zweck:** Maschinenlesbare Projektergebnisse auswaehlen, paketieren und
+  archivieren.
+- **Eingaben:** Fachmodul-Exporte und Projektmetadaten.
+- **Ausgaben:** CSV-, JSON-, Excel- und Archivpakete.
+- **Abgrenzung:** Fachmodulspezifische Exporte bleiben in den Fachmodulen.
+- **Status:** Teilweise vorhanden; eine zentrale Paketierung fehlt.
+
+#### ma_validation
+
+- **Zweck:** Lokale Pruefergebnisse sammeln und moduluebergreifende Freigaben
+  verwalten.
+- **Eingaben:** Validierungsberichte der Fachmodule und Workflow-Zustand.
+- **Ausgaben:** Freigaben, Warnungen und blockierende Fehler.
+- **Abgrenzung:** Fachregeln bleiben in den Fachmodulen.
+- **Status:** Teilweise vorhanden; lokale Validierungen existieren.
 
 #### ma_feedback
 
@@ -509,7 +514,7 @@ nach einem eigenen Plan und stabilen Schnittstellen verschoben.
   Folgeentscheidungen.
 - **Abgrenzung:** Das Modul veraendert nicht automatisch Parameter, Varianten
   oder Modelle.
-- **Status:** Geplant; zunaechst als dokumentierter Workflow-Schritt.
+- **Status:** Geplant; phasenuebergreifende Ruecksprungregeln fehlen.
 
 #### ma_workflow
 
@@ -520,8 +525,8 @@ nach einem eigenen Plan und stabilen Schnittstellen verschoben.
 - **Ausgaben:** koordinierte Service-Aufrufe, Statusinformationen und
   Workflow-Ergebnisse.
 - **Abgrenzung:** Keine eigene Fachberechnung und keine Darstellung.
-- **Status:** Teilweise aktiv; Workflow-Katalog, Aktionen und Analyse-Adapter
-  sind vorbereitet.
+- **Status:** Teilweise aktiv; Phasen-, Modul- und Statuskatalog,
+  Dashboard-Aktionen und Analyse-Adapter sind vorbereitet.
 
 #### ma_ui
 
@@ -534,26 +539,6 @@ nach einem eigenen Plan und stabilen Schnittstellen verschoben.
   Streamlit-Komponenten.
 - **Status:** Teilweise aktiv; Startdashboard sowie Ansichten fuer Analyse,
   Wetterdaten, Varianten und Bewertung sind vorhanden.
-
-#### ma_ui_legacy
-
-- **Zweck:** Spaeterer Uebergangsbereich fuer bestehende Tkinter-Oberflaechen.
-- **Eingaben:** dieselben neutralen Service-Konfigurationen wie `ma_ui`.
-- **Ausgaben:** lokale Legacy-Bedienoberflaechen.
-- **Abgrenzung:** Keine neue Fachlogik; Tkinter und Streamlit werden nicht
-  direkt gekoppelt.
-- **Status:** Geplant; die bestehende Tkinter-GUI liegt vorerst weiterhin
-  unter `ma_analyse.gui`.
-
-#### ma_shared
-
-- **Zweck:** Wirklich moduluebergreifende technische Hilfen bereitstellen.
-- **Eingaben und Ausgaben:** gemeinsame Pfadtypen, Exceptions, Konstanten oder
-  neutrale Ergebnisgrundtypen.
-- **Abgrenzung:** Kein Sammelordner fuer beliebige Hilfsfunktionen und keine
-  Fachlogik.
-- **Status:** Geplant; wird nur angelegt, wenn nachweisbare Wiederverwendung
-  zwischen mehreren Modulen entsteht.
 
 ### Bewertungslogik
 
@@ -574,7 +559,13 @@ ma_sustainability
 
 ma_assessment
   Bewertungslogik, Gewichtungen, Ampeln, Scores, Rankings,
-  Factsheets, Ergebnisberichte, Entscheidungsvorlagen
+  Pareto-Loesungen, Entscheidungsvorlagen
+
+ma_reporting
+  Berichte, Factsheets, Abbildungen
+
+ma_data_export
+  maschinenlesbare Daten- und Archivpakete
 ```
 
 `ma_assessment` enthaelt also nicht die primaere Rechenlogik fuer Kosten oder
@@ -735,8 +726,8 @@ jedoch in den zustaendigen Modulen.
 - Tkinter und Streamlit werden nicht direkt miteinander vermischt.
 - Wiederverwendbare Auswahl-, Validierungs- und Konfigurationslogik wird in
   UI-neutrale Services oder Helfer ausgelagert.
-- Tkinter bleibt vorerst unter `ma_analyse.gui`; eine Auslagerung nach
-  `ma_ui_legacy` erfolgt nur nach separater Freigabe.
+- Tkinter bleibt vorerst unter `ma_analyse.gui`; eine Auslagerung braucht
+  weiterhin einen separaten Refactoring-Plan.
 
 ## 6. Aktuelle Arbeitsroutinen
 
@@ -788,12 +779,18 @@ folgende Entscheidungen:
 | Thema | Verbindliche Entscheidung | Nachweis |
 |---|---|---|
 | Projektstruktur | Das Projekt bleibt modular; aktive Planung, Entscheidungen, Architektur und Changelog werden getrennt gefuehrt. | UD-001, UD-002 |
-| Parameter | `ma_parameters` ist das langfristige Zielmodul fuer Parameter- und Optionslogik. | UD-014 |
+| Rahmenplanung | P007 ist die verbindliche Planungsgrundlage; Zielstrukturen werden erst nach Bestandsanalyse, Planung und Freigabe umgesetzt. | UD-041 |
+| Phasenmodell | Phase 0 und sechs fachliche P007-Phasen ersetzen die bisherige aktive Vierer-Gliederung. | UD-042 |
+| Simulationsschnittstellen | `ma_export_simulation` und `ma_import_simulation` sind allgemein; IDA ICE liegt in Adaptern. | UD-043 |
+| Eingabemodule | Gebaeude, Wetter, Zonen und Technik bleiben getrennt und liefern ueber `ma_parameters` an `ma_variants`. | UD-044 |
+| Strukturaufbau | Zielmodule werden als leichte Pakete und klickbare Infoseiten sichtbar, ohne Fachreife vorzutäuschen. | UD-045 |
+| Validierung und Feedback | Lokale Pruefungen bleiben fachlich; zentrale Freigaben und Rueckspruenge wirken phasenuebergreifend. | UD-046 |
+| Ergebnisverarbeitung | Assessment, Reporting, Datenexport und Projektdokumentation bleiben getrennte Verantwortlichkeiten. | UD-047 |
 | UI und Workflow | `ma_ui` ist die Streamlit-Zieloberflaeche; `ma_workflow` bleibt eine getrennte Orchestrierungsschicht. | UD-015, UD-018 |
 | Fachlogik | Fachlogik von `ma_analyse` bleibt in `ma_analyse` und wird ueber UI-neutrale Services bereitgestellt. | UD-016, UD-020 |
 | Tkinter | Tkinter bleibt Legacy-Bestand und wird nicht technisch mit Streamlit vermischt; es dient nur als fachliche Ablaufvorlage. | UD-019, UD-022 |
-| Simulationskette | `ma_simulation_setup` liegt zwischen Variantenbildung und kontrolliertem IDA-Export; Export, Import und Feedback bleiben getrennte Zielbereiche. | UD-017, UD-021 |
-| Bewertung | `ma_economy` und `ma_sustainability` sind eigene Fachmodule; `ma_assessment` fuehrt ihre Ergebnisse mit `ma_analyse` zu Bewertung und Berichten zusammen. | UD-036, UD-037 |
+| Simulationskette | `ma_simulation_setup` liegt zwischen Variantenbildung und allgemeinem Simulationsexport; Export, Import und Feedback bleiben getrennte Zielbereiche. | UD-021, UD-043 |
+| Bewertung | `ma_economy` und `ma_sustainability` rechnen fachlich; `ma_assessment` bewertet, `ma_reporting` berichtet. | UD-036, UD-047 |
 | Datenhaltung | Echte Projekt-, Produkt-, Material-, Datenbank- und TRY-Inhalte bleiben lokal; versioniert werden Struktur und gekennzeichnete Beispiele. | UD-012, UD-029 |
 | Wetterdiagramme | Wetterdiagramme bleiben vorerst in `ma_weather` und werden nicht sofort in die Analyse-Template-Struktur integriert. | UD-034 |
 | Prozessvergleich | Manueller, softwareunterstuetzter und automatisierter Aufwand wird getrennt nach Arbeitszeit, Laufzeit, Fehlerkorrektur und Wissensstand betrachtet. | UD-038 |
@@ -822,3 +819,7 @@ stehen ausschliesslich in
   jeweils eigene Plaene.
 - Fuer den Vergleich von Zeit- und Personalkosten sind Wissensprofile,
   Stundensaetze, Prozessgrenzen und Messmethoden noch festzulegen.
+- P008 muss die verbleibenden realen TRY-Testlaeufe und die
+  `weather_key`-Schnittstelle abschliessen.
+- P009 muss den neutralen Schnittstellenvertrag und die sichere
+  Wiederverwendung der vorhandenen IDA-Uebergabelogik konkretisieren.
