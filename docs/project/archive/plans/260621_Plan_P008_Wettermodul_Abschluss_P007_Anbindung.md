@@ -1,3 +1,21 @@
+ARCHIVIERT
+
+Archivierungsdatum
+2026-06-23
+
+Archivierungsgrund
+Dieser bisherige P008-Ausgangsplan wurde mit dem zweiten Ausgangsplan fuer
+ma_weather zusammengefuehrt.
+
+Nachfolgeplan
+P008 - docs/project/plans/inbox/260623_Plan_P008_ma_weather_Gesamtplan.md
+
+Hinweis
+Die Inhalte dieses Dokuments wurden geprueft und in den aktualisierten
+Gesamtplan fuer ma_weather integriert. Dieses Dokument dient nur noch der
+Nachvollziehbarkeit der Planentwicklung und darf nicht mehr als aktuelle
+Umsetzungsgrundlage verwendet werden.
+
 # P008 Wettermodul Abschluss und P007-Anbindung
 
 Stand: 2026-06-22
@@ -17,6 +35,10 @@ Entstehungs- und Umsetzungsnachweis unveraendert erhalten.
 - `TRY_FFM_2015` wurde mit 8760 Stunden erfolgreich real geprueft.
 - Echte TRY-Dateien bleiben lokal und werden nicht im Repository versioniert.
 - Streamlit kann Wetteranalysen starten und erzeugte Diagramme anzeigen.
+- P010 bindet TRY-Import und Wettervalidierung an gemeinsame Quellen-,
+  Diagnose- und Freigabevertraege an.
+- Wetterlaeufe und Warnungsentscheidungen werden unter
+  `logs/sessions/<session_id>.jsonl` nachvollziehbar protokolliert.
 
 ## Offene Arbeiten
 
@@ -36,6 +58,10 @@ Entstehungs- und Umsetzungsnachweis unveraendert erhalten.
 8. Sicherstellen, dass `ma_variants` Wetterdaten langfristig nur ueber
    `ma_parameters` erhaelt.
 9. Wetterbezogene Modul- und Dashboard-Dokumentation aktualisieren.
+
+Die P010-Grundlage fuer Quelle, Diagnose und Freigabe ist abgeschlossen.
+P008 konzentriert sich damit auf reale Datensaetze, eigenen Dateiimport,
+Diagrammqualitaet, `weather_key` und kritische Wetterereignisse.
 
 ## Abgrenzung
 

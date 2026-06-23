@@ -116,6 +116,9 @@ Workflow-Service-Aufrufe getrennt anbinden.
 - Wetter-Seite zeigt zuerst die Analysebedienung fuer einen aktiven
   Wetterdatensatz und darunter die lokalen TRY-Datensaetze aus dem
   `ma_weather`-Katalog inklusive Dateistatus.
+- Wetter-Seite zeigt Quellenmetadaten, strukturierte Diagnosen und den
+  Freigabestatus. Warnungen koennen laufgebunden blockiert oder bestaetigt
+  werden; die Entscheidung wird im Sitzungslog dokumentiert.
 - Bewertungsseite zeigt generische Systemkosten, Energiepreise und Szenarien aus
   den vorhandenen Beispielannahmen. Variantenbezogene Kostenberechnung wird dort
   noch nicht gestartet.

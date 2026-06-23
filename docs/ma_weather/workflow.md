@@ -23,14 +23,18 @@ Der aktuelle Stand umfasst:
 
 ## Geplanter Ablauf
 
-1. TRY-Dateien lokal unter `data/ma_weather/input/` ablegen.
-2. Datensatz in `config/ma_weather/datasets/example_weather_datasets.yaml` registrieren.
-3. Datensatz ueber `weather_key` aus dem Katalog auswaehlen.
-4. TRY-Datei importieren und validieren.
-5. Wetterkennwerte berechnen.
-6. Aufbereitete Wetterdaten unter `data/ma_weather/database/` schreiben.
-7. Diagramme unter `data/ma_weather/output/` schreiben.
-8. Bericht unter `data/ma_weather/reports/` schreiben.
+1. Stadt in der Streamlit-Oberflaeche auswaehlen.
+2. Klimaregion und TRY-Referenzstandort automatisch aus dem Standortkatalog
+   ableiten.
+3. TRY-Referenzdatensatz zuerst empfehlen, sofern er katalogisiert ist.
+4. Standortgenaue Datensaetze fuer die gewaehlte Stadt zusaetzlich anbieten.
+5. Datensatz ueber `weather_key` aus dem Katalog auswaehlen.
+6. TRY-Datei lokal unter `data/ma_weather/input/` bereitstellen.
+7. TRY-Datei importieren und validieren.
+8. Wetterkennwerte berechnen.
+9. Aufbereitete Wetterdaten unter `data/ma_weather/database/` schreiben.
+10. Diagramme unter `data/ma_weather/output/` schreiben.
+11. Bericht unter `data/ma_weather/reports/` schreiben.
 
 ## Verbindung zu Varianten
 
@@ -46,3 +50,10 @@ Variante
 
 Damit bleibt das Wettermodul eigenstaendig und kann gepruefte Wetterdatensaetze
 bereitstellen, ohne IDA ICE automatisch zu starten.
+
+## Standortlogik
+
+Die erste P008-Umsetzung nutzt einen YAML-Standortkatalog unter
+`config/ma_weather/locations/`. Die Klimaregion wird nicht manuell gewaehlt,
+sondern aus der Stadt abgeleitet. Die Klimaregionenkarte wird in Streamlit links
+angezeigt, sobald das Bild unter `src/ma_ui/assets/weather/` vorhanden ist.

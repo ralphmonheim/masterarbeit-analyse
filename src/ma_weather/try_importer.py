@@ -8,6 +8,9 @@ from pathlib import Path
 
 import pandas as pd
 
+from ma_core import InputSource, InputSourceKind, build_input_source
+from ma_validation import DiagnosticMessage, DiagnosticSeverity, ImportDiagnostic
+
 TRY_DATA_SEPARATOR = "***"
 DEFAULT_TRY_YEAR = 2015
 
@@ -58,6 +61,8 @@ class TryImportResult:
     row_count: int
     columns: tuple[str, ...]
     warnings: tuple[str, ...]
+    source: InputSource
+    import_diagnostic: ImportDiagnostic
 
 
 def import_try_weather_file(
@@ -74,7 +79,20 @@ def import_try_weather_file(
     text = _read_try_text(path)
     data_lines = _extract_data_block(text)
     raw_data = _read_data_table(data_lines)
-    data, warnings = _normalize_try_dataframe(raw_data, start_year=start_year)
+    data, diagnostic_messages = _normalize_try_dataframe(raw_data, start_year=start_year)
+    source = build_input_source(
+        module_key="ma_weather",
+        source_kind=InputSourceKind.IMPORT,
+        data_format="TRY",
+        source_path=path,
+        adapter_key="ma_weather.try_importer",
+    )
+    import_diagnostic = ImportDiagnostic(
+        source=source,
+        messages=tuple(diagnostic_messages),
+        record_count=len(data),
+        accepted_count=len(data),
+    )
 
     return TryImportResult(
         data=data,
@@ -82,7 +100,9 @@ def import_try_weather_file(
         weather_key=weather_key,
         row_count=len(data),
         columns=tuple(data.columns),
-        warnings=tuple(warnings),
+        warnings=tuple(message.message for message in diagnostic_messages),
+        source=source,
+        import_diagnostic=import_diagnostic,
     )
 
 
@@ -132,8 +152,12 @@ def _fallback_columns_for_width(width: int) -> list[str]:
     return columns
 
 
-def _normalize_try_dataframe(raw_data: pd.DataFrame, *, start_year: int) -> tuple[pd.DataFrame, list[str]]:
-    warnings: list[str] = []
+def _normalize_try_dataframe(
+    raw_data: pd.DataFrame,
+    *,
+    start_year: int,
+) -> tuple[pd.DataFrame, list[DiagnosticMessage]]:
+    diagnostics: list[DiagnosticMessage] = []
     data = raw_data.copy()
     data.columns = [_normalize_column_name(column) for column in data.columns]
     data = _rename_known_columns(data)
@@ -144,14 +168,28 @@ def _normalize_try_dataframe(raw_data: pd.DataFrame, *, start_year: int) -> tupl
     if {"direct_radiation_w_m2", "diffuse_radiation_w_m2"}.issubset(data.columns):
         data["global_radiation_w_m2"] = data["direct_radiation_w_m2"] + data["diffuse_radiation_w_m2"]
     elif "global_radiation_w_m2" not in data.columns:
-        warnings.append("Globalstrahlung konnte nicht berechnet werden: direkte oder diffuse Strahlung fehlt.")
+        diagnostics.append(
+            DiagnosticMessage(
+                severity=DiagnosticSeverity.WARNING,
+                code="WEATHER_IMPORT_GLOBAL_RADIATION_MISSING",
+                message="Globalstrahlung konnte nicht berechnet werden: direkte oder diffuse Strahlung fehlt.",
+                location="columns.direct_radiation_w_m2|diffuse_radiation_w_m2",
+            )
+        )
 
     if "temperature_c" not in data.columns:
-        warnings.append("Temperaturspalte wurde nicht eindeutig erkannt.")
+        diagnostics.append(
+            DiagnosticMessage(
+                severity=DiagnosticSeverity.WARNING,
+                code="WEATHER_IMPORT_TEMPERATURE_COLUMN_UNRECOGNIZED",
+                message="Temperaturspalte wurde nicht eindeutig erkannt.",
+                location="columns.temperature_c",
+            )
+        )
 
     data.index = _build_time_index(data, start_year=start_year)
     data.index.name = "time"
-    return data, warnings
+    return data, diagnostics
 
 
 def _normalize_column_name(column: object) -> str:

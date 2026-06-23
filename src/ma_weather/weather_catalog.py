@@ -10,6 +10,15 @@ import yaml
 
 DEFAULT_WEATHER_DATASETS_CONFIG = Path("config/ma_weather/datasets/example_weather_datasets.yaml")
 
+DATASET_ROLE_TRY_REFERENCE = "try_reference"
+DATASET_ROLE_SITE_SPECIFIC = "site_specific"
+VALID_DATASET_ROLES = (DATASET_ROLE_TRY_REFERENCE, DATASET_ROLE_SITE_SPECIFIC)
+DATASET_ROLE_ORDER = {
+    DATASET_ROLE_TRY_REFERENCE: 0,
+    DATASET_ROLE_SITE_SPECIFIC: 1,
+    "": 2,
+}
+
 REQUIRED_TEXT_FIELDS = (
     "weather_key",
     "display_name",
@@ -33,6 +42,10 @@ class WeatherDataset:
     location: str
     year_type: str
     climate_scenario: str = ""
+    dataset_role: str = ""
+    location_id: str = ""
+    reference_location_id: str = ""
+    selection_priority: int = 100
     is_active: bool = True
     notes: str = ""
 
@@ -53,6 +66,36 @@ class WeatherCatalog:
     def active_datasets(self) -> list[WeatherDataset]:
         """Gibt nur aktive Datensaetze zurueck."""
         return [dataset for dataset in self.datasets if dataset.is_active]
+
+    def datasets_for_location(
+        self,
+        *,
+        location_id: str,
+        reference_location_id: str,
+    ) -> list[WeatherDataset]:
+        """Gibt eindeutig zugeordnete Datensaetze fuer eine Stadt sortiert zurueck.
+
+        TRY-Referenzdatensaetze werden zuerst gelistet. Standortgenaue
+        Datensaetze folgen danach. Datensaetze ohne klare neue Zuordnung werden
+        hier bewusst nicht als Ersatz zurueckgegeben.
+        """
+        matching_datasets = [
+            dataset
+            for dataset in self.active_datasets()
+            if _dataset_matches_location(
+                dataset,
+                location_id=location_id,
+                reference_location_id=reference_location_id,
+            )
+        ]
+        return sorted(
+            matching_datasets,
+            key=lambda dataset: (
+                DATASET_ROLE_ORDER.get(dataset.dataset_role, 99),
+                dataset.selection_priority,
+                dataset.display_name,
+            ),
+        )
 
     def get(self, weather_key: str) -> WeatherDataset:
         """Findet einen Datensatz ueber seinen technischen weather_key."""
@@ -130,6 +173,25 @@ def _validate_dataset_record(raw_dataset: dict[str, Any], index: int) -> list[st
     is_active = raw_dataset.get("is_active", True)
     if not isinstance(is_active, bool):
         errors.append(f"weather_datasets[{index}].is_active muss true oder false sein.")
+
+    dataset_role = str(raw_dataset.get("dataset_role", "")).strip()
+    location_id = str(raw_dataset.get("location_id", "")).strip()
+    reference_location_id = str(raw_dataset.get("reference_location_id", "")).strip()
+    if dataset_role and dataset_role not in VALID_DATASET_ROLES:
+        errors.append(
+            f"weather_datasets[{index}].dataset_role ist ungueltig: {dataset_role}. "
+            f"Erlaubt sind {', '.join(VALID_DATASET_ROLES)}."
+        )
+    if not dataset_role and (location_id or reference_location_id):
+        errors.append(f"weather_datasets[{index}].dataset_role fehlt fuer die Standortzuordnung.")
+    if dataset_role == DATASET_ROLE_TRY_REFERENCE and not reference_location_id:
+        errors.append(f"weather_datasets[{index}].reference_location_id fehlt fuer TRY-Referenzdatensatz.")
+    if dataset_role == DATASET_ROLE_SITE_SPECIFIC and not location_id:
+        errors.append(f"weather_datasets[{index}].location_id fehlt fuer standortgenauen Datensatz.")
+
+    selection_priority = raw_dataset.get("selection_priority", 100)
+    if not isinstance(selection_priority, int) or selection_priority < 0:
+        errors.append(f"weather_datasets[{index}].selection_priority muss eine nichtnegative Ganzzahl sein.")
     return errors
 
 
@@ -143,6 +205,23 @@ def _build_weather_dataset(raw_dataset: dict[str, Any]) -> WeatherDataset:
         location=str(raw_dataset["location"]).strip(),
         year_type=str(raw_dataset["year_type"]).strip(),
         climate_scenario=str(raw_dataset.get("climate_scenario", "")).strip(),
+        dataset_role=str(raw_dataset.get("dataset_role", "")).strip(),
+        location_id=str(raw_dataset.get("location_id", "")).strip(),
+        reference_location_id=str(raw_dataset.get("reference_location_id", "")).strip(),
+        selection_priority=int(raw_dataset.get("selection_priority", 100)),
         is_active=bool(raw_dataset.get("is_active", True)),
         notes=str(raw_dataset.get("notes", "")).strip(),
     )
+
+
+def _dataset_matches_location(
+    dataset: WeatherDataset,
+    *,
+    location_id: str,
+    reference_location_id: str,
+) -> bool:
+    if dataset.dataset_role == DATASET_ROLE_TRY_REFERENCE:
+        return dataset.reference_location_id == reference_location_id
+    if dataset.dataset_role == DATASET_ROLE_SITE_SPECIFIC:
+        return dataset.location_id == location_id
+    return False

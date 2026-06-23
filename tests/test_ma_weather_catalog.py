@@ -1,11 +1,20 @@
+from dataclasses import replace
 from pathlib import Path
 
 import pandas as pd
 import pytest
 
-from ma_weather import WeatherDataset, import_weather_catalog
-from ma_weather.run_weather_analysis import run_weather_analysis
+from ma_core import InputSourceKind
+from ma_ui.pages.weather import (
+    release_decision_matches_result,
+    weather_diagnostic_rows,
+    weather_source_rows,
+)
+from ma_validation import DiagnosticSeverity, ReleaseChoice, ReleaseStatus
+from ma_weather import WeatherDataset, import_weather_catalog, import_weather_location_catalog
+from ma_weather.run_weather_analysis import record_weather_release_decision, run_weather_analysis
 from ma_weather.try_importer import import_try_weather_file
+from ma_weather.weather_catalog import DATASET_ROLE_SITE_SPECIFIC, DATASET_ROLE_TRY_REFERENCE
 from ma_weather.weather_metrics import calculate_weather_metrics
 from ma_weather.weather_plots import build_weather_plots
 from ma_weather.weather_report import write_weather_report
@@ -40,6 +49,12 @@ def test_weather_catalog_imports_example_dataset():
     assert munich_2045_dataset.file_path == Path("data/ma_weather/input/TRY_481399115778/TRY2045_481399115778_Jahr.dat")
     assert hamburg_dataset.file_path == Path("data/ma_weather/input/TRY_535578099766/TRY2015_535578099766_Jahr.dat")
     assert hamburg_2045_dataset.file_path == Path("data/ma_weather/input/TRY_535578099766/TRY2045_535578099766_Jahr.dat")
+    assert frankfurt_dataset.dataset_role == DATASET_ROLE_SITE_SPECIFIC
+    assert frankfurt_dataset.location_id == "LOC_049"
+    assert frankfurt_dataset.reference_location_id == "LOC_053"
+    assert hamburg_dataset.dataset_role == DATASET_ROLE_TRY_REFERENCE
+    assert hamburg_dataset.location_id == "LOC_009"
+    assert hamburg_dataset.reference_location_id == "LOC_009"
     assert all(dataset.is_active for dataset in catalog.datasets)
 
 
@@ -93,6 +108,65 @@ def test_weather_catalog_rejects_duplicate_weather_keys(tmp_path):
         import_weather_catalog(config_file)
 
 
+def test_weather_catalog_rejects_invalid_dataset_role(tmp_path):
+    config_file = tmp_path / "weather_datasets.yaml"
+    config_file.write_text(
+        "weather_datasets:\n"
+        "  - weather_key: TRY_TEST\n"
+        "    display_name: Test\n"
+        "    file_path: data/ma_weather/input/missing.dat\n"
+        "    file_format: TRY\n"
+        "    source: DWD TRY\n"
+        "    location: Frankfurt\n"
+        "    year_type: reference_year\n"
+        "    dataset_role: unclear\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="dataset_role"):
+        import_weather_catalog(config_file)
+
+
+def test_weather_location_catalog_resolves_city_region_and_reference():
+    catalog = import_weather_location_catalog()
+
+    assert len(catalog.regions) == 15
+    frankfurt = catalog.get_location_by_name("Frankfurt (Main)")
+    region = catalog.region_for_location(frankfurt.location_id)
+    reference_location = catalog.reference_location_for_city(frankfurt.location_id)
+
+    assert frankfurt.location_id == "LOC_049"
+    assert region.region_code == "TRY12"
+    assert reference_location.location_name == "Mannheim"
+    assert reference_location.is_reference_location is True
+
+
+def test_weather_dataset_selection_prioritizes_reference_then_site_specific():
+    weather_catalog = import_weather_catalog()
+    location_catalog = import_weather_location_catalog()
+
+    hamburg = location_catalog.get_location_by_name("Hamburg")
+    hamburg_reference = location_catalog.reference_location_for_city(hamburg.location_id)
+    hamburg_datasets = weather_catalog.datasets_for_location(
+        location_id=hamburg.location_id,
+        reference_location_id=hamburg_reference.location_id,
+    )
+
+    assert [dataset.weather_key for dataset in hamburg_datasets] == ["TRY_HAM_2015", "TRY_HAM_2045"]
+    assert all(dataset.dataset_role == DATASET_ROLE_TRY_REFERENCE for dataset in hamburg_datasets)
+
+    frankfurt = location_catalog.get_location_by_name("Frankfurt (Main)")
+    frankfurt_reference = location_catalog.reference_location_for_city(frankfurt.location_id)
+    frankfurt_datasets = weather_catalog.datasets_for_location(
+        location_id=frankfurt.location_id,
+        reference_location_id=frankfurt_reference.location_id,
+    )
+
+    assert [dataset.weather_key for dataset in frankfurt_datasets] == ["TRY_FFM_2015", "TRY_FFM_2045"]
+    assert all(dataset.dataset_role == DATASET_ROLE_SITE_SPECIFIC for dataset in frankfurt_datasets)
+    assert not any(dataset.dataset_role == DATASET_ROLE_TRY_REFERENCE for dataset in frankfurt_datasets)
+
+
 def test_weather_placeholder_modules_are_importable():
     weather_functions = [
         import_try_weather_file,
@@ -118,6 +192,12 @@ def test_try_importer_reads_data_block_and_calculates_global_radiation(tmp_path)
     assert result.data.index[-1] == pd.Timestamp("2015-01-01 03:00:00")
     assert "global_radiation_w_m2" in result.data.columns
     assert result.data["global_radiation_w_m2"].tolist() == [0, 15, 50, 80]
+    assert result.source.source_kind is InputSourceKind.IMPORT
+    assert result.source.adapter_key == "ma_weather.try_importer"
+    assert result.source.file_size_bytes == try_file.stat().st_size
+    assert len(result.source.sha256 or "") == 64
+    assert result.import_diagnostic.record_count == 4
+    assert result.import_diagnostic.accepted_count == 4
 
 
 def test_weather_validation_reports_warnings_and_errors(tmp_path):
@@ -133,6 +213,12 @@ def test_weather_validation_reports_warnings_and_errors(tmp_path):
     assert report.duplicate_timestamps == 1
     assert any("8760" in warning for warning in report.warnings)
     assert any("Relative Feuchte" in warning for warning in report.warnings)
+    assert report.validation_result.release_status is ReleaseStatus.BLOCKED
+    assert any(
+        message.code == "WEATHER_DUPLICATE_TIMESTAMPS"
+        and message.severity is DiagnosticSeverity.ERROR
+        for message in report.validation_result.messages
+    )
 
 
 def test_weather_metrics_are_structured_and_non_negative(tmp_path):
@@ -201,12 +287,43 @@ def test_weather_runner_processes_catalog_dataset(tmp_path):
         "TRY_TEST",
         catalog_path=catalog_file,
         project_root=tmp_path,
+        session_id="session_weather_test",
+        run_id="weather_run_test",
         print_summary=False,
     )
 
     assert result.import_result.row_count == 4
     assert result.processed_data_path.exists()
     assert result.report_path.exists()
+    assert result.session_id == "session_weather_test"
+    assert result.run_id == "weather_run_test"
+    assert result.release_decision is None
+    assert result.validation_report.validation_result.release_status is ReleaseStatus.CONFIRMATION_REQUIRED
+    assert result.session_log_path.exists()
+
+    blocked_decision = record_weather_release_decision(
+        result,
+        choice=ReleaseChoice.KEEP_BLOCKED,
+        note="Testlauf bleibt zunaechst blockiert.",
+    )
+    decision = record_weather_release_decision(
+        result,
+        choice=ReleaseChoice.RELEASE_WITH_WARNINGS,
+        note="Vier Stunden sind fuer diesen Test beabsichtigt.",
+    )
+    assert blocked_decision.resulting_status is ReleaseStatus.BLOCKED
+    assert decision.resulting_status is ReleaseStatus.RELEASED
+    assert weather_source_rows(result)[0]["Quellen-ID"] == result.import_result.source.source_id
+    assert any(row["Code"] == "WEATHER_HOUR_COUNT_MISMATCH" for row in weather_diagnostic_rows(result))
+    assert release_decision_matches_result(decision, result) is True
+    assert release_decision_matches_result(decision, replace(result, run_id="other_run")) is False
+    log_text = result.session_log_path.read_text(encoding="utf-8")
+    assert '"event_type": "run_started"' in log_text
+    assert '"event_type": "input_source_loaded"' in log_text
+    assert '"event_type": "diagnostic_recorded"' in log_text
+    assert '"event_type": "run_completed"' in log_text
+    assert '"event_type": "release_decided"' in log_text
+    assert decision.decision_id in log_text
 
 
 def test_real_try_file_integration_if_local_file_exists():

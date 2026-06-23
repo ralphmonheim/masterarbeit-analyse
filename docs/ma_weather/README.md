@@ -16,6 +16,8 @@ fuer nachfolgende Module referenzierbar machen.
 
 - validierte Wetterdaten, Kennwerte, Diagramme, CSV und Bericht
 - dokumentierter `weather_key` fuer die spaetere Uebergabe an `ma_parameters`
+- Quellenmetadaten, strukturierte Diagnosen, Freigabestatus und lokaler
+  Sitzungsnachweis
 
 ## Abgrenzung
 
@@ -25,7 +27,8 @@ fuer nachfolgende Module referenzierbar machen.
 ## Abhaengigkeiten
 
 - lokale TRY-Dateien unter `data/ma_weather/input/`
-- P008 fuer Abschlusspruefung und P007-Anbindung
+- P008-Gesamtplan fuer Abschlusspruefung, Standort-/Referenzlogik,
+  Dateiimport, Freigabe und P007-Anbindung
 
 ## Status
 
@@ -34,18 +37,30 @@ die Diagrammabstimmung fehlen noch.
 
 ## Naechster Schritt
 
-P008 mit den fuenf verbleibenden TRY-Realtests fortsetzen.
+P008 mit den fuenf verbleibenden TRY-Realtests, der Stadt- und
+Referenzstandortlogik, dem Importkonzept und der kontrollierten Uebergabe an
+`ma_parameters` fortsetzen.
 
 Der erste P002-Struktur-Slice hat das Paket `src/ma_weather/` und einen
 einfachen Wetterkatalog angelegt. Der aktuelle Stand enthaelt zusaetzlich eine
 erste lokale TRY-Analyse mit Import, Validierung, Kennwerten, Diagrammen,
 Markdown-Bericht und Runner.
 
+P010 ergaenzt jeden TRY-Import um Quellen-ID, Dateimetadaten und SHA-256.
+Import- und Validierungsmeldungen besitzen stabile Codes, eindeutige IDs und
+Fundstellen. Fehler blockieren; Warnungen koennen in Streamlit bewusst
+blockiert oder fuer den konkreten Lauf freigegeben werden. Der Nachweis liegt
+unter `logs/sessions/<session_id>.jsonl`.
+
 Reale TRY-Dateien werden vom Nutzer lokal unter `data/ma_weather/input/`
 bereitgestellt und nicht im Git-Repo versioniert.
 
 Der aktive Beispielkatalog enthaelt Jahresdatensaetze fuer Frankfurt am Main,
 Muenchen und Hamburg jeweils fuer 2015 und 2045.
+
+Der Standortkatalog unter `config/ma_weather/locations/` bildet Staedte,
+Klimaregionen und TRY-Referenzstandorte ab. Die Streamlit-Wetterseite nutzt ihn
+fuer die automatische Anzeige von Klimaregion und Referenzstandort.
 
 ## Dateien
 
@@ -63,4 +78,6 @@ Muenchen und Hamburg jeweils fuer 2015 und 2045.
 Der Befehl erwartet, dass die lokale TRY-Datei aus dem Katalogpfad vorhanden
 ist. Reale TRY-Dateien werden nicht versioniert.
 
-Weitere aktive `weather_key` Werte stehen in `commands_weather.md`.
+Weitere aktive `weather_key` Werte stehen in `commands_weather.md`. Der aktive
+Plan liegt unter
+`docs/project/plans/inbox/260623_Plan_P008_ma_weather_Gesamtplan.md`.

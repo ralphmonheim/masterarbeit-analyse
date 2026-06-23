@@ -75,7 +75,9 @@ from ma_ui.pages.assessment import economic_assumption_rows
 from ma_ui.pages.home import workflow_phase_summary_rows, workflow_status_counts
 from ma_ui.pages.weather import (
     created_weather_plot_paths,
+    get_weather_session_id,
     weather_dataset_rows,
+    weather_location_rows,
     weather_metric_rows,
     weather_plot_rows,
     weather_start_year,
@@ -97,7 +99,7 @@ from ma_ui.workflow_graph import (
 )
 from ma_ui.workflow_view import workflow_step_rows
 from ma_variants.economic_analysis import import_economic_assumptions
-from ma_weather import WeatherDataset, WeatherMetrics, WeatherPlotResult
+from ma_weather import WeatherDataset, WeatherMetrics, WeatherPlotResult, import_weather_location_catalog
 from ma_workflow import get_step
 
 
@@ -944,6 +946,18 @@ def test_weather_dataset_rows_report_missing_local_file():
 
     assert rows[0]["weather_key"] == "TRY_TEST"
     assert rows[0]["Datei vorhanden"] is False
+    assert rows[0]["Rolle"] == "Nicht zugeordnet"
+
+
+def test_weather_location_rows_show_reference_context():
+    catalog = import_weather_location_catalog()
+
+    rows = weather_location_rows(catalog)
+    frankfurt_row = next(row for row in rows if row["Standort-ID"] == "LOC_049")
+
+    assert frankfurt_row["Stadt"] == "Frankfurt (Main)"
+    assert frankfurt_row["Klimaregion"] == "TRY12"
+    assert frankfurt_row["TRY-Referenzstandort"] == "Mannheim"
 
 
 def test_weather_ui_helpers_prepare_metrics_and_plot_rows(tmp_path):
@@ -988,6 +1002,16 @@ def test_weather_start_year_uses_dataset_metadata():
     )
 
     assert weather_start_year(dataset) == 2045
+
+
+def test_weather_session_id_is_stable_for_current_ui_session():
+    session_state: dict[str, object] = {}
+
+    first = get_weather_session_id(session_state)
+    second = get_weather_session_id(session_state)
+
+    assert first == second
+    assert first.startswith("session_")
 
 
 def test_economic_assumption_rows_use_existing_importer():

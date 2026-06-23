@@ -730,3 +730,23 @@ Stand: 2026-06-23
 - Offene Folgefragen: konkrete zusaetzliche Speicher- und Importformate werden
   spaeter je Modul entschieden.
 - Quelle oder Chatbezug: aktueller Codex-Chat zur Plananpassung
+
+## UD-057 Warnungen erhalten IDs und einen Sitzungsnachweis
+
+- Datum: 2026-06-23
+- Thema: Eingabediagnose und Freigabe
+- Entscheidung: Warnungen, Fehler, Laeufe und Freigabeentscheidungen erhalten
+  automatisch eindeutige IDs. Neben der ID werden Problem, Fundstelle,
+  getroffene Auswahl, resultierender Status und eine optionale Notiz in einem
+  lokalen Sitzungslog dokumentiert. Streamlit haelt die aktuelle Entscheidung
+  zugleich im Sitzungszustand.
+- Begruendung: Warnungen sollen nicht nur angezeigt, sondern einem konkreten
+  Lauf und einer nachvollziehbaren Entscheidung zugeordnet werden koennen.
+- Auswirkung: P010 verwendet append-only JSONL-Protokolle unter
+  `logs/sessions/`; bestehende Analyse-Textlogs bleiben erhalten.
+- Betroffene Module oder Dateien: `ma_core`, `ma_validation`, `ma_weather`,
+  `ma_ui`, `logs/`
+- Status: umgesetzt
+- Offene Folgefragen: Spaetere Fachmodule entscheiden in ihren Plaenen,
+  welche zusaetzlichen Ereignisse sie protokollieren.
+- Quelle oder Chatbezug: aktueller Codex-Chat zur P010-Umsetzung

@@ -4,6 +4,31 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.16.0 - 2026-06-23
+
+### Added
+- P010-Vertraege fuer Eingabequellen, Dateipruefsummen, strukturierte
+  Diagnosen, Freigabeentscheidungen und eindeutige IDs eingefuehrt.
+- Append-only JSONL-Sitzungslogs unter `logs/sessions/` fuer Laeufe,
+  Warnungen, Fehler und Freigabeentscheidungen ergaenzt.
+- TRY-Wetterimport als ersten P010-Pilotadapter an die gemeinsamen Modelle
+  angebunden.
+- P008-Gesamtplan fuer `ma_weather` aus den beiden Ausgangsplaenen
+  konsolidiert und die Ausgangsplaene nachvollziehbar archiviert.
+- YAML-basierten Standort- und Klimaregionskatalog fuer `ma_weather`
+  mit Stadtbezug, TRY-Referenzstandort und Datensatzrollen eingefuehrt.
+- Streamlit-Wetterseite mit Kartenbereich, Stadtwahl, automatisch
+  ermittelter Klimaregion, TRY-Referenzstandort und sortierter
+  Wetterdatensatzauswahl erweitert.
+
+### Changed
+- Wetteransicht um Quellenmetadaten, Diagnose-IDs, Fundstellen und
+  laufgebundene Warnungsfreigabe erweitert.
+- Wetterkatalog priorisiert TRY-Referenzdatensaetze vor standortgenauen
+  Datensaetzen und vermeidet fachlich unklare Ersatzzuordnungen.
+- P010 archiviert und P008, P011, P015 sowie P027 auf die gemeinsamen
+  Eingabe- und Freigabevertraege ausgerichtet.
+
 ## 0.15.0 - 2026-06-23
 
 ### Added

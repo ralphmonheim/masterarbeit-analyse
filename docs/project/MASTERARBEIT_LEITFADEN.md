@@ -693,6 +693,7 @@ modulare Ablage besitzt.
 | `data/ma_parameters/config/` | lokale Parameter- und Optionsarbeitsstaende |
 | `data/catalogs/documents/` | Struktur fuer Produkt- und Materialdokumente |
 | `data/test_output/` | lokaler Arbeits- und Smoke-Test-Bereich |
+| `logs/sessions/` | lokale strukturierte Lauf-, Diagnose- und Freigabeereignisse |
 
 Echte Projekt-, Ergebnis- und Katalogdaten werden nicht automatisch versioniert.
 Die Ordnerstruktur bleibt reproduzierbar; Inhalte koennen lokal entstehen.
@@ -737,6 +738,8 @@ Aktueller Stand:
 - `Start`: grafischer Workflow und technische Detailtabellen im Expander
 - `Analyse`: Streamlit-Wizard fuer `ma_analyse`, orientiert an Tkinter-Ablauf
 - `Wetterdaten`: Analysebereich oben, Wetterdatensatzuebersicht darunter
+- Wetterlaeufe zeigen Quellen-ID, Dateipruefsumme, strukturierte Diagnosen und
+  Freigabestatus. Warnungen koennen bewusst blockiert oder freigegeben werden.
 - `Projekt`: Simulationsprogramme und neutrales Benennungsprofil
 - `Parameter`: schreibgeschuetzte Definitionen und aktive Demo-Optionswerte
 - `Varianten`: gemeinsamer Variantenraum mit angewendetem Benennungsprofil
@@ -754,6 +757,19 @@ werden fachlich ausgewertet und schrittweise in UI-neutrale Logik ueberfuehrt.
 `ma_workflow` vermittelt zwischen `ma_ui` und den Fachmodulen. Das Modul
 koordiniert Reihenfolge, Projektzustand und neutrale Service-Aufrufe, enthaelt
 aber keine eigene Fachberechnung und keine Streamlit-Darstellung.
+
+### Eingabe, Diagnose und Freigabe
+
+- `ma_core` stellt `InputSource`, `InputChange`, eindeutige IDs und das
+  append-only Sitzungslog bereit.
+- Fachmodule behalten ihre lokalen Pruefregeln.
+- `ma_validation` vereinheitlicht Meldungsschwere, Diagnosecodes und
+  Freigabeentscheidungen.
+- Fehler blockieren immer. Warnungen benoetigen eine dokumentierte
+  Entscheidung. Fehler- und warnungsfreie Staende werden automatisch
+  freigegeben.
+- P010 verwendet TRY-Wetterdaten als ersten Pilotadapter; weitere
+  Eingabemodule folgen in P011 bis P015.
 
 Der vorgesehene Aufrufpfad lautet:
 

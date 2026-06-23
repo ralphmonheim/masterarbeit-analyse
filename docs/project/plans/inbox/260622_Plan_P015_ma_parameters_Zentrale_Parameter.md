@@ -45,3 +45,10 @@ Optionsgruppen, aktive Optionswerte, Vollstaendigkeitspruefung,
 Variantenanzahl und geschuetzte lokale Speicherung. Ein versionierter,
 freigegebener `ParameterSnapshot` mit Herkunft und Aenderungsnachweis bleibt
 der produktive Kern von P015.
+
+## Umsetzungsbezug P010
+
+`ParameterSnapshot` soll die P010-Quellen-IDs, strukturierte Diagnosen,
+manuelle `InputChange`-Eintraege und eine gueltige Freigabe referenzieren.
+Fehler bleiben blockierend; Warnungen benoetigen eine dokumentierte
+Entscheidung.

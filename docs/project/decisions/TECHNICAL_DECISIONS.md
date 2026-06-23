@@ -341,3 +341,20 @@ Technische Folgen:
   Workflow-Navigation verwirft es.
 - Der Sitzungsstand ist keine dauerhafte Persistenz und kein produktiver
   `ParameterSnapshot`.
+
+## Entscheidung 25: P010 trennt Fachpruefung, Freigabe und Sitzungsnachweis
+
+Fachmodule behalten ihre lokalen Pruefregeln. `ma_validation` vereinheitlicht
+Diagnosemeldungen und Freigabeentscheidungen. `ma_core` stellt
+Quellenmetadaten, IDs und ein append-only JSONL-Sitzungslog bereit.
+
+Technische Folgen:
+
+- Fehler koennen niemals freigegeben werden.
+- Warnungen erfordern `keep_blocked` oder `release_with_warnings`.
+- Fehler- und warnungsfreie Staende erhalten `automatic_release`.
+- Bestehende Fachmodelle bleiben kompatibel und werden nur um neutrale
+  Ergebnisse ergaenzt.
+- `logs/*.log` bleibt fuer menschenlesbare Analyseausgaben erhalten;
+  `logs/sessions/*.jsonl` dokumentiert moduluebergreifende Ereignisse.
+- Eine Datenbankmigration ist kein Bestandteil von P010.

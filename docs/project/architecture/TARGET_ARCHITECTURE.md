@@ -29,6 +29,11 @@ gesonderte Teilplaene analysiert, freigegeben und getestet.
 - Produkt- und Materialbezeichnungen bleiben neutrale Katalogdaten.
 - Programmspezifische Objekt- und Exportcodes liegen in den jeweiligen
   Simulationsadaptern.
+- Eingabestaende verwenden formatneutrale `InputSource`-Metadaten.
+- Fachmodule erzeugen strukturierte Diagnosen; Fehler blockieren, Warnungen
+  benoetigen eine bewusste Freigabeentscheidung.
+- Lauf- und Freigabeereignisse werden lokal append-only in
+  `logs/sessions/<session_id>.jsonl` dokumentiert.
 
 ## Phase 0 und sechs Hauptphasen
 
@@ -102,6 +107,12 @@ Modulstatus nicht.
 - IFC-Lite bleibt bis zur Analyse konkreter IFC-Arbeitsstaende offen.
 - CAD-Integration gehoert nicht zum Masterarbeitsumfang.
 
+Die aktuelle Reifegradmatrix steht in
+`docs/project/architecture/INPUT_DATA_FORMAT_MATRIX.md`. P010 hat die
+Vertraege am TRY-Wetterimport erprobt. Weitere Fachmodule werden erst mit
+ihrem jeweiligen Teilplan angebunden; eine zentrale Datenbank folgt nicht
+vor stabilen Fachmodellen und konkreten Abfragen.
+
 ## Analysestufen
 
 - Stage 1: vereinfachte Referenzdimensionierung mit Ausbaupfad.
@@ -171,7 +182,7 @@ reichen nicht fuer den Status `teilweise` oder `verfuegbar`.
 ## Relevante Teilplaene
 
 - P008: Wettermodul, eigene Wetterimporte und kritische Ereignisse.
-- P010: Eingabe- und Datenhaltungsarchitektur.
+- P010: Eingabe-, Diagnose- und Freigabearchitektur umgesetzt und archiviert.
 - P011 bis P018: Eingabekette bis Run-Manifest.
 - P019 bis P021: getrennte Analysestufen.
 - P022 bis P026: abgestufte Demo- und Konzeptmodule.

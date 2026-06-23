@@ -1,0 +1,570 @@
+weather_regions:
+  - region_id: TRY01
+    region_number: 1
+    region_code: TRY01
+    region_name: Klimaregion 1
+    reference_location_id: LOC_002
+    reference_location_name: Bremerhaven
+    active: true
+  - region_id: TRY02
+    region_number: 2
+    region_code: TRY02
+    region_name: Klimaregion 2
+    reference_location_id: LOC_005
+    reference_location_name: Rostock
+    active: true
+  - region_id: TRY03
+    region_number: 3
+    region_code: TRY03
+    region_name: Klimaregion 3
+    reference_location_id: LOC_009
+    reference_location_name: Hamburg
+    active: true
+  - region_id: TRY04
+    region_number: 4
+    region_code: TRY04
+    region_name: Klimaregion 4
+    reference_location_id: LOC_020
+    reference_location_name: Potsdam
+    active: true
+  - region_id: TRY05
+    region_number: 5
+    region_code: TRY05
+    region_name: Klimaregion 5
+    reference_location_id: LOC_028
+    reference_location_name: Essen
+    active: true
+  - region_id: TRY06
+    region_number: 6
+    region_code: TRY06
+    region_name: Klimaregion 6
+    reference_location_id: LOC_033
+    reference_location_name: Bad Marienberg
+    active: true
+  - region_id: TRY07
+    region_number: 7
+    region_code: TRY07
+    region_name: Klimaregion 7
+    reference_location_id: LOC_038
+    reference_location_name: Kassel
+    active: true
+  - region_id: TRY08
+    region_number: 8
+    region_code: TRY08
+    region_name: Klimaregion 8
+    reference_location_id: LOC_042
+    reference_location_name: Braunlage
+    active: true
+  - region_id: TRY09
+    region_number: 9
+    region_code: TRY09
+    region_name: Klimaregion 9
+    reference_location_id: LOC_043
+    reference_location_name: Chemnitz
+    active: true
+  - region_id: TRY10
+    region_number: 10
+    region_code: TRY10
+    region_name: Klimaregion 10
+    reference_location_id: LOC_045
+    reference_location_name: Hof
+    active: true
+  - region_id: TRY11
+    region_number: 11
+    region_code: TRY11
+    region_name: Klimaregion 11
+    reference_location_id: LOC_048
+    reference_location_name: Fichtelberg
+    active: true
+  - region_id: TRY12
+    region_number: 12
+    region_code: TRY12
+    region_name: Klimaregion 12
+    reference_location_id: LOC_053
+    reference_location_name: Mannheim
+    active: true
+  - region_id: TRY13
+    region_number: 13
+    region_code: TRY13
+    region_name: Klimaregion 13
+    reference_location_id: LOC_058
+    reference_location_name: Muehldorf
+    active: true
+  - region_id: TRY14
+    region_number: 14
+    region_code: TRY14
+    region_name: Klimaregion 14
+    reference_location_id: LOC_064
+    reference_location_name: Stoetten
+    active: true
+  - region_id: TRY15
+    region_number: 15
+    region_code: TRY15
+    region_name: Klimaregion 15
+    reference_location_id: LOC_066
+    reference_location_name: Garmisch-Partenkirchen
+    active: true
+
+weather_locations:
+  - location_id: LOC_001
+    location_name: Bremen
+    legacy_code: HB
+    region_id: TRY01
+    reference_location_id: LOC_002
+    is_reference_location: false
+    active: true
+  - location_id: LOC_002
+    location_name: Bremerhaven
+    legacy_code: HB
+    region_id: TRY01
+    reference_location_id: LOC_002
+    is_reference_location: true
+    active: true
+  - location_id: LOC_003
+    location_name: Emden
+    legacy_code: EMD
+    region_id: TRY01
+    reference_location_id: LOC_002
+    is_reference_location: false
+    active: true
+  - location_id: LOC_004
+    location_name: Flensburg
+    legacy_code: FL
+    region_id: TRY02
+    reference_location_id: LOC_005
+    is_reference_location: false
+    active: true
+  - location_id: LOC_005
+    location_name: Rostock
+    legacy_code: HRO
+    region_id: TRY02
+    reference_location_id: LOC_005
+    is_reference_location: true
+    active: true
+  - location_id: LOC_006
+    location_name: Ruegen
+    legacy_code: RUEG
+    region_id: TRY02
+    reference_location_id: LOC_005
+    is_reference_location: false
+    active: true
+  - location_id: LOC_007
+    location_name: Kiel
+    legacy_code: KI
+    region_id: TRY02
+    reference_location_id: LOC_005
+    is_reference_location: false
+    active: true
+  - location_id: LOC_008
+    location_name: Luebeck
+    legacy_code: HL
+    region_id: TRY02
+    reference_location_id: LOC_005
+    is_reference_location: false
+    active: true
+  - location_id: LOC_009
+    location_name: Hamburg
+    legacy_code: HH
+    region_id: TRY03
+    reference_location_id: LOC_009
+    is_reference_location: true
+    active: true
+  - location_id: LOC_010
+    location_name: Hannover
+    legacy_code: H
+    region_id: TRY03
+    reference_location_id: LOC_009
+    is_reference_location: false
+    active: true
+  - location_id: LOC_011
+    location_name: Meppen
+    legacy_code: EL
+    region_id: TRY03
+    reference_location_id: LOC_009
+    is_reference_location: false
+    active: true
+  - location_id: LOC_012
+    location_name: Uelzen
+    legacy_code: UE
+    region_id: TRY03
+    reference_location_id: LOC_009
+    is_reference_location: false
+    active: true
+  - location_id: LOC_013
+    location_name: Berlin
+    legacy_code: B
+    region_id: TRY04
+    reference_location_id: LOC_020
+    is_reference_location: false
+    active: true
+  - location_id: LOC_014
+    location_name: Cottbus
+    legacy_code: CB
+    region_id: TRY04
+    reference_location_id: LOC_020
+    is_reference_location: false
+    active: true
+  - location_id: LOC_015
+    location_name: Dessau
+    legacy_code: DE
+    region_id: TRY04
+    reference_location_id: LOC_020
+    is_reference_location: false
+    active: true
+  - location_id: LOC_016
+    location_name: Frankfurt (Oder)
+    legacy_code: FF
+    region_id: TRY04
+    reference_location_id: LOC_020
+    is_reference_location: false
+    active: true
+  - location_id: LOC_017
+    location_name: Leipzig
+    legacy_code: L
+    region_id: TRY04
+    reference_location_id: LOC_020
+    is_reference_location: false
+    active: true
+  - location_id: LOC_018
+    location_name: Magdeburg
+    legacy_code: MD
+    region_id: TRY04
+    reference_location_id: LOC_020
+    is_reference_location: false
+    active: true
+  - location_id: LOC_019
+    location_name: Neubrandenburg
+    legacy_code: NB
+    region_id: TRY04
+    reference_location_id: LOC_020
+    is_reference_location: false
+    active: true
+  - location_id: LOC_020
+    location_name: Potsdam
+    legacy_code: P
+    region_id: TRY04
+    reference_location_id: LOC_020
+    is_reference_location: true
+    active: true
+  - location_id: LOC_021
+    location_name: Schwerin
+    legacy_code: SN
+    region_id: TRY04
+    reference_location_id: LOC_020
+    is_reference_location: false
+    active: true
+  - location_id: LOC_022
+    location_name: Wittenberge
+    legacy_code: ""
+    region_id: TRY04
+    reference_location_id: LOC_020
+    is_reference_location: false
+    active: true
+  - location_id: LOC_023
+    location_name: Dresden
+    legacy_code: DD
+    region_id: TRY04
+    reference_location_id: LOC_020
+    is_reference_location: false
+    active: true
+  - location_id: LOC_024
+    location_name: Aachen
+    legacy_code: AC
+    region_id: TRY05
+    reference_location_id: LOC_028
+    is_reference_location: false
+    active: true
+  - location_id: LOC_025
+    location_name: Bonn
+    legacy_code: BN
+    region_id: TRY05
+    reference_location_id: LOC_028
+    is_reference_location: false
+    active: true
+  - location_id: LOC_026
+    location_name: Dortmund
+    legacy_code: DO
+    region_id: TRY05
+    reference_location_id: LOC_028
+    is_reference_location: false
+    active: true
+  - location_id: LOC_027
+    location_name: Duesseldorf
+    legacy_code: D
+    region_id: TRY05
+    reference_location_id: LOC_028
+    is_reference_location: false
+    active: true
+  - location_id: LOC_028
+    location_name: Essen
+    legacy_code: E
+    region_id: TRY05
+    reference_location_id: LOC_028
+    is_reference_location: true
+    active: true
+  - location_id: LOC_029
+    location_name: Koeln
+    legacy_code: K
+    region_id: TRY05
+    reference_location_id: LOC_028
+    is_reference_location: false
+    active: true
+  - location_id: LOC_030
+    location_name: Muenster
+    legacy_code: MS
+    region_id: TRY05
+    reference_location_id: LOC_028
+    is_reference_location: false
+    active: true
+  - location_id: LOC_031
+    location_name: Osnabrueck
+    legacy_code: OS
+    region_id: TRY05
+    reference_location_id: LOC_028
+    is_reference_location: false
+    active: true
+  - location_id: LOC_032
+    location_name: Koblenz
+    legacy_code: KO
+    region_id: TRY05
+    reference_location_id: LOC_028
+    is_reference_location: false
+    active: true
+  - location_id: LOC_033
+    location_name: Bad Marienberg
+    legacy_code: WW
+    region_id: TRY06
+    reference_location_id: LOC_033
+    is_reference_location: true
+    active: true
+  - location_id: LOC_034
+    location_name: Detmold
+    legacy_code: LIP
+    region_id: TRY06
+    reference_location_id: LOC_033
+    is_reference_location: false
+    active: true
+  - location_id: LOC_035
+    location_name: Nordhausen
+    legacy_code: NDH
+    region_id: TRY06
+    reference_location_id: LOC_033
+    is_reference_location: false
+    active: true
+  - location_id: LOC_036
+    location_name: Saarbruecken
+    legacy_code: SB
+    region_id: TRY06
+    reference_location_id: LOC_033
+    is_reference_location: false
+    active: true
+  - location_id: LOC_037
+    location_name: Freiburg
+    legacy_code: FR
+    region_id: TRY06
+    reference_location_id: LOC_033
+    is_reference_location: false
+    active: true
+  - location_id: LOC_038
+    location_name: Kassel
+    legacy_code: KS
+    region_id: TRY07
+    reference_location_id: LOC_038
+    is_reference_location: true
+    active: true
+  - location_id: LOC_039
+    location_name: Marburg
+    legacy_code: MR
+    region_id: TRY07
+    reference_location_id: LOC_038
+    is_reference_location: false
+    active: true
+  - location_id: LOC_040
+    location_name: Trier
+    legacy_code: TR
+    region_id: TRY07
+    reference_location_id: LOC_038
+    is_reference_location: false
+    active: true
+  - location_id: LOC_041
+    location_name: Fulda
+    legacy_code: FD
+    region_id: TRY07
+    reference_location_id: LOC_038
+    is_reference_location: false
+    active: true
+  - location_id: LOC_042
+    location_name: Braunlage
+    legacy_code: BRL
+    region_id: TRY08
+    reference_location_id: LOC_042
+    is_reference_location: true
+    active: true
+  - location_id: LOC_043
+    location_name: Chemnitz
+    legacy_code: C
+    region_id: TRY09
+    reference_location_id: LOC_043
+    is_reference_location: true
+    active: true
+  - location_id: LOC_044
+    location_name: Erfurt
+    legacy_code: EF
+    region_id: TRY09
+    reference_location_id: LOC_043
+    is_reference_location: false
+    active: true
+  - location_id: LOC_045
+    location_name: Hof
+    legacy_code: HO
+    region_id: TRY10
+    reference_location_id: LOC_045
+    is_reference_location: true
+    active: true
+  - location_id: LOC_046
+    location_name: Plauen
+    legacy_code: V
+    region_id: TRY10
+    reference_location_id: LOC_045
+    is_reference_location: false
+    active: true
+  - location_id: LOC_047
+    location_name: Bayreuth
+    legacy_code: BT
+    region_id: TRY10
+    reference_location_id: LOC_045
+    is_reference_location: false
+    active: true
+  - location_id: LOC_048
+    location_name: Fichtelberg
+    legacy_code: BT
+    region_id: TRY11
+    reference_location_id: LOC_048
+    is_reference_location: true
+    active: true
+  - location_id: LOC_049
+    location_name: Frankfurt (Main)
+    legacy_code: F
+    region_id: TRY12
+    reference_location_id: LOC_053
+    is_reference_location: false
+    active: true
+  - location_id: LOC_050
+    location_name: Stuttgart
+    legacy_code: S
+    region_id: TRY12
+    reference_location_id: LOC_053
+    is_reference_location: false
+    active: true
+  - location_id: LOC_051
+    location_name: Baden-Baden
+    legacy_code: BAD
+    region_id: TRY12
+    reference_location_id: LOC_053
+    is_reference_location: false
+    active: true
+  - location_id: LOC_052
+    location_name: Mainz
+    legacy_code: MZ
+    region_id: TRY12
+    reference_location_id: LOC_053
+    is_reference_location: false
+    active: true
+  - location_id: LOC_053
+    location_name: Mannheim
+    legacy_code: MA
+    region_id: TRY12
+    reference_location_id: LOC_053
+    is_reference_location: true
+    active: true
+  - location_id: LOC_054
+    location_name: Wiesbaden
+    legacy_code: WI
+    region_id: TRY12
+    reference_location_id: LOC_053
+    is_reference_location: false
+    active: true
+  - location_id: LOC_055
+    location_name: Wuerzburg
+    legacy_code: WUE
+    region_id: TRY13
+    reference_location_id: LOC_058
+    is_reference_location: false
+    active: true
+  - location_id: LOC_056
+    location_name: Augsburg
+    legacy_code: A
+    region_id: TRY13
+    reference_location_id: LOC_058
+    is_reference_location: false
+    active: true
+  - location_id: LOC_057
+    location_name: Lindau
+    legacy_code: LI
+    region_id: TRY13
+    reference_location_id: LOC_058
+    is_reference_location: false
+    active: true
+  - location_id: LOC_058
+    location_name: Muehldorf
+    legacy_code: MUE
+    region_id: TRY13
+    reference_location_id: LOC_058
+    is_reference_location: true
+    active: true
+  - location_id: LOC_059
+    location_name: Muenchen
+    legacy_code: M
+    region_id: TRY13
+    reference_location_id: LOC_058
+    is_reference_location: false
+    active: true
+  - location_id: LOC_060
+    location_name: Nuernberg
+    legacy_code: N
+    region_id: TRY13
+    reference_location_id: LOC_058
+    is_reference_location: false
+    active: true
+  - location_id: LOC_061
+    location_name: Passau
+    legacy_code: PA
+    region_id: TRY13
+    reference_location_id: LOC_058
+    is_reference_location: false
+    active: true
+  - location_id: LOC_062
+    location_name: Regensburg
+    legacy_code: R
+    region_id: TRY13
+    reference_location_id: LOC_058
+    is_reference_location: false
+    active: true
+  - location_id: LOC_063
+    location_name: Ulm
+    legacy_code: UL
+    region_id: TRY13
+    reference_location_id: LOC_058
+    is_reference_location: false
+    active: true
+  - location_id: LOC_064
+    location_name: Stoetten
+    legacy_code: OAL
+    region_id: TRY14
+    reference_location_id: LOC_064
+    is_reference_location: true
+    active: true
+  - location_id: LOC_065
+    location_name: Berchtesgaden
+    legacy_code: BGD
+    region_id: TRY15
+    reference_location_id: LOC_066
+    is_reference_location: false
+    active: true
+  - location_id: LOC_066
+    location_name: Garmisch-Partenkirchen
+    legacy_code: GAP
+    region_id: TRY15
+    reference_location_id: LOC_066
+    is_reference_location: true
+    active: true

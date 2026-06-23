@@ -93,12 +93,14 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 
 ### Aktive Teilplaene
 
-- P008 schliesst `ma_weather` mit fuenf realen TRY-Testlaeufen,
-  Import eigener Wetterdateien, Diagrammpruefung, kritischen
-  Wetterereignissen und dokumentierter `weather_key`-Schnittstelle ab.
-- P010 ist die naechste aktive Strukturstufe. Es definiert formatneutrale
-  Eingabequellen, Importdiagnose, manuelle Ergaenzung, Demo-Daten,
-  Validierung und Datenhaltung.
+- P008 fuehrt `ma_weather` als konsolidierter Gesamtplan weiter: fuenf reale
+  TRY-Testlaeufe, Standort-/Referenzstandortlogik, eigener Dateiimport,
+  offene Wetterdatensaetze, bewusste Aktivierung, Projekt-Default,
+  Diagrammpruefung, kritische Wetterereignisse und dokumentierte
+  Uebergabegrenze zu `ma_parameters`.
+- P010 ist umgesetzt und archiviert. Formatneutrale Eingabequellen,
+  strukturierte Diagnosen, Freigaberegeln, IDs und append-only Sitzungslogs
+  sind am TRY-Wetterimport erprobt.
 - P027 begleitet alle Fachslices mit UI-, Workflow-, Validierungs- und
   Feedbackregeln.
 - P028 ist als erster gemeinsamer Streamlit-Slice umgesetzt und archiviert:
@@ -108,6 +110,8 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - Der P028-Vorlagenschutz verhindert Aenderungen an versionierten Vorlagen.
   Eigene Dateien werden lokal gespeichert; kollidierende neue Dateinamen
   muessen geaendert werden. YAML bleibt nur der erste Schreibadapter.
+- P011 ist die naechste Fachstufe und verwendet die P010-Vertraege fuer
+  Projektstammdaten, Modellreferenzen, Quellenwahl und Freigabestatus.
 - P009 bleibt bis zum validierten `RunManifest` aus P018 zurueckgestellt. Der
   vorhandene Basisexport in `ma_variants.ida_export` wird spaeter
   wiederverwendet, nicht dupliziert.
@@ -249,12 +253,17 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - P028 umgesetzt: Projekt-, Parameter- und Variantenansicht teilen einen
   Sitzungsstand, wenden neutrale Benennungsprofile an und speichern eigene
   YAML-Arbeitsstaende mit technischem Vorlagenschutz.
+- P010 umgesetzt: `InputSource`, strukturierte Diagnose- und
+  Freigabemodelle, Dateipruefsummen und JSONL-Sitzungslogs sind vorhanden.
+  Der TRY-Wetterpilot zeigt Quellen, Warnungs-IDs, Fundstellen und
+  Freigabeentscheidungen in Streamlit.
 
 ### Offen
 
-- P008 liegt als aktiver Abschlussplan fuer das Wettermodul in der Plan-Inbox.
-- P010 nach dem P028-Datei- und Vorlagenschutz um allgemeine Quellen-,
-  Diagnose- und Validierungsvertraege erweitern.
+- P008 liegt als aktiver konsolidierter Gesamtplan fuer das Wettermodul in der
+  Plan-Inbox. Die beiden Ausgangsplaene wurden archiviert.
+- P010-Vertraege in P011, P012, P013, P014 und P015 nur mit dem jeweiligen
+  Fachslice anbinden.
 - P020 beginnt mit Recherche und darf vor einer belastbaren Normen- und
   Methodenmatrix keine Grenzwerte als Norm-Nachweis implementieren.
 - Aus P005 nach P007 uebernommen: Analyse-View in laufender Streamlit-App manuell gegen
@@ -349,17 +358,25 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   vorhanden.
 - P002 Real-Testlauf fuer `TRY_FFM_2015` erfolgreich: Validierung `ok`, 8760 Stunden,
   sechs Diagramme, aufbereitete CSV und Markdown-Bericht wurden lokal erzeugt.
+- P008 Standort- und Rollen-Slice umgesetzt: YAML-Standortkatalog,
+  Klimaregions-/Referenzstandortlogik, optionale Datensatzrollen
+  `try_reference` und `site_specific` sowie zweispaltige Streamlit-Auswahl
+  mit Kartenplatzhalter sind vorhanden.
 
 ### Offen
 
 - Weitere aktive Jahresdatensaetze `TRY_FFM_2045`, `TRY_MUC_2015`,
   `TRY_MUC_2045`, `TRY_HAM_2015` und `TRY_HAM_2045` real pruefen.
+- TRY-Referenzdatensaetze fuer Referenzstandorte wie Mannheim und Muehldorf
+  fachlich ergaenzen oder bewusst als fehlend dokumentieren.
 - Diagrammgestaltung fachlich pruefen und bei Bedarf an Masterarbeitslayout anpassen.
 - Offener Strukturpunkt: Wetterdiagramme bleiben vorerst im Modul `ma_weather`;
   spaeter klaeren, ob zusaetzlich ein eigener UI-Hauptbefehl
   `plot-template-weather` eingefuehrt wird.
-- P008 erst archivieren, wenn die vorgesehenen realen TRY-Datensaetze lokal
-  erfolgreich verarbeitet und die P007-Schnittstelle dokumentiert wurden.
+- Konsolidierten P008-Gesamtplan erst abschliessen und archivieren, wenn die
+  vorgesehenen realen TRY-Datensaetze lokal erfolgreich verarbeitet,
+  Standort-/Referenzstandortlogik geplant, Import- und Freigaberegeln
+  dokumentiert und die P007-/`ma_parameters`-Schnittstelle geklaert wurden.
 
 ## Offene Nutzerentscheidungen
 
@@ -379,5 +396,7 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - `docs/project/archive/plans/250604_Plan_Projektstruktur_Review_Planungsbereich_Nutzerentscheidungen.md`: umgesetzter Strukturplan P003.
 - `docs/project/archive/plans/PLAN_Projektplan_Version_1_0_0.md`: abgelegter Projektplan Version 1.0.0.
 - `docs/project/archive/plans/250603_Plan_Wetterdatenanalyse_TRY_Integration.md`: teilweise umgesetzter P002-Ursprungsplan; Restarbeiten stehen in P008.
+- `docs/project/archive/plans/260621_Plan_P008_Wettermodul_Abschluss_P007_Anbindung.md`: archivierter P008-Ausgangsplan; Inhalte stehen im konsolidierten P008-Gesamtplan.
+- `docs/project/archive/plans/Implementierungsplan_ma_weather.md`: archivierter unnummerierter ma_weather-Ausgangsplan; Inhalte stehen im konsolidierten P008-Gesamtplan.
 - `docs/project/archive/plans/250608_Plan_Gesamtmodulstruktur_PreProcess_PostProcess_Dashboard.md.txt`: teilweise umgesetzter P005-Strukturplan; gueltige Inhalte sind in P007 konsolidiert.
 - `docs/project/archive/plans/260618_Plan_ma_export_ida_IDM_Exportentwurf.md`: historischer P006-Entwurf; verbleibende Schnittstellenarbeit steht in P009.

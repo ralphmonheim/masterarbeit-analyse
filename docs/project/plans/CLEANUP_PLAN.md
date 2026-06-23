@@ -79,7 +79,8 @@ Stand: 2026-06-23
 
 1. P003 abgeschlossen halten und bei Strukturentscheidungen pflegen.
 2. P007 als verbindliche Architektur- und Roadmap-Grundlage verwenden.
-3. P010 fuer Eingabe- und Datenhaltungsarchitektur bearbeiten.
+3. P010 ist umgesetzt; gemeinsame Eingabe- und Freigabevertraege in den
+   folgenden Fachplaenen wiederverwenden.
 4. P008 fuer Wetterabschluss, Dateiimport und Ereignisse bearbeiten.
 5. P011 bis P018 fuer die Eingabekette bis Run-Manifest umsetzen.
 6. P009 erst danach fuer Simulationsschnittstellen weiterfuehren.

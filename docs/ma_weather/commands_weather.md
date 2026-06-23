@@ -13,7 +13,10 @@ Markdown-Bericht.
 - Aufbereitete Wetterdaten sind spaeter fuer `data/ma_weather/database/` vorgesehen.
 - Wetterdiagramme sind spaeter fuer `data/ma_weather/output/` vorgesehen.
 - Der Runner kann als Modul gestartet werden.
-- Der Plan liegt unter `docs/project/plans/inbox/250603_Plan_Wetterdatenanalyse_TRY_Integration.md`.
+- Der aktive Plan liegt unter `docs/project/plans/inbox/260623_Plan_P008_ma_weather_Gesamtplan.md`.
+- Ein YAML-Standortkatalog liegt unter `config/ma_weather/locations/example_weather_locations.yaml`.
+- Die Streamlit-Wetterseite zeigt Stadt, Klimaregion, TRY-Referenzstandort und
+  sortierte Wetterdatensaetze.
 
 ## Sammelbefehle
 
@@ -49,6 +52,12 @@ Die gleiche Pipeline kann auch in `ma_ui` ueber die Seite `Wetterdaten`
 gestartet werden. Dort wird ein aktiver `weather_key` ausgewaehlt und die
 erzeugten Diagramme werden direkt angezeigt.
 
+Die Wetterseite zeigt zusaetzlich Quellenmetadaten, Diagnose-IDs und
+Fundstellen. Bei Warnungen muss der Lauf bewusst mit `Nicht freigeben` oder
+`Warnungen bestaetigen und freigeben` entschieden werden. Die Entscheidung
+gilt nur fuer den aktuellen Lauf und wird lokal unter
+`logs/sessions/<session_id>.jsonl` protokolliert.
+
 ## Einzelbefehle
 
 ### Aktuelle Pruefung
@@ -57,11 +66,14 @@ Katalog- und Strukturtests fuer den aktuellen Stand:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest tests -k ma_weather
+.\.venv\Scripts\python.exe -m pytest tests -k weather
 .\.venv\Scripts\python.exe -m ruff check src tests --no-cache
 ```
 
 ## Referenz und Hinweise
 
 - Der Katalog darf auf lokale TRY-Dateien verweisen, die nicht im Repo liegen.
-- `weather_key` ist die spaetere Verbindung zum Variantenmodul.
+- `weather_key` bleibt der bestehende technische Schluessel. Die spaetere
+  Uebergabe erfolgt kontrolliert ueber `ma_parameters`.
 - Wetterdaten bleiben fachlich von `ma_analyse`-Zonenwerten getrennt.
+- Bestehende Analyse-Textlogs unter `logs/*.log` bleiben unveraendert.

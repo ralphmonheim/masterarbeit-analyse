@@ -113,6 +113,9 @@ Alternative:
   startet die lokale `ma_weather`-Analyse und zeigt erzeugte Wetterdiagramme
   direkt in Streamlit an. Die Analysebedienung steht oben; die Uebersicht der
   Wetterdatensaetze steht darunter.
+- Wetterdiagnosen zeigen ID, Code, Problem und Fundstelle. Fehler blockieren
+  die Freigabe; Warnungen verlangen eine bewusste laufgebundene Entscheidung.
+  Lauf und Entscheidung werden unter `logs/sessions/` protokolliert.
 - Die bestehende Tkinter-GUI von `ma_analyse` bleibt separat bestehen.
 - Wenn Streamlit nach Codeaenderungen alte Importfehler zeigt, den laufenden
   Streamlit-Prozess stoppen und mit dem empfohlenen venv-Befehl neu starten.

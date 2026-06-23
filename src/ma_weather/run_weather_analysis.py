@@ -7,6 +7,19 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Sequence
 
+from ma_core import (
+    SessionLogEvent,
+    append_session_event,
+    create_run_id,
+    create_session_id,
+)
+from ma_validation import (
+    ReleaseChoice,
+    ReleaseDecision,
+    ReleaseStatus,
+    create_release_decision,
+)
+
 from .try_importer import TryImportResult, import_try_weather_file
 from .weather_catalog import DEFAULT_WEATHER_DATASETS_CONFIG, WeatherDataset, import_weather_catalog
 from .weather_metrics import WeatherMetrics, calculate_weather_metrics
@@ -26,6 +39,10 @@ class WeatherAnalysisResult:
     plot_results: tuple[WeatherPlotResult, ...]
     processed_data_path: Path
     report_path: Path
+    session_id: str
+    run_id: str
+    session_log_path: Path
+    release_decision: ReleaseDecision | None
 
 
 def run_weather_analysis(
@@ -36,29 +53,135 @@ def run_weather_analysis(
     database_dir: str | Path = "data/ma_weather/database",
     output_dir: str | Path = "data/ma_weather/output",
     reports_dir: str | Path = "data/ma_weather/reports",
+    session_log_dir: str | Path = "logs/sessions",
     start_year: int = 2015,
+    session_id: str | None = None,
+    run_id: str | None = None,
     print_summary: bool = True,
 ) -> WeatherAnalysisResult:
     """Fuehrt Import, Validierung, Kennwerte, Diagramme und Bericht fuer einen Datensatz aus."""
     root = Path.cwd() if project_root is None else Path(project_root)
-    catalog = import_weather_catalog(catalog_path)
-    dataset = catalog.get(weather_key)
-    source_path = dataset.resolved_file_path(root)
-
-    import_result = import_try_weather_file(source_path, weather_key=dataset.weather_key, start_year=start_year)
-    validation_report = validate_weather_dataframe(import_result.data)
-    metrics = calculate_weather_metrics(import_result.data)
-
-    processed_data_path = _write_processed_data(import_result, root / database_dir, dataset.weather_key)
-    plot_results = build_weather_plots(import_result.data, weather_key=dataset.weather_key, output_dir=root / output_dir)
-    report_path = write_weather_report(
-        dataset=dataset,
-        import_result=import_result,
-        validation_report=validation_report,
-        metrics=metrics,
-        plot_results=plot_results,
-        output_dir=root / reports_dir,
+    resolved_session_id = session_id or create_session_id()
+    resolved_run_id = run_id or create_run_id("weather")
+    resolved_log_dir = root / session_log_dir
+    session_log_path = append_session_event(
+        SessionLogEvent(
+            session_id=resolved_session_id,
+            run_id=resolved_run_id,
+            event_type="run_started",
+            module_key="ma_weather",
+            dataset_key=weather_key,
+            message="Wetteranalyse gestartet.",
+        ),
+        log_dir=resolved_log_dir,
     )
+
+    try:
+        catalog = import_weather_catalog(catalog_path)
+        dataset = catalog.get(weather_key)
+        source_path = dataset.resolved_file_path(root)
+
+        import_result = import_try_weather_file(source_path, weather_key=dataset.weather_key, start_year=start_year)
+        append_session_event(
+            SessionLogEvent(
+                session_id=resolved_session_id,
+                run_id=resolved_run_id,
+                event_type="input_source_loaded",
+                module_key="ma_weather",
+                dataset_key=dataset.weather_key,
+                source_id=import_result.source.source_id,
+                message="TRY-Eingabequelle geladen.",
+                details={
+                    "source_kind": import_result.source.source_kind.value,
+                    "data_format": import_result.source.data_format,
+                    "source_path": str(import_result.source.source_path or ""),
+                    "adapter_key": import_result.source.adapter_key,
+                    "file_size_bytes": import_result.source.file_size_bytes,
+                    "sha256": import_result.source.sha256,
+                },
+            ),
+            log_dir=resolved_log_dir,
+        )
+        validation_report = validate_weather_dataframe(
+            import_result.data,
+            additional_messages=import_result.import_diagnostic.messages,
+        )
+        for message in validation_report.validation_result.messages:
+            append_session_event(
+                SessionLogEvent(
+                    session_id=resolved_session_id,
+                    run_id=resolved_run_id,
+                    event_type="diagnostic_recorded",
+                    module_key="ma_weather",
+                    dataset_key=dataset.weather_key,
+                    severity=message.severity.value,
+                    diagnostic_code=message.code,
+                    message=message.message,
+                    location=message.location,
+                    source_id=import_result.source.source_id,
+                    related_id=message.diagnostic_id,
+                ),
+                log_dir=resolved_log_dir,
+            )
+
+        metrics = calculate_weather_metrics(import_result.data)
+        processed_data_path = _write_processed_data(import_result, root / database_dir, dataset.weather_key)
+        plot_results = build_weather_plots(
+            import_result.data,
+            weather_key=dataset.weather_key,
+            output_dir=root / output_dir,
+        )
+        report_path = write_weather_report(
+            dataset=dataset,
+            import_result=import_result,
+            validation_report=validation_report,
+            metrics=metrics,
+            plot_results=plot_results,
+            output_dir=root / reports_dir,
+        )
+
+        release_decision = _automatic_release_decision(
+            validation_report=validation_report,
+            session_id=resolved_session_id,
+            run_id=resolved_run_id,
+            dataset_key=dataset.weather_key,
+        )
+        if release_decision is not None:
+            _append_release_decision_event(release_decision, resolved_log_dir)
+
+        append_session_event(
+            SessionLogEvent(
+                session_id=resolved_session_id,
+                run_id=resolved_run_id,
+                event_type="run_completed",
+                module_key="ma_weather",
+                dataset_key=dataset.weather_key,
+                source_id=import_result.source.source_id,
+                release_status=validation_report.validation_result.release_status.value,
+                message="Wetteranalyse abgeschlossen.",
+                details={
+                    "record_count": import_result.row_count,
+                    "processed_data_path": str(processed_data_path),
+                    "report_path": str(report_path),
+                },
+            ),
+            log_dir=resolved_log_dir,
+        )
+    except Exception as exc:
+        append_session_event(
+            SessionLogEvent(
+                session_id=resolved_session_id,
+                run_id=resolved_run_id,
+                event_type="run_failed",
+                module_key="ma_weather",
+                dataset_key=weather_key,
+                severity="error",
+                diagnostic_code="WEATHER_RUN_FAILED",
+                message=str(exc),
+            ),
+            log_dir=resolved_log_dir,
+        )
+        raise
 
     result = WeatherAnalysisResult(
         dataset=dataset,
@@ -68,10 +191,81 @@ def run_weather_analysis(
         plot_results=plot_results,
         processed_data_path=processed_data_path,
         report_path=report_path,
+        session_id=resolved_session_id,
+        run_id=resolved_run_id,
+        session_log_path=session_log_path,
+        release_decision=release_decision,
     )
     if print_summary:
         _print_summary(result)
     return result
+
+
+def _automatic_release_decision(
+    *,
+    validation_report: WeatherValidationReport,
+    session_id: str,
+    run_id: str,
+    dataset_key: str,
+) -> ReleaseDecision | None:
+    release_status = validation_report.validation_result.release_status
+    if release_status is ReleaseStatus.CONFIRMATION_REQUIRED:
+        return None
+    choice = (
+        ReleaseChoice.KEEP_BLOCKED
+        if release_status is ReleaseStatus.BLOCKED
+        else ReleaseChoice.AUTOMATIC_RELEASE
+    )
+    return create_release_decision(
+        validation_report.validation_result,
+        choice=choice,
+        session_id=session_id,
+        run_id=run_id,
+        module_key="ma_weather",
+        dataset_key=dataset_key,
+        note="Automatisch aus dem Validierungsergebnis abgeleitet.",
+    )
+
+
+def _append_release_decision_event(decision: ReleaseDecision, log_dir: Path) -> Path:
+    return append_session_event(
+        SessionLogEvent(
+            session_id=decision.session_id,
+            run_id=decision.run_id,
+            event_type="release_decided",
+            module_key=decision.module_key,
+            dataset_key=decision.dataset_key,
+            choice=decision.choice.value,
+            release_status=decision.resulting_status.value,
+            note=decision.note,
+            related_id=decision.decision_id,
+            message="Freigabeentscheidung gespeichert.",
+            details={"diagnostic_ids": list(decision.diagnostic_ids)},
+        ),
+        log_dir=log_dir,
+    )
+
+
+def record_weather_release_decision(
+    result: WeatherAnalysisResult,
+    *,
+    choice: ReleaseChoice,
+    note: str | None = None,
+    log_dir: str | Path | None = None,
+) -> ReleaseDecision:
+    """Speichert eine ausdrueckliche Entscheidung fuer genau einen Wetterlauf."""
+    decision = create_release_decision(
+        result.validation_report.validation_result,
+        choice=choice,
+        session_id=result.session_id,
+        run_id=result.run_id,
+        module_key="ma_weather",
+        dataset_key=result.dataset.weather_key,
+        note=note,
+    )
+    target_log_dir = Path(log_dir) if log_dir is not None else result.session_log_path.parent
+    _append_release_decision_event(decision, target_log_dir)
+    return decision
 
 
 def _write_processed_data(import_result: TryImportResult, output_dir: Path, weather_key: str) -> Path:
@@ -88,6 +282,7 @@ def _print_summary(result: WeatherAnalysisResult) -> None:
     print(f"Stundenwerte: {result.import_result.row_count}")
     print(f"Diagramme erzeugt: {len(created_plots)}")
     print(f"Bericht: {result.report_path}")
+    print(f"Session-Log: {result.session_log_path}")
 
 
 def main(argv: Sequence[str] | None = None) -> None:

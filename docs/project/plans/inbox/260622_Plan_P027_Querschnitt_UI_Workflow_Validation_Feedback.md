@@ -37,3 +37,10 @@ Projekt, Parameter und Varianten besitzen echte Fachansichten, behalten ihre
 Infokarten und koennen mit gespeichertem Ruecksprungziel aufeinander
 verweisen. Start, Zurueck und Weiter beenden diesen Sonderkontext. Eine
 allgemeine Workflow-Orchestrierung und zentrale Validierung bleiben offen.
+
+## Umsetzungsbezug P010
+
+Gemeinsame Diagnose-, Validierungs- und Freigabemodelle sind umgesetzt.
+Der Wetterpilot zeigt die Meldungen und Entscheidungen in Streamlit und
+protokolliert sie im Sitzungslog. P027 fuehrt diese Bedien- und
+Orchestrierungsregeln in spaeteren Fachslices weiter.

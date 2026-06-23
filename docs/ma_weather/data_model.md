@@ -17,8 +17,46 @@ Felder:
 | `location` | Ort oder Klimaregion |
 | `year_type` | z. B. Referenzjahr, Sommer, Winter |
 | `climate_scenario` | Klimaszenario oder Zeitraum |
+| `dataset_role` | optionale Rolle, z. B. `try_reference` oder `site_specific` |
+| `location_id` | optionale Stadt-ID fuer standortgenaue Datensaetze |
+| `reference_location_id` | optionale Referenzstandort-ID fuer TRY-Referenzdatensaetze |
+| `selection_priority` | Sortierung innerhalb gleicher Rolle |
 | `is_active` | steuert, ob der Datensatz aktiv verwendet werden soll |
 | `notes` | kurze Hinweise |
+
+## Standort- und Referenzkatalog
+
+Der P008-Slice fuer Standortlogik fuehrt einen YAML-basierten
+Zwischenkatalog ein:
+
+```text
+config/ma_weather/locations/example_weather_locations.yaml
+```
+
+Der Katalog enthaelt:
+
+- `weather_regions`: TRY-Klimaregionen 1 bis 15 mit Referenzstandort
+- `weather_locations`: Staedte, Legacy-Codes, Klimaregion und
+  Referenzstandort
+
+Die Fachlogik liegt in `src/ma_weather/weather_locations.py`.
+
+Der Ablauf ist bewusst noch keine Datenbankmigration. Die YAML-Struktur dient
+als Seed- und Abstimmungsgrundlage fuer die spaetere Datenbank.
+
+## Datensatzrollen
+
+Wetterdatensaetze koennen optional eine fachliche Rolle erhalten:
+
+| Rolle | Bedeutung |
+|---|---|
+| `try_reference` | TRY-Referenzdatensatz fuer einen Referenzstandort; wird in der Auswahl zuerst empfohlen |
+| `site_specific` | standortgenauer Datensatz fuer eine konkrete Stadt |
+
+Der TRY-Referenzdatensatz und standortgenaue Datensaetze werden nicht
+stillschweigend gleichgesetzt. Wenn fuer einen Referenzstandort kein
+TRY-Referenzdatensatz katalogisiert ist, wird kein anderer Datensatz als
+Referenzdatensatz ausgegeben.
 
 ## Katalogdatei
 
@@ -49,6 +87,7 @@ Der aktuelle Katalogimport prueft:
 - leere technische Schluessel
 - doppelte `weather_key` Werte
 - boolesches Feld `is_active`
+- optionale Datensatzrolle und zugehoerige Standort-IDs
 
 Die Datei selbst muss im Struktur-Slice nicht existieren. Ein spaeterer
 Integrationstest kann echte TRY-Dateien bewusst voraussetzen.

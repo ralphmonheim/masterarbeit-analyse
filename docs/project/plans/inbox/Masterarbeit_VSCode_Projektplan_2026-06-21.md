@@ -957,7 +957,7 @@ Ergebnis
 
 ## 10. Empfohlene Implementierungsreihenfolge
 
-1. P010 Eingabe- und Datenhaltungsarchitektur
+1. P010 Eingabe- und Datenhaltungsarchitektur (umgesetzt)
 2. P011 `ma_project`
 3. P008 `ma_weather` abschliessen und erweitern
 4. P012 `ma_building`
@@ -977,8 +977,8 @@ Ergebnis
 18. P026 `ma_data_export` Konzept
 19. P009 Export-/Importgrenze nach P018 weiterfuehren
 20. P027 Querschnittsfunktionen begleitend pflegen
-21. P028 Projekt-, Parameter- und Naming-Demo in Streamlit umsetzen
-21. Tests und Abschlusspruefung
+21. P028 Projekt-, Parameter- und Naming-Demo in Streamlit (umgesetzt)
+22. Tests und Abschlusspruefung
 
 ## 11. Meilensteine
 

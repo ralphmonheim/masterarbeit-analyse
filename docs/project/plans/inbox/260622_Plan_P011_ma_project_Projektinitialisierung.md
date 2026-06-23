@@ -44,3 +44,10 @@ Bereits als Demo umgesetzt sind die frei verwaltbare Simulationsprogrammliste,
 das aktive Programm, neutrale Benennungsprofile, Vorschau, Eindeutigkeitspruefung
 und geschuetzte lokale Speicherung. Projekt-ID, Standort, Untersuchungsziel,
 Modellreferenzen, Quellenwahl und Freigabestatus bleiben fuer P011 offen.
+
+## Umsetzungsbezug P010
+
+P011 verwendet `InputSource` fuer die Quellenwahl je Modul, strukturierte
+Diagnosen fuer fehlende Pflichtangaben und die gemeinsame Freigabelogik.
+Projektbezogene Entscheidungen sollen in den append-only Sitzungslogs
+referenzierbar bleiben. Eine Datenbank ist dafuer nicht erforderlich.

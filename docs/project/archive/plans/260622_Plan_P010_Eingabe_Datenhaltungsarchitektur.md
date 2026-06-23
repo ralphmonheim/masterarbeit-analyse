@@ -1,7 +1,7 @@
 # P010 Eingabe- und Datenhaltungsarchitektur
 
 Stand: 2026-06-23
-Status: Aktiv
+Status: Umgesetzt und archiviert
 Prioritaet: Hoch
 Bezug: P007
 
@@ -68,3 +68,20 @@ Fehler bei kollidierenden neuen Dateinamen. Allgemeine `InputSource`-,
 - konkrete Pflichtformate je Eingabemodul
 - Umfang eines spaeteren IFC-Lite-Adapters
 - Zeitpunkt und Technik einer zentralen Datenbank
+
+## Umsetzungsergebnis
+
+- Formatneutrale Modelle fuer Eingabequellen, Dateimetadaten, Aenderungen,
+  Diagnosen, Validierung und Freigabe sind umgesetzt.
+- Fehler blockieren immer; Warnungen benoetigen eine ausdrueckliche
+  Entscheidung; fehlerfreie Staende werden automatisch freigegeben.
+- Eindeutige Quellen-, Sitzungs-, Lauf-, Ereignis-, Diagnose- und
+  Entscheidungs-IDs sind vorhanden.
+- Strukturierte Ereignisse werden append-only unter
+  `logs/sessions/<session_id>.jsonl` protokolliert.
+- TRY-Import und Wettervalidierung bilden den ersten kompatiblen Pilotadapter.
+- Die Streamlit-Wetteransicht zeigt Quelle, Diagnosen und Freigabestatus und
+  protokolliert beide Warnungsentscheidungen.
+- Die Reifegradmatrix liegt unter
+  `docs/project/architecture/INPUT_DATA_FORMAT_MATRIX.md`.
+- `ma_database` wurde bewusst nicht erweitert.
