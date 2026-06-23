@@ -1,6 +1,6 @@
 # Projektplan für die VS-Code-Umsetzung der Masterarbeitssoftware
 
-Stand 21. Juni 2026
+Stand 23. Juni 2026
 
 ## Verbindliche Einordnung
 
@@ -18,13 +18,31 @@ Freigabe, Umsetzung, Test und Dokumentation.
 ## Konsolidierungsstand
 
 P007 ersetzt die strukturellen Zielbilder aus P005 und P006. Die
-Originalplaene bleiben unveraendert im Planarchiv. Fachliche Restarbeiten
-werden ueber P008 fuer `ma_weather` und P009 fuer die allgemeinen
-Simulationsschnittstellen weitergefuehrt.
+Originalplaene bleiben unveraendert im Planarchiv. P008 fuehrt
+`ma_weather` weiter. P010 bis P028 konkretisieren die Eingabekette,
+Analysestufen, Demo-/Konzeptmodule und Querschnittsfunktionen. P009 wird erst
+nach dem Run-Manifest aus P018 technisch fortgesetzt.
 
 Die Zielmodule werden frueh als leichte importierbare Pakete, dokumentierte
 Moduldefinitionen und klickbare Dashboard-Infoseiten sichtbar gemacht.
 Paketexistenz allein bedeutet nicht, dass ein Modul fachlich umgesetzt ist.
+
+## Masterarbeitsprioritaet
+
+Der produktive Schwerpunkt reicht bis `ma_simulation_setup`:
+
+- Eingabequellen und Randbedingungen
+- Projekt, Gebaeude, Wetter, Zonen und Technik
+- zentrale Parameterliste
+- vereinfachte Referenzdimensionierung mit Ausbaupfad
+- Varianten und Naming
+- validiertes Run-Manifest
+
+`ma_building` und `ma_zones` werden mindestens konzeptuell und mit
+Demo-Datensaetzen umgesetzt. Ein IFC-Lite-Adapter bleibt bis zur Analyse
+konkreter IFC-Arbeitsstaende offen. CAD-Integration, automatische
+IDA-Steuerung und ungesicherte Modellmanipulation gehoeren nicht zum
+Masterarbeitskern.
 
 ## 1. Ziel des Projektplans
 
@@ -63,6 +81,8 @@ Die Softwarearchitektur soll grundsätzlich simulationsprogrammunabhängig bleib
 - automatische Steuerung von IDA ICE
 - vollständige automatische Bearbeitung aller IDA-ICE-Dateien
 - vollständige Unterstützung weiterer Simulationsprogramme
+- direkte CAD-Integration und CAD-Modellerstellung
+- verpflichtender vollstaendiger IFC-Import
 - vollständige Ökobilanz aller Bauteile und Anlagen
 - vollständig automatisierter Final Report als fertiger wissenschaftlicher Text
 
@@ -211,7 +231,7 @@ Schritte und Module
 - manuelle Simulation in IDA ICE
 - `ma_import_simulation`
 - `ma_analyse.stage_2_optimization`
-- `ma_analyse.stage_3_verification`
+- `ma_analyse.stage_3_standards_compliance`
 - `ma_analyse.stage_4_sensitivity`
 
 Ziele
@@ -219,7 +239,8 @@ Ziele
 - Ergebnisse importieren
 - Daten vereinheitlichen
 - technische Optimierung auswerten
-- Nachweise prüfen
+- Varianten nach deutschen Normen nachweisen
+- spaetere internationale Normenprofile ermoeglichen
 - Sensitivität und Robustheit untersuchen
 
 ### Phase 5 Wirtschaftlichkeit, Nachhaltigkeit und Gesamtbewertung
@@ -330,8 +351,9 @@ Aufgaben
 - Projektstammdaten
 - Untersuchungsziel
 - Bilanzgrenzen
-- Simulationsprogramm
+- frei erweiterbare Simulationsprogrammliste und aktive Auswahl
 - Referenzmodell
+- neutrales Varianten-Benennungsprofil
 - Projektstatus
 - verwendete Vorlagen
 - Bewertungsziele
@@ -339,6 +361,8 @@ Aufgaben
 - Dokumentationspfade
 
 Für die Masterarbeit gilt IDA ICE als Projektstandard.
+Weitere Programme duerfen als neutrale Projektprofile erfasst werden, ohne
+dass dadurch bereits ein technischer Adapter vorhanden ist.
 
 ### 6.4 `ma_building`
 
@@ -457,7 +481,7 @@ Aufgaben
 - Defaultwerte verwalten
 - Vorschlagswerte aus Stufe 1 speichern
 - variantentaugliche Parameter markieren
-- programmspezifische Mappings bereitstellen
+- Optionsgruppen und ausgewaehlte Werte verwalten
 - zentrale Parameterliste erzeugen
 
 ### 6.9 `ma_variants`
@@ -485,8 +509,12 @@ Aufgaben
 - Varianten erzeugen
 - Varianten auswählen
 - Varianten validieren
+- neutrales Benennungsprofil aus `ma_project` anwenden
 
 Eingangsquelle ist ausschließlich `ma_parameters`.
+Das Benennungsprofil wird von `ma_project` referenziert. Produkt-,
+Material- und programmspezifische Exportbezeichnungen gehoeren nicht zu
+`ma_variants`.
 
 ### 6.10 `ma_simulation_setup`
 
@@ -563,7 +591,7 @@ Verbindliche Struktur
 ma_analyse
   stage_1_dimensioning
   stage_2_optimization
-  stage_3_verification
+  stage_3_standards_compliance
   stage_4_sensitivity
   gemeinsame Bereiche
     analysis_data
@@ -594,15 +622,20 @@ Stufe 2
 - Anlagen- und Regelungsverhalten
 - Optimierungspotenziale
 
-Stufe 3
+Stufe 3 - Standards Compliance / Norm-Nachweis
 
-- Norm- und Grenzwertprüfung
+- deutsche Normen und normierte Berechnungsverfahren als erster Pflichtumfang
+- internationale Normen als spaetere austauschbare Profile
+- Quellenmatrix mit Norm, Ausgabe, Abschnitt und Anwendungsbereich
+- Norm- und Grenzwertpruefung
 - Komfortnachweis
 - Temperatur
 - CO₂
 - PMV und PPD
 - Übertemperaturgradstunden
 - Heiz-, Kühl- und Lüftungsnachweise
+- Ergebnisstatus `pass`, `fail`, `warning` oder `not_evaluable`
+- keine allgemeine Modellverifikation
 
 Stufe 4
 
@@ -771,7 +804,9 @@ ma_technical
 
 → ma_import_simulation
 
-→ ma_analyse Stufe 2 bis 4
+→ ma_analyse.stage_2_optimization
+→ ma_analyse.stage_3_standards_compliance
+→ ma_analyse.stage_4_sensitivity
 
 → ma_economy
 → ma_sustainability
@@ -881,7 +916,9 @@ Ergebnis
 
 ### Arbeitspaket 10 Analyse Stufe 2 bis 4
 
-- `ma_analyse`
+- `ma_analyse.stage_2_optimization`
+- `ma_analyse.stage_3_standards_compliance`
+- `ma_analyse.stage_4_sensitivity`
 
 ### Arbeitspaket 11 Wirtschaftlichkeit und Nachhaltigkeit
 
@@ -920,30 +957,28 @@ Ergebnis
 
 ## 10. Empfohlene Implementierungsreihenfolge
 
-1. Strukturkonsolidierung und Bestandsanalyse
-2. Phase 0 mit `ma_core`, `ma_database`, `ma_ui`, `ma_workflow` und Dokumentationsinfrastruktur
-3. `ma_project`
-4. `ma_building`
-5. `ma_weather` über P008 abschließen
-6. `ma_zones`
-7. `ma_technical`
-8. `ma_parameters`
-9. `ma_analyse.stage_1_dimensioning`
-10. `ma_variants` an die zentrale Parameterquelle anbinden
-11. `ma_simulation_setup`
-12. `ma_export_simulation` über P009 ausbauen
-13. `ma_import_simulation` über P009 ausbauen
-14. `ma_analyse.stage_2_optimization`
-15. `ma_analyse.stage_3_verification`
-16. `ma_analyse.stage_4_sensitivity`
-17. `ma_economy`
-18. `ma_sustainability`
-19. `ma_assessment`
-20. `ma_reporting`
-21. `ma_data_export`
-22. phasenübergreifende Freigaben in `ma_validation`
-23. phasenübergreifende Rücksprünge in `ma_feedback`
-24. Tests und Abschlussprüfung
+1. P010 Eingabe- und Datenhaltungsarchitektur
+2. P011 `ma_project`
+3. P008 `ma_weather` abschliessen und erweitern
+4. P012 `ma_building`
+5. P013 `ma_zones`
+6. P014 `ma_technical`
+7. P015 `ma_parameters`
+8. P016 `ma_analyse.stage_1_dimensioning`
+9. P017 `ma_variants` und Naming anbinden
+10. P018 `ma_simulation_setup` und Run-Manifest
+11. P019 `ma_analyse.stage_2_optimization`
+12. P020 `ma_analyse.stage_3_standards_compliance`
+13. P021 `ma_analyse.stage_4_sensitivity`
+14. P022 `ma_economy` Demo und Konzept
+15. P023 `ma_sustainability` Demo und Konzept
+16. P024 `ma_assessment` Konzept
+17. P025 `ma_reporting` Konzept und Demo
+18. P026 `ma_data_export` Konzept
+19. P009 Export-/Importgrenze nach P018 weiterfuehren
+20. P027 Querschnittsfunktionen begleitend pflegen
+21. P028 Projekt-, Parameter- und Naming-Demo in Streamlit umsetzen
+21. Tests und Abschlusspruefung
 
 ## 11. Meilensteine
 
@@ -952,11 +987,14 @@ Ergebnis
 3. alle vier Eingabemodule liefern Daten an `ma_parameters`
 4. Referenzdimensionierung funktioniert
 5. Varianten können erzeugt, ausgewählt und validiert werden
-6. Runs können angelegt und für IDA ICE exportiert werden
-7. IDA-ICE-Ergebnisse können importiert und vereinheitlicht werden
-8. Analyse Stufe 2 bis 4 funktioniert
-9. Wirtschaftlichkeit, Nachhaltigkeit und Gesamtbewertung funktionieren
-10. Reporting, Export, Dokumentation und UI sind integriert
+6. Runs koennen als validiertes Manifest angelegt werden
+7. Analyse Stufe 2 nutzt die vorhandenen Optimierungswerkzeuge
+8. Stufe 3 erzeugt nachvollziehbare deutsche Norm-Nachweise
+9. Stufe 4 untersucht kritische Wetter- und Betriebsfaelle
+10. IDA-ICE-Uebergabe und Ergebnisimport sind soweit im
+    Masterarbeitsrahmen vertretbar dokumentiert oder umgesetzt
+11. Economy und Sustainability besitzen Demo und Fachkonzept
+12. Assessment, Reporting, Export, Dokumentation und UI sind konzeptuell integriert
 
 ## 12. Qualitätsanforderungen
 
@@ -1275,18 +1313,111 @@ Dokumentationsfunktionen entstehen.
 Entscheidung
 
 P002, P005 und P006 bleiben unverändert im Archiv. P007 übernimmt die
-strukturelle Zielarchitektur; offene Facharbeiten werden in P008 und P009
-weitergeführt.
+strukturelle Zielarchitektur; P008 bis P028 konkretisieren die abgestuften
+Fach-, Demo-, Konzept-, Research- und Querschnittsarbeiten.
 
 Begründung
 
 Die Entstehungsgeschichte bleibt nachvollziehbar, während aktive Pläne frei von
 überholten Strukturentscheidungen bleiben.
 
+### ADR-030 Eingabekette vor Exportautomatisierung
+
+Entscheidung
+
+P010 bis P018 werden vor der technischen Fortsetzung von P009 priorisiert.
+
+Begründung
+
+Funktionsfähige Randbedingungen, Parameter, Dimensionierung, Varianten und
+Run-Konfiguration bilden den realistischen Masterarbeitskern.
+
+### ADR-031 Formatneutrale Eingabeadapter
+
+Entscheidung
+
+Import, manuelle Eingabe und Demo-Daten werden je Modul gewählt. Externe
+Dateiformate werden über Adapter in neutrale Fachmodelle überführt.
+
+Begründung
+
+IFC, TRY, Excel und programmspezifische Dateien besitzen unterschiedliche
+Inhalte und dürfen die Kernmodelle nicht bestimmen.
+
+### ADR-032 Building und Zones mit Demo, IFC-Lite offen
+
+Entscheidung
+
+`ma_building` und `ma_zones` werden mindestens konzeptuell und mit
+Demo-Datensätzen umgesetzt. Ein IFC-Lite-Adapter wird erst nach Analyse
+konkreter IFC-Arbeitsstände entschieden.
+
+Begründung
+
+Eine allgemeine IFC- oder CAD-Integration würde den Masterarbeitsrahmen
+überschreiten.
+
+### ADR-033 Stage 1 mit vereinfachtem Verfahren
+
+Entscheidung
+
+Stage 1 beginnt mit transparenten vereinfachten Verfahren und bereitet einen
+späteren Ausbau zu ausführlicheren oder normnäheren Berechnungen vor.
+
+Begründung
+
+Die Lite-Verfahren sind nachvollziehbar, testbar und gegen IDA-Referenzwerte
+plausibilisierbar.
+
+### ADR-034 Stage 3 als Standards Compliance
+
+Entscheidung
+
+Der kanonische Name lautet
+`ma_analyse.stage_3_standards_compliance`. Deutsche Normen bilden den ersten
+Pflichtumfang; internationale Normen werden als spätere Profile ergänzt.
+
+Begründung
+
+Stufe 3 ist ein Norm-Nachweis der Varianten und keine allgemeine
+Modellverifikation.
+
+### ADR-035 Projektbezogene neutrale Variantenbenennung
+
+Entscheidung
+
+`ma_project` verwaltet die Simulationsprogrammliste und das neutrale
+Varianten-Benennungsprofil. `ma_variants` wendet den referenzierten Regelstand
+an. Produkt- und Materialbezeichnungen bleiben neutrale Katalogdaten;
+programmspezifische Objekt- und Exportcodes liegen in den Adaptern.
+
+Begründung
+
+Projektkonfiguration, fachliche Katalogbezeichnungen und
+programmspezifische Mappings haben unterschiedliche Verantwortlichkeiten.
+
+### ADR-036 Geschuetzte Vorlagen und formaterweiterbare Konfiguration
+
+Entscheidung
+
+Versionierte Vorlagen werden niemals veraendert. Eigene Arbeitsstaende liegen
+in lokalen Modulpfaden. Kollidiert ein neuer Dateiname, muss der Nutzer einen
+anderen Namen auswaehlen. YAML ist das erste Speicherformat, aber keine
+dauerhafte Einschraenkung der Architektur.
+
+Begründung
+
+Vorlagen muessen reproduzierbar bleiben. Fachmodelle duerfen nicht an ein
+einzelnes Dateiformat oder automatische, schwer nachvollziehbare
+Dateiumbenennungen gekoppelt werden.
+
 ## 14. Offene Entscheidungen
 
-- Normen und Berechnungsverfahren für Stufe 1
-- konkrete Nachweiskriterien für Stufe 3
+- konkrete ausfuehrliche und normnahe Ausbaustufe fuer Stufe 1
+- konkrete deutsche Normen, Ausgaben, Abschnitte und Nachweiskriterien fuer
+  Stufe 3
+- Umfang eines spaeteren IFC-Lite-Adapters
+- verbindliche Importformate je Eingabemodul
 - verbindliche Varianten-Auswahlmethoden
 - genaue ID-Schreibweise
 - Case- oder Execution-ID

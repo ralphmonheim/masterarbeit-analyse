@@ -1,6 +1,6 @@
 # Entscheidungen
 
-Stand: 2026-06-22
+Stand: 2026-06-23
 
 Dieses Dokument sammelt technische und architektonische Entscheidungen. Echte Nutzerentscheidungen stehen getrennt in `USER_DECISIONS_MASTERTHESIS_CODE.md`.
 
@@ -249,3 +249,78 @@ Technische Regeln:
 - Modul-Infoseiten lesen ihre Inhalte aus dem zentralen Katalog.
 - Die Projektdokumentation bleibt unter `docs` und wird nicht als Python-Paket
   gespiegelt.
+
+## Entscheidung 19: Eingabeformate liegen hinter Adaptern
+
+Externe Dateien werden nicht zu internen Fachmodellen. Ein Adapter erkennt das
+Format, liest den vorhandenen Inhalt und erzeugt neutrale Daten plus
+`ImportDiagnostic` und Quellenmetadaten.
+
+Technische Folgen:
+
+- Quellenwahl erfolgt je Modul.
+- Originaldateien bleiben unveraendert.
+- Manuelle Ergaenzungen und Ueberschreibungen werden protokolliert.
+- YAML ist der erste menschenlesbare Projektstand, aber keine dauerhaft
+  festgeschriebene Formatschnittstelle.
+- Datenbanktabellen werden erst nach stabilen Fachmodellen festgelegt.
+
+## Entscheidung 20: Stage 3 verwendet versionierte Standards Profiles
+
+Der kanonische Name lautet
+`ma_analyse.stage_3_standards_compliance`. Deutsche Normen bilden die ersten
+Profile; internationale Normen koennen spaeter dieselbe Schnittstelle nutzen.
+
+Technische Folgen:
+
+- Jede Regel referenziert Norm, Ausgabe, Abschnitt, Anwendungsbereich,
+  Einheit und Berechnungsverfahren.
+- Ergebnisse sind `pass`, `fail`, `warning` oder `not_evaluable`.
+- `stage_3_verification` bleibt nur als Uebergangsalias.
+- Bestehende Komfortzonen und Grenzwerte werden nicht ungeprueft als
+  Normregeln uebernommen.
+
+## Entscheidung 21: ParameterSnapshot und RunManifest bilden Freigabegrenzen
+
+`ma_parameters` liefert versionierte, freigegebene Parametersnapshots.
+`ma_simulation_setup` referenziert diese zusammen mit Projekt, Varianten,
+Wetter und Modellstand in einem unveraenderlichen Run-Manifest.
+
+Technische Folgen:
+
+- Stage-1-Vorschlaege erzeugen neue Snapshot-Versionen.
+- Varianten und Runs bleiben auf ihren Eingabestand rueckfuehrbar.
+- P009 darf erst hinter dem validierten Run-Manifest technisch weitergehen.
+
+## Entscheidung 22: Konfiguration folgt fachlicher Verantwortung
+
+`ma_project` besitzt Simulationsprogrammliste und neutrales
+Varianten-Benennungsprofil. `ma_parameters` besitzt Parameterdefinitionen,
+Optionsgruppen und ausgewaehlte Werte. `ma_variants` konsumiert diese Staende
+und erzeugt daraus Varianten.
+
+Technische Folgen:
+
+- Bestehende Parameter-, Options- und Naming-Dateien unter `ma_variants`
+  bleiben bis zu einer kontrollierten Migration lesbar.
+- Neue fachliche Konfiguration wird nicht dauerhaft unter `ma_variants`
+  abgelegt.
+- Produkt- und Materialbezeichnungen bleiben in neutralen Katalogen.
+- Programmspezifische Objekt- und Exportcodes werden erst in Adaptern
+  aufgeloest.
+
+## Entscheidung 23: Vorlagen- und Dateischutz ist moduluebergreifend
+
+Versionierte Vorlagen sind schreibgeschuetzt. Eigene Dateien werden nur in
+festgelegten lokalen Modulpfaden gespeichert.
+
+Technische Folgen:
+
+- Bei `Als neue Datei speichern` fuehrt eine Namenskollision zu einem Fehler
+  und einer neuen Nutzereingabe; es gibt keinen automatischen Ersatznamen.
+- Nur eine bereits geladene eigene Datei darf nach ausdruecklicher
+  Bestaetigung ueberschrieben werden.
+- Pfadpruefungen verhindern Schreibzugriffe ausserhalb der erlaubten lokalen
+  Konfigurationsordner.
+- Serializer und Fachmodelle werden so getrennt, dass YAML spaeter um weitere
+  Formate ergaenzt oder ersetzt werden kann.

@@ -5,5 +5,6 @@
 - **Ausgaben:** Freigabestatus, blockierende Fehler und Warnungen.
 - **Abgrenzung:** Fachregeln und lokale Pruefungen bleiben in den Fachmodulen.
 - **Abhaengigkeiten:** `ma_workflow`; phasenuebergreifend.
-- **Status:** teilweise vorhanden; lokale Validierungen existieren, zentrale Freigaben fehlen.
+- **Status:** geplant; lokale Validierungen existieren nur in Fachprototypen,
+  zentrale Freigaben fehlen.
 - **Naechster Schritt:** gemeinsames Validierungsergebnis und Freigabestufen planen.

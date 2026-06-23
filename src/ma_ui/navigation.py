@@ -3,10 +3,31 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import MutableMapping
 
 from ma_workflow import get_module_definition, list_module_definitions
 
 CURRENT_PAGE_SESSION_KEY = "ma_ui_current_page"
+MODULE_INFO_PAGE_SESSION_KEY = "ma_ui_module_info_page"
+
+
+def select_page(session_state: MutableMapping[str, object], page_key: str) -> None:
+    """Waehlt eine Seite und beendet einen eventuell aktiven Infokartenmodus."""
+    session_state.pop(MODULE_INFO_PAGE_SESSION_KEY, None)
+    session_state[CURRENT_PAGE_SESSION_KEY] = page_key
+
+
+def set_module_info_active(
+    session_state: MutableMapping[str, object],
+    page_key: str,
+    *,
+    active: bool,
+) -> None:
+    """Speichert oder beendet den Infokartenmodus fuer ein Modul."""
+    if active:
+        session_state[MODULE_INFO_PAGE_SESSION_KEY] = page_key
+    else:
+        session_state.pop(MODULE_INFO_PAGE_SESSION_KEY, None)
 
 
 @dataclass(frozen=True, slots=True)
@@ -28,6 +49,8 @@ PAGE_KEY_ALIASES = {
     "import_ida": "import_simulation",
     "ida_export": "export_simulation",
     "ida_import": "import_simulation",
+    "stage_2_optimization": "analyse",
+    "stage_3_verification": "standards_compliance",
 }
 
 

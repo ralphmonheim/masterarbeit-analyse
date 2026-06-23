@@ -1,6 +1,6 @@
 # Zielarchitektur
 
-Stand: 2026-06-22
+Stand: 2026-06-23
 Grundlage: P007
 
 ## Zweck
@@ -18,6 +18,17 @@ gesonderte Teilplaene analysiert, freigegeben und getestet.
 - Paketexistenz bedeutet nicht automatisch fachliche Verfuegbarkeit.
 - Bestehende Logik wird nicht ohne Migrationsplan verschoben.
 - IDA ICE bleibt der manuelle externe Simulationsschritt.
+- Import wird je Eingabemodul bevorzugt; manuelle Eingabe und Demo-Daten
+  bleiben zulaessige Alternativen.
+- Externe Dateiformate werden ueber Adapter in neutrale Fachmodelle
+  ueberfuehrt.
+- `ma_project` verwaltet die frei erweiterbare Simulationsprogrammliste und
+  neutrale Varianten-Benennungsprofile.
+- `ma_parameters` besitzt Parameterdefinitionen, Optionsgruppen und
+  ausgewaehlte Werte; `ma_variants` konsumiert diese Daten.
+- Produkt- und Materialbezeichnungen bleiben neutrale Katalogdaten.
+- Programmspezifische Objekt- und Exportcodes liegen in den jeweiligen
+  Simulationsadaptern.
 
 ## Phase 0 und sechs Hauptphasen
 
@@ -27,7 +38,7 @@ gesonderte Teilplaene analysiert, freigegeben und getestet.
 | Phase 1 | `ma_project` | Projekt und Untersuchungsrahmen initialisieren |
 | Phase 2 | `ma_building`, `ma_weather`, `ma_zones`, `ma_technical`, `ma_parameters` | Eingaben erfassen, validieren und vereinheitlichen |
 | Phase 3 | `ma_analyse.stage_1_dimensioning`, `ma_variants`, `ma_simulation_setup`, `ma_export_simulation` | Referenz dimensionieren, Varianten und Run vorbereiten |
-| Phase 4 | IDA ICE, `ma_import_simulation`, `ma_analyse` Stufe 2 bis 4 | simulieren, importieren und technisch analysieren |
+| Phase 4 | IDA ICE, `ma_import_simulation`, `ma_analyse.stage_2_optimization`, `ma_analyse.stage_3_standards_compliance`, `ma_analyse.stage_4_sensitivity` | simulieren, optimieren, Norm-Nachweise und Sensitivitaet auswerten |
 | Phase 5 | `ma_economy`, `ma_sustainability`, `ma_assessment` | wirtschaftlich, oekologisch und gesamthaft bewerten |
 | Phase 6 | `ma_reporting`, `ma_data_export`, Projektdokumentation | Berichte, Datenpakete und Archivierung |
 
@@ -49,7 +60,9 @@ ma_technical
     -> manuelle IDA-ICE-Simulation
     -> ma_import_simulation
        -> adapters.ida_ice
-    -> ma_analyse Stufe 2 bis 4
+    -> ma_analyse.stage_2_optimization
+    -> ma_analyse.stage_3_standards_compliance
+    -> ma_analyse.stage_4_sensitivity
     -> ma_economy
     -> ma_sustainability
     -> ma_assessment
@@ -61,6 +74,37 @@ ma_technical
 `ma_parameters` ist die einzige fachliche Eingangsquelle fuer
 `ma_variants`. Direkte Abhaengigkeiten von `ma_variants` zu Gebaeude, Wetter,
 Zonen oder Technik sind im Zielbild nicht vorgesehen.
+
+`ma_parameters` erzeugt versionierte `ParameterSnapshot`-Staende.
+`ma_simulation_setup` referenziert diese in einem validierten `RunManifest`.
+`ma_variants` wendet das von `ma_project` referenzierte neutrale
+Benennungsprofil an, besitzt dessen Konfiguration aber nicht.
+
+## Eingabequellen
+
+- Die Quellenwahl erfolgt je Modul.
+- Import ist bevorzugt; manuelle Eingabe und Demo sind zulaessig.
+- Originaldatei, Adapter, Warnungen, Validierungsstatus und manuelle
+  Aenderungen bleiben nachvollziehbar.
+- Versionierte Vorlagen sind unveraenderlich. Eigene Arbeitsstaende werden in
+  lokalen Modulpfaden gespeichert.
+- Bei einem bereits vorhandenen neuen Dateinamen muss der Nutzer einen anderen
+  Namen auswaehlen; automatische Ersatznamen sind ausgeschlossen.
+- YAML ist das erste menschenlesbare Format, die Fachmodelle und Services
+  bleiben jedoch fuer spaetere Formate offen.
+- Building und Zones werden mindestens als Konzept und Demo aufgebaut.
+- IFC-Lite bleibt bis zur Analyse konkreter IFC-Arbeitsstaende offen.
+- CAD-Integration gehoert nicht zum Masterarbeitsumfang.
+
+## Analysestufen
+
+- Stage 1: vereinfachte Referenzdimensionierung mit Ausbaupfad.
+- Stage 2: Optimierung auf Basis vorhandener Analysebefehle.
+- Stage 3: Norm-Nachweis unter
+  `ma_analyse.stage_3_standards_compliance`; deutsche Normenprofile zuerst,
+  internationale Profile spaeter.
+- Stage 4: Sensitivitaet und Robustheit anhand kritischer Wetter- und
+  Betriebsfaelle.
 
 ## Simulationsschnittstellen
 
@@ -108,18 +152,26 @@ P009 einen sicheren Schnittstellenvertrag und Migrationsweg definiert.
 
 | Status | Module |
 |---|---|
-| verfuegbar | `ma_analyse`, `ma_variants`, Projektdokumentation |
-| teilweise | `ma_core`, `ma_database`, `ma_ui`, `ma_workflow`, `ma_weather`, `ma_parameters`, `ma_export_simulation`, `ma_import_simulation`, `ma_economy`, `ma_reporting`, `ma_data_export`, `ma_validation` |
-| geplant | `ma_project`, `ma_building`, `ma_zones`, `ma_technical`, `ma_analyse.stage_1_dimensioning`, `ma_simulation_setup`, `ma_sustainability`, `ma_assessment`, `ma_feedback` |
+| verfuegbar | Projektdokumentation |
+| teilweise | `ma_weather`, `ma_analyse`, `ma_analyse.stage_2_optimization` |
+| geplant | `ma_core`, `ma_database`, `ma_ui`, `ma_workflow`, `ma_project`, `ma_building`, `ma_zones`, `ma_technical`, `ma_parameters`, `ma_analyse.stage_1_dimensioning`, `ma_analyse.stage_3_standards_compliance`, `ma_analyse.stage_4_sensitivity`, `ma_variants`, `ma_simulation_setup`, `ma_export_simulation`, `ma_import_simulation`, `ma_economy`, `ma_sustainability`, `ma_assessment`, `ma_reporting`, `ma_data_export`, `ma_validation`, `ma_feedback` |
 | manuell | IDA ICE |
 
 Die Statuswerte werden zentral in `ma_workflow` gepflegt und von Navigation
-und Dashboard uebernommen.
+und Dashboard uebernommen. Sie beschreiben den fachlichen Reifegrad im
+Masterarbeitsworkflow. Paketgerueste, Infoseiten und vorhandener Prototypcode
+reichen nicht fuer den Status `teilweise` oder `verfuegbar`.
 
 ## Aktive Teilplaene
 
-- P008: Wettermodul abschliessen und `weather_key` an die P007-Grenzen anbinden.
-- P009: allgemeine Simulationsschnittstellen und sichere IDA-ICE-Adapter planen.
+- P008: Wettermodul, eigene Wetterimporte und kritische Ereignisse.
+- P010: Eingabe- und Datenhaltungsarchitektur.
+- P011 bis P018: Eingabekette bis Run-Manifest.
+- P019 bis P021: getrennte Analysestufen.
+- P022 bis P026: abgestufte Demo- und Konzeptmodule.
+- P027: begleitende Querschnittsfunktionen.
+- P028: Projekt-, Parameter- und Naming-Demo in Streamlit.
+- P009: nach P018 zurueckgestellte Simulationsschnittstellen.
 
 ## Migrationsgrundsaetze
 

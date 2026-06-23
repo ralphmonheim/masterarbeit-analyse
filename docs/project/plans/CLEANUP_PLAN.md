@@ -1,6 +1,6 @@
 # Cleanup Plan
 
-Stand: 2026-06-22
+Stand: 2026-06-23
 
 ## Sichere Sofortmassnahmen
 
@@ -25,7 +25,11 @@ Stand: 2026-06-22
   `ma_workflow`-Aktions-/Runner-Dateien kompatibel vorbereiten, ohne alte
   `pages/`- und `actions.py`-Strukturen zu entfernen.
 - Erledigt: P002, P005 und P006 unveraendert archivieren und die verbleibenden
-  Aufgaben in P007, P008 und P009 konsolidieren.
+  Aufgaben zunaechst in P007, P008 und P009 konsolidieren.
+- Erledigt: P010 bis P027 als abgestufte Modul- und Querschnittsplanserie
+  ergaenzen.
+- Erledigt: P028 als konkreten Projekt-, Parameter- und Naming-Streamlit-Slice
+  aufnehmen.
 - Erledigt: P007-Zielpakete als leichte, importierbare Gerueste mit
   Modul-READMEs anlegen, ohne bestehende Fachlogik zu verschieben.
 - Erledigt: Allgemeine Schnittstellen `ma_export_simulation` und
@@ -75,6 +79,10 @@ Stand: 2026-06-22
 
 1. P003 abgeschlossen halten und bei Strukturentscheidungen pflegen.
 2. P007 als verbindliche Architektur- und Roadmap-Grundlage verwenden.
-3. P008 fuer Wetterabschluss und `weather_key`-Anbindung bearbeiten.
-4. P009 fuer Simulationsschnittstellen und IDA-ICE-Adapter bearbeiten.
-5. Uebernommene P005-Restarbeiten als getrennte P007-Slices planen.
+3. P010 fuer Eingabe- und Datenhaltungsarchitektur bearbeiten.
+4. P008 fuer Wetterabschluss, Dateiimport und Ereignisse bearbeiten.
+5. P011 bis P018 fuer die Eingabekette bis Run-Manifest umsetzen.
+6. P009 erst danach fuer Simulationsschnittstellen weiterfuehren.
+7. Uebernommene P005-Restarbeiten ueber P027 begleiten.
+8. P028 nach den Eingabevertraegen aus P010 als ersten gemeinsamen
+   Konfigurations-Slice umsetzen.

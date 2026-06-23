@@ -1,6 +1,6 @@
 # Plan Status
 
-Stand: 2026-06-22
+Stand: 2026-06-23
 
 Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt und nach jeder Planumsetzung aktualisiert. Vollstaendige alte Planstaende liegen unter `docs/project/archive/plans/`.
 
@@ -35,7 +35,7 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - Leitfaden-Versionierung eingefuehrt: alte Leitfadenfassungen liegen unter
   `docs/project/archive/leitfaeden/`; Version 0.3.7 wurde vor der
   Strukturueberarbeitung unveraendert archiviert. Die aktive Fassung ist
-  `MASTERARBEIT_LEITFADEN.md` Version 0.5.0 mit acht festen Hauptbereichen.
+  `MASTERARBEIT_LEITFADEN.md` Version 0.5.3 mit acht festen Hauptbereichen.
 - Methodische Untersuchungsdimension aufgenommen: manuellen, softwareunterstuetzten und automatisierten Prozessaufwand nach aktiver Arbeitszeit, Maschinenlaufzeit, Fehlerkorrektur und Wissensstand vergleichen; konkrete Messmethode bleibt offen.
 - Vollstaendigen Modulkatalog in den Leitfaden aufgenommen: Zweck, Eingaben, Ausgaben, Abgrenzung und Status sind fuer bestehende und geplante Module dokumentiert.
 - Miro-Workflow-Diagramm v0.1.1 als historischen Ist-Entwurf analysiert; die
@@ -49,26 +49,23 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   Streamlit-Navigation, Workflow-Karten, Kennzahlen und Detailtabellen leiten
   ihre Statuswerte zentral aus `src/ma_workflow/catalog.py` ab;
   `actions.py` bleibt Kompatibilitaetszugriff.
-- Aktuellen Modulstand abgeglichen:
-  - verfuegbar: `ma_analyse`, `ma_variants` und Projektdokumentation;
-  - teilweise: `ma_core`, `ma_database`, `ma_ui`, `ma_workflow`,
-    `ma_weather`, `ma_parameters`, `ma_export_simulation`,
-    `ma_import_simulation`, `ma_economy`, `ma_reporting`,
-    `ma_data_export` und `ma_validation`;
-  - geplant: `ma_project`, `ma_building`, `ma_zones`, `ma_technical`,
-    `ma_analyse.stage_1_dimensioning`, `ma_simulation_setup`,
-    `ma_sustainability`, `ma_assessment` und `ma_feedback`;
+- Aktuellen fachlichen Modulstand abgeglichen:
+  - verfuegbar: Projektdokumentation;
+  - teilweise: `ma_weather`, `ma_analyse` und
+    `ma_analyse.stage_2_optimization`;
+  - geplant: alle weiteren Software- und Fachmodule einschliesslich
+    vorhandener Gerueste und Prototypen;
   - manuell: IDA ICE.
 - P005 Phase 1/2 dokumentiert: `ma_analyse`-Bestandsanalyse und Service-Schnittstellenentwurf liegen unter `docs/project/architecture/`.
 - P002, P005 und P006 wurden unveraendert archiviert. P007 ist die
-  verbindliche strukturelle Grundlage; P008 und P009 fuehren fachliche
-  Restarbeiten weiter.
+  verbindliche strukturelle Grundlage; P008 bis P028 konkretisieren
+  fachliche, Demo-, Konzept-, Research- und Querschnittsarbeiten.
 - Phase 0 und die sechs P007-Hauptphasen sind im zentralen Workflow-Katalog
   abgebildet. `ma_validation` und `ma_feedback` werden phasenuebergreifend
   gefuehrt.
 - Fehlende Zielmodule sind als leichte importierbare Pakete und dokumentierte
   Infoseiten vorbereitet. Paketexistenz aendert den fachlichen Status nicht.
-- Alle 25 katalogisierten Komponenten besitzen einen dokumentierten
+- Alle 28 katalogisierten Komponenten besitzen einen dokumentierten
   Modulsteckbrief; jede Dashboard-Karte oeffnet eine Fachansicht, eine
   Infoseite oder einen klar gekennzeichneten externen Schritt.
 
@@ -90,17 +87,52 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   Vierer-Gliederung im Workflow und Dashboard.
 - Paketexistenz allein aendert keinen Modulstatus von `planned` oder `partial`
   auf `available`.
+- Der Katalogstatus beschreibt den fachlichen Reifegrad im
+  Masterarbeitsworkflow. Vorhandener Prototypcode allein aendert ein Modul
+  nicht von `planned` auf `partial`.
 
 ### Aktive Teilplaene
 
 - P008 schliesst `ma_weather` mit fuenf realen TRY-Testlaeufen,
-  Diagrammpruefung und dokumentierter `weather_key`-Schnittstelle zu
-  `ma_parameters` ab.
-- P009 plant die allgemeinen Schnittstellen `ma_export_simulation` und
-  `ma_import_simulation` mit IDA-ICE-Adaptern. Der vorhandene Basisexport in
-  `ma_variants.ida_export` wird wiederverwendet, nicht dupliziert.
+  Import eigener Wetterdateien, Diagrammpruefung, kritischen
+  Wetterereignissen und dokumentierter `weather_key`-Schnittstelle ab.
+- P010 ist die naechste aktive Strukturstufe. Es definiert formatneutrale
+  Eingabequellen, Importdiagnose, manuelle Ergaenzung, Demo-Daten,
+  Validierung und Datenhaltung.
+- P027 begleitet alle Fachslices mit UI-, Workflow-, Validierungs- und
+  Feedbackregeln.
+- P028 plant den ersten gemeinsamen Streamlit-Slice fuer freie
+  Simulationsprogrammlisten, neutrale Varianten-Benennungsprofile,
+  Demo-Optionsauswahl und den gemeinsamen Sitzungsstand von `ma_project`,
+  `ma_parameters` und `ma_variants`.
+- P028 schuetzt versionierte Vorlagen vor Aenderungen. Eigene Dateien werden
+  lokal gespeichert; kollidierende neue Dateinamen muessen vom Nutzer
+  geaendert werden. YAML ist nur das erste, nicht das dauerhaft festgelegte
+  Speicherformat.
+- P009 bleibt bis zum validierten `RunManifest` aus P018 zurueckgestellt. Der
+  vorhandene Basisexport in `ma_variants.ida_export` wird spaeter
+  wiederverwendet, nicht dupliziert.
 - Direkte IDM-Manipulation, erfundene IDA-Befehle und automatischer
   Simulationsstart bleiben bis zur lokalen Verifikation ausgeschlossen.
+
+### Geplante Modulplanserie P011 bis P028
+
+- Eingabekette bis `ma_simulation_setup`: P011 bis P018.
+- Analyse Stufe 2 Optimierung: P019 auf Basis vorhandener Befehle.
+- Analyse Stufe 3 Norm-Nachweis: P020 unter dem kanonischen Namen
+  `ma_analyse.stage_3_standards_compliance`; deutsche Normen zuerst,
+  internationale Profile spaeter.
+- Analyse Stufe 4 Sensitivitaet: P021 mit kritischen Wetterereignissen statt
+  ausschliesslicher Jahresbetrachtung.
+- Economy und Sustainability: P022 und P023 als kleine Demos mit
+  vollstaendigem Fachkonzept.
+- Assessment, Reporting und Datenexport: P024 bis P026 zunaechst
+  konzeptuell.
+- Gemeinsamer Projekt-, Parameter- und Naming-Slice: P028 mit neutraler
+  Benennung, geschuetzten Vorlagen und formaterweiterbarer Konfiguration.
+- `ma_building` und `ma_zones` werden mindestens konzeptuell und mit
+  Demo-Datensaetzen aufgebaut. IFC-Lite bleibt bis zur Analyse konkreter
+  IFC-Arbeitsstaende offen; CAD-Integration ist ausgeschlossen.
 
 ### Teilweise umgesetzt
 
@@ -218,6 +250,10 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 ### Offen
 
 - P008 liegt als aktiver Abschlussplan fuer das Wettermodul in der Plan-Inbox.
+- P010 als naechsten Umsetzungsplan fuer Eingabe- und
+  Datenhaltungsarchitektur detaillieren und freigeben.
+- P020 beginnt mit Recherche und darf vor einer belastbaren Normen- und
+  Methodenmatrix keine Grenzwerte als Norm-Nachweis implementieren.
 - Aus P005 nach P007 uebernommen: Analyse-View in laufender Streamlit-App manuell gegen
   reale `ida_imports`-/Datenbankordner pruefen.
 - Aus P005 nach P007 uebernommen: Schrittweisen Analyse-Wizard in der laufenden

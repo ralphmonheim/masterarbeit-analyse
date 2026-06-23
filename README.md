@@ -37,6 +37,7 @@ python -m pip install -e ".[dev]"
 | `src/ma_workflow/` | zentraler Workflow- und Statuskatalog mit Adaptern |
 | `src/ma_core/`, `src/ma_database/`, `src/ma_project/` | leichte Zielpakete fuer Plattform und Projektinitialisierung |
 | `src/ma_building/`, `src/ma_zones/`, `src/ma_technical/`, `src/ma_parameters/` | leichte Zielpakete fuer Eingangsdaten |
+| `src/ma_analyse/stage_1_dimensioning/` bis `stage_4_sensitivity/` | getrennte Analyse-Stufen fuer Dimensionierung, Optimierung, Norm-Nachweis und Sensitivitaet |
 | `src/ma_simulation_setup/`, `src/ma_export_simulation/`, `src/ma_import_simulation/` | leichte Zielpakete fuer Runs und Simulationsschnittstellen |
 | `src/ma_economy/`, `src/ma_sustainability/`, `src/ma_assessment/` | leichte Zielpakete fuer Bewertung |
 | `src/ma_reporting/`, `src/ma_data_export/`, `src/ma_validation/`, `src/ma_feedback/` | leichte Zielpakete fuer Ergebnisse und Querschnittsfunktionen |

@@ -6,4 +6,4 @@
 - **Abgrenzung:** keine Variantenbildung und keine Simulationsergebnisanalyse.
 - **Abhaengigkeiten:** `ma_zones`; Phase 2.
 - **Status:** geplant.
-- **Naechster Schritt:** Referenzsysteme und technischen Minimalumfang definieren.
+- **Naechster Schritt:** P014 mit bestehenden Systemtemplates und einer Lite-Demo umsetzen.

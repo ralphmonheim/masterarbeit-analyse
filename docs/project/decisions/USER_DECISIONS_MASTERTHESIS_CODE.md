@@ -1,6 +1,6 @@
 # Nutzerentscheidungen Masterarbeit Code
 
-Stand: 2026-06-22
+Stand: 2026-06-23
 
 ## UD-001 Modulare Projektstruktur
 
@@ -580,3 +580,153 @@ Stand: 2026-06-22
 - Status: getroffen
 - Offene Folgefragen: keine
 - Quelle oder Chatbezug: gemeinsamer P007-Abgleich am 2026-06-21
+
+## UD-049 Eingabekette bis ma_simulation_setup hat Vorrang
+
+- Datum: 2026-06-22
+- Thema: Masterarbeitsumfang und Umsetzungsreihenfolge
+- Entscheidung: Die funktionsfaehige Eingabekette fuer Randbedingungen,
+  zentrale Parameter, Stage 1, Varianten und `ma_simulation_setup` hat Vorrang
+  vor einer vertieften Exportautomatisierung.
+- Begruendung: Diese Schritte bilden den wissenschaftlich und praktisch
+  relevanten Kern. Direkte Modellmanipulation wuerde den Rahmen der
+  Masterarbeit voraussichtlich sprengen.
+- Auswirkung: P010 bis P018 werden vor P009 priorisiert.
+- Betroffene Module oder Dateien: P007 bis P018
+- Status: getroffen
+- Offene Folgefragen: konkrete Importformate stehen in OP-013.
+- Quelle oder Chatbezug: aktueller Codex-Chat zum weiteren Strukturplan
+
+## UD-050 Import je Modul bevorzugen, manuell und Demo als Alternativen
+
+- Datum: 2026-06-22
+- Thema: Eingabefunktionen und UI
+- Entscheidung: Die Eingabequelle wird je Fachmodul gewaehlt. Import wird
+  bevorzugt; manuelle Eingabe und Demo-Daten bleiben verfuegbar, wenn kein
+  geeigneter Import vorliegt.
+- Begruendung: Gebaeude, Wetter, technische Daten, Parameter und Naming haben
+  unterschiedliche realistische Quellen.
+- Auswirkung: P010 und P027 planen Quellenwahl, Diagnose, Validierung und
+  manuelle Ergaenzung gemeinsam.
+- Betroffene Module oder Dateien: P010 bis P015, P017, P027
+- Status: getroffen
+- Offene Folgefragen: konkrete Formatmatrix und Pflichtimporte.
+- Quelle oder Chatbezug: aktueller Codex-Chat zum Input-MVP
+
+## UD-051 Building und Zones mindestens konzeptuell mit Demo
+
+- Datum: 2026-06-22
+- Thema: Gebaeude- und Zoneninput
+- Entscheidung: `ma_building` und `ma_zones` werden fuer die Masterarbeit
+  mindestens konzeptuell und mit Demo-Datensaetzen aufgebaut. Eine
+  formatneutrale Importarchitektur wird vorgesehen; IFC-Lite bleibt offen.
+- Begruendung: Die vorhandene IFC-Datei besitzt je Arbeitsstand
+  unterschiedliche Inhalte. Eine allgemeine IFC- oder CAD-Loesung ist nicht
+  verlaesslich innerhalb des Masterarbeitsrahmens.
+- Auswirkung: P012 und P013 trennen sichere Demo-Funktionen von optionalen
+  Importadaptern.
+- Betroffene Module oder Dateien: ma_building, ma_zones, P012, P013
+- Status: getroffen
+- Offene Folgefragen: OP-012.
+- Quelle oder Chatbezug: aktueller Codex-Chat zur IFC-Rolle
+
+## UD-052 Stage 1 startet vereinfacht und bleibt ausbaubar
+
+- Datum: 2026-06-22
+- Thema: Referenzdimensionierung
+- Entscheidung: Stage 1 setzt zuerst transparente vereinfachte Verfahren fuer
+  Heizlast, Kuehllast und Luftmengen um und bereitet einen Ausbau zu
+  ausfuehrlicheren oder normnaeheren Verfahren vor.
+- Begruendung: Eine nachvollziehbare Lite-Berechnung ist im
+  Masterarbeitsrahmen realistisch und kann gegen IDA-Referenzwerte
+  plausibilisiert werden.
+- Auswirkung: P016 trennt Lite-Verfahren und spaetere Ausbaustufe.
+- Betroffene Module oder Dateien: ma_analyse.stage_1_dimensioning, P016
+- Status: getroffen
+- Offene Folgefragen: konkrete Verfahren und Toleranzen.
+- Quelle oder Chatbezug: aktueller Codex-Chat zur Stage-1-Tiefe
+
+## UD-053 Analysestufen und Abschlussmodule werden abgestuft umgesetzt
+
+- Datum: 2026-06-22
+- Thema: Analyse, Bewertung und Reporting
+- Entscheidung: Stage 2 nutzt vorhandene Optimierungsbefehle. Stage 3 heisst
+  `ma_analyse.stage_3_standards_compliance` und fuehrt Norm-Nachweise fuer
+  deutsche, spaeter internationale Normenprofile aus. Stage 4 verbindet
+  kritische Wetterereignisse mit vorhandenen Zeitfensteranalysen. Economy und
+  Sustainability erhalten kleine Demos; Assessment, Reporting und Datenexport
+  bleiben zunaechst konzeptuell.
+- Begruendung: Der Funktionsumfang wird auf wissenschaftlich relevante und
+  realistisch umsetzbare Teile begrenzt.
+- Auswirkung: P019 bis P026 bilden die abgestufte Planserie.
+- Betroffene Module oder Dateien: ma_analyse, ma_economy, ma_sustainability,
+  ma_assessment, ma_reporting, ma_data_export
+- Status: getroffen
+- Offene Folgefragen: konkrete Normenmatrix, Emissionsfaktoren und
+  Bewertungsmethoden.
+- Quelle oder Chatbezug: aktueller Codex-Chat zu Stufe 2 bis 4 und
+  Abschlussmodulen
+
+## UD-054 Fachstatus bewertet den Gesamtworkflow
+
+- Datum: 2026-06-22
+- Thema: Modulstatus und Streamlit-Infokarten
+- Entscheidung: Nur `ma_weather`, `ma_analyse` und die darin teilweise
+  umgesetzte Stage 2 erhalten den Fachstatus `partial`. Alle weiteren
+  Software- und Fachmodule bleiben trotz vorhandener Gerueste oder Prototypen
+  `planned`. Nur die Projektdokumentation ist organisatorisch `available`;
+  IDA ICE bleibt `manual`.
+- Begruendung: Der Status soll die fachliche Nutzbarkeit im
+  Masterarbeitsworkflow und nicht die blosse Existenz von Code oder Paketen
+  ausdruecken.
+- Auswirkung: Dashboard, Navigation, Infokarten, Zielarchitektur und
+  Planstatus verwenden die strengere Einstufung.
+- Betroffene Module oder Dateien: `ma_workflow`, `ma_ui`, P007,
+  Zielarchitektur und Leitfaden
+- Status: getroffen
+- Offene Folgefragen: Ein separater technischer Reifegrad kann spaeter geplant
+  werden.
+- Quelle oder Chatbezug: aktueller Codex-Chat zu Modulstatus und Infokarten
+
+## UD-055 Projekt-, Parameter- und Benennungsverantwortung
+
+- Datum: 2026-06-23
+- Thema: Simulationsprogramme, Parameter, Naming und Vorlagen
+- Entscheidung: `ma_project` verwaltet eine frei erweiterbare
+  Simulationsprogrammliste und neutrale Varianten-Benennungsprofile.
+  `ma_parameters` verwaltet Parameterdefinitionen, Optionsgruppen und
+  ausgewaehlte Werte. `ma_variants` erzeugt Varianten und wendet den
+  referenzierten Benennungsstand nur an. Produkt- und Materialbezeichnungen
+  bleiben neutrale Katalogdaten; programmspezifische Objekt- und Exportcodes
+  gehoeren in die jeweiligen Adapter.
+- Begruendung: Fachlich neutrale Bezeichnungen duerfen nicht an IDA ICE oder
+  ein anderes Simulationsprogramm gekoppelt werden.
+- Auswirkung: P011, P015, P017 und P028 trennen Konfiguration, Parameterquelle,
+  Variantenerzeugung und Adaptermapping.
+- Betroffene Module oder Dateien: `ma_project`, `ma_parameters`,
+  `ma_variants`, `ma_core`, Simulationsadapter
+- Status: getroffen
+- Offene Folgefragen: Die optionale Projektkennung im Variantennamen bleibt
+  eine Zukunftsidee und ist nicht Teil von P028.
+- Quelle oder Chatbezug: aktueller Codex-Chat zu Demo-Parametern und Naming
+
+## UD-056 Vorlagen bleiben unveraendert und Formate erweiterbar
+
+- Datum: 2026-06-23
+- Thema: Speichern eigener Konfigurationen
+- Entscheidung: Versionierte Vorlagen werden niemals ueberschrieben. Eigene
+  Arbeitsstaende liegen lokal in den verantwortlichen Modulpfaden. Existiert
+  ein gewaehlter neuer Dateiname bereits, muss der Nutzer einen anderen Namen
+  auswaehlen. YAML wird fuer den ersten Slice verwendet, darf spaeter aber
+  durch weitere Formate ergaenzt oder ersetzt werden.
+- Begruendung: Vorlagen sollen reproduzierbar bleiben; Dateikollisionen und
+  Formatwechsel muessen bewusst und nachvollziehbar behandelt werden.
+- Auswirkung: P010 und P028 verlangen Vorlagenschutz, bestaetigtes
+  Ueberschreiben eigener Dateien, neue Namen bei Kollisionen und
+  formatneutrale Fachservices.
+- Betroffene Module oder Dateien: `ma_core`, `ma_project`, `ma_parameters`,
+  `ma_ui`, lokale Modulkonfigurationen
+- Status: getroffen
+- Offene Folgefragen: konkrete zusaetzliche Speicher- und Importformate werden
+  spaeter je Modul entschieden.
+- Quelle oder Chatbezug: aktueller Codex-Chat zur Plananpassung

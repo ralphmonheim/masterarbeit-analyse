@@ -9,7 +9,10 @@ import pandas as pd
 import streamlit as st
 
 from ma_ui.main_dashboard import dashboard_action_rows
-from ma_ui.navigation import CURRENT_PAGE_SESSION_KEY, get_navigation_pages
+from ma_ui.navigation import (
+    get_navigation_pages,
+    select_page,
+)
 from ma_ui.shared import normalize_table_for_streamlit
 from ma_ui.workflow_graph import (
     CROSS_CUTTING_LABEL,
@@ -72,7 +75,7 @@ def _available_page_keys() -> tuple[str, ...]:
 
 
 def _navigate_to(page_key: str) -> None:
-    st.session_state[CURRENT_PAGE_SESSION_KEY] = page_key
+    select_page(st.session_state, page_key)
     st.rerun()
 
 

@@ -1,0 +1,29 @@
+# P023 ma_sustainability Demo und Konzept
+
+Stand: 2026-06-22
+Status: Konzept- und Demo-Plan
+Prioritaet: Mittel
+Abhaengigkeiten: P019
+
+## Ziel
+
+Eine kleine Demo fuer betriebliche Emissionen umsetzen und ein vollstaendiges
+Erweiterungskonzept fuer Nachhaltigkeitsbewertungen dokumentieren.
+
+## Demo-Umfang
+
+- Energieverbrauch nach Energietraeger
+- dokumentierte Emissionsfaktoren
+- betriebliche CO2-/GWP-Ergebnisse
+- Variantenvergleich
+
+## Spaetere Erweiterung
+
+- graue Emissionen
+- Produkt- und Materialdaten
+- Lebenszyklus und Systemgrenzen
+
+## Akzeptanzkriterien
+
+- Jede Kennzahl nennt Quelle, Einheit und Systemgrenze.
+- Demo und spaeteres Vollkonzept bleiben klar getrennt.

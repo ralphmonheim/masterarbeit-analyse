@@ -19,7 +19,8 @@ Zielpakete mit unterschiedlichem Reifegrad:
 
 P007 ist seit 2026-06-21 die verbindliche Architektur- und
 Roadmap-Grundlage. P002, P005 und P006 sind unveraendert archiviert; ihre
-verbleibenden Facharbeiten werden in P007, P008 und P009 weitergefuehrt.
+verbleibenden Facharbeiten werden in P007 und der Planserie P008 bis P028
+weitergefuehrt.
 
 ## Gefundene Ordnerstruktur
 
@@ -59,8 +60,9 @@ verbleibenden Facharbeiten werden in P007, P008 und P009 weitergefuehrt.
 - Die neue Dokumentationsstruktur ordnet Plaene und Modul-Dokumente klarer.
 - `CHANGELOG.md` bleibt als zentrale Aenderungshistorie im Root.
 - Produkt- und Materialdatenblaetter werden nicht in PostgreSQL gespeichert, sondern ueber Pfade referenziert.
-- P001 bis P006 sind nach Pruefung archiviert; P008 und P009 bilden die
-  offenen Wetter- und Simulationsschnittstellenarbeiten ab.
+- P001 bis P006 sind nach Pruefung archiviert; P008 bis P028 bilden die
+  abgestuften Wetter-, Eingabe-, Analyse-, Bewertungs- und
+  Querschnittsarbeiten ab.
 - Reale TRY-Dateien bleiben lokal und werden nicht versioniert.
 - Der zentrale Katalog prueft eindeutige Phasen, Module und Workflow-Schritte.
 - Die zentrale UI verwendet Fachansichten fuer nutzbare Module und
@@ -103,9 +105,12 @@ verbleibenden Facharbeiten werden in P007, P008 und P009 weitergefuehrt.
 - P008 ueber reale Testlaeufe der verbleibenden TRY-Datensaetze, die
   fachliche Pruefung der Wetterdiagramme und die `weather_key`-Uebergabe
   weiterfuehren.
-- P009 fuer Referenzmodellkopie, Run-Manifest, Simulationssetup und
-  Adapter-Mapping verwenden; bestehendes `ma_variants.ida_export`
-  wiederverwenden.
+- P010 bis P018 fuer die Eingabekette, Stage 1, Variantenanbindung und das
+  Run-Manifest priorisieren.
+- P009 erst nach P018 fuer Referenzmodellkopie und Adapter-Mapping
+  weiterfuehren; bestehendes `ma_variants.ida_export` wiederverwenden.
+- P020 als Research-Plan fuer deutsche Norm-Nachweise fuehren; internationale
+  Normen bleiben erweiterbare Profile.
 - `data/test_output/` regelmaessig manuell leeren, aber nicht als Referenzgalerie verwenden.
 - `docs/examples/plot_templates/` als wichtige Referenz fuer aktuelle `ma_analyse`-Plot-Templates behalten.
 - Die aus P005 uebernommenen Restarbeiten nur in kleinen P007-Slices

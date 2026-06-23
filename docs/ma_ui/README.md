@@ -29,8 +29,8 @@ lokalen Streamlit-Oberflaeche zugaenglich machen.
 
 ## Status
 
-Teilweise aktiv. Dashboard, Navigation und mehrere Fachansichten sind
-vorhanden; weitere Service-Anbindungen folgen schrittweise.
+Geplant. Ein nutzbarer Streamlit-Prototyp mit Dashboard, Navigation und
+mehreren Fachansichten ist vorhanden; der fachliche Gesamtworkflow fehlt.
 
 ## Naechster Schritt
 
@@ -59,6 +59,9 @@ Workflow-Service-Aufrufe getrennt anbinden.
   technischen Detailtabellen ist vorbereitet.
 - Workflow-Karten, Statuskennzahlen, Navigation und Detailtabellen verwenden
   die zentral gepflegten Modulumsetzungsstaende aus `ma_workflow`.
+- Die Kopfzeile kann eine vorhandene Fachansicht mit `Infokarte` durch die
+  zentrale Modulbeschreibung ersetzen und mit `Modulansicht` wieder
+  herstellen. Ein Seitenwechsel beendet diesen Modus.
 - Der grafische Workflow gehoert ausschliesslich auf die Startseite. Modulviews
   zeigen nur eigene Inhalte oder bei geplantem Stand eine blaue Hinweisbox.
 - Analyse-Seite ruft die UI-neutrale `ma_analyse`-Service-Fassade ueber
@@ -114,6 +117,8 @@ Workflow-Service-Aufrufe getrennt anbinden.
   Abhaengigkeiten, Status und naechstem Schritt.
 - `ma_validation` und `ma_feedback` werden in einem eigenen
   phasenuebergreifenden Dashboard-Bereich angezeigt.
+- Phase 4 zeigt Optimierung, Norm-Nachweis und Sensitivitaet als getrennte
+  Karten. Die vorhandene Analyseansicht bleibt Einstieg fuer Stage 2.
 - Allgemeine Workflow- und Dashboard-Tabellen werden nicht in jeder
   Modulansicht angezeigt. Sie bleiben nur als eingeklappte technische
   Detailtabellen auf der Startseite erreichbar.

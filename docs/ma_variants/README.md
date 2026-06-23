@@ -10,7 +10,7 @@ auswaehlen, benennen und nachvollziehbar verwalten.
 ## Eingaben
 
 - zentrale Parameterliste aus `ma_parameters`
-- Options-, Auswahl- und Namensregeln
+- Auswahlregeln und neutrales Benennungsprofil aus `ma_project`
 
 ## Ausgaben
 
@@ -21,6 +21,8 @@ auswaehlen, benennen und nachvollziehbar verwalten.
 - kein eigenes Simulationssetup
 - langfristig keine direkte Abhaengigkeit von Gebaeude-, Wetter-, Zonen- oder
   Technikmodulen
+- keine Verwaltung von Projekt-, Produkt- oder programmspezifischen
+  Exportbezeichnungen
 
 ## Abhaengigkeiten
 
@@ -29,13 +31,14 @@ auswaehlen, benennen und nachvollziehbar verwalten.
 
 ## Status
 
-Aktiv fuer den bestehenden Umfang. Spaetere Zielverantwortlichkeiten werden
-nur ueber eigene Plaene extrahiert.
+Geplant. Ein umfangreicher Prototyp ist vorhanden, aber die verbindliche
+Eingangsquelle `ma_parameters` und die Integration bis `ma_simulation_setup`
+fehlen.
 
 ## Naechster Schritt
 
-Bestehenden Kern stabil halten und die Anbindung an `ma_parameters` separat
-planen.
+Bestehenden Kern stabil halten und die Anbindung an `ma_parameters` sowie das
+Benennungsprofil aus `ma_project` ueber P017 und P028 planen.
 
 ## Dateien
 

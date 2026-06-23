@@ -4,6 +4,31 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.14.0 - 2026-06-23
+
+### Added
+- P010 bis P028 als abgestufte Modul-, Analyse-, Demo-, Konzept-, Research-
+  und Querschnittsplaene aufgenommen.
+- Leichte Paket- und Dokumentationsgrenzen fuer Analyse Stufe 2 Optimierung,
+  Stufe 3 Standards Compliance und Stufe 4 Sensitivitaet ergaenzt.
+- Umschaltbare Modul-Infokarte in der Streamlit-Kopfzeile ergaenzt.
+- P028 fuer Projektkonfiguration, Demo-Optionsauswahl und neutrale
+  Variantenbenennung in Streamlit aufgenommen.
+
+### Changed
+- P007 auf die priorisierte Eingabekette bis `ma_simulation_setup`, eine
+  optionale IFC-Lite-Entscheidung und die zurueckgestellte P009-Umsetzung
+  ausgerichtet.
+- Analyse Stufe 3 verbindlich als Norm-Nachweis unter
+  `ma_analyse.stage_3_standards_compliance` eingeordnet; der fruehere
+  Verification-Name bleibt nur als Uebergangsalias.
+- Workflow-Katalog und Dashboard trennen Optimierung, Norm-Nachweis und
+  Sensitivitaet als eigene Analysestufen.
+- Fachstatus geschaerft: Nur Wetter und Analyse einschliesslich Stage 2 gelten
+  als teilweise umgesetzt; vorhandene Gerueste und Prototypen bleiben geplant.
+- Verantwortlichkeiten fuer Simulationsprogramme, Parameter, neutrales Naming,
+  Vorlagenschutz und spaeter erweiterbare Speicherformate festgelegt.
+
 ## 0.13.0 - 2026-06-22
 
 ### Added

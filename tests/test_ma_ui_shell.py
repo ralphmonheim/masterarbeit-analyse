@@ -25,7 +25,12 @@ from ma_analyse.analysis_wizard import (
     sanitize_comfort_output,
     visible_analysis_steps,
 )
-from ma_ui.app import get_renderable_page_keys
+from ma_ui import app as ma_ui_app
+from ma_ui.app import (
+    get_renderable_page_keys,
+    has_module_view,
+    is_module_info_active,
+)
 from ma_ui.components import created_file_rows, is_preview_image, preview_image_paths
 from ma_ui.legacy_launchers import build_tkinter_analyse_command, launch_tkinter_analyse
 from ma_ui.main_dashboard import dashboard_action_rows
@@ -54,11 +59,14 @@ from ma_ui.module_views.analyse_view import (
 )
 from ma_ui.navigation import (
     CURRENT_PAGE_SESSION_KEY,
+    MODULE_INFO_PAGE_SESSION_KEY,
     get_navigation_page,
     get_navigation_pages,
     next_page_key,
     normalize_page_key,
     previous_page_key,
+    select_page,
+    set_module_info_active,
 )
 from ma_ui.pages.assessment import economic_assumption_rows
 from ma_ui.pages.home import workflow_phase_summary_rows, workflow_status_counts
@@ -106,6 +114,9 @@ def test_ui_navigation_contains_home_and_analysis():
     assert "zones" in page_keys
     assert "technical" in page_keys
     assert "dimensioning" in page_keys
+    assert "analysis_core" in page_keys
+    assert "standards_compliance" in page_keys
+    assert "sensitivity" in page_keys
     assert "export_simulation" in page_keys
     assert "import_simulation" in page_keys
     assert "reporting" in page_keys
@@ -118,12 +129,12 @@ def test_ui_navigation_page_metadata():
     variants_page = get_navigation_page("variants")
     import_page = get_navigation_page("import_simulation")
 
-    assert analyse_page.module_key == "ma_analyse"
-    assert analyse_page.status == "available"
+    assert analyse_page.module_key == "ma_analyse.stage_2_optimization"
+    assert analyse_page.status == "partial"
     assert weather_page.module_key == "ma_weather"
     assert weather_page.status == "partial"
-    assert variants_page.status == "available"
-    assert import_page.status == "partial"
+    assert variants_page.status == "planned"
+    assert import_page.status == "planned"
     assert get_navigation_page("import_ida") == import_page
     assert get_navigation_page("ida_import") == import_page
 
@@ -137,7 +148,7 @@ def test_navigation_statuses_follow_central_workflow_catalog():
         "simulation_setup": "simulation_setup",
         "export_simulation": "export_simulation",
         "import_simulation": "import_simulation",
-        "analyse": "analyse",
+        "analyse": "optimization",
         "assessment": "assessment",
         "feedback": "feedback",
     }
@@ -176,6 +187,58 @@ def test_navigation_previous_and_next_page_keys_are_stable():
     assert next_page_key("home", page_keys) == "parameters"
     assert next_page_key("weather", page_keys) == "weather"
     assert next_page_key("missing", page_keys) == "parameters"
+
+
+def test_module_info_mode_is_only_active_for_registered_module_views():
+    assert has_module_view("weather") is True
+    assert has_module_view("analyse") is True
+    assert has_module_view("variants") is True
+    assert has_module_view("assessment") is True
+    assert has_module_view("parameters") is False
+    assert has_module_view("home") is False
+    assert is_module_info_active("weather", "weather") is True
+    assert is_module_info_active("weather", "analyse") is False
+    assert is_module_info_active("parameters", "parameters") is False
+
+
+def test_page_renderer_switches_between_module_view_and_info(monkeypatch):
+    calls: list[str] = []
+    monkeypatch.setitem(
+        ma_ui_app._PAGE_RENDERERS,
+        "weather",
+        lambda: calls.append("module-view"),
+    )
+    monkeypatch.setattr(
+        ma_ui_app.module_info_view,
+        "render",
+        lambda module_key: calls.append(f"info:{module_key}"),
+    )
+
+    weather_page = get_navigation_page("weather")
+    ma_ui_app._render_page(weather_page)
+    ma_ui_app._render_page(weather_page, show_module_info=True)
+    ma_ui_app._render_page(get_navigation_page("parameters"))
+
+    assert calls == [
+        "module-view",
+        "info:ma_weather",
+        "info:ma_parameters",
+    ]
+
+
+def test_page_navigation_and_info_toggle_update_session_state():
+    session_state: dict[str, object] = {}
+
+    set_module_info_active(session_state, "weather", active=True)
+    assert session_state[MODULE_INFO_PAGE_SESSION_KEY] == "weather"
+
+    select_page(session_state, "variants")
+    assert session_state[CURRENT_PAGE_SESSION_KEY] == "variants"
+    assert MODULE_INFO_PAGE_SESSION_KEY not in session_state
+
+    set_module_info_active(session_state, "variants", active=True)
+    set_module_info_active(session_state, "variants", active=False)
+    assert MODULE_INFO_PAGE_SESSION_KEY not in session_state
 
 
 def test_module_views_are_importable():
@@ -229,7 +292,9 @@ def test_workflow_graph_groups_steps_by_visual_phase():
     assert VISUAL_PHASES[-1].startswith("Phase 6")
     assert any(card.step_key == "parameters" for card in grouped[VISUAL_PHASES[2]])
     assert any(card.step_key == "simulation" for card in grouped[VISUAL_PHASES[4]])
-    assert any(card.step_key == "analyse" for card in grouped[VISUAL_PHASES[4]])
+    assert any(card.step_key == "optimization" for card in grouped[VISUAL_PHASES[4]])
+    assert any(card.step_key == "standards_compliance" for card in grouped[VISUAL_PHASES[4]])
+    assert any(card.step_key == "sensitivity" for card in grouped[VISUAL_PHASES[4]])
     assert any(card.step_key == "economy" for card in grouped[VISUAL_PHASES[5]])
     assert any(card.step_key == "sustainability" for card in grouped[VISUAL_PHASES[5]])
     assert any(card.step_key == "assessment" for card in grouped[VISUAL_PHASES[5]])
@@ -291,6 +356,8 @@ def test_ui_uses_top_navigation_instead_of_sidebar_radio():
     assert "Start" in app_source
     assert "Zurueck" in app_source
     assert "Weiter" in app_source
+    assert "Infokarte" in app_source
+    assert "Modulansicht" in app_source
 
 
 def test_streamlit_width_api_is_current():
@@ -318,7 +385,7 @@ def test_workflow_context_rows_show_module_status_and_action():
     assert rows[0]["Modul"] == "ma_parameters"
     assert rows[0]["Dashboard-Aktion"] == "Parameter oeffnen"
     assert rows[1]["Modul"] == "ma_export_simulation"
-    assert rows[1]["Status"] == "partial"
+    assert rows[1]["Status"] == "planned"
 
 
 def test_resource_status_detects_existing_file(tmp_path):

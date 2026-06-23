@@ -28,19 +28,43 @@ def test_workflow_steps_cover_main_phases():
 def test_workflow_contains_analysis_step():
     analysis_step = get_workflow_step("analyse")
 
-    assert analysis_step.module_key == "ma_analyse"
-    assert analysis_step.status == "available"
+    assert analysis_step.step_key == "optimization"
+    assert analysis_step.module_key == "ma_analyse.stage_2_optimization"
+    assert analysis_step.status == "partial"
 
 
 def test_workflow_statuses_reflect_current_module_implementation():
-    assert get_workflow_step("parameters").status == "partial"
+    assert get_workflow_step("parameters").status == "planned"
     assert get_workflow_step("dimensioning").status == "planned"
-    assert get_workflow_step("variants").status == "available"
-    assert get_workflow_step("ida_import").status == "partial"
-    assert get_workflow_step("economy").status == "partial"
+    assert get_workflow_step("optimization").status == "partial"
+    assert get_workflow_step("standards_compliance").status == "planned"
+    assert get_workflow_step("sensitivity").status == "planned"
+    assert get_workflow_step("variants").status == "planned"
+    assert get_workflow_step("ida_import").status == "planned"
+    assert get_workflow_step("economy").status == "planned"
     assert get_workflow_step("sustainability").status == "planned"
     assert get_workflow_step("assessment").status == "planned"
-    assert get_workflow_step("validation").status == "partial"
+    assert get_workflow_step("validation").status == "planned"
+
+
+def test_only_weather_and_analysis_are_partially_available():
+    partial_modules = {
+        module.module_key
+        for module in list_module_definitions()
+        if module.status == "partial"
+    }
+    available_modules = {
+        module.module_key
+        for module in list_module_definitions()
+        if module.status == "available"
+    }
+
+    assert partial_modules == {
+        "ma_weather",
+        "ma_analyse",
+        "ma_analyse.stage_2_optimization",
+    }
+    assert available_modules == {"project_documentation"}
 
 
 def test_post_process_contains_separate_economy_sustainability_and_assessment_steps():
@@ -81,8 +105,10 @@ def test_dashboard_actions_cover_target_commands():
 
     assert "open_simulation_setup" in action_keys
     assert "run_simulation_export" in action_keys
-    assert "run_analysis" in action_keys
-    assert get_dashboard_action("run_analysis").step_key == "analyse"
+    assert "run_optimization" in action_keys
+    assert "run_standards_compliance" in action_keys
+    assert "run_sensitivity" in action_keys
+    assert get_dashboard_action("run_analysis").step_key == "optimization"
     assert get_dashboard_action("run_ida_export").step_key == "export_simulation"
     assert get_dashboard_action("run_ida_import").step_key == "import_simulation"
 
@@ -113,6 +139,14 @@ def test_historical_ida_keys_resolve_to_general_interfaces():
     assert get_workflow_step("ida_import").step_key == "import_simulation"
     assert get_module_definition("ma_export_ida").module_key == "ma_export_simulation"
     assert get_module_definition("ma_import_ida").module_key == "ma_import_simulation"
+
+
+def test_historical_stage_3_name_resolves_to_standards_compliance():
+    assert get_workflow_step("stage_3_verification").step_key == "standards_compliance"
+    assert (
+        get_module_definition("ma_analyse.stage_3_verification").module_key
+        == "ma_analyse.stage_3_standards_compliance"
+    )
 
 
 def test_analysis_workflow_action_uses_service_facade(tmp_path):

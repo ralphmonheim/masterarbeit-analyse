@@ -33,19 +33,24 @@ Alternative:
   `.streamlit/config.toml` ausgeblendet. Sichtbar bleiben soll nur die
   fachliche Projektnavigation.
 - Die zentrale Navigation liegt oben im Fenster und bietet `Start`, `Zurueck`
-  und `Weiter`. Die alte Sidebar-Auswahl ist nicht mehr die Hauptnavigation.
+  und `Weiter`. Rechts kann `Infokarte` fuer die aktuelle Fachansicht
+  geoeffnet und mit `Modulansicht` wieder verlassen werden. Bei Modulen ohne
+  eigene Fachansicht ist die Infokarte bereits die Hauptansicht.
 - Die Codex-Routine `tagesstart` startet diese Oberflaeche nicht automatisch.
   Zum Oeffnen den oben genannten venv-basierten Streamlit-Befehl nutzen.
 - Die Startseite zeigt ein grafisches Workflow-Dashboard mit Phasen,
   Statuskarten, Iterationspfaden und Buttons zu allen katalogisierten
   Modulansichten. Dargestellt werden Phase 0 bis Phase 6 sowie ein eigener
   phasenuebergreifender Bereich.
+- Phase 4 trennt `Optimierung`, `Norm-Nachweis` und `Sensitivitaet`.
 - Der grafische Workflow soll nur auf der Startseite sichtbar sein.
 - Technische Workflow-Tabellen bleiben auf der Startseite unter
   `Technische Detailtabellen` eingeklappt und werden nicht in jeder
   Modulansicht angezeigt.
 - Geplante Modulbereiche ohne eigene Fachlogik zeigen eine neutrale Infoseite
   mit Modulrolle, Grenzen, Status und naechstem Schritt.
+- Die Infokarte verwendet ausschliesslich den zentralen Modulkatalog und laedt
+  keine README-Dateien dynamisch.
 - Fachlogik wird nicht in der UI berechnet.
 - Analyseaufrufe laufen ueber `ma_workflow` und die Service-Fassade von
   `ma_analyse`.

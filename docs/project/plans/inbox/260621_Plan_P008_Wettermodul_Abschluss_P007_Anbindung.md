@@ -1,8 +1,8 @@
 # P008 Wettermodul Abschluss und P007-Anbindung
 
-Stand: 2026-06-21  
+Stand: 2026-06-22
 Status: Aktiv  
-Bezug: P007, archivierter P002
+Bezug: P007, P010, P021, archivierter P002
 
 ## Ziel
 
@@ -26,9 +26,16 @@ Entstehungs- und Umsetzungsnachweis unveraendert erhalten.
 2. Diagrammgestaltung fachlich gegen das Masterarbeitslayout bewerten.
 3. `weather_key` als neutrale Ausgabe von `ma_weather` und spaetere Eingabe von
    `ma_parameters` dokumentieren.
-4. Sicherstellen, dass `ma_variants` Wetterdaten langfristig nur ueber
+4. TRY-Auswahl und Import eigener Wetterdateien als getrennte Quellen
+   behandeln und beide auf dasselbe Wettermodell normalisieren.
+5. Importierte Wetterdaten unabhaengig von ihrer Quelle validieren.
+6. Kritische Ereignisse fuer Hitze, Kaelte, Strahlung und Beleuchtung als
+   spaetere Eingabe fuer P021 vorbereiten.
+7. Niederschlag nur aufnehmen, wenn ein unterstuetztes Format eine belastbare
+   Datenspalte liefert.
+8. Sicherstellen, dass `ma_variants` Wetterdaten langfristig nur ueber
    `ma_parameters` erhaelt.
-5. Wetterbezogene Modul- und Dashboard-Dokumentation aktualisieren.
+9. Wetterbezogene Modul- und Dashboard-Dokumentation aktualisieren.
 
 ## Abgrenzung
 
@@ -36,6 +43,8 @@ Entstehungs- und Umsetzungsnachweis unveraendert erhalten.
 - Keine direkte Kopplung von `ma_weather` an `ma_variants`.
 - Keine Wetterdiagramme in `ma_analyse` verschieben.
 - Keine automatische IDA-ICE-Steuerung.
+- Keine stillschweigende Gleichsetzung eigener Wetterdateien mit geprueften
+  TRY-Datensaetzen.
 
 ## Tests und Abschlusskriterien
 
@@ -43,7 +52,11 @@ Entstehungs- und Umsetzungsnachweis unveraendert erhalten.
 - Pflichtspalten, eindeutiger Zeitindex und 8760 Stunden sind je Jahresdatei
   nachvollziehbar.
 - Fehlende optionale Spalten fuehren zu Warnungen statt zu unklaren Abbruechen.
+- TRY-Auswahl und eigener Dateiimport liefern dasselbe validierte
+  Wetterdatenmodell.
 - `weather_key` und die geplante P007-Datenflussgrenze sind dokumentiert.
+- Kritische Wetterereignisse koennen reproduzierbar als Zeitfenster
+  beschrieben werden.
 - P008 kann danach archiviert werden.
 
 ## Historischer Bezug

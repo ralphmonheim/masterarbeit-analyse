@@ -14,6 +14,7 @@ Die Dokumentation ist nach Projektorganisation und Fachmodulen gegliedert.
 | `ma_workflow/` | Workflow-Katalog, Statuswerte und interne Orchestrierung |
 | `ma_core/`, `ma_database/`, `ma_project/` | technische Plattform und Projektinitialisierung |
 | `ma_building/`, `ma_zones/`, `ma_technical/`, `ma_parameters/` | Eingangsdaten und zentrale Parameter |
+| `ma_analyse/stage_1_dimensioning/` bis `stage_4_sensitivity/` | Dimensionierung, Optimierung, Standards Compliance und Sensitivitaet |
 | `ma_simulation_setup/`, `ma_export_simulation/`, `ma_import_simulation/` | Simulationsvorbereitung und Schnittstellen |
 | `ma_economy/`, `ma_sustainability/`, `ma_assessment/` | Wirtschaftlichkeit, Nachhaltigkeit und Gesamtbewertung |
 | `ma_reporting/`, `ma_data_export/` | Berichte und maschinenlesbare Datenpakete |

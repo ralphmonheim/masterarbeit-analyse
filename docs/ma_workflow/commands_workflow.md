@@ -24,6 +24,8 @@ Aktuelle pruefbare Bausteine:
 - Workflow-Katalog
 - Phasen 0 bis 6
 - zentrale Moduldefinitionen und Modul-Infoseiten
+- getrennte Schritte fuer Stage 2 Optimization, Stage 3 Standards Compliance
+  und Stage 4 Sensitivity
 - zentrale Modulumsetzungsstaende fuer Streamlit
 - Dashboard-Aktionen
 - Kompatibilitaetslisten fuer fruehere Pre-/Post-Process-Aufrufer

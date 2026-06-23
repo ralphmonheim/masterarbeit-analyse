@@ -1,14 +1,19 @@
 # P009 Allgemeine Simulationsschnittstellen mit IDA-ICE-Adapter
 
-Stand: 2026-06-21  
-Status: Aktiv  
-Bezug: P007, archivierter P006
+Stand: 2026-06-22
+Status: Zurueckgestellt bis P018
+Bezug: P007, P018, archivierter P006
 
 ## Ziel
 
 Die allgemeinen Module `ma_export_simulation` und `ma_import_simulation`
 schrittweise als programmunabhaengige Schnittstellen aufbauen. IDA ICE wird
 ausschliesslich ueber `adapters/ida_ice` angebunden.
+
+P009 wird erst nach der funktionsfaehigen Eingabekette, `ma_parameters`,
+Variantenanbindung und einem validierten `RunManifest` aus P018 technisch
+fortgesetzt. Die Masterarbeit priorisiert die Schritte bis
+`ma_simulation_setup`.
 
 ## Wiederzuverwendender Bestand
 
@@ -32,6 +37,7 @@ Diese Logik wird in P009 nicht kopiert oder ungeprueft verschoben.
    dokumentieren.
 3. Historische Schluessel `ma_export_ida`, `ma_import_ida`, `export_ida` und
    `import_ida` nur als Uebergangsaliase behandeln.
+4. `RunManifest` aus P018 als verbindliche Eingabegrenze verwenden.
 
 ## Entwicklungsstufe 2: Kontrollierter IDA-ICE-Exportadapter
 

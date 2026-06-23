@@ -29,8 +29,8 @@ UI-neutral beschreiben.
 
 ## Status
 
-Teilweise aktiv. Der zentrale Katalog und der Analyseadapter sind umgesetzt;
-weitere echte Fachservice-Aufrufe fehlen noch.
+Geplant. Ein Prototyp des zentralen Katalogs und des Analyseadapters ist
+umgesetzt; der durchgaengige fachliche Workflow fehlt.
 
 ## Naechster Schritt
 
@@ -60,6 +60,8 @@ freigegebenen Modulslices ergaenzen.
   Kompatibilitaetswrapper fuer bestehende Aufrufer.
 - `feedback_router.py` enthaelt die geplanten Ruecksprungziele fuer Feedback.
 - Analyse-Adapter ruft `ma_analyse.services.run_analysis(config)` auf.
+- Phase 4 trennt Optimierung, Standards Compliance und Sensitivitaet als
+  eigene katalogisierte Analysestufen.
 - Weitere Adapter fuer Varianten, Wetterdaten, Simulationsexport/-import und
   Bewertung folgen spaeter nach separaten Slices.
 
@@ -76,8 +78,9 @@ Uebergangsaliase auf die allgemeinen Simulationsschnittstellen aufgeloest.
 
 Aktuelle Statusbedeutung:
 
-- `available`: fuer den aktuellen Umfang nutzbar und getestet
-- `partial`: wesentliche Logik vorhanden, aber noch unvollstaendig oder
-  ausserhalb des Zielmoduls
-- `planned`: Zielmodul oder wesentliche Fachlogik fehlt
+- `available`: im fachlichen Masterarbeitsworkflow belastbar nutzbar und getestet
+- `partial`: wesentliche Fachlogik ist im Zielablauf nutzbar, aber noch
+  unvollstaendig
+- `planned`: fachlicher Zielablauf fehlt; Gerueste und Prototypen koennen
+  bereits vorhanden sein
 - `manual`: externer oder bewusst manueller Schritt

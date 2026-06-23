@@ -6,4 +6,4 @@
 - **Abgrenzung:** keine Gebaeudegeometrie und keine Anlagenberechnung.
 - **Abhaengigkeiten:** `ma_building`; Phase 2.
 - **Status:** geplant.
-- **Naechster Schritt:** Zonenmodell und Raum-Zonen-Zuordnung planen.
+- **Naechster Schritt:** P013 mit Demo, Importvorlage und Raum-Zonen-Zuordnung umsetzen.

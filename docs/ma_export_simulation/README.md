@@ -5,7 +5,7 @@
 - **Ausgaben:** Exportpaket, Run-Manifest und programmspezifische Adapterartefakte.
 - **Abgrenzung:** kein Simulationsstart und keine ungesicherte IDM-Manipulation.
 - **Abhaengigkeiten:** `ma_variants`, `ma_simulation_setup`; Phase 3.
-- **Status:** teilweise vorhanden; der Basisexport liegt noch unter `ma_variants.ida_export`.
+- **Status:** geplant; der Basisexport liegt noch unter `ma_variants.ida_export`.
 - **Naechster Schritt:** P009 umsetzen und den IDA-ICE-Adapter kontrolliert anbinden.
 
 Der erste programmspezifische Adapter liegt unter

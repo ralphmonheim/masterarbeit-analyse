@@ -19,7 +19,8 @@ Tabellen, Diagramme und Analyseberichte bereitstellen.
 ## Abgrenzung
 
 - keine Kosten-, Nachhaltigkeits- oder Gesamtbewertung
-- Stage 1 bleibt bis zu einem eigenen Fachplan nur strukturell vorbereitet
+- Stage 1 bleibt bis P016 nur strukturell vorbereitet
+- Stage 3 implementiert keine ungeprueften Normregeln
 
 ## Abhaengigkeiten
 
@@ -28,12 +29,13 @@ Tabellen, Diagramme und Analyseberichte bereitstellen.
 
 ## Status
 
-Aktiv fuer Analyse Stufe 2 bis 4. Die Referenzdimensionierung in
-`ma_analyse.stage_1_dimensioning` ist geplant.
+Die gemeinsamen Analysefunktionen und Stage 2 sind teilweise vorhanden.
+Stage 1, Stage 3 und Stage 4 sind geplant.
 
 ## Naechster Schritt
 
-Bestehende Service-Fassade stabilisieren und Stage 1 separat fachlich planen.
+P016 sowie P019 bis P021 getrennt umsetzen und gemeinsame Services
+wiederverwenden.
 
 ## Dateien
 
@@ -42,5 +44,11 @@ Bestehende Service-Fassade stabilisieren und Stage 1 separat fachlich planen.
 - `plot_template_examples.md`: Referenzgalerie der Plot-Template-Beispiele.
 - `stage_1_dimensioning/README.md`: geplanter, noch nicht fachlich
   implementierter Bereich fuer die Referenzdimensionierung.
+- `stage_2_optimization/README.md`: vorhandene Analysebefehle als spaeterer
+  Optimierungsablauf.
+- `stage_3_standards_compliance/README.md`: geplanter Norm-Nachweis mit
+  deutschen und spaeter internationalen Normenprofilen.
+- `stage_4_sensitivity/README.md`: geplante ereignisbasierte
+  Sensitivitaets- und Robustheitsanalyse.
 
 Die verbindlichen Arbeitsordner sind `data/ma_analyse/ida_imports`, `data/ma_analyse/database` und `data/ma_analyse/output`. Die frueheren Root-Datenpfade werden nicht mehr unterstuetzt.
