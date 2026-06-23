@@ -55,6 +55,14 @@ wird fuer die Masterarbeit bevorzugt.
 - Datenbankmigration
 - automatische IDA-Dateibearbeitung
 
+## Umsetzungsbezug P028
+
+P028 setzt einen ersten wiederverwendbaren Teil um: formatneutrale
+Konfigurationsquellen, YAML-Schreibadapter, sichere lokale Zielordner,
+unveraenderliche Vorlagen, bestaetigtes Ueberschreiben eigener Dateien und
+Fehler bei kollidierenden neuen Dateinamen. Allgemeine `InputSource`-,
+`ImportDiagnostic`- und Freigabevertraege bleiben Aufgabe von P010.
+
 ## Offene Entscheidungen
 
 - konkrete Pflichtformate je Eingabemodul

@@ -30,3 +30,10 @@ Serviceaufrufe ueber alle Fachslices konsistent darstellen und steuern.
 - Status stammt weiterhin aus dem zentralen Katalog.
 - Jede geplante Karte zeigt eine Infoseite statt funktionsloser Bedienung.
 - Freigaben und Rueckspruenge sind fuer den Nutzer nachvollziehbar.
+
+## Umsetzungsbezug P028
+
+Projekt, Parameter und Varianten besitzen echte Fachansichten, behalten ihre
+Infokarten und koennen mit gespeichertem Ruecksprungziel aufeinander
+verweisen. Start, Zurueck und Weiter beenden diesen Sonderkontext. Eine
+allgemeine Workflow-Orchestrierung und zentrale Validierung bleiben offen.

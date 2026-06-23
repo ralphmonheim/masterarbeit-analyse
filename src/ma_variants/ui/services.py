@@ -6,8 +6,10 @@ from dataclasses import asdict, dataclass, replace
 from datetime import datetime, timezone
 from pathlib import Path
 
+from ma_project import VariantNamingProfile
+
 from ..importing.catalog import import_catalog
-from ..naming import apply_variant_names, load_naming_rules
+from ..naming import NamingRulePart, NamingRules, apply_variant_names, load_naming_rules
 from ..option_catalog import OptionSet, OptionValue
 from ..parameter_catalog import Parameter
 from ..reporting import VariantExportResult, export_variant_overview
@@ -110,15 +112,28 @@ def load_variant_ui_data(
 ) -> VariantUiData:
     """Laedt Katalogdaten, berechnet Variantenanzahl und erzeugt Beispielvarianten."""
     catalog = import_catalog(parameter_config, option_config, report_path=None)
-    theoretical_variant_count = calculate_theoretical_variant_count(
+    return build_variant_ui_data(
         catalog.parameters,
+        catalog.option_sets,
         catalog.option_values,
     )
-    generated_variants = generate_variants(catalog.parameters, catalog.option_values)
+
+
+def build_variant_ui_data(
+    parameters: list[Parameter],
+    option_sets: list[OptionSet],
+    option_values: list[OptionValue],
+) -> VariantUiData:
+    """Erzeugt den Variantenraum aus bereits validierten Katalogobjekten."""
+    theoretical_variant_count = calculate_theoretical_variant_count(
+        parameters,
+        option_values,
+    )
+    generated_variants = generate_variants(parameters, option_values)
     return VariantUiData(
-        parameters=catalog.parameters,
-        option_sets=catalog.option_sets,
-        option_values=catalog.option_values,
+        parameters=parameters,
+        option_sets=option_sets,
+        option_values=option_values,
         theoretical_variant_count=theoretical_variant_count,
         generated_variants=generated_variants,
     )
@@ -214,6 +229,28 @@ def apply_naming_to_ui_data(
 ) -> VariantUiData:
     """Wendet die bestehenden Namensregeln auf alle erzeugten Varianten an."""
     naming_rules = load_naming_rules(naming_config)
+    named_variants = apply_variant_names(ui_data.generated_variants, naming_rules)
+    return replace(ui_data, generated_variants=named_variants)
+
+
+def apply_naming_profile_to_ui_data(
+    ui_data: VariantUiData,
+    profile: VariantNamingProfile,
+) -> VariantUiData:
+    """Wendet ein formatneutrales Projekt-Benennungsprofil auf Varianten an."""
+    naming_rules = NamingRules(
+        prefix=profile.prefix,
+        index_width=profile.index_width,
+        separator=profile.separator,
+        include_index=profile.include_index,
+        parts=[
+            NamingRulePart(
+                parameter_key=part.parameter_key,
+                option_tokens=dict(part.option_tokens),
+            )
+            for part in profile.parts
+        ],
+    )
     named_variants = apply_variant_names(ui_data.generated_variants, naming_rules)
     return replace(ui_data, generated_variants=named_variants)
 

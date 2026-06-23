@@ -33,3 +33,11 @@ Weiterentwicklung des vorhandenen produktiven Kerns.
 - Historische Konfigurationen bleiben lesbar.
 - Produkt-, Material- und programmspezifische Exportbezeichnungen werden nicht
   in `ma_variants` verwaltet.
+
+## Umsetzungsbezug P028
+
+Der Demo-Variantenraum konsumiert bereits die aktuelle Optionsauswahl aus
+`ma_parameters` und das neutrale Benennungsprofil aus `ma_project`.
+Fehlende Tokens und doppelte Namen blockieren die Anwendung. Die dauerhafte
+Zuordnung zu versionierten `ParameterSnapshot`- und Naming-Regelstaenden
+bleibt Aufgabe von P017.

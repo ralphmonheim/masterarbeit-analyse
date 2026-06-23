@@ -9,12 +9,36 @@ from ma_workflow import get_module_definition, list_module_definitions
 
 CURRENT_PAGE_SESSION_KEY = "ma_ui_current_page"
 MODULE_INFO_PAGE_SESSION_KEY = "ma_ui_module_info_page"
+CONFIGURATION_RETURN_PAGE_SESSION_KEY = "ma_ui_configuration_return_page"
 
 
 def select_page(session_state: MutableMapping[str, object], page_key: str) -> None:
     """Waehlt eine Seite und beendet einen eventuell aktiven Infokartenmodus."""
     session_state.pop(MODULE_INFO_PAGE_SESSION_KEY, None)
+    session_state.pop(CONFIGURATION_RETURN_PAGE_SESSION_KEY, None)
     session_state[CURRENT_PAGE_SESSION_KEY] = page_key
+
+
+def select_related_configuration_page(
+    session_state: MutableMapping[str, object],
+    target_page_key: str,
+    *,
+    return_page_key: str,
+) -> None:
+    """Oeffnet eine Konfigurationsseite und merkt die fachliche Ausgangsseite."""
+    session_state.pop(MODULE_INFO_PAGE_SESSION_KEY, None)
+    session_state[CONFIGURATION_RETURN_PAGE_SESSION_KEY] = return_page_key
+    session_state[CURRENT_PAGE_SESSION_KEY] = target_page_key
+
+
+def return_to_configuration_origin(session_state: MutableMapping[str, object]) -> str | None:
+    """Kehrt zur gemerkten Ausgangsseite zurueck und beendet den Kontext."""
+    return_page_key = session_state.pop(CONFIGURATION_RETURN_PAGE_SESSION_KEY, None)
+    if not isinstance(return_page_key, str):
+        return None
+    session_state.pop(MODULE_INFO_PAGE_SESSION_KEY, None)
+    session_state[CURRENT_PAGE_SESSION_KEY] = return_page_key
+    return return_page_key
 
 
 def set_module_info_active(

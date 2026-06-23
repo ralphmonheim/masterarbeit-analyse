@@ -36,6 +36,12 @@ Alternative:
   und `Weiter`. Rechts kann `Infokarte` fuer die aktuelle Fachansicht
   geoeffnet und mit `Modulansicht` wieder verlassen werden. Bei Modulen ohne
   eigene Fachansicht ist die Infokarte bereits die Hauptansicht.
+- `Projekt`, `Parameter` und `Varianten` besitzen P028-Fachansichten mit
+  gemeinsamem Sitzungsstand. Fachliche Querverweise merken die Ausgangsseite;
+  die normale Kopfzeilen-Navigation verwirft diesen Ruecksprungkontext.
+- Lokale Arbeitsdateien werden erst durch `Als neue Datei speichern` oder ein
+  bestaetigtes Ueberschreiben angelegt. Versionierte Vorlagen bleiben
+  unveraendert.
 - Die Codex-Routine `tagesstart` startet diese Oberflaeche nicht automatisch.
   Zum Oeffnen den oben genannten venv-basierten Streamlit-Befehl nutzen.
 - Die Startseite zeigt ein grafisches Workflow-Dashboard mit Phasen,

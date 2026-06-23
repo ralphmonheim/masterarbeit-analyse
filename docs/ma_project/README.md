@@ -7,5 +7,7 @@
   neutrales Benennungsprofil und referenzierte Randbedingungen.
 - **Abgrenzung:** keine Fachdatenerfassung und keine Simulation.
 - **Abhaengigkeiten:** `ma_core`; Phase 1.
-- **Status:** geplant.
-- **Naechster Schritt:** P011 und P028 nach dem Eingabevertrag aus P010 konkretisieren.
+- **Status:** geplant; P028 stellt eine getestete Demo-Fachansicht fuer
+  Simulationsprogramme und neutrales Naming bereit.
+- **Naechster Schritt:** P011 um Projektstammdaten, Modellreferenzen,
+  Quellenwahl und Freigabestatus erweitern.

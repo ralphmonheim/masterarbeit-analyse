@@ -1,7 +1,7 @@
 # P028 Projekt-, Parameter- und Naming-Demo in Streamlit
 
 Stand: 2026-06-23
-Status: Geplant
+Status: Umgesetzt und archiviert
 Prioritaet: Hoch
 Abhaengigkeiten: P010, P011, P015, P017, P027
 
@@ -112,3 +112,19 @@ Regeln:
 - programmspezifische Export- oder Objektcodes;
 - Produkt- und Materialbenennung in `ma_project`;
 - Festlegung von YAML als dauerhaft einziges Speicherformat.
+
+## Umsetzungsergebnis
+
+- Gemeinsamer Streamlit-Sitzungsstand fuer `ma_project`, `ma_parameters` und
+  `ma_variants` ist umgesetzt.
+- Projektansicht verwaltet Simulationsprogrammlisten und neutrale
+  Benennungsprofile.
+- Parameteransicht zeigt Definitionen schreibgeschuetzt und verwaltet aktive
+  Optionswerte.
+- Variantenansicht erzeugt und benennt den aktuellen Variantenraum.
+- Vorlagen, lokale Pfade, Dateinamenskollisionen und bestaetigtes
+  Ueberschreiben werden technisch geprueft.
+- YAML ist nur der erste Schreibadapter; die Fachmodelle bleiben davon
+  getrennt.
+- Der produktive `ParameterSnapshot` und die restlichen Umfaenge aus P011,
+  P015 und P017 bleiben offen.

@@ -37,3 +37,11 @@ Produktiver Kern fuer die Masterarbeit.
 - Stage-1-Ergebnisse erzeugen einen neuen Vorschlag statt stille Aenderungen.
 - Versionierte Demo-Vorlagen koennen weder direkt noch ueber eine
   Namenskollision ueberschrieben werden.
+
+## Umsetzungsbezug P028
+
+Bereits als Demo umgesetzt sind die schreibgeschuetzte Parameteranzeige,
+Optionsgruppen, aktive Optionswerte, Vollstaendigkeitspruefung,
+Variantenanzahl und geschuetzte lokale Speicherung. Ein versionierter,
+freigegebener `ParameterSnapshot` mit Herkunft und Aenderungsnachweis bleibt
+der produktive Kern von P015.

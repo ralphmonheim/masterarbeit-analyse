@@ -1,0 +1,6 @@
+active_program_key: ida_ice
+simulation_programs:
+  - program_key: ida_ice
+    display_name: IDA ICE
+    version: ""
+    note: Manuell verwendetes Simulationsprogramm der Masterarbeit.

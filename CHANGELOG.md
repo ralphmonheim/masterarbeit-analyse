@@ -4,6 +4,23 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.15.0 - 2026-06-23
+
+### Added
+- P028-Fachansichten fuer Simulationsprogramme, neutrale Benennungsprofile,
+  Parameterdefinitionen, Optionsauswahl und benannte Varianten ergaenzt.
+- Gemeinsamen Streamlit-Sitzungsstand und gezielte Modulverweise mit
+  Ruecksprung zur Ausgangsseite eingefuehrt.
+- Sichere lokale YAML-Speicherung mit Vorlagenschutz, Pfadpruefung,
+  Kollisionsfehlern und bestaetigtem Ueberschreiben eigener Dateien
+  umgesetzt.
+
+### Changed
+- Bestehende Parameter-, Options-, Naming- und Variantengeneratoren in den
+  P028-Datenfluss eingebunden, ohne historische Konfigurationen zu brechen.
+- P028 archiviert und P010, P011, P015, P017 sowie P027 auf den erreichten
+  Demo-Zwischenstand aktualisiert.
+
 ## 0.14.0 - 2026-06-23
 
 ### Added

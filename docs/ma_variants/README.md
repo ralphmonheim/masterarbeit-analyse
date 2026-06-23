@@ -33,12 +33,13 @@ auswaehlen, benennen und nachvollziehbar verwalten.
 
 Geplant. Ein umfangreicher Prototyp ist vorhanden, aber die verbindliche
 Eingangsquelle `ma_parameters` und die Integration bis `ma_simulation_setup`
-fehlen.
+fehlen. P028 bindet die Demo-Optionsauswahl und das neutrale Benennungsprofil
+bereits ueber einen gemeinsamen Streamlit-Sitzungsstand an.
 
 ## Naechster Schritt
 
-Bestehenden Kern stabil halten und die Anbindung an `ma_parameters` sowie das
-Benennungsprofil aus `ma_project` ueber P017 und P028 planen.
+Bestehenden Kern stabil halten und die P028-Demo ueber P017 auf versionierte
+`ParameterSnapshot`- und Naming-Regelstaende umstellen.
 
 ## Dateien
 

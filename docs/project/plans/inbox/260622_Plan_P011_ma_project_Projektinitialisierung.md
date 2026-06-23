@@ -37,3 +37,10 @@ Lite-Implementierung fuer die Masterarbeit.
 - Produkt- und Materialbezeichnungen bleiben neutrale Katalogdaten.
 - Programmspezifische Objekt- und Exportcodes bleiben Aufgabe der
   Simulationsadapter.
+
+## Umsetzungsbezug P028
+
+Bereits als Demo umgesetzt sind die frei verwaltbare Simulationsprogrammliste,
+das aktive Programm, neutrale Benennungsprofile, Vorschau, Eindeutigkeitspruefung
+und geschuetzte lokale Speicherung. Projekt-ID, Standort, Untersuchungsziel,
+Modellreferenzen, Quellenwahl und Freigabestatus bleiben fuer P011 offen.

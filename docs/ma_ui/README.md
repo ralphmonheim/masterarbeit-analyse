@@ -104,8 +104,15 @@ Workflow-Service-Aufrufe getrennt anbinden.
   `compare` erzeugt eine gemeinsame Vergleichsausgabe.
 - Analyse-Ergebnisse zeigen Status, Fehler, Hinweise, erzeugte Dateien,
   Diagrammvorschau fuer Bilddateien und Log.
-- Varianten-Seite zeigt Parameter, Optionen, Variantenraum, Auswahlmethoden und
-  vorhandene Exportdateien ueber bestehende `ma_variants`-Services.
+- Projekt-, Parameter- und Varianten-Seite teilen einen Sitzungsstand.
+  Projekt verwaltet Simulationsprogramme und neutrales Naming, Parameter die
+  aktive Demo-Optionsauswahl, Varianten den daraus erzeugten und benannten
+  Variantenraum.
+- Gezielte Querverweise zwischen diesen Seiten merken die Ausgangsseite. Ein
+  normaler Wechsel ueber Start, Zurueck oder Weiter beendet den Ruecksprung.
+- Eigene Programmlisten, Naming-Profile und Optionsauswahlen werden nur nach
+  Nutzeraktion lokal gespeichert; Vorlagen und kollidierende neue Dateinamen
+  sind technisch geschuetzt.
 - Wetter-Seite zeigt zuerst die Analysebedienung fuer einen aktiven
   Wetterdatensatz und darunter die lokalen TRY-Datensaetze aus dem
   `ma_weather`-Katalog inklusive Dateistatus.

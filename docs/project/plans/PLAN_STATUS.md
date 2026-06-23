@@ -101,21 +101,20 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   Validierung und Datenhaltung.
 - P027 begleitet alle Fachslices mit UI-, Workflow-, Validierungs- und
   Feedbackregeln.
-- P028 plant den ersten gemeinsamen Streamlit-Slice fuer freie
-  Simulationsprogrammlisten, neutrale Varianten-Benennungsprofile,
-  Demo-Optionsauswahl und den gemeinsamen Sitzungsstand von `ma_project`,
-  `ma_parameters` und `ma_variants`.
-- P028 schuetzt versionierte Vorlagen vor Aenderungen. Eigene Dateien werden
-  lokal gespeichert; kollidierende neue Dateinamen muessen vom Nutzer
-  geaendert werden. YAML ist nur das erste, nicht das dauerhaft festgelegte
-  Speicherformat.
+- P028 ist als erster gemeinsamer Streamlit-Slice umgesetzt und archiviert:
+  freie Simulationsprogrammlisten, neutrale Varianten-Benennungsprofile,
+  Demo-Optionsauswahl und gemeinsamer Sitzungsstand von `ma_project`,
+  `ma_parameters` und `ma_variants` sind vorhanden.
+- Der P028-Vorlagenschutz verhindert Aenderungen an versionierten Vorlagen.
+  Eigene Dateien werden lokal gespeichert; kollidierende neue Dateinamen
+  muessen geaendert werden. YAML bleibt nur der erste Schreibadapter.
 - P009 bleibt bis zum validierten `RunManifest` aus P018 zurueckgestellt. Der
   vorhandene Basisexport in `ma_variants.ida_export` wird spaeter
   wiederverwendet, nicht dupliziert.
 - Direkte IDM-Manipulation, erfundene IDA-Befehle und automatischer
   Simulationsstart bleiben bis zur lokalen Verifikation ausgeschlossen.
 
-### Geplante Modulplanserie P011 bis P028
+### Modulplanserie P011 bis P028
 
 - Eingabekette bis `ma_simulation_setup`: P011 bis P018.
 - Analyse Stufe 2 Optimierung: P019 auf Basis vorhandener Befehle.
@@ -128,8 +127,9 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   vollstaendigem Fachkonzept.
 - Assessment, Reporting und Datenexport: P024 bis P026 zunaechst
   konzeptuell.
-- Gemeinsamer Projekt-, Parameter- und Naming-Slice: P028 mit neutraler
-  Benennung, geschuetzten Vorlagen und formaterweiterbarer Konfiguration.
+- Gemeinsamer Projekt-, Parameter- und Naming-Slice: P028 ist als Demo
+  umgesetzt; produktive Projektstammdaten und `ParameterSnapshot` folgen ueber
+  P011 und P015.
 - `ma_building` und `ma_zones` werden mindestens konzeptuell und mit
   Demo-Datensaetzen aufgebaut. IFC-Lite bleibt bis zur Analyse konkreter
   IFC-Arbeitsstaende offen; CAD-Integration ist ausgeschlossen.
@@ -246,12 +246,15 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   Workflow-Kontext und vorhandene Projektressourcen. P007 ersetzt sie aktiv
   durch kataloggesteuerte Modul-Infoseiten; historische IDA-Views bleiben
   Kompatibilitaetswrapper auf die allgemeinen Schnittstellen.
+- P028 umgesetzt: Projekt-, Parameter- und Variantenansicht teilen einen
+  Sitzungsstand, wenden neutrale Benennungsprofile an und speichern eigene
+  YAML-Arbeitsstaende mit technischem Vorlagenschutz.
 
 ### Offen
 
 - P008 liegt als aktiver Abschlussplan fuer das Wettermodul in der Plan-Inbox.
-- P010 als naechsten Umsetzungsplan fuer Eingabe- und
-  Datenhaltungsarchitektur detaillieren und freigeben.
+- P010 nach dem P028-Datei- und Vorlagenschutz um allgemeine Quellen-,
+  Diagnose- und Validierungsvertraege erweitern.
 - P020 beginnt mit Recherche und darf vor einer belastbaren Normen- und
   Methodenmatrix keine Grenzwerte als Norm-Nachweis implementieren.
 - Aus P005 nach P007 uebernommen: Analyse-View in laufender Streamlit-App manuell gegen

@@ -324,3 +324,20 @@ Technische Folgen:
   Konfigurationsordner.
 - Serializer und Fachmodelle werden so getrennt, dass YAML spaeter um weitere
   Formate ergaenzt oder ersetzt werden kann.
+
+## Entscheidung 24: P028 verwendet einen gemeinsamen UI-Sitzungsstand
+
+`ma_project`, `ma_parameters` und `ma_variants` verwenden in Streamlit ein
+gemeinsames, UI-neutrales Zustandsobjekt. Ein Direkteinstieg initialisiert
+dieses Objekt aus den versionierten Vorlagen.
+
+Technische Folgen:
+
+- `ma_project` liefert Programmliste und neutrales Benennungsprofil.
+- `ma_parameters` liefert die aktive Demo-Optionsauswahl.
+- `ma_variants` erzeugt und benennt den Variantenraum, besitzt die beiden
+  Konfigurationen aber nicht.
+- Fachliche Querverweise speichern ein Ruecksprungziel; normale
+  Workflow-Navigation verwirft es.
+- Der Sitzungsstand ist keine dauerhafte Persistenz und kein produktiver
+  `ParameterSnapshot`.

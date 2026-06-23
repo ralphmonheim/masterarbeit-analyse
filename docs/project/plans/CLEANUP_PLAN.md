@@ -84,5 +84,5 @@ Stand: 2026-06-23
 5. P011 bis P018 fuer die Eingabekette bis Run-Manifest umsetzen.
 6. P009 erst danach fuer Simulationsschnittstellen weiterfuehren.
 7. Uebernommene P005-Restarbeiten ueber P027 begleiten.
-8. P028 nach den Eingabevertraegen aus P010 als ersten gemeinsamen
-   Konfigurations-Slice umsetzen.
+8. P028 ist als erster gemeinsamer Konfigurations-Slice umgesetzt; seine
+   produktiven Folgearbeiten ueber P011, P015 und P017 weiterfuehren.

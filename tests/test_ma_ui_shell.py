@@ -58,6 +58,7 @@ from ma_ui.module_views.analyse_view import (
     safe_list_plot_overlay_sources,
 )
 from ma_ui.navigation import (
+    CONFIGURATION_RETURN_PAGE_SESSION_KEY,
     CURRENT_PAGE_SESSION_KEY,
     MODULE_INFO_PAGE_SESSION_KEY,
     get_navigation_page,
@@ -65,7 +66,9 @@ from ma_ui.navigation import (
     next_page_key,
     normalize_page_key,
     previous_page_key,
+    return_to_configuration_origin,
     select_page,
+    select_related_configuration_page,
     set_module_info_active,
 )
 from ma_ui.pages.assessment import economic_assumption_rows
@@ -194,11 +197,12 @@ def test_module_info_mode_is_only_active_for_registered_module_views():
     assert has_module_view("analyse") is True
     assert has_module_view("variants") is True
     assert has_module_view("assessment") is True
-    assert has_module_view("parameters") is False
+    assert has_module_view("parameters") is True
+    assert has_module_view("project") is True
     assert has_module_view("home") is False
     assert is_module_info_active("weather", "weather") is True
     assert is_module_info_active("weather", "analyse") is False
-    assert is_module_info_active("parameters", "parameters") is False
+    assert is_module_info_active("parameters", "parameters") is True
 
 
 def test_page_renderer_switches_between_module_view_and_info(monkeypatch):
@@ -217,7 +221,7 @@ def test_page_renderer_switches_between_module_view_and_info(monkeypatch):
     weather_page = get_navigation_page("weather")
     ma_ui_app._render_page(weather_page)
     ma_ui_app._render_page(weather_page, show_module_info=True)
-    ma_ui_app._render_page(get_navigation_page("parameters"))
+    ma_ui_app._render_page(get_navigation_page("parameters"), show_module_info=True)
 
     assert calls == [
         "module-view",
@@ -235,6 +239,26 @@ def test_page_navigation_and_info_toggle_update_session_state():
     select_page(session_state, "variants")
     assert session_state[CURRENT_PAGE_SESSION_KEY] == "variants"
     assert MODULE_INFO_PAGE_SESSION_KEY not in session_state
+
+
+def test_configuration_links_store_return_page_and_normal_navigation_clears_it():
+    session_state: dict[str, object] = {}
+
+    select_related_configuration_page(
+        session_state,
+        "parameters",
+        return_page_key="variants",
+    )
+
+    assert session_state[CURRENT_PAGE_SESSION_KEY] == "parameters"
+    assert session_state[CONFIGURATION_RETURN_PAGE_SESSION_KEY] == "variants"
+    assert return_to_configuration_origin(session_state) == "variants"
+    assert session_state[CURRENT_PAGE_SESSION_KEY] == "variants"
+    assert CONFIGURATION_RETURN_PAGE_SESSION_KEY not in session_state
+
+    select_related_configuration_page(session_state, "project", return_page_key="variants")
+    select_page(session_state, "home")
+    assert CONFIGURATION_RETURN_PAGE_SESSION_KEY not in session_state
 
     set_module_info_active(session_state, "variants", active=True)
     set_module_info_active(session_state, "variants", active=False)

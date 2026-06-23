@@ -9,6 +9,8 @@ from ma_ui.module_views import (
     assessment_view,
     home_view,
     module_info_view,
+    parameters_view,
+    project_view,
     variants_view,
     weather_view,
 )
@@ -27,6 +29,8 @@ from ma_ui.navigation import (
 
 _PAGE_RENDERERS = {
     "home": home_view.render,
+    "project": project_view.render,
+    "parameters": parameters_view.render,
     "weather": weather_view.render,
     "variants": variants_view.render,
     "analyse": analyse_view.render,

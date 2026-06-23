@@ -307,7 +307,8 @@ Paketgeruest, eine Infoseite oder vorhandener Prototypcode genuegt nicht fuer
 - **Zweck:** Projektstammdaten, Untersuchungsrahmen und Projektstatus
   verwalten sowie Simulationsprogramme und neutrale
   Varianten-Benennungsprofile referenzieren.
-- **Status:** Geplant.
+- **Status:** Geplant; P028-Demo fuer Simulationsprogramme und neutrales
+  Benennungsprofil umgesetzt.
 
 #### ma_parameters
 
@@ -319,9 +320,8 @@ Paketgeruest, eine Infoseite oder vorhandener Prototypcode genuegt nicht fuer
   Simulation-Setup und Export.
 - **Abgrenzung:** Das Modul bildet keine Varianten und schreibt keine
   IDA-ICE-Dateien.
-- **Status:** Geplant; wesentliche Parameterlogik liegt derzeit in
-  `ma_variants.parameter_catalog` und `ma_variants.option_catalog`, das eigene
-  Zielpaket fehlt noch.
+- **Status:** Geplant; P028-Demo fuer schreibgeschuetzte Parameteranzeige und
+  aktive Optionsauswahl umgesetzt. Der produktive `ParameterSnapshot` fehlt.
 
 #### ma_weather
 
@@ -737,9 +737,11 @@ Aktueller Stand:
 - `Start`: grafischer Workflow und technische Detailtabellen im Expander
 - `Analyse`: Streamlit-Wizard fuer `ma_analyse`, orientiert an Tkinter-Ablauf
 - `Wetterdaten`: Analysebereich oben, Wetterdatensatzuebersicht darunter
-- `Varianten`: Uebersicht ueber bestehende `ma_variants`-Services
-- P028 plant Fachansichten fuer Projektkonfiguration, Demo-Optionsauswahl und
-  neutrale Variantenbenennung mit gezielten Modulverweisen.
+- `Projekt`: Simulationsprogramme und neutrales Benennungsprofil
+- `Parameter`: schreibgeschuetzte Definitionen und aktive Demo-Optionswerte
+- `Varianten`: gemeinsamer Variantenraum mit angewendetem Benennungsprofil
+- P028-Querverweise merken die Ausgangsseite; die normale Navigation beendet
+  den speziellen Ruecksprungkontext.
 - `Bewertung`: erste Uebersicht ueber Annahmen; langfristig Aufteilung in
   Economy, Sustainability und Assessment
 - leere Zielmodule: Titel, Untertitel und blaue Hinweisbox

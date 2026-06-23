@@ -80,6 +80,12 @@ Zonen oder Technik sind im Zielbild nicht vorgesehen.
 `ma_variants` wendet das von `ma_project` referenzierte neutrale
 Benennungsprofil an, besitzt dessen Konfiguration aber nicht.
 
+P028 bildet diesen Datenfluss als begrenzte Streamlit-Demo ab. Die Demo
+verwendet vorhandene Parameter- und Optionskataloge, einen gemeinsamen
+Sitzungsstand und lokale geschuetzte Arbeitsdateien. Sie ist noch kein
+produktiver `ParameterSnapshot` und aendert deshalb die fachlichen
+Modulstatus nicht.
+
 ## Eingabequellen
 
 - Die Quellenwahl erfolgt je Modul.
@@ -162,7 +168,7 @@ und Dashboard uebernommen. Sie beschreiben den fachlichen Reifegrad im
 Masterarbeitsworkflow. Paketgerueste, Infoseiten und vorhandener Prototypcode
 reichen nicht fuer den Status `teilweise` oder `verfuegbar`.
 
-## Aktive Teilplaene
+## Relevante Teilplaene
 
 - P008: Wettermodul, eigene Wetterimporte und kritische Ereignisse.
 - P010: Eingabe- und Datenhaltungsarchitektur.
@@ -170,7 +176,8 @@ reichen nicht fuer den Status `teilweise` oder `verfuegbar`.
 - P019 bis P021: getrennte Analysestufen.
 - P022 bis P026: abgestufte Demo- und Konzeptmodule.
 - P027: begleitende Querschnittsfunktionen.
-- P028: Projekt-, Parameter- und Naming-Demo in Streamlit.
+- P028: Projekt-, Parameter- und Naming-Demo in Streamlit umgesetzt und
+  archiviert.
 - P009: nach P018 zurueckgestellte Simulationsschnittstellen.
 
 ## Migrationsgrundsaetze
