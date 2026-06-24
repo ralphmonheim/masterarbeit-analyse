@@ -55,12 +55,21 @@ unter `logs/sessions/<session_id>.jsonl`.
 Reale TRY-Dateien werden vom Nutzer lokal unter `data/ma_weather/input/`
 bereitgestellt und nicht im Git-Repo versioniert.
 
-Der aktive Beispielkatalog enthaelt Jahresdatensaetze fuer Frankfurt am Main,
-Muenchen und Hamburg jeweils fuer 2015 und 2045.
+Der aktive Beispielkatalog enthaelt Datensaetze fuer Frankfurt am Main,
+Muenchen und Hamburg jeweils fuer 2015 und 2045 als Jahr-, Sommer- und
+Winterdatensatz.
 
 Der Standortkatalog unter `config/ma_weather/locations/` bildet Staedte,
 Klimaregionen und TRY-Referenzstandorte ab. Die Streamlit-Wetterseite nutzt ihn
 fuer die automatische Anzeige von Klimaregion und Referenzstandort.
+
+Die reduzierte P008-Umsetzung fuehrt Datensatzstatus, `import_id`,
+offene Wetterdatensaetze, bewusste Aktivierung und einen lokalen
+Projekt-Default ein. Aktivierung und Default werden nicht automatisch aus einem
+Import abgeleitet.
+
+Slice 4 ergaenzt kritische Wetterereignisse je bewusst ausgewaehltem
+Datensatz. Jahr-, Sommer- und Winterdateien werden nicht vermischt.
 
 ## Dateien
 
@@ -72,7 +81,7 @@ fuer die automatische Anzeige von Klimaregion und Referenzstandort.
 ## Start
 
 ```powershell
-.\.venv\Scripts\python.exe -m ma_weather.run_weather_analysis --weather-key TRY_FFM_2015
+.\.venv\Scripts\python.exe -m ma_weather.run_weather_analysis --weather-key TRY_FFM_2015_JAHR
 ```
 
 Der Befehl erwartet, dass die lokale TRY-Datei aus dem Katalogpfad vorhanden

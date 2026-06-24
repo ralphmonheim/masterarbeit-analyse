@@ -1,6 +1,6 @@
 # P008 ma_weather Gesamtplan
 
-Stand: 2026-06-23
+Stand: 2026-06-24
 Status: Aktiv
 Plannummer: P008
 Bezug: P007, P010, P015, P018, P021, P027, archivierter P002
@@ -54,9 +54,10 @@ Weiterhin offene Entscheidungen:
 - Endgueltige Feldnamen und ID-Schreibweise fuer das Datenbankmodell.
 - Seed-Quelle fuer Stadt-, Klimaregions- und Referenzstandortdaten.
 - Exakte Pflichtspalten, Einheiten und Wertebereiche je Wetterformat.
-- Umgang mit Sommer- und Winterdatensaetzen.
+- Erweiterung weiterer Sommer- und Winterdatensaetze ausserhalb der aktuell
+  katalogisierten drei Standorte.
 - Umfang normalisierter Kopien und spaeterer Exporte.
-- Definition kritischer Wetterereignisse fuer P021.
+- Fachliche Feinschaerfung kritischer Wetterereignisse fuer P021.
 
 ## Ziel
 
@@ -80,7 +81,7 @@ Datenhaltung und spaetere Parameteruebergabe.
   Modulbereich `data/ma_weather/`.
 - TRY-Import, Validierung, Kennwerte, Diagramme, Markdown-Bericht und Runner
   sind vorhanden.
-- `TRY_FFM_2015` wurde real mit 8760 Stunden erfolgreich geprueft.
+- `TRY_FFM_2015_JAHR` wurde real mit 8760 Stunden erfolgreich geprueft.
 - Streamlit kann aktive `weather_key` Werte auswaehlen, Wetteranalysen starten
   und Ergebnisse anzeigen.
 - `ma_core` stellt Quellenmodell, SHA-256 und JSONL-Sitzungslogs bereit.
@@ -439,87 +440,68 @@ Bestehende Analysefunktionen bleiben erhalten:
 
 Geplante Erweiterungen:
 
-- Extremtage,
+- fachliche Feinschaerfung der Extremtag- und Ereignisdefinitionen,
 - Vergleich von Gegenwarts- und Zukunftsdatensaetzen,
 - Vergleich mehrerer Referenzstandorte,
 - fachliche Diagrammpruefung gegen Masterarbeitslayout,
-- kritische Wetterereignisse fuer P021.
+- spaetere P021-Anbindung fuer ausgewaehlte kritische Wetterereignisse.
 
 ## Umsetzungsschritte
 
-### Phase 1 Bestandsanalyse und Konsolidierung
+Die weitere Umsetzung wird ab 2026-06-24 in reduzierten, groesseren Slices
+gefuehrt. Die fruehere Neun-Phasen-Gliederung bleibt fachlich im Plan
+enthalten, wird aber nicht mehr als operative Reihenfolge verwendet.
 
-- vorhandene Wetterstruktur gegen diesen Plan abgleichen,
-- alte Ausgangsplaene archivieren,
-- Planindex und Planstatus aktualisieren,
-- keine produktive Codeaenderung in diesem Schritt.
+### Slice 1 Bestand, Realtests und Auswahlstatus
 
-### Phase 2 Realtests
-
-- `TRY_FFM_2045`, `TRY_MUC_2015`, `TRY_MUC_2045`, `TRY_HAM_2015` und
-  `TRY_HAM_2045` lokal ausfuehren,
-- Validierung, Stundenanzahl, CSV, Diagramme, Bericht und Log dokumentieren,
+- alle katalogisierten Wetterdatensaetze gegen lokale TRY-Dateien pruefen,
+- pro `weather_key` Datei-, Import-, Warnungs-, Fehler- und Freigabestatus
+  ermitteln,
+- Status direkt in Wetterauswahl und Kataloguebersicht anzeigen,
+- TRY-Referenzdatensaetze weiter vor standortgenauen Datensaetzen priorisieren,
+- keine fachlich unklare Ersatzzuordnung einfuehren,
 - lokale fehlende TRY-Dateien klar melden, ohne synthetische Dateien anzulegen.
 
-### Phase 3 Standort- und Seed-Konzept
+### Slice 2 Importnachweis und offene Datensaetze
 
-- Standort- und Klimaregionsdaten aus dem Implementierungsplan pruefen,
-- Seed-Format festlegen,
-- ID-Schreibweise festlegen,
-- YAML-/CSV-Zwischenstand planen,
-- Migration erst nach Freigabe vorbereiten.
+- jeden Analyseimport mit stabiler `import_id` versehen,
+- Import-Log, Validierungsbericht, Wetterdatensatz, `session_id` und `run_id`
+  verknuepfen,
+- offene, fehlende, fehlerhafte oder noch freizugebende Datensaetze in
+  Streamlit separat anzeigen,
+- offene Datensaetze nicht als regulaere Auswahl fuer Varianten,
+  Simulationen oder `ma_parameters` bereitstellen.
 
-### Phase 4 Streamlit Standortauswahl
+### Slice 3 Aktivierung, Projekt-Default und Uebergabegrenze
 
-- UI-Assetbereich fuer Wetterkarte vorbereiten,
-- Stadt-Suchfeld oder Selectbox planen,
-- Klimaregion und Referenzstandort automatisch anzeigen,
-- aktive und validierte Datensaetze nach Referenzstandort filtern,
-- leere Zustaende behandeln.
+- Statuskette `importiert -> validiert -> aktiv -> Projekt-Default` umsetzen,
+- gueltige Importe nicht automatisch aktivieren,
+- aktivierte Datensaetze nicht automatisch als Projekt-Default setzen,
+- Aktivierung und Projekt-Default als bewusste Streamlit-Aktionen fuehren,
+- lokale YAML-Grundlage bis zur spaeteren Datenbankmigration verwenden,
+- Uebergabe an `ma_parameters` nur fuer aktive, validierte und freigegebene
+  Wetterdatensaetze vorbereiten.
 
-### Phase 5 Import-Grundlage
+### Slice 4 Wetterdatensatztyp und kritische Ereignisse
 
-- Upload- oder Dateiimport-Slice planen,
-- Import-ID erzeugen,
-- Datei temporaer ablegen,
-- SHA-256 berechnen,
-- Format und Metadaten erkennen,
-- Import-Log dauerhaft anlegen,
-- Fehlerbehandlung dokumentieren.
+- Sommer- und Winter-TRY-Dateien als eigene Wetterdatensaetze katalogisieren,
+- Datensatztyp Jahr, Sommer oder Winter in Streamlit sichtbar machen,
+- Ereignisberechnung immer aus dem bewusst ausgewaehlten Datensatz ableiten,
+- heisseste und kaelteste Tage sowie 3-Tage-Perioden erkennen,
+- strahlungsreichsten und windstaerksten Tag erkennen, falls die jeweiligen
+  Spalten vorhanden sind,
+- strukturierte Ereignisobjekte fuer die spaetere P021-Nutzung bereitstellen,
+- keine automatische Uebergabe an P021 einfuehren.
 
-### Phase 6 Validierung und offene Datensaetze
-
-- technische und fachliche Validierung erweitern,
-- Validierungsbericht speichern,
-- Statusmodell anwenden,
-- offene Datensaetze in Streamlit sichtbar machen,
-- erneute Validierung und Metadatenbearbeitung planen.
-
-### Phase 7 Aktivierung und Projekt-Default
-
-- bewusste Aktivierung validierter Datensaetze umsetzen,
-- bewusste Auswahl des Projekt-Defaults umsetzen,
-- Uebergabegrenze zu `ma_parameters` dokumentieren,
-- Sperren fuer offene Datensaetze pruefen.
-
-### Phase 8 Analyse und P021-Ereignisse
+### Spaetere Folgeschritte
 
 - Diagrammgestaltung fachlich pruefen,
-- Extremtage und kritische Wetterereignisse definieren,
 - Zeitfenster reproduzierbar beschreiben,
 - Schnittstelle zu P021 vorbereiten.
 
-### Phase 9 Tests und Dokumentation
-
-- Unit-Tests fuer Parser, Katalog, Validierung, Statuswechsel und Services,
-- Integrationstests fuer reale lokale TRY-Dateien, soweit vorhanden,
-- UI-Tests fuer Stadtwahl, offene Datensaetze und Default-Wechsel, soweit
-  praktikabel,
-- Dokumentation unter `docs/ma_weather/` und Planstatus aktualisieren.
-
 ## Tests und Abschlusskriterien
 
-- Alle sechs aktiven Jahresdatensaetze sind real dokumentiert geprueft oder
+- Alle 18 aktiven Jahr-, Sommer- und Winterdatensaetze sind real dokumentiert geprueft oder
   fehlende lokale Dateien sind nachvollziehbar gemeldet.
 - Pflichtspalten, eindeutiger Zeitindex und 8760 Stunden sind je Jahresdatei
   nachvollziehbar.
@@ -535,6 +517,8 @@ Geplante Erweiterungen:
 - `ma_weather` uebergibt nur freigegebene Daten an `ma_parameters`.
 - Offene Wetterdatensaetze koennen nicht fuer Varianten oder Simulationen
   genutzt werden.
+- Kritische Wetterereignisse werden nur aus dem bewusst ausgewaehlten
+  Wetterdatensatz berechnet.
 - Fachlogik bleibt unabhaengig von Streamlit und Tkinter.
 - Relative Pfade werden dauerhaft verwendet.
 
@@ -553,10 +537,12 @@ Geplante Erweiterungen:
 - Tatsachliches Format aller vorhandenen TRY-Dateien.
 - Notwendige Pflichtspalten je Dateiformat.
 - Interne Einheiten und erlaubte Wertebereiche.
-- Genaue Definition von Extremtagen und kritischen Wetterereignissen.
+- Fachliche Feinschaerfung der aktuell technischen Definition von Extremtagen
+  und kritischen Wetterereignissen.
 - Gewuenschte Klimaszenario-Bezeichnungen.
 - Gewuenschte Bezugszeitraeume.
-- Umgang mit Sommer- und Winterdatensaetzen.
+- Erweiterung weiterer Sommer- und Winterdatensaetze ausserhalb der aktuell
+  katalogisierten drei Standorte.
 - Fachliche Pruefung einzelner Stadtzuordnungen.
 - Endgueltige ID-Schreibweise.
 - Aufbewahrungsdauer temporaerer Dateien.

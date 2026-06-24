@@ -1,6 +1,6 @@
 # Nutzerentscheidungen Masterarbeit Code
 
-Stand: 2026-06-23
+Stand: 2026-06-24
 
 ## UD-001 Modulare Projektstruktur
 
@@ -750,3 +750,50 @@ Stand: 2026-06-23
 - Offene Folgefragen: Spaetere Fachmodule entscheiden in ihren Plaenen,
   welche zusaetzlichen Ereignisse sie protokollieren.
 - Quelle oder Chatbezug: aktueller Codex-Chat zur P010-Umsetzung
+
+## UD-058 ma_weather nutzt Stadtwahl, UI-Karte und bewusste Freigabe
+
+- Datum: 2026-06-24
+- Thema: ma_weather Auswahl, UI und Freigabe
+- Entscheidung: Die Stadt ist der primaere Auswahlpunkt fuer Wetterdaten.
+  Klimaregion und TRY-Referenzstandort werden automatisch ermittelt. Die
+  Klimaregionenkarte liegt im UI-Assetbereich. TRY-Referenzdatensaetze stehen
+  als Empfehlung vor standortgenauen Datensaetzen; standortgenaue
+  Wetterdaten duerfen zusaetzlich angeboten werden. Gueltige Importe werden
+  nicht automatisch aktiviert und aktivierte Datensaetze werden nicht
+  automatisch Projekt-Default.
+- Begruendung: Wetterauswahl, fachliche Referenzlogik und Freigabe sollen fuer
+  den Nutzer nachvollziehbar bleiben und keine stillschweigenden
+  Ersatzzuordnungen erzeugen.
+- Auswirkung: `ma_weather` trennt Referenzstandort und standortgenaue
+  Datensaetze. Streamlit zeigt Karte, Stadt, Klimaregion, Referenzstandort,
+  Datensatzstatus, Aktivierung und Projekt-Default bewusst in der Wetterseite.
+- Betroffene Module oder Dateien: `src/ma_weather/`, `src/ma_ui/pages/weather.py`,
+  `src/ma_ui/assets/weather/`, `config/ma_weather/`
+- Status: umgesetzt
+- Offene Folgefragen: Fachliche Ergaenzung weiterer TRY-Referenzstandorte und
+  realer Standortdatensaetze.
+- Quelle oder Chatbezug: aktueller Codex-Chat zu P008 ma_weather Slices 1 bis 3
+
+## UD-059 Sommer- und Winter-TRY-Dateien sind eigene Wetterdatensaetze
+
+- Datum: 2026-06-24
+- Thema: ma_weather Datensatztypen und kritische Wetterereignisse
+- Entscheidung: Jahres-, Sommer- und Winter-TRY-Dateien werden als getrennte
+  Wetterdatensaetze gefuehrt. Kritische Wetterereignisse werden immer aus dem
+  bewusst ausgewaehlten Datensatz abgeleitet und nicht automatisch ueber
+  Jahr, Sommer und Winter gemischt.
+- Begruendung: Sommer- und Winterdateien sind fachlich eigene
+  Randbedingungen. Die spaetere P021-Nutzung muss eindeutig auf den
+  ausgewaehlten Wetterdatensatz rueckfuehrbar bleiben.
+- Auswirkung: Der Wetterkatalog fuehrt Datensatztypen. `ma_weather` liefert
+  strukturierte Ereignisse mit Wetterdatensatzbezug; Streamlit zeigt die
+  Ereignisse nur als Vorbereitung fuer P021 und uebergibt sie noch nicht
+  automatisch.
+- Betroffene Module oder Dateien: `config/ma_weather/datasets/`,
+  `src/ma_weather/weather_events.py`, `src/ma_weather/run_weather_analysis.py`,
+  `src/ma_ui/pages/weather.py`
+- Status: umgesetzt
+- Offene Folgefragen: Fachliche Feinschaerfung der Ereignisdefinitionen und
+  spaetere P021-Anbindung.
+- Quelle oder Chatbezug: aktueller Codex-Chat zu P008 ma_weather Slice 4

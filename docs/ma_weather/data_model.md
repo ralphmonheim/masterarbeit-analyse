@@ -24,6 +24,18 @@ Felder:
 | `is_active` | steuert, ob der Datensatz aktiv verwendet werden soll |
 | `notes` | kurze Hinweise |
 
+`is_active` beschreibt die Katalogsicht. Die bewusste fachliche Aktivierung
+eines validierten Imports wird separat im lokalen Auswahlstatus gespeichert.
+
+Aktive `year_type` Werte fuer den P008-Wetterkatalog:
+
+| Wert | Bedeutung |
+|---|---|
+| `reference_year` | Jahresdatensatz fuer Gegenwart |
+| `future_year` | Jahresdatensatz fuer Zukunftsszenario |
+| `summer_extreme` | Sommer-TRY-Datei als eigener Datensatz |
+| `winter_extreme` | Winter-TRY-Datei als eigener Datensatz |
+
 ## Standort- und Referenzkatalog
 
 Der P008-Slice fuer Standortlogik fuehrt einen YAML-basierten
@@ -103,7 +115,30 @@ Die Wetteranalyse nutzt zusaetzliche strukturierte Rueckgaben:
 | `WeatherMetrics` | abgeleitete Wetterkennwerte |
 | `WeatherPlotResult` | Status und Pfad je Diagramm |
 | `WeatherAnalysisResult` | Gesamtergebnis des Runners |
+| `WeatherEvent` | Kritisches Wetterereignis aus einem ausgewaehlten Datensatz |
+
+Jeder Analyseimport besitzt zusaetzlich eine stabile `import_id`. Sie verbindet
+Wetterdatensatz, Quelle, Validierung, `session_id`, `run_id`, Logpfad und
+Ausgabepfade.
+
+## Lokaler Auswahlstatus
+
+Bis zur spaeteren Datenbankmigration wird Aktivierung und Projekt-Default lokal
+als YAML gespeichert:
+
+```text
+data/ma_weather/database/weather_selection_state.yaml
+```
+
+Der Status enthaelt bewusst aktivierte `weather_key` Werte, die zugehoerige
+`import_id` und optional den aktuellen Projekt-Default. Nur freigegebene
+Datensaetze duerfen aktiviert werden. Nur aktivierte Datensaetze duerfen
+Projekt-Default werden.
 
 Abgeleitete Kennwerte wie Stunden ueber 25/30 Grad C, Heizgradstunden und
 Kuehlgradstunden stehen nicht direkt in der TRY-Datei. Sie werden aus der
 Aussentemperatur berechnet und als Klimakennwerte dokumentiert.
+
+Kritische Ereignisse werden aus dem analysierten DataFrame abgeleitet. Sie
+enthalten Ereignis-ID, Typ, `weather_key`, Start, Ende, Kennwert, Einheit und
+Begruendung. Jahr-, Sommer- und Winterdatensaetze bleiben dabei getrennt.

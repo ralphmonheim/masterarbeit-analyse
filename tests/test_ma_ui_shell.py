@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import pandas as pd
+
 from ma_analyse.analysis_ui import (
     build_analysis_config,
     build_catalog_overlay_line,
@@ -76,11 +78,15 @@ from ma_ui.pages.home import workflow_phase_summary_rows, workflow_status_counts
 from ma_ui.pages.weather import (
     created_weather_plot_paths,
     get_weather_session_id,
+    weather_dataset_label,
     weather_dataset_rows,
+    weather_dataset_type_label,
+    weather_event_rows,
     weather_location_rows,
     weather_metric_rows,
     weather_plot_rows,
     weather_start_year,
+    weather_status_rows,
 )
 from ma_ui.post_process_view import post_process_step_rows
 from ma_ui.pre_process_view import pre_process_step_rows
@@ -99,7 +105,16 @@ from ma_ui.workflow_graph import (
 )
 from ma_ui.workflow_view import workflow_step_rows
 from ma_variants.economic_analysis import import_economic_assumptions
-from ma_weather import WeatherDataset, WeatherMetrics, WeatherPlotResult, import_weather_location_catalog
+from ma_weather import (
+    WeatherDataset,
+    WeatherDatasetStatus,
+    WeatherEvent,
+    WeatherFileStatus,
+    WeatherImportCheckStatus,
+    WeatherMetrics,
+    WeatherPlotResult,
+    import_weather_location_catalog,
+)
 from ma_workflow import get_step
 
 
@@ -947,6 +962,82 @@ def test_weather_dataset_rows_report_missing_local_file():
     assert rows[0]["weather_key"] == "TRY_TEST"
     assert rows[0]["Datei vorhanden"] is False
     assert rows[0]["Rolle"] == "Nicht zugeordnet"
+    assert rows[0]["Datensatztyp"] == "Jahr"
+    assert rows[0]["Datensatzstatus"] == "Nicht geprueft"
+
+
+def test_weather_dataset_label_shows_dataset_type():
+    summer_dataset = WeatherDataset(
+        weather_key="TRY_TEST_SOMM",
+        display_name="Test Sommer",
+        file_path=Path("data/ma_weather/input/test_somm.dat"),
+        file_format="TRY",
+        source="DWD",
+        location="Testort",
+        year_type="summer_extreme",
+    )
+    winter_dataset = WeatherDataset(
+        weather_key="TRY_TEST_WINT",
+        display_name="Test Winter",
+        file_path=Path("data/ma_weather/input/test_wint.dat"),
+        file_format="TRY",
+        source="DWD",
+        location="Testort",
+        year_type="winter_extreme",
+    )
+
+    assert weather_dataset_type_label(summer_dataset) == "Sommer"
+    assert weather_dataset_type_label(winter_dataset) == "Winter"
+    assert "[Sommer]" in weather_dataset_label(summer_dataset)
+    assert "[Winter]" in weather_dataset_label(winter_dataset)
+
+
+def test_weather_status_rows_show_open_dataset_context():
+    status = WeatherDatasetStatus(
+        weather_key="TRY_MISSING",
+        display_name="Missing TRY",
+        file_path=Path("data/ma_weather/input/missing.dat"),
+        file_exists=False,
+        file_status=WeatherFileStatus.MISSING,
+        import_status=WeatherImportCheckStatus.NOT_CHECKED,
+        error_count=1,
+        messages=("Lokale TRY-Datei fehlt.",),
+    )
+
+    rows = weather_status_rows([status])
+
+    assert rows[0]["weather_key"] == "TRY_MISSING"
+    assert rows[0]["Status"] == "Datei fehlt"
+    assert rows[0]["Fehler"] == 1
+    assert rows[0]["Hinweise"] == "Lokale TRY-Datei fehlt."
+
+
+def test_weather_event_rows_are_stable_for_ui():
+    event = WeatherEvent(
+        event_id="TRY_TEST_hottest_day_2045070100_2045070123",
+        event_type="hottest_day",
+        weather_key="TRY_TEST",
+        start_time=pd.Timestamp("2045-07-01 00:00").to_pydatetime(),
+        end_time=pd.Timestamp("2045-07-01 23:00").to_pydatetime(),
+        value=31.234,
+        unit="Grad C",
+        reason="Testereignis",
+    )
+
+    rows = weather_event_rows([event])
+
+    assert rows == [
+        {
+            "Ereignis-ID": "TRY_TEST_hottest_day_2045070100_2045070123",
+            "Typ": "hottest_day",
+            "weather_key": "TRY_TEST",
+            "Start": "2045-07-01T00:00:00",
+            "Ende": "2045-07-01T23:00:00",
+            "Kennwert": 31.23,
+            "Einheit": "Grad C",
+            "Begruendung": "Testereignis",
+        }
+    ]
 
 
 def test_weather_location_rows_show_reference_context():
@@ -992,7 +1083,7 @@ def test_weather_ui_helpers_prepare_metrics_and_plot_rows(tmp_path):
 
 def test_weather_start_year_uses_dataset_metadata():
     dataset = WeatherDataset(
-        weather_key="TRY_FFM_2045",
+        weather_key="TRY_FFM_2045_JAHR",
         display_name="TRY Frankfurt 2045 Jahr",
         file_path=Path("data/ma_weather/input/TRY_501262086894/TRY2045_501262086894_Jahr.dat"),
         file_format="TRY",

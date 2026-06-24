@@ -186,7 +186,7 @@ _MODULE_DEFINITIONS: tuple[ModuleDefinition, ...] = (
         outputs=("weather_key", "Wetterkennwerte", "Diagnosen", "Freigabestatus", "Berichte"),
         boundaries=("keine IDA-Zonenergebnisanalyse",),
         dependencies=("ma_project",),
-        next_step="P008: Restdatensaetze real pruefen und weather_key an ma_parameters anbinden.",
+        next_step="P008: Reale Wetterdatensaetze pruefen, P021-Ereignisdefinition schaerfen und Uebergabe an ma_parameters vorbereiten.",
         python_package="ma_weather",
     ),
     _module(

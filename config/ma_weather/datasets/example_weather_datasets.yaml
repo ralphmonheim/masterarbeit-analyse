@@ -1,5 +1,5 @@
 weather_datasets:
-  - weather_key: TRY_FFM_2015
+  - weather_key: TRY_FFM_2015_JAHR
     display_name: TRY Frankfurt 2015 Jahr
     file_path: data/ma_weather/input/TRY_501262086894/TRY2015_501262086894_Jahr.dat
     file_format: TRY
@@ -13,7 +13,7 @@ weather_datasets:
     selection_priority: 10
     is_active: true
     notes: Lokale TRY-Datei wird vom Nutzer bereitgestellt und nicht im Repo versioniert.
-  - weather_key: TRY_FFM_2045
+  - weather_key: TRY_FFM_2045_JAHR
     display_name: TRY Frankfurt 2045 Jahr
     file_path: data/ma_weather/input/TRY_501262086894/TRY2045_501262086894_Jahr.dat
     file_format: TRY
@@ -27,7 +27,63 @@ weather_datasets:
     selection_priority: 20
     is_active: true
     notes: Lokale TRY-Datei wird vom Nutzer bereitgestellt und nicht im Repo versioniert.
-  - weather_key: TRY_MUC_2015
+  - weather_key: TRY_FFM_2015_SOMM
+    display_name: TRY Frankfurt 2015 Sommer
+    file_path: data/ma_weather/input/TRY_501262086894/TRY2015_501262086894_Somm.dat
+    file_format: TRY
+    source: DWD TRY
+    location: Frankfurt am Main
+    year_type: summer_extreme
+    climate_scenario: present
+    dataset_role: site_specific
+    location_id: LOC_049
+    reference_location_id: LOC_053
+    selection_priority: 11
+    is_active: true
+    notes: Sommer-TRY-Datei wird als eigener Wetterdatensatz behandelt.
+  - weather_key: TRY_FFM_2015_WINT
+    display_name: TRY Frankfurt 2015 Winter
+    file_path: data/ma_weather/input/TRY_501262086894/TRY2015_501262086894_Wint.dat
+    file_format: TRY
+    source: DWD TRY
+    location: Frankfurt am Main
+    year_type: winter_extreme
+    climate_scenario: present
+    dataset_role: site_specific
+    location_id: LOC_049
+    reference_location_id: LOC_053
+    selection_priority: 12
+    is_active: true
+    notes: Winter-TRY-Datei wird als eigener Wetterdatensatz behandelt.
+  - weather_key: TRY_FFM_2045_SOMM
+    display_name: TRY Frankfurt 2045 Sommer
+    file_path: data/ma_weather/input/TRY_501262086894/TRY2045_501262086894_Somm.dat
+    file_format: TRY
+    source: DWD TRY
+    location: Frankfurt am Main
+    year_type: summer_extreme
+    climate_scenario: future_2045
+    dataset_role: site_specific
+    location_id: LOC_049
+    reference_location_id: LOC_053
+    selection_priority: 21
+    is_active: true
+    notes: Sommer-TRY-Datei wird als eigener Wetterdatensatz behandelt.
+  - weather_key: TRY_FFM_2045_WINT
+    display_name: TRY Frankfurt 2045 Winter
+    file_path: data/ma_weather/input/TRY_501262086894/TRY2045_501262086894_Wint.dat
+    file_format: TRY
+    source: DWD TRY
+    location: Frankfurt am Main
+    year_type: winter_extreme
+    climate_scenario: future_2045
+    dataset_role: site_specific
+    location_id: LOC_049
+    reference_location_id: LOC_053
+    selection_priority: 22
+    is_active: true
+    notes: Winter-TRY-Datei wird als eigener Wetterdatensatz behandelt.
+  - weather_key: TRY_MUC_2015_JAHR
     display_name: TRY Muenchen 2015 Jahr
     file_path: data/ma_weather/input/TRY_481399115778/TRY2015_481399115778_Jahr.dat
     file_format: TRY
@@ -41,7 +97,7 @@ weather_datasets:
     selection_priority: 10
     is_active: true
     notes: Lokale TRY-Datei wird vom Nutzer bereitgestellt und nicht im Repo versioniert.
-  - weather_key: TRY_MUC_2045
+  - weather_key: TRY_MUC_2045_JAHR
     display_name: TRY Muenchen 2045 Jahr
     file_path: data/ma_weather/input/TRY_481399115778/TRY2045_481399115778_Jahr.dat
     file_format: TRY
@@ -55,7 +111,63 @@ weather_datasets:
     selection_priority: 20
     is_active: true
     notes: Lokale TRY-Datei wird vom Nutzer bereitgestellt und nicht im Repo versioniert.
-  - weather_key: TRY_HAM_2015
+  - weather_key: TRY_MUC_2015_SOMM
+    display_name: TRY Muenchen 2015 Sommer
+    file_path: data/ma_weather/input/TRY_481399115778/TRY2015_481399115778_Somm.dat
+    file_format: TRY
+    source: DWD TRY
+    location: Muenchen
+    year_type: summer_extreme
+    climate_scenario: present
+    dataset_role: site_specific
+    location_id: LOC_059
+    reference_location_id: LOC_058
+    selection_priority: 11
+    is_active: true
+    notes: Sommer-TRY-Datei wird als eigener Wetterdatensatz behandelt.
+  - weather_key: TRY_MUC_2015_WINT
+    display_name: TRY Muenchen 2015 Winter
+    file_path: data/ma_weather/input/TRY_481399115778/TRY2015_481399115778_Wint.dat
+    file_format: TRY
+    source: DWD TRY
+    location: Muenchen
+    year_type: winter_extreme
+    climate_scenario: present
+    dataset_role: site_specific
+    location_id: LOC_059
+    reference_location_id: LOC_058
+    selection_priority: 12
+    is_active: true
+    notes: Winter-TRY-Datei wird als eigener Wetterdatensatz behandelt.
+  - weather_key: TRY_MUC_2045_SOMM
+    display_name: TRY Muenchen 2045 Sommer
+    file_path: data/ma_weather/input/TRY_481399115778/TRY2045_481399115778_Somm.dat
+    file_format: TRY
+    source: DWD TRY
+    location: Muenchen
+    year_type: summer_extreme
+    climate_scenario: future_2045
+    dataset_role: site_specific
+    location_id: LOC_059
+    reference_location_id: LOC_058
+    selection_priority: 21
+    is_active: true
+    notes: Sommer-TRY-Datei wird als eigener Wetterdatensatz behandelt.
+  - weather_key: TRY_MUC_2045_WINT
+    display_name: TRY Muenchen 2045 Winter
+    file_path: data/ma_weather/input/TRY_481399115778/TRY2045_481399115778_Wint.dat
+    file_format: TRY
+    source: DWD TRY
+    location: Muenchen
+    year_type: winter_extreme
+    climate_scenario: future_2045
+    dataset_role: site_specific
+    location_id: LOC_059
+    reference_location_id: LOC_058
+    selection_priority: 22
+    is_active: true
+    notes: Winter-TRY-Datei wird als eigener Wetterdatensatz behandelt.
+  - weather_key: TRY_HAM_2015_JAHR
     display_name: TRY Hamburg 2015 Jahr
     file_path: data/ma_weather/input/TRY_535578099766/TRY2015_535578099766_Jahr.dat
     file_format: TRY
@@ -69,7 +181,7 @@ weather_datasets:
     selection_priority: 10
     is_active: true
     notes: Lokale TRY-Datei wird vom Nutzer bereitgestellt und nicht im Repo versioniert.
-  - weather_key: TRY_HAM_2045
+  - weather_key: TRY_HAM_2045_JAHR
     display_name: TRY Hamburg 2045 Jahr
     file_path: data/ma_weather/input/TRY_535578099766/TRY2045_535578099766_Jahr.dat
     file_format: TRY
@@ -83,3 +195,59 @@ weather_datasets:
     selection_priority: 20
     is_active: true
     notes: Lokale TRY-Datei wird vom Nutzer bereitgestellt und nicht im Repo versioniert.
+  - weather_key: TRY_HAM_2015_SOMM
+    display_name: TRY Hamburg 2015 Sommer
+    file_path: data/ma_weather/input/TRY_535578099766/TRY2015_535578099766_Somm.dat
+    file_format: TRY
+    source: DWD TRY
+    location: Hamburg
+    year_type: summer_extreme
+    climate_scenario: present
+    dataset_role: try_reference
+    location_id: LOC_009
+    reference_location_id: LOC_009
+    selection_priority: 11
+    is_active: true
+    notes: Sommer-TRY-Datei wird als eigener Wetterdatensatz behandelt.
+  - weather_key: TRY_HAM_2015_WINT
+    display_name: TRY Hamburg 2015 Winter
+    file_path: data/ma_weather/input/TRY_535578099766/TRY2015_535578099766_Wint.dat
+    file_format: TRY
+    source: DWD TRY
+    location: Hamburg
+    year_type: winter_extreme
+    climate_scenario: present
+    dataset_role: try_reference
+    location_id: LOC_009
+    reference_location_id: LOC_009
+    selection_priority: 12
+    is_active: true
+    notes: Winter-TRY-Datei wird als eigener Wetterdatensatz behandelt.
+  - weather_key: TRY_HAM_2045_SOMM
+    display_name: TRY Hamburg 2045 Sommer
+    file_path: data/ma_weather/input/TRY_535578099766/TRY2045_535578099766_Somm.dat
+    file_format: TRY
+    source: DWD TRY
+    location: Hamburg
+    year_type: summer_extreme
+    climate_scenario: future_2045
+    dataset_role: try_reference
+    location_id: LOC_009
+    reference_location_id: LOC_009
+    selection_priority: 21
+    is_active: true
+    notes: Sommer-TRY-Datei wird als eigener Wetterdatensatz behandelt.
+  - weather_key: TRY_HAM_2045_WINT
+    display_name: TRY Hamburg 2045 Winter
+    file_path: data/ma_weather/input/TRY_535578099766/TRY2045_535578099766_Wint.dat
+    file_format: TRY
+    source: DWD TRY
+    location: Hamburg
+    year_type: winter_extreme
+    climate_scenario: future_2045
+    dataset_role: try_reference
+    location_id: LOC_009
+    reference_location_id: LOC_009
+    selection_priority: 22
+    is_active: true
+    notes: Winter-TRY-Datei wird als eigener Wetterdatensatz behandelt.

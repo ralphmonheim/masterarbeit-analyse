@@ -31,10 +31,16 @@ Der aktuelle Stand umfasst:
 5. Datensatz ueber `weather_key` aus dem Katalog auswaehlen.
 6. TRY-Datei lokal unter `data/ma_weather/input/` bereitstellen.
 7. TRY-Datei importieren und validieren.
-8. Wetterkennwerte berechnen.
-9. Aufbereitete Wetterdaten unter `data/ma_weather/database/` schreiben.
-10. Diagramme unter `data/ma_weather/output/` schreiben.
-11. Bericht unter `data/ma_weather/reports/` schreiben.
+8. Import-ID, Quellenmetadaten, Validierungsstatus und Sitzungslog
+   miteinander verknuepfen.
+9. Wetterkennwerte berechnen.
+10. Aufbereitete Wetterdaten unter `data/ma_weather/database/` schreiben.
+11. Diagramme unter `data/ma_weather/output/` schreiben.
+12. Bericht unter `data/ma_weather/reports/` schreiben.
+13. Freigegebene Datensaetze bewusst aktivieren.
+14. Einen aktivierten Datensatz bewusst als Projekt-Default setzen.
+15. Kritische Wetterereignisse aus genau diesem ausgewaehlten Datensatz
+    erkennen und fuer spaetere P021-Nutzung anzeigen.
 
 ## Verbindung zu Varianten
 
@@ -57,3 +63,43 @@ Die erste P008-Umsetzung nutzt einen YAML-Standortkatalog unter
 `config/ma_weather/locations/`. Die Klimaregion wird nicht manuell gewaehlt,
 sondern aus der Stadt abgeleitet. Die Klimaregionenkarte wird in Streamlit links
 angezeigt, sobald das Bild unter `src/ma_ui/assets/weather/` vorhanden ist.
+Der bevorzugte versionierte Dateiname ist
+`src/ma_ui/assets/weather/klimaregionen_deutschland.png`; alternativ erkennt die
+UI auch die Endungen `.jpg` und `.jpeg` mit demselben Basisnamen.
+
+## Status und Aktivierung
+
+Die reduzierte P008-Umsetzung fuehrt drei operative Slices:
+
+1. Bestand, Realtests und Auswahlstatus.
+2. Importnachweis und offene Datensaetze.
+3. Aktivierung, Projekt-Default und Uebergabegrenze.
+
+Die lokale UI kann den Bestand pruefen und zeigt pro `weather_key`, ob die
+Datei fehlt, vorhanden ist, Warnungen besitzt, fehlerhaft ist oder freigegeben
+wurde. Jeder Analyseimport erzeugt eine `import_id`, die mit `session_id`,
+`run_id`, Quelle, Validierung und Sitzungslog verbunden wird.
+
+Aktivierung und Projekt-Default werden lokal unter
+`data/ma_weather/database/weather_selection_state.yaml` gespeichert. Diese Datei
+ist lokale Arbeitskonfiguration und wird nicht versioniert. Ein Import setzt
+weder Aktivierung noch Projekt-Default automatisch.
+
+## Kritische Wetterereignisse
+
+Sommer- und Winter-TRY-Dateien werden als eigene Wetterdatensaetze katalogisiert
+und nicht aus Jahresdatensaetzen gefiltert. Die Ereignisanalyse arbeitet immer
+auf dem aktuell ausgewaehlten `weather_key`.
+
+Erkannt werden:
+
+- heissester Tag,
+- kaeltester Tag,
+- heisseste Drei-Tage-Periode,
+- kaelteste Drei-Tage-Periode,
+- strahlungsreichster Tag, falls Globalstrahlung vorhanden ist,
+- windstaerkster Tag, falls Windgeschwindigkeit vorhanden ist.
+
+Die Ereignisse werden in Streamlit angezeigt und koennen fuer eine spaetere
+P021-Anbindung vorgemerkt werden. In diesem Slice erfolgt noch keine
+automatische Uebergabe an P021.

@@ -1,6 +1,6 @@
 # Plan Index
 
-Stand: 2026-06-23
+Stand: 2026-06-24
 
 | Plan ID | Titel | Datei | Modul | Status | Prioritaet | Abhaengigkeiten | Naechster Schritt |
 |---|---|---|---|---|---|---|---|
@@ -11,7 +11,7 @@ Stand: 2026-06-23
 | P005 | Gesamtmodulstruktur, Dashboard und UI-Auslagerung | `../archive/plans/250608_Plan_Gesamtmodulstruktur_PreProcess_PostProcess_Dashboard.md.txt` | Gesamtarchitektur, ma_ui, ma_workflow | Archiviert, teilweise umgesetzt | Hoch | P003 | Gueltige Struktur und Restarbeiten wurden in P007 uebernommen |
 | P006 | Kontrollierter IDA-ICE-Variantenexport und IDM-Entwurf | `../archive/plans/260618_Plan_ma_export_ida_IDM_Exportentwurf.md` | historisch ma_export_ida | Archiviert, Entwurf | Mittel | ma_variants, Referenzmodell | Verbleibende Arbeit wird in P009 weitergefuehrt |
 | P007 | Projektplan fuer die VS-Code-Umsetzung der Masterarbeitssoftware | `inbox/Masterarbeit_VSCode_Projektplan_2026-06-21.md` | Gesamtprojekt, Gesamtarchitektur | Aktiver Rahmenplan | Hoch | bestehender Projektstand und Nutzerentscheidungen | P011 als naechste Fachstufe bearbeiten |
-| P008 | ma_weather Gesamtplan | `inbox/260623_Plan_P008_ma_weather_Gesamtplan.md` | ma_weather, ma_parameters, ma_ui, Stage 4 | Aktiv | Hoch | P007, P002, P010, P015, P018, P021, P027 | Realtests, Standort-/Referenzlogik, Dateiimport und Freigabegrenze planen |
+| P008 | ma_weather Gesamtplan | `inbox/260623_Plan_P008_ma_weather_Gesamtplan.md` | ma_weather, ma_parameters, ma_ui, Stage 4 | Aktiv | Hoch | P007, P002, P010, P015, P018, P021, P027 | Reale Jahr-, Sommer- und Winterdatensaetze pruefen, P021-Ereignisdefinition schaerfen und Uebergabe an ma_parameters vorbereiten |
 | P009 | Allgemeine Simulationsschnittstellen mit IDA-ICE-Adapter | `inbox/260621_Plan_P009_Simulationsschnittstellen_IDA_Adapter.md` | ma_export_simulation, ma_import_simulation | Zurueckgestellt | Mittel | P007, P018 | Nach validiertem Run-Manifest weiterfuehren |
 | P010 | Eingabe- und Datenhaltungsarchitektur | `../archive/plans/260622_Plan_P010_Eingabe_Datenhaltungsarchitektur.md` | alle Eingabemodule, ma_validation | Archiviert, Wetterpilot umgesetzt | Hoch | P007 | Vertraege in P011 bis P015 fachmodulweise anwenden |
 | P011 | ma_project Projektinitialisierung | `inbox/260622_Plan_P011_ma_project_Projektinitialisierung.md` | ma_project | Geplant | Hoch | P010 | Projektkonfiguration und Quellenwahl planen |

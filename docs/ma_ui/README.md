@@ -116,6 +116,14 @@ Workflow-Service-Aufrufe getrennt anbinden.
 - Wetter-Seite zeigt zuerst die Analysebedienung fuer einen aktiven
   Wetterdatensatz und darunter die lokalen TRY-Datensaetze aus dem
   `ma_weather`-Katalog inklusive Dateistatus.
+- Wetter-Seite rendert die informative Klimaregionenkarte aus
+  `src/ma_ui/assets/weather/klimaregionen_deutschland.png`; alternativ werden
+  `.jpg` und `.jpeg` mit demselben Basisnamen erkannt.
+- Wetter-Seite kann den lokalen Wetterbestand pruefen, offene Datensaetze
+  separat anzeigen und freigegebene Datensaetze bewusst aktivieren oder als
+  Projekt-Default setzen.
+- Wetter-Seite zeigt nach der Analyse kritische Wetterereignisse fuer den
+  aktuell ausgewaehlten Jahr-, Sommer- oder Winterdatensatz.
 - Wetter-Seite zeigt Quellenmetadaten, strukturierte Diagnosen und den
   Freigabestatus. Warnungen koennen laufgebunden blockiert oder bestaetigt
   werden; die Entscheidung wird im Sitzungslog dokumentiert.

@@ -1,6 +1,6 @@
 # Entscheidungen
 
-Stand: 2026-06-23
+Stand: 2026-06-24
 
 Dieses Dokument sammelt technische und architektonische Entscheidungen. Echte Nutzerentscheidungen stehen getrennt in `USER_DECISIONS_MASTERTHESIS_CODE.md`.
 
@@ -358,3 +358,21 @@ Technische Folgen:
 - `logs/*.log` bleibt fuer menschenlesbare Analyseausgaben erhalten;
   `logs/sessions/*.jsonl` dokumentiert moduluebergreifende Ereignisse.
 - Eine Datenbankmigration ist kein Bestandteil von P010.
+
+## Entscheidung 26: ma_weather-Ereignisse bleiben UI-neutral
+
+Kritische Wetterereignisse werden in `ma_weather` als strukturierte
+Fachobjekte berechnet und erst danach in Streamlit dargestellt. Die
+Berechnung nutzt ausschliesslich den bewusst ausgewaehlten Wetterdatensatz.
+
+Technische Folgen:
+
+- `weather_events.py` enthaelt die fachliche Ereigniserkennung ohne
+  Streamlit-Abhaengigkeit.
+- `WeatherAnalysisResult` kann die erkannten Ereignisse mit dem Import- und
+  Validierungsergebnis transportieren.
+- Die Wetterseite formatiert Ereignisse nur fuer Anzeige und Vormerkung; eine
+  automatische P021-Uebergabe ist kein Bestandteil dieses Slices.
+- Jahres-, Sommer- und Winterdateien bleiben getrennte Katalogeintraege.
+- Die YAML-basierte Katalog- und Statuslogik bleibt bestehen, bis ein
+  Datenbankmodell separat freigegeben wird.

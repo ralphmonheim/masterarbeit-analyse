@@ -4,6 +4,25 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.16.1 - 2026-06-24
+
+### Added
+- P008-Wetterstatus fuer Datei-, Import-, Warnungs-, Fehler- und
+  Freigabestand je `weather_key` eingefuehrt.
+- `import_id` fuer Wetteranalyse-Laeufe und lokale Aktivierungs-/
+  Projekt-Default-Verwaltung fuer freigegebene Wetterdatensaetze ergaenzt.
+- Streamlit-Wetterseite um Bestandspruefung, offene Wetterdatensaetze,
+  Aktivierung und Projekt-Default erweitert.
+- Wetterkatalog um Sommer- und Winter-TRY-Dateien als eigene Datensaetze
+  ergaenzt und kritische Wetterereignisse je bewusst ausgewaehltem
+  Wetterdatensatz vorbereitet.
+
+### Changed
+- Jahres-Wetterdatensaetze erhalten im `weather_key` die Endung `_JAHR`,
+  damit Jahr, Sommer und Winter einheitlich gekennzeichnet sind.
+- P008-Planstatus, Nutzerentscheidungen, technische Entscheidungen und
+  Workflow-Next-Step auf den aktuellen ma_weather-Stand nachgezogen.
+
 ## 0.16.0 - 2026-06-23
 
 ### Added
@@ -166,7 +185,7 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 ## 0.9.1 - 2026-06-15
 
 ### Changed
-- P002 Real-Testlauf fuer `TRY_FFM_2015` dokumentiert: Validierung `ok`, 8760 Stunden, sechs Wetterdiagramme, aufbereitete CSV und Markdown-Bericht wurden lokal erzeugt.
+- P002 Real-Testlauf fuer `TRY_FFM_2015_JAHR` dokumentiert: Validierung `ok`, 8760 Stunden, sechs Wetterdiagramme, aufbereitete CSV und Markdown-Bericht wurden lokal erzeugt.
 
 ## 0.9.0 - 2026-06-15
 

@@ -1,6 +1,6 @@
 # Plan Status
 
-Stand: 2026-06-23
+Stand: 2026-06-24
 
 Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt und nach jeder Planumsetzung aktualisiert. Vollstaendige alte Planstaende liegen unter `docs/project/archive/plans/`.
 
@@ -93,11 +93,11 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 
 ### Aktive Teilplaene
 
-- P008 fuehrt `ma_weather` als konsolidierter Gesamtplan weiter: fuenf reale
-  TRY-Testlaeufe, Standort-/Referenzstandortlogik, eigener Dateiimport,
-  offene Wetterdatensaetze, bewusste Aktivierung, Projekt-Default,
-  Diagrammpruefung, kritische Wetterereignisse und dokumentierte
-  Uebergabegrenze zu `ma_parameters`.
+- P008 fuehrt `ma_weather` als konsolidierter Gesamtplan weiter:
+  Standort-/Referenzstandortlogik, eigener Dateiimport,
+  Status- und Importnachweis, offene Wetterdatensaetze, bewusste Aktivierung,
+  Projekt-Default, Jahr-/Sommer-/Winterdatensatztypen, kritische
+  Wetterereignisse und dokumentierte Uebergabegrenze zu `ma_parameters`.
 - P010 ist umgesetzt und archiviert. Formatneutrale Eingabequellen,
   strukturierte Diagnosen, Freigaberegeln, IDs und append-only Sitzungslogs
   sind am TRY-Wetterimport erprobt.
@@ -356,17 +356,27 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - P002 Analyse-Slice umgesetzt: TRY-Importer, Wettervalidierung, Kennwerte,
   Diagramme, Markdown-Bericht und Runner sind als erste lokale Pipeline
   vorhanden.
-- P002 Real-Testlauf fuer `TRY_FFM_2015` erfolgreich: Validierung `ok`, 8760 Stunden,
+- P002 Real-Testlauf fuer `TRY_FFM_2015_JAHR` erfolgreich: Validierung `ok`, 8760 Stunden,
   sechs Diagramme, aufbereitete CSV und Markdown-Bericht wurden lokal erzeugt.
 - P008 Standort- und Rollen-Slice umgesetzt: YAML-Standortkatalog,
   Klimaregions-/Referenzstandortlogik, optionale Datensatzrollen
   `try_reference` und `site_specific` sowie zweispaltige Streamlit-Auswahl
-  mit Kartenplatzhalter sind vorhanden.
+  mit Klimaregionenkarte im UI-Assetbereich sind vorhanden.
+- P008 Status-, Import- und Freigabe-Slices umgesetzt: Datei- und
+  Importstatus, offene Wetterdatensaetze, stabile `import_id`,
+  Verknuepfung mit Sitzungs-/Run-Nachweis, bewusste Aktivierung und
+  bewusstes Setzen eines Projekt-Defaults sind vorbereitet.
+- P008 Datensatztyp- und Ereignis-Slice umgesetzt: Jahr-, Sommer- und
+  Winter-TRY-Dateien sind als eigene Datensaetze katalogisiert; kritische
+  Wetterereignisse werden aus dem bewusst ausgewaehlten Datensatz abgeleitet
+  und in Streamlit tabellarisch angezeigt.
 
 ### Offen
 
-- Weitere aktive Jahresdatensaetze `TRY_FFM_2045`, `TRY_MUC_2015`,
-  `TRY_MUC_2045`, `TRY_HAM_2015` und `TRY_HAM_2045` real pruefen.
+- Weitere aktive Jahr-, Sommer- und Winterdatensaetze real gegen lokal
+  vorhandene TRY-Dateien pruefen und Testergebnisse dokumentieren.
+- Fachliche Definition der kritischen Wetterereignisse fuer P021 schaerfen
+  und mit vorhandenen Tages- und Wochenzeitfenstern verbinden.
 - TRY-Referenzdatensaetze fuer Referenzstandorte wie Mannheim und Muehldorf
   fachlich ergaenzen oder bewusst als fehlend dokumentieren.
 - Diagrammgestaltung fachlich pruefen und bei Bedarf an Masterarbeitslayout anpassen.
@@ -374,9 +384,9 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   spaeter klaeren, ob zusaetzlich ein eigener UI-Hauptbefehl
   `plot-template-weather` eingefuehrt wird.
 - Konsolidierten P008-Gesamtplan erst abschliessen und archivieren, wenn die
-  vorgesehenen realen TRY-Datensaetze lokal erfolgreich verarbeitet,
-  Standort-/Referenzstandortlogik geplant, Import- und Freigaberegeln
-  dokumentiert und die P007-/`ma_parameters`-Schnittstelle geklaert wurden.
+  vorgesehenen realen TRY-Datensaetze lokal erfolgreich verarbeitet, die
+  P021-Ereignisdefinition fachlich bestaetigt und die
+  P007-/`ma_parameters`-Schnittstelle geklaert wurden.
 
 ## Offene Nutzerentscheidungen
 
