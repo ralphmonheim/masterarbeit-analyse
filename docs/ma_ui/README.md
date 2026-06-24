@@ -1,12 +1,13 @@
 # ma_ui
 
-`ma_ui` ist die vorbereitete zentrale lokale Streamlit-Oberflaeche fuer das
-Masterarbeitsprojekt.
+`ma_ui` ist der gemeinsame lokale UI-Bereich fuer das Masterarbeitsprojekt.
+Streamlit bleibt der aktuelle Haupteinstieg; Tkinter liegt als zweiter,
+technisch getrennter UI-Zweig daneben.
 
 ## Zweck
 
-Den Gesamtworkflow, Fachansichten und Modulinformationen in einer zentralen
-lokalen Streamlit-Oberflaeche zugaenglich machen.
+Den Gesamtworkflow, Fachansichten und Modulinformationen in lokalen
+Oberflaechen zugaenglich machen, ohne Fachlogik in die UI zu verschieben.
 
 ## Eingaben
 
@@ -15,7 +16,8 @@ lokalen Streamlit-Oberflaeche zugaenglich machen.
 
 ## Ausgaben
 
-- Dashboard, Navigation, Fachansichten und Modul-Infoseiten
+- Streamlit-Dashboard, Navigation, Fachansichten und Modul-Infoseiten
+- Tkinter-Fenster fuer Analyse und spaetere fachliche Zusatzansichten
 
 ## Abgrenzung
 
@@ -30,7 +32,9 @@ lokalen Streamlit-Oberflaeche zugaenglich machen.
 ## Status
 
 Geplant. Ein nutzbarer Streamlit-Prototyp mit Dashboard, Navigation und
-mehreren Fachansichten ist vorhanden; der fachliche Gesamtworkflow fehlt.
+mehreren Fachansichten ist vorhanden. Die bestehende Tkinter-Analyse ist nach
+`ma_ui.tkinter_app.module_views.analyse` verschoben und ueber
+`ma_analyse.gui` weiterhin kompatibel erreichbar.
 
 ## Naechster Schritt
 
@@ -40,6 +44,8 @@ Workflow-Service-Aufrufe getrennt anbinden.
 ## Rolle
 
 - `ma_ui` zeigt Navigation, Workflow-Uebersicht und spaeter Modulansichten.
+- `ma_ui.streamlit_app` enthaelt die Streamlit-Oberflaeche.
+- `ma_ui.tkinter_app` enthaelt getrennte Tkinter-Ansichten.
 - `ma_ui` enthaelt keine fachliche Berechnungslogik.
 - Fachlogik bleibt in `ma_analyse`, `ma_variants`, `ma_weather` und spaeteren
   Fachmodulen.
@@ -47,10 +53,15 @@ Workflow-Service-Aufrufe getrennt anbinden.
 
 ## Aktueller Stand
 
-- Die App nutzt jetzt `module_views/` als Ziel-Einstieg fuer Modulansichten.
-- `shared/` enthaelt erste allgemeine Anzeigehelfer fuer Tabellen, Status,
+- Die Streamlit-App nutzt `streamlit_app/module_views/` als Ziel-Einstieg fuer
+  Modulansichten. `src/ma_ui/app.py` bleibt der stabile Startpunkt und
+  delegiert dorthin.
+- `streamlit_app/shared/` enthaelt erste allgemeine Anzeigehelfer fuer Tabellen, Status,
   Logs, Layout, Pfade und Plotdateien.
-- `pages/` bleibt vorerst als Kompatibilitaets- und Zwischenstand erhalten.
+- `streamlit_app/pages/` bleibt fuer bestehende Seiten erhalten.
+- Kompatibilitaetswrapper unter `ma_ui.pages`, `ma_ui.module_views`,
+  `ma_ui.shared`, `ma_ui.state` und `ma_ui.components` halten alte
+  Importpfade vorerst lauffaehig.
 - Die automatische Streamlit-Multipage-Navigation ist in
   `.streamlit/config.toml` ausgeblendet, damit nur die fachliche
   Projektnavigation unter `Bereich` sichtbar ist.
@@ -66,8 +77,8 @@ Workflow-Service-Aufrufe getrennt anbinden.
   zeigen nur eigene Inhalte oder bei geplantem Stand eine blaue Hinweisbox.
 - Analyse-Seite ruft die UI-neutrale `ma_analyse`-Service-Fassade ueber
   `ma_workflow` auf.
-- Analyse-Seite kann die bestehende Tkinter-Analyse als separates
-  Legacy-Fenster starten, falls eine Bedienfunktion in Streamlit noch fehlt.
+- Analyse-Seite kann die Tkinter-Analyse als separates Fenster starten, falls
+  eine Bedienfunktion in Streamlit noch fehlt.
 - Analyse-Seite nutzt eine sichtbare Schrittstruktur:
   `Befehl`, `Unterbefehl`, `Template / Diagramm`, `Varianten`, `Raeume`,
   optional `Overlay`, `Export / Ausgabe` und einen festen Aktionsbereich.
@@ -122,6 +133,9 @@ Workflow-Service-Aufrufe getrennt anbinden.
 - Wetter-Seite kann den lokalen Wetterbestand pruefen, offene Datensaetze
   separat anzeigen und freigegebene Datensaetze bewusst aktivieren oder als
   Projekt-Default setzen.
+- Wetter-Seite fuehrt Import und Bestands-/Validierungspruefung gemeinsam im
+  unteren Bereich `Wetterdatensaetze`; aktive und offene Datensaetze stehen
+  dort als getrennte Uebersichten nebeneinander.
 - Wetter-Seite zeigt nach der Analyse kritische Wetterereignisse fuer den
   aktuell ausgewaehlten Jahr-, Sommer- oder Winterdatensatz.
 - Wetter-Seite zeigt Quellenmetadaten, strukturierte Diagnosen und den

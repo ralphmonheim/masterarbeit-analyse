@@ -23,7 +23,10 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - Nutzerentscheidung dokumentiert: Echte Produkt-, Material- und Datenbankinhalte werden nicht ins Git-Repo uebernommen; versioniert werden Struktur und klar gekennzeichnete Beispieldaten.
 - Nutzerentscheidung dokumentiert: Relative/absolute Cooling-Logik bleibt vorerst nur in Plot-Templates; Hauptportal und regulaerer `cooling`-Befehl werden erst nach Abschluss der Diagrammbearbeitung erneut geprueft.
 - Nutzerentscheidungen aus P005 dokumentiert: `ma_parameters` ersetzt `ma_input`, `ma_ui` und `ma_workflow` werden getrennte Zielmodule, `ma_analyse`-Fachlogik bleibt in `ma_analyse`, IDA-Export/-Import, Simulation-Setup, Assessment und Feedback werden getrennt geplant.
-- Nutzerentscheidungen aus P005 ergaenzt: Streamlit ist Zieltechnik fuer `ma_ui`; Tkinter bleibt Legacy-Bestand und wird nicht mit Streamlit vermischt; `ma_analyse` soll langfristig eine UI-neutrale Service-Schnittstelle erhalten.
+- Nutzerentscheidungen aus P005 ergaenzt: Streamlit ist Zieltechnik fuer den
+  aktuellen `ma_ui`-Haupteinstieg; Tkinter bleibt technisch getrennt und wird
+  nicht mit Streamlit vermischt; `ma_analyse` soll langfristig eine
+  UI-neutrale Service-Schnittstelle erhalten.
 - Nutzerentscheidungen aus P005 verschaerft: `ma_simulation_setup` liegt zwischen Varianten und IDA-Export; die Tkinter-GUI dient als fachliche Ablaufvorlage, nicht als technische Streamlit-Vorlage; `ma_ui` zielt auf Dashboard, Workflow-Views, Shared-Komponenten und Module-Views.
 - Nutzerentscheidungen zu den naechsten Strukturpunkten dokumentiert: Tkinter-Vorschau soll ueber einen temporaeren Vorschau-/Cachebereich laufen, freie Overlay-Datenreihen sollen flexibel aus der Datenbasis geladen werden koennen, und Wetterdiagramme bleiben vorerst im Modul `ma_weather`.
 - Nutzerentscheidung dokumentiert: Normierungsfragen wie absolute Werte oder flaechenbezogene Werte `[W/m2]` sollen spaeter nicht nur fuer die Energiebilanz, sondern `ma_analyse`-weit fuer passende Auswertungen geplant werden.
@@ -51,7 +54,8 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   `actions.py` bleibt Kompatibilitaetszugriff.
 - Aktuellen fachlichen Modulstand abgeglichen:
   - verfuegbar: Projektdokumentation;
-  - teilweise: `ma_weather`, `ma_analyse` und
+  - teilweise: `ma_weather`, `ma_analyse`,
+    `ma_analyse.data_preparation` und
     `ma_analyse.stage_2_optimization`;
   - geplant: alle weiteren Software- und Fachmodule einschliesslich
     vorhandener Gerueste und Prototypen;
@@ -103,6 +107,12 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   sind am TRY-Wetterimport erprobt.
 - P027 begleitet alle Fachslices mit UI-, Workflow-, Validierungs- und
   Feedbackregeln.
+- P027 ergaenzt die Vereinheitlichung von Template-Befehlen fuer Ausgabemodule
+  wie `ma_analyse` und `ma_weather`; in der Tkinter-Analyse soll der erste
+  Befehlsschritt `plot-template-analyse` als Default gesetzt werden.
+- Der erste Tkinter-Analyse-Slice ist umgesetzt: die Befehlsauswahl startet
+  jetzt standardmaessig mit `plot-template`; der Wetter-Template-Befehl folgt
+  im naechsten Slice.
 - P028 ist als erster gemeinsamer Streamlit-Slice umgesetzt und archiviert:
   freie Simulationsprogrammlisten, neutrale Varianten-Benennungsprofile,
   Demo-Optionsauswahl und gemeinsamer Sitzungsstand von `ma_project`,
@@ -151,6 +161,10 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - P005 Schnittstellenentwurf dokumentiert: `AnalysisConfig`, `AnalysisResult` und `run_analysis(config)` bilden die UI-neutrale Service-Fassade.
 - P005 erster Service-Code-Slice umgesetzt: `src/ma_analyse/models.py` und `src/ma_analyse/services.py` stellen `AnalysisConfig`, `AnalysisResult` und `run_analysis(config)` als UI-neutrale Fassade bereit.
 - P005 Workflow-/UI-Shell umgesetzt: `src/ma_workflow/` enthaelt Workflow-Katalog und Analyse-Adapter; `src/ma_ui/` enthaelt eine Streamlit-Shell mit Startseite, Analyse-Seite, Navigation und Projektzustand.
+- UI-Strukturumzug umgesetzt: Streamlit liegt unter
+  `ma_ui.streamlit_app`, Tkinter unter `ma_ui.tkinter_app`.
+  `src/ma_ui/app.py` bleibt stabiler Streamlit-Einstieg;
+  `ma_analyse.gui` bleibt als Kompatibilitaetsfassade erhalten.
 - P005 Startseite erweitert: `ma_ui` zeigt Workflow-Statuskennzahlen,
   Phasenuebersicht, Workflow-Schritte und Dashboard-Aktionen aus
   `ma_workflow`.
@@ -158,17 +172,28 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - P005 Varianten-Uebersicht in `ma_ui` ergaenzt: Parameter, Optionen, Variantenraum, Auswahlmethoden und Exportdateien werden ueber bestehende `ma_variants`-Services angezeigt.
 - P005 Wetter-Uebersicht in `ma_ui` ergaenzt: lokale TRY-Datensaetze werden aus dem `ma_weather`-Katalog angezeigt, ohne TRY-Dateien zu importieren.
 - P005 Bewertungs-Uebersicht in `ma_ui` ergaenzt: generische Systemkosten, Energiepreise und Szenarien werden aus bestehenden Wirtschaftlichkeitsannahmen angezeigt, ohne Variantenkosten zu berechnen.
-- P005 Planoptimierung nach verschaerfter Nutzer-Ausarbeitung umgesetzt: Zielstruktur fuer `ma_ui`, `ma_workflow`, `ma_economy`, `ma_sustainability`, `ma_assessment`, `ma_simulation_setup` und Tkinter-Legacy ist dokumentiert, ohne bestehende Dateien zu verschieben.
-- P005 kompatibler Struktur-Slice umgesetzt: `ma_ui/shared/`, `ma_ui/module_views/`,
-  `ma_ui/main_dashboard.py`, `ma_ui/workflow_view.py`, `ma_ui/pre_process_view.py`,
-  `ma_ui/post_process_view.py` sowie die geplanten `ma_workflow`-Dateien fuer
-  Dashboard-Aktionen, Pre-/Post-Process und Feedback sind vorbereitet.
-- P005 Analyse-View fachlich erweitert: `ma_ui/module_views/analyse_view.py`
-  bildet Prepare-, Comfort-, Heating-/Cooling- und Plot-Template-Optionen auf
-  `AnalysisConfig` ab; `pages/analyse.py` bleibt Kompatibilitaetswrapper.
+- P005 Planoptimierung nach verschaerfter Nutzer-Ausarbeitung umgesetzt:
+  Zielstruktur fuer `ma_ui`, `ma_workflow`, `ma_economy`,
+  `ma_sustainability`, `ma_assessment`, `ma_simulation_setup` und den
+  getrennten Tkinter-Zweig ist dokumentiert.
+- P005 kompatibler Struktur-Slice umgesetzt: `ma_ui.streamlit_app.shared`,
+  `ma_ui.streamlit_app.module_views`, `ma_ui.streamlit_app.main_dashboard`,
+  `ma_ui.streamlit_app.workflow_view`, `ma_ui.streamlit_app.pre_process_view`,
+  `ma_ui.streamlit_app.post_process_view` sowie die geplanten
+  `ma_workflow`-Dateien fuer Dashboard-Aktionen, Pre-/Post-Process und
+  Feedback sind vorbereitet. Alte `ma_ui.*`-Importpfade bleiben ueber
+  Kompatibilitaetswrapper erreichbar.
+- P005 Analyse-View fachlich erweitert:
+  `ma_ui.streamlit_app.module_views.analyse_view` bildet Prepare-, Comfort-,
+  Heating-/Cooling- und Plot-Template-Optionen auf `AnalysisConfig` ab;
+  `ma_ui.streamlit_app.pages.analyse` bleibt Streamlit-Zwischenebene.
 - P005 Analyse-View gegen Tkinter-Ablauf weiter abgeglichen: `analyze-data`
   ist als eigener Excel-Auswertungsschritt mit `separate`/`combined`
   abgebildet.
+- P007-Workflow ergaenzt: `Datenvorbereitung` ist als eigener Schritt in
+  Phase 4 zwischen Simulationsergebnisimport und Analyse Stufe 2 eingeordnet.
+  `prepare` und `analyze-data` bleiben in `ma_analyse`, gehoeren fachlich aber
+  zu diesem vorbereitenden Schritt.
 - P005 Analyseumfang in Streamlit ergaenzt: `Eine Variante`, `Mehrere Varianten`
   und `Alle Varianten` werden erfasst; `Alle Varianten` wird als automatische
   Variantenauswahl an die Service-Fassade uebergeben.
@@ -241,8 +266,9 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - P005 UI-neutrale Analyse-Helfer ausgelagert: Auswahl-, Zeit-, Overlay- und
   Config-Aufbereitung liegen in `src/ma_analyse/analysis_ui.py`.
 - P005 Hybrid-Bedienung vorbereitet: Die Streamlit-Analyse-Seite kann die
-  bestehende Tkinter-Analyse als separates Legacy-Fenster starten, ohne Tkinter
-  in Streamlit einzubetten.
+  Tkinter-Analyse als separates Fenster unter
+  `ma_ui.tkinter_app.module_views.analyse` starten, ohne Tkinter in Streamlit
+  einzubetten.
 - P005 grafisches Workflow-Dashboard umgesetzt: Die `ma_ui`-Startseite zeigt
   Phasen, Workflow-Karten, Statusfarben, Iterationspfade und Buttons zu
   vorhandenen Modulansichten; Detailtabellen bleiben im Expander erreichbar.
@@ -273,14 +299,14 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   insbesondere Comfort, Heating/Cooling, Plot-Template-Overlays,
   Diagrammbearbeitung und Vorschau.
 - Aus P005 nach P007 uebernommen: Comfort-Unterbefehl und
-  Comfort-Diagrammauswahl in Tkinter
+  Comfort-Diagrammauswahl in der Tkinter-Analyse
   noch vollstaendig an die Streamlit-Struktur angleichen.
 - Aus P005 nach P007 uebernommen: Eingebettetes Bild-Vorschaufenster fuer den
   Vorschau-Button ergaenzen. Die Vorschau soll einen temporaeren
   Vorschau-/Cachebereich nutzen, damit der regulaere Output-Ordner nicht mit
   fehlerhaften Testdiagrammen gefuellt wird.
-- P007 spaeterer Schritt: Tkinter-GUI erst nach separater Freigabe nach
-  `ma_ui_legacy` auslagern.
+- P007 spaeterer Schritt: Weitere Tkinter-Fachansichten unter
+  `ma_ui.tkinter_app.module_views/` nur mit eigenem Fachslice ergaenzen.
 - P007 spaeterer Schritt: `ma_workflow` schrittweise mit echten
   Fachservice-Aufrufen erweitern.
 - P007 spaeterer Schritt: `ma_economy`, `ma_sustainability` und
@@ -298,6 +324,9 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - Plot-Template-Referenzgalerie unter `docs/examples/plot_templates/` wurde mit 33 aktuellen Beispielen neu erzeugt.
 - GUI-Mousewheel-Handler faengt nicht aufloesbare Tkinter-Combobox-Popups robust ab und verhindert `KeyError: 'popdown'`.
 - IDA-Importordner umbenannt: `ma_analyse` nutzt fuer Rohdatenvarianten `data/ma_analyse/ida_imports`; der bisherige Eingangsordner wurde entfernt.
+- Datenvorbereitung als eigener Workflow-Schritt eingeordnet:
+  `prepare` erzeugt die nutzbaren Raumtabellen und `analyze-data` den
+  Basisbericht vor Analyse Stufe 2. Die Fachlogik bleibt in `ma_analyse`.
 
 ### Teilweise umgesetzt
 
@@ -312,10 +341,16 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   koennen; feste Additionen wie Temperaturband und Achsenbereiche bleiben
   eigene kontrollierte Diagrammoptionen. Betroffen:
   `src/ma_analyse/analysis/heating.py`, `src/ma_analyse/analysis/cooling.py`,
-  `src/ma_analyse/gui/app.py`, `src/ma_analyse/app/cli.py`.
+  `src/ma_ui/tkinter_app/module_views/analyse/app.py`,
+  `src/ma_analyse/app/cli.py`.
 - Nach Abschluss der Diagrammbearbeitung pruefen, ob der normale `cooling`-Befehl und die GUI relative Rohwerte und absolute Betraege als eigene Modi erhalten sollen.
-- GUI in kleinere Komponenten fuer Layout, Dialoge, Auswahl und Laufsteuerung aufteilen. Betroffen: `src/ma_analyse/gui/app.py`.
+- Tkinter-Analyse in kleinere Komponenten fuer Layout, Dialoge, Auswahl und
+  Laufsteuerung aufteilen. Betroffen:
+  `src/ma_ui/tkinter_app/module_views/analyse/app.py`.
 - Heating und Cooling weiter in Datenladen, Runner und Plotmodule zerlegen. Betroffen: `src/ma_analyse/analysis/heating.py`, `src/ma_analyse/analysis/cooling.py`, `src/ma_analyse/analysis/energy/`.
+- Datenvorbereitung nach erfolgreichem Simulationsergebnisimport in
+  `ma_workflow`/`ma_ui` als Folgeschritt anbieten, ohne die Importadapter mit
+  Analysefachlogik zu vermischen.
 
 ### Unklar
 

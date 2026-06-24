@@ -29,8 +29,8 @@ Tabellen, Diagramme und Analyseberichte bereitstellen.
 
 ## Status
 
-Die gemeinsamen Analysefunktionen und Stage 2 sind teilweise vorhanden.
-Stage 1, Stage 3 und Stage 4 sind geplant.
+Die gemeinsamen Analysefunktionen, die Datenvorbereitung und Stage 2 sind
+teilweise vorhanden. Stage 1, Stage 3 und Stage 4 sind geplant.
 
 ## Naechster Schritt
 
@@ -41,6 +41,8 @@ wiederverwenden.
 
 - `architecture.md`: Architektur und Datenfluss der Analysepipeline.
 - `commands_analyse.md`: aktive Befehlsreferenz fuer CLI, GUI, Tests und Plot-Templates.
+- `data_preparation/README.md`: vorbereitender Schritt fuer `prepare` und
+  `analyze-data` vor Analyse Stufe 2.
 - `plot_template_examples.md`: Referenzgalerie der Plot-Template-Beispiele.
 - `stage_1_dimensioning/README.md`: geplanter, noch nicht fachlich
   implementierter Bereich fuer die Referenzdimensionierung.

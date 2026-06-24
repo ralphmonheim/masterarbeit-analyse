@@ -260,6 +260,20 @@ _MODULE_DEFINITIONS: tuple[ModuleDefinition, ...] = (
         python_package="ma_analyse",
     ),
     _module(
+        "ma_analyse.data_preparation",
+        "Datenvorbereitung",
+        "data_preparation",
+        "partial",
+        "workflow",
+        "Importierte Simulationsergebnisse in nutzbare Raumtabellen und Basisberichte ueberfuehren.",
+        inputs=("standardisierte Simulationsergebnisse", "IDA-Rohdatenvarianten"),
+        outputs=("aufbereitete Raumtabellen", "Basisbericht", "Excel-Datenuebersicht"),
+        boundaries=("keine Variantenoptimierung", "kein Norm-Nachweis", "keine Sensitivitaetsbewertung"),
+        dependencies=("ma_analyse", "ma_import_simulation"),
+        next_step="Prepare und analyze-data als gemeinsamen Datenvorbereitungsschritt fachlich buendeln.",
+        python_package="ma_analyse.data_preparation",
+    ),
+    _module(
         "ma_analyse.stage_2_optimization",
         "Analyse Stufe 2 - Optimierung",
         "analyse",
@@ -269,8 +283,8 @@ _MODULE_DEFINITIONS: tuple[ModuleDefinition, ...] = (
         inputs=("standardisierte Simulationsergebnisse", "Varianten- und Raumwahl"),
         outputs=("Variantenvergleiche", "Optimierungshinweise", "Diagramme und Tabellen"),
         boundaries=("kein Norm-Nachweis", "keine Sensitivitaetsbewertung"),
-        dependencies=("ma_analyse", "ma_import_simulation"),
-        next_step="P019: vorhandene Befehle zu einem dokumentierten Optimierungsablauf buendeln.",
+        dependencies=("ma_analyse.data_preparation",),
+        next_step="P019: vorhandene Analysebefehle nach der Datenvorbereitung zu einem dokumentierten Optimierungsablauf buendeln.",
         python_package="ma_analyse.stage_2_optimization",
     ),
     _module(
@@ -478,6 +492,10 @@ MODULE_KEY_ALIASES = {
 
 STEP_KEY_ALIASES = {
     "analyse": "optimization",
+    "analyze-data": "data_preparation",
+    "analyze_data": "data_preparation",
+    "prepare": "data_preparation",
+    "prepare_data": "data_preparation",
     "export_ida": "export_simulation",
     "import_ida": "import_simulation",
     "ida_export": "export_simulation",
@@ -588,6 +606,13 @@ _WORKFLOW_STEPS: tuple[WorkflowStep, ...] = (
         "phase_4",
         "ma_import_simulation",
         "Ergebnisdateien zuordnen und vereinheitlichen.",
+    ),
+    _step(
+        "data_preparation",
+        "Daten vorbereiten",
+        "phase_4",
+        "ma_analyse.data_preparation",
+        "Prepare und analyze-data fuer die nutzbare Analysebasis ausfuehren.",
     ),
     _step(
         "optimization",

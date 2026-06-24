@@ -959,7 +959,7 @@ def dispatch_command(args):
         return
 
     if args.command == "gui":
-        from ..gui.app import run_gui
+        from ma_ui.tkinter_app.module_views.analyse.app import run_gui
 
         run_gui(args)
         return

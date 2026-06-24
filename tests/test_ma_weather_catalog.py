@@ -3,13 +3,13 @@ from pathlib import Path
 
 import pandas as pd
 import pytest
-
-from ma_core import InputSourceKind
 from ma_ui.pages.weather import (
     release_decision_matches_result,
     weather_diagnostic_rows,
     weather_source_rows,
 )
+
+from ma_core import InputSourceKind
 from ma_validation import DiagnosticSeverity, ReleaseChoice, ReleaseStatus
 from ma_weather import (
     WeatherDataset,

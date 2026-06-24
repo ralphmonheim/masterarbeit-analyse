@@ -1,13 +1,18 @@
 # Architektur
 
-`ma_analyse` ist als Python-Paket unter `src/ma_analyse` aufgebaut. Die CLI und GUI nutzen dieselben fachlichen Funktionen, damit Ergebnisse reproduzierbar bleiben.
+`ma_analyse` ist als Python-Paket unter `src/ma_analyse` aufgebaut. Die CLI,
+die Streamlit-Ansicht und die Tkinter-Analyse nutzen dieselben fachlichen
+Funktionen, damit Ergebnisse reproduzierbar bleiben. Die Tkinter-Dateien liegen
+strukturell unter `ma_ui.tkinter_app`; `ma_analyse.gui` ist nur noch ein
+Kompatibilitaetszugriff.
 
 ## Datenfluss
 
 1. `prepare` liest Varianten aus `data/ma_analyse/ida_imports/` und schreibt Raumtabellen nach `data/ma_analyse/database/`.
-2. `comfort`, `heating`, `cooling` und `analyze-data` lesen aus `data/ma_analyse/database/`.
-3. Regulaere Ergebnisse landen in `data/ma_analyse/output/`, Smoke-Tests und Experimente in `data/test_output/`.
-4. CLI-Analysebefehle spiegeln Konsolenausgaben automatisch nach `logs/`.
+2. `analyze-data` erzeugt als Basisbericht eine Excel-Datenuebersicht aus den vorbereiteten Raumtabellen.
+3. `comfort`, `heating` und `cooling` lesen aus `data/ma_analyse/database/`.
+4. Regulaere Ergebnisse landen in `data/ma_analyse/output/`, Smoke-Tests und Experimente in `data/test_output/`.
+5. CLI-Analysebefehle spiegeln Konsolenausgaben automatisch nach `logs/`.
 
 ## Zentrale Pakete
 
@@ -17,6 +22,7 @@
 | `app/commands.py` | Befehlsausfuehrung und Schritt-Orchestrierung |
 | `core/config.py` | Pfade, Raeume, Dateinamen und gemeinsame Konstanten |
 | `core/logging.py` | automatische Logdateien fuer Analyse-CLI-Laeufe |
+| `data_preparation/` | Workflow-Einordnung fuer `prepare` und `analyze-data` vor Analyse Stufe 2 |
 | `preprocessing/prepare.py` | Rohdaten aus PRN-Dateien in Raumtabellen ueberfuehren |
 | `analysis/excel.py` | Ablauf fuer Kennzahlen- und Excel-Berichte |
 | `analysis/heating.py` | Ablauf fuer Heizlast-Zeitreihen und Vergleichsplots |
@@ -26,7 +32,7 @@
 | `analysis/components/` | gemeinsame Analyse-Komponenten fuer Raeume, Varianten, Zeitfenster, Laufordner und Figures |
 | `analysis/energy/` | gemeinsame Ausgabe-, Zeit- und Dateinamenlogik fuer Heating und Cooling |
 | `analysis/tables/` | Schema, Kennwertberechnung und Excel-Schreiben fuer Tabellenberichte |
-| `gui/` | Grafische Oberflaeche, Dialoge, GUI-Worker und Singleton-Steuerung |
+| `gui/` | Kompatibilitaetswrapper zur Tkinter-Analyse unter `ma_ui.tkinter_app.module_views.analyse` |
 | `settings.naming` | Namensmapping lesen und anwenden; Dokument liegt daneben als `naming.md` |
 | `settings.formats` | Ausgabeformate lesen und bereitstellen; Dokument liegt daneben als `output_formats.md` |
 | `settings.plot_templates` | Plot-Template-Defaults aus `plot_templates.toml` lesen |
@@ -61,4 +67,5 @@ Aktuelle Beispiele:
 
 - Heating und Cooling weiter in Energy-Runner, Datenladen und Plotmodule zerlegen.
 - Comfort-Runner weiter verkleinern, falls Auswahl- und Prozesslogik wachsen.
-- GUI weiter in kleinere Komponenten fuer Layout, Dialoge und Laufsteuerung aufteilen.
+- Tkinter-Analyse weiter in kleinere Komponenten fuer Layout, Dialoge und
+  Laufsteuerung aufteilen; Zielort bleibt `ma_ui.tkinter_app.module_views/analyse`.

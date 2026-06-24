@@ -1,6 +1,32 @@
+import importlib
 from pathlib import Path
 
 import pandas as pd
+from ma_ui.module_views.analyse_view import (
+    COMMAND_OPTIONS,
+    DEFAULT_COMMAND_INDEX,
+    PLOT_TEMPLATE_STEP,
+    add_session_overlay_line,
+    get_session_overlay_lines,
+    remove_session_overlay_line,
+    safe_list_plot_overlay_sources,
+)
+from ma_ui.pages.assessment import economic_assumption_rows
+from ma_ui.pages.home import workflow_phase_summary_rows, workflow_status_counts
+from ma_ui.pages.weather import (
+    created_weather_plot_paths,
+    get_weather_session_id,
+    weather_dataset_label,
+    weather_dataset_rows,
+    weather_dataset_type_label,
+    weather_event_rows,
+    weather_location_rows,
+    weather_metric_rows,
+    weather_plot_rows,
+    weather_start_year,
+    weather_status_rows,
+)
+from ma_ui.shared.workflow_context import workflow_context_rows
 
 from ma_analyse.analysis_ui import (
     build_analysis_config,
@@ -50,15 +76,6 @@ from ma_ui.module_views import (
     variants_view,
     weather_view,
 )
-from ma_ui.module_views.analyse_view import (
-    COMMAND_OPTIONS,
-    DEFAULT_COMMAND_INDEX,
-    PLOT_TEMPLATE_STEP,
-    add_session_overlay_line,
-    get_session_overlay_lines,
-    remove_session_overlay_line,
-    safe_list_plot_overlay_sources,
-)
 from ma_ui.navigation import (
     CONFIGURATION_RETURN_PAGE_SESSION_KEY,
     CURRENT_PAGE_SESSION_KEY,
@@ -73,27 +90,12 @@ from ma_ui.navigation import (
     select_related_configuration_page,
     set_module_info_active,
 )
-from ma_ui.pages.assessment import economic_assumption_rows
-from ma_ui.pages.home import workflow_phase_summary_rows, workflow_status_counts
-from ma_ui.pages.weather import (
-    created_weather_plot_paths,
-    get_weather_session_id,
-    weather_dataset_label,
-    weather_dataset_rows,
-    weather_dataset_type_label,
-    weather_event_rows,
-    weather_location_rows,
-    weather_metric_rows,
-    weather_plot_rows,
-    weather_start_year,
-    weather_status_rows,
-)
 from ma_ui.post_process_view import post_process_step_rows
 from ma_ui.pre_process_view import pre_process_step_rows
 from ma_ui.resource_status import ResourceSpec, resource_status, resource_status_rows, resource_statuses_for_step
 from ma_ui.shared import normalize_table_for_streamlit
-from ma_ui.shared.workflow_context import workflow_context_rows
 from ma_ui.state import ProjectState
+from ma_ui.tkinter_app.module_views.analyse import app as tkinter_analyse_app
 from ma_ui.workflow_graph import (
     VISUAL_PHASES,
     cross_cutting_card_rows,
@@ -116,6 +118,22 @@ from ma_weather import (
     import_weather_location_catalog,
 )
 from ma_workflow import get_step
+
+
+def test_combined_ui_package_branches_are_importable():
+    package_names = (
+        "ma_ui.app",
+        "ma_ui.streamlit_app",
+        "ma_ui.streamlit_app.app",
+        "ma_ui.tkinter_app",
+        "ma_ui.tkinter_app.module_views.analyse",
+        "ma_analyse.gui.app",
+        "ma_analyse.gui.selection",
+    )
+
+    imported = [importlib.import_module(package_name) for package_name in package_names]
+
+    assert [module.__name__ for module in imported] == list(package_names)
 
 
 def test_ui_navigation_contains_home_and_analysis():
@@ -375,23 +393,24 @@ def test_workflow_graph_feedback_paths_target_existing_pages():
 
 
 def test_graphical_workflow_is_home_only():
-    home_source = Path("src/ma_ui/pages/home.py").read_text(encoding="utf-8")
+    home_source = Path("src/ma_ui/streamlit_app/pages/home.py").read_text(encoding="utf-8")
     module_sources = [
         path.read_text(encoding="utf-8")
-        for path in Path("src/ma_ui/module_views").glob("*.py")
+        for path in Path("src/ma_ui/streamlit_app/module_views").glob("*.py")
         if path.name != "home_view.py"
     ]
 
-    assert "Grafischer Workflow" in home_source
+    assert "Grafischer Workflow" not in home_source
+    assert "Modul-Ansicht" in home_source
     assert "Iterationspfade" in home_source
-    assert "ma_ui.workflow_graph" in home_source
-    assert all("ma_ui.workflow_graph" not in source for source in module_sources)
-    assert all("Grafischer Workflow" not in source for source in module_sources)
+    assert "ma_ui.streamlit_app.workflow_graph" in home_source
+    assert all("ma_ui.streamlit_app.workflow_graph" not in source for source in module_sources)
+    assert all("Modul-Ansicht" not in source for source in module_sources)
     assert all("Iterationspfade" not in source for source in module_sources)
 
 
 def test_ui_uses_top_navigation_instead_of_sidebar_radio():
-    app_source = Path("src/ma_ui/app.py").read_text(encoding="utf-8")
+    app_source = Path("src/ma_ui/streamlit_app/app.py").read_text(encoding="utf-8")
 
     assert "st.sidebar.radio" not in app_source
     assert "Start" in app_source
@@ -399,6 +418,31 @@ def test_ui_uses_top_navigation_instead_of_sidebar_radio():
     assert "Weiter" in app_source
     assert "Infokarte" in app_source
     assert "Modulansicht" in app_source
+
+
+def test_weather_dataset_actions_are_in_dataset_section():
+    weather_source = Path("src/ma_ui/streamlit_app/pages/weather.py").read_text(encoding="utf-8")
+    render_source = weather_source.split("def render()", maxsplit=1)[1]
+    top_selection_source = render_source.split("if not active_datasets:", maxsplit=1)[0]
+    actions_source = weather_source.split("def _render_weather_dataset_actions", maxsplit=1)[1].split(
+        "def _render_weather_import_form",
+        maxsplit=1,
+    )[0]
+    dataset_section_source = weather_source.split("def _render_weather_dataset_section", maxsplit=1)[1].split(
+        "def _render_critical_weather_events",
+        maxsplit=1,
+    )[0]
+
+    assert "Bestand und Validierung pruefen" not in top_selection_source
+    assert "Wetterdatensatz importieren" in actions_source
+    assert "Bestand und Validierung pruefen" in actions_source
+    assert "_render_weather_dataset_actions(catalog)" in dataset_section_source
+    assert "_render_weather_import_form(catalog, location_catalog)" in dataset_section_source
+    assert "active_column, open_column = st.columns(2)" in dataset_section_source
+
+
+def test_tkinter_analyse_defaults_to_plot_template_command():
+    assert tkinter_analyse_app.DEFAULT_COMMAND == "plot-template"
 
 
 def test_streamlit_width_api_is_current():
@@ -690,7 +734,7 @@ def test_analysis_wizard_does_not_limit_comfort_outputs_by_analysis_level():
 def test_tkinter_analyse_launcher_uses_module_command():
     command = build_tkinter_analyse_command("python")
 
-    assert command == ("python", "-m", "ma_analyse", "gui")
+    assert command == ("python", "-m", "ma_ui.tkinter_app.module_views.analyse")
 
 
 def test_tkinter_analyse_launcher_returns_process_id(monkeypatch, tmp_path):
@@ -704,13 +748,13 @@ def test_tkinter_analyse_launcher_returns_process_id(monkeypatch, tmp_path):
         calls["cwd"] = cwd
         return FakeProcess()
 
-    monkeypatch.setattr("ma_ui.legacy_launchers.subprocess.Popen", fake_popen)
+    monkeypatch.setattr("ma_ui.tkinter_app.launcher.subprocess.Popen", fake_popen)
 
     result = launch_tkinter_analyse(python_executable="python", cwd=tmp_path)
 
     assert result.success is True
     assert result.process_id == 1234
-    assert calls["command"] == ("python", "-m", "ma_analyse", "gui")
+    assert calls["command"] == ("python", "-m", "ma_ui.tkinter_app.module_views.analyse")
     assert calls["cwd"] == str(tmp_path)
 
 

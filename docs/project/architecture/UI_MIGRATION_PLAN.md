@@ -6,11 +6,17 @@ Status: historische P005-Umsetzungsreferenz. P007 ersetzt seit 2026-06-21 die
 aktive Phasen- und Modulstruktur. Alte View- und Runner-Namen in diesem
 Dokument beschreiben ausschliesslich die bestehende Kompatibilitaetsschicht.
 
+Aktueller Nachtrag 2026-06-24: Der spaeter angedachte Zielpfad
+`ma_ui_legacy` wurde nicht verwendet. Streamlit liegt jetzt unter
+`ma_ui.streamlit_app`, Tkinter unter `ma_ui.tkinter_app`; `ma_analyse.gui`
+bleibt nur als Kompatibilitaetswrapper bestehen.
+
 ## Zweck
 
 Dieser Plan beschreibt die Trennung von Fachlogik und Oberflaeche. Die ersten
 kleinen Code-Slices fuer `ma_analyse.services`, `ma_workflow` und `ma_ui` sind
-umgesetzt. Bestehende Tkinter-Dateien wurden nicht verschoben.
+umgesetzt. Die historische Aussage, dass Tkinter-Dateien nicht verschoben
+wurden, ist durch den Nachtrag vom 2026-06-24 ueberholt.
 
 ## Grundsatzentscheidung
 

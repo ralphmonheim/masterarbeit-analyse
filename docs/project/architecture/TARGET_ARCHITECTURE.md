@@ -1,6 +1,6 @@
 # Zielarchitektur
 
-Stand: 2026-06-23
+Stand: 2026-06-24
 Grundlage: P007
 
 ## Zweck
@@ -43,7 +43,7 @@ gesonderte Teilplaene analysiert, freigegeben und getestet.
 | Phase 1 | `ma_project` | Projekt und Untersuchungsrahmen initialisieren |
 | Phase 2 | `ma_building`, `ma_weather`, `ma_zones`, `ma_technical`, `ma_parameters` | Eingaben erfassen, validieren und vereinheitlichen |
 | Phase 3 | `ma_analyse.stage_1_dimensioning`, `ma_variants`, `ma_simulation_setup`, `ma_export_simulation` | Referenz dimensionieren, Varianten und Run vorbereiten |
-| Phase 4 | IDA ICE, `ma_import_simulation`, `ma_analyse.stage_2_optimization`, `ma_analyse.stage_3_standards_compliance`, `ma_analyse.stage_4_sensitivity` | simulieren, optimieren, Norm-Nachweise und Sensitivitaet auswerten |
+| Phase 4 | IDA ICE, `ma_import_simulation`, `ma_analyse.data_preparation`, `ma_analyse.stage_2_optimization`, `ma_analyse.stage_3_standards_compliance`, `ma_analyse.stage_4_sensitivity` | simulieren, Daten vorbereiten, optimieren, Norm-Nachweise und Sensitivitaet auswerten |
 | Phase 5 | `ma_economy`, `ma_sustainability`, `ma_assessment` | wirtschaftlich, oekologisch und gesamthaft bewerten |
 | Phase 6 | `ma_reporting`, `ma_data_export`, Projektdokumentation | Berichte, Datenpakete und Archivierung |
 
@@ -65,6 +65,7 @@ ma_technical
     -> manuelle IDA-ICE-Simulation
     -> ma_import_simulation
        -> adapters.ida_ice
+    -> ma_analyse.data_preparation
     -> ma_analyse.stage_2_optimization
     -> ma_analyse.stage_3_standards_compliance
     -> ma_analyse.stage_4_sensitivity
@@ -113,8 +114,10 @@ Vertraege am TRY-Wetterimport erprobt. Weitere Fachmodule werden erst mit
 ihrem jeweiligen Teilplan angebunden; eine zentrale Datenbank folgt nicht
 vor stabilen Fachmodellen und konkreten Abfragen.
 
-## Analysestufen
+## Datenvorbereitung und Analysestufen
 
+- Datenvorbereitung: `prepare` erzeugt nutzbare Raumtabellen,
+  `analyze-data` erzeugt den Basisbericht vor Analyse Stufe 2.
 - Stage 1: vereinfachte Referenzdimensionierung mit Ausbaupfad.
 - Stage 2: Optimierung auf Basis vorhandener Analysebefehle.
 - Stage 3: Norm-Nachweis unter
@@ -154,8 +157,16 @@ P009 einen sicheren Schnittstellenvertrag und Migrationsweg definiert.
 - Geplante Module zeigen Zweck, Ein- und Ausgaben, Abgrenzung,
   Abhaengigkeiten, Status und naechsten Schritt.
 - Geplante Seiten enthalten keine funktionslosen Fachbedienelemente.
-- Tkinter bleibt Legacy-Oberflaeche von `ma_analyse` und wird nicht technisch
-  mit Streamlit vermischt.
+- `ma_ui` fuehrt Streamlit und Tkinter als getrennte UI-Zweige:
+  `ma_ui.streamlit_app` fuer den aktuellen Haupteinstieg und
+  `ma_ui.tkinter_app` fuer getrennte Tkinter-Ansichten.
+- `src/ma_ui/app.py` bleibt stabiler Streamlit-Einstieg und delegiert an
+  `ma_ui.streamlit_app`.
+- Tkinter wird nicht direkt mit Streamlit vermischt. Spaetere
+  Tkinter-Fachansichten werden unter
+  `ma_ui.tkinter_app.module_views/<fachbereich>/` geplant.
+- `ma_analyse.gui` bleibt vorerst als Kompatibilitaetswrapper bestehen und
+  enthaelt keine neue Fachlogik.
 
 ## Ergebnisverarbeitung
 
@@ -170,7 +181,7 @@ P009 einen sicheren Schnittstellenvertrag und Migrationsweg definiert.
 | Status | Module |
 |---|---|
 | verfuegbar | Projektdokumentation |
-| teilweise | `ma_weather`, `ma_analyse`, `ma_analyse.stage_2_optimization` |
+| teilweise | `ma_weather`, `ma_analyse`, `ma_analyse.data_preparation`, `ma_analyse.stage_2_optimization` |
 | geplant | `ma_core`, `ma_database`, `ma_ui`, `ma_workflow`, `ma_project`, `ma_building`, `ma_zones`, `ma_technical`, `ma_parameters`, `ma_analyse.stage_1_dimensioning`, `ma_analyse.stage_3_standards_compliance`, `ma_analyse.stage_4_sensitivity`, `ma_variants`, `ma_simulation_setup`, `ma_export_simulation`, `ma_import_simulation`, `ma_economy`, `ma_sustainability`, `ma_assessment`, `ma_reporting`, `ma_data_export`, `ma_validation`, `ma_feedback` |
 | manuell | IDA ICE |
 

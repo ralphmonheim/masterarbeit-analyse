@@ -4,6 +4,24 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.17.0 - 2026-06-24
+
+### Added
+- `ma_analyse.data_preparation` als eigener Workflow-Schritt fuer `prepare`
+  und `analyze-data` dokumentiert und im Workflow-Katalog vorbereitet.
+
+### Changed
+- `ma_ui` strukturell in `streamlit_app` und `tkinter_app` getrennt.
+  `src/ma_ui/app.py` bleibt stabiler Streamlit-Einstieg; die Tkinter-Analyse
+  liegt unter `ma_ui.tkinter_app.module_views.analyse`.
+- Alte `ma_ui.*`- und `ma_analyse.gui.*`-Importpfade bleiben ueber
+  Kompatibilitaetswrapper nutzbar.
+- Wetterdatensatz-Import und Bestands-/Validierungspruefung stehen in
+  Streamlit gemeinsam im Bereich `Wetterdatensaetze`; aktive und offene
+  Wetterdatensaetze werden dort gleichwertig getrennt angezeigt.
+- Tkinter-Analyse startet den ersten Befehlsschritt der Analyseauswahl jetzt
+  standardmaessig mit `plot-template`.
+
 ## 0.16.2 - 2026-06-24
 
 ### Added

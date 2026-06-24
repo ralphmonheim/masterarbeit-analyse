@@ -221,6 +221,38 @@ def run_weather_analysis(
     return result
 
 
+def plot_template_weather(
+    weather_key: str = "TRY_FFM_2015_JAHR",
+    *,
+    catalog_path: str | Path = DEFAULT_WEATHER_DATASETS_CONFIG,
+    project_root: str | Path | None = None,
+    database_dir: str | Path = "data/ma_weather/database",
+    output_dir: str | Path = "data/ma_weather/output",
+    reports_dir: str | Path = "data/ma_weather/reports",
+    session_log_dir: str | Path = "logs/sessions",
+    start_year: int = 2015,
+    session_id: str | None = None,
+    run_id: str | None = None,
+    import_id: str | None = None,
+    print_summary: bool = True,
+) -> WeatherAnalysisResult:
+    """Alias fuer den Wetter-Template-Befehl."""
+    return run_weather_analysis(
+        weather_key,
+        catalog_path=catalog_path,
+        project_root=project_root,
+        database_dir=database_dir,
+        output_dir=output_dir,
+        reports_dir=reports_dir,
+        session_log_dir=session_log_dir,
+        start_year=start_year,
+        session_id=session_id,
+        run_id=run_id,
+        import_id=import_id,
+        print_summary=print_summary,
+    )
+
+
 def _automatic_release_decision(
     *,
     validation_report: WeatherValidationReport,

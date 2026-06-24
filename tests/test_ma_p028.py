@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pandas as pd
 import pytest
+from ma_ui.module_views.project_view import naming_profile_from_rows, naming_token_rows
 
 from ma_core import ConfigurationSource
 from ma_parameters import (
@@ -17,7 +18,6 @@ from ma_project import (
     load_variant_naming_profile,
     save_simulation_program_profiles,
 )
-from ma_ui.module_views.project_view import naming_profile_from_rows, naming_token_rows
 from ma_ui.state import (
     CONFIGURATION_STATE_SESSION_KEY,
     build_current_variant_ui_data,

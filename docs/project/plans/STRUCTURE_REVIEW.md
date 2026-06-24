@@ -2,6 +2,10 @@
 
 Datum der Pruefung: 2026-06-22
 
+Aktueller Nachtrag 2026-06-24: Dieser Review ist historisch. Die aktive
+UI-Struktur liegt inzwischen unter `ma_ui.streamlit_app` und
+`ma_ui.tkinter_app`; `ma_analyse.gui` bleibt als Kompatibilitaetswrapper.
+
 ## Projektuebersicht
 
 Das Projekt besitzt fachlich nutzbare Kernpakete und zusaetzliche leichte

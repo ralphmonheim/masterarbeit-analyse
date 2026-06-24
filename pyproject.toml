@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ma-analyse"
-version = "0.16.2"
+version = "0.17.0"
 description = "Analysepipeline fuer Simulationsdaten der Masterarbeit"
 requires-python = ">=3.14"
 dependencies = [
@@ -28,6 +28,7 @@ dev = [
 
 [project.scripts]
 ma-analyse = "ma_analyse.app.cli:main"
+plot-template-weather = "ma_weather.run_weather_analysis:plot_template_weather"
 
 [tool.setuptools.packages.find]
 where = ["src"]

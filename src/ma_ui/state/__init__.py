@@ -1,19 +1,15 @@
-"""UI-neutraler Projektzustand fuer die Streamlit-Oberflaeche."""
+"""Kompatibilitaetszugriff auf den Streamlit-Sitzungszustand."""
 
-from .configuration_state import (
-    CONFIGURATION_STATE_SESSION_KEY,
-    ConfigurationState,
-    build_current_variant_ui_data,
-    get_configuration_state,
-    load_default_configuration_state,
-)
-from .project_state import ProjectState
+from __future__ import annotations
 
-__all__ = [
-    "CONFIGURATION_STATE_SESSION_KEY",
-    "ConfigurationState",
-    "ProjectState",
-    "build_current_variant_ui_data",
-    "get_configuration_state",
-    "load_default_configuration_state",
-]
+import importlib
+import sys
+
+from ma_ui.streamlit_app.state import *  # noqa: F403
+
+_ALIASES = ("configuration_state", "project_state")
+
+for _name in _ALIASES:
+    sys.modules[f"{__name__}.{_name}"] = importlib.import_module(
+        f"ma_ui.streamlit_app.state.{_name}"
+    )

@@ -4,12 +4,34 @@ Diese Befehle gelten moduluebergreifend fuer das lokale Projekt.
 
 ## Grundbefehle
 
-Projektordner oeffnen und virtuelle Umgebung aktivieren:
+Wenn du morgens VS Code neu oeffnest und im Projekt arbeiten willst:
+
+Die erste Zeile setzt für die aktuelle PowerShell-Sitzung die Ausführungsrichtlinie auf RemoteSigned. Damit dürfen Skripte in dieser Sitzung ausgeführt werden, ohne dass du die Windows-Einstellung dauerhaft ändern musst.
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
+```
+
+Die zweite Zeile wechselt in den Projektordner. Dort liegen die Dateien des
+Repositories, damit die folgenden Befehle im richtigen Kontext laufen.
 
 ```powershell
 cd "C:\Users\ralph\Documents\Master\5.Semester\Masterarbeit - lokal\TEIL1_Fach-Anwendungskompetenz\260524_Masterarbeit_Analyse"
+```
+
+Die dritte Zeile aktiviert die virtuelle Python-Umgebung aus dem Ordner .venv. Dadurch werden beim Arbeiten mit dem Projekt die dort installierten Abhängigkeiten verwendet, statt globale Python-Pakete.
+
+```powershell
 .\.venv\Scripts\Activate.ps1
 ```
+
+PowerShell aktualisieren:
+
+```powershell
+winget upgrade Microsoft.Powershell
+```
+
+Dieser Befehl aktualisiert die installierte PowerShell-Version ueber winget.
 
 Installation:
 

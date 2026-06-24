@@ -2,6 +2,7 @@
 
 from .run_weather_analysis import (
     WeatherAnalysisResult,
+    plot_template_weather,
     record_weather_release_decision,
     run_weather_analysis,
 )
@@ -89,6 +90,7 @@ __all__ = [
     "inspect_weather_catalog_statuses",
     "inspect_weather_dataset_status",
     "load_weather_selection_state",
+    "plot_template_weather",
     "project_default_weather_dataset",
     "record_weather_release_decision",
     "run_weather_analysis",

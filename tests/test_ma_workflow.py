@@ -36,6 +36,7 @@ def test_workflow_contains_analysis_step():
 def test_workflow_statuses_reflect_current_module_implementation():
     assert get_workflow_step("parameters").status == "planned"
     assert get_workflow_step("dimensioning").status == "planned"
+    assert get_workflow_step("data_preparation").status == "partial"
     assert get_workflow_step("optimization").status == "partial"
     assert get_workflow_step("standards_compliance").status == "planned"
     assert get_workflow_step("sensitivity").status == "planned"
@@ -62,6 +63,7 @@ def test_only_weather_and_analysis_are_partially_available():
     assert partial_modules == {
         "ma_weather",
         "ma_analyse",
+        "ma_analyse.data_preparation",
         "ma_analyse.stage_2_optimization",
     }
     assert available_modules == {"project_documentation"}
@@ -105,10 +107,12 @@ def test_dashboard_actions_cover_target_commands():
 
     assert "open_simulation_setup" in action_keys
     assert "run_simulation_export" in action_keys
+    assert "run_data_preparation" in action_keys
     assert "run_optimization" in action_keys
     assert "run_standards_compliance" in action_keys
     assert "run_sensitivity" in action_keys
     assert get_dashboard_action("run_analysis").step_key == "optimization"
+    assert get_dashboard_action("run_prepare").step_key == "data_preparation"
     assert get_dashboard_action("run_ida_export").step_key == "export_simulation"
     assert get_dashboard_action("run_ida_import").step_key == "import_simulation"
 
@@ -121,6 +125,7 @@ def test_pre_and_post_process_runners_return_expected_phases():
     assert {step.phase_key for step in post_process_steps} == {"phase_4", "phase_5"}
     assert pre_process_steps[-1].step_key == "export_simulation"
     assert post_process_steps[0].step_key == "import_simulation"
+    assert post_process_steps[1].step_key == "data_preparation"
 
 
 def test_feedback_targets_include_pre_process_modules():
@@ -147,6 +152,12 @@ def test_historical_stage_3_name_resolves_to_standards_compliance():
         get_module_definition("ma_analyse.stage_3_verification").module_key
         == "ma_analyse.stage_3_standards_compliance"
     )
+
+
+def test_prepare_and_analyze_data_resolve_to_data_preparation_step():
+    assert get_workflow_step("prepare").step_key == "data_preparation"
+    assert get_workflow_step("analyze-data").step_key == "data_preparation"
+    assert get_workflow_step("analyze_data").step_key == "data_preparation"
 
 
 def test_analysis_workflow_action_uses_service_facade(tmp_path):

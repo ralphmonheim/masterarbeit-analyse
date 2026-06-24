@@ -29,6 +29,10 @@ Alternative:
   Kopfzeilen-Navigation, vorbereiteten Modulansichten und einem umfangreichen
   Analyse-Wizard. Geplante Fachmodule bleiben als klar gekennzeichnete,
   klickbare Modul-Infoseiten sichtbar.
+- `src/ma_ui/app.py` bleibt der stabile Streamlit-Einstieg. Die eigentliche
+  Streamlit-Logik liegt unter `ma_ui.streamlit_app`.
+- Tkinter liegt als eigener UI-Zweig unter `ma_ui.tkinter_app`. Alte
+  `ma_analyse.gui`-Importe bleiben nur als Kompatibilitaetswrapper bestehen.
 - Die technische Streamlit-Multipage-Navigation ist ueber
   `.streamlit/config.toml` ausgeblendet. Sichtbar bleiben soll nur die
   fachliche Projektnavigation.
@@ -61,8 +65,12 @@ Alternative:
 - Analyseaufrufe laufen ueber `ma_workflow` und die Service-Fassade von
   `ma_analyse`.
 - Die Analyse-Seite enthaelt einen Button `Tkinter-Analyse oeffnen`, der die
-  bestehende `ma_analyse`-GUI als getrennten Legacy-Prozess startet:
-  `python -m ma_analyse gui`.
+  Tkinter-Analyse als getrennten Prozess startet:
+  `python -m ma_ui.tkinter_app.module_views.analyse`.
+- Die Tkinter-Analyse startet im ersten Befehlsschritt standardmaessig mit
+  `plot-template`, damit Analyse-Template-Ausgaben direkt sichtbar sind.
+- Der alte Aufruf `python -m ma_analyse gui` bleibt als Kompatibilitaetspfad
+  nutzbar.
 - Die Seite `Analyse` ist als sichtbare Schrittstruktur aufgebaut:
   `Befehl`, `Unterbefehl`, `Template / Diagramm`, `Varianten`, `Raeume`,
   optional `Overlay`, `Export / Ausgabe` und einen festen Aktionsbereich.
@@ -96,7 +104,7 @@ Alternative:
   das gewaehlte Template Overlays unterstuetzt und die Checkbox aktiviert ist.
 - Der Aktionsbereich mit `Vorschau aktualisieren` und `Analyse starten` ist
   nicht einklappbar.
-- Die Tkinter-Legacy-GUI besitzt ebenfalls einen Button
+- Die Tkinter-Analyse besitzt ebenfalls einen Button
   `Vorschau aktualisieren` zwischen `Zuruecksetzen` und `Start`; er nutzt
   aktuell den bestehenden Analysepfad mit den aktuellen Einstellungen.
 - Plot-Template-Overlays erscheinen erst nach Varianten- und Raumauswahl, damit
@@ -113,12 +121,14 @@ Alternative:
   startet die lokale `ma_weather`-Analyse und zeigt erzeugte Wetterdiagramme
   direkt in Streamlit an. Die Analysebedienung steht oben; die Uebersicht der
   Wetterdatensaetze steht darunter. Im Bereich `Wetterdatensaetze` steht zuerst
-  der Importbutton fuer lokale TRY-`.dat`-Dateien; danach folgen getrennte
+  eine Aktionszeile mit Importbutton fuer lokale TRY-`.dat`-Dateien und
+  `Bestand und Validierung pruefen`; danach folgen nebeneinander getrennte
   Uebersichten fuer aktive und offene Wetterdatensaetze.
 - Wetterdiagnosen zeigen ID, Code, Problem und Fundstelle. Fehler blockieren
   die Freigabe; Warnungen verlangen eine bewusste laufgebundene Entscheidung.
   Lauf und Entscheidung werden unter `logs/sessions/` protokolliert.
-- Die bestehende Tkinter-GUI von `ma_analyse` bleibt separat bestehen.
+- Die Tkinter-Analyse bleibt separat von Streamlit und liegt unter
+  `ma_ui.tkinter_app.module_views.analyse`.
 - Wenn Streamlit nach Codeaenderungen alte Importfehler zeigt, den laufenden
   Streamlit-Prozess stoppen und mit dem empfohlenen venv-Befehl neu starten.
 - Wenn alte Workflow-Darstellungen auf Modulviews sichtbar bleiben, ebenfalls

@@ -1,7 +1,7 @@
 # Masterarbeit Leitfaden
 
-Leitfaden-Version: 0.5.3
-Stand: 2026-06-23
+Leitfaden-Version: 0.5.4
+Stand: 2026-06-24
 
 Diese Datei ist der zentrale Orientierungsleitfaden fuer die Masterarbeit und
 die begleitende Software. Sie ersetzt keine aktive Steuerdatei. Der operative
@@ -35,6 +35,7 @@ Der Leitfaden fuehrt zwei Quellen zusammen:
 | 0.5.1 | 2026-06-22 | Eingabekette priorisiert, Modulplanserie P010-P027 und Standards-Compliance-Stufe aufgenommen |
 | 0.5.2 | 2026-06-22 | Fachlichen Reifegrad vereinheitlicht und Infokarten-Navigation aufgenommen |
 | 0.5.3 | 2026-06-23 | P028, neutrale Benennungsverantwortung und geschuetzte formaterweiterbare Konfiguration aufgenommen |
+| 0.5.4 | 2026-06-24 | Datenvorbereitung als eigenen Workflow-Schritt und UI-Struktur mit Streamlit-/Tkinter-Zweigen unter `ma_ui` aufgenommen |
 
 ## 1. Zweck der Software
 
@@ -149,9 +150,9 @@ und in `ma_assessment` als Bestandteil eines Gesamtberichts verwendet werden.
 ### Grundregeln
 
 - Fachlogik bleibt in Fachmodulen.
-- `ma_ui` ist die zentrale lokale Streamlit-Oberflaeche.
+- `ma_ui` ist der gemeinsame lokale UI-Bereich. Streamlit bleibt der aktuelle
+  Haupteinstieg; Tkinter liegt als getrennter UI-Zweig unter `ma_ui`.
 - `ma_workflow` vermittelt zwischen Oberflaeche und Fachmodulen.
-- Tkinter bleibt vorerst Legacy-Bestand in `ma_analyse`.
 - Tkinter und Streamlit werden nicht technisch vermischt.
 - Echte lokale Daten, TRY-Dateien, IDA-Ergebnisdaten und Produktdatenblaetter
   werden nicht als Projektinhalt versioniert.
@@ -212,7 +213,7 @@ Ist-Entwurf; verbindliche Zielmodule und Modulgrenzen stehen weiterhin in
 | 1 | `ma_project` | Projekt und Untersuchungsrahmen initialisieren |
 | 2 | `ma_building`, `ma_weather`, `ma_zones`, `ma_technical`, `ma_parameters` | Eingaben erfassen und vereinheitlichen |
 | 3 | `ma_analyse.stage_1_dimensioning`, `ma_variants`, `ma_simulation_setup`, `ma_export_simulation` | Referenz dimensionieren, Varianten und Run vorbereiten |
-| 4 | IDA ICE, `ma_import_simulation`, `ma_analyse.stage_2_optimization`, `ma_analyse.stage_3_standards_compliance`, `ma_analyse.stage_4_sensitivity` | simulieren, optimieren, Norm-Nachweise und Sensitivitaet auswerten |
+| 4 | IDA ICE, `ma_import_simulation`, `ma_analyse.data_preparation`, `ma_analyse.stage_2_optimization`, `ma_analyse.stage_3_standards_compliance`, `ma_analyse.stage_4_sensitivity` | simulieren, Daten vorbereiten, optimieren, Norm-Nachweise und Sensitivitaet auswerten |
 | 5 | `ma_economy`, `ma_sustainability`, `ma_assessment` | wirtschaftlich, oekologisch und gesamthaft bewerten |
 | 6 | `ma_reporting`, `ma_data_export`, Projektdokumentation | Berichte, Datenpakete und Archivierung |
 
@@ -256,10 +257,10 @@ unveraendert im Planarchiv.
 | `ma_core` | geplant | technische Grundlagen liegen noch verteilt in bestehenden Modulen |
 | `ma_database` | geplant | Datenbanklogik liegt derzeit vor allem in `ma_variants` |
 | `ma_project` | geplant | Projektstammdaten, Randbedingungen und Projektstatus |
-| `ma_analyse` | teilweise | Analyse von IDA-ICE-Ergebnisdaten, CLI, Tkinter-GUI, Plot-Templates |
+| `ma_analyse` | teilweise | Analyse von IDA-ICE-Ergebnisdaten, CLI, UI-neutrale Services, Plot-Templates |
 | `ma_variants` | geplant | Prototyp fuer Variantenkern, Datenmodelle, Auswahl, Naming, Export und Kataloge vorhanden |
 | `ma_weather` | teilweise | TRY-Katalog, Import, Validierung, Kennwerte, Diagramme, Bericht |
-| `ma_ui` | geplant | Streamlit-Prototyp mit Startseite und Modulansichten vorhanden |
+| `ma_ui` | geplant | Streamlit-Prototyp mit Startseite und Modulansichten sowie getrennter Tkinter-Zweig vorhanden |
 | `ma_workflow` | geplant | Katalog- und Orchestrierungsprototyp vorhanden |
 | `ma_parameters` | geplant | Parameter- und Optionslogik liegt noch in `ma_variants` |
 | `ma_building` | geplant | Gebaeudemodell, Bauteile und bauphysikalische Randbedingungen |
@@ -749,8 +750,10 @@ Aktueller Stand:
   Economy, Sustainability und Assessment
 - leere Zielmodule: Titel, Untertitel und blaue Hinweisbox
 
-Tkinter bleibt nutzbar, aber als Legacy-Bestand. Entscheidungen aus Tkinter
-werden fachlich ausgewertet und schrittweise in UI-neutrale Logik ueberfuehrt.
+Tkinter bleibt nutzbar, liegt aber als eigener UI-Zweig unter
+`ma_ui.tkinter_app`. Entscheidungen aus Tkinter werden fachlich ausgewertet
+und schrittweise in UI-neutrale Logik ueberfuehrt. Alte
+`ma_analyse.gui`-Importe sind nur noch Kompatibilitaetszugriffe.
 
 ### Workflow-Orchestrierung
 
@@ -789,8 +792,8 @@ jedoch in den zustaendigen Modulen.
 - Tkinter und Streamlit werden nicht direkt miteinander vermischt.
 - Wiederverwendbare Auswahl-, Validierungs- und Konfigurationslogik wird in
   UI-neutrale Services oder Helfer ausgelagert.
-- Tkinter bleibt vorerst unter `ma_analyse.gui`; eine Auslagerung braucht
-  weiterhin einen separaten Refactoring-Plan.
+- Neue Tkinter-Fachansichten werden spaeter nur ueber eigene Fachslices unter
+  `ma_ui.tkinter_app.module_views/` ergaenzt.
 
 ## 6. Aktuelle Arbeitsroutinen
 
@@ -849,9 +852,9 @@ folgende Entscheidungen:
 | Strukturaufbau | Zielmodule werden als leichte Pakete und klickbare Infoseiten sichtbar, ohne Fachreife vorzutäuschen. | UD-045 |
 | Validierung und Feedback | Lokale Pruefungen bleiben fachlich; zentrale Freigaben und Rueckspruenge wirken phasenuebergreifend. | UD-046 |
 | Ergebnisverarbeitung | Assessment, Reporting, Datenexport und Projektdokumentation bleiben getrennte Verantwortlichkeiten. | UD-047 |
-| UI und Workflow | `ma_ui` ist die Streamlit-Zieloberflaeche; `ma_workflow` bleibt eine getrennte Orchestrierungsschicht. | UD-015, UD-018 |
+| UI und Workflow | `ma_ui` ist der gemeinsame UI-Bereich; Streamlit bleibt Haupteinstieg, Tkinter liegt als getrennter UI-Zweig daneben. `ma_workflow` bleibt eine getrennte Orchestrierungsschicht. | UD-015, UD-018, UD-062 |
 | Fachlogik | Fachlogik von `ma_analyse` bleibt in `ma_analyse` und wird ueber UI-neutrale Services bereitgestellt. | UD-016, UD-020 |
-| Tkinter | Tkinter bleibt Legacy-Bestand und wird nicht technisch mit Streamlit vermischt; es dient nur als fachliche Ablaufvorlage. | UD-019, UD-022 |
+| Tkinter | Tkinter wird nicht technisch mit Streamlit vermischt; die Tkinter-Analyse liegt unter `ma_ui.tkinter_app` und kann spaeter um weitere Fachansichten ergaenzt werden. | UD-019, UD-022, UD-062 |
 | Simulationskette | `ma_simulation_setup` liegt zwischen Variantenbildung und allgemeinem Simulationsexport; Export, Import und Feedback bleiben getrennte Zielbereiche. | UD-021, UD-043 |
 | Bewertung | `ma_economy` und `ma_sustainability` rechnen fachlich; `ma_assessment` bewertet, `ma_reporting` berichtet. | UD-036, UD-047 |
 | Datenhaltung | Echte Projekt-, Produkt-, Material-, Datenbank- und TRY-Inhalte bleiben lokal; versioniert werden Struktur und gekennzeichnete Beispiele. | UD-012, UD-029 |

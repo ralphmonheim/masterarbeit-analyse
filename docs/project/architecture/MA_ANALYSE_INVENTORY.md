@@ -2,6 +2,11 @@
 
 Stand: 2026-06-10
 
+Aktueller Nachtrag 2026-06-24: Die Tkinter-Analyse wurde in den gemeinsamen
+UI-Bereich verschoben. Der aktive Zielort ist
+`ma_ui.tkinter_app.module_views.analyse`; `ma_analyse.gui` enthaelt nur noch
+Kompatibilitaetswrapper. Aeltere Hinweise auf `ma_ui_legacy` sind historisch.
+
 ## Zweck
 
 Dieses Dokument ist Phase 1 von P005. Es beschreibt den aktuellen Bestand von

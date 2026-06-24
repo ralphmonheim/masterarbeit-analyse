@@ -186,11 +186,17 @@ Stand: 2026-06-24
 
 - Datum: 2026-06-08
 - Thema: Analysemodul und UI-Auslagerung
-- Entscheidung: Fachliche Analysefunktionen verbleiben in `ma_analyse`. Allgemein nutzbare UI-Bestandteile aus `ma_analyse` duerfen spaeter geprueft und nach Freigabe in `ma_ui` oder Legacy-Bestandteile in `ma_ui_legacy` ueberfuehrt werden.
+- Entscheidung: Fachliche Analysefunktionen verbleiben in `ma_analyse`.
+  Allgemein nutzbare UI-Bestandteile aus `ma_analyse` duerfen spaeter
+  geprueft und nach Freigabe in `ma_ui` ueberfuehrt werden.
 - Begruendung: Die bestehende Analysepipeline ist funktionsfaehig und soll nicht durch eine direkte GUI-Verschiebung gefaehrdet werden.
-- Auswirkung: `src/ma_analyse/gui/app.py` wird zuerst dokumentarisch bewertet. Eine Auslagerung braucht einen separaten Refactoring-Plan.
-- Betroffene Module oder Dateien: `src/ma_analyse/gui/`, spaeter `src/ma_ui/pages/analyse.py`, `src/ma_ui_legacy/`
-- Status: getroffen
+- Auswirkung: `src/ma_analyse/gui/app.py` wurde zuerst dokumentarisch
+  bewertet. Die Tkinter-Analyse liegt nach UD-062 unter `ma_ui.tkinter_app`,
+  waehrend `ma_analyse.gui` als Kompatibilitaetswrapper bleibt.
+- Betroffene Module oder Dateien: `src/ma_analyse/gui/`,
+  `src/ma_ui/streamlit_app/pages/analyse.py`,
+  `src/ma_ui/tkinter_app/module_views/analyse/`
+- Status: historisch, durch UD-062 strukturell praezisiert
 - Offene Folgefragen: Welche Bestandteile der Tkinter-GUI sind fachliche Analyse, welche Legacy-UI und welche neutralen Helfer?
 - Quelle oder Chatbezug: P005 Gesamtmodulstruktur
 
@@ -219,15 +225,19 @@ Stand: 2026-06-24
 - Offene Folgefragen: Analyse-Seite erweitern oder weitere Moduluebersichten anbinden.
 - Quelle oder Chatbezug: P005 Anpassung Streamlit-Ziel-UI
 
-## UD-019 Tkinter bleibt Legacy und wird nicht mit Streamlit vermischt
+## UD-019 Tkinter wird nicht mit Streamlit vermischt
 
 - Datum: 2026-06-08
 - Thema: Umgang mit bestehender Tkinter-GUI
-- Entscheidung: Die bestehende Tkinter-Oberflaeche aus `ma_analyse` wird vorerst als Legacy-Bestand behandelt und nicht direkt mit Streamlit vermischt. Eine spaetere Auslagerung nach `ma_ui_legacy` wird geplant.
+- Entscheidung: Die bestehende Tkinter-Oberflaeche aus `ma_analyse` wird
+  nicht direkt mit Streamlit vermischt. Die damalige Idee einer spaeteren
+  Auslagerung nach `ma_ui_legacy` wurde durch UD-062 ersetzt.
 - Begruendung: Die bestehende Arbeit soll gesichert werden, ohne die neue Streamlit-Zielarchitektur technisch zu vermischen.
-- Auswirkung: `src/ma_analyse/gui/` bleibt zunaechst bestehen. Eine Verschiebung nach `src/ma_ui_legacy/` erfolgt nur nach Bestandsanalyse und Freigabe.
-- Betroffene Module oder Dateien: `src/ma_analyse/gui/`, spaeter `src/ma_ui_legacy/`
-- Status: getroffen
+- Auswirkung: `src/ma_analyse/gui/` bleibt als Kompatibilitaetsfassade
+  bestehen. Die echte Tkinter-Analyse liegt unter `ma_ui.tkinter_app`.
+- Betroffene Module oder Dateien: `src/ma_analyse/gui/`,
+  `src/ma_ui/tkinter_app/`
+- Status: historisch, durch UD-062 strukturell ersetzt
 - Offene Folgefragen: konkrete Auslagerung erst nach Tkinter-Bestandsanalyse.
 - Quelle oder Chatbezug: P005 Anpassung Streamlit-Ziel-UI
 
@@ -238,7 +248,9 @@ Stand: 2026-06-24
 - Entscheidung: `ma_analyse` wird ueber neutrale Modelle wie `AnalysisConfig` und `AnalysisResult` sowie eine Service-Funktion `run_analysis(config)` fuer Oberflaechen nutzbar gemacht.
 - Begruendung: Streamlit, Tkinter oder andere UIs sollen dieselbe fachliche Analyse verwenden koennen, ohne Berechnungslogik in die UI zu verschieben.
 - Auswirkung: Bestandsanalyse, Schnittstellenentwurf und erster Service-Code-Slice sind umgesetzt. Die minimale `ma_ui`-Analyse-Seite nutzt die Service-Fassade bereits ueber `ma_workflow`.
-- Betroffene Module oder Dateien: `src/ma_analyse/services.py`, `src/ma_analyse/models.py`, `src/ma_ui/pages/analyse.py`
+- Betroffene Module oder Dateien: `src/ma_analyse/services.py`,
+  `src/ma_analyse/models.py`,
+  `src/ma_ui/streamlit_app/pages/analyse.py`
 - Status: getroffen
 - Offene Folgefragen: Service-Fassade fachlich erweitern und Ergebnisobjekte detaillierter fuellen.
 - Quelle oder Chatbezug: P005 Anpassung Streamlit-Ziel-UI
@@ -261,9 +273,13 @@ Stand: 2026-06-24
 - Thema: UI-Migration
 - Entscheidung: Die bestehende Tkinter-GUI aus `ma_analyse` wird fuer den fachlichen Ablauf ausgewertet, aber nicht direkt nach Streamlit kopiert oder uebersetzt.
 - Begruendung: Die Tkinter-Dateien enthalten wertvolle Bedienlogik, sind technisch aber stark mit Widgets, Messageboxen, Threads und GUI-State gekoppelt.
-- Auswirkung: Streamlit-Ansichten werden neu ueber `ma_ui`, `ma_workflow` und UI-neutrale Fachservices aufgebaut. Tkinter bleibt bis zu einem separaten Refactoring-Slice Legacy-Bestand.
-- Betroffene Module oder Dateien: `src/ma_analyse/gui/`, spaeter `src/ma_ui/module_views/analyse_view.py`, `src/ma_ui_legacy/`
-- Status: getroffen
+- Auswirkung: Streamlit-Ansichten werden neu ueber `ma_ui`, `ma_workflow`
+  und UI-neutrale Fachservices aufgebaut. Tkinter liegt nach UD-062 als
+  eigener UI-Zweig unter `ma_ui.tkinter_app`.
+- Betroffene Module oder Dateien: `src/ma_analyse/gui/`,
+  `src/ma_ui/streamlit_app/module_views/analyse_view.py`,
+  `src/ma_ui/tkinter_app/`
+- Status: historisch, durch UD-062 strukturell praezisiert
 - Offene Folgefragen: Welche konkreten GUI-Validierungen sollen in die Service-Schicht uebernommen werden?
 - Quelle oder Chatbezug: P005 verschaerfte UI-Ueberfuehrung
 
@@ -273,7 +289,8 @@ Stand: 2026-06-24
 - Thema: Streamlit-Zieloberflaeche
 - Entscheidung: `ma_ui` soll langfristig aus Dashboard, Workflow-Ansichten, gemeinsamen UI-Komponenten und modulbezogenen Views bestehen.
 - Begruendung: Die Oberflaeche soll den Gesamtworkflow fuehren, aber keine Fachlogik enthalten. Gemeinsame UI-Bausteine sollen nicht in einzelnen Modulseiten dupliziert werden.
-- Auswirkung: Die bestehende `src/ma_ui/pages/`-Shell bleibt ein Zwischenstand. Eine spaetere Migration nach `module_views/` und `shared/` braucht einen eigenen Umsetzungsslice.
+- Auswirkung: Die Streamlit-Struktur liegt nach UD-062 unter
+  `ma_ui.streamlit_app` mit `pages/`, `module_views/`, `shared/` und `state/`.
 - Betroffene Module oder Dateien: `src/ma_ui/`, `docs/project/architecture/TARGET_ARCHITECTURE.md`
 - Status: getroffen
 - Offene Folgefragen: Wann wird die bestehende `pages/`-Shell auf die Zielstruktur migriert?
@@ -297,8 +314,13 @@ Stand: 2026-06-24
 - Thema: Streamlit-Oberflaeche und Workflow-Dashboard
 - Entscheidung: Der grafische Workflow, Workflow-Phasen, Workflow-Schritte, Dashboard-Aktionen und technische Detailtabellen sollen nur auf der `ma_ui`-Startseite erscheinen.
 - Begruendung: Modulansichten sollen nicht durch globale Projektsteuerung ueberladen werden und nur den jeweils relevanten Fachbereich zeigen.
-- Auswirkung: `src/ma_ui/pages/home.py` bleibt der zentrale Ort fuer die Gesamtuebersicht; Modulviews importieren keine Workflow-Graph-Komponenten und zeigen keine globalen Workflow-Tabellen.
-- Betroffene Module oder Dateien: `src/ma_ui/pages/home.py`, `src/ma_ui/module_views/`, `src/ma_ui/workflow_graph.py`
+- Auswirkung: `src/ma_ui/streamlit_app/pages/home.py` bleibt der zentrale
+  Ort fuer die Gesamtuebersicht; Modulviews importieren keine
+  Workflow-Graph-Komponenten und zeigen keine globalen Workflow-Tabellen.
+- Betroffene Module oder Dateien:
+  `src/ma_ui/streamlit_app/pages/home.py`,
+  `src/ma_ui/streamlit_app/module_views/`,
+  `src/ma_ui/streamlit_app/workflow_graph.py`
 - Status: getroffen
 - Offene Folgefragen: keine
 - Quelle oder Chatbezug: aktueller Codex-Chat zur Streamlit-UI-Bereinigung
@@ -310,7 +332,13 @@ Stand: 2026-06-24
 - Entscheidung: Modulbereiche in `ma_ui` zeigen nur Inhalte, die zum jeweiligen Modul gehoeren. Wenn ein Modul noch keine echte Bedienung oder Kataloganzeige besitzt, zeigt die Ansicht nur Seitentitel, Untertitel und eine blaue Hinweisbox.
 - Begruendung: Platzhalterbereiche sollen nicht durch technische Ressourcenlisten oder globale Workflow-Informationen groesser wirken als sie fachlich sind.
 - Auswirkung: Leere oder geplante Ansichten wie Parameter, Gebaeude, Simulation Setup, IDA Export, IDA Import und Feedback bleiben bewusst schlank; gefuellte Ansichten wie Wetterdaten, Varianten, Analyse und Bewertung behalten ihre fachlichen Inhalte.
-- Betroffene Module oder Dateien: `src/ma_ui/module_views/parameters_view.py`, `src/ma_ui/module_views/building_view.py`, `src/ma_ui/module_views/simulation_setup_view.py`, `src/ma_ui/module_views/export_ida_view.py`, `src/ma_ui/module_views/import_ida_view.py`, `src/ma_ui/module_views/feedback_view.py`
+- Betroffene Module oder Dateien:
+  `src/ma_ui/streamlit_app/module_views/parameters_view.py`,
+  `src/ma_ui/streamlit_app/module_views/building_view.py`,
+  `src/ma_ui/streamlit_app/module_views/simulation_setup_view.py`,
+  `src/ma_ui/streamlit_app/module_views/export_ida_view.py`,
+  `src/ma_ui/streamlit_app/module_views/import_ida_view.py`,
+  `src/ma_ui/streamlit_app/module_views/feedback_view.py`
 - Status: getroffen
 - Offene Folgefragen: Wann werden die leeren Modulansichten mit echten Fachservices befuellt?
 - Quelle oder Chatbezug: aktueller Codex-Chat zur Streamlit-UI-Bereinigung
@@ -321,21 +349,32 @@ Stand: 2026-06-24
 - Thema: ma_ui Analysebedienung
 - Entscheidung: Die Streamlit-Analyse soll sich fachlich an den bereits getroffenen Zustands- und Ablaufentscheidungen der bestehenden Tkinter-Analyse orientieren. Zuerst wird der Befehl gewaehlt; danach werden nur passende Folgeschritte eingeblendet, vorherige Schritte werden zusammengefasst und technische Pfade liegen unter `Erweiterte Pfade`.
 - Begruendung: Die Tkinter-Oberflaeche enthaelt bereits wichtige Nutzerentscheidungen zur Bedienlogik. Streamlit soll diese fachliche Logik uebernehmen, aber nicht die Tkinter-Technik kopieren.
-- Auswirkung: `src/ma_ui/module_views/analyse_view.py` bleibt als schrittweiser Analyse-Wizard ausgelegt; die weitere P005-Arbeit prueft die Streamlit-Bedienung gegen den bestehenden Tkinter-Ablauf.
-- Betroffene Module oder Dateien: `src/ma_ui/module_views/analyse_view.py`, `src/ma_analyse/gui/app.py`, `src/ma_analyse/services.py`
+- Auswirkung: `src/ma_ui/streamlit_app/module_views/analyse_view.py`
+  bleibt als schrittweiser Analyse-Wizard ausgelegt; die weitere P005-Arbeit
+  prueft die Streamlit-Bedienung gegen den bestehenden Tkinter-Ablauf.
+- Betroffene Module oder Dateien:
+  `src/ma_ui/streamlit_app/module_views/analyse_view.py`,
+  `src/ma_ui/tkinter_app/module_views/analyse/app.py`,
+  `src/ma_analyse/services.py`
 - Status: getroffen
 - Offene Folgefragen: Welche weiteren Tkinter-Validierungen muessen noch in UI-neutrale Services uebernommen werden?
 - Quelle oder Chatbezug: aktueller Codex-Chat zu P005 und Streamlit-Analyse
 
-## UD-028 Tkinter-Analyse darf aus Streamlit als separates Legacy-Fenster starten
+## UD-028 Tkinter-Analyse darf aus Streamlit als separates Fenster starten
 
 - Datum: 2026-06-16
 - Thema: Hybrid-Bedienung waehrend der UI-Migration
-- Entscheidung: Solange die Streamlit-Analyse noch nicht alle gewuenschten Bedienentscheidungen der Tkinter-Analyse abbildet, darf `ma_ui` die bestehende Tkinter-Analyse als separates Legacy-Fenster starten.
+- Entscheidung: Solange die Streamlit-Analyse noch nicht alle gewuenschten
+  Bedienentscheidungen der Tkinter-Analyse abbildet, darf `ma_ui` die
+  Tkinter-Analyse als separates Fenster starten.
 - Begruendung: Die vorhandene Tkinter-Analyse bleibt praktisch nutzbar, ohne Tkinter direkt in Streamlit einzubetten oder Fachlogik in die UI zu verschieben.
-- Auswirkung: Die Hybrid-Bedienung ist eine Uebergangsloesung. Tkinter bleibt Legacy; die langfristige Zieloberflaeche bleibt Streamlit ueber `ma_ui`.
-- Betroffene Module oder Dateien: `src/ma_ui/module_views/analyse_view.py`, `src/ma_analyse/gui/app.py`, spaeter optional `src/ma_ui_legacy/`
-- Status: getroffen
+- Auswirkung: Die Hybrid-Bedienung ist eine Uebergangsloesung. Streamlit
+  bleibt Haupteinstieg; Tkinter liegt getrennt unter `ma_ui.tkinter_app`.
+- Betroffene Module oder Dateien:
+  `src/ma_ui/streamlit_app/module_views/analyse_view.py`,
+  `src/ma_ui/tkinter_app/module_views/analyse/app.py`,
+  `src/ma_analyse/gui/app.py`
+- Status: historisch, durch UD-062 strukturell praezisiert
 - Offene Folgefragen: Wann ist die Streamlit-Analyse fachlich ausreichend, um die Legacy-Schaltflaeche zu entfernen?
 - Quelle oder Chatbezug: aktueller Codex-Chat zu Streamlit und Tkinter-Analyse
 
@@ -394,7 +433,11 @@ Stand: 2026-06-24
 - Entscheidung: Overlays sollen grundsaetzlich frei gestaltet werden koennen. Linien oder Datenreihen aus der Datenbank sollen in die aktuelle Ansicht geladen werden koennen. Feste Additionen wie Temperaturband, Bandbreite und vorhandene Standardoptionen bleiben dagegen als eigene, klar konfigurierte Optionen gefuehrt.
 - Begruendung: Freie Datenreihen sind fuer flexible Diagrammvergleiche wichtig. Gleichzeitig brauchen fachlich feste Elemente wie Sollwert- oder Temperaturbaender stabile Optionen, damit sie nicht wie beliebige Datenreihen behandelt werden.
 - Auswirkung: Hauptfunktionen und Plot-Templates sollen langfristig freie Datenreihen aus lokalen Analyse-/Datenbankdaten ergaenzen koennen. Bestehende Bandlogik und Achsenbereiche bleiben kontrollierte Diagrammoptionen.
-- Betroffene Module oder Dateien: `src/ma_analyse/analysis/templates/`, `src/ma_analyse/analysis/heating.py`, `src/ma_analyse/analysis/cooling.py`, `src/ma_analyse/gui/app.py`, `src/ma_ui/module_views/analyse_view.py`
+- Betroffene Module oder Dateien: `src/ma_analyse/analysis/templates/`,
+  `src/ma_analyse/analysis/heating.py`,
+  `src/ma_analyse/analysis/cooling.py`,
+  `src/ma_ui/tkinter_app/module_views/analyse/app.py`,
+  `src/ma_ui/streamlit_app/module_views/analyse_view.py`
 - Status: getroffen
 - Offene Folgefragen: Bedienung und Validierung fuer freie Datenreihen in Hauptfunktionen separat umsetzen.
 - Quelle oder Chatbezug: aktueller Codex-Chat zu strukturellen Entscheidungen
@@ -406,7 +449,9 @@ Stand: 2026-06-24
 - Entscheidung: Wetterdiagramme bleiben vorerst im Modul `ma_weather` und werden nicht sofort als eigener Hauptbefehl `plot-template-weather` in die `ma_analyse`-/Analyse-UI-Struktur integriert.
 - Begruendung: Wetterdatenanalyse ist fachlich ein eigenes Modul mit eigener Datensatzwahl. Eine Vermischung mit `ma_analyse`-Templates wuerde die aktuelle Analysebedienung unklarer machen.
 - Auswirkung: `ma_ui` zeigt Wetterdiagramme ueber die Wetterdaten-Seite. `plot-template-weather` bleibt als spaeterer Strukturpunkt offen.
-- Betroffene Module oder Dateien: `src/ma_weather/`, `src/ma_ui/module_views/weather_view.py`, spaeter optional `src/ma_ui/module_views/analyse_view.py`
+- Betroffene Module oder Dateien: `src/ma_weather/`,
+  `src/ma_ui/streamlit_app/module_views/weather_view.py`, spaeter optional
+  `src/ma_ui/streamlit_app/module_views/analyse_view.py`
 - Status: getroffen
 - Offene Folgefragen: Ob `plot-template-weather` spaeter als eigener UI-Befehl eingefuehrt wird, bleibt offen.
 - Quelle oder Chatbezug: aktueller Codex-Chat zu strukturellen Entscheidungen
@@ -418,7 +463,11 @@ Stand: 2026-06-24
 - Entscheidung: Die Frage nach absoluten oder flaechenbezogen normierten Werten soll nicht nur fuer die Energiebilanz behandelt werden, sondern spaeter grundsaetzlich auf alle passenden Auswertungen unter `ma_analyse` anwendbar sein.
 - Begruendung: Die Einheit und Normierung beeinflussen Vergleichbarkeit, Diagrammgestaltung und spaetere Interpretation. Eine isolierte Sonderloesung nur fuer Energy Balance wuerde die Bedienung und Dokumentation inkonsistent machen.
 - Auswirkung: Kuenftige Auswertungen sollen eine einheitliche Strategie fuer absolute Werte, flaechenbezogene Werte wie `[W/m2]` und ggf. weitere Bezugsflaechen erhalten. Die konkrete Umsetzung erfolgt erst nach separater Planung.
-- Betroffene Module oder Dateien: `src/ma_analyse/analysis/`, `src/ma_analyse/analysis/templates/`, `src/ma_analyse/gui/app.py`, `src/ma_ui/module_views/analyse_view.py`, `docs/ma_analyse/`
+- Betroffene Module oder Dateien: `src/ma_analyse/analysis/`,
+  `src/ma_analyse/analysis/templates/`,
+  `src/ma_ui/tkinter_app/module_views/analyse/app.py`,
+  `src/ma_ui/streamlit_app/module_views/analyse_view.py`,
+  `docs/ma_analyse/`
 - Status: getroffen
 - Offene Folgefragen: Welche Bezugsflaeche gilt je Auswertung, woher kommt diese Flaeche, und welche Auswertungen duerfen fachlich normiert werden?
 - Quelle oder Chatbezug: aktueller Codex-Chat zu strukturellen Entscheidungen
@@ -480,7 +529,12 @@ Stand: 2026-06-24
 - Begruendung: Die Gruppen sind in der Template-Sandbox nicht erforderlich und erschweren den direkten Zugriff auf Diagramme. Der Overlay-Katalog braucht dagegen eine konkrete Variante und einen konkreten Raum. Achsenanpassungen sollen vor der echten Vorschau nachvollziehbar sein.
 - Auswirkung: Tkinter nutzt eine scrollbare Template-Liste. Streamlit und Tkinter verwenden die Reihenfolge `Befehl`, `Unterbefehl`, `Template / Diagramm`, `Varianten`, `Raeume`, optional `Overlay`, `Export / Ausgabe`, Aktionsbereich. Automatische Achsengrenzen sind Standard; manuelle Grenzen fuer primaere und sekundaere Y-Achsen sind moeglich. Als Overlay-Katalogreferenz dienen sichtbar die erste gewaehlte Variante und der erste Raum.
 - Ausgabedefinition: `single` erzeugt fuer jede Variante-Raum-Kombination ein eigenes Diagramm. `compare` erzeugt eine gemeinsame Vergleichsausgabe; Zeitreihen werden als gemeinsame Datenreihen gezeichnet, komplexe Sammeltemplates als Teilplots in einer gemeinsamen Grafik gebuendelt.
-- Betroffene Module oder Dateien: `src/ma_analyse/analysis_wizard.py`, `src/ma_analyse/analysis_ui.py`, `src/ma_analyse/analysis/templates/`, `src/ma_analyse/gui/app.py`, `src/ma_ui/module_views/analyse_view.py`, `docs/ma_ui/`, `docs/ma_analyse/`
+- Betroffene Module oder Dateien: `src/ma_analyse/analysis_wizard.py`,
+  `src/ma_analyse/analysis_ui.py`,
+  `src/ma_analyse/analysis/templates/`,
+  `src/ma_ui/tkinter_app/module_views/analyse/app.py`,
+  `src/ma_ui/streamlit_app/module_views/analyse_view.py`,
+  `docs/ma_ui/`, `docs/ma_analyse/`
 - Status: umgesetzt
 - Offene Folgefragen: Weitere Diagrammoptionen wie Farben, Linienstile, Legendenposition und Beschriftungen spaeter auf Basis gemeinsamer Renderer planen.
 - Quelle oder Chatbezug: aktueller Codex-Chat zur Plot-Template-Bedienung
@@ -768,7 +822,8 @@ Stand: 2026-06-24
 - Auswirkung: `ma_weather` trennt Referenzstandort und standortgenaue
   Datensaetze. Streamlit zeigt Karte, Stadt, Klimaregion, Referenzstandort,
   Datensatzstatus, Aktivierung und Projekt-Default bewusst in der Wetterseite.
-- Betroffene Module oder Dateien: `src/ma_weather/`, `src/ma_ui/pages/weather.py`,
+- Betroffene Module oder Dateien: `src/ma_weather/`,
+  `src/ma_ui/streamlit_app/pages/weather.py`,
   `src/ma_ui/assets/weather/`, `config/ma_weather/`
 - Status: umgesetzt
 - Offene Folgefragen: Fachliche Ergaenzung weiterer TRY-Referenzstandorte und
@@ -792,7 +847,7 @@ Stand: 2026-06-24
   automatisch.
 - Betroffene Module oder Dateien: `config/ma_weather/datasets/`,
   `src/ma_weather/weather_events.py`, `src/ma_weather/run_weather_analysis.py`,
-  `src/ma_ui/pages/weather.py`
+  `src/ma_ui/streamlit_app/pages/weather.py`
 - Status: umgesetzt
 - Offene Folgefragen: Fachliche Feinschaerfung der Ereignisdefinitionen und
   spaetere P021-Anbindung.
@@ -812,7 +867,8 @@ Stand: 2026-06-24
 - Auswirkung: Streamlit zeigt den Importdialog nicht in der oberen
   Stadt-/Datensatzauswahl. Lokale Imports werden projektlokal abgelegt und
   in einem lokalen, nicht versionierten Wetterkatalog registriert.
-- Betroffene Module oder Dateien: `src/ma_ui/pages/weather.py`,
+- Betroffene Module oder Dateien:
+  `src/ma_ui/streamlit_app/pages/weather.py`,
   `src/ma_weather/weather_imports.py`, `src/ma_weather/weather_catalog.py`,
   `data/ma_weather/input/custom/`,
   `data/ma_weather/config/datasets/weather_datasets_local.yaml`
@@ -820,3 +876,54 @@ Stand: 2026-06-24
 - Offene Folgefragen: ZIP-Import, automatische DWD-Downloads und neue
   Standortpflege bleiben spaetere Slices.
 - Quelle oder Chatbezug: aktueller Codex-Chat zu P008 ma_weather Slice 5
+
+## UD-061 Datenvorbereitung als eigener Workflow-Schritt
+
+- Datum: 2026-06-24
+- Thema: ma_analyse Workflow und Analysestufen
+- Entscheidung: `prepare` und `analyze-data` werden fachlich als eigener
+  Workflow-Schritt `Datenvorbereitung` zwischen Simulationsergebnisimport und
+  Analyse Stufe 2 eingeordnet. Die Logik bleibt weiterhin in `ma_analyse`,
+  aber der Schritt steht neben den Analysestufen 1 bis 4.
+- Begruendung: `prepare` erzeugt die nutzbare Datenbasis und `analyze-data`
+  den Basisbericht. Beides ist Voraussetzung fuer die spaetere Analyse und
+  keine Optimierungs-, Norm- oder Sensitivitaetsauswertung.
+- Auswirkung: `ma_workflow` fuehrt `ma_analyse.data_preparation` als eigenen
+  Schritt in Phase 4. Stage 2 haengt fachlich von der Datenvorbereitung ab.
+- Betroffene Module oder Dateien: `src/ma_workflow/`,
+  `src/ma_analyse/data_preparation/`, `docs/ma_analyse/`,
+  `docs/project/architecture/TARGET_ARCHITECTURE.md`
+- Status: getroffen
+- Offene Folgefragen: Nach erfolgreichem Simulationsergebnisimport soll
+  `prepare` als Standard-Folgeschritt angeboten oder automatisiert werden;
+  `analyze-data` bleibt als sichtbarer Basisbericht konfigurierbar.
+- Quelle oder Chatbezug: aktueller Codex-Chat zur Einordnung von `prepare`
+  und `analyze-data`
+
+## UD-062 Streamlit und Tkinter als UI-Zweige unter ma_ui
+
+- Datum: 2026-06-24
+- Thema: UI-Struktur und Fachmodulansichten
+- Entscheidung: `ma_ui` fuehrt Streamlit und Tkinter als getrennte,
+  gleichwertig eingeordnete UI-Zweige. Streamlit bleibt der aktuelle
+  Haupteinstieg. Tkinter wird nicht nur als Analyse-Legacy behandelt, sondern
+  strukturell so eingeordnet, dass spaeter weitere Fachmodulansichten ergaenzt
+  werden koennen.
+- Begruendung: Die UI-Technologien sollen technisch getrennt bleiben, aber
+  beide gehoeren zur Bedienoberflaeche und nicht in den Fachkern
+  `ma_analyse`. `ma_analyse` bleibt dadurch UI-neutraler, waehrend bestehende
+  Tkinter-Funktionalitaet kompatibel erreichbar bleibt.
+- Auswirkung: Die Streamlit-Logik liegt unter `ma_ui.streamlit_app`.
+  `src/ma_ui/app.py` bleibt stabiler Streamlit-Einstieg. Die Tkinter-Analyse
+  liegt unter `ma_ui.tkinter_app.module_views.analyse`. Alte
+  `ma_analyse.gui.*`-Importe bleiben vorerst als Kompatibilitaetswrapper
+  bestehen.
+- Betroffene Module oder Dateien: `src/ma_ui/app.py`,
+  `src/ma_ui/streamlit_app/`, `src/ma_ui/tkinter_app/`,
+  `src/ma_analyse/gui/`, `docs/ma_ui/`,
+  `docs/project/architecture/`
+- Status: umgesetzt
+- Offene Folgefragen: Welche weiteren Fachmodule spaeter eine Tkinter-Ansicht
+  erhalten, wird nur ueber eigene Fachslices entschieden.
+- Quelle oder Chatbezug: aktueller Codex-Chat zum kombinierten
+  UI-Strukturumzug nach `ma_ui`

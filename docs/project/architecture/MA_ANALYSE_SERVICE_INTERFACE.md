@@ -2,6 +2,11 @@
 
 Stand: 2026-06-10
 
+Aktueller Nachtrag 2026-06-24: Die Service-Schnittstelle bleibt fachlich
+gueltig. Die Tkinter-Analyse liegt inzwischen unter
+`ma_ui.tkinter_app.module_views.analyse`; `ma_analyse.gui` ist nur noch
+Kompatibilitaet.
+
 ## Zweck
 
 Dieses Dokument ist Phase 2 von P005. Es definiert den Zielvertrag fuer eine

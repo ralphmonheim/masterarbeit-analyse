@@ -8,6 +8,12 @@ Dieses Dokument bewertet die bestehenden Oberflaechen und bereitet eine spaetere
 Auslagerung in eine gemeinsame `ma_ui`-Struktur vor. Es werden keine Dateien
 verschoben und keine Imports geaendert.
 
+Aktueller Nachtrag 2026-06-24: Die vorbereitete Auslagerung wurde als
+kombinierter UI-Strukturumzug umgesetzt. Streamlit liegt unter
+`ma_ui.streamlit_app`, Tkinter unter `ma_ui.tkinter_app`; `ma_analyse.gui`
+bleibt als Kompatibilitaetswrapper bestehen. Angaben zu `ma_ui_legacy` sind
+historisch.
+
 Streamlit ist die Zieltechnik fuer die neue zentrale Oberflaeche. Die bestehende
 Tkinter-Oberflaeche aus `ma_analyse` wird als Legacy-Bestand bewertet und darf
 nicht direkt mit Streamlit vermischt werden.
