@@ -81,11 +81,24 @@ config/ma_weather/datasets/example_weather_datasets.yaml
 Der Katalog referenziert lokale Dateien unter `data/ma_weather/input/`. Diese
 Dateien werden nicht im Git-Repo versioniert.
 
+Lokale UI-Imports werden nicht in die versionierte Vorlage geschrieben. Sie
+liegen in einem eigenen Arbeitskatalog:
+
+```text
+data/ma_weather/config/datasets/weather_datasets_local.yaml
+```
+
+Beim Laden des Standardkatalogs werden Beispielkatalog und vorhandener lokaler
+Importkatalog zusammengefuehrt. Doppelte `weather_key` Werte werden dabei
+abgelehnt.
+
 ## Datenordner
 
 | Ordner | Zweck |
 |---|---|
 | `data/ma_weather/input/` | lokale TRY-Eingabedateien |
+| `data/ma_weather/input/custom/` | ueber Streamlit importierte TRY-Dateien |
+| `data/ma_weather/config/datasets/` | lokaler, nicht versionierter Importkatalog |
 | `data/ma_weather/database/` | spaeter aufbereitete Wetterdaten |
 | `data/ma_weather/output/` | spaeter erzeugte Wetterdiagramme |
 | `data/ma_weather/reports/` | spaetere Markdown-Berichte |

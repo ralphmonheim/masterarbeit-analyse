@@ -4,6 +4,17 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.16.2 - 2026-06-24
+
+### Added
+- Streamlit-Wetterseite fuer P008 Slice 5 erweitert: Importbutton im
+  Bereich `Wetterdatensaetze`, lokaler Importkatalog fuer eigene TRY-`.dat`
+  Dateien und getrennte aktive/offene Datensatzuebersichten.
+
+### Changed
+- ma_weather-Planung um den manuellen Download fehlender TRY-Jahres-, Sommer-
+  und Winterdateien beim Deutschen Wetterdienst ergaenzt.
+
 ## 0.16.1 - 2026-06-24
 
 ### Added

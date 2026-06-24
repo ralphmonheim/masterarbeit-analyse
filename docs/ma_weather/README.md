@@ -55,6 +55,13 @@ unter `logs/sessions/<session_id>.jsonl`.
 Reale TRY-Dateien werden vom Nutzer lokal unter `data/ma_weather/input/`
 bereitgestellt und nicht im Git-Repo versioniert.
 
+Slice 5 ergaenzt den lokalen Import in der Streamlit-Wetterseite. Der
+Importbutton liegt unten im Bereich `Wetterdatensaetze`, vor der Tabelle der
+aktiven Datensaetze. Eigene entpackte TRY-`.dat`-Dateien werden unter
+`data/ma_weather/input/custom/<weather_key>/` kopiert und in einem lokalen,
+nicht versionierten Katalog unter
+`data/ma_weather/config/datasets/weather_datasets_local.yaml` registriert.
+
 Der aktive Beispielkatalog enthaelt Datensaetze fuer Frankfurt am Main,
 Muenchen und Hamburg jeweils fuer 2015 und 2045 als Jahr-, Sommer- und
 Winterdatensatz.

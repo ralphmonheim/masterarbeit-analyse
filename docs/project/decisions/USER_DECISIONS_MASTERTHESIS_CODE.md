@@ -797,3 +797,26 @@ Stand: 2026-06-24
 - Offene Folgefragen: Fachliche Feinschaerfung der Ereignisdefinitionen und
   spaetere P021-Anbindung.
 - Quelle oder Chatbezug: aktueller Codex-Chat zu P008 ma_weather Slice 4
+
+## UD-060 ma_weather Importbutton liegt im Wetterdatensatzbereich
+
+- Datum: 2026-06-24
+- Thema: ma_weather UI und lokaler Wetterdatenimport
+- Entscheidung: Der Import eigener Wetterdatensaetze wird unten im Bereich
+  `Wetterdatensaetze` gefuehrt. Dort steht zuerst der Importbutton, danach
+  folgt die Uebersicht der aktiven Wetterdatensaetze und anschliessend eine
+  getrennte Uebersicht fuer offene Wetterdatensaetze.
+- Begruendung: Die Standort- und Wetterauswahl oben bleibt schlank. Import,
+  aktiver Bestand und offene Nacharbeit gehoeren fachlich zur
+  Datensatzverwaltung.
+- Auswirkung: Streamlit zeigt den Importdialog nicht in der oberen
+  Stadt-/Datensatzauswahl. Lokale Imports werden projektlokal abgelegt und
+  in einem lokalen, nicht versionierten Wetterkatalog registriert.
+- Betroffene Module oder Dateien: `src/ma_ui/pages/weather.py`,
+  `src/ma_weather/weather_imports.py`, `src/ma_weather/weather_catalog.py`,
+  `data/ma_weather/input/custom/`,
+  `data/ma_weather/config/datasets/weather_datasets_local.yaml`
+- Status: umgesetzt
+- Offene Folgefragen: ZIP-Import, automatische DWD-Downloads und neue
+  Standortpflege bleiben spaetere Slices.
+- Quelle oder Chatbezug: aktueller Codex-Chat zu P008 ma_weather Slice 5

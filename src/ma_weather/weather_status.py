@@ -70,12 +70,8 @@ class WeatherDatasetStatus:
 
     @property
     def is_regularly_selectable(self) -> bool:
-        """Regulaere Auswahl erlaubt nur vorhandene und nicht blockierte Daten."""
-        return (
-            self.file_exists
-            and self.import_status is not WeatherImportCheckStatus.ERROR
-            and self.release_status is not ReleaseStatus.BLOCKED
-        )
+        """Regulaere Auswahl blendet offene, fehlerhafte und blockierte Daten aus."""
+        return self.file_exists and not self.is_open
 
     @property
     def is_open(self) -> bool:
@@ -117,6 +113,9 @@ def inspect_weather_dataset_status(
     *,
     project_root: str | Path | None = None,
     validate_file: bool = False,
+    import_id: str = "",
+    session_id: str = "",
+    run_id: str = "",
 ) -> WeatherDatasetStatus:
     """Prueft Datei, optional Import und Validierung eines Wetterdatensatzes."""
     root = Path.cwd() if project_root is None else Path(project_root)
@@ -128,6 +127,9 @@ def inspect_weather_dataset_status(
             file_path=dataset.file_path,
             file_exists=False,
             file_status=WeatherFileStatus.MISSING,
+            import_id=import_id,
+            session_id=session_id,
+            run_id=run_id,
             error_count=1,
             messages=(f"Lokale TRY-Datei fehlt: {dataset.file_path}",),
         )
@@ -139,6 +141,9 @@ def inspect_weather_dataset_status(
             file_path=dataset.file_path,
             file_exists=True,
             file_status=WeatherFileStatus.AVAILABLE,
+            import_id=import_id,
+            session_id=session_id,
+            run_id=run_id,
         )
 
     try:
@@ -159,6 +164,9 @@ def inspect_weather_dataset_status(
             file_exists=True,
             file_status=WeatherFileStatus.AVAILABLE,
             import_status=WeatherImportCheckStatus.ERROR,
+            import_id=import_id,
+            session_id=session_id,
+            run_id=run_id,
             error_count=1,
             messages=(str(exc),),
         )
@@ -177,6 +185,9 @@ def inspect_weather_dataset_status(
         file_status=WeatherFileStatus.AVAILABLE,
         import_status=import_status,
         release_status=release_status,
+        import_id=import_id,
+        session_id=session_id,
+        run_id=run_id,
         source_id=import_result.source.source_id,
         row_count=import_result.row_count,
         warning_count=len(validation_report.validation_result.warnings),

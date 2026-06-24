@@ -37,6 +37,7 @@ data/ma_variants/database/*
 !data/ma_variants/database/.gitkeep
 data/ma_project/config/*
 data/ma_parameters/config/*
+data/ma_weather/config/*
 data/ma_weather/input/*
 !data/ma_weather/input/.gitkeep
 data/ma_weather/database/*

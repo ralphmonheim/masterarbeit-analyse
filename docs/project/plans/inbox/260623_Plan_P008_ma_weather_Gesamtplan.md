@@ -365,6 +365,8 @@ Bestehende Ordner bleiben verbindlich:
 | Pfad | Zweck |
 |---|---|
 | `data/ma_weather/input/` | lokale Originaldateien |
+| `data/ma_weather/input/custom/` | lokal importierte TRY-Dateien |
+| `data/ma_weather/config/datasets/` | lokaler, nicht versionierter Importkatalog |
 | `data/ma_weather/database/` | aufbereitete Wetterdaten |
 | `data/ma_weather/output/` | Wetterdiagramme |
 | `data/ma_weather/reports/` | Markdown- und Validierungsberichte |
@@ -400,6 +402,10 @@ Geplante UI-Bereiche innerhalb der bestehenden `ma_ui`-Struktur:
 
 Die erste Umsetzung soll die vorhandene Wetterseite schrittweise erweitern,
 nicht durch eine zweite UI-Struktur ersetzen.
+
+Der Importbutton liegt im Bereich `Wetterdatensaetze` vor der Uebersicht der
+aktiven Datensaetze. Danach folgt eine getrennte Uebersicht fuer offene
+Wetterdatensaetze.
 
 ## Offene Wetterdatensaetze
 
@@ -454,6 +460,9 @@ enthalten, wird aber nicht mehr als operative Reihenfolge verwendet.
 
 ### Slice 1 Bestand, Realtests und Auswahlstatus
 
+- fehlende TRY-Jahres-, Sommer- und Winterdateien beim Deutschen
+  Wetterdienst herunterladen und lokal unter `data/ma_weather/input/`
+  bereitstellen,
 - alle katalogisierten Wetterdatensaetze gegen lokale TRY-Dateien pruefen,
 - pro `weather_key` Datei-, Import-, Warnungs-, Fehler- und Freigabestatus
   ermitteln,
@@ -493,6 +502,22 @@ enthalten, wird aber nicht mehr als operative Reihenfolge verwendet.
 - strukturierte Ereignisobjekte fuer die spaetere P021-Nutzung bereitstellen,
 - keine automatische Uebergabe an P021 einfuehren.
 
+### Slice 5 Wetterdatenimport und DWD-Beschaffung
+
+- Importbutton unten im Bereich `Wetterdatensaetze` vor der aktiven
+  Datensatzuebersicht anzeigen,
+- DWD-Link zur manuellen TRY-Beschaffung im Importdialog bereitstellen,
+- entpackte TRY-`.dat`-Dateien lokal unter
+  `data/ma_weather/input/custom/<weather_key>/` ablegen,
+- lokale Importdatensaetze im nicht versionierten YAML-Katalog
+  `data/ma_weather/config/datasets/weather_datasets_local.yaml` registrieren,
+- Beispielkatalog und lokalen Importkatalog gemeinsam laden,
+- aktive und offene Wetterdatensaetze getrennt anzeigen,
+- offene, fehlerhafte oder noch freizugebende Datensaetze nicht regulaer
+  auswaehlbar machen,
+- keine automatische Aktivierung und keinen automatischen Projekt-Default nach
+  Import ausloesen.
+
 ### Spaetere Folgeschritte
 
 - Diagrammgestaltung fachlich pruefen,
@@ -503,6 +528,8 @@ enthalten, wird aber nicht mehr als operative Reihenfolge verwendet.
 
 - Alle 18 aktiven Jahr-, Sommer- und Winterdatensaetze sind real dokumentiert geprueft oder
   fehlende lokale Dateien sind nachvollziehbar gemeldet.
+- Fehlende TRY-Dateien sind als manueller DWD-Downloadschritt dokumentiert und
+  werden nicht synthetisch ersetzt.
 - Pflichtspalten, eindeutiger Zeitindex und 8760 Stunden sind je Jahresdatei
   nachvollziehbar.
 - Fehlende optionale Spalten fuehren zu strukturierten Warnungen.

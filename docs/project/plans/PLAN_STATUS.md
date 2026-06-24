@@ -370,9 +370,18 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   Winter-TRY-Dateien sind als eigene Datensaetze katalogisiert; kritische
   Wetterereignisse werden aus dem bewusst ausgewaehlten Datensatz abgeleitet
   und in Streamlit tabellarisch angezeigt.
+- P008 Slice 5 begonnen: Streamlit zeigt den Importbutton unten im Bereich
+  `Wetterdatensaetze`; eigene entpackte TRY-`.dat`-Dateien werden unter
+  `data/ma_weather/input/custom/<weather_key>/` abgelegt und in einem lokalen,
+  nicht versionierten YAML-Katalog unter
+  `data/ma_weather/config/datasets/weather_datasets_local.yaml` registriert.
+  Aktive und offene Wetterdatensaetze werden getrennt angezeigt.
 
 ### Offen
 
+- Fehlende TRY-Jahres-, Sommer- und Winterdateien beim Deutschen
+  Wetterdienst herunterladen und lokal unter `data/ma_weather/input/`
+  ablegen oder ueber den lokalen Streamlit-Import registrieren.
 - Weitere aktive Jahr-, Sommer- und Winterdatensaetze real gegen lokal
   vorhandene TRY-Dateien pruefen und Testergebnisse dokumentieren.
 - Fachliche Definition der kritischen Wetterereignisse fuer P021 schaerfen

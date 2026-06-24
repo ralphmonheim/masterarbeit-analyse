@@ -18,6 +18,10 @@ Markdown-Bericht.
 - Ein YAML-Standortkatalog liegt unter `config/ma_weather/locations/example_weather_locations.yaml`.
 - Die Streamlit-Wetterseite zeigt Stadt, Klimaregion, TRY-Referenzstandort und
   sortierte Wetterdatensaetze.
+- Unten im Bereich `Wetterdatensaetze` koennen entpackte TRY-`.dat`-Dateien
+  lokal importiert werden. Lokale Importdaten liegen unter
+  `data/ma_weather/input/custom/`; der lokale Katalog liegt unter
+  `data/ma_weather/config/datasets/weather_datasets_local.yaml`.
 
 ## Sammelbefehle
 
@@ -62,6 +66,11 @@ Der Befehl fuehrt folgende Schritte aus:
 Die gleiche Pipeline kann auch in `ma_ui` ueber die Seite `Wetterdaten`
 gestartet werden. Dort wird ein aktiver `weather_key` ausgewaehlt und die
 erzeugten Diagramme werden direkt angezeigt.
+
+Im Bereich `Wetterdatensaetze` steht zuerst der Button
+`Wetterdatensatz importieren`. Der Dialog enthaelt einen Link zur DWD-TRY-Seite
+und nimmt entpackte `.dat`-Dateien entgegen. Ein Import setzt weder Aktivierung
+noch Projekt-Default automatisch.
 
 Die Wetterseite zeigt zusaetzlich Quellenmetadaten, Diagnose-IDs und
 Fundstellen. Bei Warnungen muss der Lauf bewusst mit `Nicht freigeben` oder

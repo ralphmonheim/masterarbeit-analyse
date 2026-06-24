@@ -11,7 +11,14 @@ from ma_ui.pages.weather import (
     weather_source_rows,
 )
 from ma_validation import DiagnosticSeverity, ReleaseChoice, ReleaseStatus
-from ma_weather import WeatherDataset, import_weather_catalog, import_weather_location_catalog
+from ma_weather import (
+    WeatherDataset,
+    WeatherDatasetImportDraft,
+    import_local_weather_dataset,
+    import_weather_catalog,
+    import_weather_location_catalog,
+    suggest_weather_key,
+)
 from ma_weather.run_weather_analysis import record_weather_release_decision, run_weather_analysis
 from ma_weather.try_importer import import_try_weather_file
 from ma_weather.weather_catalog import DATASET_ROLE_SITE_SPECIFIC, DATASET_ROLE_TRY_REFERENCE
@@ -36,7 +43,7 @@ from ma_weather.weather_validation import validate_weather_dataframe
 
 
 def test_weather_catalog_imports_example_dataset():
-    catalog = import_weather_catalog()
+    catalog = import_weather_catalog(include_local=False)
 
     assert len(catalog.datasets) == 18
     assert len(catalog.active_datasets()) == 18
@@ -91,7 +98,7 @@ def test_weather_catalog_imports_example_dataset():
 
 
 def test_weather_catalog_allows_local_file_to_be_missing_by_default():
-    catalog = import_weather_catalog()
+    catalog = import_weather_catalog(include_local=False)
     dataset = catalog.get("TRY_FFM_2015_JAHR")
 
     assert dataset.resolved_file_path().name == "TRY2015_501262086894_Jahr.dat"
@@ -140,6 +147,37 @@ def test_weather_catalog_rejects_duplicate_weather_keys(tmp_path):
         import_weather_catalog(config_file)
 
 
+def test_weather_catalog_merges_local_import_catalog(tmp_path):
+    base_config = tmp_path / "base_weather_datasets.yaml"
+    local_config = tmp_path / "weather_datasets_local.yaml"
+    base_config.write_text(
+        "weather_datasets:\n"
+        "  - weather_key: TRY_BASE\n"
+        "    display_name: Base TRY\n"
+        "    file_path: data/ma_weather/input/base.dat\n"
+        "    file_format: TRY\n"
+        "    source: Test\n"
+        "    location: Base\n"
+        "    year_type: reference_year\n",
+        encoding="utf-8",
+    )
+    local_config.write_text(
+        "weather_datasets:\n"
+        "  - weather_key: TRY_LOCAL\n"
+        "    display_name: Local TRY\n"
+        "    file_path: data/ma_weather/input/custom/TRY_LOCAL/local.dat\n"
+        "    file_format: TRY\n"
+        "    source: Lokaler Import\n"
+        "    location: Local\n"
+        "    year_type: reference_year\n",
+        encoding="utf-8",
+    )
+
+    catalog = import_weather_catalog(base_config, local_config_path=local_config, include_local=True)
+
+    assert [dataset.weather_key for dataset in catalog.datasets] == ["TRY_BASE", "TRY_LOCAL"]
+
+
 def test_weather_catalog_rejects_invalid_dataset_role(tmp_path):
     config_file = tmp_path / "weather_datasets.yaml"
     config_file.write_text(
@@ -159,6 +197,121 @@ def test_weather_catalog_rejects_invalid_dataset_role(tmp_path):
         import_weather_catalog(config_file)
 
 
+def test_weather_key_suggestion_uses_type_suffix():
+    assert suggest_weather_key(location_code="FFM", year=2015, year_type="reference_year") == "TRY_FFM_2015_JAHR"
+    assert suggest_weather_key(location_code="Muenchen", year=2045, year_type="summer_extreme") == "TRY_MUENCHEN_2045_SOMM"
+
+
+def test_local_weather_import_copies_file_and_writes_relative_catalog(tmp_path):
+    existing_catalog = import_weather_catalog(include_local=False)
+    draft = WeatherDatasetImportDraft(
+        weather_key="TRY_LOCAL_TEST",
+        display_name="TRY Local Test",
+        original_filename="local_test.dat",
+        location="Testort",
+        year_type="reference_year",
+        climate_scenario="present",
+        dataset_role=DATASET_ROLE_SITE_SPECIFIC,
+        location_id="LOC_TEST",
+        reference_location_id="LOC_REF",
+    )
+
+    result = import_local_weather_dataset(
+        _small_try_file_content(),
+        draft=draft,
+        existing_catalog=existing_catalog,
+        project_root=tmp_path,
+        local_catalog_path=Path("data/ma_weather/config/datasets/weather_datasets_local.yaml"),
+        input_dir=Path("data/ma_weather/input/custom"),
+        session_id="session_test",
+        run_id="run_test",
+        import_id="import_test",
+    )
+
+    assert result.copied_file_path.exists()
+    assert result.dataset.file_path == Path("data/ma_weather/input/custom/TRY_LOCAL_TEST/local_test.dat")
+    assert result.dataset.file_path.is_absolute() is False
+    assert result.status.import_id == "import_test"
+    assert result.status.session_id == "session_test"
+    assert result.status.run_id == "run_test"
+    assert result.status.is_open is True
+    catalog_text = result.catalog_path.read_text(encoding="utf-8")
+    assert "TRY_LOCAL_TEST" in catalog_text
+    assert "data/ma_weather/input/custom/TRY_LOCAL_TEST/local_test.dat" in catalog_text
+
+
+def test_local_weather_import_rejects_duplicate_weather_key(tmp_path):
+    existing_catalog = import_weather_catalog(include_local=False)
+    draft = WeatherDatasetImportDraft(
+        weather_key="TRY_FFM_2015_JAHR",
+        display_name="TRY Duplicate",
+        original_filename="duplicate.dat",
+        location="Frankfurt am Main",
+        year_type="reference_year",
+        climate_scenario="present",
+        dataset_role=DATASET_ROLE_SITE_SPECIFIC,
+        location_id="LOC_049",
+        reference_location_id="LOC_053",
+    )
+
+    with pytest.raises(ValueError, match="bereits vorhanden"):
+        import_local_weather_dataset(
+            _small_try_file_content(),
+            draft=draft,
+            existing_catalog=existing_catalog,
+            project_root=tmp_path,
+        )
+
+
+def test_local_weather_import_rejects_invalid_metadata(tmp_path):
+    existing_catalog = import_weather_catalog(include_local=False)
+    draft = WeatherDatasetImportDraft(
+        weather_key="TRY BAD",
+        display_name="TRY Bad",
+        original_filename="bad.txt",
+        location="Testort",
+        year_type="unknown",
+        climate_scenario="present",
+        dataset_role=DATASET_ROLE_SITE_SPECIFIC,
+        location_id="LOC_TEST",
+        reference_location_id="LOC_REF",
+    )
+
+    with pytest.raises(ValueError, match="weather_key"):
+        import_local_weather_dataset(
+            b"not relevant",
+            draft=draft,
+            existing_catalog=existing_catalog,
+            project_root=tmp_path,
+        )
+
+
+def test_local_weather_import_reports_open_status_for_invalid_file(tmp_path):
+    existing_catalog = import_weather_catalog(include_local=False)
+    draft = WeatherDatasetImportDraft(
+        weather_key="TRY_LOCAL_BROKEN",
+        display_name="TRY Local Broken",
+        original_filename="broken.dat",
+        location="Testort",
+        year_type="reference_year",
+        climate_scenario="present",
+        dataset_role=DATASET_ROLE_SITE_SPECIFIC,
+        location_id="LOC_TEST",
+        reference_location_id="LOC_REF",
+    )
+
+    result = import_local_weather_dataset(
+        b"keine TRY Daten",
+        draft=draft,
+        existing_catalog=existing_catalog,
+        project_root=tmp_path,
+    )
+
+    assert result.status.is_open is True
+    assert result.status.error_count == 1
+    assert result.status.is_regularly_selectable is False
+
+
 def test_weather_location_catalog_resolves_city_region_and_reference():
     catalog = import_weather_location_catalog()
 
@@ -174,7 +327,7 @@ def test_weather_location_catalog_resolves_city_region_and_reference():
 
 
 def test_weather_dataset_selection_prioritizes_reference_then_site_specific():
-    weather_catalog = import_weather_catalog()
+    weather_catalog = import_weather_catalog(include_local=False)
     location_catalog = import_weather_location_catalog()
 
     hamburg = location_catalog.get_location_by_name("Hamburg")
@@ -445,7 +598,7 @@ def test_weather_dataset_status_reports_missing_and_warning(tmp_path):
     assert checked_status.import_status is WeatherImportCheckStatus.WARNING
     assert checked_status.release_status is ReleaseStatus.CONFIRMATION_REQUIRED
     assert checked_status.is_open is True
-    assert checked_status.is_regularly_selectable is True
+    assert checked_status.is_regularly_selectable is False
 
 
 def test_weather_selection_state_requires_release_before_activation(tmp_path):
@@ -573,3 +726,15 @@ def _write_small_try_file(directory: Path) -> Path:
         encoding="utf-8",
     )
     return try_file
+
+
+def _small_try_file_content() -> bytes:
+    return (
+        "Kopfbereich\n"
+        "***\n"
+        "MM DD HH t RF WR WG B D\n"
+        "1 1 1 5 80 180 2 0 0\n"
+        "1 1 2 15 70 190 3 10 5\n"
+        "1 1 3 30 55 200 4 30 20\n"
+        "1 1 4 31 50 210 5 50 30\n"
+    ).encode("utf-8")

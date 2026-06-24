@@ -29,18 +29,32 @@ Der aktuelle Stand umfasst:
 3. TRY-Referenzdatensatz zuerst empfehlen, sofern er katalogisiert ist.
 4. Standortgenaue Datensaetze fuer die gewaehlte Stadt zusaetzlich anbieten.
 5. Datensatz ueber `weather_key` aus dem Katalog auswaehlen.
-6. TRY-Datei lokal unter `data/ma_weather/input/` bereitstellen.
-7. TRY-Datei importieren und validieren.
-8. Import-ID, Quellenmetadaten, Validierungsstatus und Sitzungslog
+6. Fehlende TRY-Jahres-, Sommer- und Winterdateien beim Deutschen
+   Wetterdienst herunterladen.
+7. Eigene entpackte TRY-`.dat`-Datei in Streamlit im Bereich
+   `Wetterdatensaetze` importieren oder manuell unter
+   `data/ma_weather/input/` bereitstellen.
+8. TRY-Datei importieren und validieren.
+9. Import-ID, Quellenmetadaten, Validierungsstatus und Sitzungslog
    miteinander verknuepfen.
-9. Wetterkennwerte berechnen.
-10. Aufbereitete Wetterdaten unter `data/ma_weather/database/` schreiben.
-11. Diagramme unter `data/ma_weather/output/` schreiben.
-12. Bericht unter `data/ma_weather/reports/` schreiben.
-13. Freigegebene Datensaetze bewusst aktivieren.
-14. Einen aktivierten Datensatz bewusst als Projekt-Default setzen.
-15. Kritische Wetterereignisse aus genau diesem ausgewaehlten Datensatz
+10. Wetterkennwerte berechnen.
+11. Aufbereitete Wetterdaten unter `data/ma_weather/database/` schreiben.
+12. Diagramme unter `data/ma_weather/output/` schreiben.
+13. Bericht unter `data/ma_weather/reports/` schreiben.
+14. Freigegebene Datensaetze bewusst aktivieren.
+15. Einen aktivierten Datensatz bewusst als Projekt-Default setzen.
+16. Kritische Wetterereignisse aus genau diesem ausgewaehlten Datensatz
     erkennen und fuer spaetere P021-Nutzung anzeigen.
+
+Der DWD-Download bleibt ein manueller Vorbereitungsschritt. Die TRY-Dateien
+werden nicht versioniert; im Repo liegen nur Katalogeintraege, Pfade und
+Dokumentation.
+
+Lokale UI-Imports werden unter
+`data/ma_weather/input/custom/<weather_key>/` abgelegt. Der zugehoerige lokale
+Katalog liegt unter
+`data/ma_weather/config/datasets/weather_datasets_local.yaml` und wird nicht
+versioniert.
 
 ## Verbindung zu Varianten
 
@@ -79,6 +93,11 @@ Die lokale UI kann den Bestand pruefen und zeigt pro `weather_key`, ob die
 Datei fehlt, vorhanden ist, Warnungen besitzt, fehlerhaft ist oder freigegeben
 wurde. Jeder Analyseimport erzeugt eine `import_id`, die mit `session_id`,
 `run_id`, Quelle, Validierung und Sitzungslog verbunden wird.
+
+Der Importbutton sitzt in Streamlit unten im Bereich `Wetterdatensaetze`.
+Darunter folgen die getrennten Uebersichten `Aktive Wetterdatensaetze` und
+`Offene Wetterdatensaetze`. Offene Datensaetze sind sichtbar, aber nicht
+regulaer auswaehlbar.
 
 Aktivierung und Projekt-Default werden lokal unter
 `data/ma_weather/database/weather_selection_state.yaml` gespeichert. Diese Datei

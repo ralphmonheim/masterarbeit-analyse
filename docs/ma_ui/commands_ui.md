@@ -112,7 +112,9 @@ Alternative:
 - Die Seite `Wetterdaten` erlaubt die Auswahl eines aktiven `weather_key`,
   startet die lokale `ma_weather`-Analyse und zeigt erzeugte Wetterdiagramme
   direkt in Streamlit an. Die Analysebedienung steht oben; die Uebersicht der
-  Wetterdatensaetze steht darunter.
+  Wetterdatensaetze steht darunter. Im Bereich `Wetterdatensaetze` steht zuerst
+  der Importbutton fuer lokale TRY-`.dat`-Dateien; danach folgen getrennte
+  Uebersichten fuer aktive und offene Wetterdatensaetze.
 - Wetterdiagnosen zeigen ID, Code, Problem und Fundstelle. Fehler blockieren
   die Freigabe; Warnungen verlangen eine bewusste laufgebundene Entscheidung.
   Lauf und Entscheidung werden unter `logs/sessions/` protokolliert.

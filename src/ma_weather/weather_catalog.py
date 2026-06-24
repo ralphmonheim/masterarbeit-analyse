@@ -9,6 +9,7 @@ from typing import Any
 import yaml
 
 DEFAULT_WEATHER_DATASETS_CONFIG = Path("config/ma_weather/datasets/example_weather_datasets.yaml")
+DEFAULT_LOCAL_WEATHER_DATASETS_CONFIG = Path("data/ma_weather/config/datasets/weather_datasets_local.yaml")
 
 DATASET_ROLE_TRY_REFERENCE = "try_reference"
 DATASET_ROLE_SITE_SPECIFIC = "site_specific"
@@ -108,43 +109,57 @@ class WeatherCatalog:
 def import_weather_catalog(
     config_path: str | Path = DEFAULT_WEATHER_DATASETS_CONFIG,
     *,
+    local_config_path: str | Path | None = DEFAULT_LOCAL_WEATHER_DATASETS_CONFIG,
+    include_local: bool | None = None,
     require_existing_files: bool = False,
 ) -> WeatherCatalog:
-    """Laedt den Wetterkatalog aus einer YAML-Datei.
+    """Laedt den Wetterkatalog aus einer oder zwei YAML-Dateien.
 
     Reale TRY-Dateien duerfen lokal fehlen, solange `require_existing_files`
     nicht gesetzt ist. Dadurch kann das Repo nur die Struktur versionieren.
+    Bei Nutzung des Standardkatalogs wird ein vorhandener lokaler Importkatalog
+    aus `data/ma_weather/config` automatisch ergaenzt.
     """
     path = Path(config_path)
-    raw_config = _load_yaml_object(path)
-    raw_datasets = raw_config.get("weather_datasets", [])
-    if not isinstance(raw_datasets, list):
-        raise ValueError("weather_datasets muss eine Liste sein.")
+    if include_local is None:
+        include_local = path == DEFAULT_WEATHER_DATASETS_CONFIG
+    config_paths = [path]
+    if include_local and local_config_path is not None:
+        local_path = Path(local_config_path)
+        if local_path.exists():
+            config_paths.append(local_path)
 
     datasets: list[WeatherDataset] = []
     errors: list[str] = []
     seen_keys: set[str] = set()
 
-    for index, raw_dataset in enumerate(raw_datasets, start=1):
-        if not isinstance(raw_dataset, dict):
-            errors.append(f"weather_datasets[{index}] muss ein Objekt sein.")
+    for config_file in config_paths:
+        raw_config = _load_yaml_object(config_file)
+        raw_datasets = raw_config.get("weather_datasets", [])
+        if not isinstance(raw_datasets, list):
+            errors.append(f"{config_file}: weather_datasets muss eine Liste sein.")
             continue
 
-        dataset_errors = _validate_dataset_record(raw_dataset, index)
-        weather_key = str(raw_dataset.get("weather_key", "")).strip()
-        if weather_key and weather_key in seen_keys:
-            dataset_errors.append(f"weather_datasets[{index}].weather_key ist doppelt: {weather_key}")
-        seen_keys.add(weather_key)
+        for index, raw_dataset in enumerate(raw_datasets, start=1):
+            if not isinstance(raw_dataset, dict):
+                errors.append(f"{config_file}: weather_datasets[{index}] muss ein Objekt sein.")
+                continue
 
-        if dataset_errors:
-            errors.extend(dataset_errors)
-            continue
+            dataset_errors = _validate_dataset_record(raw_dataset, index, source_path=config_file)
+            weather_key = str(raw_dataset.get("weather_key", "")).strip()
+            if weather_key and weather_key in seen_keys:
+                dataset_errors.append(f"{config_file}: weather_datasets[{index}].weather_key ist doppelt: {weather_key}")
+            seen_keys.add(weather_key)
 
-        dataset = _build_weather_dataset(raw_dataset)
-        if require_existing_files and not dataset.resolved_file_path().exists():
-            errors.append(f"Datei fuer {dataset.weather_key} nicht gefunden: {dataset.file_path}")
-            continue
-        datasets.append(dataset)
+            if dataset_errors:
+                errors.extend(dataset_errors)
+                continue
+
+            dataset = _build_weather_dataset(raw_dataset)
+            if require_existing_files and not dataset.resolved_file_path().exists():
+                errors.append(f"Datei fuer {dataset.weather_key} nicht gefunden: {dataset.file_path}")
+                continue
+            datasets.append(dataset)
 
     if errors:
         raise ValueError("; ".join(errors))
@@ -163,35 +178,41 @@ def _load_yaml_object(path: Path) -> dict[str, Any]:
     return data
 
 
-def _validate_dataset_record(raw_dataset: dict[str, Any], index: int) -> list[str]:
+def _validate_dataset_record(
+    raw_dataset: dict[str, Any],
+    index: int,
+    *,
+    source_path: Path | None = None,
+) -> list[str]:
     errors: list[str] = []
+    prefix = f"{source_path}: " if source_path is not None else ""
     for field_name in REQUIRED_TEXT_FIELDS:
         value = raw_dataset.get(field_name)
         if not isinstance(value, str) or not value.strip():
-            errors.append(f"weather_datasets[{index}].{field_name} fehlt oder ist leer.")
+            errors.append(f"{prefix}weather_datasets[{index}].{field_name} fehlt oder ist leer.")
 
     is_active = raw_dataset.get("is_active", True)
     if not isinstance(is_active, bool):
-        errors.append(f"weather_datasets[{index}].is_active muss true oder false sein.")
+        errors.append(f"{prefix}weather_datasets[{index}].is_active muss true oder false sein.")
 
     dataset_role = str(raw_dataset.get("dataset_role", "")).strip()
     location_id = str(raw_dataset.get("location_id", "")).strip()
     reference_location_id = str(raw_dataset.get("reference_location_id", "")).strip()
     if dataset_role and dataset_role not in VALID_DATASET_ROLES:
         errors.append(
-            f"weather_datasets[{index}].dataset_role ist ungueltig: {dataset_role}. "
+            f"{prefix}weather_datasets[{index}].dataset_role ist ungueltig: {dataset_role}. "
             f"Erlaubt sind {', '.join(VALID_DATASET_ROLES)}."
         )
     if not dataset_role and (location_id or reference_location_id):
-        errors.append(f"weather_datasets[{index}].dataset_role fehlt fuer die Standortzuordnung.")
+        errors.append(f"{prefix}weather_datasets[{index}].dataset_role fehlt fuer die Standortzuordnung.")
     if dataset_role == DATASET_ROLE_TRY_REFERENCE and not reference_location_id:
-        errors.append(f"weather_datasets[{index}].reference_location_id fehlt fuer TRY-Referenzdatensatz.")
+        errors.append(f"{prefix}weather_datasets[{index}].reference_location_id fehlt fuer TRY-Referenzdatensatz.")
     if dataset_role == DATASET_ROLE_SITE_SPECIFIC and not location_id:
-        errors.append(f"weather_datasets[{index}].location_id fehlt fuer standortgenauen Datensatz.")
+        errors.append(f"{prefix}weather_datasets[{index}].location_id fehlt fuer standortgenauen Datensatz.")
 
     selection_priority = raw_dataset.get("selection_priority", 100)
     if not isinstance(selection_priority, int) or selection_priority < 0:
-        errors.append(f"weather_datasets[{index}].selection_priority muss eine nichtnegative Ganzzahl sein.")
+        errors.append(f"{prefix}weather_datasets[{index}].selection_priority muss eine nichtnegative Ganzzahl sein.")
     return errors
 
 

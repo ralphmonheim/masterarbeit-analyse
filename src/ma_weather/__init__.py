@@ -8,6 +8,16 @@ from .run_weather_analysis import (
 from .try_importer import TryImportResult, import_try_weather_file
 from .weather_catalog import DEFAULT_WEATHER_DATASETS_CONFIG, WeatherCatalog, WeatherDataset, import_weather_catalog
 from .weather_events import WeatherEvent, detect_critical_weather_events, weather_event_rows
+from .weather_imports import (
+    DWD_TRY_URL,
+    LOCAL_WEATHER_DATASETS_CONFIG,
+    LOCAL_WEATHER_INPUT_DIR,
+    WeatherDatasetImportDraft,
+    WeatherDatasetImportResult,
+    import_local_weather_dataset,
+    suggest_weather_key,
+    validate_weather_import_draft,
+)
 from .weather_locations import (
     DEFAULT_WEATHER_LOCATIONS_CONFIG,
     WeatherLocation,
@@ -45,11 +55,16 @@ __all__ = [
     "DEFAULT_WEATHER_DATASETS_CONFIG",
     "DEFAULT_WEATHER_LOCATIONS_CONFIG",
     "DEFAULT_WEATHER_SELECTION_STATE_PATH",
+    "DWD_TRY_URL",
+    "LOCAL_WEATHER_DATASETS_CONFIG",
+    "LOCAL_WEATHER_INPUT_DIR",
     "TryImportResult",
     "WeatherActivationRecord",
     "WeatherAnalysisResult",
     "WeatherCatalog",
     "WeatherDataset",
+    "WeatherDatasetImportDraft",
+    "WeatherDatasetImportResult",
     "WeatherDatasetStatus",
     "WeatherEvent",
     "WeatherFileStatus",
@@ -68,6 +83,7 @@ __all__ = [
     "detect_critical_weather_events",
     "infer_weather_start_year",
     "import_try_weather_file",
+    "import_local_weather_dataset",
     "import_weather_catalog",
     "import_weather_location_catalog",
     "inspect_weather_catalog_statuses",
@@ -78,6 +94,8 @@ __all__ = [
     "run_weather_analysis",
     "save_weather_selection_state",
     "set_project_default_weather_dataset",
+    "suggest_weather_key",
+    "validate_weather_import_draft",
     "validate_weather_dataframe",
     "weather_event_rows",
     "weather_status_from_analysis_result",
