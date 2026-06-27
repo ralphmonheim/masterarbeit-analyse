@@ -298,8 +298,9 @@ Aktueller Umsetzungsstand:
   erhalten; Varianten- und Raumumfang steuern die Auswahl.
 - Der Aktionsbereich mit `Vorschau aktualisieren` und `Analyse starten` ist in
   Streamlit nicht einklappbar.
-- Plot-Template-Overlays werden erst nach Varianten- und Raumauswahl
-  angeboten, damit der Overlay-Katalog gezielt aus lokalen Daten gelesen wird.
+- Plot-Template-Overlays werden direkt nach `Template / Diagramm` angeboten.
+  Der Katalog wird erst nach Varianten- und Raumauswahl befuellt, damit er
+  gezielt aus lokalen Daten gelesen wird.
 - Der Overlay-Bereich ist ein eigener optionaler Schritt. Er wird nur sichtbar,
   wenn das Template Overlays unterstuetzt und die Checkbox unter
   `Template / Diagramm` aktiviert wurde.
@@ -342,8 +343,9 @@ Ziel: Streamlit als zentrale Oberflaeche fuer den Gesamtworkflow erweitern.
 Aufgaben:
 
 - `ma_weather` anbinden.
-- Wetterdiagramme bleiben zunaechst im Modulbereich `ma_weather`; ein eigener
-  UI-Befehl `plot-template-weather` bleibt ein offener spaeterer Strukturpunkt.
+- Wetterdiagramme bleiben im Modulbereich `ma_weather`; der eigene Befehl
+  `plot-template-weather` ist dort als CLI-/UI-Auswahl fuer `all` oder einzelne
+  vorhandene Wetterdiagramme aufgebaut.
 - `ma_variants` anbinden.
 - `ma_parameters` anbinden.
 - `ma_simulation_setup` anbinden.

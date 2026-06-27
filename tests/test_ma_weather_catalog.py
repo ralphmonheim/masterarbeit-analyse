@@ -1,3 +1,4 @@
+import importlib
 from dataclasses import replace
 from pathlib import Path
 
@@ -12,14 +13,28 @@ from ma_ui.pages.weather import (
 from ma_core import InputSourceKind
 from ma_validation import DiagnosticSeverity, ReleaseChoice, ReleaseStatus
 from ma_weather import (
+    ALL_WEATHER_PLOTS,
+    WEATHER_PLOT_CHOICES,
+    WEATHER_PLOT_SPECS,
+    WeatherCatalog,
     WeatherDataset,
     WeatherDatasetImportDraft,
+    WeatherDiscoveryStatus,
+    WeatherLocationMappingSuggestion,
+    build_weather_plot,
+    discover_weather_input_files,
     import_local_weather_dataset,
     import_weather_catalog,
     import_weather_location_catalog,
+    register_discovered_weather_dataset,
+    stage_weather_input_file,
     suggest_weather_key,
+    suggest_weather_location_mapping,
+    update_weather_file_discovery,
+    validate_weather_file_discovery,
+    weather_discovery_rows,
 )
-from ma_weather.run_weather_analysis import record_weather_release_decision, run_weather_analysis
+from ma_weather.run_weather_analysis import plot_template_weather, record_weather_release_decision, run_weather_analysis
 from ma_weather.try_importer import import_try_weather_file
 from ma_weather.weather_catalog import DATASET_ROLE_SITE_SPECIFIC, DATASET_ROLE_TRY_REFERENCE
 from ma_weather.weather_events import detect_critical_weather_events, weather_event_rows
@@ -202,6 +217,261 @@ def test_weather_key_suggestion_uses_type_suffix():
     assert suggest_weather_key(location_code="Muenchen", year=2045, year_type="summer_extreme") == "TRY_MUENCHEN_2045_SOMM"
 
 
+def test_weather_file_discovery_finds_mannheim_try_files():
+    mannheim_dir = Path("data/ma_weather/input/TRY_494997084777")
+    if not mannheim_dir.exists():
+        pytest.skip(f"Lokaler Mannheim-TRY-Ordner nicht vorhanden: {mannheim_dir}")
+
+    discoveries = discover_weather_input_files(
+        existing_catalog=import_weather_catalog(include_local=False),
+        location_catalog=import_weather_location_catalog(),
+    )
+    discoveries_by_key = {discovery.weather_key: discovery for discovery in discoveries}
+
+    assert set(discoveries_by_key) >= {
+        "TRY_MA_2015_JAHR",
+        "TRY_MA_2015_SOMM",
+        "TRY_MA_2015_WINT",
+        "TRY_MA_2045_JAHR",
+        "TRY_MA_2045_SOMM",
+        "TRY_MA_2045_WINT",
+    }
+    mannheim_discoveries = [
+        discovery
+        for discovery in discoveries
+        if discovery.try_folder_key == "TRY_494997084777"
+    ]
+    assert len(mannheim_discoveries) == 6
+    assert all(discovery.status is WeatherDiscoveryStatus.READY for discovery in mannheim_discoveries)
+    assert all(discovery.location_id == "LOC_053" for discovery in mannheim_discoveries)
+    assert all(discovery.reference_location_id == "LOC_053" for discovery in mannheim_discoveries)
+    assert all(discovery.dataset_role == DATASET_ROLE_TRY_REFERENCE for discovery in mannheim_discoveries)
+    assert {discovery.dataset_type for discovery in mannheim_discoveries} == {"Jahr", "Sommer", "Winter"}
+    assert {discovery.climate_scenario for discovery in mannheim_discoveries} == {"present", "future_2045"}
+    assert "TRY_501262086894" not in {discovery.try_folder_key for discovery in discoveries}
+    assert weather_discovery_rows(mannheim_discoveries)[0]["TRY-Ordner"] == "TRY_494997084777"
+
+
+def test_weather_file_discovery_creates_open_draft_without_location_mapping(tmp_path):
+    try_file = tmp_path / "data" / "ma_weather" / "input" / "TRY_000000000000" / "TRY2015_000000000000_Jahr.dat"
+    _write_try_header_file(try_file)
+
+    discoveries = discover_weather_input_files(
+        existing_catalog=WeatherCatalog([]),
+        location_catalog=import_weather_location_catalog(),
+        project_root=tmp_path,
+    )
+
+    assert len(discoveries) == 1
+    discovery = discoveries[0]
+    assert discovery.status is WeatherDiscoveryStatus.OPEN
+    assert "location_id" in discovery.missing_fields
+    assert discovery.is_complete is False
+
+
+def test_weather_file_discovery_keeps_candidate_mapping_open(tmp_path):
+    try_file = tmp_path / "data" / "ma_weather" / "input" / "TRY_000000000000" / "TRY2015_000000000000_Jahr.dat"
+    mapping_file = tmp_path / "config" / "ma_weather" / "try_locations" / "example_try_file_locations.yaml"
+    _write_try_header_file(try_file)
+    mapping_file.parent.mkdir(parents=True)
+    mapping_file.write_text(
+        "try_file_locations:\n"
+        "  - try_folder_key: TRY_000000000000\n"
+        "    location_id: LOC_053\n"
+        "    mapping_status: candidate\n"
+        "    mapping_source: Koordinatenabschaetzung\n",
+        encoding="utf-8",
+    )
+
+    discovery = discover_weather_input_files(
+        existing_catalog=WeatherCatalog([]),
+        location_catalog=import_weather_location_catalog(),
+        mapping_path=mapping_file.relative_to(tmp_path),
+        project_root=tmp_path,
+    )[0]
+
+    assert discovery.status is WeatherDiscoveryStatus.OPEN
+    assert discovery.location_id == ""
+    assert discovery.metadata["mapping_status"] == "candidate"
+    assert "location_id" in discovery.missing_fields
+
+
+def test_weather_file_discovery_suggests_location_from_coordinates_without_auto_assignment(tmp_path):
+    known_file = tmp_path / "data" / "ma_weather" / "input" / "TRY_494997084777" / "TRY2015_494997084777_Jahr.dat"
+    unknown_file = tmp_path / "data" / "ma_weather" / "input" / "TRY_000000000000" / "TRY2015_000000000000_Jahr.dat"
+    mapping_file = tmp_path / "config" / "ma_weather" / "try_locations" / "example_try_file_locations.yaml"
+    _write_try_header_file(known_file)
+    _write_try_header_file(unknown_file)
+    mapping_file.parent.mkdir(parents=True)
+    mapping_file.write_text(
+        "try_file_locations:\n"
+        "  - try_folder_key: TRY_494997084777\n"
+        "    location_id: LOC_053\n"
+        "    mapping_status: confirmed\n",
+        encoding="utf-8",
+    )
+    location_catalog = import_weather_location_catalog()
+
+    discoveries = discover_weather_input_files(
+        existing_catalog=WeatherCatalog([]),
+        location_catalog=location_catalog,
+        mapping_path=mapping_file.relative_to(tmp_path),
+        project_root=tmp_path,
+    )
+    known_discovery = next(discovery for discovery in discoveries if discovery.try_folder_key == "TRY_494997084777")
+    unknown_discovery = next(discovery for discovery in discoveries if discovery.try_folder_key == "TRY_000000000000")
+
+    assert unknown_discovery.location_id == ""
+    assert unknown_discovery.metadata["suggested_location_id"] == "LOC_053"
+    assert unknown_discovery.metadata["suggested_confidence"] == "hoch"
+    assert "location_id" in unknown_discovery.missing_fields
+    suggestion = suggest_weather_location_mapping(
+        unknown_discovery,
+        location_catalog=location_catalog,
+        reference_discoveries=[known_discovery],
+    )
+    assert isinstance(suggestion, WeatherLocationMappingSuggestion)
+    assert suggestion.location_id == "LOC_053"
+
+
+def test_stage_weather_input_file_writes_try_file_without_catalog_entry(tmp_path):
+    staged_file = stage_weather_input_file(
+        _small_try_file_content(),
+        original_filename="TRY2015_494997084777_Jahr.dat",
+        project_root=tmp_path,
+    )
+
+    assert staged_file.file_path == Path("data/ma_weather/input/TRY_494997084777/TRY2015_494997084777_Jahr.dat")
+    assert staged_file.try_folder_key == "TRY_494997084777"
+    assert (tmp_path / staged_file.file_path).exists()
+    assert not (tmp_path / "data" / "ma_weather" / "config" / "datasets" / "weather_datasets_local.yaml").exists()
+
+
+def test_stage_weather_input_file_rejects_unclear_filename(tmp_path):
+    with pytest.raises(ValueError, match="TRY-Muster"):
+        stage_weather_input_file(
+            _small_try_file_content(),
+            original_filename="mannheim.dat",
+            project_root=tmp_path,
+        )
+
+
+def test_update_weather_file_discovery_adjusts_location_and_reference(tmp_path):
+    try_file = tmp_path / "data" / "ma_weather" / "input" / "TRY_494997084777" / "TRY2015_494997084777_Jahr.dat"
+    mapping_file = tmp_path / "config" / "ma_weather" / "try_locations" / "example_try_file_locations.yaml"
+    _write_try_header_file(try_file)
+    mapping_file.parent.mkdir(parents=True)
+    mapping_file.write_text(
+        "try_file_locations:\n"
+        "  - try_folder_key: TRY_494997084777\n"
+        "    location_id: LOC_053\n",
+        encoding="utf-8",
+    )
+    location_catalog = import_weather_location_catalog()
+    discovery = discover_weather_input_files(
+        existing_catalog=WeatherCatalog([]),
+        location_catalog=location_catalog,
+        mapping_path=mapping_file.relative_to(tmp_path),
+        project_root=tmp_path,
+    )[0]
+
+    updated_discovery = update_weather_file_discovery(
+        discovery,
+        location_catalog=location_catalog,
+        location_id="LOC_049",
+        dataset_type="Sommer",
+        climate_scenario="future_2045",
+        dataset_role=DATASET_ROLE_SITE_SPECIFIC,
+        year=2045,
+        weather_key="TRY_FFM_2045_SOMM_LOCAL",
+        display_name="TRY Frankfurt 2045 Sommer Local",
+    )
+
+    assert updated_discovery.location_id == "LOC_049"
+    assert updated_discovery.reference_location_id == "LOC_053"
+    assert updated_discovery.year_type == "summer_extreme"
+    assert updated_discovery.climate_scenario == "future_2045"
+    assert updated_discovery.dataset_role == DATASET_ROLE_SITE_SPECIFIC
+    assert updated_discovery.is_complete is True
+
+
+def test_validate_weather_file_discovery_blocks_duplicate_key(tmp_path):
+    try_file = tmp_path / "data" / "ma_weather" / "input" / "TRY_494997084777" / "TRY2015_494997084777_Jahr.dat"
+    mapping_file = tmp_path / "config" / "ma_weather" / "try_locations" / "example_try_file_locations.yaml"
+    try_file.parent.mkdir(parents=True)
+    try_file.write_bytes(_small_try_file_content())
+    mapping_file.parent.mkdir(parents=True)
+    mapping_file.write_text(
+        "try_file_locations:\n"
+        "  - try_folder_key: TRY_494997084777\n"
+        "    location_id: LOC_053\n",
+        encoding="utf-8",
+    )
+    location_catalog = import_weather_location_catalog()
+    discovery = discover_weather_input_files(
+        existing_catalog=WeatherCatalog([]),
+        location_catalog=location_catalog,
+        mapping_path=mapping_file.relative_to(tmp_path),
+        project_root=tmp_path,
+    )[0]
+    duplicate_catalog = WeatherCatalog([
+        WeatherDataset(
+            weather_key=discovery.weather_key,
+            display_name="Duplicate",
+            file_path=Path("data/ma_weather/input/duplicate.dat"),
+            file_format="TRY",
+            source="DWD TRY",
+            location="Mannheim",
+            year_type="reference_year",
+        )
+    ])
+
+    result = validate_weather_file_discovery(
+        discovery,
+        existing_catalog=duplicate_catalog,
+        project_root=tmp_path,
+        warnings_released=True,
+    )
+
+    assert result.can_register is False
+    assert any("weather_key ist bereits vorhanden" in message for message in result.messages)
+
+
+def test_register_discovered_weather_dataset_writes_relative_local_catalog(tmp_path):
+    try_file = tmp_path / "data" / "ma_weather" / "input" / "TRY_494997084777" / "TRY2015_494997084777_Jahr.dat"
+    mapping_file = tmp_path / "config" / "ma_weather" / "try_locations" / "example_try_file_locations.yaml"
+    _write_try_header_file(try_file)
+    mapping_file.parent.mkdir(parents=True)
+    mapping_file.write_text(
+        "try_file_locations:\n"
+        "  - try_folder_key: TRY_494997084777\n"
+        "    location_id: LOC_053\n",
+        encoding="utf-8",
+    )
+    discoveries = discover_weather_input_files(
+        existing_catalog=WeatherCatalog([]),
+        location_catalog=import_weather_location_catalog(),
+        mapping_path=mapping_file.relative_to(tmp_path),
+        project_root=tmp_path,
+    )
+
+    dataset = register_discovered_weather_dataset(
+        discoveries[0],
+        existing_catalog=WeatherCatalog([]),
+        local_catalog_path=Path("data/ma_weather/config/datasets/weather_datasets_local.yaml"),
+        project_root=tmp_path,
+    )
+
+    assert dataset.weather_key == "TRY_MA_2015_JAHR"
+    assert dataset.file_path == Path("data/ma_weather/input/TRY_494997084777/TRY2015_494997084777_Jahr.dat")
+    assert dataset.file_path.is_absolute() is False
+    assert dataset.dataset_role == DATASET_ROLE_TRY_REFERENCE
+    local_catalog = tmp_path / "data" / "ma_weather" / "config" / "datasets" / "weather_datasets_local.yaml"
+    catalog_text = local_catalog.read_text(encoding="utf-8")
+    assert "TRY_MA_2015_JAHR" in catalog_text
+    assert "data/ma_weather/input/TRY_494997084777/TRY2015_494997084777_Jahr.dat" in catalog_text
+
+
 def test_local_weather_import_copies_file_and_writes_relative_catalog(tmp_path):
     existing_catalog = import_weather_catalog(include_local=False)
     draft = WeatherDatasetImportDraft(
@@ -380,6 +650,19 @@ def test_weather_placeholder_modules_are_importable():
         assert callable(function)
 
 
+def test_weather_plot_catalog_lists_existing_diagrams():
+    assert ALL_WEATHER_PLOTS == "all"
+    assert WEATHER_PLOT_CHOICES == tuple(spec.plot_key for spec in WEATHER_PLOT_SPECS)
+    assert WEATHER_PLOT_CHOICES == (
+        "temperature_year",
+        "temperature_heatmap",
+        "monthly_radiation",
+        "monthly_degree_hours",
+        "wind_rose",
+        "temperature_humidity_scatter",
+    )
+
+
 def test_try_importer_reads_data_block_and_calculates_global_radiation(tmp_path):
     try_file = _write_small_try_file(tmp_path)
 
@@ -503,6 +786,42 @@ def test_weather_plots_and_report_are_written(tmp_path):
     assert "Wetterbericht TRY_TEST" in report_path.read_text(encoding="utf-8")
 
 
+def test_weather_plot_builder_allows_single_plot_and_all(tmp_path):
+    import_result = import_try_weather_file(_write_small_try_file(tmp_path), weather_key="TRY_TEST")
+
+    single_result = build_weather_plot(
+        import_result.data,
+        weather_key="TRY_TEST",
+        output_dir=tmp_path / "single_plot",
+        plot_key="temperature_year",
+    )
+    selected_results = build_weather_plots(
+        import_result.data,
+        weather_key="TRY_TEST",
+        output_dir=tmp_path / "selected_plots",
+        plot_keys=("temperature_year",),
+    )
+    all_results = build_weather_plots(
+        import_result.data,
+        weather_key="TRY_TEST",
+        output_dir=tmp_path / "all_plots",
+        plot_keys=ALL_WEATHER_PLOTS,
+    )
+
+    assert single_result.plot_key == "temperature_year"
+    assert single_result.path is not None
+    assert single_result.path.exists()
+    assert [result.plot_key for result in selected_results] == ["temperature_year"]
+    assert tuple(result.plot_key for result in all_results) == WEATHER_PLOT_CHOICES
+    with pytest.raises(ValueError, match="Unbekanntes Wetterdiagramm"):
+        build_weather_plot(
+            import_result.data,
+            weather_key="TRY_TEST",
+            output_dir=tmp_path / "invalid_plot",
+            plot_key="unknown",
+        )
+
+
 def test_weather_runner_processes_catalog_dataset(tmp_path):
     input_dir = tmp_path / "data" / "ma_weather" / "input"
     input_dir.mkdir(parents=True)
@@ -564,6 +883,64 @@ def test_weather_runner_processes_catalog_dataset(tmp_path):
     assert '"event_type": "release_decided"' in log_text
     assert "weather_import_test" in log_text
     assert decision.decision_id in log_text
+
+
+def test_plot_template_weather_runner_allows_single_plot(tmp_path):
+    input_dir = tmp_path / "data" / "ma_weather" / "input"
+    input_dir.mkdir(parents=True)
+    try_file = _write_small_try_file(input_dir)
+    catalog_file = tmp_path / "weather_datasets.yaml"
+    catalog_file.write_text(
+        "weather_datasets:\n"
+        "  - weather_key: TRY_TEST\n"
+        "    display_name: Test TRY\n"
+        f"    file_path: {try_file.relative_to(tmp_path).as_posix()}\n"
+        "    file_format: TRY\n"
+        "    source: Test\n"
+        "    location: Testort\n"
+        "    year_type: test_year\n",
+        encoding="utf-8",
+    )
+
+    result = plot_template_weather(
+        "TRY_TEST",
+        catalog_path=catalog_file,
+        project_root=tmp_path,
+        plot_key="temperature_year",
+        print_summary=False,
+    )
+
+    assert [plot.plot_key for plot in result.plot_results] == ["temperature_year"]
+    assert result.plot_results[0].path is not None
+    assert result.plot_results[0].path.exists()
+
+
+def test_plot_template_weather_cli_forwards_diagram(monkeypatch):
+    weather_runner = importlib.import_module("ma_weather.run_weather_analysis")
+    calls: dict[str, object] = {}
+
+    def fake_plot_template_weather(weather_key, **kwargs):
+        calls["weather_key"] = weather_key
+        calls.update(kwargs)
+
+    monkeypatch.setattr(weather_runner, "plot_template_weather", fake_plot_template_weather)
+
+    weather_runner.main_plot_template_weather(
+        [
+            "temperature_year",
+            "--weather-key",
+            "TRY_TEST",
+            "--catalog",
+            "weather_datasets.yaml",
+            "--start-year",
+            "2045",
+        ]
+    )
+
+    assert calls["weather_key"] == "TRY_TEST"
+    assert calls["catalog_path"] == "weather_datasets.yaml"
+    assert calls["start_year"] == 2045
+    assert calls["plot_key"] == "temperature_year"
 
 
 def test_weather_dataset_status_reports_missing_and_warning(tmp_path):
@@ -726,6 +1103,21 @@ def _write_small_try_file(directory: Path) -> Path:
         encoding="utf-8",
     )
     return try_file
+
+
+def _write_try_header_file(path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        "Kopfbereich\n"
+        "Rechtswert        : 3893500 Meter\n"
+        "Hochwert          : 2532500 Meter\n"
+        "Hoehenlage        : 97 Meter ueber NN\n"
+        "Art des TRY       : mittleres Jahr\n"
+        "Bezugszeitraum    : 1995-2012\n"
+        "***\n"
+        "MM DD HH t RF WR WG B D\n",
+        encoding="latin-1",
+    )
 
 
 def _small_try_file_content() -> bytes:

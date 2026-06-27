@@ -43,7 +43,7 @@ Workflow-Service-Aufrufe getrennt anbinden.
 
 ## Rolle
 
-- `ma_ui` zeigt Navigation, Workflow-Uebersicht und spaeter Modulansichten.
+- `ma_ui` zeigt Navigation, Modul-Uebersicht und spaeter echte Workflow-Ansichten.
 - `ma_ui.streamlit_app` enthaelt die Streamlit-Oberflaeche.
 - `ma_ui.tkinter_app` enthaelt getrennte Tkinter-Ansichten.
 - `ma_ui` enthaelt keine fachliche Berechnungslogik.
@@ -65,23 +65,32 @@ Workflow-Service-Aufrufe getrennt anbinden.
 - Die automatische Streamlit-Multipage-Navigation ist in
   `.streamlit/config.toml` ausgeblendet, damit nur die fachliche
   Projektnavigation unter `Bereich` sichtbar ist.
-- Startseite mit grafischem Workflow-Dashboard fuer Phase 0 bis Phase 6,
+- Startseite mit `Modul-Ansicht` fuer Phase 0 bis Phase 6,
   Statuskennzahlen, Phasenkarten, Navigationsbuttons, Iterationspfaden und optionalen
-  technischen Detailtabellen ist vorbereitet.
+  technischen Detailtabellen ist vorbereitet. Die Workflow-Ansicht ist eine
+  eigene Startansicht unter `ma_workflow`; normale Modulansichten wechseln
+  nicht in einen globalen Workflow-Modus.
+- Das Workflow-Referenzdiagramm liegt unter
+  `src/ma_ui/assets/workflow/masterarbeit_workflow.png`; die PDF-Referenz liegt
+  daneben unter `src/ma_ui/assets/workflow/masterarbeit_workflow.pdf`. Beide
+  werden nur in der `ma_workflow`-Workflowansicht eingebunden; die Startseite
+  bleibt als leichte Modul-Uebersicht ohne Referenzdiagramm.
 - Workflow-Karten, Statuskennzahlen, Navigation und Detailtabellen verwenden
   die zentral gepflegten Modulumsetzungsstaende aus `ma_workflow`.
 - Die Kopfzeile kann eine vorhandene Fachansicht mit `Infokarte` durch die
   zentrale Modulbeschreibung ersetzen und mit `Modulansicht` wieder
-  herstellen. Ein Seitenwechsel beendet diesen Modus.
-- Der grafische Workflow gehoert ausschliesslich auf die Startseite. Modulviews
+  herstellen. Auf den beiden Startansichten nutzt dieselbe rechte
+  Aktionsspalte den Wechsel `Workflow` bzw. `Bearbeitung`. Ein Seitenwechsel
+  beendet den Infokartenmodus.
+- Die Modul-Uebersicht gehoert ausschliesslich auf die Startseite. Modulviews
   zeigen nur eigene Inhalte oder bei geplantem Stand eine blaue Hinweisbox.
 - Analyse-Seite ruft die UI-neutrale `ma_analyse`-Service-Fassade ueber
   `ma_workflow` auf.
 - Analyse-Seite kann die Tkinter-Analyse als separates Fenster starten, falls
   eine Bedienfunktion in Streamlit noch fehlt.
 - Analyse-Seite nutzt eine sichtbare Schrittstruktur:
-  `Befehl`, `Unterbefehl`, `Template / Diagramm`, `Varianten`, `Raeume`,
-  optional `Overlay`, `Export / Ausgabe` und einen festen Aktionsbereich.
+  `Befehl`, `Unterbefehl`, `Template / Diagramm`, optional `Overlay`,
+  `Varianten`, `Raeume`, `Export / Ausgabe` und einen festen Aktionsbereich.
 - Nicht relevante Analyse-Bereiche zeigen nur einen kurzen Hinweis. Technische
   Pfade liegen unter `Export / Ausgabe` im eingeklappten Bereich
   `Erweiterte Pfade`.
@@ -99,11 +108,11 @@ Workflow-Service-Aufrufe getrennt anbinden.
   `Mehrere Raeume` oder `Alle Raeume`.
 - Varianten und Raeume werden aus `ma_analyse`-Services gelesen, falls lokale
   Daten vorhanden sind. Manuelle Texteingabe bleibt als Fallback bestehen.
-- Plot-Template-Overlays koennen aus einem einfachen Katalog der ersten
-  gewaehlten Variante und des ersten Raums ausgewaehlt werden. Freie
-  Overlay-Linien koennen ueber Eingabefelder hinzugefuegt und entfernt werden;
-  ein Expertenmodus im Format `source,column,label,axis` bleibt als Fallback
-  moeglich.
+- Plot-Template-Overlays werden direkt nach der Templatewahl bedient. Der
+  Katalog wird erst befuellt, sobald Variante und Raum verfuegbar sind.
+  Freie Overlay-Linien koennen vorher und nachher ueber Eingabefelder
+  hinzugefuegt und entfernt werden; ein Expertenmodus im Format
+  `source,column,label,axis` bleibt als Fallback moeglich.
 - Plot-Template-Zeitfelder, Single-/Multi-Room-Auswahl und Overlay-Defaults
   werden aus der bestehenden `ma_analyse`-Template-Spezifikation abgeleitet.
 - Alle Plot-Templates werden ohne vorgelagerte Diagrammgruppe direkt als

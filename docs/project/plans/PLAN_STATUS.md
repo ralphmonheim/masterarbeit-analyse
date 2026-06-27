@@ -28,7 +28,10 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   nicht mit Streamlit vermischt; `ma_analyse` soll langfristig eine
   UI-neutrale Service-Schnittstelle erhalten.
 - Nutzerentscheidungen aus P005 verschaerft: `ma_simulation_setup` liegt zwischen Varianten und IDA-Export; die Tkinter-GUI dient als fachliche Ablaufvorlage, nicht als technische Streamlit-Vorlage; `ma_ui` zielt auf Dashboard, Workflow-Views, Shared-Komponenten und Module-Views.
-- Nutzerentscheidungen zu den naechsten Strukturpunkten dokumentiert: Tkinter-Vorschau soll ueber einen temporaeren Vorschau-/Cachebereich laufen, freie Overlay-Datenreihen sollen flexibel aus der Datenbasis geladen werden koennen, und Wetterdiagramme bleiben vorerst im Modul `ma_weather`.
+- Nutzerentscheidungen zu den naechsten Strukturpunkten dokumentiert:
+  Tkinter-Vorschau soll ueber einen temporaeren Vorschau-/Cachebereich laufen,
+  freie Overlay-Datenreihen sollen flexibel aus der Datenbasis geladen werden
+  koennen, und Wetterdiagramme bleiben fachlich im Modul `ma_weather`.
 - Nutzerentscheidung dokumentiert: Normierungsfragen wie absolute Werte oder flaechenbezogene Werte `[W/m2]` sollen spaeter nicht nur fuer die Energiebilanz, sondern `ma_analyse`-weit fuer passende Auswertungen geplant werden.
 - Nutzerentscheidung dokumentiert: `ma_economy` und `ma_sustainability` werden als eigene Zielmodule geplant; `ma_assessment` bleibt als Bewertungs-, Scoring- und Berichtsschicht ueber Analyse, Economy und Sustainability bestehen.
 - Historische P005-Entscheidung dokumentiert: `ma_economy`,
@@ -234,7 +237,8 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - P005 Plot-Template-Ablauf angepasst: Alle Templates werden direkt als
   Unterbefehle angezeigt. Zeitansicht, Overlay-Aktivierung und ausklappbare
   Diagrammanpassung liegen unter `Template / Diagramm`; der optionale
-  Overlay-Schritt folgt nach Varianten und Raeumen.
+  Overlay-Schritt folgt direkt danach und befuellt den Katalog erst nach
+  Varianten- und Raumauswahl.
 - P005 Analyse-Wizard weiter strukturiert: `plot-template-analyse` ist in
   Streamlit der UI-Befehl fuer Analyse-Templates, `single`/`compare` liegt
   unter `Export / Ausgabe`, Comfort nutzt `t_op / rel_hum` als Unterbefehl und
@@ -405,12 +409,14 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   Winter-TRY-Dateien sind als eigene Datensaetze katalogisiert; kritische
   Wetterereignisse werden aus dem bewusst ausgewaehlten Datensatz abgeleitet
   und in Streamlit tabellarisch angezeigt.
-- P008 Slice 5 begonnen: Streamlit zeigt den Importbutton unten im Bereich
-  `Wetterdatensaetze`; eigene entpackte TRY-`.dat`-Dateien werden unter
-  `data/ma_weather/input/custom/<weather_key>/` abgelegt und in einem lokalen,
-  nicht versionierten YAML-Katalog unter
-  `data/ma_weather/config/datasets/weather_datasets_local.yaml` registriert.
-  Aktive und offene Wetterdatensaetze werden getrennt angezeigt.
+- P008 Import-/Scan-/Validierungsslice umgesetzt: Streamlit fuehrt die
+  Schritte `Import`, `Scannen` und `Validieren` im Bereich
+  `Wetterdatensaetze`; eigene entpackte TRY-`.dat`-Dateien koennen lokal
+  abgelegt, lokale TRY-Dateien als Datensatzentwuerfe gescannt und
+  Key-Parameter bewusst validiert werden. Bestaetigtes TRY-Ordner-Mapping
+  darf vorbelegen, Koordinaten aus dem TRY-Kopf erzeugen nur
+  Standortvorschlaege. Aktive und offene Wetterdatensaetze werden getrennt
+  angezeigt.
 
 ### Offen
 
@@ -424,9 +430,9 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - TRY-Referenzdatensaetze fuer Referenzstandorte wie Mannheim und Muehldorf
   fachlich ergaenzen oder bewusst als fehlend dokumentieren.
 - Diagrammgestaltung fachlich pruefen und bei Bedarf an Masterarbeitslayout anpassen.
-- Offener Strukturpunkt: Wetterdiagramme bleiben vorerst im Modul `ma_weather`;
-  spaeter klaeren, ob zusaetzlich ein eigener UI-Hauptbefehl
-  `plot-template-weather` eingefuehrt wird.
+- Strukturpunkt geschlossen: Wetterdiagramme bleiben fachlich im Modul
+  `ma_weather`; `plot-template-weather` ist dort als eigener CLI-/UI-Befehl
+  mit Unterauswahl fuer einzelne vorhandene Wetterdiagramme aufgebaut.
 - Konsolidierten P008-Gesamtplan erst abschliessen und archivieren, wenn die
   vorgesehenen realen TRY-Datensaetze lokal erfolgreich verarbeitet, die
   P021-Ereignisdefinition fachlich bestaetigt und die
@@ -435,8 +441,6 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 ## Offene Nutzerentscheidungen
 
 - Nach Abschluss der Diagrammbearbeitung klaeren, ob relative/absolute Cooling-Logik in den regulaeren `cooling`-Befehl und in die GUI uebernommen wird.
-- Klaeren, ob `plot-template-weather` spaeter als eigener UI-Befehl eingefuehrt
-  wird oder Wetterdiagramme dauerhaft nur im Modulbereich `ma_weather` bleiben.
 - Klaeren, welche `ma_analyse`-Auswertungen absolute Werte, flaechenbezogene
   Werte oder beides anbieten sollen und welche Bezugsflaeche verwendet wird.
 - Wissensprofile, Stundensaetze, Prozessgrenzen und Messmethoden fuer den

@@ -186,8 +186,8 @@ def _render_feedback_paths() -> None:
 def render() -> None:
     """Zeigt den aktuellen Gesamtworkflow als Einstiegspunkt."""
     _render_dashboard_styles()
-    st.title("Masterarbeit Workflow")
-    st.caption("Varianten, Wetterdaten, Simulationsergebnisse und Bewertung.")
+    st.title("Masterarbeit Modul-Ansicht")
+    st.caption("Module, Umsetzungsstand und fachliche Einstiegspunkte.")
 
     workflow_rows = workflow_step_rows()
     status_counts = workflow_status_counts(workflow_rows)

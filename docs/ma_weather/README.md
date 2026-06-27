@@ -62,6 +62,13 @@ aktiven Datensaetze. Eigene entpackte TRY-`.dat`-Dateien werden unter
 nicht versionierten Katalog unter
 `data/ma_weather/config/datasets/weather_datasets_local.yaml` registriert.
 
+Zusaetzlich fuehrt die Wetterseite die Schritte `Import`, `Scannen` und
+`Validieren`. Importierte TRY-Dateien werden zunaechst nur lokal abgelegt.
+Der Scan nutzt die versionierte Zuordnung von TRY-Ordnerkennung zu Standort
+unter `config/ma_weather/try_locations/example_try_file_locations.yaml`.
+Gefundene Dateien werden zuerst als Datensatzentwuerfe angezeigt und erst nach
+Validierung sowie Nutzeraktion in den lokalen Katalog uebernommen.
+
 Der aktive Beispielkatalog enthaelt Datensaetze fuer Frankfurt am Main,
 Muenchen und Hamburg jeweils fuer 2015 und 2045 als Jahr-, Sommer- und
 Winterdatensatz.

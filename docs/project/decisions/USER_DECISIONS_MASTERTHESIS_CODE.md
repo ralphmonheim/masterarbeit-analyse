@@ -455,6 +455,9 @@ Stand: 2026-06-24
 - Status: getroffen
 - Offene Folgefragen: Ob `plot-template-weather` spaeter als eigener UI-Befehl eingefuehrt wird, bleibt offen.
 - Quelle oder Chatbezug: aktueller Codex-Chat zu strukturellen Entscheidungen
+- Hinweis 2026-06-25: Die offene Folgefrage ist durch UD-063 geschlossen.
+  Wetterdiagramme bleiben fachlich in `ma_weather`, `plot-template-weather`
+  ist dort aber als eigener CLI-/UI-Befehl aufgebaut.
 
 ## UD-035 Normierung soll ma_analyse-weit gedacht werden
 
@@ -538,6 +541,9 @@ Stand: 2026-06-24
 - Status: umgesetzt
 - Offene Folgefragen: Weitere Diagrammoptionen wie Farben, Linienstile, Legendenposition und Beschriftungen spaeter auf Basis gemeinsamer Renderer planen.
 - Quelle oder Chatbezug: aktueller Codex-Chat zur Plot-Template-Bedienung
+- Hinweis 2026-06-25: Die Reihenfolge wurde angepasst. Der optionale
+  Overlay-Schritt folgt nun direkt nach `Template / Diagramm`; nur der
+  Overlay-Katalog wird erst nach Varianten- und Raumauswahl befuellt.
 
 ## UD-041 P007 ist verbindlicher Rahmenplan fuer die VS-Code-Umsetzung
 
@@ -927,3 +933,28 @@ Stand: 2026-06-24
   erhalten, wird nur ueber eigene Fachslices entschieden.
 - Quelle oder Chatbezug: aktueller Codex-Chat zum kombinierten
   UI-Strukturumzug nach `ma_ui`
+
+## UD-063 plot-template-weather wird als ma_weather-Befehl aufgebaut
+
+- Datum: 2026-06-25
+- Thema: ma_weather, ma_ui und Wetterdiagramme
+- Entscheidung: `plot-template-weather` wird als eigener Wetter-Template-
+  Befehl in `ma_weather` aufgebaut. Er erhaelt einen Diagramm-Katalog fuer
+  `all` und die vorhandenen einzelnen Wetterdiagramme. Die Streamlit-Wetterseite
+  delegiert diesen Befehl an `ma_weather`; `ma_analyse` wird dafuer nicht
+  erweitert.
+- Begruendung: Wetterdiagramme gehoeren fachlich zu Wetterdaten und nicht zur
+  IDA-Zonenergebnisanalyse. Der eigene Befehl macht die Diagrammauswahl
+  trotzdem sichtbar und testbar, ohne die Analyse-Navigation fachlich zu
+  vermischen.
+- Auswirkung: `plot-template-weather <diagramm> --weather-key ...` ist ein
+  eigener CLI-Einstieg. Streamlit bietet die Auswahl `Alle Wetterdiagramme`
+  oder einen einzelnen Diagramm-Schluessel im Wettermodul an.
+- Betroffene Module oder Dateien: `src/ma_weather/weather_plots.py`,
+  `src/ma_weather/run_weather_analysis.py`,
+  `src/ma_ui/streamlit_app/pages/weather.py`, `pyproject.toml`,
+  `docs/ma_weather/commands_weather.md`
+- Status: umgesetzt
+- Offene Folgefragen: Ob spaeter weitere Wetterdiagramme oder Wetter-Templates
+  hinzukommen, wird ueber den Wetterdiagramm-Katalog erweitert.
+- Quelle oder Chatbezug: aktueller Codex-Chat zur UI-/Workflow-Anpassung

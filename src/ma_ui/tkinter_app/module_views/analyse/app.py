@@ -1356,26 +1356,26 @@ class PipelineGUI(SettingsDialogMixin):
         self._build_step_2()
         self._build_subcommand_step()
         self._build_step_3()
+        self._build_overlay_step()
         self._build_step_4()
         self._build_step_5()
-        self._build_overlay_step()
         self._build_prepare_export_step()
         self.step_card_order = [
             self.step_2_card,
             self.subcommand_card,
             self.step_3_card,
+            self.overlay_card,
             self.step_4_card,
             self.step_5_card,
-            self.overlay_card,
             self.prepare_export_card,
         ]
         self.step_card_descriptions = {
             self.step_2_card: "Befehl festlegen",
             self.subcommand_card: "Unterbefehl passend zum Befehl waehlen",
             self.step_3_card: "Template / Diagramm auswaehlen",
+            self.overlay_card: "Datenlinien fuer Plot-Templates auswaehlen",
             self.step_4_card: "Varianten passend zum Befehl auswaehlen",
             self.step_5_card: "Raeume auswaehlen oder automatisch uebernehmen",
-            self.overlay_card: "Datenlinien fuer Plot-Templates auswaehlen",
             self.prepare_export_card: "Export oder Ausgabe waehlen",
         }
 
@@ -1515,7 +1515,7 @@ class PipelineGUI(SettingsDialogMixin):
         self.plot_template_list_note.pack(anchor=tk.W, pady=(6, 0))
 
     def _build_prepare_export_step(self):
-        self.prepare_export_card, content = self._create_step_card(self.left_column, 3, "Export / Ausgabe")
+        self.prepare_export_card, content = self._create_step_card(self.left_column, 7, "Export / Ausgabe")
 
         self.prepare_export_section = tk.Frame(content, bg=self.color_panel)
         ttk.Label(self.prepare_export_section, text="Exportformat", style="Dark.TLabel").pack(anchor=tk.W, pady=(0, 6))
@@ -1690,7 +1690,7 @@ class PipelineGUI(SettingsDialogMixin):
             button.grid_configure(sticky="nsew")
 
     def _build_step_3(self):
-        self.step_3_card, content = self._create_step_card(self.left_column, 4, "Template / Diagramm")
+        self.step_3_card, content = self._create_step_card(self.left_column, 3, "Template / Diagramm")
 
         self.heating_mode_section = tk.Frame(content, bg=self.color_panel)
         self.load_mode_title = ttk.Label(self.heating_mode_section, text="Heizvergleich Modus", style="Dark.TLabel")
@@ -1869,12 +1869,15 @@ class PipelineGUI(SettingsDialogMixin):
         )
         self.overlay_toggle.pack(anchor=tk.W, pady=(14, 0))
 
-        self.diagram_adjustment_button = ttk.Button(
+        self.diagram_adjustment_button = tk.Label(
             self.plot_template_section,
-            text="Diagrammanpassung anzeigen",
-            style="Secondary.TButton",
-            command=self._toggle_diagram_adjustment,
+            text="> Diagrammanpassung",
+            bg=self.color_panel,
+            fg=self.color_text,
+            cursor="hand2",
+            font=("Segoe UI", 10, "underline"),
         )
+        self.diagram_adjustment_button.bind("<Button-1>", lambda _event: self._toggle_diagram_adjustment())
         self.diagram_adjustment_button.pack(anchor=tk.W, pady=(14, 8))
         self.diagram_adjustment_frame = tk.Frame(
             self.plot_template_section,
@@ -1968,7 +1971,7 @@ class PipelineGUI(SettingsDialogMixin):
         return column
 
     def _build_overlay_step(self):
-        self.overlay_card, content = self._create_step_card(self.left_column, 5, "Überlagerungen")
+        self.overlay_card, content = self._create_step_card(self.left_column, 4, "Überlagerungen")
         self.overlay_reference_label = ttk.Label(
             content,
             text="Der Overlay-Katalog wird nach Varianten- und Raumauswahl geladen.",
@@ -2091,6 +2094,7 @@ class PipelineGUI(SettingsDialogMixin):
             column=1,
             values=[],
         )
+        self.overlay_column_combo.configure(state=tk.NORMAL)
         self.overlay_column_combo.bind("<<ComboboxSelected>>", lambda _event: self._prefill_overlay_label())
         self.overlay_label_entry = self._create_labeled_entry(
             editor,
@@ -2159,7 +2163,7 @@ class PipelineGUI(SettingsDialogMixin):
         return widget
 
     def _build_step_4(self):
-        self.step_4_card, content = self._create_step_card(self.left_column, 6, "Varianten")
+        self.step_4_card, content = self._create_step_card(self.left_column, 5, "Varianten")
 
         ttk.Label(content, text="Variantenauswahl", style="Dark.TLabel").pack(anchor=tk.W, pady=(0, 6))
         _, self.scope_buttons = self._create_selection_button_group(
@@ -2206,7 +2210,7 @@ class PipelineGUI(SettingsDialogMixin):
         self.variant_note.pack(anchor=tk.W)
 
     def _build_step_5(self):
-        self.step_5_card, content = self._create_step_card(self.left_column, 7, "Raeume")
+        self.step_5_card, content = self._create_step_card(self.left_column, 6, "Raeume")
 
         ttk.Label(content, text="Raumauswahl", style="Dark.TLabel").pack(anchor=tk.W, pady=(0, 6))
         _, self.room_scope_buttons = self._create_selection_button_group(
@@ -2982,10 +2986,10 @@ class PipelineGUI(SettingsDialogMixin):
         self.diagram_adjustment_expanded = not self.diagram_adjustment_expanded
         if self.diagram_adjustment_expanded:
             self.diagram_adjustment_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 8))
-            self.diagram_adjustment_button.configure(text="Diagrammanpassung ausblenden")
+            self.diagram_adjustment_button.configure(text="v Diagrammanpassung")
         else:
             self.diagram_adjustment_frame.pack_forget()
-            self.diagram_adjustment_button.configure(text="Diagrammanpassung anzeigen")
+            self.diagram_adjustment_button.configure(text="> Diagrammanpassung")
         self._redraw_axis_mockup()
 
     def _redraw_axis_mockup(self):
@@ -3773,8 +3777,6 @@ class PipelineGUI(SettingsDialogMixin):
         if columns and self.overlay_column.get() not in columns:
             self.overlay_column.set(columns[0])
             self._prefill_overlay_label()
-        elif not columns:
-            self.overlay_column.set("")
 
     def _plot_template_specs_by_name(self):
         return {template: get_plot_template_spec(template) for template in PLOT_TEMPLATE_CHOICES}

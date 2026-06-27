@@ -4,6 +4,32 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.18.0 - 2026-06-27
+
+### Added
+- Streamlit-Startbereich um eine getrennte Modul-/Workflow-Ansicht mit
+  Workflow-Referenzassets erweitert.
+- `plot-template-weather` als eigenen Wetterdiagramm-Befehl mit Auswahl fuer
+  alle oder einzelne vorhandene Wetterdiagramme aufgebaut.
+- `ma_weather` um lokalen TRY-Dateiscan, Datensatzentwuerfe, Key-Parameter-
+  Validierungsmaske und offene Scan-Entwuerfe erweitert.
+- TRY-Ordner-zu-Standort-Mapping fuer Wetterdateien versioniert und um
+  bestaetigte Mapping-Metadaten sowie koordinatenbasierte Standortvorschlaege
+  ergaenzt.
+
+### Changed
+- Wetterdatensatzverwaltung in Streamlit auf die drei Schritte `Import`,
+  `Scannen` und `Validieren` umgestellt; Validierung startet nur noch nach
+  bewusster Nutzeraktion.
+- Aktive Wetterdatensaetze zeigen standardmaessig nur die wichtigsten
+  fachlichen Spalten, waehrend offene Datensaetze und Entwuerfe detailliert
+  bleiben.
+- Analyse-Workflow ordnet Overlay-Einstellungen direkt nach
+  `Template / Diagramm` ein und dokumentiert die Datenvorbereitung als eigenen
+  Workflow-Schritt.
+- Dokumentation, Planstatus und Nutzerentscheidungen auf die neue UI-,
+  Wetter- und Workflow-Struktur nachgezogen.
+
 ## 0.17.0 - 2026-06-24
 
 ### Added

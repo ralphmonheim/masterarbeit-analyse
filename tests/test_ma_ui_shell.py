@@ -54,6 +54,7 @@ from ma_analyse.analysis_wizard import (
     visible_analysis_steps,
 )
 from ma_ui import app as ma_ui_app
+from ma_ui import workflow_view
 from ma_ui.app import (
     get_renderable_page_keys,
     has_module_view,
@@ -80,16 +81,22 @@ from ma_ui.navigation import (
     CONFIGURATION_RETURN_PAGE_SESSION_KEY,
     CURRENT_PAGE_SESSION_KEY,
     MODULE_INFO_PAGE_SESSION_KEY,
+    VIEW_MODE_SESSION_KEY,
+    WORKFLOW_VIEW_MODE,
+    WORKSPACE_VIEW_MODE,
     get_navigation_page,
     get_navigation_pages,
     next_page_key,
     normalize_page_key,
+    normalize_view_mode,
     previous_page_key,
     return_to_configuration_origin,
     select_page,
     select_related_configuration_page,
     set_module_info_active,
+    toggle_view_mode,
 )
+from ma_ui.pages import weather as weather_page
 from ma_ui.post_process_view import post_process_step_rows
 from ma_ui.pre_process_view import pre_process_step_rows
 from ma_ui.resource_status import ResourceSpec, resource_status, resource_status_rows, resource_statuses_for_step
@@ -105,14 +112,23 @@ from ma_ui.workflow_graph import (
     workflow_card_rows,
     workflow_cards_by_phase,
 )
-from ma_ui.workflow_view import workflow_step_rows
+from ma_ui.workflow_view import (
+    WORKFLOW_IMAGE_PATH,
+    WORKFLOW_PDF_PATH,
+    workflow_reference_asset_rows,
+    workflow_step_rows,
+)
 from ma_variants.economic_analysis import import_economic_assumptions
 from ma_weather import (
+    WeatherCatalog,
     WeatherDataset,
     WeatherDatasetStatus,
+    WeatherDiscoveryStatus,
     WeatherEvent,
+    WeatherFileDiscovery,
     WeatherFileStatus,
     WeatherImportCheckStatus,
+    WeatherLocation,
     WeatherMetrics,
     WeatherPlotResult,
     import_weather_location_catalog,
@@ -208,6 +224,7 @@ def test_renderable_pages_include_variants():
 
 def test_navigation_normalizes_unknown_session_page_key():
     assert CURRENT_PAGE_SESSION_KEY == "ma_ui_current_page"
+    assert VIEW_MODE_SESSION_KEY == "ma_ui_view_mode"
     assert normalize_page_key("analyse", ("home", "analyse")) == "analyse"
     assert normalize_page_key(
         "export_ida",
@@ -215,6 +232,17 @@ def test_navigation_normalizes_unknown_session_page_key():
     ) == "export_simulation"
     assert normalize_page_key("missing", ("home", "analyse")) == "home"
     assert normalize_page_key(None, ("home", "analyse")) == "home"
+    assert normalize_view_mode(WORKFLOW_VIEW_MODE) == WORKFLOW_VIEW_MODE
+    assert normalize_view_mode("missing") == WORKSPACE_VIEW_MODE
+
+
+def test_navigation_toggles_view_mode():
+    session_state: dict[str, object] = {}
+
+    assert toggle_view_mode(session_state) == WORKFLOW_VIEW_MODE
+    assert session_state[VIEW_MODE_SESSION_KEY] == WORKFLOW_VIEW_MODE
+    assert toggle_view_mode(session_state) == WORKSPACE_VIEW_MODE
+    assert session_state[VIEW_MODE_SESSION_KEY] == WORKSPACE_VIEW_MODE
 
 
 def test_navigation_previous_and_next_page_keys_are_stable():
@@ -234,6 +262,7 @@ def test_module_info_mode_is_only_active_for_registered_module_views():
     assert has_module_view("assessment") is True
     assert has_module_view("parameters") is True
     assert has_module_view("project") is True
+    assert has_module_view("workflow") is True
     assert has_module_view("home") is False
     assert is_module_info_active("weather", "weather") is True
     assert is_module_info_active("weather", "analyse") is False
@@ -257,12 +286,59 @@ def test_page_renderer_switches_between_module_view_and_info(monkeypatch):
     ma_ui_app._render_page(weather_page)
     ma_ui_app._render_page(weather_page, show_module_info=True)
     ma_ui_app._render_page(get_navigation_page("parameters"), show_module_info=True)
+    ma_ui_app._render_page(weather_page, view_mode=WORKFLOW_VIEW_MODE)
 
     assert calls == [
         "module-view",
         "info:ma_weather",
         "info:ma_parameters",
+        "module-view",
     ]
+
+
+def test_stale_workflow_mode_does_not_render_project_as_module_info(monkeypatch):
+    calls: list[str] = []
+    monkeypatch.setitem(
+        ma_ui_app._PAGE_RENDERERS,
+        "project",
+        lambda: calls.append("project-view"),
+    )
+    monkeypatch.setattr(
+        ma_ui_app.module_info_view,
+        "render",
+        lambda module_key: calls.append(f"info:{module_key}"),
+    )
+
+    ma_ui_app._render_page(get_navigation_page("project"), view_mode=WORKFLOW_VIEW_MODE)
+
+    assert calls == ["project-view"]
+
+
+def test_workflow_home_renders_home_overview(monkeypatch):
+    streamlit_app = importlib.import_module("ma_ui.streamlit_app.app")
+    calls: list[str] = []
+    monkeypatch.setattr(streamlit_app.home_view, "render", lambda: calls.append("home-view"))
+    monkeypatch.setattr(
+        streamlit_app.module_info_view,
+        "render",
+        lambda module_key: calls.append(f"info:{module_key}"),
+    )
+
+    streamlit_app._render_page(get_navigation_page("home"), view_mode=WORKFLOW_VIEW_MODE)
+
+    assert calls == ["home-view"]
+
+
+def test_workflow_module_page_uses_workflow_renderer(monkeypatch):
+    streamlit_app = importlib.import_module("ma_ui.streamlit_app.app")
+    calls: list[str] = []
+    monkeypatch.setitem(streamlit_app._PAGE_RENDERERS, "workflow", lambda: calls.append("workflow-view"))
+    monkeypatch.setattr(streamlit_app.workflow_view, "render", lambda: calls.append("workflow-view"))
+
+    streamlit_app._render_page(get_navigation_page("workflow"))
+    streamlit_app._render_page(get_navigation_page("workflow"), view_mode=WORKFLOW_VIEW_MODE)
+
+    assert calls == ["workflow-view", "workflow-view"]
 
 
 def test_page_navigation_and_info_toggle_update_session_state():
@@ -314,6 +390,7 @@ def test_module_views_are_importable():
         assessment_view.render,
         feedback_view.render,
         module_info_view.render,
+        workflow_view.render,
     )
 
     assert all(callable(renderer) for renderer in renderers)
@@ -322,11 +399,15 @@ def test_module_views_are_importable():
 def test_dashboard_and_workflow_rows_cover_target_structure():
     dashboard_rows = dashboard_action_rows()
     workflow_rows = workflow_step_rows()
+    asset_rows = workflow_reference_asset_rows()
     pre_process_rows = pre_process_step_rows()
     post_process_rows = post_process_step_rows()
 
     assert any(row["Aktion"] == "open_simulation_setup" for row in dashboard_rows)
     assert any(row["Modul"] == "ma_simulation_setup" for row in workflow_rows)
+    assert WORKFLOW_IMAGE_PATH.name == "masterarbeit_workflow.png"
+    assert WORKFLOW_PDF_PATH.name == "masterarbeit_workflow.pdf"
+    assert all(row["Vorhanden"] is True for row in asset_rows)
     assert pre_process_rows[-1]["Modul"] == "ma_export_simulation"
     assert post_process_rows[0]["Modul"] == "ma_import_simulation"
 
@@ -392,8 +473,9 @@ def test_workflow_graph_feedback_paths_target_existing_pages():
     assert all(row["Zielseite"] in page_keys for row in rows)
 
 
-def test_graphical_workflow_is_home_only():
+def test_workflow_reference_is_only_on_workflow_page():
     home_source = Path("src/ma_ui/streamlit_app/pages/home.py").read_text(encoding="utf-8")
+    workflow_source = Path("src/ma_ui/streamlit_app/workflow_view.py").read_text(encoding="utf-8")
     module_sources = [
         path.read_text(encoding="utf-8")
         for path in Path("src/ma_ui/streamlit_app/module_views").glob("*.py")
@@ -401,7 +483,13 @@ def test_graphical_workflow_is_home_only():
     ]
 
     assert "Grafischer Workflow" not in home_source
+    assert "Masterarbeit Workflow" not in home_source
+    assert "Masterarbeit Modul-Ansicht" in home_source
     assert "Modul-Ansicht" in home_source
+    assert "Workflow-Referenzdiagramm" not in home_source
+    assert "render_workflow_reference" not in home_source
+    assert "render_workflow_reference()" in workflow_source
+    assert "Workflow-Referenzdiagramm" in workflow_source
     assert "Iterationspfade" in home_source
     assert "ma_ui.streamlit_app.workflow_graph" in home_source
     assert all("ma_ui.streamlit_app.workflow_graph" not in source for source in module_sources)
@@ -416,6 +504,11 @@ def test_ui_uses_top_navigation_instead_of_sidebar_radio():
     assert "Start" in app_source
     assert "Zurueck" in app_source
     assert "Weiter" in app_source
+    assert "mode_column" not in app_source
+    assert 'current_page_key == "home"' in app_source
+    assert 'current_page_key == "workflow"' in app_source
+    assert '"Workflow"' in app_source
+    assert '"Bearbeitung"' in app_source
     assert "Infokarte" in app_source
     assert "Modulansicht" in app_source
 
@@ -425,7 +518,19 @@ def test_weather_dataset_actions_are_in_dataset_section():
     render_source = weather_source.split("def render()", maxsplit=1)[1]
     top_selection_source = render_source.split("if not active_datasets:", maxsplit=1)[0]
     actions_source = weather_source.split("def _render_weather_dataset_actions", maxsplit=1)[1].split(
-        "def _render_weather_import_form",
+        "def _render_weather_import_panel",
+        maxsplit=1,
+    )[0]
+    import_panel_source = weather_source.split("def _render_weather_import_panel", maxsplit=1)[1].split(
+        "def _render_weather_discoveries",
+        maxsplit=1,
+    )[0]
+    scan_panel_source = weather_source.split("def _render_weather_scan_panel", maxsplit=1)[1].split(
+        "def _render_weather_validation_panel",
+        maxsplit=1,
+    )[0]
+    validation_panel_source = weather_source.split("def _render_weather_validation_panel", maxsplit=1)[1].split(
+        "def _render_weather_discovery_validation_result",
         maxsplit=1,
     )[0]
     dataset_section_source = weather_source.split("def _render_weather_dataset_section", maxsplit=1)[1].split(
@@ -434,11 +539,166 @@ def test_weather_dataset_actions_are_in_dataset_section():
     )[0]
 
     assert "Bestand und Validierung pruefen" not in top_selection_source
-    assert "Wetterdatensatz importieren" in actions_source
-    assert "Bestand und Validierung pruefen" in actions_source
-    assert "_render_weather_dataset_actions(catalog)" in dataset_section_source
-    assert "_render_weather_import_form(catalog, location_catalog)" in dataset_section_source
+    assert "WEATHER_DATASET_ACTION_IMPORT" in actions_source
+    assert "WEATHER_DATASET_ACTION_SCAN" in actions_source
+    assert "WEATHER_DATASET_ACTION_VALIDATE" in actions_source
+    assert '"Import"' in weather_source
+    assert '"Scannen"' in weather_source
+    assert '"Validieren"' in weather_source
+    assert "st.columns(3)" in actions_source
+    assert "_toggle_weather_dataset_action" in actions_source
+    assert "_weather_dataset_action_button_type" not in weather_source
+    assert "Aktive Ansicht:" not in actions_source
+    assert "type=" not in actions_source
+    assert "_run_weather_input_discovery" not in actions_source
+    assert "_run_weather_catalog_validation" not in actions_source
+    assert "_run_weather_input_discovery(catalog, location_catalog)" in scan_panel_source
+    assert "_run_weather_catalog_validation(catalog)" in validation_panel_source
+    assert "_render_weather_dataset_actions(catalog, location_catalog)" in dataset_section_source
+    assert "active_action = _active_weather_dataset_action()" in dataset_section_source
+    assert "if active_action == WEATHER_DATASET_ACTION_IMPORT" in dataset_section_source
+    assert "if active_action == WEATHER_DATASET_ACTION_SCAN" in dataset_section_source
+    assert "if active_action == WEATHER_DATASET_ACTION_VALIDATE" in dataset_section_source
+    assert "_render_weather_import_panel()" in dataset_section_source
+    assert "_render_weather_scan_panel(catalog, location_catalog)" in dataset_section_source
+    assert "_render_weather_validation_panel(catalog, location_catalog, status_by_key)" in dataset_section_source
+    assert "stage_weather_input_file" in import_panel_source
+    assert "selected_location_id" not in import_panel_source
+    assert "edited_location_id" not in import_panel_source
+    assert "Gefundene lokale TRY-Dateien" in weather_source
     assert "active_column, open_column = st.columns(2)" in dataset_section_source
+
+
+def test_weather_dataset_default_columns_only_affect_active_table():
+    weather_source = Path("src/ma_ui/streamlit_app/pages/weather.py").read_text(encoding="utf-8")
+    active_source = weather_source.split("def _render_active_weather_datasets", maxsplit=1)[1].split(
+        "def _render_weather_dataset_section",
+        maxsplit=1,
+    )[0]
+    open_source = weather_source.split("def _render_open_weather_datasets", maxsplit=1)[1].split(
+        "def _render_active_weather_datasets",
+        maxsplit=1,
+    )[0]
+    discovery_source = weather_source.split("def _render_weather_discoveries", maxsplit=1)[1].split(
+        "def _render_weather_scan_panel",
+        maxsplit=1,
+    )[0]
+
+    assert weather_page.WEATHER_DATASET_DEFAULT_COLUMNS == (
+        "Name",
+        "Ort",
+        "Quelle",
+        "Jahrtyp",
+        "Datensatztyp",
+        "Szenario",
+    )
+    assert "_weather_dataset_default_table(rows)" in active_source
+    assert "_weather_dataset_default_table" not in open_source
+    assert "_weather_dataset_default_table" not in discovery_source
+
+
+def test_weather_map_uses_shared_ui_asset_path():
+    expected_path = Path.cwd() / "src/ma_ui/assets/weather/klimaregionen_deutschland.png"
+
+    assert weather_page.WEATHER_MAP_IMAGE_PATH == expected_path
+    assert expected_path in weather_page.WEATHER_MAP_IMAGE_CANDIDATES
+    assert expected_path.exists()
+
+
+def test_weather_city_selection_starts_without_default():
+    weather_source = Path("src/ma_ui/streamlit_app/pages/weather.py").read_text(encoding="utf-8")
+    selection_source = weather_source.split("def _render_weather_selection", maxsplit=1)[1].split(
+        "def weather_source_rows",
+        maxsplit=1,
+    )[0]
+
+    assert 'placeholder="Stadt auswaehlen"' in selection_source
+    assert "index=None" in selection_source
+    assert "return _render_unselected_weather_context()" in selection_source
+    assert "Bitte zuerst eine Stadt auswaehlen." in weather_source
+    assert "Noch keine Stadt ausgewaehlt" in weather_source
+    assert "WEATHER_KEY_WIDGET_KEY" in weather_source
+    assert "_placeholder" in weather_source
+
+
+def test_weather_base_statuses_validate_local_imports(monkeypatch):
+    regular_dataset = WeatherDataset(
+        weather_key="TRY_REGULAR",
+        display_name="Regular TRY",
+        file_path=Path("data/ma_weather/input/regular.dat"),
+        file_format="TRY",
+        source="DWD TRY",
+        location="Frankfurt",
+        year_type="reference_year",
+    )
+    local_dataset = WeatherDataset(
+        weather_key="TRY_LOCAL",
+        display_name="Local TRY",
+        file_path=Path("data/ma_weather/input/custom/TRY_LOCAL/local.dat"),
+        file_format="TRY",
+        source="Lokaler Import",
+        location="Frankfurt",
+        year_type="reference_year",
+    )
+    calls: list[tuple[str, bool]] = []
+
+    def fake_inspect_weather_dataset_status(
+        dataset: WeatherDataset,
+        *,
+        validate_file: bool = False,
+        **_: object,
+    ) -> WeatherDatasetStatus:
+        calls.append((dataset.weather_key, validate_file))
+        return WeatherDatasetStatus(
+            weather_key=dataset.weather_key,
+            display_name=dataset.display_name,
+            file_path=dataset.file_path,
+            file_exists=True,
+            file_status=WeatherFileStatus.AVAILABLE,
+        )
+
+    monkeypatch.setattr(weather_page, "inspect_weather_dataset_status", fake_inspect_weather_dataset_status)
+
+    statuses = weather_page._base_statuses(WeatherCatalog([regular_dataset, local_dataset]))
+
+    assert [status.weather_key for status in statuses] == ["TRY_REGULAR", "TRY_LOCAL"]
+    assert calls == [("TRY_REGULAR", False), ("TRY_LOCAL", True)]
+
+
+def test_weather_regular_dataset_filter_excludes_open_statuses():
+    selectable_dataset = WeatherDataset(
+        weather_key="TRY_OK",
+        display_name="OK TRY",
+        file_path=Path("data/ma_weather/input/ok.dat"),
+        file_format="TRY",
+        source="DWD TRY",
+        location="Frankfurt",
+        year_type="reference_year",
+    )
+    open_dataset = WeatherDataset(
+        weather_key="TRY_OPEN",
+        display_name="Open TRY",
+        file_path=Path("data/ma_weather/input/custom/TRY_OPEN/open.dat"),
+        file_format="TRY",
+        source="Lokaler Import",
+        location="Frankfurt",
+        year_type="reference_year",
+    )
+    status_by_key = {
+        "TRY_OPEN": WeatherDatasetStatus(
+            weather_key="TRY_OPEN",
+            display_name="Open TRY",
+            file_path=open_dataset.file_path,
+            file_exists=True,
+            file_status=WeatherFileStatus.AVAILABLE,
+            import_status=WeatherImportCheckStatus.ERROR,
+            error_count=1,
+        )
+    }
+
+    datasets = weather_page._regularly_selectable_datasets([selectable_dataset, open_dataset], status_by_key)
+
+    assert datasets == [selectable_dataset]
 
 
 def test_tkinter_analyse_defaults_to_plot_template_command():
@@ -629,7 +889,7 @@ def test_analysis_wizard_uses_room_scope_for_comfort_rooms():
     assert analysis_step_complete(state, "rooms", room_selection_disabled=True) is True
 
 
-def test_analysis_wizard_places_optional_overlay_after_room_selection():
+def test_analysis_wizard_places_optional_overlay_after_template_selection():
     state = AnalysisWizardState(command=PLOT_TEMPLATE_STEP, plot_template="heating-overlay")
 
     assert visible_analysis_steps(state, template_supports_overlays=False) == (
@@ -650,9 +910,9 @@ def test_analysis_wizard_places_optional_overlay_after_room_selection():
         "command",
         "subcommand",
         "template_diagram",
+        "overlays",
         "variants",
         "rooms",
-        "overlays",
         "export",
         "run",
     )
@@ -1010,6 +1270,32 @@ def test_weather_dataset_rows_report_missing_local_file():
     assert rows[0]["Datensatzstatus"] == "Nicht geprueft"
 
 
+def test_weather_dataset_default_table_keeps_source_rows_broad():
+    dataset = WeatherDataset(
+        weather_key="TRY_TEST",
+        display_name="Test TRY",
+        file_path=Path("data/ma_weather/input/missing.dat"),
+        file_format="TRY",
+        source="DWD",
+        location="Frankfurt",
+        year_type="reference_year",
+        climate_scenario="present",
+    )
+
+    rows = weather_dataset_rows([dataset])
+    default_table = weather_page._weather_dataset_default_table(rows)
+
+    assert tuple(default_table.columns) == weather_page.WEATHER_DATASET_DEFAULT_COLUMNS
+    assert rows[0]["weather_key"] == "TRY_TEST"
+    assert "Format" in rows[0]
+    assert "Rolle" in rows[0]
+    assert "Datensatzstatus" in rows[0]
+    assert "Datei" in rows[0]
+    assert "Aktiviert" in rows[0]
+    assert "Projekt-Default" in rows[0]
+    assert "weather_key" not in default_table.columns
+
+
 def test_weather_dataset_label_shows_dataset_type():
     summer_dataset = WeatherDataset(
         weather_key="TRY_TEST_SOMM",
@@ -1051,9 +1337,138 @@ def test_weather_status_rows_show_open_dataset_context():
     rows = weather_status_rows([status])
 
     assert rows[0]["weather_key"] == "TRY_MISSING"
+    assert rows[0]["Typ"] == "Katalogdatensatz"
     assert rows[0]["Status"] == "Datei fehlt"
     assert rows[0]["Fehler"] == 1
     assert rows[0]["Hinweise"] == "Lokale TRY-Datei fehlt."
+
+
+def test_weather_open_discovery_rows_mark_scan_drafts():
+    discovery = WeatherFileDiscovery(
+        weather_key="",
+        display_name="",
+        file_path=Path("data/ma_weather/input/TRY_000000000000/TRY2015_000000000000_Jahr.dat"),
+        try_folder_key="TRY_000000000000",
+        try_id="000000000000",
+        year=2015,
+        dataset_type="Jahr",
+        year_type="reference_year",
+        climate_scenario="present",
+        dataset_role="",
+        location_id="",
+        reference_location_id="",
+        location_name="",
+        selection_priority=10,
+        metadata={"rechtswert_m": "494997", "hochwert_m": "084777"},
+        missing_fields=("location_id", "weather_key"),
+        messages=("Keine Standortzuordnung vorhanden.",),
+        status=WeatherDiscoveryStatus.OPEN,
+    )
+
+    rows = weather_page.weather_open_discovery_rows([discovery])
+
+    assert rows[0]["Typ"] == "Scan-Entwurf"
+    assert rows[0]["Status"] == "offen"
+    assert rows[0]["Datei"] == "data/ma_weather/input/TRY_000000000000/TRY2015_000000000000_Jahr.dat"
+    assert rows[0]["Offene Punkte"] == "location_id, weather_key"
+    assert rows[0]["Fehler"] == 2
+
+
+def test_weather_discovery_file_value_rows_show_read_file_context():
+    discovery = WeatherFileDiscovery(
+        weather_key="TRY_TEST_2015_JAHR",
+        display_name="Test",
+        file_path=Path("data/ma_weather/input/TRY_000000000000/TRY2015_000000000000_Jahr.dat"),
+        try_folder_key="TRY_000000000000",
+        try_id="000000000000",
+        year=2015,
+        dataset_type="Jahr",
+        year_type="reference_year",
+        climate_scenario="present",
+        dataset_role="try_reference",
+        location_id="LOC_TEST",
+        reference_location_id="LOC_TEST",
+        location_name="Testort",
+        selection_priority=10,
+        metadata={
+            "rechtswert_m": "494997",
+            "hochwert_m": "084777",
+            "hoehenlage_m": "99",
+            "try_type": "mittleres Jahr",
+            "reference_period": "2015",
+        },
+    )
+
+    rows = weather_page.weather_discovery_file_value_rows(discovery)
+    values = {row["Feld"]: row["Gelesener Wert"] for row in rows}
+
+    assert values["Dateiname"] == "TRY2015_000000000000_Jahr.dat"
+    assert values["TRY-Ordner"] == "TRY_000000000000"
+    assert values["Bezugsjahr"] == 2015
+    assert values["Rechtswert"] == "494997"
+    assert values["Hoehenlage"] == "99"
+
+
+def test_weather_discovery_key_parameter_rows_keep_editable_targets_together():
+    discovery = WeatherFileDiscovery(
+        weather_key="TRY_TEST_2015_JAHR",
+        display_name="Test",
+        file_path=Path("data/ma_weather/input/TRY_000000000000/TRY2015_000000000000_Jahr.dat"),
+        try_folder_key="TRY_000000000000",
+        try_id="000000000000",
+        year=2015,
+        dataset_type="Jahr",
+        year_type="reference_year",
+        climate_scenario="present",
+        dataset_role="try_reference",
+        location_id="LOC_TEST",
+        reference_location_id="LOC_TEST",
+        location_name="Testort",
+        selection_priority=10,
+        metadata={"rechtswert_m": "494997", "hochwert_m": "084777"},
+    )
+    locations = {
+        "LOC_TEST": WeatherLocation(
+            location_id="LOC_TEST",
+            location_name="Testort",
+            normalized_name="testort",
+            region_id="TRY_TEST",
+            reference_location_id="LOC_TEST",
+            is_reference_location=True,
+        )
+    }
+
+    rows = weather_page.weather_discovery_key_parameter_rows(discovery, locations)
+    rows_by_field = {str(row["Feld"]): row for row in rows}
+
+    assert rows_by_field["Dateiname"]["Bearbeitung"] == "Nur Anzeige"
+    assert rows_by_field["Stadt"]["Zielwert"] == "LOC_TEST - Testort"
+    assert rows_by_field["Bezugsjahr"]["Zielwert"] == 2015
+    assert rows_by_field["Datensatztyp"]["Zielwert"] == "Jahr"
+    assert rows_by_field["Szenario"]["Zielwert"] == "Gegenwart"
+    assert rows_by_field["Rolle"]["Zielwert"] == "TRY-Referenzdatensatz"
+    assert rows_by_field["weather_key"]["Zielwert"] == "TRY_TEST_2015_JAHR"
+
+
+def test_weather_validation_mask_uses_no_artificial_defaults():
+    weather_source = Path("src/ma_ui/streamlit_app/pages/weather.py").read_text(encoding="utf-8")
+    validation_source = weather_source.split("def _render_weather_validation_panel", maxsplit=1)[1].split(
+        "def _render_weather_discovery_validation_result",
+        maxsplit=1,
+    )[0]
+
+    assert "WEATHER_VALIDATION_VIEW_OPEN" in validation_source
+    assert "WEATHER_VALIDATION_VIEW_KEYS" in weather_source
+    assert "st.data_editor" in validation_source
+    assert "weather_discovery_key_parameter_rows" in validation_source
+    assert '"Aenderungen uebernehmen"' in validation_source
+    assert '"Entwurf validieren"' in validation_source
+    assert '"Validierten Entwurf registrieren"' in validation_source
+    assert "_updated_discovery_from_key_parameter_rows" in validation_source
+    assert "validate_weather_file_discovery(" in validation_source
+    assert "selected_discovery.year or 2015" not in validation_source
+    assert "st.number_input(" not in validation_source
+    assert "_run_weather_catalog_validation(catalog)" in validation_source
 
 
 def test_weather_event_rows_are_stable_for_ui():

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Iterable
 
 import matplotlib
 
@@ -22,22 +23,94 @@ class WeatherPlotResult:
     warnings: tuple[str, ...] = ()
 
 
+@dataclass(frozen=True, slots=True)
+class WeatherPlotSpec:
+    """Katalogeintrag fuer ein vorhandenes Wetterdiagramm."""
+
+    plot_key: str
+    label: str
+    description: str
+
+
+ALL_WEATHER_PLOTS = "all"
+
+WEATHER_PLOT_SPECS: tuple[WeatherPlotSpec, ...] = (
+    WeatherPlotSpec(
+        "temperature_year",
+        "Temperatur Jahresverlauf",
+        "Aussentemperatur ueber den kompletten Wetterdatensatz.",
+    ),
+    WeatherPlotSpec(
+        "temperature_heatmap",
+        "Temperatur Heatmap",
+        "Temperatur nach Tag des Jahres und Stunde.",
+    ),
+    WeatherPlotSpec(
+        "monthly_radiation",
+        "Monatliche Globalstrahlung",
+        "Monatliche Summe der Globalstrahlung.",
+    ),
+    WeatherPlotSpec(
+        "monthly_degree_hours",
+        "Monatliche Gradstunden",
+        "Heiz- und Kuehlgradstunden je Monat.",
+    ),
+    WeatherPlotSpec(
+        "wind_rose",
+        "Windrose",
+        "Windrichtung und Haeufigkeit als einfache Polardarstellung.",
+    ),
+    WeatherPlotSpec(
+        "temperature_humidity_scatter",
+        "Temperatur und relative Feuchte",
+        "Streudiagramm fuer Temperatur und relative Feuchte.",
+    ),
+)
+
+WEATHER_PLOT_CHOICES: tuple[str, ...] = tuple(spec.plot_key for spec in WEATHER_PLOT_SPECS)
+
+
+def build_weather_plot(
+    data: pd.DataFrame,
+    *,
+    weather_key: str,
+    output_dir: str | Path = "data/ma_weather/output",
+    plot_key: str,
+) -> WeatherPlotResult:
+    """Erzeugt genau ein Wetterdiagramm aus dem Katalog."""
+    builders = _weather_plot_builders()
+    if plot_key not in builders:
+        raise ValueError(f"Unbekanntes Wetterdiagramm: {plot_key}")
+
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+    return builders[plot_key](data, weather_key=weather_key, output_dir=output_path)
+
+
 def build_weather_plots(
     data: pd.DataFrame,
     *,
     weather_key: str,
     output_dir: str | Path = "data/ma_weather/output",
+    plot_keys: Iterable[str] | None = None,
 ) -> tuple[WeatherPlotResult, ...]:
     """Erzeugt die Standarddiagramme fuer einen Wetterdatensatz."""
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
-    return (
-        plot_temperature_year(data, weather_key=weather_key, output_dir=output_path),
-        plot_temperature_heatmap(data, weather_key=weather_key, output_dir=output_path),
-        plot_monthly_radiation(data, weather_key=weather_key, output_dir=output_path),
-        plot_monthly_degree_hours(data, weather_key=weather_key, output_dir=output_path),
-        plot_wind_rose(data, weather_key=weather_key, output_dir=output_path),
-        plot_temperature_humidity_scatter(data, weather_key=weather_key, output_dir=output_path),
+    if plot_keys is None:
+        requested_plot_keys = WEATHER_PLOT_CHOICES
+    elif isinstance(plot_keys, str):
+        requested_plot_keys = WEATHER_PLOT_CHOICES if plot_keys == ALL_WEATHER_PLOTS else (plot_keys,)
+    else:
+        requested_plot_keys = tuple(plot_keys)
+        if requested_plot_keys == (ALL_WEATHER_PLOTS,):
+            requested_plot_keys = WEATHER_PLOT_CHOICES
+    return tuple(
+        build_weather_plot(
+            data,
+            weather_key=weather_key,
+            output_dir=output_dir,
+            plot_key=plot_key,
+        )
+        for plot_key in requested_plot_keys
     )
 
 
@@ -212,3 +285,14 @@ def _save_plot(fig: plt.Figure, path: Path, plot_key: str) -> WeatherPlotResult:
     fig.savefig(path, dpi=300)
     plt.close(fig)
     return WeatherPlotResult(plot_key=plot_key, path=path, status="created")
+
+
+def _weather_plot_builders():
+    return {
+        "temperature_year": plot_temperature_year,
+        "temperature_heatmap": plot_temperature_heatmap,
+        "monthly_radiation": plot_monthly_radiation,
+        "monthly_degree_hours": plot_monthly_degree_hours,
+        "wind_rose": plot_wind_rose,
+        "temperature_humidity_scatter": plot_temperature_humidity_scatter,
+    }

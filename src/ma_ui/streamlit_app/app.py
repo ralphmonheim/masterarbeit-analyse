@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import streamlit as st
 
+from ma_ui.streamlit_app import workflow_view
 from ma_ui.streamlit_app.module_views import (
     analyse_view,
     assessment_view,
@@ -17,19 +18,25 @@ from ma_ui.streamlit_app.module_views import (
 from ma_ui.streamlit_app.navigation import (
     CURRENT_PAGE_SESSION_KEY,
     MODULE_INFO_PAGE_SESSION_KEY,
+    VIEW_MODE_SESSION_KEY,
+    WORKFLOW_VIEW_MODE,
+    WORKSPACE_VIEW_MODE,
     NavigationPage,
     get_navigation_page,
     get_navigation_pages,
     next_page_key,
     normalize_page_key,
+    normalize_view_mode,
     previous_page_key,
     select_page,
+    select_view_mode,
     set_module_info_active,
 )
 
 _PAGE_RENDERERS = {
     "home": home_view.render,
     "project": project_view.render,
+    "workflow": workflow_view.render,
     "parameters": parameters_view.render,
     "weather": weather_view.render,
     "variants": variants_view.render,
@@ -53,7 +60,16 @@ def is_module_info_active(current_page_key: str, info_page_key: object) -> bool:
     return has_module_view(current_page_key) and info_page_key == current_page_key
 
 
-def _render_page(page: NavigationPage, *, show_module_info: bool = False) -> None:
+def _render_page(
+    page: NavigationPage,
+    *,
+    show_module_info: bool = False,
+    view_mode: str = WORKSPACE_VIEW_MODE,
+) -> None:
+    if view_mode == WORKFLOW_VIEW_MODE and page.page_key in {"home", "workflow"}:
+        _render_workflow_page(page)
+        return
+
     renderer = _PAGE_RENDERERS.get(page.page_key)
     if renderer is not None and not show_module_info:
         renderer()
@@ -61,8 +77,25 @@ def _render_page(page: NavigationPage, *, show_module_info: bool = False) -> Non
     module_info_view.render(page.module_key)
 
 
+def _render_workflow_page(page: NavigationPage) -> None:
+    """Zeigt eine praesentationsorientierte Modulansicht."""
+    if page.page_key == "home":
+        home_view.render()
+        return
+    if page.page_key == "workflow":
+        workflow_view.render()
+        return
+
+
 def _navigate_to(page_key: str) -> None:
     """Setzt die aktive Seite und startet Streamlit neu."""
+    select_page(st.session_state, page_key)
+    st.rerun()
+
+
+def _switch_start_view(page_key: str, view_mode: str) -> None:
+    """Wechselt zwischen Bearbeitungsstart und Workflowstart."""
+    select_view_mode(st.session_state, view_mode)
     select_page(st.session_state, page_key)
     st.rerun()
 
@@ -82,6 +115,7 @@ def _render_top_navigation(
     available_pages: list[NavigationPage],
     *,
     show_module_info: bool,
+    view_mode: str,
 ) -> None:
     """Zeigt die fachliche Navigation als Kopfzeile."""
     available_page_keys = tuple(page.page_key for page in available_pages)
@@ -89,7 +123,7 @@ def _render_top_navigation(
     previous_key = previous_page_key(current_page_key, available_page_keys)
     next_key = next_page_key(current_page_key, available_page_keys)
 
-    start_column, previous_column, next_column, label_column, info_column = st.columns([1, 1, 1, 5, 1.25])
+    start_column, previous_column, next_column, label_column, info_column = st.columns([1, 1, 1, 5, 1.35])
     with start_column:
         if st.button("Start", width="stretch", disabled=current_page_key == "home"):
             _navigate_to("home")
@@ -100,10 +134,17 @@ def _render_top_navigation(
         if st.button("Weiter", width="stretch", disabled=next_key == current_page_key):
             _navigate_to(next_key)
     with label_column:
-        st.caption(f"Aktueller Bereich: {labels_by_key[current_page_key]}")
+        mode_text = "Praesentationsansicht" if view_mode == WORKFLOW_VIEW_MODE else "Bearbeitungsansicht"
+        st.caption(f"Aktueller Bereich: {labels_by_key[current_page_key]} | {mode_text}")
     with info_column:
-        if current_page_key != "home":
-            has_view = has_module_view(current_page_key)
+        if current_page_key == "home":
+            if st.button("Workflow", width="stretch"):
+                _switch_start_view("workflow", WORKFLOW_VIEW_MODE)
+        elif current_page_key == "workflow":
+            if st.button("Bearbeitung", width="stretch"):
+                _switch_start_view("home", WORKSPACE_VIEW_MODE)
+        else:
+            has_view = has_module_view(current_page_key) and view_mode == WORKSPACE_VIEW_MODE
             button_label = "Modulansicht" if show_module_info else "Infokarte"
             if st.button(button_label, width="stretch", disabled=not has_view):
                 _toggle_module_info(current_page_key, show_module_info=show_module_info)
@@ -118,8 +159,14 @@ def main() -> None:
     available_page_keys = tuple(page.page_key for page in available_pages)
     current_page_key = normalize_page_key(st.session_state.get(CURRENT_PAGE_SESSION_KEY), available_page_keys)
     st.session_state[CURRENT_PAGE_SESSION_KEY] = current_page_key
+    view_mode = normalize_view_mode(st.session_state.get(VIEW_MODE_SESSION_KEY))
+    if current_page_key == "workflow":
+        view_mode = WORKFLOW_VIEW_MODE
+    elif current_page_key != "home":
+        view_mode = WORKSPACE_VIEW_MODE
+    st.session_state[VIEW_MODE_SESSION_KEY] = view_mode
     info_page_key = st.session_state.get(MODULE_INFO_PAGE_SESSION_KEY)
-    if info_page_key != current_page_key:
+    if view_mode == WORKFLOW_VIEW_MODE or info_page_key != current_page_key:
         st.session_state.pop(MODULE_INFO_PAGE_SESSION_KEY, None)
         info_page_key = None
     show_module_info = is_module_info_active(current_page_key, info_page_key)
@@ -127,11 +174,13 @@ def main() -> None:
         current_page_key,
         available_pages,
         show_module_info=show_module_info,
+        view_mode=view_mode,
     )
 
     _render_page(
         get_navigation_page(current_page_key),
         show_module_info=show_module_info,
+        view_mode=view_mode,
     )
 
 

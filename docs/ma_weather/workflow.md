@@ -34,16 +34,19 @@ Der aktuelle Stand umfasst:
 7. Eigene entpackte TRY-`.dat`-Datei in Streamlit im Bereich
    `Wetterdatensaetze` importieren oder manuell unter
    `data/ma_weather/input/` bereitstellen.
-8. TRY-Datei importieren und validieren.
-9. Import-ID, Quellenmetadaten, Validierungsstatus und Sitzungslog
+8. Manuell abgelegte TRY-Dateien ueber `Lokale TRY-Dateien scannen` als
+   Datensatzentwuerfe erkennen und vollstaendige Entwuerfe bewusst in den
+   lokalen Katalog uebernehmen.
+9. TRY-Datei importieren und validieren.
+10. Import-ID, Quellenmetadaten, Validierungsstatus und Sitzungslog
    miteinander verknuepfen.
-10. Wetterkennwerte berechnen.
-11. Aufbereitete Wetterdaten unter `data/ma_weather/database/` schreiben.
-12. Diagramme unter `data/ma_weather/output/` schreiben.
-13. Bericht unter `data/ma_weather/reports/` schreiben.
-14. Freigegebene Datensaetze bewusst aktivieren.
-15. Einen aktivierten Datensatz bewusst als Projekt-Default setzen.
-16. Kritische Wetterereignisse aus genau diesem ausgewaehlten Datensatz
+11. Wetterkennwerte berechnen.
+12. Aufbereitete Wetterdaten unter `data/ma_weather/database/` schreiben.
+13. Diagramme unter `data/ma_weather/output/` schreiben.
+14. Bericht unter `data/ma_weather/reports/` schreiben.
+15. Freigegebene Datensaetze bewusst aktivieren.
+16. Einen aktivierten Datensatz bewusst als Projekt-Default setzen.
+17. Kritische Wetterereignisse aus genau diesem ausgewaehlten Datensatz
     erkennen und fuer spaetere P021-Nutzung anzeigen.
 
 Der DWD-Download bleibt ein manueller Vorbereitungsschritt. Die TRY-Dateien
@@ -55,6 +58,13 @@ Lokale UI-Imports werden unter
 Katalog liegt unter
 `data/ma_weather/config/datasets/weather_datasets_local.yaml` und wird nicht
 versioniert.
+
+Manuell abgelegte TRY-Dateien unter `data/ma_weather/input/TRY_*` werden nicht
+automatisch katalogisiert. Die Streamlit-Wetterseite bietet dafuer den Button
+`Lokale TRY-Dateien scannen`. Der Scanner liest Dateiname und TRY-Kopf, nutzt
+die versionierte Standortzuordnung unter
+`config/ma_weather/try_locations/example_try_file_locations.yaml` und zeigt
+vollstaendige oder offene Datensatzentwuerfe an.
 
 ## Verbindung zu Varianten
 
@@ -94,10 +104,20 @@ Datei fehlt, vorhanden ist, Warnungen besitzt, fehlerhaft ist oder freigegeben
 wurde. Jeder Analyseimport erzeugt eine `import_id`, die mit `session_id`,
 `run_id`, Quelle, Validierung und Sitzungslog verbunden wird.
 
-Der Importbutton sitzt in Streamlit unten im Bereich `Wetterdatensaetze`.
-Darunter folgen die getrennten Uebersichten `Aktive Wetterdatensaetze` und
-`Offene Wetterdatensaetze`. Offene Datensaetze sind sichtbar, aber nicht
-regulaer auswaehlbar.
+Die Streamlit-Schritte `Import`, `Scannen` und `Validieren` sitzen unten im
+Bereich `Wetterdatensaetze`. `Import` legt Dateien nur ab, `Scannen` erzeugt
+Datensatzentwuerfe und `Validieren` erlaubt Anpassung und bewusste
+Registrierung. Ohne aktive Funktion zeigt der Bereich die getrennten
+Uebersichten `Aktive Wetterdatensaetze` und `Offene Wetterdatensaetze`. Bei
+`Validieren` gibt es die Ansichten `Offene Datensaetze` und
+`Key-Parameter pruefen`. Die Key-Parameter-Maske zeigt gelesene Dateiwerte,
+Mapping-Hinweise und bearbeitbare Zielwerte direkt zusammen. Offene
+Datensaetze sind sichtbar, aber nicht regulaer auswaehlbar.
+
+Das Standort-Mapping nutzt zuerst die versionierte TRY-Ordner-Zuordnung. Nur
+bestaetigte Zuordnungen duerfen automatisch vorbelegen. Rechtswert, Hochwert
+und Hoehenlage aus dem TRY-Kopf erzeugen hoechstens einen Standortvorschlag,
+der bewusst uebernommen werden muss.
 
 Aktivierung und Projekt-Default werden lokal unter
 `data/ma_weather/database/weather_selection_state.yaml` gespeichert. Diese Datei

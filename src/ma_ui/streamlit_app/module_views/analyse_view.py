@@ -1305,7 +1305,7 @@ def _render_plot_template_diagram_options(
             value=bool(st.session_state.get(OVERLAY_ENABLED_WIDGET_KEY, False)),
             key=OVERLAY_ENABLED_WIDGET_KEY,
         )
-        st.caption("Nach Varianten und Räumen erscheint dafür ein eigener Overlay-Bereich.")
+        st.caption("Der Overlay-Bereich folgt direkt im naechsten Schritt. Der Katalog wird nach Varianten und Räumen geladen.")
     else:
         st.session_state[OVERLAY_ENABLED_WIDGET_KEY] = False
         st.caption("Dieses Template unterstuetzt keine Overlay-Auswahl.")
@@ -1440,17 +1440,17 @@ def _render_overlay_section(
     if not plot_template_supports_overlays(template_spec):
         st.info("Das ausgewählte Diagramm unterstützt keine zusätzlichen Overlay-Datenreihen.")
         return
-    if not section_complete(state, "variants") or not section_complete(state, "rooms"):
-        st.info("Wähle zuerst Varianten und Räume, damit der Overlay-Katalog geladen werden kann.")
-        return
 
     reference_variant = first_selected_value(list(state.selected_variants), available_variants)
     reference_room = first_selected_value(list(state.selected_rooms), [])
-    st.info(
-        "Referenz für den Overlay-Katalog: "
-        f"{reference_variant or '-'} / {reference_room or '-'}. "
-        "Weitere ausgewählte Kombinationen werden beim Analysestart auf die benötigten Spalten geprüft."
-    )
+    if not section_complete(state, "variants") or not section_complete(state, "rooms"):
+        st.info("Katalog wird nach Auswahl von Variante und Raum geladen. Manuelle Overlay-Spalten sind bereits möglich.")
+    else:
+        st.info(
+            "Referenz für den Overlay-Katalog: "
+            f"{reference_variant or '-'} / {reference_room or '-'}. "
+            "Weitere ausgewählte Kombinationen werden beim Analysestart auf die benötigten Spalten geprüft."
+        )
     options = _render_plot_template_options(
         template=state.plot_template,
         template_defaults=template_defaults,

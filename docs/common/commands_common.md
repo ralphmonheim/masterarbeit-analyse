@@ -63,6 +63,7 @@ keine Python-CLI-Befehle.
 Sammelbefehle buendeln mehrere Routinen oder Arbeitsbereiche.
 
 - `aktualisieren und tagesende direkt`
+- `aktualisieren und direkt update repo`
 - `aktualisieren`: Projektlage, Planung, Entscheidungen, Changelog,
   Command-Dokumentation, Modulumsetzungsstaende, zentrale
   Streamlit-Statusanzeigen und Versionskonsistenz pruefen; naechste Version
@@ -120,6 +121,8 @@ Details stehen in `docs/project/UPDATE_ROUTINES.md`.
 
 ## Dokumentationsbereiche
 
+- `docs/project/COMMAND_OUTPUT_INVENTORY.md`: modulweise Uebersicht der
+  aufgebauten Befehle, Ausgaben und Frontend-/Backend-Verbindungen.
 - `docs/ma_analyse/commands_analyse.md`: Analysepipeline, GUI und Plot-Templates.
 - `docs/ma_variants/commands_variants.md`: Variantenkern und Varianten-UI.
 - `docs/ma_weather/commands_weather.md`: Wettermodul und lokale TRY-Analyse.

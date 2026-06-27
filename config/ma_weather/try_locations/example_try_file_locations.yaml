@@ -1,0 +1,21 @@
+try_file_locations:
+  - try_folder_key: TRY_501262086894
+    location_id: LOC_049
+    mapping_status: confirmed
+    mapping_source: manuell bestaetigt
+    notes: Frankfurt am Main, standortgenauer TRY-Datensatz.
+  - try_folder_key: TRY_481399115778
+    location_id: LOC_059
+    mapping_status: confirmed
+    mapping_source: manuell bestaetigt
+    notes: Muenchen, standortgenauer TRY-Datensatz.
+  - try_folder_key: TRY_535578099766
+    location_id: LOC_009
+    mapping_status: confirmed
+    mapping_source: manuell bestaetigt
+    notes: Hamburg, TRY-Referenzdatensatz.
+  - try_folder_key: TRY_494997084777
+    location_id: LOC_053
+    mapping_status: confirmed
+    mapping_source: manuell bestaetigt
+    notes: Mannheim, TRY-Referenzdatensatz.

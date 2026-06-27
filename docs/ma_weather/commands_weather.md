@@ -18,10 +18,16 @@ Markdown-Bericht.
 - Ein YAML-Standortkatalog liegt unter `config/ma_weather/locations/example_weather_locations.yaml`.
 - Die Streamlit-Wetterseite zeigt Stadt, Klimaregion, TRY-Referenzstandort und
   sortierte Wetterdatensaetze.
+- Die Wetterseite bietet fuer `plot-template-weather` die Auswahl `all` oder
+  eines einzelnen vorhandenen Wetterdiagramms.
 - Unten im Bereich `Wetterdatensaetze` koennen entpackte TRY-`.dat`-Dateien
   lokal importiert werden. Lokale Importdaten liegen unter
   `data/ma_weather/input/custom/`; der lokale Katalog liegt unter
   `data/ma_weather/config/datasets/weather_datasets_local.yaml`.
+- Lokal manuell unter `data/ma_weather/input/` abgelegte TRY-Dateien koennen
+  ueber `Lokale TRY-Dateien scannen` als Datensatzentwuerfe erkannt werden.
+  Die Standortzuordnung erfolgt ueber
+  `config/ma_weather/try_locations/example_try_file_locations.yaml`.
 
 ## Sammelbefehle
 
@@ -67,10 +73,13 @@ Die gleiche Pipeline kann auch in `ma_ui` ueber die Seite `Wetterdaten`
 gestartet werden. Dort wird ein aktiver `weather_key` ausgewaehlt und die
 erzeugten Diagramme werden direkt angezeigt.
 
-Im Bereich `Wetterdatensaetze` steht zuerst der Button
-`Wetterdatensatz importieren`. Der Dialog enthaelt einen Link zur DWD-TRY-Seite
-und nimmt entpackte `.dat`-Dateien entgegen. Ein Import setzt weder Aktivierung
-noch Projekt-Default automatisch.
+Im Bereich `Wetterdatensaetze` stehen die drei Schritte `Import`, `Scannen`
+und `Validieren`. `Import` enthaelt den Link zur DWD-TRY-Seite und legt
+entpackte `.dat`-Dateien nur lokal unter `data/ma_weather/input/TRY_*` ab.
+`Scannen` erzeugt daraus Entwuerfe fuer noch nicht katalogisierte TRY-Dateien.
+`Validieren` erlaubt die fachliche Anpassung dieser Entwuerfe und die bewusste
+Registrierung im lokalen Katalog. Kein Schritt setzt Aktivierung oder
+Projekt-Default automatisch.
 
 Die Wetterseite zeigt zusaetzlich Quellenmetadaten, Diagnose-IDs und
 Fundstellen. Bei Warnungen muss der Lauf bewusst mit `Nicht freigeben` oder
@@ -84,9 +93,9 @@ Der lokale Auswahlstatus liegt unter
 `data/ma_weather/database/weather_selection_state.yaml` und wird nicht
 versioniert.
 
-Die Schaltflaeche `Bestand und Validierung pruefen` prueft alle katalogisierten
-Wetterdatensaetze gegen lokale TRY-Dateien und zeigt fehlende, fehlerhafte oder
-noch freizugebende Datensaetze im Bereich `Offene Wetterdatensaetze`.
+Der Schritt `Validieren` prueft katalogisierte Wetterdatensaetze gegen lokale
+TRY-Dateien und zeigt fehlende, fehlerhafte oder noch freizugebende
+Datensaetze im Bereich `Offene Wetterdatensaetze`.
 
 Nach einer Analyse zeigt der Bereich `Kritische Wetterereignisse` Ereignisse
 wie heissester Tag, kaeltester Tag, heisseste und kaelteste Drei-Tage-Periode,
@@ -94,6 +103,26 @@ strahlungsreichster Tag und windstaerkster Tag. Die Berechnung nutzt nur den
 bewusst ausgewaehlten Datensatz, also Jahr, Sommer oder Winter.
 
 ## Einzelbefehle
+
+### Wetter-Template-Diagramm erzeugen
+
+Der installierte CLI-Einstieg erzeugt alle Wetterdiagramme oder ein einzelnes
+Diagramm aus dem vorhandenen Wetterdiagramm-Katalog.
+
+```powershell
+.\.venv\Scripts\plot-template-weather.exe all --weather-key TRY_FFM_2015_JAHR
+.\.venv\Scripts\plot-template-weather.exe temperature_year --weather-key TRY_FFM_2015_JAHR
+.\.venv\Scripts\plot-template-weather.exe wind_rose --weather-key TRY_FFM_2015_JAHR
+```
+
+Vorhandene Diagramm-Schluessel:
+
+- `temperature_year`
+- `temperature_heatmap`
+- `monthly_radiation`
+- `monthly_degree_hours`
+- `wind_rose`
+- `temperature_humidity_scatter`
 
 ### Aktuelle Pruefung
 
@@ -107,6 +136,8 @@ Katalog- und Strukturtests fuer den aktuellen Stand:
 
 ## Referenz und Hinweise
 
+- Das uebergreifende Befehls- und Ausgabeninventar steht unter
+  `docs/project/COMMAND_OUTPUT_INVENTORY.md`.
 - Der Katalog darf auf lokale TRY-Dateien verweisen, die nicht im Repo liegen.
 - `weather_key` bleibt der bestehende technische Schluessel. Die spaetere
   Uebergabe erfolgt kontrolliert ueber `ma_parameters`.

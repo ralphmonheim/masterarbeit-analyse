@@ -92,6 +92,18 @@ Beim Laden des Standardkatalogs werden Beispielkatalog und vorhandener lokaler
 Importkatalog zusammengefuehrt. Doppelte `weather_key` Werte werden dabei
 abgelehnt.
 
+Manuell abgelegte TRY-Dateien koennen zunaechst als Datensatzentwuerfe erkannt
+werden. Die TRY-Ordnerkennung-zu-Standort-Zuordnung dafuer liegt versioniert
+unter:
+
+```text
+config/ma_weather/try_locations/example_try_file_locations.yaml
+```
+
+Vollstaendige Entwuerfe werden erst nach Nutzeraktion in den lokalen Katalog
+geschrieben. Unvollstaendige Entwuerfe bleiben offen und werden nicht regulaer
+auswaehlbar.
+
 ## Datenordner
 
 | Ordner | Zweck |

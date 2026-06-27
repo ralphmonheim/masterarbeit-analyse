@@ -25,7 +25,9 @@ Alternative:
 
 ## Referenz und Hinweise
 
-- `ma_ui` besitzt eine nutzbare Streamlit-Oberflaeche mit Workflow-Dashboard,
+- Das uebergreifende Befehls- und Ausgabeninventar steht unter
+  `docs/project/COMMAND_OUTPUT_INVENTORY.md`.
+- `ma_ui` besitzt eine nutzbare Streamlit-Oberflaeche mit Modul-Ansicht,
   Kopfzeilen-Navigation, vorbereiteten Modulansichten und einem umfangreichen
   Analyse-Wizard. Geplante Fachmodule bleiben als klar gekennzeichnete,
   klickbare Modul-Infoseiten sichtbar.
@@ -37,8 +39,9 @@ Alternative:
   `.streamlit/config.toml` ausgeblendet. Sichtbar bleiben soll nur die
   fachliche Projektnavigation.
 - Die zentrale Navigation liegt oben im Fenster und bietet `Start`, `Zurueck`
-  und `Weiter`. Rechts kann `Infokarte` fuer die aktuelle Fachansicht
-  geoeffnet und mit `Modulansicht` wieder verlassen werden. Bei Modulen ohne
+  und `Weiter`. Die rechte Aktionsspalte wechselt nur auf den beiden
+  Startansichten zwischen `Workflow` und `Bearbeitung`. Auf normalen
+  Modulansichten bleibt dort `Infokarte` bzw. `Modulansicht`. Bei Modulen ohne
   eigene Fachansicht ist die Infokarte bereits die Hauptansicht.
 - `Projekt`, `Parameter` und `Varianten` besitzen P028-Fachansichten mit
   gemeinsamem Sitzungsstand. Fachliche Querverweise merken die Ausgangsseite;
@@ -48,12 +51,19 @@ Alternative:
   unveraendert.
 - Die Codex-Routine `tagesstart` startet diese Oberflaeche nicht automatisch.
   Zum Oeffnen den oben genannten venv-basierten Streamlit-Befehl nutzen.
-- Die Startseite zeigt ein grafisches Workflow-Dashboard mit Phasen,
+- Die Startseite zeigt eine Modul-Ansicht mit Phasen,
   Statuskarten, Iterationspfaden und Buttons zu allen katalogisierten
   Modulansichten. Dargestellt werden Phase 0 bis Phase 6 sowie ein eigener
   phasenuebergreifender Bereich.
+- Das Workflow-Referenzdiagramm liegt unter
+  `src/ma_ui/assets/workflow/masterarbeit_workflow.png`; die PDF-Fassung liegt
+  daneben als `masterarbeit_workflow.pdf`. Beide werden nur in der
+  `ma_workflow`-Workflowansicht referenziert; die Startseite bleibt ohne
+  Referenzdiagramm.
 - Phase 4 trennt `Optimierung`, `Norm-Nachweis` und `Sensitivitaet`.
-- Der grafische Workflow soll nur auf der Startseite sichtbar sein.
+- Die Modul-Ansicht bleibt auf der Startseite sichtbar. Die Workflow-Ansicht
+  ist eine eigene Startansicht unter `ma_workflow`; normale Modulansichten
+  wechseln nicht in einen globalen Workflow-Modus.
 - Technische Workflow-Tabellen bleiben auf der Startseite unter
   `Technische Detailtabellen` eingeklappt und werden nicht in jeder
   Modulansicht angezeigt.
@@ -72,8 +82,8 @@ Alternative:
 - Der alte Aufruf `python -m ma_analyse gui` bleibt als Kompatibilitaetspfad
   nutzbar.
 - Die Seite `Analyse` ist als sichtbare Schrittstruktur aufgebaut:
-  `Befehl`, `Unterbefehl`, `Template / Diagramm`, `Varianten`, `Raeume`,
-  optional `Overlay`, `Export / Ausgabe` und einen festen Aktionsbereich.
+  `Befehl`, `Unterbefehl`, `Template / Diagramm`, optional `Overlay`,
+  `Varianten`, `Raeume`, `Export / Ausgabe` und einen festen Aktionsbereich.
 - Hauptschritte werden nicht wie `Erweiterte Pfade` eingeklappt, sondern als
   klare Auswahlbereiche angezeigt. Nicht relevante Bereiche zeigen nur einen
   kurzen Hinweis.
@@ -91,7 +101,7 @@ Alternative:
   Run-ID liegen in Streamlit im eingeklappten Bereich `Erweiterte Pfade`
   innerhalb von `Export / Ausgabe`.
 - `plot-template-analyse` nutzt den Ablauf `Befehl -> Unterbefehl ->
-  Template / Diagramm -> Varianten -> Raeume -> optional Overlay ->
+  Template / Diagramm -> optional Overlay -> Varianten -> Raeume ->
   Export / Ausgabe -> Aktionsbereich`.
 - `plot-template-analyse` zeigt alle vorhandenen Diagramme direkt im Bereich
   `Unterbefehl`; eine vorgelagerte Einteilung in Diagrammgruppen gibt es in der
@@ -100,15 +110,19 @@ Alternative:
   ausklappbaren Bereich `Diagrammanpassung`. Dort koennen primaere und
   sekundaere Y-Achsen automatisch oder manuell skaliert werden. Ein Mock-up
   zeigt die Wirkung der Achsengrenzen mit Beispieldaten.
-- Der optionale Bereich `Overlay` erscheint nach Varianten und Raeumen, wenn
-  das gewaehlte Template Overlays unterstuetzt und die Checkbox aktiviert ist.
+- Der optionale Bereich `Overlay` erscheint direkt nach `Template / Diagramm`,
+  wenn das gewaehlte Template Overlays unterstuetzt und die Checkbox aktiviert
+  ist. Der Overlay-Katalog wird erst befuellt, sobald Variante und Raum
+  verfuegbar sind; manuelle Overlay-Spalten bleiben vorher moeglich.
 - Der Aktionsbereich mit `Vorschau aktualisieren` und `Analyse starten` ist
   nicht einklappbar.
 - Die Tkinter-Analyse besitzt ebenfalls einen Button
   `Vorschau aktualisieren` zwischen `Zuruecksetzen` und `Start`; er nutzt
   aktuell den bestehenden Analysepfad mit den aktuellen Einstellungen.
-- Plot-Template-Overlays erscheinen erst nach Varianten- und Raumauswahl, damit
-  der Overlay-Katalog gezielt aus lokalen CSV-/AUX-Daten gelesen wird.
+- Plot-Template-Overlays werden direkt nach der Templatewahl bedient. Der
+  Katalog nutzt weiterhin die erste gewaehlte Variante und den ersten
+  gewaehlten Raum, weil die verfuegbaren CSV-/AUX-Spalten aus konkreten
+  Ergebnisdateien gelesen werden.
 - Als Katalogreferenz dienen die erste gewaehlte Variante und der erste
   gewaehlte Raum. Die Referenz wird sichtbar angezeigt; weitere ausgewaehlte
   Kombinationen werden beim Analysestart validiert.
@@ -118,11 +132,13 @@ Alternative:
   komplexe Sammeltemplates werden als beschriftete Teilplots in einer
   Vergleichsgrafik zusammengefuehrt.
 - Die Seite `Wetterdaten` erlaubt die Auswahl eines aktiven `weather_key`,
-  startet die lokale `ma_weather`-Analyse und zeigt erzeugte Wetterdiagramme
-  direkt in Streamlit an. Die Analysebedienung steht oben; die Uebersicht der
+  eines Wetterdiagramms oder `Alle Wetterdiagramme`, startet die lokale
+  `ma_weather`-Analyse ueber `plot-template-weather` und zeigt erzeugte
+  Wetterdiagramme direkt in Streamlit an. Die Analysebedienung steht oben; die Uebersicht der
   Wetterdatensaetze steht darunter. Im Bereich `Wetterdatensaetze` steht zuerst
-  eine Aktionszeile mit Importbutton fuer lokale TRY-`.dat`-Dateien und
-  `Bestand und Validierung pruefen`; danach folgen nebeneinander getrennte
+  eine Aktionszeile mit den Schritten `Import`, `Scannen` und `Validieren`.
+  Import legt TRY-Dateien nur lokal ab, Scannen erzeugt Entwuerfe, Validieren
+  erlaubt Anpassung und Registrierung; danach folgen nebeneinander getrennte
   Uebersichten fuer aktive und offene Wetterdatensaetze.
 - Wetterdiagnosen zeigen ID, Code, Problem und Fundstelle. Fehler blockieren
   die Freigabe; Warnungen verlangen eine bewusste laufgebundene Entscheidung.
@@ -131,7 +147,7 @@ Alternative:
   `ma_ui.tkinter_app.module_views.analyse`.
 - Wenn Streamlit nach Codeaenderungen alte Importfehler zeigt, den laufenden
   Streamlit-Prozess stoppen und mit dem empfohlenen venv-Befehl neu starten.
-- Wenn alte Workflow-Darstellungen auf Modulviews sichtbar bleiben, ebenfalls
+- Wenn alte Modul-/Workflow-Darstellungen auf Modulviews sichtbar bleiben, ebenfalls
   Streamlit neu starten.
 - Wenn nach einem Update weiterhin Streamlit-Warnungen aus einem alten Prozess
   erscheinen, den laufenden Prozess stoppen und mit dem venv-Befehl neu starten.

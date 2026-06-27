@@ -58,6 +58,9 @@ Plot-Schritt aus.
 
 ## Referenz und Optionen
 
+Das uebergreifende Befehls- und Ausgabeninventar steht unter
+`docs/project/COMMAND_OUTPUT_INVENTORY.md`.
+
 Gemeinsame Optionen:
 
 - `--variants "Dimensionierung,I_04_DIM_Heizleistung_60%"`
@@ -74,9 +77,9 @@ Bereichen sortiert:
 - `Befehl`
 - `Unterbefehl`
 - `Template / Diagramm`
+- optional `Overlay`
 - `Varianten`
 - `Raeume`
-- optional `Overlay`
 - `Export / Ausgabe`
 - `Analyse starten`
 
@@ -96,7 +99,8 @@ wo sie fachlich gebraucht werden:
   alle Diagramme direkt unter `Unterbefehl`, `single`/`compare` unter
   `Export / Ausgabe`; Zeitansicht, Overlay-Aktivierung und die ausklappbare
   Diagrammanpassung liegen unter `Template / Diagramm`. Der eigene
-  Overlay-Bereich erscheint nach Varianten und Raeumen.
+  Overlay-Bereich erscheint direkt danach; der Overlay-Katalog wird erst nach
+  Varianten- und Raumauswahl befuellt.
   Intern nutzt die Streamlit-Variante weiter den bestehenden Backend-Befehl
   `plot-template`.
 - `single` erzeugt fuer jede ausgewaehlte Variante-Raum-Kombination ein

@@ -15,12 +15,16 @@ from ma_validation import (
     ReleaseStatus,
 )
 from ma_weather import (
+    ALL_WEATHER_PLOTS,
     DWD_TRY_URL,
+    WEATHER_PLOT_CHOICES,
+    WEATHER_PLOT_SPECS,
     WeatherAnalysisResult,
     WeatherDataset,
-    WeatherDatasetImportDraft,
     WeatherDatasetStatus,
+    WeatherDiscoveryValidationResult,
     WeatherEvent,
+    WeatherFileDiscovery,
     WeatherLocation,
     WeatherLocationCatalog,
     WeatherMetrics,
@@ -28,17 +32,22 @@ from ma_weather import (
     WeatherRegion,
     WeatherSelectionState,
     activate_weather_dataset,
-    import_local_weather_dataset,
+    discover_weather_input_files,
     import_weather_catalog,
     import_weather_location_catalog,
     infer_weather_start_year,
     inspect_weather_catalog_statuses,
+    inspect_weather_dataset_status,
     load_weather_selection_state,
     plot_template_weather,
     record_weather_release_decision,
+    register_discovered_weather_dataset,
     save_weather_selection_state,
     set_project_default_weather_dataset,
-    suggest_weather_key,
+    stage_weather_input_file,
+    update_weather_file_discovery,
+    validate_weather_file_discovery,
+    weather_discovery_rows,
     weather_status_from_analysis_result,
     weather_statuses_by_key,
 )
@@ -49,21 +58,30 @@ from ma_weather.weather_catalog import DATASET_ROLE_SITE_SPECIFIC, DATASET_ROLE_
 
 WEATHER_RESULT_SESSION_KEY = "ma_ui_weather_analysis_result"
 WEATHER_KEY_WIDGET_KEY = "ma_ui_weather_key"
+WEATHER_PLOT_WIDGET_KEY = "ma_ui_weather_plot_template"
 WEATHER_LOCATION_WIDGET_KEY = "ma_ui_weather_location"
 WEATHER_SESSION_ID_SESSION_KEY = "ma_ui_weather_session_id"
 WEATHER_RELEASE_DECISION_SESSION_KEY = "ma_ui_weather_release_decision"
 WEATHER_RELEASE_NOTE_WIDGET_KEY = "ma_ui_weather_release_note"
 WEATHER_STATUS_SESSION_KEY = "ma_ui_weather_dataset_statuses"
 WEATHER_SELECTION_STATE_SESSION_KEY = "ma_ui_weather_selection_state"
-WEATHER_IMPORT_FORM_VISIBLE_SESSION_KEY = "ma_ui_weather_import_form_visible"
 WEATHER_IMPORT_MESSAGE_SESSION_KEY = "ma_ui_weather_import_message"
-WEATHER_ASSET_DIR = Path(__file__).resolve().parents[1] / "assets" / "weather"
+WEATHER_DATASET_ACTION_SESSION_KEY = "ma_ui_weather_dataset_action"
+WEATHER_DISCOVERY_SESSION_KEY = "ma_ui_weather_discoveries"
+WEATHER_DISCOVERY_MESSAGE_SESSION_KEY = "ma_ui_weather_discovery_message"
+WEATHER_DISCOVERY_VALIDATION_SESSION_KEY = "ma_ui_weather_discovery_validation"
+WEATHER_ASSET_DIR = Path(__file__).resolve().parents[2] / "assets" / "weather"
 WEATHER_MAP_IMAGE_PATH = WEATHER_ASSET_DIR / "klimaregionen_deutschland.png"
 WEATHER_MAP_IMAGE_CANDIDATES = (
     WEATHER_MAP_IMAGE_PATH,
     WEATHER_ASSET_DIR / "klimaregionen_deutschland.jpg",
     WEATHER_ASSET_DIR / "klimaregionen_deutschland.jpeg",
+    Path(__file__).resolve().parents[1] / "assets" / "weather" / "klimaregionen_deutschland.png",
+    Path(__file__).resolve().parents[1] / "assets" / "weather" / "klimaregionen_deutschland.jpg",
+    Path(__file__).resolve().parents[1] / "assets" / "weather" / "klimaregionen_deutschland.jpeg",
 )
+LOCAL_IMPORT_SOURCE_LABEL = "Lokaler Import"
+LOCAL_IMPORT_PATH_PREFIX = "data/ma_weather/input/custom/"
 
 WEATHER_YEAR_TYPE_LABELS = {
     "reference_year": "Jahr",
@@ -87,6 +105,44 @@ WEATHER_IMPORT_ROLE_OPTIONS = {
     "Standortgenauer Datensatz": DATASET_ROLE_SITE_SPECIFIC,
     "TRY-Referenzdatensatz": DATASET_ROLE_TRY_REFERENCE,
 }
+
+WEATHER_DATASET_ACTION_IMPORT = "Import"
+WEATHER_DATASET_ACTION_SCAN = "Scannen"
+WEATHER_DATASET_ACTION_VALIDATE = "Validieren"
+WEATHER_DATASET_ACTIONS = (
+    WEATHER_DATASET_ACTION_IMPORT,
+    WEATHER_DATASET_ACTION_SCAN,
+    WEATHER_DATASET_ACTION_VALIDATE,
+)
+WEATHER_VALIDATION_VIEW_OPEN = "Offene Datensaetze"
+WEATHER_VALIDATION_VIEW_KEYS = "Key-Parameter pruefen"
+WEATHER_VALIDATION_VIEWS = (
+    WEATHER_VALIDATION_VIEW_OPEN,
+    WEATHER_VALIDATION_VIEW_KEYS,
+)
+WEATHER_DATASET_DEFAULT_COLUMNS = (
+    "Name",
+    "Ort",
+    "Quelle",
+    "Jahrtyp",
+    "Datensatztyp",
+    "Szenario",
+)
+WEATHER_PLOT_OPTIONS = (ALL_WEATHER_PLOTS, *WEATHER_PLOT_CHOICES)
+WEATHER_PLOT_LABELS = {
+    ALL_WEATHER_PLOTS: "Alle Wetterdiagramme",
+    **{spec.plot_key: spec.label for spec in WEATHER_PLOT_SPECS},
+}
+
+
+def weather_plot_label(plot_key: str) -> str:
+    """Gibt einen lesbaren Namen fuer einen Wetterdiagramm-Schluessel zurueck."""
+    return WEATHER_PLOT_LABELS.get(plot_key, plot_key)
+
+
+def normalize_weather_plot_key(plot_key: object) -> str:
+    """Normalisiert alte Session-State-Werte auf einen bekannten Diagramm-Schluessel."""
+    return str(plot_key) if plot_key in WEATHER_PLOT_OPTIONS else ALL_WEATHER_PLOTS
 
 
 def weather_dataset_rows(
@@ -132,6 +188,13 @@ def weather_dataset_rows(
             }
         )
     return rows
+
+
+def _weather_dataset_default_table(rows: list[dict[str, object]]):
+    """Reduziert die aktive Datensatztabelle auf die fachliche Standardansicht."""
+    table = normalize_table_for_streamlit(rows)
+    visible_columns = [column for column in WEATHER_DATASET_DEFAULT_COLUMNS if column in table.columns]
+    return table.loc[:, visible_columns]
 
 
 def weather_dataset_role_label(dataset: WeatherDataset) -> str:
@@ -288,8 +351,35 @@ def _store_weather_selection_state(state: WeatherSelectionState) -> None:
     st.session_state[WEATHER_SELECTION_STATE_SESSION_KEY] = state
 
 
+def _dataset_needs_startup_validation(dataset: WeatherDataset) -> bool:
+    """Validiert lokale UI-Imports direkt, damit offene Datensaetze nicht regulaer wirken."""
+    normalized_path = dataset.file_path.as_posix().replace("\\", "/")
+    return dataset.source == LOCAL_IMPORT_SOURCE_LABEL or normalized_path.startswith(LOCAL_IMPORT_PATH_PREFIX)
+
+
+def _is_dataset_regularly_selectable(
+    dataset: WeatherDataset,
+    status_by_key: dict[str, WeatherDatasetStatus],
+) -> bool:
+    status = status_by_key.get(dataset.weather_key)
+    return status is None or status.is_regularly_selectable
+
+
+def _regularly_selectable_datasets(
+    datasets: list[WeatherDataset],
+    status_by_key: dict[str, WeatherDatasetStatus],
+) -> list[WeatherDataset]:
+    return [dataset for dataset in datasets if _is_dataset_regularly_selectable(dataset, status_by_key)]
+
+
 def _base_statuses(catalog: object) -> list[WeatherDatasetStatus]:
-    return inspect_weather_catalog_statuses(catalog, validate_files=False)
+    return [
+        inspect_weather_dataset_status(
+            dataset,
+            validate_file=_dataset_needs_startup_validation(dataset),
+        )
+        for dataset in catalog.datasets
+    ]
 
 
 def _stored_statuses() -> list[WeatherDatasetStatus]:
@@ -297,25 +387,6 @@ def _stored_statuses() -> list[WeatherDatasetStatus]:
     if isinstance(statuses, list) and all(isinstance(status, WeatherDatasetStatus) for status in statuses):
         return statuses
     return []
-
-
-def _store_weather_dataset_status(status: WeatherDatasetStatus) -> None:
-    statuses = [stored_status for stored_status in _stored_statuses() if stored_status.weather_key != status.weather_key]
-    statuses.append(status)
-    st.session_state[WEATHER_STATUS_SESSION_KEY] = statuses
-
-
-def _store_weather_import_message(status: WeatherDatasetStatus) -> None:
-    if status.import_status.value == "error" or status.release_status is ReleaseStatus.BLOCKED:
-        message_type = "error"
-        text = f"Import gespeichert, aber blockiert: {status.weather_key}"
-    elif status.is_open:
-        message_type = "warning"
-        text = f"Import gespeichert, Freigabe oder Nacharbeit erforderlich: {status.weather_key}"
-    else:
-        message_type = "success"
-        text = f"Import gespeichert und geprueft: {status.weather_key}"
-    st.session_state[WEATHER_IMPORT_MESSAGE_SESSION_KEY] = (message_type, text)
 
 
 def _render_weather_import_message() -> None:
@@ -331,6 +402,216 @@ def _render_weather_import_message() -> None:
         st.success(str(text))
 
 
+def _store_weather_discovery_message(message_type: str, text: str) -> None:
+    st.session_state[WEATHER_DISCOVERY_MESSAGE_SESSION_KEY] = (message_type, text)
+
+
+def _render_weather_discovery_message() -> None:
+    message = st.session_state.pop(WEATHER_DISCOVERY_MESSAGE_SESSION_KEY, None)
+    if not isinstance(message, tuple) or len(message) != 2:
+        return
+    message_type, text = message
+    if message_type == "error":
+        st.error(str(text))
+    elif message_type == "warning":
+        st.warning(str(text))
+    else:
+        st.success(str(text))
+
+
+def _stored_weather_discoveries() -> list[WeatherFileDiscovery]:
+    discoveries = st.session_state.get(WEATHER_DISCOVERY_SESSION_KEY)
+    if isinstance(discoveries, list) and all(isinstance(item, WeatherFileDiscovery) for item in discoveries):
+        return discoveries
+    return []
+
+
+def _stored_weather_discovery_validation() -> WeatherDiscoveryValidationResult | None:
+    result = st.session_state.get(WEATHER_DISCOVERY_VALIDATION_SESSION_KEY)
+    if isinstance(result, WeatherDiscoveryValidationResult):
+        return result
+    return None
+
+
+def _set_weather_dataset_action(action: str) -> None:
+    if action in WEATHER_DATASET_ACTIONS:
+        st.session_state[WEATHER_DATASET_ACTION_SESSION_KEY] = action
+
+
+def _active_weather_dataset_action() -> str:
+    action = st.session_state.get(WEATHER_DATASET_ACTION_SESSION_KEY)
+    if isinstance(action, str) and action in WEATHER_DATASET_ACTIONS:
+        return action
+    return ""
+
+
+def _toggle_weather_dataset_action(action: str) -> None:
+    """Oeffnet oder schliesst eine Datensatz-Arbeitsansicht."""
+    if action not in WEATHER_DATASET_ACTIONS:
+        return
+    if _active_weather_dataset_action() == action:
+        st.session_state.pop(WEATHER_DATASET_ACTION_SESSION_KEY, None)
+        return
+    _set_weather_dataset_action(action)
+
+
+def _option_index_or_none(options: tuple[str, ...], value: str) -> int | None:
+    return options.index(value) if value in options else None
+
+
+def _option_label_for_value(options: dict[str, str], value: str) -> str:
+    for label, option_value in options.items():
+        if option_value == value:
+            return label
+    return ""
+
+
+def _editor_rows_as_records(edited_rows: object) -> list[dict[str, object]]:
+    if hasattr(edited_rows, "to_dict"):
+        records = edited_rows.to_dict("records")
+        return [dict(record) for record in records]
+    if isinstance(edited_rows, list):
+        return [dict(record) for record in edited_rows if isinstance(record, MutableMapping)]
+    return []
+
+
+def _key_parameter_value(rows: list[dict[str, object]], field_name: str) -> str:
+    for row in rows:
+        if str(row.get("Feld", "")).strip() == field_name:
+            return str(row.get("Zielwert", "")).strip()
+    return ""
+
+
+def _location_editor_value(location_id: str, locations_by_id: dict[str, WeatherLocation]) -> str:
+    location = locations_by_id.get(location_id)
+    if location is None:
+        return ""
+    return f"{location.location_id} - {location.location_name}"
+
+
+def _location_id_from_editor_value(value: str, locations_by_id: dict[str, WeatherLocation]) -> str:
+    normalized_value = value.strip().casefold()
+    if not normalized_value:
+        return ""
+    possible_id = value.split("-", maxsplit=1)[0].strip()
+    for location_id, location in locations_by_id.items():
+        candidates = {
+            location_id.casefold(),
+            location.location_name.casefold(),
+            weather_location_label(location).casefold(),
+            f"{location.location_id} - {location.location_name}".casefold(),
+        }
+        if normalized_value in candidates or possible_id.casefold() == location_id.casefold():
+            return location_id
+    raise ValueError(f"Stadt konnte nicht zugeordnet werden: {value}")
+
+
+def _dataset_type_from_editor_value(value: str) -> str:
+    normalized_value = value.strip().casefold()
+    if not normalized_value:
+        return ""
+    for label in WEATHER_IMPORT_TYPE_OPTIONS:
+        if normalized_value == label.casefold():
+            return label
+    raise ValueError(f"Datensatztyp ist ungueltig: {value}")
+
+
+def _option_value_from_editor_value(value: str, options: dict[str, str], field_name: str) -> str:
+    normalized_value = value.strip().casefold()
+    if not normalized_value:
+        return ""
+    for label, option_value in options.items():
+        if normalized_value in {label.casefold(), option_value.casefold()}:
+            return option_value
+    raise ValueError(f"{field_name} ist ungueltig: {value}")
+
+
+def _year_from_editor_value(value: str) -> int | None:
+    if not value.strip():
+        return None
+    try:
+        return int(value.strip())
+    except ValueError as exc:
+        raise ValueError("Bezugsjahr muss als ganze Jahreszahl eingetragen werden.") from exc
+
+
+def _updated_discovery_from_key_parameter_rows(
+    discovery: WeatherFileDiscovery,
+    *,
+    edited_rows: object,
+    location_catalog: WeatherLocationCatalog,
+    locations_by_id: dict[str, WeatherLocation],
+) -> WeatherFileDiscovery:
+    rows = _editor_rows_as_records(edited_rows)
+    location_id = _location_id_from_editor_value(_key_parameter_value(rows, "Stadt"), locations_by_id)
+    dataset_type = _dataset_type_from_editor_value(_key_parameter_value(rows, "Datensatztyp"))
+    climate_scenario = _option_value_from_editor_value(
+        _key_parameter_value(rows, "Szenario"),
+        WEATHER_IMPORT_SCENARIO_OPTIONS,
+        "Szenario",
+    )
+    dataset_role = _option_value_from_editor_value(
+        _key_parameter_value(rows, "Rolle"),
+        WEATHER_IMPORT_ROLE_OPTIONS,
+        "Rolle",
+    )
+    year = _year_from_editor_value(_key_parameter_value(rows, "Bezugsjahr"))
+    return update_weather_file_discovery(
+        discovery,
+        location_catalog=location_catalog,
+        location_id=location_id,
+        dataset_type=dataset_type,
+        climate_scenario=climate_scenario,
+        dataset_role=dataset_role,
+        year=year,
+        weather_key=_key_parameter_value(rows, "weather_key"),
+        display_name=_key_parameter_value(rows, "Anzeigename"),
+    )
+
+
+def _apply_location_suggestion_to_discovery(
+    discovery: WeatherFileDiscovery,
+    *,
+    location_catalog: WeatherLocationCatalog,
+) -> WeatherFileDiscovery:
+    suggested_location_id = discovery.metadata.get("suggested_location_id", "")
+    location = location_catalog.get_location(suggested_location_id)
+    dataset_role = DATASET_ROLE_TRY_REFERENCE if location.is_reference_location else DATASET_ROLE_SITE_SPECIFIC
+    return update_weather_file_discovery(
+        discovery,
+        location_catalog=location_catalog,
+        location_id=location.location_id,
+        dataset_type=discovery.dataset_type,
+        climate_scenario=discovery.climate_scenario,
+        dataset_role=dataset_role,
+        year=discovery.year,
+        weather_key=discovery.weather_key,
+        display_name=discovery.display_name,
+    )
+
+
+def _replace_stored_weather_discovery(updated_discovery: WeatherFileDiscovery) -> None:
+    discoveries = [
+        discovery
+        for discovery in _stored_weather_discoveries()
+        if discovery.file_path != updated_discovery.file_path
+    ]
+    discoveries.append(updated_discovery)
+    discoveries.sort(key=lambda discovery: discovery.file_path.as_posix())
+    st.session_state[WEATHER_DISCOVERY_SESSION_KEY] = discoveries
+
+
+def _remove_stored_weather_discovery(registered_discovery: WeatherFileDiscovery) -> None:
+    st.session_state[WEATHER_DISCOVERY_SESSION_KEY] = [
+        discovery
+        for discovery in _stored_weather_discoveries()
+        if discovery.file_path != registered_discovery.file_path
+    ]
+    stored_validation = _stored_weather_discovery_validation()
+    if stored_validation and stored_validation.discovery.file_path == registered_discovery.file_path:
+        st.session_state.pop(WEATHER_DISCOVERY_VALIDATION_SESSION_KEY, None)
+
+
 def _current_status_map(
     catalog: object,
     result: object,
@@ -344,19 +625,6 @@ def _current_status_map(
     return status_map
 
 
-def _weather_import_year_type(type_label: str, scenario: str) -> str:
-    year_type = WEATHER_IMPORT_TYPE_OPTIONS[type_label]
-    if year_type == "reference_year" and scenario != "present":
-        return "future_year"
-    return year_type
-
-
-def _weather_import_year_default(scenario: str) -> int:
-    if scenario == "future_2045":
-        return 2045
-    return 2015
-
-
 def _run_weather_catalog_validation(catalog: object) -> None:
     """Prueft katalogisierte Wetterdateien und merkt den Status in der UI-Sitzung."""
     with st.spinner("Katalogisierte Wetterdateien werden geprueft..."):
@@ -367,135 +635,302 @@ def _run_weather_catalog_validation(catalog: object) -> None:
     st.rerun()
 
 
-def _render_weather_dataset_actions(catalog: object) -> None:
+def _run_weather_input_discovery(
+    catalog: object,
+    location_catalog: WeatherLocationCatalog | None,
+) -> None:
+    """Sucht neue TRY-Dateien und speichert Entwuerfe in der UI-Sitzung."""
+    if location_catalog is None:
+        _store_weather_discovery_message("error", "Standortkatalog ist fuer den lokalen TRY-Dateiscan erforderlich.")
+        return
+    try:
+        with st.spinner("Lokale TRY-Dateien werden gesucht..."):
+            discoveries = discover_weather_input_files(
+                existing_catalog=catalog,
+                location_catalog=location_catalog,
+            )
+    except (OSError, ValueError) as exc:
+        _store_weather_discovery_message("error", f"Lokaler TRY-Dateiscan fehlgeschlagen: {exc}")
+        return
+
+    st.session_state[WEATHER_DISCOVERY_SESSION_KEY] = discoveries
+    ready_count = sum(1 for discovery in discoveries if discovery.is_complete)
+    open_count = len(discoveries) - ready_count
+    if discoveries:
+        _store_weather_discovery_message(
+            "success" if open_count == 0 else "warning",
+            f"Lokaler TRY-Dateiscan abgeschlossen: {ready_count} vollstaendig, {open_count} offen.",
+        )
+    else:
+        _store_weather_discovery_message("success", "Keine neuen lokalen TRY-Dateien gefunden.")
+
+
+def _render_weather_dataset_actions(
+    catalog: object,
+    location_catalog: WeatherLocationCatalog | None,
+) -> None:
     """Zeigt die Datensatzaktionen gemeinsam im Wetterdatensatzbereich."""
-    import_column, validation_column = st.columns(2)
+    import_column, scan_column, validation_column = st.columns(3)
     with import_column:
-        toggle_import = st.button(
-            "Wetterdatensatz importieren",
+        show_import = st.button(
+            WEATHER_DATASET_ACTION_IMPORT,
             key="ma_ui_weather_import_toggle",
             width="stretch",
         )
+    with scan_column:
+        show_scan = st.button(
+            WEATHER_DATASET_ACTION_SCAN,
+            key="ma_ui_weather_discover_input_files",
+            width="stretch",
+        )
     with validation_column:
-        validate_catalog = st.button(
-            "Bestand und Validierung pruefen",
+        show_validation = st.button(
+            WEATHER_DATASET_ACTION_VALIDATE,
             key="ma_ui_weather_validate_catalog",
             width="stretch",
         )
 
-    if toggle_import:
-        st.session_state[WEATHER_IMPORT_FORM_VISIBLE_SESSION_KEY] = not bool(
-            st.session_state.get(WEATHER_IMPORT_FORM_VISIBLE_SESSION_KEY, False)
-        )
-    if validate_catalog:
-        _run_weather_catalog_validation(catalog)
+    if show_import:
+        _toggle_weather_dataset_action(WEATHER_DATASET_ACTION_IMPORT)
+    if show_scan:
+        _toggle_weather_dataset_action(WEATHER_DATASET_ACTION_SCAN)
+    if show_validation:
+        _toggle_weather_dataset_action(WEATHER_DATASET_ACTION_VALIDATE)
 
     _render_weather_import_message()
+    _render_weather_discovery_message()
 
 
-def _render_weather_import_form(
-    catalog: object,
-    location_catalog: WeatherLocationCatalog | None,
-) -> None:
-    if not st.session_state.get(WEATHER_IMPORT_FORM_VISIBLE_SESSION_KEY, False):
+def _render_weather_import_panel() -> None:
+    if _active_weather_dataset_action() != WEATHER_DATASET_ACTION_IMPORT:
         return
 
+    st.markdown("**Import**")
     st.link_button("TRY-Daten beim DWD oeffnen", DWD_TRY_URL)
-    if location_catalog is None:
-        st.warning("Der Standortkatalog ist fuer den Import erforderlich.")
-        return
-
-    active_locations = location_catalog.active_locations()
-    if not active_locations:
-        st.info("Im Standortkatalog ist aktuell kein aktiver Standort vorhanden.")
-        return
-
-    locations_by_id = {location.location_id: location for location in active_locations}
-    with st.form("ma_ui_weather_import_form"):
+    st.caption("Der Import legt die Datei nur lokal ab. Metadaten werden anschliessend ueber Scannen und Validieren erzeugt.")
+    with st.form("ma_ui_weather_stage_form"):
         uploaded_file = st.file_uploader("TRY-Datei (.dat)", type=("dat",), key="ma_ui_weather_import_file")
-        selected_location_id = st.selectbox(
-            "Stadt",
-            options=tuple(locations_by_id),
-            format_func=lambda location_id: weather_location_label(locations_by_id[location_id]),
-            key="ma_ui_weather_import_location",
-        )
-        type_label = st.selectbox(
-            "Datensatztyp",
-            options=tuple(WEATHER_IMPORT_TYPE_OPTIONS),
-            key="ma_ui_weather_import_type",
-        )
-        scenario_label = st.selectbox(
-            "Szenario",
-            options=tuple(WEATHER_IMPORT_SCENARIO_OPTIONS),
-            key="ma_ui_weather_import_scenario",
-        )
-        role_label = st.selectbox(
-            "Rolle",
-            options=tuple(WEATHER_IMPORT_ROLE_OPTIONS),
-            key="ma_ui_weather_import_role",
-        )
-        scenario = WEATHER_IMPORT_SCENARIO_OPTIONS[scenario_label]
-        year_type = _weather_import_year_type(type_label, scenario)
-        selected_location = locations_by_id[selected_location_id]
-        reference_location = location_catalog.reference_location_for_city(selected_location.location_id)
-        year = st.number_input(
-            "Bezugsjahr",
-            min_value=1900,
-            max_value=2100,
-            value=_weather_import_year_default(scenario),
-            step=1,
-            key="ma_ui_weather_import_year",
-        )
-        key_suggestion = suggest_weather_key(
-            location_code=selected_location.legacy_code or selected_location.location_name,
-            year=int(year),
-            year_type=year_type,
-        )
-        weather_key = st.text_input(
-            "weather_key",
-            value=key_suggestion,
-            key="ma_ui_weather_import_weather_key",
-        )
-        display_name = st.text_input(
-            "Name",
-            value=f"TRY {selected_location.location_name} {int(year)} {type_label}",
-            key="ma_ui_weather_import_display_name",
-        )
-        submitted = st.form_submit_button("Import speichern und pruefen", type="primary", width="stretch")
+        submitted = st.form_submit_button("Datei lokal ablegen", type="primary", width="stretch")
 
     if not submitted:
         return
     if uploaded_file is None:
         st.error("Bitte zuerst eine entpackte TRY-.dat-Datei auswaehlen.")
         return
-
-    draft = WeatherDatasetImportDraft(
-        weather_key=weather_key,
-        display_name=display_name,
-        original_filename=uploaded_file.name,
-        location=selected_location.location_name,
-        year_type=year_type,
-        climate_scenario=scenario,
-        dataset_role=WEATHER_IMPORT_ROLE_OPTIONS[role_label],
-        location_id=selected_location.location_id,
-        reference_location_id=reference_location.location_id,
-        selection_priority=50,
-    )
     try:
-        result = import_local_weather_dataset(
+        staged_file = stage_weather_input_file(
             uploaded_file.getvalue(),
-            draft=draft,
-            existing_catalog=catalog,
-            session_id=get_weather_session_id(st.session_state),
+            original_filename=uploaded_file.name,
         )
     except (OSError, ValueError) as exc:
-        st.error(f"Wetterdatensatz konnte nicht importiert werden: {exc}")
+        st.error(f"TRY-Datei konnte nicht abgelegt werden: {exc}")
         return
 
-    _store_weather_dataset_status(result.status)
-    _store_weather_import_message(result.status)
-    st.session_state[WEATHER_IMPORT_FORM_VISIBLE_SESSION_KEY] = False
+    st.session_state[WEATHER_IMPORT_MESSAGE_SESSION_KEY] = (
+        "success",
+        f"TRY-Datei abgelegt: {staged_file.file_path.as_posix()}. Danach Scannen ausfuehren.",
+    )
+    _set_weather_dataset_action(WEATHER_DATASET_ACTION_SCAN)
     st.rerun()
+
+
+def _render_weather_discoveries(*, show_validation_hint: bool = False) -> None:
+    """Zeigt gescannte lokale TRY-Dateien als Entwurfstabelle."""
+    discoveries = _stored_weather_discoveries()
+    if not discoveries:
+        return
+
+    st.markdown("**Gefundene lokale TRY-Dateien**")
+    ready_discoveries = [discovery for discovery in discoveries if discovery.is_complete]
+    open_discoveries = [discovery for discovery in discoveries if not discovery.is_complete]
+    st.caption(
+        f"{len(ready_discoveries)} vollstaendige Entwuerfe, "
+        f"{len(open_discoveries)} offene Entwuerfe."
+    )
+    st.dataframe(
+        normalize_table_for_streamlit(weather_discovery_rows(discoveries)),
+        hide_index=True,
+        width="stretch",
+    )
+    if show_validation_hint and ready_discoveries:
+        st.info("Vollstaendige Entwuerfe werden im Schritt Validieren geprueft und registriert.")
+
+
+def _render_weather_scan_panel(
+    catalog: object,
+    location_catalog: WeatherLocationCatalog | None,
+) -> None:
+    if _active_weather_dataset_action() != WEATHER_DATASET_ACTION_SCAN:
+        return
+
+    st.markdown("**Scannen**")
+    st.caption("Sucht neue TRY-Dateien unter `data/ma_weather/input/TRY_*` und erzeugt Datensatzentwuerfe.")
+    if st.button("Lokale TRY-Dateien jetzt scannen", key="ma_ui_weather_rescan_input_files"):
+        _run_weather_input_discovery(catalog, location_catalog)
+    _render_weather_discoveries(show_validation_hint=True)
+
+
+def _render_weather_validation_panel(
+    catalog: object,
+    location_catalog: WeatherLocationCatalog | None,
+    status_by_key: dict[str, WeatherDatasetStatus],
+) -> None:
+    if _active_weather_dataset_action() != WEATHER_DATASET_ACTION_VALIDATE:
+        return
+
+    st.markdown("**Validieren**")
+    st.caption("Prueft den Bestand und erlaubt Anpassungen an offenen Datensatzentwuerfen vor der Registrierung.")
+    if st.button("Katalogisierte Wetterdatensaetze pruefen", key="ma_ui_weather_validate_catalog_in_panel"):
+        _run_weather_catalog_validation(catalog)
+
+    discoveries = _stored_weather_discoveries()
+    validation_view = st.radio(
+        "Validierungsansicht",
+        options=WEATHER_VALIDATION_VIEWS,
+        horizontal=True,
+        key="ma_ui_weather_validation_view",
+    )
+    if validation_view == WEATHER_VALIDATION_VIEW_OPEN:
+        _render_open_weather_datasets(status_by_key, discoveries=discoveries)
+        return
+
+    if not discoveries:
+        st.info("Keine Entwuerfe in der Sitzung. Bitte zuerst den Schritt Scannen ausfuehren.")
+        return
+    if location_catalog is None:
+        st.warning("Der Standortkatalog ist fuer die Entwurfsvalidierung erforderlich.")
+        return
+
+    _render_weather_discoveries()
+    discoveries_by_path = {discovery.file_path.as_posix(): discovery for discovery in discoveries}
+    selected_path = st.selectbox(
+        "Entwurf",
+        options=tuple(discoveries_by_path),
+        format_func=lambda path: f"{discoveries_by_path[path].weather_key or 'ohne weather_key'} - {path}",
+        key="ma_ui_weather_validation_discovery",
+    )
+    selected_discovery = discoveries_by_path[selected_path]
+    active_locations = location_catalog.active_locations()
+    if not active_locations:
+        st.info("Im Standortkatalog ist aktuell kein aktiver Standort vorhanden.")
+        return
+    locations_by_id = {location.location_id: location for location in active_locations}
+    if selected_discovery.metadata.get("suggested_location_id") and not selected_discovery.location_id:
+        suggestion_label = selected_discovery.metadata.get("suggested_location_name", "")
+        if st.button(
+            f"Koordinatenvorschlag uebernehmen: {suggestion_label}",
+            key=f"ma_ui_weather_apply_mapping_suggestion_{selected_path}",
+        ):
+            try:
+                updated_discovery = _apply_location_suggestion_to_discovery(
+                    selected_discovery,
+                    location_catalog=location_catalog,
+                )
+            except (KeyError, ValueError) as exc:
+                st.error(f"Standortvorschlag konnte nicht uebernommen werden: {exc}")
+                return
+            _replace_stored_weather_discovery(updated_discovery)
+            st.session_state.pop(WEATHER_DISCOVERY_VALIDATION_SESSION_KEY, None)
+            _store_weather_discovery_message("success", "Standortvorschlag wurde in den Entwurf uebernommen.")
+            st.rerun()
+
+    st.markdown("**Aus Datei gelesen und Key-Parameter**")
+    edited_rows = st.data_editor(
+        normalize_table_for_streamlit(weather_discovery_key_parameter_rows(selected_discovery, locations_by_id)),
+        hide_index=True,
+        width="stretch",
+        disabled=("Feld", "Gelesener Wert", "Quelle", "Bearbeitung"),
+        key=f"ma_ui_weather_key_parameter_editor_{selected_path}",
+    )
+    apply_submitted = st.button(
+        "Aenderungen uebernehmen",
+        key=f"ma_ui_weather_apply_discovery_changes_{selected_path}",
+        width="stretch",
+    )
+    release_warnings = st.checkbox(
+        "Warnungen fuer diesen Entwurf bewusst freigeben",
+        key=f"ma_ui_weather_validate_release_warnings_{selected_path}",
+    )
+    validate_submitted = st.button(
+        "Entwurf validieren",
+        key=f"ma_ui_weather_validate_discovery_button_{selected_path}",
+        width="stretch",
+    )
+
+    validation_result = _stored_weather_discovery_validation()
+    if apply_submitted:
+        try:
+            updated_discovery = _updated_discovery_from_key_parameter_rows(
+                selected_discovery,
+                edited_rows=edited_rows,
+                location_catalog=location_catalog,
+                locations_by_id=locations_by_id,
+            )
+        except ValueError as exc:
+            st.error(str(exc))
+            return
+        _replace_stored_weather_discovery(updated_discovery)
+        st.session_state.pop(WEATHER_DISCOVERY_VALIDATION_SESSION_KEY, None)
+        _store_weather_discovery_message("success", "Aenderungen wurden in den Entwurf uebernommen.")
+        st.rerun()
+
+    if validate_submitted:
+        try:
+            validation_result = validate_weather_file_discovery(
+                selected_discovery,
+                existing_catalog=import_weather_catalog(),
+                warnings_released=release_warnings,
+            )
+        except (OSError, ValueError) as exc:
+            st.error(f"Entwurf konnte nicht validiert werden: {exc}")
+            return
+        st.session_state[WEATHER_DISCOVERY_VALIDATION_SESSION_KEY] = validation_result
+
+    if validation_result is None or validation_result.discovery.file_path != selected_discovery.file_path:
+        return
+
+    _render_weather_discovery_validation_result(validation_result)
+    if not validation_result.can_register:
+        return
+
+    if st.button(
+        "Validierten Entwurf registrieren",
+        key=f"ma_ui_weather_register_validated_discovery_{selected_path}",
+        type="primary",
+    ):
+        try:
+            register_discovered_weather_dataset(
+                validation_result.discovery,
+                existing_catalog=import_weather_catalog(),
+            )
+        except (OSError, ValueError) as exc:
+            _store_weather_discovery_message("error", f"Entwurf konnte nicht registriert werden: {exc}")
+            return
+        _remove_stored_weather_discovery(validation_result.discovery)
+        _store_weather_discovery_message(
+            "success",
+            f"Entwurf wurde registriert: {validation_result.discovery.weather_key}",
+        )
+        st.rerun()
+
+
+def _render_weather_discovery_validation_result(result: WeatherDiscoveryValidationResult) -> None:
+    status = result.dataset_status
+    if status.error_count:
+        st.error(f"Entwurf blockiert: {status.error_count} Fehler.")
+    elif status.warning_count and not result.warnings_released:
+        st.warning("Entwurf hat Warnungen und braucht eine bewusste Freigabe.")
+    elif result.can_register:
+        st.success("Entwurf ist validiert und kann registriert werden.")
+    else:
+        st.info("Entwurf ist geprueft, aber noch nicht registrierbar.")
+    st.dataframe(
+        normalize_table_for_streamlit(weather_status_rows([status])),
+        hide_index=True,
+        width="stretch",
+    )
+    if result.messages:
+        st.caption("; ".join(result.messages))
 
 
 def _try_reference_datasets(datasets: list[WeatherDataset]) -> list[WeatherDataset]:
@@ -545,6 +980,27 @@ def _render_location_context(
     return region, reference_location
 
 
+def _render_unselected_weather_context() -> tuple[None, bool]:
+    """Haelt die Auswahlbereiche sichtbar, solange noch keine Stadt gewaehlt ist."""
+    st.markdown("**Klimaregion:** -")
+    st.markdown("**TRY-Referenzstandort:** -")
+    st.info("Bitte zuerst eine Stadt auswaehlen.")
+    st.selectbox(
+        "Wetterdatensatz",
+        options=("Noch keine Stadt ausgewaehlt",),
+        disabled=True,
+        key=f"{WEATHER_KEY_WIDGET_KEY}_placeholder",
+    )
+    st.selectbox(
+        "Wetterdiagramm",
+        options=(weather_plot_label(ALL_WEATHER_PLOTS),),
+        disabled=True,
+        key=f"{WEATHER_PLOT_WIDGET_KEY}_placeholder",
+    )
+    st.button("Wetteranalyse starten", type="primary", disabled=True)
+    return None, False
+
+
 def _render_weather_selection(
     catalog: object,
     location_catalog: WeatherLocationCatalog | None,
@@ -552,12 +1008,7 @@ def _render_weather_selection(
     selection_state: WeatherSelectionState,
 ) -> tuple[WeatherDataset | None, bool]:
     """Rendert die Standort- und Datensatzauswahl und gibt den Datensatz zurueck."""
-    selectable_active_datasets = [
-        dataset
-        for dataset in catalog.active_datasets()
-        if status_by_key.get(dataset.weather_key) is None
-        or status_by_key[dataset.weather_key].is_regularly_selectable
-    ]
+    selectable_active_datasets = _regularly_selectable_datasets(catalog.active_datasets(), status_by_key)
     left_column, right_column = st.columns([1, 2])
     with left_column:
         _render_weather_map()
@@ -576,19 +1027,21 @@ def _render_weather_selection(
                 "Stadt",
                 options=tuple(locations_by_id),
                 format_func=lambda location_id: weather_location_label(locations_by_id[location_id]),
+                index=None,
+                placeholder="Stadt auswaehlen",
                 key=WEATHER_LOCATION_WIDGET_KEY,
             )
+            if selected_location_id is None:
+                return _render_unselected_weather_context()
             selected_location = locations_by_id[selected_location_id]
             _, reference_location = _render_location_context(location_catalog, selected_location)
-            selectable_datasets = [
-                dataset
-                for dataset in catalog.datasets_for_location(
+            selectable_datasets = _regularly_selectable_datasets(
+                catalog.datasets_for_location(
                     location_id=selected_location.location_id,
                     reference_location_id=reference_location.location_id,
-                )
-                if status_by_key.get(dataset.weather_key) is None
-                or status_by_key[dataset.weather_key].is_regularly_selectable
-            ]
+                ),
+                status_by_key,
+            )
             if not _try_reference_datasets(selectable_datasets):
                 st.info(
                     "Fuer diesen TRY-Referenzstandort ist noch kein aktiver "
@@ -613,6 +1066,15 @@ def _render_weather_selection(
             key=WEATHER_KEY_WIDGET_KEY,
         )
         selected_dataset = datasets_by_key[selected_key]
+        st.session_state[WEATHER_PLOT_WIDGET_KEY] = normalize_weather_plot_key(
+            st.session_state.get(WEATHER_PLOT_WIDGET_KEY)
+        )
+        st.selectbox(
+            "Wetterdiagramm",
+            options=WEATHER_PLOT_OPTIONS,
+            format_func=weather_plot_label,
+            key=WEATHER_PLOT_WIDGET_KEY,
+        )
         selected_path = selected_dataset.resolved_file_path()
         file_exists = selected_path.exists()
         start_analysis = st.button("Wetteranalyse starten", type="primary", disabled=not file_exists)
@@ -662,6 +1124,7 @@ def weather_status_rows(statuses: list[WeatherDatasetStatus]) -> list[dict[str, 
     for status in statuses:
         rows.append(
             {
+                "Typ": "Katalogdatensatz",
                 "weather_key": status.weather_key,
                 "Name": status.display_name,
                 "Status": status.status_label,
@@ -679,6 +1142,143 @@ def weather_status_rows(statuses: list[WeatherDatasetStatus]) -> list[dict[str, 
                 "Hinweise": "; ".join(status.messages),
             }
         )
+    return rows
+
+
+def weather_open_discovery_rows(discoveries: list[WeatherFileDiscovery]) -> list[dict[str, object]]:
+    """Bereitet unregistrierte Scan-Entwuerfe fuer die offene Uebersicht auf."""
+    rows: list[dict[str, object]] = []
+    for discovery in discoveries:
+        rows.append(
+            {
+                "Typ": "Scan-Entwurf",
+                "weather_key": discovery.weather_key,
+                "Name": discovery.display_name,
+                "Status": discovery.status.value,
+                "Datei vorhanden": (Path.cwd() / discovery.file_path).exists(),
+                "Pruefstatus": "discovery",
+                "Freigabestatus": "",
+                "Import-ID": "",
+                "Session-ID": "",
+                "Run-ID": "",
+                "Quellen-ID": "",
+                "Stundenwerte": "",
+                "Warnungen": 0,
+                "Fehler": len(discovery.missing_fields),
+                "Datei": discovery.file_path.as_posix(),
+                "Offene Punkte": ", ".join(discovery.missing_fields),
+                "Hinweise": "; ".join(discovery.messages),
+            }
+        )
+    return rows
+
+
+def weather_discovery_file_value_rows(discovery: WeatherFileDiscovery) -> list[dict[str, object]]:
+    """Zeigt die aus Datei, Pfad und TRY-Kopf gelesenen Entwurfswerte."""
+    metadata = discovery.metadata
+    values = [
+        ("Dateiname", discovery.file_path.name, "Dateipfad"),
+        ("Relativer Pfad", discovery.file_path.as_posix(), "Dateipfad"),
+        ("TRY-Ordner", discovery.try_folder_key, "Dateipfad"),
+        ("TRY-ID", discovery.try_id, "Dateipfad"),
+        ("Bezugsjahr", discovery.year if discovery.year is not None else "", "Dateiname"),
+        ("Datensatztyp", discovery.dataset_type, "Dateiname"),
+        ("Jahrtyp", discovery.year_type, "Dateiname"),
+        ("Szenario", discovery.climate_scenario, "Dateiname"),
+        ("Rechtswert", metadata.get("rechtswert_m", ""), "TRY-Kopf"),
+        ("Hochwert", metadata.get("hochwert_m", ""), "TRY-Kopf"),
+        ("Hoehenlage", metadata.get("hoehenlage_m", ""), "TRY-Kopf"),
+        ("Art des TRY", metadata.get("try_type", ""), "TRY-Kopf"),
+        ("Bezugszeitraum", metadata.get("reference_period", ""), "TRY-Kopf"),
+        ("Mapping-Status", metadata.get("mapping_status", ""), "Mapping"),
+        ("Mapping-Standort-ID", metadata.get("mapping_location_id", ""), "Mapping"),
+        ("Mapping-Quelle", metadata.get("mapping_source", ""), "Mapping"),
+        ("Mapping-Vertrauen", metadata.get("mapping_confidence", ""), "Mapping"),
+        ("Mapping-Hinweis", metadata.get("mapping_notes", ""), "Mapping"),
+        ("Standortvorschlag", metadata.get("suggested_location_name", ""), "Koordinatenvorschlag"),
+        ("Vorschlag Standort-ID", metadata.get("suggested_location_id", ""), "Koordinatenvorschlag"),
+        ("Vorschlag Klimaregion", metadata.get("suggested_region_id", ""), "Koordinatenvorschlag"),
+        (
+            "Vorschlag Referenzstandort-ID",
+            metadata.get("suggested_reference_location_id", ""),
+            "Koordinatenvorschlag",
+        ),
+        ("Vorschlag Abstand m", metadata.get("suggested_distance_m", ""), "Koordinatenvorschlag"),
+        (
+            "Vorschlag Hoehenabweichung m",
+            metadata.get("suggested_height_difference_m", ""),
+            "Koordinatenvorschlag",
+        ),
+        ("Vorschlag Vertrauen", metadata.get("suggested_confidence", ""), "Koordinatenvorschlag"),
+        ("Vorschlag Begruendung", metadata.get("suggested_reason", ""), "Koordinatenvorschlag"),
+    ]
+    return [
+        {"Feld": field, "Gelesener Wert": value, "Quelle": source}
+        for field, value, source in values
+        if value not in ("", None)
+    ]
+
+
+def weather_discovery_key_parameter_rows(
+    discovery: WeatherFileDiscovery,
+    locations_by_id: dict[str, WeatherLocation],
+) -> list[dict[str, object]]:
+    """Kombiniert gelesene Dateiwerte mit direkt editierbaren Zielwerten."""
+    rows = [
+        {
+            "Feld": row["Feld"],
+            "Gelesener Wert": row["Gelesener Wert"],
+            "Zielwert": "",
+            "Quelle": row["Quelle"],
+            "Bearbeitung": "Nur Anzeige",
+        }
+        for row in weather_discovery_file_value_rows(discovery)
+    ]
+    scenario_label = _option_label_for_value(WEATHER_IMPORT_SCENARIO_OPTIONS, discovery.climate_scenario)
+    role_label = _option_label_for_value(WEATHER_IMPORT_ROLE_OPTIONS, discovery.dataset_role)
+    key_parameters = [
+        (
+            "Stadt",
+            discovery.location_name,
+            _location_editor_value(discovery.location_id, locations_by_id),
+            "Mapping" if discovery.location_id else "Manuell",
+            "location_id oder Standortname",
+        ),
+        (
+            "Bezugsjahr",
+            discovery.year if discovery.year is not None else "",
+            discovery.year if discovery.year is not None else "",
+            "Dateiname",
+            "Jahreszahl",
+        ),
+        ("Datensatztyp", discovery.dataset_type, discovery.dataset_type, "Dateiname", "Jahr, Sommer oder Winter"),
+        (
+            "Szenario",
+            discovery.climate_scenario,
+            scenario_label or discovery.climate_scenario,
+            "Dateiname",
+            "Gegenwart/present oder Zukunft 2045/future_2045",
+        ),
+        (
+            "Rolle",
+            discovery.dataset_role,
+            role_label or discovery.dataset_role,
+            "Mapping",
+            "Standortgenauer Datensatz/site_specific oder TRY-Referenzdatensatz/try_reference",
+        ),
+        ("weather_key", discovery.weather_key, discovery.weather_key, "Ableitung", "stabiler eindeutiger Schluessel"),
+        ("Anzeigename", discovery.display_name, discovery.display_name, "Ableitung", "lesbarer Name"),
+    ]
+    rows.extend(
+        {
+            "Feld": field,
+            "Gelesener Wert": read_value,
+            "Zielwert": target_value,
+            "Quelle": source,
+            "Bearbeitung": hint,
+        }
+        for field, read_value, target_value, source, hint in key_parameters
+    )
     return rows
 
 
@@ -820,15 +1420,21 @@ def _render_activation_controls(
         st.caption("Projekt-Default ist erst nach Aktivierung moeglich.")
 
 
-def _render_open_weather_datasets(status_by_key: dict[str, WeatherDatasetStatus]) -> None:
+def _render_open_weather_datasets(
+    status_by_key: dict[str, WeatherDatasetStatus],
+    *,
+    discoveries: list[WeatherFileDiscovery] | None = None,
+) -> None:
     open_statuses = [status for status in status_by_key.values() if status.is_open]
+    open_discoveries = list(discoveries or [])
+    rows = weather_status_rows(open_statuses) + weather_open_discovery_rows(open_discoveries)
     st.markdown("**Offene Wetterdatensaetze**")
-    st.metric("Offene Wetterdatensaetze", len(open_statuses))
-    if not open_statuses:
+    st.metric("Offene Wetterdatensaetze", len(rows))
+    if not rows:
         st.success("Keine offenen, fehlenden oder blockierten Wetterdatensaetze im aktuellen Status.")
         return
     st.dataframe(
-        normalize_table_for_streamlit(weather_status_rows(open_statuses)),
+        normalize_table_for_streamlit(rows),
         hide_index=True,
         width="stretch",
     )
@@ -843,14 +1449,13 @@ def _render_active_weather_datasets(
     """Zeigt die regulaer aktiven Wetterdatensaetze."""
     st.markdown("**Aktive Wetterdatensaetze**")
     st.metric("Aktive Wetterdatensaetze", len(datasets))
+    rows = weather_dataset_rows(
+        datasets,
+        status_by_key=status_by_key,
+        selection_state=selection_state,
+    )
     st.dataframe(
-        normalize_table_for_streamlit(
-            weather_dataset_rows(
-                datasets,
-                status_by_key=status_by_key,
-                selection_state=selection_state,
-            )
-        ),
+        _weather_dataset_default_table(rows),
         hide_index=True,
         width="stretch",
     )
@@ -862,10 +1467,20 @@ def _render_weather_dataset_section(
     selection_state: WeatherSelectionState,
     location_catalog: WeatherLocationCatalog | None,
 ) -> None:
-    active_datasets = catalog.active_datasets()
+    active_datasets = _regularly_selectable_datasets(catalog.active_datasets(), status_by_key)
     st.subheader("Wetterdatensaetze")
-    _render_weather_dataset_actions(catalog)
-    _render_weather_import_form(catalog, location_catalog)
+    _render_weather_dataset_actions(catalog, location_catalog)
+
+    active_action = _active_weather_dataset_action()
+    if active_action == WEATHER_DATASET_ACTION_IMPORT:
+        _render_weather_import_panel()
+        return
+    if active_action == WEATHER_DATASET_ACTION_SCAN:
+        _render_weather_scan_panel(catalog, location_catalog)
+        return
+    if active_action == WEATHER_DATASET_ACTION_VALIDATE:
+        _render_weather_validation_panel(catalog, location_catalog, status_by_key)
+        return
 
     active_column, open_column = st.columns(2)
     with active_column:
@@ -875,7 +1490,7 @@ def _render_weather_dataset_section(
             selection_state=selection_state,
         )
     with open_column:
-        _render_open_weather_datasets(status_by_key)
+        _render_open_weather_datasets(status_by_key, discoveries=_stored_weather_discoveries())
 
 
 def _render_critical_weather_events(result: WeatherAnalysisResult) -> None:
@@ -993,6 +1608,7 @@ def render() -> None:
         return
 
     selected_start_year = weather_start_year(selected_dataset)
+    selected_weather_plot = normalize_weather_plot_key(st.session_state.get(WEATHER_PLOT_WIDGET_KEY))
 
     if start_analysis:
         st.session_state.pop(WEATHER_RELEASE_DECISION_SESSION_KEY, None)
@@ -1003,6 +1619,7 @@ def render() -> None:
                     selected_dataset.weather_key,
                     start_year=selected_start_year,
                     session_id=get_weather_session_id(st.session_state),
+                    plot_key=selected_weather_plot,
                     print_summary=False,
                 )
             except Exception as exc:  # noqa: BLE001 - UI zeigt Servicefehler als Status an.

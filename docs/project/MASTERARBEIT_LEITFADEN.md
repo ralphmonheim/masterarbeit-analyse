@@ -1,7 +1,7 @@
 # Masterarbeit Leitfaden
 
-Leitfaden-Version: 0.5.4
-Stand: 2026-06-24
+Leitfaden-Version: 0.5.5
+Stand: 2026-06-26
 
 Diese Datei ist der zentrale Orientierungsleitfaden fuer die Masterarbeit und
 die begleitende Software. Sie ersetzt keine aktive Steuerdatei. Der operative
@@ -36,6 +36,7 @@ Der Leitfaden fuehrt zwei Quellen zusammen:
 | 0.5.2 | 2026-06-22 | Fachlichen Reifegrad vereinheitlicht und Infokarten-Navigation aufgenommen |
 | 0.5.3 | 2026-06-23 | P028, neutrale Benennungsverantwortung und geschuetzte formaterweiterbare Konfiguration aufgenommen |
 | 0.5.4 | 2026-06-24 | Datenvorbereitung als eigenen Workflow-Schritt und UI-Struktur mit Streamlit-/Tkinter-Zweigen unter `ma_ui` aufgenommen |
+| 0.5.5 | 2026-06-26 | Entscheidungen zu P010/P008, `plot-template-weather`, lokaler TRY-Dateisuche, UI-Modul-/Workflow-Ansicht und Befehlsinventar nachgezogen |
 
 ## 1. Zweck der Software
 
@@ -254,13 +255,13 @@ unveraendert im Planarchiv.
 
 | Modul | Status | Rolle |
 |---|---|---|
-| `ma_core` | geplant | technische Grundlagen liegen noch verteilt in bestehenden Modulen |
+| `ma_core` | geplant, P010-Pilot nutzbar | Quellen-, ID- und Sitzungslog-Basiskontrakte sind im Wetterpilot vorhanden |
 | `ma_database` | geplant | Datenbanklogik liegt derzeit vor allem in `ma_variants` |
 | `ma_project` | geplant | Projektstammdaten, Randbedingungen und Projektstatus |
 | `ma_analyse` | teilweise | Analyse von IDA-ICE-Ergebnisdaten, CLI, UI-neutrale Services, Plot-Templates |
 | `ma_variants` | geplant | Prototyp fuer Variantenkern, Datenmodelle, Auswahl, Naming, Export und Kataloge vorhanden |
-| `ma_weather` | teilweise | TRY-Katalog, Import, Validierung, Kennwerte, Diagramme, Bericht |
-| `ma_ui` | geplant | Streamlit-Prototyp mit Startseite und Modulansichten sowie getrennter Tkinter-Zweig vorhanden |
+| `ma_weather` | teilweise | TRY-Katalog, Import, Scan, Validierung, Freigabe, Diagramme, Bericht und kritische Ereignisse |
+| `ma_ui` | geplant | Streamlit-Prototyp mit Modul-/Workflow-Ansicht, Referenzdiagramm und getrenntem Tkinter-Zweig vorhanden |
 | `ma_workflow` | geplant | Katalog- und Orchestrierungsprototyp vorhanden |
 | `ma_parameters` | geplant | Parameter- und Optionslogik liegt noch in `ma_variants` |
 | `ma_building` | geplant | Gebaeudemodell, Bauteile und bauphysikalische Randbedingungen |
@@ -278,7 +279,7 @@ unveraendert im Planarchiv.
 | `ma_assessment` | geplant | Bewertungs- und Scoringschicht ueber Analyse, Wirtschaft und Nachhaltigkeit |
 | `ma_reporting` | geplant | Reportfunktionen liegen noch in Fachmodulen |
 | `ma_data_export` | geplant | Exporte liegen noch verteilt in Fachmodulen |
-| `ma_validation` | geplant | lokale Validierungen existieren, zentrale Freigaben fehlen |
+| `ma_validation` | geplant, P010-Pilot nutzbar | Diagnose- und Freigabevertraege sind im Wetterpilot vorhanden |
 | `ma_feedback` | geplant | phasenuebergreifende Ruecksprungsteuerung |
 
 ### Vollstaendiger Modulkatalog
@@ -294,8 +295,9 @@ Paketgeruest, eine Infoseite oder vorhandener Prototypcode genuegt nicht fuer
 
 - **Zweck:** Gemeinsame Pfad-, Konfigurations-, Logging-, ID- und
   Vorlagenregeln.
-- **Status:** Geplant; Logik liegt noch verteilt in bestehenden
-  Modulen.
+- **Status:** Als Gesamtmodul geplant; P010 stellt bereits
+  `InputSource`, `InputChange`, eindeutige IDs und lokale append-only
+  Sitzungslogs fuer den Wetterpilot bereit.
 
 #### ma_database
 
@@ -329,11 +331,13 @@ Paketgeruest, eine Infoseite oder vorhandener Prototypcode genuegt nicht fuer
 - **Zweck:** Wetterdateien katalogisieren, TRY-Daten importieren, validieren,
   analysieren und dokumentieren.
 - **Eingaben:** lokale TRY-Dateien, Wetterkatalog und Standortzuordnungen.
-- **Ausgaben:** aufbereitete Wetterdaten, Kennwerte, Diagramme und Berichte.
+- **Ausgaben:** aufbereitete Wetterdaten, Kennwerte, Diagramme, Berichte,
+  Datensatzstatus, Freigaben und kritische Wetterereignisse.
 - **Abgrenzung:** Wetterdaten sind eigene Randbedingungen und keine normalen
   IDA-Zonenergebnisdaten.
 - **Status:** Teilweise aktiv; Import, Validierung, Kennwerte, Diagramme,
-  Bericht und lokale Runner sind vorhanden.
+  Bericht, lokale Runner, `plot-template-weather`, lokale TRY-Dateisuche
+  und bewusste Katalogregistrierung sind vorhanden.
 
 #### ma_building
 
@@ -543,8 +547,9 @@ Paketgeruest, eine Infoseite oder vorhandener Prototypcode genuegt nicht fuer
 - **Eingaben:** Validierungsberichte der Fachmodule und Workflow-Zustand.
 - **Ausgaben:** Freigaben, Warnungen und blockierende Fehler.
 - **Abgrenzung:** Fachregeln bleiben in den Fachmodulen.
-- **Status:** Geplant; lokale Validierungen existieren nur innerhalb der
-  Fachprototypen.
+- **Status:** Als Gesamtmodul geplant; P010 stellt bereits
+  `DiagnosticMessage`, `ImportDiagnostic`, `ReleaseStatus`,
+  `ReleaseChoice` und `ReleaseDecision` fuer den Wetterpilot bereit.
 
 #### ma_feedback
 
@@ -579,8 +584,9 @@ Paketgeruest, eine Infoseite oder vorhandener Prototypcode genuegt nicht fuer
   Downloads.
 - **Abgrenzung:** Keine Fach-, Analyse-, Varianten- oder Bewertungslogik in
   Streamlit-Komponenten.
-- **Status:** Geplant; ein Streamlit-Prototyp mit Startdashboard sowie
-  Ansichten fuer Analyse, Wetterdaten, Varianten und Bewertung ist vorhanden.
+- **Status:** Geplant; ein Streamlit-Prototyp mit Modul-Ansicht,
+  separater Workflow-Ansicht, Referenzdiagramm, Analyse- und Wetterseiten
+  sowie getrenntem Tkinter-Zweig ist vorhanden.
 
 ### Bewertungslogik
 
@@ -731,16 +737,27 @@ Die Ordnerstruktur bleibt reproduzierbar; Inhalte koennen lokal entstehen.
 
 ### UI-Zielstruktur
 
-`ma_ui` ist die Zieloberflaeche. Die Startseite zeigt den grafischen Workflow.
-Modulseiten zeigen nur modulbezogene Inhalte.
+`ma_ui` ist die Zieloberflaeche. Die Startseite zeigt aktuell eine
+Modul-Ansicht mit Phasen und Umsetzungsstand. Die Workflow-Ansicht ist eine
+eigene Startansicht unter `ma_workflow`. Modulseiten zeigen nur
+modulbezogene Inhalte.
 
 Aktueller Stand:
 
-- `Start`: grafischer Workflow und technische Detailtabellen im Expander
+- `Start`: Modul-Ansicht, Workflow-Referenzdiagramm und technische
+  Detailtabellen im Expander
+- `ma_workflow`: eigene Workflow-Ansicht mit demselben Referenzdiagramm
 - `Analyse`: Streamlit-Wizard fuer `ma_analyse`, orientiert an Tkinter-Ablauf
+- `Analyse`: Overlay-Schritt direkt nach `Template / Diagramm`; der
+  Overlay-Katalog wird erst nach Varianten- und Raumauswahl befuellt.
 - `Wetterdaten`: Analysebereich oben, Wetterdatensatzuebersicht darunter
+- `Wetterdaten`: Datensatzverwaltung mit `Import`, `Scannen` und
+  `Validieren`; neue TRY-Dateien werden erst nach bewusster Nutzeraktion im
+  lokalen Katalog registriert.
 - Wetterlaeufe zeigen Quellen-ID, Dateipruefsumme, strukturierte Diagnosen und
   Freigabestatus. Warnungen koennen bewusst blockiert oder freigegeben werden.
+- Wetterdiagramme laufen ueber `plot-template-weather <diagramm>
+  --weather-key ...`; `all` erzeugt alle vorhandenen Wetterdiagramme.
 - `Projekt`: Simulationsprogramme und neutrales Benennungsprofil
 - `Parameter`: schreibgeschuetzte Definitionen und aktive Demo-Optionswerte
 - `Varianten`: gemeinsamer Variantenraum mit angewendetem Benennungsprofil
@@ -749,6 +766,10 @@ Aktueller Stand:
 - `Bewertung`: erste Uebersicht ueber Annahmen; langfristig Aufteilung in
   Economy, Sustainability und Assessment
 - leere Zielmodule: Titel, Untertitel und blaue Hinweisbox
+
+Das Workflow-Referenzdiagramm liegt als PNG und PDF unter
+`src/ma_ui/assets/workflow/`. Das uebergreifende Befehls- und
+Ausgabeninventar steht unter `docs/project/COMMAND_OUTPUT_INVENTORY.md`.
 
 Tkinter bleibt nutzbar, liegt aber als eigener UI-Zweig unter
 `ma_ui.tkinter_app`. Entscheidungen aus Tkinter werden fachlich ausgewertet
@@ -858,7 +879,12 @@ folgende Entscheidungen:
 | Simulationskette | `ma_simulation_setup` liegt zwischen Variantenbildung und allgemeinem Simulationsexport; Export, Import und Feedback bleiben getrennte Zielbereiche. | UD-021, UD-043 |
 | Bewertung | `ma_economy` und `ma_sustainability` rechnen fachlich; `ma_assessment` bewertet, `ma_reporting` berichtet. | UD-036, UD-047 |
 | Datenhaltung | Echte Projekt-, Produkt-, Material-, Datenbank- und TRY-Inhalte bleiben lokal; versioniert werden Struktur und gekennzeichnete Beispiele. | UD-012, UD-029 |
-| Wetterdiagramme | Wetterdiagramme bleiben vorerst in `ma_weather` und werden nicht sofort in die Analyse-Template-Struktur integriert. | UD-034 |
+| Eingabe, Diagnose und Freigabe | P010 trennt Fachpruefung, Freigabe und Sitzungsnachweis; Fehler blockieren, Warnungen brauchen eine bewusste Entscheidung mit ID und Sitzungslog. | UD-057 |
+| Wetterauswahl | Stadtwahl, Klimaregion, Referenzstandort, Datensatzstatus, Aktivierung und Projekt-Default bleiben bewusst sichtbare Entscheidungen. | UD-058 |
+| Wetterdatensaetze | Jahres-, Sommer- und Winter-TRY-Dateien sind eigene Datensaetze; kritische Ereignisse beziehen sich auf den bewusst gewaehlten Datensatz. | UD-059 |
+| Wetterimport | Import, Scan und Validierung lokaler TRY-Dateien sind getrennt; Registrierung erfolgt erst nach Nutzeraktion im lokalen Katalog. | UD-060 |
+| Wetterdiagramme | Wetterdiagramme bleiben fachlich in `ma_weather`; `plot-template-weather` ist der eigene CLI-/UI-Befehl fuer `all` oder einzelne Wetterdiagramme. | UD-063 |
+| Datenvorbereitung | `prepare` und `analyze-data` bilden einen eigenen Workflow-Schritt zwischen Simulationsergebnisimport und Analyse Stufe 2. | UD-061 |
 | Prozessvergleich | Manueller, softwareunterstuetzter und automatisierter Aufwand wird getrennt nach Arbeitszeit, Laufzeit, Fehlerkorrektur und Wissensstand betrachtet. | UD-038 |
 
 Technische Detailentscheidungen stehen in
@@ -874,8 +900,6 @@ stehen ausschliesslich in
   lokalen Analyse-/Datenbankdaten; feste Additionen wie Temperaturband bleiben
   eigene Optionen. Die bewusste Uebernahme in regulaere Hauptbefehle bleibt
   offen.
-- `plot-template-weather` bleibt offen: Wetterdiagramme bleiben vorerst in
-  `ma_weather`, ein eigener UI-Befehl kann spaeter geplant werden.
 - Cooling-Trennung relativ/absolut bleibt vorerst in Plot-Templates und wird
   spaeter fuer Hauptbefehl und GUI erneut bewertet.
 - Normierung wird `ma_analyse`-weit geplant: absolute Werte, flaechenbezogene
@@ -888,8 +912,8 @@ stehen ausschliesslich in
   `ma_data_export` bleiben zunaechst konzeptuell.
 - Fuer den Vergleich von Zeit- und Personalkosten sind Wissensprofile,
   Stundensaetze, Prozessgrenzen und Messmethoden noch festzulegen.
-- P008 muss Realtests, eigene Wetterimporte, `weather_key` und kritische
-  Wetterereignisse abschliessen.
+- P008 muss weitere Realtests, fachliche Wetterereignisdefinitionen fuer P021
+  und die Uebergabe an `ma_parameters` abschliessen.
 - P009 wird erst nach P018 weitergefuehrt.
 - P020 darf Normregeln erst nach dokumentierter Quellen- und Methodenmatrix
   implementieren.

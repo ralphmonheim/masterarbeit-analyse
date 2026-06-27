@@ -10,6 +10,29 @@ from ma_workflow import get_module_definition, list_module_definitions
 CURRENT_PAGE_SESSION_KEY = "ma_ui_current_page"
 MODULE_INFO_PAGE_SESSION_KEY = "ma_ui_module_info_page"
 CONFIGURATION_RETURN_PAGE_SESSION_KEY = "ma_ui_configuration_return_page"
+VIEW_MODE_SESSION_KEY = "ma_ui_view_mode"
+WORKSPACE_VIEW_MODE = "workspace"
+WORKFLOW_VIEW_MODE = "workflow"
+VIEW_MODE_OPTIONS = (WORKSPACE_VIEW_MODE, WORKFLOW_VIEW_MODE)
+
+
+def normalize_view_mode(view_mode: object) -> str:
+    """Normalisiert den UI-Modus auf Workspace oder Workflow."""
+    return str(view_mode) if view_mode in VIEW_MODE_OPTIONS else WORKSPACE_VIEW_MODE
+
+
+def select_view_mode(session_state: MutableMapping[str, object], view_mode: str) -> None:
+    """Wechselt zwischen Bearbeitungs- und Praesentationsansicht."""
+    session_state[VIEW_MODE_SESSION_KEY] = normalize_view_mode(view_mode)
+    session_state.pop(MODULE_INFO_PAGE_SESSION_KEY, None)
+
+
+def toggle_view_mode(session_state: MutableMapping[str, object]) -> str:
+    """Schaltet den aktuellen View-Modus um und gibt den neuen Modus zurueck."""
+    current_view_mode = normalize_view_mode(session_state.get(VIEW_MODE_SESSION_KEY))
+    next_view_mode = WORKFLOW_VIEW_MODE if current_view_mode == WORKSPACE_VIEW_MODE else WORKSPACE_VIEW_MODE
+    select_view_mode(session_state, next_view_mode)
+    return next_view_mode
 
 
 def select_page(session_state: MutableMapping[str, object], page_key: str) -> None:

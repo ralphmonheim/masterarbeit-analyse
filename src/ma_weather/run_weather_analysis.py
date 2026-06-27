@@ -24,7 +24,7 @@ from .try_importer import TryImportResult, import_try_weather_file
 from .weather_catalog import DEFAULT_WEATHER_DATASETS_CONFIG, WeatherDataset, import_weather_catalog
 from .weather_events import WeatherEvent, detect_critical_weather_events
 from .weather_metrics import WeatherMetrics, calculate_weather_metrics
-from .weather_plots import WeatherPlotResult, build_weather_plots
+from .weather_plots import ALL_WEATHER_PLOTS, WEATHER_PLOT_CHOICES, WeatherPlotResult, build_weather_plots
 from .weather_report import write_weather_report
 from .weather_status import create_weather_import_id
 from .weather_validation import WeatherValidationReport, validate_weather_dataframe
@@ -62,6 +62,7 @@ def run_weather_analysis(
     session_id: str | None = None,
     run_id: str | None = None,
     import_id: str | None = None,
+    weather_plot_keys: Sequence[str] | None = None,
     print_summary: bool = True,
 ) -> WeatherAnalysisResult:
     """Fuehrt Import, Validierung, Kennwerte, Diagramme und Bericht fuer einen Datensatz aus."""
@@ -142,6 +143,7 @@ def run_weather_analysis(
             import_result.data,
             weather_key=dataset.weather_key,
             output_dir=root / output_dir,
+            plot_keys=weather_plot_keys,
         )
         report_path = write_weather_report(
             dataset=dataset,
@@ -234,9 +236,11 @@ def plot_template_weather(
     session_id: str | None = None,
     run_id: str | None = None,
     import_id: str | None = None,
+    plot_key: str = ALL_WEATHER_PLOTS,
     print_summary: bool = True,
 ) -> WeatherAnalysisResult:
-    """Alias fuer den Wetter-Template-Befehl."""
+    """Fuehrt den Wetter-Template-Befehl fuer alle oder ein einzelnes Diagramm aus."""
+    weather_plot_keys = None if plot_key == ALL_WEATHER_PLOTS else (plot_key,)
     return run_weather_analysis(
         weather_key,
         catalog_path=catalog_path,
@@ -249,6 +253,7 @@ def plot_template_weather(
         session_id=session_id,
         run_id=run_id,
         import_id=import_id,
+        weather_plot_keys=weather_plot_keys,
         print_summary=print_summary,
     )
 
@@ -356,12 +361,46 @@ def main(argv: Sequence[str] | None = None) -> None:
         help="Pfad zur Wetterkatalog-YAML.",
     )
     parser.add_argument("--start-year", type=int, default=2015, help="Jahr fuer den abgeleiteten Zeitindex.")
+    parser.add_argument(
+        "--plot",
+        choices=(ALL_WEATHER_PLOTS, *WEATHER_PLOT_CHOICES),
+        default=ALL_WEATHER_PLOTS,
+        help="Wetterdiagramm, das erzeugt werden soll. Standard: alle Diagramme.",
+    )
     args = parser.parse_args(argv)
 
-    run_weather_analysis(
+    plot_template_weather(
         args.weather_key,
         catalog_path=args.catalog,
         start_year=args.start_year,
+        plot_key=args.plot,
+    )
+
+
+def main_plot_template_weather(argv: Sequence[str] | None = None) -> None:
+    """CLI-Einstieg fuer ``plot-template-weather <diagramm>``."""
+    parser = argparse.ArgumentParser(description="Wetterdiagramm aus einem TRY-Datensatz erzeugen.")
+    parser.add_argument(
+        "diagram",
+        nargs="?",
+        choices=(ALL_WEATHER_PLOTS, *WEATHER_PLOT_CHOICES),
+        default=ALL_WEATHER_PLOTS,
+        help="Diagramm-Schluessel oder 'all'.",
+    )
+    parser.add_argument("--weather-key", default="TRY_FFM_2015_JAHR", help="Technischer weather_key aus dem Wetterkatalog.")
+    parser.add_argument(
+        "--catalog",
+        default=str(DEFAULT_WEATHER_DATASETS_CONFIG),
+        help="Pfad zur Wetterkatalog-YAML.",
+    )
+    parser.add_argument("--start-year", type=int, default=2015, help="Jahr fuer den abgeleiteten Zeitindex.")
+    plot_args = parser.parse_args(argv)
+
+    plot_template_weather(
+        plot_args.weather_key,
+        catalog_path=plot_args.catalog,
+        start_year=plot_args.start_year,
+        plot_key=plot_args.diagram,
     )
 
 

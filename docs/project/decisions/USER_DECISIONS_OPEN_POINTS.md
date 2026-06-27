@@ -15,13 +15,6 @@ werden nach der Dokumentation als `UD-*` aus dieser Datei entfernt und stehen in
 - Frage: Soll nach Abschluss der Diagrammbearbeitung die relative/absolute Cooling-Trennung auch in den regulaeren `cooling`-Befehl und die GUI-Auswahl uebernommen werden?
 - Auswirkung: Betrifft spaeter `src/ma_analyse/analysis/cooling.py`, `src/ma_analyse/app/cli.py` und `src/ma_analyse/gui/app.py`.
 
-### OP-007 plot-template-weather spaeter als eigener UI-Befehl
-
-- Thema: ma_weather und ma_ui Plot-Template-Struktur
-- Status: offen
-- Frage: Soll spaeter ein eigener Hauptbefehl `plot-template-weather` eingefuehrt werden, oder bleiben Wetterdiagramme dauerhaft nur im Modulbereich `ma_weather`?
-- Auswirkung: Betrifft spaeter `src/ma_weather/`, `src/ma_ui/module_views/weather_view.py` und optional die Analyse-/Template-Navigation in `ma_ui`.
-
 ### OP-008 ma_analyse-weite Normierungsstrategie
 
 - Thema: ma_analyse Auswertungen und Diagramme

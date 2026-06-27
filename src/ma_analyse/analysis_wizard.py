@@ -29,9 +29,9 @@ ANALYSIS_SECTION_ORDER: tuple[str, ...] = (
     "command",
     "subcommand",
     "template_diagram",
+    "overlays",
     "variants",
     "rooms",
-    "overlays",
     "export",
     "run",
 )
