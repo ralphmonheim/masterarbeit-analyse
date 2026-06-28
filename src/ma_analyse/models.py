@@ -45,6 +45,18 @@ class AnalysisConfig:
 
 
 @dataclass
+class AnalysisStepResult:
+    """Beschreibt ein strukturiertes Ergebnis fuer einen Analyseschritt."""
+
+    step: str
+    success: bool
+    created_files: list[Path] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+    errors: list[str] = field(default_factory=list)
+    log_text: str = ""
+
+
+@dataclass
 class AnalysisResult:
     """Beschreibt das Ergebnis eines ma_analyse-Serviceaufrufs."""
 
@@ -57,3 +69,4 @@ class AnalysisResult:
     warnings: list[str] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
     log_text: str = ""
+    step_results: list[AnalysisStepResult] = field(default_factory=list)

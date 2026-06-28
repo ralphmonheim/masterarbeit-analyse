@@ -28,6 +28,11 @@ Markdown-Bericht.
   ueber `Lokale TRY-Dateien scannen` als Datensatzentwuerfe erkannt werden.
   Die Standortzuordnung erfolgt ueber
   `config/ma_weather/try_locations/example_try_file_locations.yaml`.
+- Die neue ortsgenaue Standortpruefung nutzt vorbereitete
+  Geodaten-Metadaten unter
+  `config/ma_weather/geodata/example_weather_geodata_sources.yaml`.
+  Lokale GeoJSON-Geodaten liegen unter `data/ma_weather/geodata/` und werden
+  nicht versioniert.
 
 ## Sammelbefehle
 
@@ -74,10 +79,10 @@ gestartet werden. Dort wird ein aktiver `weather_key` ausgewaehlt und die
 erzeugten Diagramme werden direkt angezeigt.
 
 Im Bereich `Wetterdatensaetze` stehen die drei Schritte `Import`, `Scannen`
-und `Validieren`. `Import` enthaelt den Link zur DWD-TRY-Seite und legt
+und `Pruefen`. `Import` enthaelt den Link zur DWD-TRY-Seite und legt
 entpackte `.dat`-Dateien nur lokal unter `data/ma_weather/input/TRY_*` ab.
 `Scannen` erzeugt daraus Entwuerfe fuer noch nicht katalogisierte TRY-Dateien.
-`Validieren` erlaubt die fachliche Anpassung dieser Entwuerfe und die bewusste
+`Pruefen` erlaubt die fachliche Anpassung dieser Entwuerfe und die bewusste
 Registrierung im lokalen Katalog. Kein Schritt setzt Aktivierung oder
 Projekt-Default automatisch.
 
@@ -93,9 +98,11 @@ Der lokale Auswahlstatus liegt unter
 `data/ma_weather/database/weather_selection_state.yaml` und wird nicht
 versioniert.
 
-Der Schritt `Validieren` prueft katalogisierte Wetterdatensaetze gegen lokale
-TRY-Dateien und zeigt fehlende, fehlerhafte oder noch freizugebende
-Datensaetze im Bereich `Offene Wetterdatensaetze`.
+Der Schritt `Pruefen` zeigt `Gefundene lokale TRY-Dateien` und
+`Parameter pruefen`. Katalogisierte Bestandspruefungen bleiben technisch
+erhalten, sind aber nicht Teil dieser Entwurfspruefung. In `Parameter pruefen`
+werden nur Stadt, Bezugsjahr, Datensatztyp und Szenario angezeigt. Rolle,
+`weather_key` und Anzeigename werden daraus generiert.
 
 Nach einer Analyse zeigt der Bereich `Kritische Wetterereignisse` Ereignisse
 wie heissester Tag, kaeltester Tag, heisseste und kaelteste Drei-Tage-Periode,

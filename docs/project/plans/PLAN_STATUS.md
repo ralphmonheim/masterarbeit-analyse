@@ -1,6 +1,6 @@
 # Plan Status
 
-Stand: 2026-06-24
+Stand: 2026-06-28
 
 Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt und nach jeder Planumsetzung aktualisiert. Vollstaendige alte Planstaende liegen unter `docs/project/archive/plans/`.
 
@@ -104,7 +104,9 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   Standort-/Referenzstandortlogik, eigener Dateiimport,
   Status- und Importnachweis, offene Wetterdatensaetze, bewusste Aktivierung,
   Projekt-Default, Jahr-/Sommer-/Winterdatensatztypen, kritische
-  Wetterereignisse und dokumentierte Uebergabegrenze zu `ma_parameters`.
+  Wetterereignisse, vereinfachte Pruefansicht, ortsgenaue
+  TRY-Standorterkennung mit optionaler PLZ-Aufloesung und dokumentierte
+  Uebergabegrenze zu `ma_parameters`.
 - P010 ist umgesetzt und archiviert. Formatneutrale Eingabequellen,
   strukturierte Diagnosen, Freigaberegeln, IDs und append-only Sitzungslogs
   sind am TRY-Wetterimport erprobt.
@@ -337,6 +339,27 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - Plot-Template-Katalog: Referenzbilder liegen unter `docs/examples/plot_templates/`; die Dokumentation liegt unter `docs/ma_analyse/plot_template_examples.md`.
 - Heating-Jahresplot nutzt eine gemeinsame Layoutbasis. Absolute Cooling-Jahresplots koennen diese Layoutbasis ebenfalls nutzen; relative Cooling-Templates bleiben als eigene signierte Darstellung erhalten.
 - Interne Lasten und Energiebilanz sind als Plot-Template-Experimente vorhanden.
+- P029 ist als aktiver Aufraeumplan aufgenommen: Zuerst wird der
+  Service-/Runner-Vertrag von `ma_analyse` stabilisiert, danach erst folgen
+  groessere Zerlegungen von `heating.py`, `cooling.py` oder Tkinter.
+- P029 Service-Slice erweitert: `ma_analyse.services` trennt
+  `AnalysisRuntimeOptions` als interne Laufstruktur vom aktuellen
+  Legacy-`argparse.Namespace`; `run_analysis(config)` bleibt die oeffentliche
+  Fassade fuer UI und Workflow.
+- P029 Legacy-Adapter-Slice umgesetzt: `_execute_legacy_analysis(...)`
+  kapselt `run_all()`, `execute_steps()`, stdout-/stderr-Sammlung,
+  `SystemExit`-Uebersetzung und unerwartete Exceptions; `run_analysis(config)`
+  baut daraus weiterhin `AnalysisResult`.
+- P029 Pipeline-Runtime-Slice umgesetzt: `build_runtime_args(...)` liefert mit
+  `PipelineRuntimeArgs` einen typisierten internen Schrittvertrag statt eines
+  freien `argparse.Namespace`; CLI, Tkinter und Streamlit bleiben kompatibel.
+- P029 Precondition-Slice umgesetzt: `check_required_data(...)` liefert
+  strukturierte Datenvorbedingungs-Ergebnisse; `ensure_required_data(...)`
+  bleibt als kompatibler `print()`-/`SystemExit`-Wrapper bestehen.
+- P029 Service-Precondition-Slice umgesetzt: `ma_analyse.services` nutzt
+  `check_required_data(...)` vor `run_all()`/`execute_steps()`; fehlende
+  Nutzdaten werden im Service als strukturierte Fehler gemeldet, waehrend CLI
+  und Tkinter kompatibel bleiben.
 
 ### Offen
 
@@ -352,6 +375,10 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   Laufsteuerung aufteilen. Betroffen:
   `src/ma_ui/tkinter_app/module_views/analyse/app.py`.
 - Heating und Cooling weiter in Datenladen, Runner und Plotmodule zerlegen. Betroffen: `src/ma_analyse/analysis/heating.py`, `src/ma_analyse/analysis/cooling.py`, `src/ma_analyse/analysis/energy/`.
+- P029 Folgearbeit: `ma_analyse.app.commands` nach Runtime-Options-,
+  Legacy-Adapter- und Pipeline-Runtime-Slice schrittweise weiter von
+  `print()` und `SystemExit` als internem Service-Vertrag entkoppeln; naechste
+  Kandidaten sind fachliche Runner-Ausgaben und Schrittstatus.
 - Datenvorbereitung nach erfolgreichem Simulationsergebnisimport in
   `ma_workflow`/`ma_ui` als Folgeschritt anbieten, ohne die Importadapter mit
   Analysefachlogik zu vermischen.
@@ -409,14 +436,16 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   Winter-TRY-Dateien sind als eigene Datensaetze katalogisiert; kritische
   Wetterereignisse werden aus dem bewusst ausgewaehlten Datensatz abgeleitet
   und in Streamlit tabellarisch angezeigt.
-- P008 Import-/Scan-/Validierungsslice umgesetzt: Streamlit fuehrt die
-  Schritte `Import`, `Scannen` und `Validieren` im Bereich
+- P008 Import-/Scan-/Pruefungsslice teilweise umgesetzt:
+  Streamlit fuehrt die Schritte `Import`, `Scannen` und `Pruefen` im Bereich
   `Wetterdatensaetze`; eigene entpackte TRY-`.dat`-Dateien koennen lokal
   abgelegt, lokale TRY-Dateien als Datensatzentwuerfe gescannt und
-  Key-Parameter bewusst validiert werden. Bestaetigtes TRY-Ordner-Mapping
-  darf vorbelegen, Koordinaten aus dem TRY-Kopf erzeugen nur
-  Standortvorschlaege. Aktive und offene Wetterdatensaetze werden getrennt
-  angezeigt.
+  Parameter bewusst geprueft werden. Bestaetigtes TRY-Ordner-Mapping
+  darf vorbelegen, Standortverweise aus TRY-Kopfzeilen werden erkannt und
+  Konflikte blockieren die Registrierung. Die optionale EPSG:3034-
+  Standortaufloesung kann lokale Gemeinde-/PLZ-GeoJSON-Quellen nutzen, ist
+  ohne konfigurierte Geodaten aber bewusst deaktiviert. Aktive und offene
+  Wetterdatensaetze werden getrennt angezeigt.
 
 ### Offen
 
@@ -429,6 +458,11 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   und mit vorhandenen Tages- und Wochenzeitfenstern verbinden.
 - TRY-Referenzdatensaetze fuer Referenzstandorte wie Mannheim und Muehldorf
   fachlich ergaenzen oder bewusst als fehlend dokumentieren.
+- Geodatenquelle fuer Gemeindegrenzen festlegen, lizenzrechtlich pruefen und
+  die optionale EPSG:3034-Standortaufloesung gegen reale lokale
+  Berlin-/Potsdam-TRY-Dateien testen.
+- PLZ-Datenquelle lizenzrechtlich pruefen und bei Bedarf als optionale
+  Aufloesung aktivieren.
 - Diagrammgestaltung fachlich pruefen und bei Bedarf an Masterarbeitslayout anpassen.
 - Strukturpunkt geschlossen: Wetterdiagramme bleiben fachlich im Modul
   `ma_weather`; `plot-template-weather` ist dort als eigener CLI-/UI-Befehl
@@ -456,5 +490,6 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - `docs/project/archive/plans/250603_Plan_Wetterdatenanalyse_TRY_Integration.md`: teilweise umgesetzter P002-Ursprungsplan; Restarbeiten stehen in P008.
 - `docs/project/archive/plans/260621_Plan_P008_Wettermodul_Abschluss_P007_Anbindung.md`: archivierter P008-Ausgangsplan; Inhalte stehen im konsolidierten P008-Gesamtplan.
 - `docs/project/archive/plans/Implementierungsplan_ma_weather.md`: archivierter unnummerierter ma_weather-Ausgangsplan; Inhalte stehen im konsolidierten P008-Gesamtplan.
+- `docs/project/archive/plans/260627_Planergaenzung_P008_ma_weather_Standorterkennung_PLZ.md`: archivierte P008-Planergaenzung; Inhalte stehen im aktualisierten P008-Gesamtplan.
 - `docs/project/archive/plans/250608_Plan_Gesamtmodulstruktur_PreProcess_PostProcess_Dashboard.md.txt`: teilweise umgesetzter P005-Strukturplan; gueltige Inhalte sind in P007 konsolidiert.
 - `docs/project/archive/plans/260618_Plan_ma_export_ida_IDM_Exportentwurf.md`: historischer P006-Entwurf; verbleibende Schnittstellenarbeit steht in P009.

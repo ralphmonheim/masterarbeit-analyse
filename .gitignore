@@ -42,6 +42,9 @@ data/ma_weather/input/*
 !data/ma_weather/input/.gitkeep
 data/ma_weather/database/*
 !data/ma_weather/database/.gitkeep
+data/ma_weather/geodata/*
+!data/ma_weather/geodata/.gitkeep
+!data/ma_weather/geodata/README.md
 data/ma_weather/output/*
 !data/ma_weather/output/.gitkeep
 data/ma_weather/exports/*

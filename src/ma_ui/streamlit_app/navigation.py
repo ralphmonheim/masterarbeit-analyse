@@ -11,6 +11,7 @@ CURRENT_PAGE_SESSION_KEY = "ma_ui_current_page"
 MODULE_INFO_PAGE_SESSION_KEY = "ma_ui_module_info_page"
 CONFIGURATION_RETURN_PAGE_SESSION_KEY = "ma_ui_configuration_return_page"
 VIEW_MODE_SESSION_KEY = "ma_ui_view_mode"
+SCROLL_TO_TOP_SESSION_KEY = "ma_ui_scroll_to_top"
 WORKSPACE_VIEW_MODE = "workspace"
 WORKFLOW_VIEW_MODE = "workflow"
 VIEW_MODE_OPTIONS = (WORKSPACE_VIEW_MODE, WORKFLOW_VIEW_MODE)
@@ -35,11 +36,22 @@ def toggle_view_mode(session_state: MutableMapping[str, object]) -> str:
     return next_view_mode
 
 
+def request_scroll_to_top(session_state: MutableMapping[str, object]) -> None:
+    """Merkt vor, dass die naechste gerenderte Seite oben starten soll."""
+    session_state[SCROLL_TO_TOP_SESSION_KEY] = True
+
+
+def consume_scroll_to_top(session_state: MutableMapping[str, object]) -> bool:
+    """Verbraucht eine vorgemerkte Scroll-Anforderung genau einmal."""
+    return bool(session_state.pop(SCROLL_TO_TOP_SESSION_KEY, False))
+
+
 def select_page(session_state: MutableMapping[str, object], page_key: str) -> None:
     """Waehlt eine Seite und beendet einen eventuell aktiven Infokartenmodus."""
     session_state.pop(MODULE_INFO_PAGE_SESSION_KEY, None)
     session_state.pop(CONFIGURATION_RETURN_PAGE_SESSION_KEY, None)
     session_state[CURRENT_PAGE_SESSION_KEY] = page_key
+    request_scroll_to_top(session_state)
 
 
 def select_related_configuration_page(
@@ -52,6 +64,7 @@ def select_related_configuration_page(
     session_state.pop(MODULE_INFO_PAGE_SESSION_KEY, None)
     session_state[CONFIGURATION_RETURN_PAGE_SESSION_KEY] = return_page_key
     session_state[CURRENT_PAGE_SESSION_KEY] = target_page_key
+    request_scroll_to_top(session_state)
 
 
 def return_to_configuration_origin(session_state: MutableMapping[str, object]) -> str | None:
@@ -61,6 +74,7 @@ def return_to_configuration_origin(session_state: MutableMapping[str, object]) -
         return None
     session_state.pop(MODULE_INFO_PAGE_SESSION_KEY, None)
     session_state[CURRENT_PAGE_SESSION_KEY] = return_page_key
+    request_scroll_to_top(session_state)
     return return_page_key
 
 

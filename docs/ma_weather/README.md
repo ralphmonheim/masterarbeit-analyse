@@ -11,6 +11,8 @@ fuer nachfolgende Module referenzierbar machen.
 
 - lokale reale TRY-Dateien
 - Wetterkatalog und `weather_key`
+- optionale lokale Gemeinde- und PLZ-Geodaten fuer ortsgenaue
+  Standortpruefung
 
 ## Ausgaben
 
@@ -29,6 +31,7 @@ fuer nachfolgende Module referenzierbar machen.
 - lokale TRY-Dateien unter `data/ma_weather/input/`
 - P008-Gesamtplan fuer Abschlusspruefung, Standort-/Referenzlogik,
   Dateiimport, Freigabe und P007-Anbindung
+- optionale Geodaten-Metadaten unter `config/ma_weather/geodata/`
 
 ## Status
 
@@ -37,9 +40,9 @@ die Diagrammabstimmung fehlen noch.
 
 ## Naechster Schritt
 
-P008 mit den fuenf verbleibenden TRY-Realtests, der Stadt- und
-Referenzstandortlogik, dem Importkonzept und der kontrollierten Uebergabe an
-`ma_parameters` fortsetzen.
+P008 mit der vereinfachten `Pruefen`-Ansicht, der ortsgenauen
+EPSG:3034-/Gemeinde-Standorterkennung, optionaler PLZ-Aufloesung und der
+kontrollierten Uebergabe an `ma_parameters` fortsetzen.
 
 Der erste P002-Struktur-Slice hat das Paket `src/ma_weather/` und einen
 einfachen Wetterkatalog angelegt. Der aktuelle Stand enthaelt zusaetzlich eine
@@ -63,11 +66,17 @@ nicht versionierten Katalog unter
 `data/ma_weather/config/datasets/weather_datasets_local.yaml` registriert.
 
 Zusaetzlich fuehrt die Wetterseite die Schritte `Import`, `Scannen` und
-`Validieren`. Importierte TRY-Dateien werden zunaechst nur lokal abgelegt.
+`Pruefen`. Importierte TRY-Dateien werden zunaechst nur lokal abgelegt.
 Der Scan nutzt die versionierte Zuordnung von TRY-Ordnerkennung zu Standort
 unter `config/ma_weather/try_locations/example_try_file_locations.yaml`.
 Gefundene Dateien werden zuerst als Datensatzentwuerfe angezeigt und erst nach
-Validierung sowie Nutzeraktion in den lokalen Katalog uebernommen.
+Pruefung sowie Nutzeraktion in den lokalen Katalog uebernommen.
+
+Fuer ortsgenaue TRY-Dateien liest `ma_weather` Rechtswert und Hochwert aus dem
+TRY-Kopf. Die vorbereitete Standortaufloesung interpretiert diese Werte als
+EPSG:3034 und kann sie mit lokalen GeoJSON-Gemeinde- und PLZ-Geodaten
+abgleichen. Die Geodaten sind lokal und unversioniert; nur ihre Metadaten
+werden versioniert.
 
 Der aktive Beispielkatalog enthaelt Datensaetze fuer Frankfurt am Main,
 Muenchen und Hamburg jeweils fuer 2015 und 2045 als Jahr-, Sommer- und

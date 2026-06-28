@@ -16,6 +16,33 @@ Status: Der erste Code-Slice ist umgesetzt. `src/ma_analyse/models.py` enthaelt
 `AnalysisConfig` und `AnalysisResult`. `src/ma_analyse/services.py` enthaelt
 `run_analysis(config)` als Fassade ueber bestehender Logik.
 
+P029-Zwischenstand vom 2026-06-27: `services.py` trennt inzwischen die
+serviceinternen Runtime-Werte vom aktuellen Legacy-Argumentobjekt. Intern
+normalisiert `_build_runtime_options(config)` die `AnalysisConfig`; erst
+`_build_legacy_args(runtime_options)` baut das fuer `ma_analyse.app.commands`
+noch notwendige `argparse.Namespace`.
+
+P029-Fortschreibung vom 2026-06-27: Der eigentliche Legacy-Aufruf ist zusaetzlich
+in `_execute_legacy_analysis(runtime_options, normalized_steps)` gekapselt.
+`run_analysis(config)` bleibt dadurch die schmale Fassade fuer Validierung,
+Dateisnapshot und Aufbau von `AnalysisResult`.
+
+P029-Fortschreibung 2 vom 2026-06-27: `ma_analyse.app.commands.build_runtime_args`
+erzeugt fuer interne Pipeline-Schritte jetzt `PipelineRuntimeArgs` statt eines
+freien `argparse.Namespace`. Das Namespace-Objekt bleibt damit auf die
+CLI-/Legacy-Eingangsgrenze beschraenkt.
+
+P029-Fortschreibung 3 vom 2026-06-27: Datenvorbedingungen koennen mit
+`check_required_data(args, steps)` strukturiert geprueft werden. Der bisherige
+Wrapper `ensure_required_data(args, steps)` bleibt fuer CLI, Tkinter und
+Legacy-Orchestrierung erhalten und wirft weiter `SystemExit(1)`.
+
+P029-Fortschreibung 4 vom 2026-06-27: Der Servicepfad nutzt
+`check_required_data(...)` jetzt vor dem Legacy-Aufruf. Fehlende Nutzdaten
+werden als strukturierte Servicefehler in `AnalysisResult.errors`
+zurueckgegeben; CLI und Tkinter bleiben ueber `ensure_required_data(...)`
+kompatibel.
+
 ## Ziel
 
 Die zentrale Oberflaeche `ma_ui` soll `ma_analyse` ohne Tkinter,
@@ -76,6 +103,24 @@ kommen. Die UI soll keine Pfad- oder Plot-Defaults duplizieren.
 | `warnings` | `list[str]` | fachliche Warnungen ohne Abbruch |
 | `errors` | `list[str]` | Fehlertexte bei fehlgeschlagenem Lauf |
 | `log_text` | `str` | gesammelte stdout-/stderr-Ausgabe aus bestehender Logik |
+| `step_results` | `list[AnalysisStepResult]` | strukturierte Schrittuebersicht fuer UI, Workflow und spaetere Runner |
+
+### AnalysisStepResult
+
+`AnalysisStepResult` ist der P029-Einstieg in eine sauberere Runner-Schicht.
+Die aktuelle Legacy-Orchestrierung kann Dateien und Logtext noch nicht in allen
+Faellen schrittgenau zuordnen. Einzelschritt-Laeufe werden bereits direkt
+zugeordnet; Mehrschritt-Laeufe werden zunaechst als strukturierte
+Schrittuebersicht abgebildet und spaeter schrittweise verfeinert.
+
+| Feld | Typ | Bedeutung |
+|---|---|---|
+| `step` | `str` | normalisierter Analyseschritt |
+| `success` | `bool` | aktueller Erfolgsstatus im bestehenden Legacy-Lauf |
+| `created_files` | `list[Path]` | bekannte erzeugte Dateien, soweit bereits zuordenbar |
+| `warnings` | `list[str]` | Warnungen fuer diesen Schritt |
+| `errors` | `list[str]` | Fehler fuer diesen Schritt |
+| `log_text` | `str` | Logauszug fuer diesen Schritt, soweit bereits zuordenbar |
 
 ## Verhalten von run_analysis
 
@@ -83,16 +128,34 @@ Die erste Code-Umsetzung startet als Fassade ueber bestehender Logik, nicht als
 Neuschreibung.
 
 - `run_analysis(config)` validiert die Konfiguration.
-- Die Funktion erzeugt intern das bisherige Runtime-Argumentobjekt, solange die
+- Die Funktion erzeugt intern `AnalysisRuntimeOptions` und uebersetzt diese
+  anschliessend in das bisherige Runtime-Argumentobjekt, solange die
   bestehenden Funktionen dieses noch benoetigen.
+- `_execute_legacy_analysis(...)` kapselt den aktuellen Aufruf von
+  `run_all()` und `execute_steps()`.
+- `build_runtime_args(...)` erzeugt fuer die interne Pipeline eine typisierte
+  Runtime-Struktur; Attributzugriff und bestehende Runner bleiben kompatibel.
+- Datenvorbedingungen sind mit `check_required_data(...)` ohne direkten
+  Prozessabbruch pruefbar; der Legacy-Wrapper bleibt kompatibel.
+- Fehlende Nutzdaten werden im Service vor dem Legacy-Aufruf erkannt; dadurch
+  entsteht fuer diesen Fall kein interner `SystemExit` mehr.
 - stdout/stderr werden gesammelt und in `AnalysisResult.log_text` abgelegt.
 - Neue Dateien unter `database_dir` und `output_root` werden nach dem Lauf in
   `AnalysisResult.created_files` gelistet.
+- P029 ergaenzt parallel `AnalysisResult.step_results` als ersten
+  strukturierten Schrittvertrag; die bisherige Gesamtausgabe bleibt
+  rueckwaertskompatibel erhalten.
 - `SystemExit` aus bestehender CLI-naher Logik wird abgefangen und in
   `AnalysisResult(success=False, errors=[...])` uebersetzt.
 - Tkinter und Streamlit werden in dieser Schicht nicht importiert.
 - Die Funktion zeigt keine Messageboxen an und ruft keine UI-Funktionen auf.
 - Bestehende Funktionen werden nicht in diesem Schritt verschoben.
+
+Die aktuelle Grenze ist bewusst pragmatisch: `AnalysisRuntimeOptions` ist noch
+keine oeffentliche API, sondern ein interner Zwischenschritt. Dadurch bleiben
+CLI, Tkinter, Streamlit und `ma_workflow` kompatibel, waehrend spaetere Slices
+`ma_analyse.app.commands`, `heating.py`, `cooling.py` und Tkinter gezielter
+entkoppeln koennen.
 
 ## Einbindung in ma_ui
 

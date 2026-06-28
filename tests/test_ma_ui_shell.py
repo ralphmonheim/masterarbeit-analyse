@@ -81,9 +81,11 @@ from ma_ui.navigation import (
     CONFIGURATION_RETURN_PAGE_SESSION_KEY,
     CURRENT_PAGE_SESSION_KEY,
     MODULE_INFO_PAGE_SESSION_KEY,
+    SCROLL_TO_TOP_SESSION_KEY,
     VIEW_MODE_SESSION_KEY,
     WORKFLOW_VIEW_MODE,
     WORKSPACE_VIEW_MODE,
+    consume_scroll_to_top,
     get_navigation_page,
     get_navigation_pages,
     next_page_key,
@@ -225,6 +227,7 @@ def test_renderable_pages_include_variants():
 def test_navigation_normalizes_unknown_session_page_key():
     assert CURRENT_PAGE_SESSION_KEY == "ma_ui_current_page"
     assert VIEW_MODE_SESSION_KEY == "ma_ui_view_mode"
+    assert SCROLL_TO_TOP_SESSION_KEY == "ma_ui_scroll_to_top"
     assert normalize_page_key("analyse", ("home", "analyse")) == "analyse"
     assert normalize_page_key(
         "export_ida",
@@ -346,10 +349,14 @@ def test_page_navigation_and_info_toggle_update_session_state():
 
     set_module_info_active(session_state, "weather", active=True)
     assert session_state[MODULE_INFO_PAGE_SESSION_KEY] == "weather"
+    assert SCROLL_TO_TOP_SESSION_KEY not in session_state
 
     select_page(session_state, "variants")
     assert session_state[CURRENT_PAGE_SESSION_KEY] == "variants"
     assert MODULE_INFO_PAGE_SESSION_KEY not in session_state
+    assert session_state[SCROLL_TO_TOP_SESSION_KEY] is True
+    assert consume_scroll_to_top(session_state) is True
+    assert consume_scroll_to_top(session_state) is False
 
 
 def test_configuration_links_store_return_page_and_normal_navigation_clears_it():
@@ -363,13 +370,17 @@ def test_configuration_links_store_return_page_and_normal_navigation_clears_it()
 
     assert session_state[CURRENT_PAGE_SESSION_KEY] == "parameters"
     assert session_state[CONFIGURATION_RETURN_PAGE_SESSION_KEY] == "variants"
+    assert session_state[SCROLL_TO_TOP_SESSION_KEY] is True
+    assert consume_scroll_to_top(session_state) is True
     assert return_to_configuration_origin(session_state) == "variants"
     assert session_state[CURRENT_PAGE_SESSION_KEY] == "variants"
     assert CONFIGURATION_RETURN_PAGE_SESSION_KEY not in session_state
+    assert session_state[SCROLL_TO_TOP_SESSION_KEY] is True
 
     select_related_configuration_page(session_state, "project", return_page_key="variants")
     select_page(session_state, "home")
     assert CONFIGURATION_RETURN_PAGE_SESSION_KEY not in session_state
+    assert session_state[SCROLL_TO_TOP_SESSION_KEY] is True
 
     set_module_info_active(session_state, "variants", active=True)
     set_module_info_active(session_state, "variants", active=False)
@@ -501,6 +512,11 @@ def test_ui_uses_top_navigation_instead_of_sidebar_radio():
     app_source = Path("src/ma_ui/streamlit_app/app.py").read_text(encoding="utf-8")
 
     assert "st.sidebar.radio" not in app_source
+    assert "streamlit_html" not in app_source
+    assert "st.iframe" not in app_source
+    assert "components.html" in app_source
+    assert "height=0" not in app_source
+    assert "height=1" in app_source
     assert "Start" in app_source
     assert "Zurueck" in app_source
     assert "Weiter" in app_source
@@ -544,7 +560,7 @@ def test_weather_dataset_actions_are_in_dataset_section():
     assert "WEATHER_DATASET_ACTION_VALIDATE" in actions_source
     assert '"Import"' in weather_source
     assert '"Scannen"' in weather_source
-    assert '"Validieren"' in weather_source
+    assert '"Pruefen"' in weather_source
     assert "st.columns(3)" in actions_source
     assert "_toggle_weather_dataset_action" in actions_source
     assert "_weather_dataset_action_button_type" not in weather_source
@@ -553,7 +569,9 @@ def test_weather_dataset_actions_are_in_dataset_section():
     assert "_run_weather_input_discovery" not in actions_source
     assert "_run_weather_catalog_validation" not in actions_source
     assert "_run_weather_input_discovery(catalog, location_catalog)" in scan_panel_source
-    assert "_run_weather_catalog_validation(catalog)" in validation_panel_source
+    assert "_run_weather_catalog_validation(catalog)" not in validation_panel_source
+    assert "Parameter pruefen" in validation_panel_source
+    assert '"Key-Parameter pruefen"' not in validation_panel_source
     assert "_render_weather_dataset_actions(catalog, location_catalog)" in dataset_section_source
     assert "active_action = _active_weather_dataset_action()" in dataset_section_source
     assert "if active_action == WEATHER_DATASET_ACTION_IMPORT" in dataset_section_source
@@ -566,6 +584,7 @@ def test_weather_dataset_actions_are_in_dataset_section():
     assert "selected_location_id" not in import_panel_source
     assert "edited_location_id" not in import_panel_source
     assert "Gefundene lokale TRY-Dateien" in weather_source
+    assert "Ort / Vorschlag" in weather_source
     assert "active_column, open_column = st.columns(2)" in dataset_section_source
 
 
@@ -1441,13 +1460,15 @@ def test_weather_discovery_key_parameter_rows_keep_editable_targets_together():
     rows = weather_page.weather_discovery_key_parameter_rows(discovery, locations)
     rows_by_field = {str(row["Feld"]): row for row in rows}
 
-    assert rows_by_field["Dateiname"]["Bearbeitung"] == "Nur Anzeige"
-    assert rows_by_field["Stadt"]["Zielwert"] == "LOC_TEST - Testort"
-    assert rows_by_field["Bezugsjahr"]["Zielwert"] == 2015
-    assert rows_by_field["Datensatztyp"]["Zielwert"] == "Jahr"
-    assert rows_by_field["Szenario"]["Zielwert"] == "Gegenwart"
-    assert rows_by_field["Rolle"]["Zielwert"] == "TRY-Referenzdatensatz"
-    assert rows_by_field["weather_key"]["Zielwert"] == "TRY_TEST_2015_JAHR"
+    assert list(rows_by_field["Stadt"]) == ["Feld", "Wert"]
+    assert "Dateiname" not in rows_by_field
+    assert rows_by_field["Stadt"]["Wert"] == "LOC_TEST - Testort"
+    assert rows_by_field["Bezugsjahr"]["Wert"] == 2015
+    assert rows_by_field["Datensatztyp"]["Wert"] == "Jahr"
+    assert rows_by_field["Szenario"]["Wert"] == "Gegenwart"
+    assert "Rolle" not in rows_by_field
+    assert "weather_key" not in rows_by_field
+    assert "Anzeigename" not in rows_by_field
 
 
 def test_weather_validation_mask_uses_no_artificial_defaults():
@@ -1456,19 +1477,23 @@ def test_weather_validation_mask_uses_no_artificial_defaults():
         "def _render_weather_discovery_validation_result",
         maxsplit=1,
     )[0]
+    parameter_view_source = validation_source.split("discoveries_by_path", maxsplit=1)[1]
 
-    assert "WEATHER_VALIDATION_VIEW_OPEN" in validation_source
+    assert '"Gefundene lokale TRY-Dateien"' in weather_source
     assert "WEATHER_VALIDATION_VIEW_KEYS" in weather_source
+    assert '"Parameter pruefen"' in weather_source
+    assert '"Key-Parameter pruefen"' not in weather_source
     assert "st.data_editor" in validation_source
     assert "weather_discovery_key_parameter_rows" in validation_source
+    assert "_render_weather_discoveries()" not in parameter_view_source
     assert '"Aenderungen uebernehmen"' in validation_source
-    assert '"Entwurf validieren"' in validation_source
-    assert '"Validierten Entwurf registrieren"' in validation_source
+    assert '"Entwurf pruefen"' in validation_source
+    assert '"Geprueften Entwurf registrieren"' in validation_source
     assert "_updated_discovery_from_key_parameter_rows" in validation_source
     assert "validate_weather_file_discovery(" in validation_source
     assert "selected_discovery.year or 2015" not in validation_source
     assert "st.number_input(" not in validation_source
-    assert "_run_weather_catalog_validation(catalog)" in validation_source
+    assert "_run_weather_catalog_validation(catalog)" not in validation_source
 
 
 def test_weather_event_rows_are_stable_for_ui():

@@ -65,6 +65,8 @@ Aktuelle Beispiele:
 
 ## Naechste Modularisierung
 
+- P029 stabilisiert zuerst den Service-/Runner-Vertrag mit strukturierten
+  Schritt-Ergebnissen, bevor grosse Fachdateien zerlegt werden.
 - Heating und Cooling weiter in Energy-Runner, Datenladen und Plotmodule zerlegen.
 - Comfort-Runner weiter verkleinern, falls Auswahl- und Prozesslogik wachsen.
 - Tkinter-Analyse weiter in kleinere Komponenten fuer Layout, Dialoge und

@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import argparse
 import os
 import shutil
 import time
+from dataclasses import dataclass
 from pathlib import Path
 
 from ..analysis.comfort.main import get_run_id, process_analysis, process_overview, process_plots
@@ -71,6 +71,58 @@ COMFORT_OUTPUT_TYPES = {
         "analysis_overview": True,
     },
 }
+
+
+@dataclass
+class PipelineRuntimeArgs:
+    """Interner, typisierter Schrittvertrag fuer die bestehende Pipeline."""
+
+    input_dir: str | Path
+    datenbank_dir: str | Path
+    output_root: str | Path
+    output_root_explicit: bool
+    run_id: str | None
+    debug: bool
+    variants: list[str] | None
+    rooms: list[str]
+    view: str
+    month: str | None
+    week: int | None
+    day: int | None
+    heating_series_layout: str | None
+    heating_mode: str
+    plot_single: bool
+    plot_overview: bool
+    analysis_individual: bool
+    analysis_overview: bool
+    plot_output_subdir: object | None
+    export_format: str
+    template: str
+    plot_template_mode: str
+    setpoint_min: float
+    setpoint_max: float
+    temperature_ymin: float
+    temperature_ymax: float
+    outdoor_column: str
+    show_setpoint_band: bool
+    show_outdoor_temperature: bool
+    show_operative_temperature: bool
+    overlay_lines: object | None
+    fixed_overlays: object | None
+    primary_axis_mode: str
+    primary_ymin: object | None
+    primary_ymax: object | None
+    secondary_axis_mode: str
+    secondary_ymin: object | None
+    secondary_ymax: object | None
+
+
+@dataclass(frozen=True)
+class PipelinePreconditionResult:
+    """Strukturiertes Ergebnis fuer Pipeline-Vorbedingungen."""
+
+    ok: bool
+    messages: list[str]
 
 
 def get_comfort_output_settings(output_type):
@@ -609,19 +661,34 @@ def run_comfort(args):
     )
 
 
-def ensure_required_data(args, steps):
-    """Bricht Analyse-/Plotbefehle ab, wenn vorherige Nutzdaten fehlen."""
+def check_required_data(args, steps) -> PipelinePreconditionResult:
+    """Prueft, ob Analyse-/Plotbefehle auf vorbereitete Nutzdaten zugreifen koennen."""
     if not any(step in DATABASE_STEPS for step in steps):
-        return
+        return PipelinePreconditionResult(ok=True, messages=[])
 
     if os.path.exists(args.datenbank_dir):
-        return
+        return PipelinePreconditionResult(ok=True, messages=[])
 
     if "prepare" in steps:
+        return PipelinePreconditionResult(ok=True, messages=[])
+
+    return PipelinePreconditionResult(
+        ok=False,
+        messages=[
+            f"X Verzeichnis mit aufbereiteten Daten nicht gefunden: {args.datenbank_dir}",
+            "  Fuehren Sie zuerst 'prepare' aus oder waehlen Sie in der GUI auch prepare.",
+        ],
+    )
+
+
+def ensure_required_data(args, steps):
+    """Bricht Analyse-/Plotbefehle ab, wenn vorherige Nutzdaten fehlen."""
+    precondition = check_required_data(args, steps)
+    if precondition.ok:
         return
 
-    print(f"X Verzeichnis mit aufbereiteten Daten nicht gefunden: {args.datenbank_dir}")
-    print("  Fuehren Sie zuerst 'prepare' aus oder waehlen Sie in der GUI auch prepare.")
+    for message in precondition.messages:
+        print(message)
     raise SystemExit(1)
 
 
@@ -688,7 +755,7 @@ def build_runtime_args(
     if plot_template_options:
         plot_template_defaults.update(plot_template_options)
 
-    return argparse.Namespace(
+    return PipelineRuntimeArgs(
         input_dir=args.input_dir,
         datenbank_dir=args.datenbank_dir,
         output_root=args.output_root,

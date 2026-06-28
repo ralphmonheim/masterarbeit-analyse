@@ -23,6 +23,7 @@ from .weather_catalog import (
     import_weather_catalog,
 )
 from .weather_imports import _append_local_dataset_record, suggest_weather_key
+from .weather_location_resolution import WeatherLocationResolutionStatus, resolve_weather_file_location
 from .weather_locations import (
     WeatherLocation,
     WeatherLocationCatalog,
@@ -56,12 +57,24 @@ WEATHER_KEY_SUFFIX_BY_KIND = {
 }
 WEATHER_KEY_PATTERN = re.compile(r"^[A-Za-z0-9_-]+$")
 HEADER_FIELDS = {
+    "Standort": "file_location_name",
+    "Ort": "file_location_name",
+    "Stadt": "file_location_name",
+    "Gemeinde": "file_location_name",
     "Rechtswert": "rechtswert_m",
     "Hochwert": "hochwert_m",
     "Hoehenlage": "hoehenlage_m",
     "Art des TRY": "try_type",
     "Bezugszeitraum": "reference_period",
 }
+LOCATION_RESOLUTION_SOURCE_FILE_REFERENCE = "file_reference"
+LOCATION_RESOLUTION_SOURCE_TRY_COORDINATES = "try_coordinates"
+LOCATION_RESOLUTION_SOURCE_MANUAL = "manual"
+LOCATION_RESOLUTION_STATUS_CONFIRMED = "confirmed"
+LOCATION_RESOLUTION_STATUS_SUGGESTED = "suggested"
+LOCATION_RESOLUTION_STATUS_MISSING = "missing"
+LOCATION_RESOLUTION_STATUS_CONFLICT = "conflict"
+LOCATION_RESOLUTION_STATUS_BLOCKED = "blocked"
 MAPPING_STATUS_CONFIRMED = "confirmed"
 MAPPING_STATUS_CANDIDATE = "candidate"
 MAPPING_STATUS_OPEN = "open"
@@ -298,14 +311,18 @@ def update_weather_file_discovery(
 ) -> WeatherFileDiscovery:
     """Uebernimmt bewusst angepasste Entwurfswerte aus der UI."""
     location = _location_or_none(location_catalog, location_id) if location_id else None
+    metadata = dict(discovery.metadata)
     kind = _kind_for_dataset_type(dataset_type)
     year_value = int(year) if year is not None else None
     year_type = _year_type_for_dataset_type(dataset_type, climate_scenario)
+    dataset_role_value = dataset_role
+    if location is not None and dataset_role_value not in VALID_DATASET_ROLES:
+        dataset_role_value = DATASET_ROLE_TRY_REFERENCE if location.is_reference_location else DATASET_ROLE_SITE_SPECIFIC
     reference_location_id = ""
     if location is not None:
         reference_location_id = (
             location.location_id
-            if dataset_role == DATASET_ROLE_TRY_REFERENCE
+            if dataset_role_value == DATASET_ROLE_TRY_REFERENCE
             else location.reference_location_id
         )
     weather_key_value = weather_key.strip()
@@ -321,15 +338,23 @@ def update_weather_file_discovery(
         location_id=location.location_id if location is not None else "",
         dataset_type=dataset_type,
         climate_scenario=climate_scenario,
-        dataset_role=dataset_role,
+        dataset_role=dataset_role_value,
         year=year_value,
         year_type=year_type,
     )
     messages = list(discovery.messages)
     if location_id and location is None:
         messages.append(f"Standort-ID ist nicht im Standortkatalog vorhanden: {location_id}")
-    if location is not None and dataset_role == DATASET_ROLE_TRY_REFERENCE and not location.is_reference_location:
+    if location is not None and dataset_role_value == DATASET_ROLE_TRY_REFERENCE and not location.is_reference_location:
         messages.append("TRY-Referenzdatensatz ist auf einen nicht als Referenzstandort markierten Standort gesetzt.")
+    if location is not None:
+        metadata.update(
+            _location_resolution_metadata(
+                source=LOCATION_RESOLUTION_SOURCE_MANUAL,
+                status=LOCATION_RESOLUTION_STATUS_CONFIRMED,
+                detail="Standort wurde in der Pruefansicht bewusst gesetzt.",
+            )
+        )
     status = WeatherDiscoveryStatus.OPEN if missing_fields else WeatherDiscoveryStatus.READY
     return WeatherFileDiscovery(
         weather_key=weather_key_value,
@@ -341,12 +366,12 @@ def update_weather_file_discovery(
         dataset_type=dataset_type,
         year_type=year_type,
         climate_scenario=climate_scenario,
-        dataset_role=dataset_role,
+        dataset_role=dataset_role_value,
         location_id=location.location_id if location is not None else "",
         reference_location_id=reference_location_id,
         location_name=location.location_name if location is not None else "",
         selection_priority=_selection_priority(kind, year_value),
-        metadata=discovery.metadata,
+        metadata=metadata,
         missing_fields=tuple(missing_fields),
         messages=tuple(dict.fromkeys(messages)),
         status=status,
@@ -367,12 +392,17 @@ def validate_weather_file_discovery(
     duplicate_key = any(dataset.weather_key == discovery.weather_key for dataset in catalog.datasets)
     if duplicate_key:
         messages.append(f"weather_key ist bereits vorhanden: {discovery.weather_key}")
+    location_resolution_blocking = _location_resolution_blocks_registration(discovery)
+    if location_resolution_blocking:
+        status_text = discovery.metadata.get("location_resolution_status", "unbekannt")
+        messages.append(f"Standortaufloesung blockiert die Registrierung: {status_text}")
 
     dataset = _dataset_from_discovery(discovery)
     status = inspect_weather_dataset_status(dataset, project_root=root, validate_file=True)
     can_register = (
         discovery.is_complete
         and not duplicate_key
+        and not location_resolution_blocking
         and (
             status.release_status is ReleaseStatus.RELEASED
             or (status.release_status is ReleaseStatus.CONFIRMATION_REQUIRED and warnings_released)
@@ -420,8 +450,9 @@ def register_discovered_weather_dataset(
         location_id=discovery.location_id,
         reference_location_id=discovery.reference_location_id,
         selection_priority=discovery.selection_priority,
-        is_active=True,
+        is_active=False,
         notes="Aus lokalem TRY-Dateiscan registriert; Datei bleibt unversioniert.",
+        **_dataset_location_resolution_kwargs(discovery.metadata),
     )
     _append_local_dataset_record(root / Path(local_catalog_path), dataset)
     return dataset
@@ -441,9 +472,30 @@ def _dataset_from_discovery(discovery: WeatherFileDiscovery) -> WeatherDataset:
         location_id=discovery.location_id,
         reference_location_id=discovery.reference_location_id,
         selection_priority=discovery.selection_priority,
-        is_active=True,
+        is_active=False,
         notes="Entwurf aus lokalem TRY-Dateiscan.",
+        **_dataset_location_resolution_kwargs(discovery.metadata),
     )
+
+
+def _dataset_location_resolution_kwargs(metadata: dict[str, str]) -> dict[str, object]:
+    method = metadata.get("municipality_match_method") or metadata.get("location_resolution_method", "")
+    return {
+        "source_easting": _metadata_number(metadata.get("source_easting", metadata.get("rechtswert_m", ""))),
+        "source_northing": _metadata_number(metadata.get("source_northing", metadata.get("hochwert_m", ""))),
+        "source_crs_epsg": _metadata_int(metadata.get("source_crs_epsg", "")),
+        "resolved_latitude": _metadata_number(metadata.get("resolved_latitude", "")),
+        "resolved_longitude": _metadata_number(metadata.get("resolved_longitude", "")),
+        "elevation_m": _metadata_number(metadata.get("elevation_m", metadata.get("hoehenlage_m", ""))),
+        "detected_municipality_name": metadata.get("detected_municipality_name", ""),
+        "detected_municipality_code": metadata.get("detected_municipality_code", ""),
+        "detected_federal_state": metadata.get("detected_federal_state", ""),
+        "detected_postal_code": metadata.get("detected_postal_code", ""),
+        "location_resolution_source": metadata.get("location_resolution_source", ""),
+        "location_resolution_status": metadata.get("location_resolution_status", ""),
+        "location_resolution_method": method,
+        "geodata_source_id": metadata.get("geodata_source_id", ""),
+    }
 
 
 def _build_file_discovery(
@@ -480,19 +532,76 @@ def _build_file_discovery(
         folder_key = f"TRY_{try_id}" if try_id else ""
 
     metadata = _read_try_header_metadata(file_path)
+    location_resolution = resolve_weather_file_location(metadata)
+    if location_resolution.status is not WeatherLocationResolutionStatus.NOT_CONFIGURED:
+        metadata.update(_geodata_location_resolution_metadata(location_resolution.to_metadata()))
+        messages.extend(location_resolution.messages)
+        if location_resolution.is_blocking:
+            missing_fields.append("location_resolution")
     mapping_entry = try_location_mapping.get(folder_key)
     metadata.update(_mapping_metadata(mapping_entry))
-    location_id = mapping_entry.location_id if mapping_entry is not None and mapping_entry.is_confirmed else ""
+    file_location = _location_from_file_reference(metadata, location_catalog)
+    mapping_location_id = mapping_entry.location_id if mapping_entry is not None and mapping_entry.is_confirmed else ""
+    location_id = file_location.location_id if file_location is not None else mapping_location_id
     location = _location_or_none(location_catalog, location_id) if location_id else None
-    if mapping_entry is not None and not mapping_entry.is_confirmed:
+    if file_location is not None and mapping_location_id and file_location.location_id != mapping_location_id:
+        location_id = ""
+        location = None
+        missing_fields.extend(["location_id", "location_resolution"])
+        messages.append(
+            "Standortkonflikt zwischen Dateiverweis "
+            f"{file_location.location_id} und bestaetigter TRY-Ordner-Zuordnung {mapping_location_id}."
+        )
+        metadata.update(
+            _location_resolution_metadata(
+                source=LOCATION_RESOLUTION_SOURCE_FILE_REFERENCE,
+                status=LOCATION_RESOLUTION_STATUS_CONFLICT,
+                detail="Dateiverweis und bestaetigte TRY-Ordner-Zuordnung widersprechen sich.",
+            )
+        )
+    elif location is not None:
+        detail = (
+            "Standort wurde aus einem Dateiverweis gelesen."
+            if file_location is not None
+            else "Standort wurde aus bestaetigter TRY-Ordner-Zuordnung gelesen."
+        )
+        metadata.update(
+            _location_resolution_metadata(
+                source=LOCATION_RESOLUTION_SOURCE_FILE_REFERENCE,
+                status=LOCATION_RESOLUTION_STATUS_CONFIRMED,
+                detail=detail,
+            )
+        )
+    elif mapping_entry is not None and not mapping_entry.is_confirmed:
         missing_fields.append("location_id")
         messages.append(f"Standortzuordnung fuer {folder_key or relative_path.parent.name} ist noch nicht bestaetigt.")
+        metadata.update(
+            _location_resolution_metadata(
+                source=LOCATION_RESOLUTION_SOURCE_FILE_REFERENCE,
+                status=LOCATION_RESOLUTION_STATUS_SUGGESTED,
+                detail="TRY-Ordner-Zuordnung ist vorhanden, aber noch nicht bestaetigt.",
+            )
+        )
     elif not location_id:
         missing_fields.append("location_id")
         messages.append(f"Keine Standortzuordnung fuer {folder_key or relative_path.parent.name} gefunden.")
+        metadata.update(
+            _location_resolution_metadata(
+                source="",
+                status=LOCATION_RESOLUTION_STATUS_MISSING,
+                detail="Keine eindeutige Standortquelle gefunden.",
+            )
+        )
     elif location is None:
         missing_fields.append("location_id")
         messages.append(f"Standort-ID aus Zuordnungstabelle ist nicht im Standortkatalog vorhanden: {location_id}")
+        metadata.update(
+            _location_resolution_metadata(
+                source=LOCATION_RESOLUTION_SOURCE_FILE_REFERENCE,
+                status=LOCATION_RESOLUTION_STATUS_BLOCKED,
+                detail="Standort-ID aus expliziter Zuordnung ist nicht im Standortkatalog vorhanden.",
+            )
+        )
 
     dataset_type = DATASET_TYPE_BY_KIND.get(kind, "")
     year_type = _year_type_for_kind(kind, year)
@@ -508,7 +617,10 @@ def _build_file_discovery(
         location_name = location.location_name
         reference_location_id = location.reference_location_id
         dataset_role = DATASET_ROLE_TRY_REFERENCE if location.is_reference_location else DATASET_ROLE_SITE_SPECIFIC
-    else:
+    elif metadata.get("location_resolution_status") not in {
+        LOCATION_RESOLUTION_STATUS_CONFLICT,
+        LOCATION_RESOLUTION_STATUS_BLOCKED,
+    }:
         suggestion = _suggest_location_from_metadata(
             metadata,
             location_catalog=location_catalog,
@@ -516,6 +628,13 @@ def _build_file_discovery(
         )
         if suggestion is not None:
             metadata.update(_suggestion_metadata(suggestion))
+            metadata.update(
+                _location_resolution_metadata(
+                    source=LOCATION_RESOLUTION_SOURCE_TRY_COORDINATES,
+                    status=LOCATION_RESOLUTION_STATUS_SUGGESTED,
+                    detail="Standortvorschlag wurde aus TRY-Koordinaten abgeleitet.",
+                )
+            )
             messages.append(
                 "Standortvorschlag aus TRY-Koordinaten: "
                 f"{suggestion.location_name} ({suggestion.distance_m:.0f} m Abstand). "
@@ -737,6 +856,51 @@ def _mapping_metadata(mapping_entry: WeatherTryLocationMapping | None) -> dict[s
     }
 
 
+def _location_resolution_metadata(*, source: str, status: str, detail: str) -> dict[str, str]:
+    return {
+        "location_resolution_source": source,
+        "location_resolution_status": status,
+        "location_resolution_detail": detail,
+    }
+
+
+def _geodata_location_resolution_metadata(metadata: dict[str, str]) -> dict[str, str]:
+    """Bewahrt technische Geodatenstatus getrennt vom fachlichen Standortstatus auf."""
+    converted = dict(metadata)
+    if "location_resolution_status" in converted:
+        converted["geodata_location_resolution_status"] = converted.pop("location_resolution_status")
+    if "location_resolution_blocking" in converted:
+        converted["geodata_location_resolution_blocking"] = converted.pop("location_resolution_blocking")
+    if "location_resolution_messages" in converted:
+        converted["geodata_location_resolution_messages"] = converted.pop("location_resolution_messages")
+    return converted
+
+
+def _location_from_file_reference(
+    metadata: dict[str, str],
+    location_catalog: WeatherLocationCatalog,
+) -> WeatherLocation | None:
+    location_name = metadata.get("file_location_name", "").strip()
+    if not location_name:
+        return None
+    try:
+        return location_catalog.get_location_by_name(location_name)
+    except KeyError:
+        return None
+
+
+def _location_resolution_blocks_registration(discovery: WeatherFileDiscovery) -> bool:
+    geodata_blocks = discovery.metadata.get("geodata_location_resolution_blocking") == "true"
+    status = discovery.metadata.get("location_resolution_status", "")
+    if status in {
+        LOCATION_RESOLUTION_STATUS_CONFLICT,
+        LOCATION_RESOLUTION_STATUS_BLOCKED,
+        LOCATION_RESOLUTION_STATUS_SUGGESTED,
+    }:
+        return True
+    return geodata_blocks or (bool(status) and status != LOCATION_RESOLUTION_STATUS_CONFIRMED)
+
+
 def _suggestion_metadata(suggestion: WeatherLocationMappingSuggestion) -> dict[str, str]:
     metadata = {
         "suggested_location_id": suggestion.location_id,
@@ -758,6 +922,13 @@ def _metadata_number(value: str) -> float | None:
     if match is None:
         return None
     return float(match.group(0).replace(",", "."))
+
+
+def _metadata_int(value: str) -> int | None:
+    number = _metadata_number(value)
+    if number is None:
+        return None
+    return int(number)
 
 
 def _mapping_confidence(distance_m: float) -> str:

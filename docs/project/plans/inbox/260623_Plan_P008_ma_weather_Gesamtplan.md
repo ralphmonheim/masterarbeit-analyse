@@ -1,6 +1,6 @@
 # P008 ma_weather Gesamtplan
 
-Stand: 2026-06-24
+Stand: 2026-06-27
 Status: Aktiv
 Plannummer: P008
 Bezug: P007, P010, P015, P018, P021, P027, archivierter P002
@@ -59,6 +59,53 @@ Weiterhin offene Entscheidungen:
 - Umfang normalisierter Kopien und spaeterer Exporte.
 - Fachliche Feinschaerfung kritischer Wetterereignisse fuer P021.
 
+## Aenderungsvermerk zur Planergaenzung Standorterkennung und PLZ
+
+Datum der Integration: 2026-06-27
+
+Dieser Plan fuehrt weiterhin die Plannummer `P008`. Die Planergaenzung
+`docs/project/plans/inbox/260627_Planergaenzung_P008_ma_weather_Standorterkennung_PLZ.md`
+wurde fachlich in diesen Gesamtplan integriert und unter
+`docs/project/archive/plans/260627_Planergaenzung_P008_ma_weather_Standorterkennung_PLZ.md`
+archiviert.
+
+Uebernommene Inhalte:
+
+- TRY-Headerkoordinaten als fuehrende Quelle fuer ortsgenaue TRY-Dateien.
+- EPSG:3034 als verbindliche technische Interpretation der TRY-Rechts- und
+  Hochwerte.
+- Offline-Standorterkennung ueber Gemeinde, amtlichen Gemeindeschluessel und
+  Bundesland.
+- Optionale, getrennte PLZ-Aufloesung.
+- Deutschlandpruefung als blockierender Validierungsschritt.
+- Trennung zwischen automatisch erkannten und bewusst bestaetigten
+  Standortdaten.
+- Geodatenquellen, Lizenzpruefung, Versionierung und lokale Ablage als
+  eigener Planungspunkt.
+- Vereinfachte Streamlit-Pruefansicht fuer lokale TRY-Entwuerfe.
+
+Ersetzte oder korrigierte Inhalte:
+
+- Die bisherige Logik `Stadt -> Klimaregion -> TRY-Referenzstandort` bleibt
+  fuer bestehende Katalogeintraege und alte regionsbezogene Annahmen erhalten,
+  ist fuer ortsgenaue TRY-Dateien aber nur noch Kompatibilitaetsweg.
+- Die Klimaregion bleibt informativ und als Fallback nutzbar, ist aber nicht
+  mehr die primaere technische Standortaufloesung fuer importierte
+  ortsgenaue TRY-Dateien.
+- Der vorhandene Koordinaten-Naechstvorschlag gegen bestaetigte TRY-Ordner ist
+  nur ein Uebergangshinweis und darf keine finale Standortzuordnung ersetzen.
+
+Weiterhin offene Entscheidungen:
+
+- Verbindliche Gemeinde-Geodatenquelle und Version.
+- Verbindliche PLZ-Geodatenquelle, Lizenz und Feldnamen.
+- Ob Geodaten selbst versioniert werden duerfen oder nur lokal mit
+  Quellenmetadaten abgelegt werden.
+- Maximaldistanz fuer Gemeinde-Fallbacks bei Grenzfaellen.
+- Darstellung von PLZ in der normalen Standortauswahl.
+- Endgueltige Benennung der UI-Aktion: fachlich `Pruefen`, bei spaeterer
+  UI-Umsetzung ggf. mit Umlaut als `Prüfen`.
+
 ## Ziel
 
 `ma_weather` soll Wetterdaten als eigenstaendiges Eingabemodul verwalten,
@@ -84,6 +131,14 @@ Datenhaltung und spaetere Parameteruebergabe.
 - `TRY_FFM_2015_JAHR` wurde real mit 8760 Stunden erfolgreich geprueft.
 - Streamlit kann aktive `weather_key` Werte auswaehlen, Wetteranalysen starten
   und Ergebnisse anzeigen.
+- Der lokale TRY-Dateiscan liest bereits Rechtswert, Hochwert, Hoehenlage,
+  Art des TRY und Bezugszeitraum aus dem TRY-Kopf.
+- Jahr, Szenario und Datensatztyp werden beim Scan bereits aus dem Dateinamen
+  abgeleitet.
+- Zwei neue lokale TRY-Ordner fuer Berlin/Potsdam-nahe Testdateien sind
+  vorhanden, aber ohne Mapping noch offene Datensatzentwuerfe.
+- EPSG:3034, Gemeindegrenzen, PLZ-Polygone und Punkt-in-Polygon-Aufloesung
+  sind noch nicht technisch umgesetzt.
 - `ma_core` stellt Quellenmodell, SHA-256 und JSONL-Sitzungslogs bereit.
 - `ma_validation` stellt strukturierte Diagnosen, Freigabestatus und
   Freigabeentscheidungen bereit.
@@ -104,6 +159,10 @@ Referenzstandort ermoeglichen.
 Folge: Klimaregion und TRY-Referenzstandort werden angezeigt, aber in der
 regulaeren Auswahl nicht direkt editiert.
 
+Diese Entscheidung gilt fuer die manuelle Auswahl und fuer bestehende
+Katalogeintraege. Fuer importierte ortsgenaue TRY-Dateien sind die
+Headerkoordinaten der Wetterdatei fuehrend.
+
 ### Klimaregionenkarte ist informativ
 
 Die Karte der Klimaregionen wird in der ersten Ausbaustufe nur informativ in
@@ -121,6 +180,35 @@ UI-Assetstruktur.
 Standorte, Klimaregionen, Referenzstandorte und Wetterdatensaetze werden
 fachlich getrennt geplant. Ein Referenzstandort kann mehrere Datensaetze
 besitzen, zum Beispiel Gegenwart, Zukunftsszenario, Sommer- oder Winterfall.
+
+### TRY-Headerkoordinaten sind fuehrend
+
+Fuer ortsgenaue TRY-Dateien werden Rechtswert und Hochwert aus dem TRY-Kopf
+als primaere Standortquelle geplant. Der Dateiname darf zur Konsistenzpruefung
+genutzt werden, ersetzt aber nicht den Header.
+
+Die TRY-Koordinaten werden als EPSG:3034 interpretiert. Die Transformation und
+raeumliche Zuordnung liegen in `ma_weather`, nicht in Streamlit oder Tkinter.
+
+### Gemeinde ist fuehrend, PLZ ist optional
+
+Die automatische Standorterkennung soll offline Gemeinde oder Stadt,
+amtlichen Gemeindeschluessel und Bundesland bestimmen. Diese administrative
+Zuordnung ist fuehrend.
+
+Die PLZ wird getrennt und optional bestimmt. Eine fehlende PLZ blockiert den
+Import nicht, sofern Gemeinde und Deutschlandpruefung erfolgreich sind oder
+bewusst bestaetigt wurden.
+
+### Klimaregion und Referenzstandort sind Kompatibilitaetsweg
+
+Die Klimaregions- und Referenzstandortlogik bleibt fuer bestehende
+Katalogeintraege, Anzeige, Fallbacks und Altdaten kompatibel erhalten. Fuer
+ortsgenaue TRY-Dateien ist sie nicht mehr die primaere technische
+Standortaufloesung.
+
+Die Klimaregion kann aus dem bestaetigten Standort weiterhin abgeleitet und
+informativ angezeigt werden.
 
 ### Nur aktive und validierte Datensaetze sind regulaer auswaehlbar
 
@@ -237,6 +325,8 @@ Geplante Entitaeten:
 | `weather_datasets` | Wetterdatensaetze je Referenzstandort |
 | `weather_imports` | Importvorgaenge mit Log- und Berichtspfaden |
 | `project_weather_selection` | aktuelle Projekt-Wetterauswahl |
+| `weather_geodata_sources` | lokale Geodatenquellen mit Version, Lizenz und Pruefsumme |
+| `weather_location_resolution` | Ergebnis der automatischen Standort- und PLZ-Aufloesung |
 
 Geplante stabile IDs:
 
@@ -245,6 +335,8 @@ Geplante stabile IDs:
 - `reference_location_id`
 - `dataset_id`
 - `import_id`
+- `geodata_source_id`
+- amtlicher Gemeindeschluessel fuer externe Verwaltungsdaten
 
 Bestehende Schluessel wie `weather_key`, TRY-Ordnungsnummern und Legacy-Codes
 bleiben fuer Anzeige, Rueckverfolgbarkeit und Kompatibilitaet erhalten. Sie
@@ -252,7 +344,33 @@ werden langfristig nicht als alleinige Primaerschluessel geplant.
 
 ## Standort- und Referenzlogik
 
-Regulaerer Ablauf:
+Hauptweg fuer ortsgenaue TRY-Dateien:
+
+```text
+TRY-Datei importieren oder lokal ablegen
+    ->
+TRY-Kopf lesen
+    ->
+Rechtswert, Hochwert und EPSG:3034 pruefen
+    ->
+Koordinaten transformieren
+    ->
+Deutschlandpruefung ausfuehren
+    ->
+Gemeinde, amtlichen Gemeindeschluessel und Bundesland offline ermitteln
+    ->
+PLZ optional offline ermitteln
+    ->
+Abweichungen zu Nutzereingaben oder Mapping anzeigen
+    ->
+Nutzerbestaetigung bei Warnung, Mehrdeutigkeit oder manueller Korrektur
+    ->
+Wetterdatensatzstandort speichern
+    ->
+validieren, aktivieren oder offen halten
+```
+
+Kompatibilitaetsweg fuer bestehende Katalogeintraege:
 
 ```text
 Stadt auswaehlen
@@ -273,6 +391,58 @@ optional aktivieren oder Projekt-Default setzen
 ```
 
 Die Klimaregion wird in der UI angezeigt, aber nicht separat ausgewaehlt.
+Bei ortsgenauen TRY-Dateien wird sie aus dem bestaetigten Standort abgeleitet.
+
+## Offline-Standorterkennung und PLZ-Aufloesung
+
+Die Standorterkennung arbeitet regulaer offline und nutzt lokale Geodaten.
+Externe Online-APIs werden nicht fuer die regulaere Validierung geplant.
+
+Geplante Erkennung:
+
+- TRY-Rechtswert und TRY-Hochwert aus dem Header lesen,
+- EPSG:3034 zentral verarbeiten,
+- transformierte Koordinaten pruefen,
+- Punkt innerhalb Deutschlands pruefen,
+- Gemeinde/Stadt per Punkt-in-Polygon bestimmen,
+- amtlichen Gemeindeschluessel und Bundesland uebernehmen,
+- PLZ optional ueber getrennten PLZ-Geodatensatz bestimmen,
+- automatische und manuell bestaetigte Werte getrennt speichern,
+- jede manuelle Korrektur mit Grund protokollieren.
+
+Blockierend:
+
+- fehlende oder ungueltige Koordinaten,
+- unbekanntes oder nicht verarbeitbares CRS,
+- Punkt ausserhalb Deutschlands,
+- fehlende Gemeinde ohne bestaetigte manuelle Zuordnung,
+- fehlende oder ungueltige Geodaten fuer eine verpflichtende Pruefung.
+
+Nicht zwingend blockierend:
+
+- fehlende PLZ,
+- PLZ-Mehrdeutigkeit,
+- geringe Abweichung zwischen Dateiname und Header,
+- Grenzfall mit bewusster Nutzerbestaetigung.
+
+## Geodatenquellen und Lizenzstatus
+
+Die konkrete Quelle wird vor der Implementierung freigegeben und in lokalen
+Metadaten dokumentiert.
+
+Geeigneter Kandidat fuer Gemeindegrenzen:
+
+- BKG VG250, voraussichtlich unter Datenlizenz Deutschland Namensnennung 2.0.
+
+Moegliche Kandidaten fuer PLZ-Daten:
+
+- OSM-/Geofabrik-basierte PLZ-Grenzen,
+- OpenPLZ oder daraus ableitbare PLZ-Referenzen,
+- andere lokale PLZ-Datensaetze nur nach Lizenzpruefung.
+
+PLZ-Daten werden wegen Lizenz- und Abgrenzungsrisiken zunaechst als optionale
+Ergaenzung geplant. Gemeinde beziehungsweise amtlicher Gemeindeschluessel
+bleiben fuehrend.
 
 ## Import- und Statusmodell
 
@@ -371,6 +541,7 @@ Bestehende Ordner bleiben verbindlich:
 | `data/ma_weather/output/` | Wetterdiagramme |
 | `data/ma_weather/reports/` | Markdown- und Validierungsberichte |
 | `data/ma_weather/exports/` | spaetere strukturierte Exporte |
+| `data/ma_weather/geodata/` | lokale Gemeinde- und PLZ-Geodaten |
 | `logs/sessions/` | bestehende JSONL-Sitzungslogs |
 
 Bei spaeterem Importausbau koennen innerhalb von `data/ma_weather/` ergaenzt
@@ -385,6 +556,10 @@ werden:
 
 Diese Unterordner werden erst angelegt, wenn ein freigegebener Umsetzungsslice
 sie benoetigt.
+
+Versionierte Quellen- und Feldmetadaten fuer lokale Geodaten sollen unter
+`config/ma_weather/geodata/` liegen. Die grossen Geodaten selbst bleiben lokal,
+wenn Dateigroesse, Lizenz oder Repository-Regeln gegen Versionierung sprechen.
 
 ## Streamlit UI Zielbild
 
@@ -403,9 +578,54 @@ Geplante UI-Bereiche innerhalb der bestehenden `ma_ui`-Struktur:
 Die erste Umsetzung soll die vorhandene Wetterseite schrittweise erweitern,
 nicht durch eine zweite UI-Struktur ersetzen.
 
-Der Importbutton liegt im Bereich `Wetterdatensaetze` vor der Uebersicht der
-aktiven Datensaetze. Danach folgt eine getrennte Uebersicht fuer offene
-Wetterdatensaetze.
+Im Bereich `Wetterdatensaetze` werden die Arbeitsschritte gefuehrt:
+
+- `Import`: DWD-Hinweis und Ablage lokaler TRY-Dateien, noch ohne
+  Katalogregistrierung,
+- `Scannen`: lokale TRY-Dateien finden und Datensatzentwuerfe erzeugen,
+- `Pruefen`: gefundene Entwuerfe fachlich kontrollieren, Parameter
+  ergaenzen, technisch pruefen und bewusst registrieren.
+
+Wenn keine Funktion aktiv ist, zeigt die Seite die normalen Uebersichten fuer
+aktive und offene Wetterdatensaetze.
+
+### Pruefansicht fuer lokale TRY-Entwuerfe
+
+Der bisherige UI-Schritt `Validieren` wird fachlich als `Pruefen` gefuehrt.
+Die katalogisierte Bestandspruefung bleibt technisch erhalten, steht aber nicht
+mehr in dieser Entwurfspruefung. Sie kann spaeter als eigener
+Bestandspruefungsbereich eingeordnet werden.
+
+Innerhalb von `Pruefen` gibt es einen Umschalter zwischen:
+
+- `Gefundene lokale TRY-Dateien`,
+- `Parameter pruefen`.
+
+`Gefundene lokale TRY-Dateien` ersetzt dort die bisherige offene
+Entwurfsliste. Die reduzierte Tabelle zeigt nur:
+
+- `Datei`,
+- `Status`,
+- `Ort / Vorschlag`,
+- `Jahr`,
+- `Typ`,
+- `Szenario`,
+- `Offene Punkte`.
+
+`Parameter pruefen` zeigt fuer den ausgewaehlten Entwurf eine reduzierte
+Detailtabelle mit:
+
+- `Feld`,
+- `Wert`.
+
+Im Feld `Wert` steht der gelesene Wert, ein eindeutig abgeleiteter Wert, ein
+manuell ergaenzter Wert oder ein leerer Wert, wenn nichts sicher erkannt wurde.
+Sichtbar geprueft werden Stadt, Bezugsjahr, Datensatztyp und Szenario. Rolle,
+`weather_key` und Anzeigename werden nach gesetztem Standort automatisch
+abgeleitet und nicht als eigene Eingabefelder angezeigt.
+Technische Zusatzinformationen wie Quelle, Bearbeitung, TRY-ID, Rechtswert,
+Hochwert und Hoehenlage werden nicht in der Haupttabelle angezeigt. Sie koennen
+spaeter in einem ausklappbaren Bereich `Technische Details` folgen.
 
 ## Offene Wetterdatensaetze
 
@@ -430,6 +650,11 @@ Geplante Funktionen:
 Offene Datensaetze duerfen nicht als Projekt-Default verwendet, nicht an
 `ma_parameters` uebergeben und nicht fuer Varianten oder Simulationen genutzt
 werden.
+
+Unregistrierte Scan-Entwuerfe bleiben ebenfalls sichtbar, aber nicht regulaer
+auswaehlbar. Sie werden in der Pruefansicht unter `Gefundene lokale
+TRY-Dateien` bearbeitet und erst nach bewusster Registrierung Teil des lokalen
+Wetterkatalogs.
 
 ## Wetteranalyse
 
@@ -518,6 +743,28 @@ enthalten, wird aber nicht mehr als operative Reihenfolge verwendet.
 - keine automatische Aktivierung und keinen automatischen Projekt-Default nach
   Import ausloesen.
 
+### Slice 6 Pruefansicht und ortsgenaue Standorterkennung
+
+- UI-Schritt `Validieren` fachlich zu `Pruefen` weiterentwickeln,
+- katalogisierte Bestandspruefung aus der Entwurfspruefung entfernen und fuer
+  spaetere Einordnung erhalten,
+- `Gefundene lokale TRY-Dateien` als reduzierte Entwurfsliste anzeigen,
+- `Parameter pruefen` als reduzierte Detailtabelle mit `Feld` und `Wert`
+  aufbauen,
+- Rolle, `weather_key` und Anzeigename aus Standort, Jahr, Typ und Szenario
+  generieren und nicht als eigene Eingabefelder anzeigen,
+- fehlende Werte leer lassen und keine kuenstlichen Defaults setzen,
+- Pruefung und Registrierung nur nach Nutzeraktion starten,
+- Rechtswert, Hochwert und Hoehenlage weiter lesen, aber technische Details
+  nicht in der Haupttabelle anzeigen,
+- EPSG:3034-Verarbeitung und Koordinatentransformation in `ma_weather`
+  vorbereiten,
+- Offline-Gemeindeaufloesung mit amtlichem Gemeindeschluessel planen,
+- optionale PLZ-Aufloesung getrennt vorbereiten,
+- Berlin- und Potsdam-TRY-Dateien als reale Testfaelle verwenden,
+- bestehende Klimaregions- und Referenzstandortlogik als
+  Kompatibilitaetsweg erhalten.
+
 ### Spaetere Folgeschritte
 
 - Diagrammgestaltung fachlich pruefen,
@@ -534,6 +781,14 @@ enthalten, wird aber nicht mehr als operative Reihenfolge verwendet.
   nachvollziehbar.
 - Fehlende optionale Spalten fuehren zu strukturierten Warnungen.
 - Stadtwahl fuehrt eindeutig zu Klimaregion und Referenzstandort.
+- Ortsgenaue TRY-Dateien koennen ueber Headerkoordinaten geprueft und spaeter
+  offline einer Gemeinde zugeordnet werden.
+- EPSG:3034 wird zentral verarbeitet, sobald die Geodatenlogik umgesetzt wird.
+- Berlin- und Potsdam-Testdateien werden als offene Entwuerfe erkannt und
+  duerfen ohne bestaetigte Zuordnung nicht automatisch Hamburg oder einem
+  anderen Ersatzstandort zugeordnet werden.
+- PLZ-Aufloesung ist optional und blockiert nicht, solange Gemeinde und
+  Deutschlandpruefung erfolgreich oder bewusst bestaetigt sind.
 - Die regulare Auswahl zeigt nur aktive und validierte Datensaetze.
 - Offene Datensaetze besitzen einen eigenen Bearbeitungsbereich.
 - Jeder Import erzeugt ein dauerhaftes Log.
@@ -558,6 +813,8 @@ enthalten, wird aber nicht mehr als operative Reihenfolge verwendet.
 - Keine parallele Projektstruktur neben `src/ma_weather/` und `src/ma_ui/`.
 - Keine Alembic-Migration ohne separaten freigegebenen Umsetzungsslice.
 - Keine automatische Aktivierung oder Default-Setzung nach Import.
+- Keine Online-Geocoding- oder PLZ-API als regulaere Standortpruefung.
+- Keine stille Uebernahme von Koordinatenvorschlaegen als finaler Standort.
 
 ## Offene fachliche und technische Punkte
 
@@ -577,6 +834,13 @@ enthalten, wird aber nicht mehr als operative Reihenfolge verwendet.
 - Definition von `valid_with_warnings`.
 - Umgang mit normalisierten Kopien.
 - Umfang von Excel-, PDF- oder weiteren Exporten.
+- Verbindliche Gemeinde-Geodatenquelle, Version, Lizenz und Feldnamen.
+- Verbindliche PLZ-Geodatenquelle, Version, Lizenz und Feldnamen.
+- Regel, ob Geodaten versioniert werden duerfen oder nur lokal mit
+  Pruefsumme und Bezugsanleitung abgelegt werden.
+- Maximaldistanz fuer Gemeinde-Fallbacks bei Grenzfaellen.
+- Umgang mit PLZ-Gebieten, die mehrere Gemeinden schneiden.
+- Endgueltige UI-Schreibweise `Pruefen` oder `Prüfen`.
 
 ## Herkunft wesentlicher Inhalte
 
@@ -591,3 +855,10 @@ enthalten, wird aber nicht mehr als operative Reihenfolge verwendet.
 - Nutzerentscheidung vom 2026-06-23: Klimaregionenkarte in den UI-Assetbereich,
   Datenmodell zuerst als Plan- und Seed-Konzept, Aktivierung nur bewusst per
   Nutzeraktion.
+- Planergaenzung vom 2026-06-27:
+  Offline-Standorterkennung, EPSG:3034, Gemeinde-/PLZ-Aufloesung,
+  Geodatenquellen und Korrektur der Klimaregionslogik zum Kompatibilitaetsweg.
+- Nutzerentscheidung vom 2026-06-27: Die Wetter-Entwurfspruefung wird als
+  `Pruefen` gefuehrt; die Ansicht wechselt zwischen `Gefundene lokale
+  TRY-Dateien` und `Parameter pruefen`; die Detailtabelle zeigt nur
+  `Feld` und `Wert`.

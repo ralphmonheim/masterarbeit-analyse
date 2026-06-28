@@ -289,7 +289,7 @@ def _load_local_catalog_payload(catalog_path: Path) -> dict[str, Any]:
 
 
 def _dataset_to_record(dataset: WeatherDataset) -> dict[str, Any]:
-    return {
+    record: dict[str, Any] = {
         "weather_key": dataset.weather_key,
         "display_name": dataset.display_name,
         "file_path": dataset.file_path.as_posix(),
@@ -305,3 +305,21 @@ def _dataset_to_record(dataset: WeatherDataset) -> dict[str, Any]:
         "is_active": dataset.is_active,
         "notes": dataset.notes,
     }
+    optional_values = {
+        "source_easting": dataset.source_easting,
+        "source_northing": dataset.source_northing,
+        "source_crs_epsg": dataset.source_crs_epsg,
+        "resolved_latitude": dataset.resolved_latitude,
+        "resolved_longitude": dataset.resolved_longitude,
+        "elevation_m": dataset.elevation_m,
+        "detected_municipality_name": dataset.detected_municipality_name,
+        "detected_municipality_code": dataset.detected_municipality_code,
+        "detected_federal_state": dataset.detected_federal_state,
+        "detected_postal_code": dataset.detected_postal_code,
+        "location_resolution_source": dataset.location_resolution_source,
+        "location_resolution_status": dataset.location_resolution_status,
+        "location_resolution_method": dataset.location_resolution_method,
+        "geodata_source_id": dataset.geodata_source_id,
+    }
+    record.update({key: value for key, value in optional_values.items() if value not in (None, "")})
+    return record

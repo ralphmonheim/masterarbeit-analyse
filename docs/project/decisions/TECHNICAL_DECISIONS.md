@@ -133,6 +133,8 @@ Begruendung:
   spaeter schrittweise bessere Rueckgabeobjekte ermoeglicht.
 - Streamlit kann spaeter ueber `ma_ui` dieselbe Service-Schicht nutzen, ohne
   Fachlogik in der Oberflaeche zu duplizieren.
+- P029 fuehrt deshalb zuerst strukturierte Schritt-Ergebnisse ein, bevor
+  `heating.py`, `cooling.py` oder die Tkinter-Analyse groesser zerlegt werden.
 
 ## Entscheidung 13: ma_workflow und ma_ui zuerst als minimale Shell
 

@@ -42,7 +42,9 @@ Alternative:
   und `Weiter`. Die rechte Aktionsspalte wechselt nur auf den beiden
   Startansichten zwischen `Workflow` und `Bearbeitung`. Auf normalen
   Modulansichten bleibt dort `Infokarte` bzw. `Modulansicht`. Bei Modulen ohne
-  eigene Fachansicht ist die Infokarte bereits die Hauptansicht.
+  eigene Fachansicht ist die Infokarte bereits die Hauptansicht. Seitenwechsel
+  ueber die zentrale Navigation und Modul-Links springen beim neuen Rendern
+  wieder an den Seitenanfang.
 - `Projekt`, `Parameter` und `Varianten` besitzen P028-Fachansichten mit
   gemeinsamem Sitzungsstand. Fachliche Querverweise merken die Ausgangsseite;
   die normale Kopfzeilen-Navigation verwirft diesen Ruecksprungkontext.

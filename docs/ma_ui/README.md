@@ -81,7 +81,8 @@ Workflow-Service-Aufrufe getrennt anbinden.
   zentrale Modulbeschreibung ersetzen und mit `Modulansicht` wieder
   herstellen. Auf den beiden Startansichten nutzt dieselbe rechte
   Aktionsspalte den Wechsel `Workflow` bzw. `Bearbeitung`. Ein Seitenwechsel
-  beendet den Infokartenmodus.
+  beendet den Infokartenmodus und springt beim neuen Rendern wieder an den
+  Seitenanfang.
 - Die Modul-Uebersicht gehoert ausschliesslich auf die Startseite. Modulviews
   zeigen nur eigene Inhalte oder bei geplantem Stand eine blaue Hinweisbox.
 - Analyse-Seite ruft die UI-neutrale `ma_analyse`-Service-Fassade ueber

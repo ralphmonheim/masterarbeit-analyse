@@ -1,4 +1,5 @@
 import importlib
+import json
 from dataclasses import replace
 from pathlib import Path
 
@@ -21,15 +22,18 @@ from ma_weather import (
     WeatherDatasetImportDraft,
     WeatherDiscoveryStatus,
     WeatherLocationMappingSuggestion,
+    WeatherLocationResolutionStatus,
     build_weather_plot,
     discover_weather_input_files,
     import_local_weather_dataset,
     import_weather_catalog,
     import_weather_location_catalog,
     register_discovered_weather_dataset,
+    resolve_weather_file_location,
     stage_weather_input_file,
     suggest_weather_key,
     suggest_weather_location_mapping,
+    transform_try_coordinates,
     update_weather_file_discovery,
     validate_weather_file_discovery,
     weather_discovery_rows,
@@ -117,6 +121,46 @@ def test_weather_catalog_allows_local_file_to_be_missing_by_default():
     dataset = catalog.get("TRY_FFM_2015_JAHR")
 
     assert dataset.resolved_file_path().name == "TRY2015_501262086894_Jahr.dat"
+
+
+def test_weather_catalog_imports_optional_location_resolution_fields(tmp_path):
+    config_file = tmp_path / "weather_datasets.yaml"
+    config_file.write_text(
+        "weather_datasets:\n"
+        "  - weather_key: TRY_TEST_2015_JAHR\n"
+        "    display_name: TRY Test 2015 Jahr\n"
+        "    file_path: data/ma_weather/input/TRY_000/TRY2015_000_Jahr.dat\n"
+        "    file_format: TRY\n"
+        "    source: DWD TRY\n"
+        "    location: Testort\n"
+        "    year_type: reference_year\n"
+        "    climate_scenario: present\n"
+        "    dataset_role: site_specific\n"
+        "    location_id: LOC_TEST\n"
+        "    reference_location_id: LOC_REF\n"
+        "    source_easting: 4201500\n"
+        "    source_northing: 2847500\n"
+        "    source_crs_epsg: 3034\n"
+        "    resolved_latitude: 52.4\n"
+        "    resolved_longitude: 13.0\n"
+        "    elevation_m: 34\n"
+        "    detected_municipality_name: Potsdam\n"
+        "    detected_municipality_code: '12054000'\n"
+        "    detected_federal_state: Brandenburg\n"
+        "    detected_postal_code: '14467'\n"
+        "    location_resolution_status: matched\n"
+        "    location_resolution_method: point_in_polygon\n"
+        "    geodata_source_id: test_municipalities\n",
+        encoding="utf-8",
+    )
+
+    dataset = import_weather_catalog(config_file, include_local=False).get("TRY_TEST_2015_JAHR")
+
+    assert dataset.source_easting == 4201500
+    assert dataset.source_crs_epsg == 3034
+    assert dataset.detected_municipality_name == "Potsdam"
+    assert dataset.detected_postal_code == "14467"
+    assert dataset.location_resolution_status == "matched"
 
 
 def test_weather_catalog_validates_required_fields(tmp_path):
@@ -267,6 +311,7 @@ def test_weather_file_discovery_creates_open_draft_without_location_mapping(tmp_
     assert discovery.status is WeatherDiscoveryStatus.OPEN
     assert "location_id" in discovery.missing_fields
     assert discovery.is_complete is False
+    assert discovery.metadata["location_resolution_status"] == "missing"
 
 
 def test_weather_file_discovery_keeps_candidate_mapping_open(tmp_path):
@@ -293,6 +338,8 @@ def test_weather_file_discovery_keeps_candidate_mapping_open(tmp_path):
     assert discovery.status is WeatherDiscoveryStatus.OPEN
     assert discovery.location_id == ""
     assert discovery.metadata["mapping_status"] == "candidate"
+    assert discovery.metadata["location_resolution_source"] == "file_reference"
+    assert discovery.metadata["location_resolution_status"] == "suggested"
     assert "location_id" in discovery.missing_fields
 
 
@@ -324,6 +371,8 @@ def test_weather_file_discovery_suggests_location_from_coordinates_without_auto_
     assert unknown_discovery.location_id == ""
     assert unknown_discovery.metadata["suggested_location_id"] == "LOC_053"
     assert unknown_discovery.metadata["suggested_confidence"] == "hoch"
+    assert unknown_discovery.metadata["location_resolution_source"] == "try_coordinates"
+    assert unknown_discovery.metadata["location_resolution_status"] == "suggested"
     assert "location_id" in unknown_discovery.missing_fields
     suggestion = suggest_weather_location_mapping(
         unknown_discovery,
@@ -332,6 +381,170 @@ def test_weather_file_discovery_suggests_location_from_coordinates_without_auto_
     )
     assert isinstance(suggestion, WeatherLocationMappingSuggestion)
     assert suggestion.location_id == "LOC_053"
+
+
+def test_weather_file_discovery_uses_explicit_header_location_reference(tmp_path):
+    try_file = tmp_path / "data" / "ma_weather" / "input" / "TRY_111111111111" / "TRY2015_111111111111_Jahr.dat"
+    try_file.parent.mkdir(parents=True, exist_ok=True)
+    try_file.write_text(
+        "Kopfbereich\n"
+        "Standort          : Mannheim\n"
+        "Rechtswert        : 3893500 Meter\n"
+        "Hochwert          : 2532500 Meter\n"
+        "Hoehenlage        : 97 Meter ueber NN\n"
+        "***\n"
+        "MM DD HH t RF WR WG B D\n",
+        encoding="latin-1",
+    )
+
+    discovery = discover_weather_input_files(
+        existing_catalog=WeatherCatalog([]),
+        location_catalog=import_weather_location_catalog(),
+        project_root=tmp_path,
+    )[0]
+
+    assert discovery.location_id == "LOC_053"
+    assert discovery.metadata["location_resolution_source"] == "file_reference"
+    assert discovery.metadata["location_resolution_status"] == "confirmed"
+    assert "location_id" not in discovery.missing_fields
+
+
+def test_weather_file_discovery_blocks_conflicting_header_and_mapping_location(tmp_path):
+    try_file = tmp_path / "data" / "ma_weather" / "input" / "TRY_111111111111" / "TRY2015_111111111111_Jahr.dat"
+    mapping_file = tmp_path / "config" / "ma_weather" / "try_locations" / "example_try_file_locations.yaml"
+    try_file.parent.mkdir(parents=True, exist_ok=True)
+    try_file.write_text(
+        "Kopfbereich\n"
+        "Standort          : Mannheim\n"
+        "Rechtswert        : 3893500 Meter\n"
+        "Hochwert          : 2532500 Meter\n"
+        "***\n"
+        "MM DD HH t RF WR WG B D\n",
+        encoding="latin-1",
+    )
+    mapping_file.parent.mkdir(parents=True)
+    mapping_file.write_text(
+        "try_file_locations:\n"
+        "  - try_folder_key: TRY_111111111111\n"
+        "    location_id: LOC_049\n"
+        "    mapping_status: confirmed\n",
+        encoding="utf-8",
+    )
+
+    discovery = discover_weather_input_files(
+        existing_catalog=WeatherCatalog([]),
+        location_catalog=import_weather_location_catalog(),
+        mapping_path=mapping_file.relative_to(tmp_path),
+        project_root=tmp_path,
+    )[0]
+
+    assert discovery.location_id == ""
+    assert discovery.metadata["location_resolution_status"] == "conflict"
+    assert "location_resolution" in discovery.missing_fields
+
+
+def test_weather_location_resolution_is_optional_without_geodata_config(tmp_path):
+    result = resolve_weather_file_location(
+        {"rechtswert_m": "4201500 Meter", "hochwert_m": "2847500 Meter"},
+        project_root=tmp_path,
+    )
+
+    assert result.status is WeatherLocationResolutionStatus.NOT_CONFIGURED
+    assert result.is_blocking is False
+
+
+def test_weather_location_resolution_blocks_enabled_config_without_municipality_source(tmp_path):
+    config = tmp_path / "config" / "ma_weather" / "geodata" / "example_weather_geodata_sources.yaml"
+    config.parent.mkdir(parents=True)
+    config.write_text("enabled: true\ngeodata_sources: []\n", encoding="utf-8")
+
+    result = resolve_weather_file_location(
+        {"rechtswert_m": "4201500 Meter", "hochwert_m": "2847500 Meter"},
+        geodata_config_path=config.relative_to(tmp_path),
+        project_root=tmp_path,
+    )
+
+    assert result.status is WeatherLocationResolutionStatus.GEODATA_MISSING
+    assert result.is_blocking is True
+
+
+def test_transform_try_coordinates_uses_epsg_3034():
+    pytest.importorskip("pyproj")
+
+    longitude, latitude = transform_try_coordinates(4201500, 2847500)
+
+    assert 5.0 < longitude < 16.0
+    assert 47.0 < latitude < 56.0
+
+
+def test_weather_location_resolution_matches_municipality_geojson(tmp_path):
+    pytest.importorskip("pyproj")
+    pytest.importorskip("shapely")
+
+    longitude, latitude = transform_try_coordinates(4201500, 2847500)
+    geodata = tmp_path / "data" / "ma_weather" / "geodata" / "administrative" / "municipalities.geojson"
+    config = tmp_path / "config" / "ma_weather" / "geodata" / "example_weather_geodata_sources.yaml"
+    geodata.parent.mkdir(parents=True)
+    config.parent.mkdir(parents=True)
+    geodata.write_text(
+        json.dumps(
+            {
+                "type": "FeatureCollection",
+                "features": [
+                    {
+                        "type": "Feature",
+                        "properties": {
+                            "municipality_name": "Potsdam",
+                            "municipality_code": "12054000",
+                            "federal_state": "Brandenburg",
+                        },
+                        "geometry": {
+                            "type": "Polygon",
+                            "coordinates": [
+                                [
+                                    [longitude - 0.1, latitude - 0.1],
+                                    [longitude + 0.1, latitude - 0.1],
+                                    [longitude + 0.1, latitude + 0.1],
+                                    [longitude - 0.1, latitude + 0.1],
+                                    [longitude - 0.1, latitude - 0.1],
+                                ]
+                            ],
+                        },
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    config.write_text(
+        "enabled: true\n"
+        "geodata_sources:\n"
+        "  - source_id: test_municipalities\n"
+        "    kind: municipality\n"
+        "    path: data/ma_weather/geodata/administrative/municipalities.geojson\n"
+        "    crs_epsg: 4326\n"
+        "    name_field: municipality_name\n"
+        "    code_field: municipality_code\n"
+        "    state_field: federal_state\n",
+        encoding="utf-8",
+    )
+
+    result = resolve_weather_file_location(
+        {
+            "rechtswert_m": "4201500 Meter",
+            "hochwert_m": "2847500 Meter",
+            "hoehenlage_m": "34 Meter ueber NN",
+        },
+        geodata_config_path=config.relative_to(tmp_path),
+        project_root=tmp_path,
+    )
+
+    assert result.status is WeatherLocationResolutionStatus.MATCHED
+    assert result.is_blocking is False
+    assert result.municipality_name == "Potsdam"
+    assert result.municipality_code == "12054000"
+    assert result.federal_state == "Brandenburg"
+    assert result.elevation_m == 34
 
 
 def test_stage_weather_input_file_writes_try_file_without_catalog_entry(tmp_path):
@@ -381,10 +594,10 @@ def test_update_weather_file_discovery_adjusts_location_and_reference(tmp_path):
         location_id="LOC_049",
         dataset_type="Sommer",
         climate_scenario="future_2045",
-        dataset_role=DATASET_ROLE_SITE_SPECIFIC,
+        dataset_role="",
         year=2045,
-        weather_key="TRY_FFM_2045_SOMM_LOCAL",
-        display_name="TRY Frankfurt 2045 Sommer Local",
+        weather_key="",
+        display_name="",
     )
 
     assert updated_discovery.location_id == "LOC_049"
@@ -392,6 +605,10 @@ def test_update_weather_file_discovery_adjusts_location_and_reference(tmp_path):
     assert updated_discovery.year_type == "summer_extreme"
     assert updated_discovery.climate_scenario == "future_2045"
     assert updated_discovery.dataset_role == DATASET_ROLE_SITE_SPECIFIC
+    assert updated_discovery.weather_key == "TRY_FFM_2045_SOMM"
+    assert updated_discovery.display_name == "TRY Frankfurt (Main) 2045 Sommer"
+    assert updated_discovery.metadata["location_resolution_source"] == "manual"
+    assert updated_discovery.metadata["location_resolution_status"] == "confirmed"
     assert updated_discovery.is_complete is True
 
 
@@ -466,10 +683,14 @@ def test_register_discovered_weather_dataset_writes_relative_local_catalog(tmp_p
     assert dataset.file_path == Path("data/ma_weather/input/TRY_494997084777/TRY2015_494997084777_Jahr.dat")
     assert dataset.file_path.is_absolute() is False
     assert dataset.dataset_role == DATASET_ROLE_TRY_REFERENCE
+    assert dataset.is_active is False
+    assert dataset.location_resolution_source == "file_reference"
+    assert dataset.location_resolution_status == "confirmed"
     local_catalog = tmp_path / "data" / "ma_weather" / "config" / "datasets" / "weather_datasets_local.yaml"
     catalog_text = local_catalog.read_text(encoding="utf-8")
     assert "TRY_MA_2015_JAHR" in catalog_text
     assert "data/ma_weather/input/TRY_494997084777/TRY2015_494997084777_Jahr.dat" in catalog_text
+    assert "is_active: false" in catalog_text
 
 
 def test_local_weather_import_copies_file_and_writes_relative_catalog(tmp_path):

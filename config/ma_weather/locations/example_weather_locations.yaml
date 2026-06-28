@@ -444,7 +444,7 @@ weather_locations:
     active: true
   - location_id: LOC_049
     location_name: Frankfurt (Main)
-    legacy_code: F
+    legacy_code: FFM
     region_id: TRY12
     reference_location_id: LOC_053
     is_reference_location: false

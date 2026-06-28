@@ -49,6 +49,20 @@ class WeatherDataset:
     selection_priority: int = 100
     is_active: bool = True
     notes: str = ""
+    source_easting: float | None = None
+    source_northing: float | None = None
+    source_crs_epsg: int | None = None
+    resolved_latitude: float | None = None
+    resolved_longitude: float | None = None
+    elevation_m: float | None = None
+    detected_municipality_name: str = ""
+    detected_municipality_code: str = ""
+    detected_federal_state: str = ""
+    detected_postal_code: str = ""
+    location_resolution_source: str = ""
+    location_resolution_status: str = ""
+    location_resolution_method: str = ""
+    geodata_source_id: str = ""
 
     def resolved_file_path(self, base_dir: str | Path | None = None) -> Path:
         """Gibt den absoluten Dateipfad zurueck, ohne die Datei vorauszusetzen."""
@@ -232,7 +246,33 @@ def _build_weather_dataset(raw_dataset: dict[str, Any]) -> WeatherDataset:
         selection_priority=int(raw_dataset.get("selection_priority", 100)),
         is_active=bool(raw_dataset.get("is_active", True)),
         notes=str(raw_dataset.get("notes", "")).strip(),
+        source_easting=_optional_float(raw_dataset.get("source_easting")),
+        source_northing=_optional_float(raw_dataset.get("source_northing")),
+        source_crs_epsg=_optional_int(raw_dataset.get("source_crs_epsg")),
+        resolved_latitude=_optional_float(raw_dataset.get("resolved_latitude")),
+        resolved_longitude=_optional_float(raw_dataset.get("resolved_longitude")),
+        elevation_m=_optional_float(raw_dataset.get("elevation_m")),
+        detected_municipality_name=str(raw_dataset.get("detected_municipality_name", "")).strip(),
+        detected_municipality_code=str(raw_dataset.get("detected_municipality_code", "")).strip(),
+        detected_federal_state=str(raw_dataset.get("detected_federal_state", "")).strip(),
+        detected_postal_code=str(raw_dataset.get("detected_postal_code", "")).strip(),
+        location_resolution_source=str(raw_dataset.get("location_resolution_source", "")).strip(),
+        location_resolution_status=str(raw_dataset.get("location_resolution_status", "")).strip(),
+        location_resolution_method=str(raw_dataset.get("location_resolution_method", "")).strip(),
+        geodata_source_id=str(raw_dataset.get("geodata_source_id", "")).strip(),
     )
+
+
+def _optional_float(value: object) -> float | None:
+    if value in (None, ""):
+        return None
+    return float(value)
+
+
+def _optional_int(value: object) -> int | None:
+    if value in (None, ""):
+        return None
+    return int(value)
 
 
 def _dataset_matches_location(

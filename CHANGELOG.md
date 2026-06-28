@@ -4,6 +4,27 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.19.0 - 2026-06-28
+
+### Added
+- `ma_weather` um eine optionale Offline-Standortaufloesung fuer TRY-
+  Koordinaten mit EPSG:3034-Transformation, Gemeinde-/PLZ-Geodaten-
+  Konfiguration und lokalen Geodatenordner erweitert.
+- Wetterdateiscan uebernimmt Standortverweise aus TRY-Kopfzeilen, erkennt
+  Konflikte zu bestaetigten Ordnerzuordnungen und registriert neue lokale
+  Datensaetze zunaechst inaktiv.
+- `ma_analyse`-Servicepfad um strukturierte Laufoptionen, Schritt-Ergebnisse,
+  Legacy-Ausfuehrungsadapter, Pipeline-Runtime-Argumente und strukturierte
+  Datenvorbedingungen erweitert.
+
+### Changed
+- Streamlit-Wetteransicht auf eine reduzierte fachliche Pruefansicht mit
+  Standortaufloesungsstatus und kompakter aktiver Datensatztabelle nachgezogen.
+- P008- und P029-Planung, technische Entscheidungen, Architektur- und
+  Command-Dokumentation auf die neuen Wetter- und Analyse-Slices aktualisiert.
+- `pyproject.toml` enthaelt jetzt `pyproj` und `shapely` als Abhaengigkeiten
+  fuer die optionale lokale Geodatenaufloesung.
+
 ## 0.18.0 - 2026-06-27
 
 ### Added

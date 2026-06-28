@@ -1,6 +1,6 @@
 # Cleanup Plan
 
-Stand: 2026-06-23
+Stand: 2026-06-27
 
 ## Sichere Sofortmassnahmen
 
@@ -47,6 +47,7 @@ Stand: 2026-06-23
 - `ma_variants.economic_analysis` in ein spaeteres `ma_economy` oder eine
   passende Zwischenstruktur ueberfuehren.
 - Service-Fassade fachlich erweitern und Ergebnisobjekte detaillierter fuellen.
+  P029 ist dafuer als aktiver Service-/Runner-Aufraeumplan angelegt.
 - Bestehende Verantwortlichkeiten aus `ma_variants` in neue Zielmodule verschieben.
 - Heating-/Cooling-Dateien weiter zerlegen.
 - Alte lokale Dateien aus `data/test_output/` loeschen, falls sie nicht vorher gesichtet wurden.
@@ -61,6 +62,7 @@ Stand: 2026-06-23
 - `ma_simulation_setup` als eigenen Slice zwischen Variantenbildung und
   IDA-Export vorbereiten.
 - `src/ma_analyse/analysis/heating.py` und `cooling.py` ueber gemeinsame Energy-Komponenten weiter vereinheitlichen.
+  Vorher soll P029 den Service-/Runner-Vertrag stabilisieren.
 - `ma_weather` TRY-Importer, Validierung, Kennwerte, Diagramme und Bericht schrittweise ergaenzen.
 - Gemeinsame Code-Komponenten nur dann unter `src/ma_common/` anlegen, wenn echte Wiederverwendung entsteht.
 

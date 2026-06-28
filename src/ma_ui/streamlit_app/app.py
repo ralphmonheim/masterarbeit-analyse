@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import streamlit as st
+import streamlit.components.v1 as components
 
 from ma_ui.streamlit_app import workflow_view
 from ma_ui.streamlit_app.module_views import (
@@ -22,6 +23,7 @@ from ma_ui.streamlit_app.navigation import (
     WORKFLOW_VIEW_MODE,
     WORKSPACE_VIEW_MODE,
     NavigationPage,
+    consume_scroll_to_top,
     get_navigation_page,
     get_navigation_pages,
     next_page_key,
@@ -100,6 +102,20 @@ def _switch_start_view(page_key: str, view_mode: str) -> None:
     st.rerun()
 
 
+def _scroll_to_top_if_requested() -> None:
+    """Springt nach einem Seitenwechsel einmalig an den Seitenanfang."""
+    if not consume_scroll_to_top(st.session_state):
+        return
+    components.html(
+        """
+        <script>
+        window.parent.scrollTo({ top: 0, left: 0, behavior: "auto" });
+        </script>
+        """,
+        height=1,
+    )
+
+
 def _toggle_module_info(current_page_key: str, *, show_module_info: bool) -> None:
     """Schaltet fuer das aktuelle Modul zwischen Fachansicht und Infokarte."""
     set_module_info_active(
@@ -159,6 +175,7 @@ def main() -> None:
     available_page_keys = tuple(page.page_key for page in available_pages)
     current_page_key = normalize_page_key(st.session_state.get(CURRENT_PAGE_SESSION_KEY), available_page_keys)
     st.session_state[CURRENT_PAGE_SESSION_KEY] = current_page_key
+    _scroll_to_top_if_requested()
     view_mode = normalize_view_mode(st.session_state.get(VIEW_MODE_SESSION_KEY))
     if current_page_key == "workflow":
         view_mode = WORKFLOW_VIEW_MODE

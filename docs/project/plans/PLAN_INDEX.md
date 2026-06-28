@@ -1,6 +1,6 @@
 # Plan Index
 
-Stand: 2026-06-24
+Stand: 2026-06-28
 
 | Plan ID | Titel | Datei | Modul | Status | Prioritaet | Abhaengigkeiten | Naechster Schritt |
 |---|---|---|---|---|---|---|---|
@@ -11,7 +11,7 @@ Stand: 2026-06-24
 | P005 | Gesamtmodulstruktur, Dashboard und UI-Auslagerung | `../archive/plans/250608_Plan_Gesamtmodulstruktur_PreProcess_PostProcess_Dashboard.md.txt` | Gesamtarchitektur, ma_ui, ma_workflow | Archiviert, teilweise umgesetzt | Hoch | P003 | Gueltige Struktur und Restarbeiten wurden in P007 uebernommen |
 | P006 | Kontrollierter IDA-ICE-Variantenexport und IDM-Entwurf | `../archive/plans/260618_Plan_ma_export_ida_IDM_Exportentwurf.md` | historisch ma_export_ida | Archiviert, Entwurf | Mittel | ma_variants, Referenzmodell | Verbleibende Arbeit wird in P009 weitergefuehrt |
 | P007 | Projektplan fuer die VS-Code-Umsetzung der Masterarbeitssoftware | `inbox/Masterarbeit_VSCode_Projektplan_2026-06-21.md` | Gesamtprojekt, Gesamtarchitektur | Aktiver Rahmenplan | Hoch | bestehender Projektstand und Nutzerentscheidungen | P011 als naechste Fachstufe bearbeiten |
-| P008 | ma_weather Gesamtplan | `inbox/260623_Plan_P008_ma_weather_Gesamtplan.md` | ma_weather, ma_parameters, ma_ui, Stage 4 | Aktiv | Hoch | P007, P002, P010, P015, P018, P021, P027 | Reale Jahr-, Sommer- und Winterdatensaetze pruefen, P021-Ereignisdefinition schaerfen und Uebergabe an ma_parameters vorbereiten |
+| P008 | ma_weather Gesamtplan | `inbox/260623_Plan_P008_ma_weather_Gesamtplan.md` | ma_weather, ma_parameters, ma_ui, Stage 4 | Aktiv | Hoch | P007, P002, P010, P015, P018, P021, P027 | Reale Geodatenquelle und Lizenz klaeren, lokale TRY-Datensaetze pruefen und P021-Ereignisdefinition schaerfen |
 | P009 | Allgemeine Simulationsschnittstellen mit IDA-ICE-Adapter | `inbox/260621_Plan_P009_Simulationsschnittstellen_IDA_Adapter.md` | ma_export_simulation, ma_import_simulation | Zurueckgestellt | Mittel | P007, P018 | Nach validiertem Run-Manifest weiterfuehren |
 | P010 | Eingabe- und Datenhaltungsarchitektur | `../archive/plans/260622_Plan_P010_Eingabe_Datenhaltungsarchitektur.md` | alle Eingabemodule, ma_validation | Archiviert, Wetterpilot umgesetzt | Hoch | P007 | Vertraege in P011 bis P015 fachmodulweise anwenden |
 | P011 | ma_project Projektinitialisierung | `inbox/260622_Plan_P011_ma_project_Projektinitialisierung.md` | ma_project | Geplant | Hoch | P010 | Projektkonfiguration und Quellenwahl planen |
@@ -32,3 +32,4 @@ Stand: 2026-06-24
 | P026 | ma_data_export Konzept | `inbox/260622_Plan_P026_ma_data_export_Konzept.md` | ma_data_export | Konzept | Niedrig | P024, P025 | Paketformate und Manifest planen |
 | P027 | Querschnitt UI, Workflow, Validation und Feedback | `inbox/260622_Plan_P027_Querschnitt_UI_Workflow_Validation_Feedback.md` | ma_ui, ma_workflow, ma_validation, ma_feedback | Aktiv, begleitend | Hoch | alle Teilplaene | Gemeinsame Quellen-, Status- und Freigabemodelle begleiten |
 | P028 | Projekt-, Parameter- und Naming-Demo in Streamlit | `../archive/plans/260623_Plan_P028_Projekt_Parameter_Naming_Streamlit.md` | ma_project, ma_parameters, ma_variants, ma_ui | Archiviert, Demo umgesetzt | Hoch | P010, P011, P015, P017, P027 | ParameterSnapshot und Projektstammdaten ueber P011/P015 weiterfuehren |
+| P029 | ma_analyse Service- und Runner-Bereinigung | `inbox/260627_Plan_P029_ma_analyse_Service_Runner_Bereinigung.md` | ma_analyse | Aktiv | Hoch | P005, P019, P027, bestehendes ma_analyse | Service-/Runner-Vertrag stabilisieren, bevor Heating/Cooling und Tkinter groesser zerlegt werden |

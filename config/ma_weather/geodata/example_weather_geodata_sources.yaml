@@ -1,0 +1,20 @@
+enabled: false
+geodata_sources:
+  - source_id: bkg_vg250_municipalities
+    kind: municipality
+    path: data/ma_weather/geodata/administrative/germany_municipalities.geojson
+    crs_epsg: 4326
+    name_field: municipality_name
+    code_field: municipality_code
+    state_field: federal_state
+    version: offen
+    license: Datenlizenz Deutschland Namensnennung 2.0
+    notes: Bevorzugter Kandidat fuer spaetere BKG-VG250-Gemeindegrenzen.
+  - source_id: optional_postal_codes
+    kind: postal_code
+    path: data/ma_weather/geodata/postal_codes/germany_postal_codes.geojson
+    crs_epsg: 4326
+    postal_code_field: postal_code
+    version: offen
+    license: vor Nutzung pruefen
+    notes: Optionale PLZ-Quelle; PLZ blockiert den Import zunaechst nicht.

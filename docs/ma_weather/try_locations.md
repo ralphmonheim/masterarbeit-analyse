@@ -5,7 +5,7 @@ Standorten zugeordnet werden. Die echten TRY-Dateien bleiben lokale
 Eingabedaten unter `data/ma_weather/input/` und werden nicht im Git-Repo
 versioniert.
 
-Stand: 2026-06-26
+Stand: 2026-06-27
 
 | TRY-Ordnerkennung | Standort | Status | Vorhandene Dateitypen | Hinweis |
 |---|---|---|---|---|
@@ -13,6 +13,8 @@ Stand: 2026-06-26
 | `TRY_481399115778` | Muenchen | bekannt | `2015 Jahr/Somm/Wint`, `2045 Jahr/Somm/Wint` | Alle sechs Dateien sind im Wetterkatalog aktiv. |
 | `TRY_535578099766` | Hamburg | bekannt | `2015 Jahr/Somm/Wint`, `2045 Jahr/Somm/Wint` | Alle sechs Dateien sind im Wetterkatalog aktiv. |
 | `TRY_494997084777` | Mannheim | bekannt | `2015 Jahr/Somm/Wint`, `2045 Jahr/Somm/Wint` | Lokale Dateien werden ueber den TRY-Dateiscan als Datensatzentwuerfe erkannt. |
+| `TRY_524031130658` | offen | offen | `2015 Jahr/Somm/Wint`, `2045 Jahr/Somm/Wint` | Ortsgenaue Zuordnung ueber EPSG:3034-/Gemeindepruefung klaeren. |
+| `TRY_525331134258` | offen | offen | `2015 Jahr/Somm/Wint`, `2045 Jahr/Somm/Wint` | Ortsgenaue Zuordnung ueber EPSG:3034-/Gemeindepruefung klaeren. |
 
 ## Verwendung im Projekt
 
@@ -32,6 +34,11 @@ Stand: 2026-06-26
 - Rechtswert, Hochwert und Hoehenlage aus dem TRY-Kopf duerfen nur einen
   Standortvorschlag erzeugen. Dieser Vorschlag wird erst nach bewusster
   Nutzeraktion uebernommen.
+- Ortsgenaue TRY-Dateien sollen zusaetzlich ueber die lokale
+  EPSG:3034-/Gemeindeaufloesung geprueft werden. Die Klimaregions- und
+  Referenzstandortlogik bleibt Kompatibilitaetsweg.
+- PLZ-Daten werden optional und getrennt verarbeitet; eine fehlende PLZ
+  ersetzt keine Gemeindezuordnung.
 
 ## Pflege-Regel
 
@@ -52,6 +59,5 @@ geprueft und bei Bedarf aktualisiert werden:
 - Weitere Standorte oder Szenarien erst nach fachlicher Zuordnung zu Standort,
   Klimaregion und Referenzstandort aufnehmen. Ohne Mapping erzeugt der Scanner
   offene Entwuerfe statt einer stillen Falschzuordnung.
-- Die spaetere PLZ- oder Kartenauswahl soll auf derselben Mapping-Schicht
-  aufbauen, ohne Koordinatenvorschlaege automatisch als finale Zuordnung zu
-  verwenden.
+- Die PLZ- oder Kartenauswahl soll auf derselben Standortaufloesung aufbauen,
+  ohne Koordinatenvorschlaege automatisch als finale Zuordnung zu verwenden.

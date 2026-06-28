@@ -21,4 +21,6 @@ Aktuelle Besonderheit:
 - P011 bis P026 bilden die abgestufte Fach-, Demo-, Konzept- und
   Research-Planserie.
 - P028 wurde umgesetzt und nach `../../archive/plans/` verschoben.
+- P029 ist der aktive Aufraeumplan fuer den `ma_analyse`-Service- und
+  Runner-Vertrag.
 - P009 bleibt bis zum validierten Run-Manifest aus P018 zurueckgestellt.

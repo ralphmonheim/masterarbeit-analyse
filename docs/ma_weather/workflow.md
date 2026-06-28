@@ -23,30 +23,33 @@ Der aktuelle Stand umfasst:
 
 ## Geplanter Ablauf
 
-1. Stadt in der Streamlit-Oberflaeche auswaehlen.
-2. Klimaregion und TRY-Referenzstandort automatisch aus dem Standortkatalog
-   ableiten.
-3. TRY-Referenzdatensatz zuerst empfehlen, sofern er katalogisiert ist.
-4. Standortgenaue Datensaetze fuer die gewaehlte Stadt zusaetzlich anbieten.
-5. Datensatz ueber `weather_key` aus dem Katalog auswaehlen.
-6. Fehlende TRY-Jahres-, Sommer- und Winterdateien beim Deutschen
+1. Stadt in der Streamlit-Oberflaeche auswaehlen oder eine lokale TRY-Datei
+   importieren.
+2. Fuer bestehende Katalogeintraege Klimaregion und TRY-Referenzstandort
+   automatisch aus dem Standortkatalog ableiten.
+3. Fuer ortsgenaue TRY-Dateien Rechtswert und Hochwert aus dem TRY-Kopf als
+   fuehrende Standortquelle verwenden.
+4. TRY-Referenzdatensatz zuerst empfehlen, sofern er katalogisiert ist.
+5. Standortgenaue Datensaetze fuer die gewaehlte Stadt zusaetzlich anbieten.
+6. Datensatz ueber `weather_key` aus dem Katalog auswaehlen.
+7. Fehlende TRY-Jahres-, Sommer- und Winterdateien beim Deutschen
    Wetterdienst herunterladen.
-7. Eigene entpackte TRY-`.dat`-Datei in Streamlit im Bereich
+8. Eigene entpackte TRY-`.dat`-Datei in Streamlit im Bereich
    `Wetterdatensaetze` importieren oder manuell unter
    `data/ma_weather/input/` bereitstellen.
-8. Manuell abgelegte TRY-Dateien ueber `Lokale TRY-Dateien scannen` als
+9. Manuell abgelegte TRY-Dateien ueber `Lokale TRY-Dateien scannen` als
    Datensatzentwuerfe erkennen und vollstaendige Entwuerfe bewusst in den
    lokalen Katalog uebernehmen.
-9. TRY-Datei importieren und validieren.
-10. Import-ID, Quellenmetadaten, Validierungsstatus und Sitzungslog
+10. TRY-Datei pruefen und validieren.
+11. Import-ID, Quellenmetadaten, Validierungsstatus und Sitzungslog
    miteinander verknuepfen.
-11. Wetterkennwerte berechnen.
-12. Aufbereitete Wetterdaten unter `data/ma_weather/database/` schreiben.
-13. Diagramme unter `data/ma_weather/output/` schreiben.
-14. Bericht unter `data/ma_weather/reports/` schreiben.
-15. Freigegebene Datensaetze bewusst aktivieren.
-16. Einen aktivierten Datensatz bewusst als Projekt-Default setzen.
-17. Kritische Wetterereignisse aus genau diesem ausgewaehlten Datensatz
+12. Wetterkennwerte berechnen.
+13. Aufbereitete Wetterdaten unter `data/ma_weather/database/` schreiben.
+14. Diagramme unter `data/ma_weather/output/` schreiben.
+15. Bericht unter `data/ma_weather/reports/` schreiben.
+16. Freigegebene Datensaetze bewusst aktivieren.
+17. Einen aktivierten Datensatz bewusst als Projekt-Default setzen.
+18. Kritische Wetterereignisse aus genau diesem ausgewaehlten Datensatz
     erkennen und fuer spaetere P021-Nutzung anzeigen.
 
 Der DWD-Download bleibt ein manueller Vorbereitungsschritt. Die TRY-Dateien
@@ -91,6 +94,18 @@ Der bevorzugte versionierte Dateiname ist
 `src/ma_ui/assets/weather/klimaregionen_deutschland.png`; alternativ erkennt die
 UI auch die Endungen `.jpg` und `.jpeg` mit demselben Basisnamen.
 
+Fuer ortsgenaue TRY-Dateien ist die Klimaregionslogik nur noch
+Kompatibilitaetsweg. Der neue Zielweg liest Rechtswert und Hochwert aus dem
+TRY-Kopf, interpretiert sie als EPSG:3034 und loest den Punkt offline ueber
+lokale Gemeinde-Geodaten auf. Gemeinde beziehungsweise amtlicher
+Gemeindeschluessel sind fuehrend; PLZ-Gebiete sind optional und werden getrennt
+behandelt.
+
+Die versionierte Geodatenkonfiguration liegt unter
+`config/ma_weather/geodata/example_weather_geodata_sources.yaml`. Lokale
+GeoJSON-Dateien liegen unter `data/ma_weather/geodata/` und werden nicht
+versioniert.
+
 ## Status und Aktivierung
 
 Die reduzierte P008-Umsetzung fuehrt drei operative Slices:
@@ -104,15 +119,17 @@ Datei fehlt, vorhanden ist, Warnungen besitzt, fehlerhaft ist oder freigegeben
 wurde. Jeder Analyseimport erzeugt eine `import_id`, die mit `session_id`,
 `run_id`, Quelle, Validierung und Sitzungslog verbunden wird.
 
-Die Streamlit-Schritte `Import`, `Scannen` und `Validieren` sitzen unten im
+Die Streamlit-Schritte `Import`, `Scannen` und `Pruefen` sitzen unten im
 Bereich `Wetterdatensaetze`. `Import` legt Dateien nur ab, `Scannen` erzeugt
-Datensatzentwuerfe und `Validieren` erlaubt Anpassung und bewusste
+Datensatzentwuerfe und `Pruefen` erlaubt Anpassung und bewusste
 Registrierung. Ohne aktive Funktion zeigt der Bereich die getrennten
-Uebersichten `Aktive Wetterdatensaetze` und `Offene Wetterdatensaetze`. Bei
-`Validieren` gibt es die Ansichten `Offene Datensaetze` und
-`Key-Parameter pruefen`. Die Key-Parameter-Maske zeigt gelesene Dateiwerte,
-Mapping-Hinweise und bearbeitbare Zielwerte direkt zusammen. Offene
-Datensaetze sind sichtbar, aber nicht regulaer auswaehlbar.
+Uebersichten `Aktive Wetterdatensaetze` und `Offene Wetterdatensaetze`.
+Bei `Pruefen` gibt es die Ansichten `Gefundene lokale TRY-Dateien` und
+`Parameter pruefen`. Die Fundliste ist reduziert; die Parameter-Maske
+zeigt nur `Feld` und `Wert` fuer Stadt, Bezugsjahr, Datensatztyp und
+Szenario. Rolle, `weather_key` und Anzeigename werden aus diesen Angaben
+generiert und nicht als eigene Eingabefelder angezeigt. Offene Datensaetze
+sind sichtbar, aber nicht regulaer auswaehlbar.
 
 Das Standort-Mapping nutzt zuerst die versionierte TRY-Ordner-Zuordnung. Nur
 bestaetigte Zuordnungen duerfen automatisch vorbelegen. Rechtswert, Hochwert

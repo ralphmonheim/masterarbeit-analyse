@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ma-analyse"
-version = "0.18.0"
+version = "0.19.0"
 description = "Analysepipeline fuer Simulationsdaten der Masterarbeit"
 requires-python = ">=3.14"
 dependencies = [
@@ -12,9 +12,11 @@ dependencies = [
     "matplotlib",
     "openpyxl",
     "pandas",
+    "pyproj",
     "psycopg[binary]",
     "PyYAML",
     "seaborn",
+    "shapely",
     "SQLAlchemy",
     "streamlit",
 ]
