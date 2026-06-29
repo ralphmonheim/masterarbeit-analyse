@@ -29,6 +29,7 @@ class WeatherImportCheckStatus(StrEnum):
     SUCCESS = "success"
     WARNING = "warning"
     ERROR = "error"
+    STALE = "stale"
 
 
 @dataclass(frozen=True, slots=True)
@@ -47,6 +48,8 @@ class WeatherDatasetStatus:
     run_id: str = ""
     source_id: str = ""
     row_count: int | None = None
+    file_size_bytes: int | None = None
+    modified_ns: int | None = None
     warning_count: int = 0
     error_count: int = 0
     messages: tuple[str, ...] = ()
@@ -58,6 +61,8 @@ class WeatherDatasetStatus:
             return "Datei fehlt"
         if self.import_status is WeatherImportCheckStatus.NOT_CHECKED:
             return "Datei vorhanden"
+        if self.import_status is WeatherImportCheckStatus.STALE:
+            return "Pruefung veraltet"
         if self.import_status is WeatherImportCheckStatus.ERROR:
             return "Fehlerhaft"
         if self.release_status is ReleaseStatus.BLOCKED:
@@ -78,6 +83,7 @@ class WeatherDatasetStatus:
         """Offene Datensaetze brauchen Nacharbeit oder bewusste Freigabe."""
         return (
             not self.file_exists
+            or self.import_status is WeatherImportCheckStatus.STALE
             or self.import_status is WeatherImportCheckStatus.ERROR
             or self.release_status in {ReleaseStatus.BLOCKED, ReleaseStatus.CONFIRMATION_REQUIRED}
         )
@@ -134,6 +140,7 @@ def inspect_weather_dataset_status(
             messages=(f"Lokale TRY-Datei fehlt: {dataset.file_path}",),
         )
 
+    file_stat = resolved_path.stat()
     if not validate_file:
         return WeatherDatasetStatus(
             weather_key=dataset.weather_key,
@@ -144,6 +151,8 @@ def inspect_weather_dataset_status(
             import_id=import_id,
             session_id=session_id,
             run_id=run_id,
+            file_size_bytes=file_stat.st_size,
+            modified_ns=file_stat.st_mtime_ns,
         )
 
     try:
@@ -168,6 +177,8 @@ def inspect_weather_dataset_status(
             session_id=session_id,
             run_id=run_id,
             error_count=1,
+            file_size_bytes=file_stat.st_size,
+            modified_ns=file_stat.st_mtime_ns,
             messages=(str(exc),),
         )
 
@@ -193,6 +204,48 @@ def inspect_weather_dataset_status(
         warning_count=len(validation_report.validation_result.warnings),
         error_count=len(validation_report.validation_result.errors),
         messages=messages,
+        file_size_bytes=file_stat.st_size,
+        modified_ns=file_stat.st_mtime_ns,
+    )
+
+
+def weather_status_file_changed(previous: WeatherDatasetStatus, current: WeatherDatasetStatus) -> bool:
+    """Vergleicht Dateigroesse und Aenderungszeit eines geprueften Datensatzes."""
+    if not previous.file_exists or not current.file_exists:
+        return previous.file_exists != current.file_exists
+    if previous.file_size_bytes is None or previous.modified_ns is None:
+        return False
+    return (
+        previous.file_size_bytes != current.file_size_bytes
+        or previous.modified_ns != current.modified_ns
+    )
+
+
+def stale_weather_status(
+    current: WeatherDatasetStatus,
+    previous: WeatherDatasetStatus,
+) -> WeatherDatasetStatus:
+    """Markiert einen gespeicherten Pruefstatus als veraltet."""
+    message = (
+        "Datei wurde seit der letzten Pruefung geaendert. "
+        "Bitte Datensatzbestand pruefen."
+    )
+    return WeatherDatasetStatus(
+        weather_key=current.weather_key,
+        display_name=current.display_name,
+        file_path=current.file_path,
+        file_exists=current.file_exists,
+        file_status=current.file_status,
+        import_status=WeatherImportCheckStatus.STALE,
+        import_id=previous.import_id,
+        session_id=previous.session_id,
+        run_id=previous.run_id,
+        source_id=previous.source_id,
+        file_size_bytes=current.file_size_bytes,
+        modified_ns=current.modified_ns,
+        warning_count=max(previous.warning_count, 1),
+        error_count=0,
+        messages=tuple(dict.fromkeys((message, *previous.messages))),
     )
 
 

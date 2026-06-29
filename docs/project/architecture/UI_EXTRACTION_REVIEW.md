@@ -24,7 +24,7 @@ vermischt werden.
 | Datei | Rolle | Allgemein nutzbar | Empfohlener Zielort | Risiko | Kommentar |
 |---|---|---|---|---|---|
 | `src/ma_ui/tkinter_app/module_views/analyse/app.py` | oeffentliche Fassade fuer `PipelineGUI`, `run_gui`, `run_gui_refresh` und `run_gui_menu` | ja, als Einstieg | stabil halten | mittel | Startpfade bleiben hier; die Detailmethoden liegen in Mixins. |
-| `src/ma_ui/tkinter_app/module_views/analyse/*_state.py`, `layout_steps.py`, `theme_window.py`, `pipeline_config.py`, `pipeline_runner.py` | interne Tkinter-Mixins und Adapter fuer Zustand, Layout, Fenster, Analyseauftrag und Laufsteuerung | teilweise | unter `ma_ui` weiterfuehren; spaeter fachlich weiter entkoppeln | mittel | Technische Zerlegung plus `AnalysisConfig`-Adapter ohne Fachlogik-Kopie. |
+| `src/ma_ui/tkinter_app/module_views/analyse/*_state.py`, `layout_steps.py`, `theme_window.py`, `pipeline_config.py`, `pipeline_runner.py` | interne Tkinter-Mixins und Adapter fuer Zustand, Layout, Fenster, Analyseauftrag und Laufsteuerung | teilweise | unter `ma_ui` weiterfuehren; spaeter fachlich weiter entkoppeln | mittel | Technische Zerlegung plus schmalem `AnalysisConfig`-Adapter auf `ma_analyse.analysis_ui.build_analysis_config`. |
 | `src/ma_ui/tkinter_app/module_views/analyse/dialogs.py` | Tkinter-Dialoge fuer Ausgabeformate und Namensmapping | teilweise | unter `ma_ui` weiterfuehren; fachnahe Settings bleiben bei `ma_analyse` | mittel | Enthaltene Logik ist an Analyse-Settings und Tkinter-Dialoge gekoppelt. |
 | `src/ma_ui/tkinter_app/module_views/analyse/selection.py` | Auswahlhelfer fuer Varianten und Raeume | teilweise | bei weiterer Zerlegung zwischen UI-State und fachlicher Auswahl trennen | mittel | Enthaltene Variantenlogik nutzt Analysepfade und Suffixe. |
 | `src/ma_ui/tkinter_app/module_views/analyse/singleton.py` | Tkinter-App-Instanzsteuerung und Refresh-Koordination | teilweise | unter `ma_ui` weiterfuehren | mittel | Technisch Tkinter-/Socket-nah und fuer Streamlit nicht relevant. |
@@ -58,7 +58,9 @@ Gefundene UI-Bereiche:
 
 Gefundene technische Kopplungen:
 
-- Tkinter-State wird in `AnalysisConfig` uebersetzt.
+- Tkinter-State wird ueber `pipeline_config.py` und
+  `ma_analyse.analysis_ui.build_analysis_config` in `AnalysisConfig`
+  uebersetzt.
 - Messageboxen werden fuer Validierung und Fehler genutzt.
 - Worker-Thread und Queue sind Teil der Tkinter-Laufsteuerung.
 - Die GUI startet den Analyseauftrag ueber `ma_workflow.run_analysis_action`.
@@ -110,8 +112,9 @@ technisch in kleinere Dateien gegliedert. Der sichere Weg ist:
 5. Analyseansicht schrittweise ueber die UI-neutrale `ma_analyse`-Service-Schnittstelle erweitern.
 
 Der Pipeline-Start der Tkinter-Analyse folgt diesem Zielpfad inzwischen:
-`pipeline_config.py` baut `AnalysisConfig`, `pipeline_runner.py` ruft
-`ma_workflow.run_analysis_action`.
+`pipeline_config.py` normalisiert den Tkinter-State und delegiert den
+`AnalysisConfig`-Aufbau an `ma_analyse.analysis_ui.build_analysis_config`;
+`pipeline_runner.py` ruft `ma_workflow.run_analysis_action`.
 
 `ma_variants` zeigt bereits die bessere Richtung: Die Streamlit-Datei ist
 vergleichsweise klein, und die fachnahen Operationen liegen in `ui/services.py`.

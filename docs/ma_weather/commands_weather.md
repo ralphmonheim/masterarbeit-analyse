@@ -28,8 +28,8 @@ Markdown-Bericht.
   ueber `Lokale TRY-Dateien scannen` als Datensatzentwuerfe erkannt werden.
   Die Standortzuordnung erfolgt ueber
   `config/ma_weather/try_locations/example_try_file_locations.yaml`.
-- Die neue ortsgenaue Standortpruefung nutzt vorbereitete
-  Geodaten-Metadaten unter
+- Die neue ortsgenaue Standortpruefung nutzt die aktivierte
+  BKG-VG250-Gemeindequelle unter
   `config/ma_weather/geodata/example_weather_geodata_sources.yaml`.
   Lokale GeoJSON-Geodaten liegen unter `data/ma_weather/geodata/` und werden
   nicht versioniert.
@@ -83,8 +83,11 @@ und `Pruefen`. `Import` enthaelt den Link zur DWD-TRY-Seite und legt
 entpackte `.dat`-Dateien nur lokal unter `data/ma_weather/input/TRY_*` ab.
 `Scannen` erzeugt daraus Entwuerfe fuer noch nicht katalogisierte TRY-Dateien.
 `Pruefen` erlaubt die fachliche Anpassung dieser Entwuerfe und die bewusste
-Registrierung im lokalen Katalog. Kein Schritt setzt Aktivierung oder
-Projekt-Default automatisch.
+Registrierung im lokalen Katalog. Erfolgreich gepruefte und bewusst
+uebernommene Entwuerfe werden im Katalog direkt aktiv, setzen aber keinen
+Projekt-Default automatisch. Unter den drei Schritten steht die separate
+Aktion `Datensatzbestand pruefen`; sie laedt den Katalog neu, validiert die
+Dateien und aktualisiert die Statusanzeige.
 
 Die Wetterseite zeigt zusaetzlich Quellenmetadaten, Diagnose-IDs und
 Fundstellen. Bei Warnungen muss der Lauf bewusst mit `Nicht freigeben` oder
@@ -93,7 +96,8 @@ gilt nur fuer den aktuellen Lauf und wird lokal unter
 `logs/sessions/<session_id>.jsonl` protokolliert.
 
 Jeder Analyseimport erhaelt eine `import_id`. Freigegebene Datensaetze koennen
-in Streamlit bewusst aktiviert und danach als Projekt-Default gesetzt werden.
+in Streamlit bewusst als Projekt-Default gesetzt werden, wenn sie aktiv und
+weiterhin freigegeben sind.
 Der lokale Auswahlstatus liegt unter
 `data/ma_weather/database/weather_selection_state.yaml` und wird nicht
 versioniert.
@@ -103,6 +107,18 @@ Der Schritt `Pruefen` zeigt `Gefundene lokale TRY-Dateien` und
 erhalten, sind aber nicht Teil dieser Entwurfspruefung. In `Parameter pruefen`
 werden nur Stadt, Bezugsjahr, Datensatztyp und Szenario angezeigt. Rolle,
 `weather_key` und Anzeigename werden daraus generiert.
+
+Lokale BKG-VG250-Geodaten werden unter
+`data/ma_weather/geodata/_incoming/bkg_vg250_2025_01_01/` abgelegt. Der aus
+dem Layer `v_vg250_gem` exportierte GeoJSON-Zielpfad ist
+`data/ma_weather/geodata/germany/germany_municipalities.geojson`; lokale
+BKG-Begleitdokumente liegen unter
+`data/ma_weather/geodata/germany/source_docs/`. Die versionierten Quellen- und
+Feldmetadaten liegen unter `config/ma_weather/geodata/`. Die aktive
+Gemeindequelle nutzt `GEN` als Namen, `AGS` als Gemeindeschluessel, `LKZ` als
+Bundeslandkennung, `GF = 4` als Flaechenfilter und `EPSG:4326` als
+GeoJSON-Koordinatensystem. QGIS ist ein geeignetes lokales Exportwerkzeug:
+https://www.qgis.org/download/
 
 Nach einer Analyse zeigt der Bereich `Kritische Wetterereignisse` Ereignisse
 wie heissester Tag, kaeltester Tag, heisseste und kaelteste Drei-Tage-Periode,

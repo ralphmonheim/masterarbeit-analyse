@@ -42,6 +42,7 @@ from ma_weather.run_weather_analysis import plot_template_weather, record_weathe
 from ma_weather.try_importer import import_try_weather_file
 from ma_weather.weather_catalog import DATASET_ROLE_SITE_SPECIFIC, DATASET_ROLE_TRY_REFERENCE
 from ma_weather.weather_events import detect_critical_weather_events, weather_event_rows
+from ma_weather.weather_file_discovery import _read_try_header_metadata
 from ma_weather.weather_metrics import calculate_weather_metrics
 from ma_weather.weather_plots import build_weather_plots
 from ma_weather.weather_report import write_weather_report
@@ -56,6 +57,8 @@ from ma_weather.weather_selection import (
 from ma_weather.weather_status import (
     WeatherImportCheckStatus,
     inspect_weather_dataset_status,
+    stale_weather_status,
+    weather_status_file_changed,
     weather_status_from_analysis_result,
 )
 from ma_weather.weather_validation import validate_weather_dataframe
@@ -477,6 +480,33 @@ def test_transform_try_coordinates_uses_epsg_3034():
     assert 47.0 < latitude < 56.0
 
 
+def test_weather_location_resolution_blocks_implausible_try_coordinates(tmp_path):
+    config = tmp_path / "config" / "ma_weather" / "geodata" / "example_weather_geodata_sources.yaml"
+    config.parent.mkdir(parents=True)
+    config.write_text(
+        "enabled: true\n"
+        "geodata_sources:\n"
+        "  - source_id: test_municipalities\n"
+        "    kind: municipality\n"
+        "    path: data/ma_weather/geodata/administrative/municipalities.geojson\n"
+        "    crs_epsg: 4326\n"
+        "    name_field: municipality_name\n"
+        "    code_field: municipality_code\n"
+        "    state_field: federal_state\n",
+        encoding="utf-8",
+    )
+
+    result = resolve_weather_file_location(
+        {"rechtswert_m": "130658 Meter", "hochwert_m": "524031 Meter"},
+        geodata_config_path=config.relative_to(tmp_path),
+        project_root=tmp_path,
+    )
+
+    assert result.status is WeatherLocationResolutionStatus.INVALID_COORDINATES
+    assert result.is_blocking is True
+    assert any("Rechtswert" in message for message in result.messages)
+
+
 def test_weather_location_resolution_matches_municipality_geojson(tmp_path):
     pytest.importorskip("pyproj")
     pytest.importorskip("shapely")
@@ -545,6 +575,95 @@ def test_weather_location_resolution_matches_municipality_geojson(tmp_path):
     assert result.municipality_code == "12054000"
     assert result.federal_state == "Brandenburg"
     assert result.elevation_m == 34
+
+
+def test_bkg_vg250_geodata_source_config_is_active():
+    config_text = Path("config/ma_weather/geodata/example_weather_geodata_sources.yaml").read_text(encoding="utf-8")
+
+    assert "enabled: true" in config_text
+    assert "path: data/ma_weather/geodata/germany/germany_municipalities.geojson" in config_text
+    assert "crs_epsg: 4326" in config_text
+    assert "name_field: GEN" in config_text
+    assert "code_field: AGS" in config_text
+    assert "state_field: LKZ" in config_text
+    assert "filter_field: GF" in config_text
+    assert 'filter_value: "4"' in config_text
+
+
+def test_local_bkg_vg250_geodata_resolves_potsdam_and_berlin_when_available():
+    pytest.importorskip("pyproj")
+    pytest.importorskip("shapely")
+
+    geodata_path = Path("data/ma_weather/geodata/germany/germany_municipalities.geojson")
+    if not geodata_path.exists():
+        pytest.skip("Lokale BKG-VG250-Gemeinde-GeoJSON-Datei ist nicht vorhanden.")
+
+    cases = (
+        (
+            Path("data/ma_weather/input/TRY_524031130658/TRY2015_524031130658_Jahr.dat"),
+            "Potsdam",
+            "12054000",
+            "BB",
+        ),
+        (
+            Path("data/ma_weather/input/TRY_525331134258/TRY2045_525331134258_Jahr.dat"),
+            "Berlin",
+            "11000000",
+            "BE",
+        ),
+    )
+    missing_files = [path for path, *_ in cases if not path.exists()]
+    if missing_files:
+        pytest.skip(f"Lokale Berlin-/Potsdam-TRY-Testdateien fehlen: {missing_files}")
+
+    for path, expected_name, expected_ags, expected_state in cases:
+        result = resolve_weather_file_location(_read_try_header_metadata(path))
+
+        assert result.status is WeatherLocationResolutionStatus.MATCHED
+        assert result.is_blocking is False
+        assert result.municipality_name == expected_name
+        assert result.municipality_code == expected_ags
+        assert result.federal_state == expected_state
+
+
+def test_local_discovery_uses_bkg_vg250_locations_when_available():
+    pytest.importorskip("pyproj")
+    pytest.importorskip("shapely")
+
+    geodata_path = Path("data/ma_weather/geodata/germany/germany_municipalities.geojson")
+    if not geodata_path.exists():
+        pytest.skip("Lokale BKG-VG250-Gemeinde-GeoJSON-Datei ist nicht vorhanden.")
+
+    expected_files = {
+        "data/ma_weather/input/TRY_524031130658/TRY2015_524031130658_Jahr.dat": (
+            "LOC_020",
+            "Potsdam",
+            DATASET_ROLE_TRY_REFERENCE,
+        ),
+        "data/ma_weather/input/TRY_525331134258/TRY2045_525331134258_Jahr.dat": (
+            "LOC_013",
+            "Berlin",
+            DATASET_ROLE_SITE_SPECIFIC,
+        ),
+    }
+    missing_files = [Path(path) for path in expected_files if not Path(path).exists()]
+    if missing_files:
+        pytest.skip(f"Lokale Berlin-/Potsdam-TRY-Testdateien fehlen: {missing_files}")
+
+    discoveries = discover_weather_input_files(
+        existing_catalog=WeatherCatalog([]),
+        location_catalog=import_weather_location_catalog(),
+    )
+    discoveries_by_path = {discovery.file_path.as_posix(): discovery for discovery in discoveries}
+
+    for path, (expected_location_id, expected_name, expected_role) in expected_files.items():
+        discovery = discoveries_by_path[path]
+
+        assert discovery.location_id == expected_location_id
+        assert discovery.location_name == expected_name
+        assert discovery.dataset_role == expected_role
+        assert discovery.metadata["location_resolution_source"] == "try_coordinates"
+        assert discovery.metadata["location_resolution_status"] == "confirmed"
 
 
 def test_stage_weather_input_file_writes_try_file_without_catalog_entry(tmp_path):
@@ -683,14 +802,14 @@ def test_register_discovered_weather_dataset_writes_relative_local_catalog(tmp_p
     assert dataset.file_path == Path("data/ma_weather/input/TRY_494997084777/TRY2015_494997084777_Jahr.dat")
     assert dataset.file_path.is_absolute() is False
     assert dataset.dataset_role == DATASET_ROLE_TRY_REFERENCE
-    assert dataset.is_active is False
+    assert dataset.is_active is True
     assert dataset.location_resolution_source == "file_reference"
     assert dataset.location_resolution_status == "confirmed"
     local_catalog = tmp_path / "data" / "ma_weather" / "config" / "datasets" / "weather_datasets_local.yaml"
     catalog_text = local_catalog.read_text(encoding="utf-8")
     assert "TRY_MA_2015_JAHR" in catalog_text
     assert "data/ma_weather/input/TRY_494997084777/TRY2015_494997084777_Jahr.dat" in catalog_text
-    assert "is_active: false" in catalog_text
+    assert "is_active: true" in catalog_text
 
 
 def test_local_weather_import_copies_file_and_writes_relative_catalog(tmp_path):
@@ -1197,6 +1316,30 @@ def test_weather_dataset_status_reports_missing_and_warning(tmp_path):
     assert checked_status.release_status is ReleaseStatus.CONFIRMATION_REQUIRED
     assert checked_status.is_open is True
     assert checked_status.is_regularly_selectable is False
+
+
+def test_weather_dataset_status_marks_changed_file_as_stale(tmp_path):
+    try_file = _write_small_try_file(tmp_path)
+    dataset = WeatherDataset(
+        weather_key="TRY_TEST",
+        display_name="Test TRY",
+        file_path=try_file.relative_to(tmp_path),
+        file_format="TRY",
+        source="Test",
+        location="Testort",
+        year_type="test_year",
+    )
+    previous_status = inspect_weather_dataset_status(dataset, project_root=tmp_path, validate_file=True)
+    try_file.write_bytes(_small_try_file_content() + b"\n")
+    current_status = inspect_weather_dataset_status(dataset, project_root=tmp_path, validate_file=False)
+
+    stale_status = stale_weather_status(current_status, previous_status)
+
+    assert weather_status_file_changed(previous_status, current_status) is True
+    assert stale_status.import_status is WeatherImportCheckStatus.STALE
+    assert stale_status.status_label == "Pruefung veraltet"
+    assert stale_status.is_open is True
+    assert stale_status.is_regularly_selectable is False
 
 
 def test_weather_selection_state_requires_release_before_activation(tmp_path):

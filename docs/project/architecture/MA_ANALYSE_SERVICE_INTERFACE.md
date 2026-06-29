@@ -53,6 +53,12 @@ Analyseauftrag ueber `pipeline_config.py` als `AnalysisConfig` und startet ihn
 ueber `ma_workflow.run_analysis_action`. Direkte Tkinter-Runner-Aufrufe von
 `build_runtime_args`, `execute_steps` und `run_all` sind entfernt.
 
+P029-Fortschreibung 7 vom 2026-06-29: `pipeline_config.py` delegiert die
+eigentliche `AnalysisConfig`-Erzeugung an
+`ma_analyse.analysis_ui.build_analysis_config`. Dieser UI-neutrale Builder
+akzeptiert sowohl Textwerte aus Streamlit als auch Listenwerte aus der
+Tkinter-Auswahl und setzt `load_kind` fuer Heating-/Cooling-Laeufe.
+
 ## Ziel
 
 Die zentrale Oberflaeche `ma_ui` soll `ma_analyse` ohne Tkinter,

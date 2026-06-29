@@ -26,10 +26,12 @@ Felder:
 | `location_resolution_source` | Herkunft der Standortzuordnung, z. B. Datei-/Mapping-Verweis, TRY-Koordinaten oder manuelle Pruefung |
 | `location_resolution_status` | Status der Standortzuordnung, z. B. bestaetigt, Vorschlag, fehlend, Konflikt |
 
-`is_active` beschreibt die Katalogsicht. Die bewusste fachliche Aktivierung
-eines validierten Imports wird separat im lokalen Auswahlstatus gespeichert.
-Neue lokale Registrierungen aus dem Pruefworkflow werden zunaechst mit
-`is_active: false` geschrieben und muessen spaeter bewusst aktiviert werden.
+`is_active` beschreibt die Katalogsicht und steuert, ob ein freigegebener
+Datensatz regulaer in der Wetterauswahl erscheinen darf. Neue lokale
+Registrierungen aus dem Pruefworkflow werden nach erfolgreicher technischer
+Pruefung und bewusster Uebernahme direkt mit `is_active: true` geschrieben.
+Der Projekt-Default bleibt davon getrennt und muss weiterhin bewusst gesetzt
+werden.
 
 Aktive `year_type` Werte fuer den P008-Wetterkatalog:
 

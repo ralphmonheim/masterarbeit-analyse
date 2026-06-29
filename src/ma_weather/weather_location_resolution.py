@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import json
+import math
 import re
 from dataclasses import dataclass
 from enum import StrEnum
+from functools import lru_cache
 from pathlib import Path
 
 import yaml
@@ -13,6 +15,8 @@ import yaml
 DEFAULT_WEATHER_GEODATA_CONFIG = Path("config/ma_weather/geodata/example_weather_geodata_sources.yaml")
 TRY_SOURCE_CRS_EPSG = 3034
 WGS84_EPSG = 4326
+TRY_EASTING_RANGE_M = (3_670_500.0, 4_389_500.0)
+TRY_NORTHING_RANGE_M = (2_242_500.0, 3_179_500.0)
 
 
 class WeatherLocationResolutionStatus(StrEnum):
@@ -24,8 +28,10 @@ class WeatherLocationResolutionStatus(StrEnum):
     INVALID_COORDINATES = "invalid_coordinates"
     DEPENDENCY_MISSING = "dependency_missing"
     GEODATA_MISSING = "geodata_missing"
+    GEODATA_INVALID = "geodata_invalid"
     MUNICIPALITY_NOT_FOUND = "municipality_not_found"
     MULTIPLE_MUNICIPALITY_MATCHES = "multiple_municipality_matches"
+    OUTSIDE_GERMANY = "outside_germany"
 
 
 @dataclass(frozen=True, slots=True)
@@ -40,8 +46,19 @@ class WeatherGeodataSource:
     code_field: str = ""
     state_field: str = ""
     postal_code_field: str = ""
+    filter_field: str = ""
+    filter_value: str = ""
     version: str = ""
     license: str = ""
+
+
+@dataclass(frozen=True, slots=True)
+class _PreparedGeodata:
+    """Vorbereitete GeoJSON-Geometrien fuer wiederholte Punktabfragen."""
+
+    geometries: tuple[object, ...]
+    properties: tuple[dict[str, object], ...]
+    tree: object
 
 
 @dataclass(frozen=True, slots=True)
@@ -137,9 +154,19 @@ def resolve_weather_file_location(
             messages=("Rechtswert oder Hochwert fehlt im TRY-Kopf.",),
             is_blocking=True,
         )
+    coordinate_messages = _validate_try_coordinate_values(easting, northing)
+    if coordinate_messages:
+        return WeatherLocationResolution(
+            status=WeatherLocationResolutionStatus.INVALID_COORDINATES,
+            source_easting=easting,
+            source_northing=northing,
+            elevation_m=elevation,
+            messages=tuple(coordinate_messages),
+            is_blocking=True,
+        )
 
     municipality_sources = [source for source in config["sources"] if source.kind == "municipality"]
-    postal_sources = [source for source in config["sources"] if source.kind == "postal_code"]
+    postal_sources = [source for source in config["sources"] if source.kind == "postal_code" and source.path.exists()]
     if not municipality_sources:
         return WeatherLocationResolution(
             status=WeatherLocationResolutionStatus.GEODATA_MISSING,
@@ -169,9 +196,20 @@ def resolve_weather_file_location(
             source=municipality_sources[0],
             root=root,
         )
-    except (OSError, ValueError, RuntimeError) as exc:
+    except FileNotFoundError as exc:
         return WeatherLocationResolution(
             status=WeatherLocationResolutionStatus.GEODATA_MISSING,
+            source_easting=easting,
+            source_northing=northing,
+            longitude=longitude,
+            latitude=latitude,
+            elevation_m=elevation,
+            messages=(str(exc),),
+            is_blocking=True,
+        )
+    except (OSError, ValueError, RuntimeError) as exc:
+        return WeatherLocationResolution(
+            status=WeatherLocationResolutionStatus.GEODATA_INVALID,
             source_easting=easting,
             source_northing=northing,
             longitude=longitude,
@@ -194,13 +232,13 @@ def resolve_weather_file_location(
         )
     if municipality_result["status"] == "missing":
         return WeatherLocationResolution(
-            status=WeatherLocationResolutionStatus.MUNICIPALITY_NOT_FOUND,
+            status=WeatherLocationResolutionStatus.OUTSIDE_GERMANY,
             source_easting=easting,
             source_northing=northing,
             longitude=longitude,
             latitude=latitude,
             elevation_m=elevation,
-            messages=("Keine Gemeindegeometrie fuer die TRY-Koordinate gefunden.",),
+            messages=("Keine deutsche Gemeindegeometrie fuer die TRY-Koordinate gefunden.",),
             is_blocking=True,
         )
 
@@ -218,7 +256,9 @@ def resolve_weather_file_location(
                 root=root,
             )
             if postal_result["status"] == "matched":
-                postal_code = str(postal_result["properties"].get(postal_sources[0].postal_code_field, "")).strip()
+                postal_code = str(
+                    _property_value(postal_result["properties"], postal_sources[0].postal_code_field)
+                ).strip()
                 postal_method = "point_in_polygon"
             elif postal_result["status"] == "multiple":
                 status = WeatherLocationResolutionStatus.MATCHED_WITH_WARNING
@@ -238,9 +278,9 @@ def resolve_weather_file_location(
         longitude=longitude,
         latitude=latitude,
         elevation_m=elevation,
-        municipality_name=str(municipality_properties.get(municipality_source.name_field, "")).strip(),
-        municipality_code=str(municipality_properties.get(municipality_source.code_field, "")).strip(),
-        federal_state=str(municipality_properties.get(municipality_source.state_field, "")).strip(),
+        municipality_name=str(_property_value(municipality_properties, municipality_source.name_field)).strip(),
+        municipality_code=str(_property_value(municipality_properties, municipality_source.code_field)).strip(),
+        federal_state=str(_property_value(municipality_properties, municipality_source.state_field)).strip(),
         postal_code=postal_code,
         municipality_match_method="point_in_polygon",
         postal_code_match_method=postal_method,
@@ -281,6 +321,8 @@ def _build_geodata_source(raw_source: object, *, root: Path) -> WeatherGeodataSo
         code_field=str(raw_source.get("code_field", "")).strip(),
         state_field=str(raw_source.get("state_field", "")).strip(),
         postal_code_field=str(raw_source.get("postal_code_field", "")).strip(),
+        filter_field=str(raw_source.get("filter_field", "")).strip(),
+        filter_value=str(raw_source.get("filter_value", "")).strip(),
         version=str(raw_source.get("version", "")).strip(),
         license=str(raw_source.get("license", "")).strip(),
     )
@@ -294,7 +336,7 @@ def _resolve_feature(
     root: Path,
 ) -> dict[str, object]:
     try:
-        from shapely.geometry import Point, shape
+        from shapely.geometry import Point
     except ImportError as exc:  # pragma: no cover - abhaengig von lokaler venv
         raise RuntimeError("shapely ist fuer die Punkt-in-Polygon-Pruefung erforderlich.") from exc
 
@@ -302,20 +344,24 @@ def _resolve_feature(
         raise FileNotFoundError(f"Geodatenquelle nicht gefunden: {source.path.relative_to(root)}")
     point_x, point_y = transform_try_coordinates(easting, northing, target_epsg=source.crs_epsg)
     point = Point(point_x, point_y)
-    payload = json.loads(source.path.read_text(encoding="utf-8"))
-    features = payload.get("features", [])
-    if not isinstance(features, list):
-        raise ValueError(f"GeoJSON-Quelle enthaelt keine Feature-Liste: {source.path}")
+    prepared = _load_prepared_geodata(
+        str(source.path.resolve()),
+        source.kind,
+        source.name_field,
+        source.code_field,
+        source.state_field,
+        source.postal_code_field,
+        source.filter_field,
+        source.filter_value,
+    )
 
     matches: list[dict[str, object]] = []
-    for feature in features:
-        if not isinstance(feature, dict):
-            continue
-        geometry = feature.get("geometry")
-        properties = feature.get("properties", {})
-        if not isinstance(properties, dict) or geometry is None:
-            continue
-        if shape(geometry).covers(point):
+    candidates = prepared.tree.query(point)
+    for candidate in candidates:
+        index = int(candidate) if isinstance(candidate, int) or str(candidate).isdigit() else None
+        geometry = prepared.geometries[index] if index is not None else candidate
+        properties = prepared.properties[index] if index is not None else prepared.properties[prepared.geometries.index(geometry)]
+        if geometry.covers(point):
             matches.append(properties)
 
     if len(matches) == 1:
@@ -323,6 +369,130 @@ def _resolve_feature(
     if len(matches) > 1:
         return {"status": "multiple", "properties": {}}
     return {"status": "missing", "properties": {}}
+
+
+@lru_cache(maxsize=8)
+def _load_prepared_geodata(
+    source_path: str,
+    kind: str,
+    name_field: str,
+    code_field: str,
+    state_field: str,
+    postal_code_field: str,
+    filter_field: str,
+    filter_value: str,
+) -> _PreparedGeodata:
+    try:
+        from shapely.geometry import shape
+        try:
+            from shapely import STRtree
+        except ImportError:  # pragma: no cover - Kompatibilitaet mit aelteren Shapely-Versionen
+            from shapely.strtree import STRtree
+    except ImportError as exc:  # pragma: no cover - abhaengig von lokaler venv
+        raise RuntimeError("shapely ist fuer die Punkt-in-Polygon-Pruefung erforderlich.") from exc
+
+    path = Path(source_path)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    features = payload.get("features", [])
+    if not isinstance(features, list):
+        raise ValueError(f"GeoJSON-Quelle enthaelt keine Feature-Liste: {path}")
+
+    required_fields = _required_fields_for_source(
+        kind=kind,
+        name_field=name_field,
+        code_field=code_field,
+        state_field=state_field,
+        postal_code_field=postal_code_field,
+    )
+    geometries: list[object] = []
+    properties_by_geometry: list[dict[str, object]] = []
+    for feature in features:
+        if not isinstance(feature, dict):
+            continue
+        geometry = feature.get("geometry")
+        properties = feature.get("properties", {})
+        if not isinstance(properties, dict) or geometry is None:
+            continue
+        if filter_field and str(_property_value(properties, filter_field)).strip() != filter_value:
+            continue
+        missing_fields = [field for field in required_fields if field and _property_field_name(properties, field) == ""]
+        if missing_fields:
+            joined_fields = ", ".join(missing_fields)
+            raise ValueError(f"GeoJSON-Quelle {path} enthaelt nicht alle benoetigten Felder: {joined_fields}")
+        prepared_geometry = shape(geometry)
+        if prepared_geometry.is_empty:
+            continue
+        geometries.append(prepared_geometry)
+        properties_by_geometry.append(properties)
+
+    if not geometries:
+        raise ValueError(f"GeoJSON-Quelle enthaelt keine nutzbaren Geometrien: {path}")
+    return _PreparedGeodata(
+        geometries=tuple(geometries),
+        properties=tuple(properties_by_geometry),
+        tree=STRtree(geometries),
+    )
+
+
+def _required_fields_for_source(
+    *,
+    kind: str,
+    name_field: str,
+    code_field: str,
+    state_field: str,
+    postal_code_field: str,
+) -> tuple[str, ...]:
+    if kind == "municipality":
+        return tuple(field for field in (name_field, code_field, state_field) if field)
+    if kind == "postal_code":
+        return (postal_code_field,) if postal_code_field else ()
+    return ()
+
+
+def _property_value(properties: dict[str, object], field_name: str) -> object:
+    """Liest ein Feld direkt oder ueber QGIS-Aliasnamen wie `GeografischerName_GEN`."""
+    resolved_field_name = _property_field_name(properties, field_name)
+    if not resolved_field_name:
+        return ""
+    return properties.get(resolved_field_name, "")
+
+
+def _property_field_name(properties: dict[str, object], field_name: str) -> str:
+    """Findet Kurzfelder auch dann, wenn QGIS sie mit lesbaren Aliasnamen exportiert."""
+    if not field_name:
+        return ""
+    if field_name in properties:
+        return field_name
+    expected = field_name.casefold()
+    expected_suffix = f"_{expected}"
+    matches = [
+        key
+        for key in properties
+        if isinstance(key, str) and (key.casefold() == expected or key.casefold().endswith(expected_suffix))
+    ]
+    if len(matches) == 1:
+        return matches[0]
+    return ""
+
+
+def _validate_try_coordinate_values(easting: float, northing: float) -> list[str]:
+    messages: list[str] = []
+    if not math.isfinite(easting) or not math.isfinite(northing):
+        messages.append("Rechtswert oder Hochwert ist nicht endlich.")
+        return messages
+    min_easting, max_easting = TRY_EASTING_RANGE_M
+    min_northing, max_northing = TRY_NORTHING_RANGE_M
+    if not min_easting <= easting <= max_easting:
+        messages.append(
+            "Rechtswert liegt ausserhalb des erwarteten TRY-Bereichs "
+            f"({min_easting:.0f} bis {max_easting:.0f} m)."
+        )
+    if not min_northing <= northing <= max_northing:
+        messages.append(
+            "Hochwert liegt ausserhalb des erwarteten TRY-Bereichs "
+            f"({min_northing:.0f} bis {max_northing:.0f} m)."
+        )
+    return messages
 
 
 def _metadata_number(value: str) -> float | None:

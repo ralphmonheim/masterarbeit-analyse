@@ -77,8 +77,9 @@ Alternative:
 - Analyseaufrufe laufen ueber `ma_workflow` und die Service-Fassade von
   `ma_analyse`.
 - Die getrennte Tkinter-Analyse baut ihren Analyseauftrag ebenfalls als
-  `AnalysisConfig` und startet ihn ueber `ma_workflow`; sie bleibt trotzdem ein
-  eigener Prozess und wird nicht in Streamlit eingebettet.
+  `AnalysisConfig` und startet ihn ueber `ma_workflow`; die eigentliche
+  Config-Erzeugung nutzt denselben UI-neutralen Builder wie Streamlit. Sie
+  bleibt trotzdem ein eigener Prozess und wird nicht in Streamlit eingebettet.
 - Die Analyse-Seite enthaelt einen Button `Tkinter-Analyse oeffnen`, der die
   Tkinter-Analyse als getrennten Prozess startet:
   `python -m ma_ui.tkinter_app.module_views.analyse`.

@@ -45,8 +45,10 @@ from ma_weather import (
     save_weather_selection_state,
     set_project_default_weather_dataset,
     stage_weather_input_file,
+    stale_weather_status,
     update_weather_file_discovery,
     validate_weather_file_discovery,
+    weather_status_file_changed,
     weather_status_from_analysis_result,
     weather_statuses_by_key,
 )
@@ -664,7 +666,14 @@ def _current_status_map(
     result: object,
 ) -> dict[str, WeatherDatasetStatus]:
     status_map = weather_statuses_by_key(_base_statuses(catalog))
-    status_map.update(weather_statuses_by_key(_stored_statuses()))
+    for stored_status in _stored_statuses():
+        current_status = status_map.get(stored_status.weather_key)
+        if current_status is None:
+            status_map[stored_status.weather_key] = stored_status
+        elif weather_status_file_changed(stored_status, current_status):
+            status_map[stored_status.weather_key] = stale_weather_status(current_status, stored_status)
+        else:
+            status_map[stored_status.weather_key] = stored_status
     if isinstance(result, WeatherAnalysisResult):
         stored_decision = st.session_state.get(WEATHER_RELEASE_DECISION_SESSION_KEY)
         decision = stored_decision if release_decision_matches_result(stored_decision, result) else None
@@ -672,13 +681,21 @@ def _current_status_map(
     return status_map
 
 
+def _refresh_weather_catalog_state(*, validate_files: bool = True) -> None:
+    """Laedt den Wetterkatalog neu und speichert aktuelle Datensatzstatus in der Sitzung."""
+    refreshed_catalog = import_weather_catalog()
+    st.session_state[WEATHER_STATUS_SESSION_KEY] = inspect_weather_catalog_statuses(
+        refreshed_catalog,
+        validate_files=validate_files,
+    )
+    st.session_state.pop(WEATHER_DISCOVERY_VALIDATION_SESSION_KEY, None)
+
+
 def _run_weather_catalog_validation(catalog: object) -> None:
     """Prueft katalogisierte Wetterdateien und merkt den Status in der UI-Sitzung."""
     with st.spinner("Katalogisierte Wetterdateien werden geprueft..."):
-        st.session_state[WEATHER_STATUS_SESSION_KEY] = inspect_weather_catalog_statuses(
-            catalog,
-            validate_files=True,
-        )
+        st.session_state[WEATHER_STATUS_SESSION_KEY] = inspect_weather_catalog_statuses(catalog, validate_files=True)
+        st.session_state.pop(WEATHER_DISCOVERY_VALIDATION_SESSION_KEY, None)
     st.rerun()
 
 
@@ -743,6 +760,13 @@ def _render_weather_dataset_actions(
         _toggle_weather_dataset_action(WEATHER_DATASET_ACTION_SCAN)
     if show_validation:
         _toggle_weather_dataset_action(WEATHER_DATASET_ACTION_VALIDATE)
+
+    if st.button(
+        "Datensatzbestand pruefen",
+        key="ma_ui_weather_check_dataset_inventory",
+        width="stretch",
+    ):
+        _run_weather_catalog_validation(catalog)
 
     _render_weather_import_message()
     _render_weather_discovery_message()
@@ -984,14 +1008,17 @@ def _render_weather_validation_panel(
             register_discovered_weather_dataset(
                 validation_result.discovery,
                 existing_catalog=import_weather_catalog(),
+                is_active=True,
             )
         except (OSError, ValueError) as exc:
             _store_weather_discovery_message("error", f"Entwurf konnte nicht registriert werden: {exc}")
             return
         _remove_stored_weather_discovery(validation_result.discovery)
+        with st.spinner("Datensatzbestand wird aktualisiert..."):
+            _refresh_weather_catalog_state(validate_files=True)
         _store_weather_discovery_message(
             "success",
-            f"Entwurf wurde registriert: {validation_result.discovery.weather_key}",
+            f"Entwurf wurde aktiv registriert: {validation_result.discovery.weather_key}",
         )
         st.rerun()
 
@@ -1152,12 +1179,6 @@ def _render_weather_selection(
         if not selectable_datasets:
             st.warning("Fuer die aktuelle Auswahl ist kein eindeutig zugeordneter aktiver Wetterdatensatz vorhanden.")
             return None, False
-
-        if location_catalog is not None:
-            st.caption(
-                "Referenzdatensatz der Klimaregion steht zuerst; standortgenaue Datensaetze "
-                "fuer die gewaehlte Stadt koennen zusaetzlich angeboten werden."
-            )
 
         datasets_by_key = {dataset.weather_key: dataset for dataset in selectable_datasets}
         selected_key = st.selectbox(
@@ -1526,6 +1547,10 @@ def _render_weather_dataset_section(
 ) -> None:
     active_datasets = _regularly_selectable_datasets(catalog.active_datasets(), status_by_key)
     st.subheader("Wetterdatensaetze")
+    st.caption(
+        "Referenzdatensatz der Klimaregion steht zuerst; standortgenaue Datensaetze "
+        "fuer die gewaehlte Stadt koennen zusaetzlich angeboten werden."
+    )
     _render_weather_dataset_actions(catalog, location_catalog)
 
     active_action = _active_weather_dataset_action()

@@ -6,6 +6,7 @@ kleinen Transformationsregeln, die mehrere Oberflaechen nutzen koennen.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
@@ -21,19 +22,27 @@ from .analysis.templates import (
 )
 from .models import AnalysisConfig
 
-
-def split_csv_text(value: str) -> list[str]:
-    """Wandelt eine kommaseparierte UI-Eingabe in eine Liste um."""
-    return [item.strip() for item in value.split(",") if item.strip()]
+SelectionValue = str | Sequence[str] | None
 
 
-def optional_text(value: str) -> str | None:
+def split_csv_text(value: SelectionValue) -> list[str]:
+    """Wandelt UI-Eingaben aus Textfeldern oder Auswahllisten in eine Liste um."""
+    if value is None:
+        return []
+    if isinstance(value, str):
+        return [item.strip() for item in value.split(",") if item.strip()]
+    return [str(item).strip() for item in value if str(item).strip()]
+
+
+def optional_text(value: str | None) -> str | None:
     """Normalisiert leere Textfelder auf None."""
+    if value is None:
+        return None
     stripped = value.strip()
     return stripped or None
 
 
-def variant_selection_from_scope(value: str, analysis_scope: str) -> list[str] | None:
+def variant_selection_from_scope(value: SelectionValue, analysis_scope: str) -> list[str] | None:
     """Leitet die Variantenauswahl aus Analyseumfang und Texteingabe ab."""
     if analysis_scope == "Alle Varianten":
         return None
@@ -230,16 +239,17 @@ def build_plot_template_options(
 def build_analysis_config(
     *,
     step: str,
-    input_dir: str,
-    database_dir: str,
-    output_root: str,
-    run_id: str,
-    variants: str,
-    rooms: str,
+    input_dir: str | Path,
+    database_dir: str | Path,
+    output_root: str | Path,
+    run_id: str | None,
+    variants: SelectionValue,
+    rooms: SelectionValue,
     debug: bool,
     analysis_scope: str = "Mehrere Varianten",
     export_format: str = "csv",
     comfort_output_type: str | None = None,
+    load_kind: str | None = None,
     view: str | None = None,
     month: str | None = None,
     week: int | None = None,
@@ -262,6 +272,7 @@ def build_analysis_config(
         debug=debug,
         export_format=export_format,
         comfort_output_type=comfort_output_type,
+        load_kind=load_kind,
         view=view,
         month=month,
         week=week,

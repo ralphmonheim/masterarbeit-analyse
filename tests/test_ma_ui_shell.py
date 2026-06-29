@@ -573,7 +573,8 @@ def test_weather_dataset_actions_are_in_dataset_section():
     assert "Aktive Ansicht:" not in actions_source
     assert "type=" not in actions_source
     assert "_run_weather_input_discovery" not in actions_source
-    assert "_run_weather_catalog_validation" not in actions_source
+    assert '"Datensatzbestand pruefen"' in actions_source
+    assert "_run_weather_catalog_validation(catalog)" in actions_source
     assert "_run_weather_input_discovery(catalog, location_catalog)" in scan_panel_source
     assert "_run_weather_catalog_validation(catalog)" not in validation_panel_source
     assert "Parameter pruefen" in validation_panel_source
@@ -650,6 +651,10 @@ def test_weather_selection_uses_dataset_type_prefilter_and_slim_labels():
         "def weather_source_rows",
         maxsplit=1,
     )[0]
+    dataset_section_source = weather_source.split("def _render_weather_dataset_section", maxsplit=1)[1].split(
+        "def _render_critical_weather_events",
+        maxsplit=1,
+    )[0]
 
     assert weather_page.WEATHER_DATASET_TYPE_FILTER_OPTIONS == ("Jahr", "Sommer", "Winter")
     assert '"Datensatztyp"' in selection_source
@@ -662,7 +667,8 @@ def test_weather_selection_uses_dataset_type_prefilter_and_slim_labels():
     assert "return dataset.display_name" in label_source
     assert "Empfohlen:" not in label_source
     assert "status.status_label" not in label_source
-    assert "Referenzdatensatz der Klimaregion steht zuerst" in selection_source
+    assert "Referenzdatensatz der Klimaregion steht zuerst" not in selection_source
+    assert "Referenzdatensatz der Klimaregion steht zuerst" in dataset_section_source
     assert "Standortgenaue Datensaetze werden zusaetzlich zur Referenz angezeigt." not in selection_source
 
 
@@ -868,6 +874,7 @@ def test_tkinter_analysis_config_maps_gui_state_to_service_config(tmp_path):
     assert config.series_layout == "combined"
     assert config.plot_template == "heating-overlay"
     assert config.plot_template_mode == "compare"
+    assert config.load_kind is None
 
 
 def test_tkinter_analysis_config_maps_comfort_command(tmp_path):
@@ -892,6 +899,35 @@ def test_tkinter_analysis_config_maps_comfort_command(tmp_path):
     assert config.comfort_output_type == "plot_analysis_overview"
     assert config.variant_mode is None
     assert config.export_format == "csv"
+    assert config.load_kind is None
+
+
+def test_tkinter_analysis_config_maps_load_kind_for_heating(tmp_path):
+    args = Namespace(
+        input_dir=tmp_path / "ida_imports",
+        datenbank_dir=tmp_path / "database",
+        output_root=tmp_path / "output",
+        run_id="",
+        debug=True,
+    )
+
+    config = build_tkinter_analysis_config(
+        args=args,
+        selected_command="heating",
+        variants=["Variant_A", "Variant_B"],
+        rooms=["101 lobby"],
+        heating_mode="compare",
+        heating_options={"view": "year", "series_layout": "separate"},
+    )
+
+    assert config.steps == ("heating",)
+    assert config.load_kind == "heating"
+    assert config.variants == ["Variant_A", "Variant_B"]
+    assert config.rooms == ["101 lobby"]
+    assert config.run_id is None
+    assert config.variant_mode == "compare"
+    assert config.view == "year"
+    assert config.series_layout == "separate"
 
 
 def test_tkinter_pipeline_worker_uses_workflow_action(monkeypatch, tmp_path):
@@ -1470,6 +1506,25 @@ def test_analyse_view_builds_analysis_config_for_all_variants():
     )
 
     assert config.variants is None
+
+
+def test_analyse_view_builds_analysis_config_from_selection_lists():
+    config = build_analysis_config(
+        step="heating",
+        input_dir="data/ma_analyse/ida_imports",
+        database_dir="data/ma_analyse/database",
+        output_root="data/ma_analyse/output",
+        run_id=None,
+        variants=["Variant_A", " Variant_B ", ""],
+        rooms=["101 lobby", " 208 office "],
+        debug=True,
+        load_kind="heating",
+    )
+
+    assert config.run_id is None
+    assert config.variants == ["Variant_A", "Variant_B"]
+    assert config.rooms == ["101 lobby", "208 office"]
+    assert config.load_kind == "heating"
 
 
 def test_analyse_view_builds_analysis_config_for_excel_analysis():

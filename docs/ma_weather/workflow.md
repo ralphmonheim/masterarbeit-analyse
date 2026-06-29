@@ -49,8 +49,8 @@ Der aktuelle Stand umfasst:
 14. Aufbereitete Wetterdaten unter `data/ma_weather/database/` schreiben.
 15. Diagramme unter `data/ma_weather/output/` schreiben.
 16. Bericht unter `data/ma_weather/reports/` schreiben.
-17. Freigegebene Datensaetze bewusst aktivieren.
-18. Einen aktivierten Datensatz bewusst als Projekt-Default setzen.
+17. Freigegebene und bewusst uebernommene Entwuerfe im Katalog aktiv fuehren.
+18. Einen aktiven Datensatz bewusst als Projekt-Default setzen.
 19. Kritische Wetterereignisse aus genau diesem ausgewaehlten Datensatz
     erkennen und fuer spaetere P021-Nutzung anzeigen.
 
@@ -72,11 +72,11 @@ die versionierte Standortzuordnung unter
 vollstaendige oder offene Datensatzentwuerfe an.
 
 Unsichere Standortvorschlaege aus TRY-Koordinaten werden in der Fundliste nicht
-als erkannte Stadt angezeigt. Erst ein bestaetigter Dateiverweis, eine
-bestaetigte TRY-Ordner-Zuordnung oder eine bewusst uebernommene manuelle
-Zuordnung macht aus dem Vorschlag einen Standort. Berlin-/Potsdam-nahe
-TRY-Dateien bleiben ohne bestaetigte Zuordnung offen und duerfen nicht als
-Hamburg oder anderer Ersatzstandort erscheinen.
+als erkannte Stadt angezeigt. Ein Standort darf automatisch vorbelegt werden,
+wenn ein bestaetigter Dateiverweis, eine bestaetigte TRY-Ordner-Zuordnung oder
+eine eindeutige BKG-Gemeindeaufloesung vorliegt und die Gemeinde im
+Standortkatalog existiert. Berlin-/Potsdam-nahe TRY-Dateien duerfen ohne diese
+belastbare Aufloesung nicht als Hamburg oder anderer Ersatzstandort erscheinen.
 
 ## Verbindung zu Varianten
 
@@ -113,7 +113,18 @@ behandelt.
 Die versionierte Geodatenkonfiguration liegt unter
 `config/ma_weather/geodata/example_weather_geodata_sources.yaml`. Lokale
 GeoJSON-Dateien liegen unter `data/ma_weather/geodata/` und werden nicht
-versioniert.
+versioniert. Die Gemeindequelle `bkg_vg250_municipalities` ist aktiviert,
+sobald `data/ma_weather/geodata/germany/germany_municipalities.geojson`
+vorliegt. Sie nutzt `GEN` als Gemeindenamen, `AGS` als Gemeindeschluessel,
+`LKZ` als Bundeslandkennung, `GF = 4` als Flaechenfilter und `EPSG:4326` als
+GeoJSON-Koordinatensystem.
+
+Realer Teststand mit lokaler BKG-VG250-Datei:
+
+- `TRY2015_524031130658_Jahr.dat` wird als `Potsdam`, AGS `12054000`,
+  LKZ `BB` erkannt.
+- `TRY2045_525331134258_Jahr.dat` wird als `Berlin`, AGS `11000000`,
+  LKZ `BE` erkannt.
 
 ## Status und Aktivierung
 
@@ -131,7 +142,11 @@ wurde. Jeder Analyseimport erzeugt eine `import_id`, die mit `session_id`,
 Die Streamlit-Schritte `Import`, `Scannen` und `Pruefen` sitzen unten im
 Bereich `Wetterdatensaetze`. `Import` legt Dateien nur ab, `Scannen` erzeugt
 Datensatzentwuerfe und `Pruefen` erlaubt Anpassung und bewusste
-Registrierung. Ohne aktive Funktion zeigt der Bereich die getrennten
+Registrierung. Erfolgreich gepruefte und bewusst uebernommene Entwuerfe werden
+im Katalog direkt aktiv, setzen aber keinen Projekt-Default. Unter den drei
+Schritten steht die separate Aktion `Datensatzbestand pruefen`; sie laedt den
+Katalog neu, validiert die Dateien und aktualisiert die Statusanzeige. Ohne
+aktive Funktion zeigt der Bereich die getrennten
 Uebersichten `Aktive Wetterdatensaetze` und `Offene Wetterdatensaetze`.
 Bei `Pruefen` gibt es die Ansichten `Gefundene lokale TRY-Dateien` und
 `Parameter pruefen`. Die Fundliste ist reduziert; die Parameter-Maske
@@ -145,8 +160,8 @@ Datensatztyp ueber eine segmentierte Auswahl `Jahr`, `Sommer` oder `Winter`
 gewaehlt. Aktuell ist genau ein Datensatztyp aktiv. Die anschliessende
 Datensatzliste zeigt nur Anzeigenamen; technische Details wie `weather_key`,
 Rolle, Dateistatus und Aktivierungsstatus bleiben in den Tabellen und
-Pruefbereichen sichtbar. Direkt vor der Datensatzliste erklaert ein kurzer
-Hinweis, dass der Referenzdatensatz der Klimaregion zuerst steht und
+Pruefbereichen sichtbar. Im unteren Bereich `Wetterdatensaetze` erklaert ein
+kurzer Hinweis, dass der Referenzdatensatz der Klimaregion zuerst steht und
 standortgenaue Datensaetze fuer die gewaehlte Stadt zusaetzlich angeboten
 werden koennen.
 
@@ -156,14 +171,19 @@ Diagrammaufbau, Ergebniszustand und Ereignisauswertung separat erweitert
 werden.
 
 Das Standort-Mapping nutzt zuerst die versionierte TRY-Ordner-Zuordnung. Nur
-bestaetigte Zuordnungen duerfen automatisch vorbelegen. Rechtswert, Hochwert
-und Hoehenlage aus dem TRY-Kopf erzeugen hoechstens einen Standortvorschlag,
-der bewusst uebernommen werden muss.
+bestaetigte Zuordnungen duerfen automatisch vorbelegen. Danach kann eine
+eindeutige lokale BKG-Gemeindeaufloesung aus Rechtswert, Hochwert und
+Hoehenlage den Standort vorbelegen, wenn die Gemeinde im Standortkatalog
+vorhanden ist. Reine Naechstvorschlaege ohne Gemeinde-Treffer bleiben
+Vorschlaege und muessen bewusst uebernommen werden.
 
-Aktivierung und Projekt-Default werden lokal unter
+Projekt-Default und Auswahlstatus werden lokal unter
 `data/ma_weather/database/weather_selection_state.yaml` gespeichert. Diese Datei
 ist lokale Arbeitskonfiguration und wird nicht versioniert. Ein Import setzt
-weder Aktivierung noch Projekt-Default automatisch.
+keinen Katalogeintrag, keine Aktivierung und keinen Projekt-Default automatisch.
+Ein erfolgreich gepruefter Entwurf wird erst durch die bewusste Uebernahme
+registriert und aktiv; der Projekt-Default bleibt danach eine getrennte
+Nutzeraktion.
 
 ## Kritische Wetterereignisse
 

@@ -1,6 +1,6 @@
 # P008 ma_weather Gesamtplan
 
-Stand: 2026-06-27
+Stand: 2026-06-29
 Status: Aktiv
 Plannummer: P008
 Bezug: P007, P010, P015, P018, P021, P027, archivierter P002
@@ -97,7 +97,6 @@ Ersetzte oder korrigierte Inhalte:
 
 Weiterhin offene Entscheidungen:
 
-- Verbindliche Gemeinde-Geodatenquelle und Version.
 - Verbindliche PLZ-Geodatenquelle, Lizenz und Feldnamen.
 - Ob Geodaten selbst versioniert werden duerfen oder nur lokal mit
   Quellenmetadaten abgelegt werden.
@@ -105,6 +104,43 @@ Weiterhin offene Entscheidungen:
 - Darstellung von PLZ in der normalen Standortauswahl.
 - Endgueltige Benennung der UI-Aktion: fachlich `Pruefen`, bei spaeterer
   UI-Umsetzung ggf. mit Umlaut als `Prüfen`.
+
+## Aenderungsvermerk zur Aktivierung der VG250-Gemeindequelle
+
+Datum der Aktualisierung: 2026-06-29
+
+Die lokale Gemeinde-Geodatenquelle fuer P008 wurde auf Basis des BKG-VG250-
+Downloads vom Stand 01.01.2025 konkretisiert und aktiviert.
+
+Umgesetzte Festlegungen:
+
+- BKG VG250 ist die verbindliche lokale Gemeindequelle fuer diesen Slice.
+- Der lokale Eingangsordner ist
+  `data/ma_weather/geodata/_incoming/bkg_vg250_2025_01_01/`.
+- Der aktive GeoJSON-Zielpfad ist
+  `data/ma_weather/geodata/germany/germany_municipalities.geojson`.
+- Die Quelle nutzt den Layer `v_vg250_gem`, Filter `GF = 4`, Ziel-CRS
+  `EPSG:4326`, `GEN` als Gemeindenamen, `AGS` als Gemeindeschluessel und
+  `LKZ` als Bundeslandkennung.
+- QGIS ist als lokales Exportwerkzeug dokumentiert, bleibt aber keine
+  Laufzeitabhaengigkeit des Projekts.
+- Die Laufzeit nutzt `pyproj` fuer EPSG-Transformationen und `shapely` fuer
+  Punkt-in-Polygon-Pruefungen.
+
+Realer Teststand:
+
+- `TRY2015_524031130658_Jahr.dat` wird ueber die TRY-Koordinate als
+  `Potsdam`, AGS `12054000`, LKZ `BB` erkannt.
+- `TRY2045_525331134258_Jahr.dat` wird ueber die TRY-Koordinate als `Berlin`,
+  AGS `11000000`, LKZ `BE` erkannt.
+
+Weiterhin offen:
+
+- PLZ-Aufloesung bleibt optional und benoetigt eine getrennt freigegebene
+  Geodatenquelle.
+- Eine eindeutige BKG-Gemeindeaufloesung darf den Entwurf vorbelegen, wenn die
+  Gemeinde im Standortkatalog existiert. Die Registrierung und der
+  Projekt-Default bleiben weiterhin bewusste Nutzeraktionen.
 
 ## Ziel
 
@@ -136,9 +172,11 @@ Datenhaltung und spaetere Parameteruebergabe.
 - Jahr, Szenario und Datensatztyp werden beim Scan bereits aus dem Dateinamen
   abgeleitet.
 - Zwei neue lokale TRY-Ordner fuer Berlin/Potsdam-nahe Testdateien sind
-  vorhanden, aber ohne Mapping noch offene Datensatzentwuerfe.
-- EPSG:3034, Gemeindegrenzen, PLZ-Polygone und Punkt-in-Polygon-Aufloesung
-  sind noch nicht technisch umgesetzt.
+  vorhanden und werden ueber die lokale BKG-VG250-Gemeindequelle als Potsdam
+  beziehungsweise Berlin erkannt.
+- EPSG:3034-Transformation, lokale Gemeindegrenzen und
+  Punkt-in-Polygon-Aufloesung sind technisch umgesetzt. PLZ-Polygone bleiben
+  optional und sind noch nicht freigegeben.
 - `ma_core` stellt Quellenmodell, SHA-256 und JSONL-Sitzungslogs bereit.
 - `ma_validation` stellt strukturierte Diagnosen, Freigabestatus und
   Freigabeentscheidungen bereit.
@@ -212,25 +250,27 @@ informativ angezeigt werden.
 
 ### Nur aktive und validierte Datensaetze sind regulaer auswaehlbar
 
-Die normale Wetterauswahl zeigt nur Datensaetze, die fachlich validiert und
-bewusst aktiviert wurden.
+Die normale Wetterauswahl zeigt nur Datensaetze, die fachlich validiert,
+freigegeben und in der Katalogsicht aktiv sind.
 
 Offene, unvollstaendige oder fehlerhafte Datensaetze duerfen nicht an
 `ma_parameters`, Varianten oder Simulationen uebergeben werden.
 
-### Import, Validierung, Aktivierung und Projekt-Default sind getrennt
+### Import, Pruefung, Katalogaktivitaet und Projekt-Default sind getrennt
 
 Ein Import setzt keinen Projekt-Default.
 
-Ein gueltiger Import wird auch nicht automatisch aktiviert. Die Zielkette ist:
+Ein Import wird nicht automatisch katalogisiert oder aktiv gesetzt. Ein
+gepruefter Entwurf wird erst durch bewusste Uebernahme registriert und dann in
+der Katalogsicht aktiv. Die Zielkette ist:
 
 ```text
-importiert -> validiert -> aktiv -> Projekt-Default
+importiert -> gescannt -> geprueft -> aktiv im Katalog -> Projekt-Default
 ```
 
-Aktivierung und Projekt-Default sind bewusste Nutzeraktionen. Dadurch bleibt ein
-bestehender Projektzustand stabil und neue Importe koennen zuerst geprueft
-werden.
+Die Uebernahme eines geprueften Entwurfs und der Projekt-Default sind bewusste
+Nutzeraktionen. Dadurch bleibt ein bestehender Projektzustand stabil und neue
+Importe koennen zuerst geprueft werden.
 
 ### Relative Pfade sind verpflichtend
 
@@ -542,6 +582,9 @@ Bestehende Ordner bleiben verbindlich:
 | `data/ma_weather/reports/` | Markdown- und Validierungsberichte |
 | `data/ma_weather/exports/` | spaetere strukturierte Exporte |
 | `data/ma_weather/geodata/` | lokale Gemeinde- und PLZ-Geodaten |
+| `data/ma_weather/geodata/_incoming/bkg_vg250_2025_01_01/` | entpackter lokaler BKG-VG250-Download |
+| `data/ma_weather/geodata/germany/germany_municipalities.geojson` | GeoJSON-Export des Layers `v_vg250_gem` |
+| `data/ma_weather/geodata/germany/source_docs/` | lokale BKG-Begleitdokumente |
 | `logs/sessions/` | bestehende JSONL-Sitzungslogs |
 
 Bei spaeterem Importausbau koennen innerhalb von `data/ma_weather/` ergaenzt
@@ -560,6 +603,8 @@ sie benoetigt.
 Versionierte Quellen- und Feldmetadaten fuer lokale Geodaten sollen unter
 `config/ma_weather/geodata/` liegen. Die grossen Geodaten selbst bleiben lokal,
 wenn Dateigroesse, Lizenz oder Repository-Regeln gegen Versionierung sprechen.
+Fuer BKG VG250 01.01.2025 liegt die versionierte Metadatenbeschreibung unter
+`config/ma_weather/geodata/bkg_vg250_2025_01_01.yaml`.
 
 ## Streamlit UI Zielbild
 
@@ -709,9 +754,11 @@ enthalten, wird aber nicht mehr als operative Reihenfolge verwendet.
 ### Slice 3 Aktivierung, Projekt-Default und Uebergabegrenze
 
 - Statuskette `importiert -> validiert -> aktiv -> Projekt-Default` umsetzen,
-- gueltige Importe nicht automatisch aktivieren,
-- aktivierte Datensaetze nicht automatisch als Projekt-Default setzen,
-- Aktivierung und Projekt-Default als bewusste Streamlit-Aktionen fuehren,
+- gueltige Importe nicht automatisch katalogisieren oder aktivieren,
+- gepruefte Entwuerfe erst nach bewusster Uebernahme aktiv in den Katalog
+  schreiben,
+- aktive Datensaetze nicht automatisch als Projekt-Default setzen,
+- Uebernahme und Projekt-Default als bewusste Streamlit-Aktionen fuehren,
 - lokale YAML-Grundlage bis zur spaeteren Datenbankmigration verwenden,
 - Uebergabe an `ma_parameters` nur fuer aktive, validierte und freigegebene
   Wetterdatensaetze vorbereiten.
@@ -795,7 +842,8 @@ enthalten, wird aber nicht mehr als operative Reihenfolge verwendet.
 - Import-Log, Validierungsbericht und Wetterdatensatz sind eindeutig
   verknuepft.
 - Ein neuer Import aktiviert keinen Datensatz automatisch und setzt keinen
-  Projekt-Default automatisch.
+  Projekt-Default automatisch; ein gepruefter Entwurf wird erst nach bewusster
+  Uebernahme aktiv registriert.
 - `ma_weather` uebergibt nur freigegebene Daten an `ma_parameters`.
 - Offene Wetterdatensaetze koennen nicht fuer Varianten oder Simulationen
   genutzt werden.
@@ -834,7 +882,6 @@ enthalten, wird aber nicht mehr als operative Reihenfolge verwendet.
 - Definition von `valid_with_warnings`.
 - Umgang mit normalisierten Kopien.
 - Umfang von Excel-, PDF- oder weiteren Exporten.
-- Verbindliche Gemeinde-Geodatenquelle, Version, Lizenz und Feldnamen.
 - Verbindliche PLZ-Geodatenquelle, Version, Lizenz und Feldnamen.
 - Regel, ob Geodaten versioniert werden duerfen oder nur lokal mit
   Pruefsumme und Bezugsanleitung abgelegt werden.

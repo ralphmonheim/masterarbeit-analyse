@@ -4,6 +4,29 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.20.1 - 2026-06-29
+
+### Added
+- BKG-VG250-Gemeindequelle fuer `ma_weather` aktiviert und als lokale
+  GeoJSON-Quelle mit `GEN`, `AGS`, `LKZ`, `GF = 4` und `EPSG:4326`
+  dokumentiert.
+- Reale Berlin-/Potsdam-TRY-Dateien gegen die lokale Gemeindeaufloesung
+  getestet: Potsdam `12054000`/`BB`, Berlin `11000000`/`BE`.
+- `ma_weather` erkennt geaenderte Wetterdateien im gespeicherten
+  Datensatzstatus und markiert veraltete Pruefungen als offen.
+
+### Changed
+- Gescannte TRY-Entwuerfe duerfen bei eindeutiger BKG-Gemeindeaufloesung den
+  Standort vorbelegen; unsichere Naechstvorschlaege bleiben weiterhin
+  bestaetigungspflichtig.
+- Erfolgreich gepruefte und bewusst registrierte Wetterentwuerfe werden im
+  lokalen Katalog direkt aktiv, setzen aber keinen Projekt-Default.
+- Hinweis zur Referenz-/standortgenauen Wetterdatensatzlogik in Streamlit vom
+  oberen Auswahlbereich in den Bereich `Wetterdatensaetze` verschoben.
+- Tkinter-Analyse delegiert die `AnalysisConfig`-Erzeugung an den gemeinsamen
+  UI-neutralen Builder in `ma_analyse.analysis_ui`; Streamlit und Tkinter
+  teilen damit den zentralen Analyse-Config-Vertrag.
+
 ## 0.20.0 - 2026-06-29
 
 ### Added

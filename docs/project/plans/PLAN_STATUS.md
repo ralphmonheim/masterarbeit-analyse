@@ -375,6 +375,10 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   `AnalysisConfig` aus dem Tkinter-Zustand; `pipeline_runner.py` startet ueber
   `ma_workflow.run_analysis_action`. Direkte Tkinter-Runner-Aufrufe von
   `build_runtime_args`, `execute_steps` und `run_all` sind entfernt.
+- P029 Mapping-Slice umgesetzt: `pipeline_config.py` delegiert die
+  `AnalysisConfig`-Erzeugung an `ma_analyse.analysis_ui.build_analysis_config`.
+  Der gemeinsame Builder akzeptiert Text- und Listenwerte fuer Varianten und
+  Raeume und setzt `load_kind` fuer Heating-/Cooling-Laeufe.
 
 ### Offen
 
@@ -387,8 +391,9 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   `src/ma_analyse/app/cli.py`.
 - Nach Abschluss der Diagrammbearbeitung pruefen, ob der normale `cooling`-Befehl und die GUI relative Rohwerte und absolute Betraege als eigene Modi erhalten sollen.
 - Tkinter-Folgeslice planen: Vorschau in einen temporaeren Cachebereich legen,
-  Ergebnis-/Loganzeige weiter aus `AnalysisResult` strukturieren und
-  Mapping-Dopplung zwischen Streamlit-Analyse und Tkinter-Analyse reduzieren.
+  Ergebnis-/Loganzeige weiter aus `AnalysisResult` strukturieren und verbleibende
+  Options-/Preview-Dopplung zwischen Streamlit-Analyse und Tkinter-Analyse
+  reduzieren.
 - Heating und Cooling weiter in Datenladen, Runner und Plotmodule zerlegen. Betroffen: `src/ma_analyse/analysis/heating.py`, `src/ma_analyse/analysis/cooling.py`, `src/ma_analyse/analysis/energy/`.
 - P029 Folgearbeit: `ma_analyse.app.commands` nach Runtime-Options-,
   Legacy-Adapter- und Pipeline-Runtime-Slice schrittweise weiter von
@@ -457,10 +462,10 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   abgelegt, lokale TRY-Dateien als Datensatzentwuerfe gescannt und
   Parameter bewusst geprueft werden. Bestaetigtes TRY-Ordner-Mapping
   darf vorbelegen, Standortverweise aus TRY-Kopfzeilen werden erkannt und
-  Konflikte blockieren die Registrierung. Die optionale EPSG:3034-
-  Standortaufloesung kann lokale Gemeinde-/PLZ-GeoJSON-Quellen nutzen, ist
-  ohne konfigurierte Geodaten aber bewusst deaktiviert. Aktive und offene
-  Wetterdatensaetze werden getrennt angezeigt.
+  Konflikte blockieren die Registrierung. Die EPSG:3034-Standortaufloesung
+  nutzt die lokal aktivierte BKG-VG250-Gemeindequelle; Berlin- und Potsdam-
+  TRY-Testdateien werden als Berlin beziehungsweise Potsdam erkannt. Aktive
+  und offene Wetterdatensaetze werden getrennt angezeigt.
 
 ### Offen
 
@@ -473,9 +478,8 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   und mit vorhandenen Tages- und Wochenzeitfenstern verbinden.
 - TRY-Referenzdatensaetze fuer Referenzstandorte wie Mannheim und Muehldorf
   fachlich ergaenzen oder bewusst als fehlend dokumentieren.
-- Geodatenquelle fuer Gemeindegrenzen festlegen, lizenzrechtlich pruefen und
-  die optionale EPSG:3034-Standortaufloesung gegen reale lokale
-  Berlin-/Potsdam-TRY-Dateien testen.
+- Weitere ortsgenaue TRY-Dateien gegen die aktivierte BKG-VG250-
+  Gemeindeaufloesung testen und erkannte Standortwerte dokumentieren.
 - PLZ-Datenquelle lizenzrechtlich pruefen und bei Bedarf als optionale
   Aufloesung aktivieren.
 - Diagrammgestaltung fachlich pruefen und bei Bedarf an Masterarbeitslayout anpassen.

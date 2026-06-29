@@ -82,6 +82,8 @@ from .weather_status import (
     infer_weather_start_year,
     inspect_weather_catalog_statuses,
     inspect_weather_dataset_status,
+    stale_weather_status,
+    weather_status_file_changed,
     weather_status_from_analysis_result,
     weather_statuses_by_key,
 )
@@ -143,6 +145,8 @@ __all__ = [
     "import_weather_location_catalog",
     "inspect_weather_catalog_statuses",
     "inspect_weather_dataset_status",
+    "stale_weather_status",
+    "weather_status_file_changed",
     "load_weather_selection_state",
     "main_plot_template_weather",
     "plot_template_weather",

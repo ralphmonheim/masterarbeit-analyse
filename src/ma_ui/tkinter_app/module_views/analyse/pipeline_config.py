@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import Any
 
+from ma_analyse.analysis_ui import build_analysis_config
 from ma_analyse.models import AnalysisConfig
 
 TKINTER_COMMAND_STEPS = {
@@ -16,10 +16,6 @@ TKINTER_COMMAND_STEPS = {
     "plot-template": "plot-template",
     "all": "all",
 }
-
-
-def _path_from_args(args, name: str) -> Path:
-    return Path(getattr(args, name))
 
 
 def build_tkinter_analysis_config(
@@ -46,14 +42,14 @@ def build_tkinter_analysis_config(
         else None
     )
 
-    return AnalysisConfig(
-        steps=(step,),
-        input_dir=_path_from_args(args, "input_dir"),
-        database_dir=_path_from_args(args, "datenbank_dir"),
-        output_root=_path_from_args(args, "output_root"),
+    return build_analysis_config(
+        step=step,
+        input_dir=args.input_dir,
+        database_dir=args.datenbank_dir,
+        output_root=args.output_root,
         run_id=getattr(args, "run_id", None),
-        variants=variants.copy(),
-        rooms=rooms.copy(),
+        variants=variants,
+        rooms=rooms,
         debug=bool(getattr(args, "debug", True)),
         export_format=str(prepare_options.get("export_format") or "csv"),
         comfort_output_type=comfort_output_type,

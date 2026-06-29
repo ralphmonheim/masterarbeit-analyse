@@ -8,7 +8,8 @@ Aktueller Nachtrag 2026-06-28: Die Tkinter-Analyse wurde hart aus
 `python -m ma_analyse gui` existieren nicht mehr. Aeltere Hinweise auf
 `ma_ui_legacy` sind historisch. Der Tkinter-Runner baut seinen Analyseauftrag
 inzwischen ueber `pipeline_config.py` als `AnalysisConfig` und startet ueber
-`ma_workflow.run_analysis_action`.
+`ma_workflow.run_analysis_action`; die eigentliche Config-Erzeugung wird an
+`ma_analyse.analysis_ui.build_analysis_config` delegiert.
 
 ## Zweck
 
@@ -51,9 +52,10 @@ Dieses Dokument ist Phase 1 von P005. Es beschreibt den aktuellen Bestand von
 - Hauptklasse: `PipelineGUI`.
 - `app.py` ist nur noch Fassade; Layout, Schrittfluss, Auswahl-State,
   Plot-Template-State und Pipeline-Runner liegen in internen Mixins.
-- Analyseauftrag: `pipeline_config.py` baut `AnalysisConfig` aus dem
-  Tkinter-Zustand; `pipeline_runner.py` startet ueber
-  `ma_workflow.run_analysis_action`.
+- Analyseauftrag: `pipeline_config.py` normalisiert Tkinter-Zustand und
+  delegiert die `AnalysisConfig`-Erzeugung an
+  `ma_analyse.analysis_ui.build_analysis_config`; `pipeline_runner.py` startet
+  ueber `ma_workflow.run_analysis_action`.
 - Status und Fehler: `messagebox.showinfo`, `showwarning`, `showerror`.
 - Laufsteuerung: Hintergrundthread, Queue, Logfenster und Statusanzeige.
 - Neustart/Refresh: `subprocess.Popen`, Singleton-Controller und Refresh-Port.
@@ -116,9 +118,9 @@ Diese Bestandteile sollen langfristig aus dem fachlichen Kern heraus:
 
 ## Aktuelle Kopplungsrisiken
 
-- Die GUI baut aus Widget-State einen `AnalysisConfig`-Adapter. Das reduziert
-  die Kopplung an `app.commands`, kann aber weiterhin Mapping-Dopplung zu
-  Streamlit erzeugen.
+- Die GUI baut aus Widget-State einen schmalen `AnalysisConfig`-Adapter. Das
+  reduziert die Kopplung an `app.commands`; verbleibende Dopplung liegt vor
+  allem noch in Options- und Preview-State.
 - Die zentrale Befehlsausfuehrung nutzt `argparse.Namespace`, `print()` und
   teilweise `SystemExit`.
 - Rueckgaben sind uneinheitlich: einige Funktionen geben Tabellen zurueck,

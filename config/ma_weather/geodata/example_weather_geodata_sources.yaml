@@ -1,15 +1,17 @@
-enabled: false
+enabled: true
 geodata_sources:
   - source_id: bkg_vg250_municipalities
     kind: municipality
-    path: data/ma_weather/geodata/administrative/germany_municipalities.geojson
+    path: data/ma_weather/geodata/germany/germany_municipalities.geojson
     crs_epsg: 4326
-    name_field: municipality_name
-    code_field: municipality_code
-    state_field: federal_state
-    version: offen
+    name_field: GEN
+    code_field: AGS
+    state_field: LKZ
+    filter_field: GF
+    filter_value: "4"
+    version: VG250 01.01.2025
     license: Datenlizenz Deutschland Namensnennung 2.0
-    notes: Bevorzugter Kandidat fuer spaetere BKG-VG250-Gemeindegrenzen.
+    notes: Lokaler GeoJSON-Export aus BKG VG250 Layer v_vg250_gem mit Filter GF = 4.
   - source_id: optional_postal_codes
     kind: postal_code
     path: data/ma_weather/geodata/postal_codes/germany_postal_codes.geojson

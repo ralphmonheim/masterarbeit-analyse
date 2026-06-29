@@ -259,6 +259,7 @@ def discover_weather_input_files(
                 location_catalog=locations,
                 try_location_mapping=mapping,
                 coordinate_references=coordinate_references,
+                project_root=root,
             )
         )
     return discoveries
@@ -424,6 +425,7 @@ def register_discovered_weather_dataset(
     existing_catalog: WeatherCatalog | None = None,
     local_catalog_path: str | Path = DEFAULT_LOCAL_WEATHER_DATASETS_CONFIG,
     project_root: str | Path | None = None,
+    is_active: bool = True,
 ) -> WeatherDataset:
     """Uebernimmt einen vollstaendigen Entwurf in den lokalen Wetterkatalog."""
     if not discovery.is_complete:
@@ -450,7 +452,7 @@ def register_discovered_weather_dataset(
         location_id=discovery.location_id,
         reference_location_id=discovery.reference_location_id,
         selection_priority=discovery.selection_priority,
-        is_active=False,
+        is_active=is_active,
         notes="Aus lokalem TRY-Dateiscan registriert; Datei bleibt unversioniert.",
         **_dataset_location_resolution_kwargs(discovery.metadata),
     )
@@ -506,6 +508,7 @@ def _build_file_discovery(
     location_catalog: WeatherLocationCatalog,
     try_location_mapping: dict[str, WeatherTryLocationMapping],
     coordinate_references: list[_WeatherLocationCoordinateReference],
+    project_root: Path,
 ) -> WeatherFileDiscovery:
     filename_match = TRY_FILE_PATTERN.fullmatch(file_path.name)
     folder_key, folder_try_id = _try_folder_key(relative_path.parent.name)
@@ -532,7 +535,7 @@ def _build_file_discovery(
         folder_key = f"TRY_{try_id}" if try_id else ""
 
     metadata = _read_try_header_metadata(file_path)
-    location_resolution = resolve_weather_file_location(metadata)
+    location_resolution = resolve_weather_file_location(metadata, project_root=project_root)
     if location_resolution.status is not WeatherLocationResolutionStatus.NOT_CONFIGURED:
         metadata.update(_geodata_location_resolution_metadata(location_resolution.to_metadata()))
         messages.extend(location_resolution.messages)
@@ -542,7 +545,10 @@ def _build_file_discovery(
     metadata.update(_mapping_metadata(mapping_entry))
     file_location = _location_from_file_reference(metadata, location_catalog)
     mapping_location_id = mapping_entry.location_id if mapping_entry is not None and mapping_entry.is_confirmed else ""
+    geodata_location = _location_from_geodata_resolution(metadata, location_catalog)
     location_id = file_location.location_id if file_location is not None else mapping_location_id
+    if not location_id and geodata_location is not None:
+        location_id = geodata_location.location_id
     location = _location_or_none(location_catalog, location_id) if location_id else None
     if file_location is not None and mapping_location_id and file_location.location_id != mapping_location_id:
         location_id = ""
@@ -560,14 +566,18 @@ def _build_file_discovery(
             )
         )
     elif location is not None:
-        detail = (
-            "Standort wurde aus einem Dateiverweis gelesen."
-            if file_location is not None
-            else "Standort wurde aus bestaetigter TRY-Ordner-Zuordnung gelesen."
-        )
+        if file_location is not None:
+            detail = "Standort wurde aus einem Dateiverweis gelesen."
+            source = LOCATION_RESOLUTION_SOURCE_FILE_REFERENCE
+        elif mapping_location_id:
+            detail = "Standort wurde aus bestaetigter TRY-Ordner-Zuordnung gelesen."
+            source = LOCATION_RESOLUTION_SOURCE_FILE_REFERENCE
+        else:
+            detail = "Standort wurde per lokaler Gemeinde-Geodatenquelle aus TRY-Koordinaten erkannt."
+            source = LOCATION_RESOLUTION_SOURCE_TRY_COORDINATES
         metadata.update(
             _location_resolution_metadata(
-                source=LOCATION_RESOLUTION_SOURCE_FILE_REFERENCE,
+                source=source,
                 status=LOCATION_RESOLUTION_STATUS_CONFIRMED,
                 detail=detail,
             )
@@ -584,7 +594,14 @@ def _build_file_discovery(
         )
     elif not location_id:
         missing_fields.append("location_id")
-        messages.append(f"Keine Standortzuordnung fuer {folder_key or relative_path.parent.name} gefunden.")
+        detected_municipality_name = metadata.get("detected_municipality_name", "").strip()
+        if detected_municipality_name:
+            messages.append(
+                "Gemeinde aus lokalen Geodaten erkannt, aber nicht im Standortkatalog vorhanden: "
+                f"{detected_municipality_name}."
+            )
+        else:
+            messages.append(f"Keine Standortzuordnung fuer {folder_key or relative_path.parent.name} gefunden.")
         metadata.update(
             _location_resolution_metadata(
                 source="",
@@ -885,6 +902,27 @@ def _location_from_file_reference(
         return None
     try:
         return location_catalog.get_location_by_name(location_name)
+    except KeyError:
+        return None
+
+
+def _location_from_geodata_resolution(
+    metadata: dict[str, str],
+    location_catalog: WeatherLocationCatalog,
+) -> WeatherLocation | None:
+    """Uebernimmt nur eindeutige Gemeinde-Geodaten, keine unsicheren Naechstvorschlaege."""
+    if metadata.get("geodata_location_resolution_blocking") == "true":
+        return None
+    if metadata.get("geodata_location_resolution_status") not in {
+        WeatherLocationResolutionStatus.MATCHED.value,
+        WeatherLocationResolutionStatus.MATCHED_WITH_WARNING.value,
+    }:
+        return None
+    municipality_name = metadata.get("detected_municipality_name", "").strip()
+    if not municipality_name:
+        return None
+    try:
+        return location_catalog.get_location_by_name(municipality_name)
     except KeyError:
         return None
 

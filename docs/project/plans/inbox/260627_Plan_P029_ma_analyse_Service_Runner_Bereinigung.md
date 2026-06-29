@@ -198,6 +198,19 @@ Slice 9:
 - Tests sichern den Config-Adapter und den Worker-Aufruf ueber die
   Workflow-Aktion ab.
 
+Slice 10:
+
+- `ma_analyse.analysis_ui.build_analysis_config(...)` akzeptiert neben
+  kommaseparierten Formulartexten jetzt auch bereits aufgeloeste Listen fuer
+  Varianten und Raeume.
+- Der gemeinsame Builder setzt auch `load_kind`, damit Heating-/Cooling-Laeufe
+  denselben `AnalysisConfig`-Vertrag wie der bisherige Tkinter-Adapter
+  behalten.
+- `ma_ui.tkinter_app.module_views.analyse.pipeline_config.py` bleibt der
+  Tkinter-spezifische Adapter, delegiert die eigentliche Config-Erzeugung aber
+  an den gemeinsamen UI-neutralen Builder.
+- Tests sichern Listenwerte, `load_kind` und das bestehende Tkinter-Mapping ab.
+
 ## Risiken
 
 - Zu fruehe Zerlegung von `app.commands` koennte CLI, Tkinter und Streamlit
