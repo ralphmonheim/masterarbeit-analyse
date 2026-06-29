@@ -3,17 +3,17 @@ from ma_analyse.analysis.templates import (
     template_requires_single_room,
     template_uses_overlay_options,
 )
-from ma_analyse.gui.selection import resolve_variant_list_state
+from ma_ui.tkinter_app.module_views.analyse.selection import resolve_variant_list_state
 
 
 def test_gui_app_imports_without_starting_window():
-    from ma_analyse.gui import app
+    from ma_ui.tkinter_app.module_views.analyse import app
 
     assert hasattr(app, "run_gui")
 
 
 def test_gui_mousewheel_resolver_ignores_tk_popdown_widget():
-    from ma_analyse.gui.app import PipelineGUI
+    from ma_ui.tkinter_app.module_views.analyse.app import PipelineGUI
 
     class FakeRoot:
         def nametowidget(self, widget_name):
@@ -99,7 +99,7 @@ def test_plot_template_gui_room_requirement_helper_allows_room_comparison():
 
 def test_tkinter_plot_template_choices_show_complete_catalog():
     from ma_analyse.analysis.templates import PLOT_TEMPLATE_CHOICES
-    from ma_analyse.gui.app import PipelineGUI
+    from ma_ui.tkinter_app.module_views.analyse.app import PipelineGUI
 
     class FakeVariable:
         def __init__(self, value):
@@ -120,7 +120,7 @@ def test_tkinter_plot_template_choices_show_complete_catalog():
 
 def test_tkinter_plot_template_choices_fall_back_before_group_and_mode_selection():
     from ma_analyse.analysis.templates import PLOT_TEMPLATE_CHOICES
-    from ma_analyse.gui.app import PipelineGUI
+    from ma_ui.tkinter_app.module_views.analyse.app import PipelineGUI
 
     class FakeVariable:
         def get(self):

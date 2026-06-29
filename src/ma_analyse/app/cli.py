@@ -237,43 +237,6 @@ def build_parser(plot_template_config_path=None):
         dest="heating_series_layout",
         help="Ausgabe fuer heating/cooling/analyze_data: separate oder combined; Standard ist separate",
     )
-    common.add_argument(
-        "--gui-refresh-port",
-        type=int,
-        default=None,
-        help=argparse.SUPPRESS,
-    )
-    common.add_argument(
-        "--gui-window-x",
-        type=int,
-        default=None,
-        help=argparse.SUPPRESS,
-    )
-    common.add_argument(
-        "--gui-window-y",
-        type=int,
-        default=None,
-        help=argparse.SUPPRESS,
-    )
-    common.add_argument(
-        "--gui-window-width",
-        type=int,
-        default=None,
-        help=argparse.SUPPRESS,
-    )
-    common.add_argument(
-        "--gui-window-height",
-        type=int,
-        default=None,
-        help=argparse.SUPPRESS,
-    )
-    common.add_argument(
-        "--gui-window-maximized",
-        type=int,
-        choices=[0, 1],
-        default=0,
-        help=argparse.SUPPRESS,
-    )
     common.add_argument("--debug", dest="debug", action="store_true", help="Aktiviert Debug-Ausgaben")
     common.add_argument("--no-debug", dest="debug", action="store_false", help="Deaktiviert Debug-Ausgaben")
 
@@ -339,20 +302,6 @@ def build_parser(plot_template_config_path=None):
         help="Erzeugt die stabile Beispielgalerie fuer alle Plot-Template-Ausgaben",
     )
     plot_template_examples_parser.set_defaults(debug=True)
-
-    gui_parser = subparsers.add_parser(
-        "gui",
-        parents=[common],
-        help="Startet die grafische Pipeline-Oberflaeche",
-    )
-    gui_parser.add_argument(
-        "--export-format",
-        choices=EXPORT_FORMATS,
-        default="csv",
-        help="Startwert fuer das Prepare-Exportformat in der GUI",
-    )
-    add_plot_template_arguments(gui_parser, hide_help=True, config_path=plot_template_config_path)
-    gui_parser.set_defaults(debug=True)
 
     all_parser = subparsers.add_parser(
         "all",

@@ -1,7 +1,7 @@
 # Masterarbeit Leitfaden
 
-Leitfaden-Version: 0.5.5
-Stand: 2026-06-26
+Leitfaden-Version: 0.5.6
+Stand: 2026-06-29
 
 Diese Datei ist der zentrale Orientierungsleitfaden fuer die Masterarbeit und
 die begleitende Software. Sie ersetzt keine aktive Steuerdatei. Der operative
@@ -37,6 +37,7 @@ Der Leitfaden fuehrt zwei Quellen zusammen:
 | 0.5.3 | 2026-06-23 | P028, neutrale Benennungsverantwortung und geschuetzte formaterweiterbare Konfiguration aufgenommen |
 | 0.5.4 | 2026-06-24 | Datenvorbereitung als eigenen Workflow-Schritt und UI-Struktur mit Streamlit-/Tkinter-Zweigen unter `ma_ui` aufgenommen |
 | 0.5.5 | 2026-06-26 | Entscheidungen zu P010/P008, `plot-template-weather`, lokaler TRY-Dateisuche, UI-Modul-/Workflow-Ansicht und Befehlsinventar nachgezogen |
+| 0.5.6 | 2026-06-29 | Harten Tkinter-Schnitt aus `ma_analyse`, P029-Fortschritt und Sammelbefehl-Freigaberegel nachgezogen |
 
 ## 1. Zweck der Software
 
@@ -773,8 +774,8 @@ Ausgabeninventar steht unter `docs/project/COMMAND_OUTPUT_INVENTORY.md`.
 
 Tkinter bleibt nutzbar, liegt aber als eigener UI-Zweig unter
 `ma_ui.tkinter_app`. Entscheidungen aus Tkinter werden fachlich ausgewertet
-und schrittweise in UI-neutrale Logik ueberfuehrt. Alte
-`ma_analyse.gui`-Importe sind nur noch Kompatibilitaetszugriffe.
+und schrittweise in UI-neutrale Logik ueberfuehrt. Der alte
+`ma_analyse.gui`-Pfad und `python -m ma_analyse gui` sind entfernt.
 
 ### Workflow-Orchestrierung
 

@@ -1,6 +1,6 @@
 # Plan Index
 
-Stand: 2026-06-28
+Stand: 2026-06-29
 
 | Plan ID | Titel | Datei | Modul | Status | Prioritaet | Abhaengigkeiten | Naechster Schritt |
 |---|---|---|---|---|---|---|---|
@@ -32,4 +32,4 @@ Stand: 2026-06-28
 | P026 | ma_data_export Konzept | `inbox/260622_Plan_P026_ma_data_export_Konzept.md` | ma_data_export | Konzept | Niedrig | P024, P025 | Paketformate und Manifest planen |
 | P027 | Querschnitt UI, Workflow, Validation und Feedback | `inbox/260622_Plan_P027_Querschnitt_UI_Workflow_Validation_Feedback.md` | ma_ui, ma_workflow, ma_validation, ma_feedback | Aktiv, begleitend | Hoch | alle Teilplaene | Gemeinsame Quellen-, Status- und Freigabemodelle begleiten |
 | P028 | Projekt-, Parameter- und Naming-Demo in Streamlit | `../archive/plans/260623_Plan_P028_Projekt_Parameter_Naming_Streamlit.md` | ma_project, ma_parameters, ma_variants, ma_ui | Archiviert, Demo umgesetzt | Hoch | P010, P011, P015, P017, P027 | ParameterSnapshot und Projektstammdaten ueber P011/P015 weiterfuehren |
-| P029 | ma_analyse Service- und Runner-Bereinigung | `inbox/260627_Plan_P029_ma_analyse_Service_Runner_Bereinigung.md` | ma_analyse | Aktiv | Hoch | P005, P019, P027, bestehendes ma_analyse | Service-/Runner-Vertrag stabilisieren, bevor Heating/Cooling und Tkinter groesser zerlegt werden |
+| P029 | ma_analyse Service- und Runner-Bereinigung | `inbox/260627_Plan_P029_ma_analyse_Service_Runner_Bereinigung.md` | ma_analyse | Aktiv | Hoch | P005, P019, P027, bestehendes ma_analyse | Tkinter-Folgeslice fuer Vorschau-Cache, strukturierte Ergebnisanzeige und Mapping-Dopplung planen |

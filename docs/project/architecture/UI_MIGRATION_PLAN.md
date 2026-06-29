@@ -6,10 +6,10 @@ Status: historische P005-Umsetzungsreferenz. P007 ersetzt seit 2026-06-21 die
 aktive Phasen- und Modulstruktur. Alte View- und Runner-Namen in diesem
 Dokument beschreiben ausschliesslich die bestehende Kompatibilitaetsschicht.
 
-Aktueller Nachtrag 2026-06-24: Der spaeter angedachte Zielpfad
+Aktueller Nachtrag 2026-06-28: Der spaeter angedachte Zielpfad
 `ma_ui_legacy` wurde nicht verwendet. Streamlit liegt jetzt unter
 `ma_ui.streamlit_app`, Tkinter unter `ma_ui.tkinter_app`; `ma_analyse.gui`
-bleibt nur als Kompatibilitaetswrapper bestehen.
+und `python -m ma_analyse gui` wurden entfernt.
 
 ## Zweck
 
@@ -22,9 +22,10 @@ wurden, ist durch den Nachtrag vom 2026-06-24 ueberholt.
 
 - Streamlit ist die Zieltechnik fuer die neue zentrale Oberflaeche `ma_ui`.
 - Tkinter und Streamlit werden nicht direkt miteinander kombiniert.
-- Die bestehende Tkinter-Oberflaeche aus `ma_analyse` bleibt zunaechst an Ort
-  und Stelle und wird als Legacy-Bestand behandelt.
-- Eine spaetere Auslagerung nach `ma_ui_legacy` braucht einen eigenen
+- Die bestehende Tkinter-Oberflaeche liegt inzwischen unter
+  `ma_ui.tkinter_app.module_views.analyse` und wird dort als getrennte
+  UI weitergefuehrt.
+- Eine spaetere Aufteilung der grossen Tkinter-Datei braucht einen eigenen
   Refactoring-Slice.
 - Fachmodule duerfen keine direkte Abhaengigkeit zu Streamlit oder Tkinter
   erhalten.
@@ -38,9 +39,6 @@ ma_ui
 
 ma_workflow
   UI-Aktionen, Pre-Process-Runner, Post-Process-Runner und Feedback-Routing
-
-ma_ui_legacy
-  optionale Uebergangsablage fuer bestehende Tkinter-Oberflaeche
 
 ma_analyse
   fachlicher Kern der Simulationsergebnisanalyse
@@ -195,20 +193,25 @@ Ergebnis: `ma_analyse` kann ohne Tkinter und ohne Streamlit genutzt werden.
 
 Ziel: Bestehende Tkinter-Arbeit sichern.
 
+Status 2026-06-28: Die harte Migration ist umgesetzt. Tkinter liegt unter
+`ma_ui.tkinter_app.module_views.analyse`; der alte `ma_analyse.gui`-Pfad ist
+entfernt.
+
 Aufgaben:
 
-- Tkinter-Bestandteile nach Freigabe nach `ma_ui_legacy` verschieben.
-- Importpfade gezielt anpassen.
+- Tkinter-Bestandteile unter `ma_ui.tkinter_app.module_views.analyse`
+  weiterfuehren.
+- Importpfade gezielt auf `ma_ui` halten.
 - Tkinter-Oberflaeche an die neue Service-Funktion anbinden.
 - Startfaehigkeit der alten Oberflaeche pruefen.
-- `ma_ui_legacy` klar als Uebergangsloesung dokumentieren.
+- `ma_analyse` frei von Tkinter-Startpfaden halten.
 
 Ergebnis: Die alte Oberflaeche bleibt optional nutzbar, ist aber nicht mehr
 Teil des fachlichen Analysekerns.
 
 Nicht in dieser Phase erlaubt ohne Freigabe:
 
-- `src/ma_analyse/gui/app.py` umbenennen.
+- die Tkinter-Hauptdatei ohne eigenen Folgeslice zerlegen.
 - Tkinter-Code direkt in `ma_ui` kopieren.
 - Streamlit-Widgets in `ma_analyse` einbauen.
 - Fachliche Analysefunktionen im selben Schritt verschieben.

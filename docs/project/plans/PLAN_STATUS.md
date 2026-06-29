@@ -1,6 +1,6 @@
 # Plan Status
 
-Stand: 2026-06-28
+Stand: 2026-06-29
 
 Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt und nach jeder Planumsetzung aktualisiert. Vollstaendige alte Planstaende liegen unter `docs/project/archive/plans/`.
 
@@ -157,19 +157,21 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 
 - P005 Architektur-Slice umgesetzt: Zielarchitektur und UI-Auslagerungsreview liegen unter `docs/project/architecture/`.
 - P005 ordnet den Workflow als Pre-Process, Simulation, Post-Process und Feedback ein.
-- P005 bewertet bestehende Oberflaechen: `src/ma_analyse/gui/app.py` bleibt als
-  Legacy-Oberflaeche bestehen, wurde aber fachlich an den neuen
-  Plot-Template-Ablauf angeglichen; `src/ma_variants/ui/services.py` dient als
-  positives Muster fuer Trennung von UI und Fachlogik.
+- P005 bewertet bestehende Oberflaechen: Die Tkinter-Analyse liegt inzwischen
+  unter `src/ma_ui/tkinter_app/module_views/analyse/` und wurde fachlich an
+  den neuen Plot-Template-Ablauf angeglichen; `src/ma_variants/ui/services.py`
+  dient als positives Muster fuer Trennung von UI und Fachlogik.
 - P005 Streamlit-/Tkinter-Anpassung dokumentiert: `docs/project/architecture/UI_MIGRATION_PLAN.md` beschreibt Bestandsanalyse, Schnittstellenentwurf, Bereinigung, Legacy-Auslagerung, Streamlit-Aufbau und spaetere Modulanbindung.
-- P005 Bestandsanalyse dokumentiert: Tkinter sitzt nur in `src/ma_analyse/gui/app.py` und `dialogs.py`; `ma_analyse` hat keine Streamlit-Abhaengigkeit.
+- P005 Bestandsanalyse aktualisiert: `ma_analyse` hat weder Streamlit- noch
+  Tkinter-Abhaengigkeit; die getrennte Tkinter-Analyse liegt unter `ma_ui`.
 - P005 Schnittstellenentwurf dokumentiert: `AnalysisConfig`, `AnalysisResult` und `run_analysis(config)` bilden die UI-neutrale Service-Fassade.
 - P005 erster Service-Code-Slice umgesetzt: `src/ma_analyse/models.py` und `src/ma_analyse/services.py` stellen `AnalysisConfig`, `AnalysisResult` und `run_analysis(config)` als UI-neutrale Fassade bereit.
 - P005 Workflow-/UI-Shell umgesetzt: `src/ma_workflow/` enthaelt Workflow-Katalog und Analyse-Adapter; `src/ma_ui/` enthaelt eine Streamlit-Shell mit Startseite, Analyse-Seite, Navigation und Projektzustand.
 - UI-Strukturumzug umgesetzt: Streamlit liegt unter
   `ma_ui.streamlit_app`, Tkinter unter `ma_ui.tkinter_app`.
-  `src/ma_ui/app.py` bleibt stabiler Streamlit-Einstieg;
-  `ma_analyse.gui` bleibt als Kompatibilitaetsfassade erhalten.
+  `src/ma_ui/app.py` bleibt stabiler Streamlit-Einstieg; die alte
+  `ma_analyse.gui`-Kompatibilitaetsfassade und `python -m ma_analyse gui`
+  wurden entfernt.
 - P005 Startseite erweitert: `ma_ui` zeigt Workflow-Statuskennzahlen,
   Phasenuebersicht, Workflow-Schritte und Dashboard-Aktionen aus
   `ma_workflow`.
@@ -249,7 +251,8 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   und `Analyse starten` sichtbar ausserhalb der Hauptschritte.
 - P005 Tkinter-Vorschau vorbereitet: In der Tkinter-Analyse steht
   `Vorschau aktualisieren` zwischen `Zuruecksetzen` und `Start` und nutzt
-  vorerst den bestehenden Analysepfad mit aktuellen Einstellungen.
+  inzwischen den normalen `AnalysisConfig`-/`ma_workflow`-Analysepfad mit
+  aktuellen Einstellungen.
 - P005 Tkinter-Analyse pragmatisch angeglichen: Variantenumfang und
   Raumumfang liegen in den jeweiligen Karten, Comfort nutzt keine verpflichtende
   Analyseebene mehr.
@@ -275,6 +278,9 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   Tkinter-Analyse als separates Fenster unter
   `ma_ui.tkinter_app.module_views.analyse` starten, ohne Tkinter in Streamlit
   einzubetten.
+- P029 harter Tkinter-Migrationsslice umgesetzt: `ma_ui` ist alleiniger
+  Eigentumer der Tkinter-Analyse; `ma_analyse` stellt nur noch fachliche
+  Services, Runner, Templates und Konfigurationen bereit.
 - P005 grafisches Workflow-Dashboard umgesetzt: Die `ma_ui`-Startseite zeigt
   Phasen, Workflow-Karten, Statusfarben, Iterationspfade und Buttons zu
   vorhandenen Modulansichten; Detailtabellen bleiben im Expander erreichbar.
@@ -360,6 +366,15 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   `check_required_data(...)` vor `run_all()`/`execute_steps()`; fehlende
   Nutzdaten werden im Service als strukturierte Fehler gemeldet, waehrend CLI
   und Tkinter kompatibel bleiben.
+- P029 Tkinter-Struktur-Slice umgesetzt: Die Tkinter-Analyse unter
+  `ma_ui.tkinter_app.module_views.analyse` ist intern in Mixins fuer
+  Initialisierung, Fenster/Style, Layout, Schrittfluss, Auswahl-State,
+  Plot-Template-State und Pipeline-Runner zerlegt; `app.py` bleibt als
+  135-Zeilen-Fassade fuer die oeffentlichen Startpunkte erhalten.
+- P029 Tkinter-Service-Adapter-Slice umgesetzt: `pipeline_config.py` baut
+  `AnalysisConfig` aus dem Tkinter-Zustand; `pipeline_runner.py` startet ueber
+  `ma_workflow.run_analysis_action`. Direkte Tkinter-Runner-Aufrufe von
+  `build_runtime_args`, `execute_steps` und `run_all` sind entfernt.
 
 ### Offen
 
@@ -371,9 +386,9 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   `src/ma_ui/tkinter_app/module_views/analyse/app.py`,
   `src/ma_analyse/app/cli.py`.
 - Nach Abschluss der Diagrammbearbeitung pruefen, ob der normale `cooling`-Befehl und die GUI relative Rohwerte und absolute Betraege als eigene Modi erhalten sollen.
-- Tkinter-Analyse in kleinere Komponenten fuer Layout, Dialoge, Auswahl und
-  Laufsteuerung aufteilen. Betroffen:
-  `src/ma_ui/tkinter_app/module_views/analyse/app.py`.
+- Tkinter-Folgeslice planen: Vorschau in einen temporaeren Cachebereich legen,
+  Ergebnis-/Loganzeige weiter aus `AnalysisResult` strukturieren und
+  Mapping-Dopplung zwischen Streamlit-Analyse und Tkinter-Analyse reduzieren.
 - Heating und Cooling weiter in Datenladen, Runner und Plotmodule zerlegen. Betroffen: `src/ma_analyse/analysis/heating.py`, `src/ma_analyse/analysis/cooling.py`, `src/ma_analyse/analysis/energy/`.
 - P029 Folgearbeit: `ma_analyse.app.commands` nach Runtime-Options-,
   Legacy-Adapter- und Pipeline-Runtime-Slice schrittweise weiter von

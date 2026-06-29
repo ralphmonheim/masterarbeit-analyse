@@ -1,4 +1,6 @@
 import importlib
+import queue
+from argparse import Namespace
 from pathlib import Path
 
 import pandas as pd
@@ -53,6 +55,7 @@ from ma_analyse.analysis_wizard import (
     sanitize_comfort_output,
     visible_analysis_steps,
 )
+from ma_analyse.models import AnalysisConfig, AnalysisResult
 from ma_ui import app as ma_ui_app
 from ma_ui import workflow_view
 from ma_ui.app import (
@@ -105,6 +108,9 @@ from ma_ui.resource_status import ResourceSpec, resource_status, resource_status
 from ma_ui.shared import normalize_table_for_streamlit
 from ma_ui.state import ProjectState
 from ma_ui.tkinter_app.module_views.analyse import app as tkinter_analyse_app
+from ma_ui.tkinter_app.module_views.analyse.cli import parse_tkinter_analyse_args
+from ma_ui.tkinter_app.module_views.analyse.pipeline_config import build_tkinter_analysis_config
+from ma_ui.tkinter_app.module_views.analyse.restart import build_gui_restart_argv
 from ma_ui.workflow_graph import (
     VISUAL_PHASES,
     cross_cutting_card_rows,
@@ -145,8 +151,8 @@ def test_combined_ui_package_branches_are_importable():
         "ma_ui.streamlit_app.app",
         "ma_ui.tkinter_app",
         "ma_ui.tkinter_app.module_views.analyse",
-        "ma_analyse.gui.app",
-        "ma_analyse.gui.selection",
+        "ma_ui.tkinter_app.module_views.analyse.app",
+        "ma_ui.tkinter_app.module_views.analyse.selection",
     )
 
     imported = [importlib.import_module(package_name) for package_name in package_names]
@@ -632,6 +638,60 @@ def test_weather_city_selection_starts_without_default():
     )[0]
 
     assert 'placeholder="Stadt auswaehlen"' in selection_source
+
+
+def test_weather_selection_uses_dataset_type_prefilter_and_slim_labels():
+    weather_source = Path("src/ma_ui/streamlit_app/pages/weather.py").read_text(encoding="utf-8")
+    label_source = weather_source.split("def weather_dataset_label", maxsplit=1)[1].split(
+        "def weather_location_label",
+        maxsplit=1,
+    )[0]
+    selection_source = weather_source.split("def _render_weather_selection", maxsplit=1)[1].split(
+        "def weather_source_rows",
+        maxsplit=1,
+    )[0]
+
+    assert weather_page.WEATHER_DATASET_TYPE_FILTER_OPTIONS == ("Jahr", "Sommer", "Winter")
+    assert '"Datensatztyp"' in selection_source
+    assert "st.segmented_control(" in selection_source
+    assert 'st.selectbox(\n            "Datensatztyp"' not in selection_source
+    assert "WEATHER_DATASET_TYPE_FILTER_OPTIONS" in selection_source
+    assert 'selection_mode="single"' in selection_source
+    assert "required=True" in selection_source
+    assert "_datasets_for_weather_dataset_type(selectable_datasets, selected_dataset_type)" in selection_source
+    assert "return dataset.display_name" in label_source
+    assert "Empfohlen:" not in label_source
+    assert "status.status_label" not in label_source
+    assert "Referenzdatensatz der Klimaregion steht zuerst" in selection_source
+    assert "Standortgenaue Datensaetze werden zusaetzlich zur Referenz angezeigt." not in selection_source
+
+
+def test_weather_selection_context_uses_short_labels():
+    weather_source = Path("src/ma_ui/streamlit_app/pages/weather.py").read_text(encoding="utf-8")
+    map_source = weather_source.split("def _render_weather_map", maxsplit=1)[1].split(
+        "def _display_path",
+        maxsplit=1,
+    )[0]
+    context_source = weather_source.split("def _render_location_context", maxsplit=1)[1].split(
+        "def _render_unselected_weather_context",
+        maxsplit=1,
+    )[0]
+    unselected_source = weather_source.split("def _render_unselected_weather_context", maxsplit=1)[1].split(
+        "def _render_weather_selection",
+        maxsplit=1,
+    )[0]
+    selection_source = weather_source.split("def _render_weather_selection", maxsplit=1)[1].split(
+        "def weather_source_rows",
+        maxsplit=1,
+    )[0]
+
+    assert '"Klimaregionen Deutschland"' in map_source
+    assert '"TRY-Klimaregionen Deutschland"' not in map_source
+    assert '"**Klimaregion:** {_weather_region_display_code(region)}"' in context_source
+    assert '"**Referenzstandort:** {reference_location.location_name}"' in context_source
+    assert '"TRY-Referenzstandort:"' not in context_source
+    assert "st.segmented_control(" in unselected_source
+    assert '"**Referenzstandort:** -"' in unselected_source
     assert "index=None" in selection_source
     assert "return _render_unselected_weather_context()" in selection_source
     assert "Bitte zuerst eine Stadt auswaehlen." in weather_source
@@ -722,6 +782,194 @@ def test_weather_regular_dataset_filter_excludes_open_statuses():
 
 def test_tkinter_analyse_defaults_to_plot_template_command():
     assert tkinter_analyse_app.DEFAULT_COMMAND == "plot-template"
+
+
+def test_tkinter_analyse_restart_argv_uses_ma_ui_module(monkeypatch):
+    monkeypatch.setattr("ma_ui.tkinter_app.module_views.analyse.restart.sys.executable", "python")
+    args = Namespace(
+        input_dir="data/input",
+        datenbank_dir="data/database",
+        output_root="data/output",
+        run_id="run-1",
+        variants=["Variant_A", "Variant_B"],
+        rooms=["101 lobby"],
+        view="week",
+        month=None,
+        week=7,
+        day=None,
+        heating_mode="single",
+        heating_series_layout="combined",
+        export_format="both",
+        template="heating-overlay",
+        debug=False,
+        show_setpoint_band=False,
+        show_outdoor_temperature=False,
+        show_operative_temperature=False,
+        gui_window_geometry={"x": 10, "y": 20, "width": 1200, "height": 700},
+        gui_window_maximized=True,
+    )
+
+    argv = build_gui_restart_argv(args, refresh_port=54321)
+
+    assert argv[:3] == ["python", "-m", "ma_ui.tkinter_app.module_views.analyse"]
+    assert "--gui-refresh-port" in argv
+    assert "54321" in argv
+    assert "--gui-window-maximized" in argv
+    assert "1" in argv
+    assert "--no-debug" in argv
+    assert "--variants" in argv
+    assert "Variant_A,Variant_B" in argv
+
+
+def test_tkinter_analysis_config_maps_gui_state_to_service_config(tmp_path):
+    args = Namespace(
+        input_dir=tmp_path / "ida_imports",
+        datenbank_dir=tmp_path / "database",
+        output_root=tmp_path / "output",
+        run_id="run-1",
+        debug=False,
+    )
+
+    config = build_tkinter_analysis_config(
+        args=args,
+        selected_command="plot-template",
+        variants=["Variant_A"],
+        rooms=["101 lobby", "208 office"],
+        heating_mode="compare",
+        prepare_options={"export_format": "both"},
+        heating_options={
+            "view": "week",
+            "month": "Feb",
+            "week": 7,
+            "day": None,
+            "series_layout": "combined",
+        },
+        plot_template_options={
+            "template": "heating-overlay",
+            "output_mode": "compare",
+            "week": 7,
+        },
+    )
+
+    assert isinstance(config, AnalysisConfig)
+    assert config.steps == ("plot-template",)
+    assert config.input_dir == tmp_path / "ida_imports"
+    assert config.database_dir == tmp_path / "database"
+    assert config.output_root == tmp_path / "output"
+    assert config.run_id == "run-1"
+    assert config.debug is False
+    assert config.variants == ["Variant_A"]
+    assert config.rooms == ["101 lobby", "208 office"]
+    assert config.export_format == "both"
+    assert config.variant_mode == "compare"
+    assert config.view == "week"
+    assert config.month == "Feb"
+    assert config.week == 7
+    assert config.series_layout == "combined"
+    assert config.plot_template == "heating-overlay"
+    assert config.plot_template_mode == "compare"
+
+
+def test_tkinter_analysis_config_maps_comfort_command(tmp_path):
+    args = Namespace(
+        input_dir=tmp_path / "ida_imports",
+        datenbank_dir=tmp_path / "database",
+        output_root=tmp_path / "output",
+        run_id=None,
+        debug=True,
+    )
+
+    config = build_tkinter_analysis_config(
+        args=args,
+        selected_command="comfort",
+        variants=["Variant_A"],
+        rooms=["101 lobby"],
+        heating_mode="",
+        comfort_output_type="plot_analysis_overview",
+    )
+
+    assert config.steps == ("comfort",)
+    assert config.comfort_output_type == "plot_analysis_overview"
+    assert config.variant_mode is None
+    assert config.export_format == "csv"
+
+
+def test_tkinter_pipeline_worker_uses_workflow_action(monkeypatch, tmp_path):
+    captured: dict[str, AnalysisConfig] = {}
+
+    def fake_run_analysis_action(config):
+        captured["config"] = config
+        return AnalysisResult(
+            success=True,
+            steps=config.steps,
+            log_text="service log",
+            created_files=[tmp_path / "out.png"],
+        )
+
+    monkeypatch.setattr(
+        "ma_ui.tkinter_app.module_views.analyse.pipeline_runner.run_analysis_action",
+        fake_run_analysis_action,
+    )
+    monkeypatch.setattr(
+        "ma_ui.tkinter_app.module_views.analyse.pipeline_runner.should_log_command",
+        lambda _command: False,
+    )
+    gui = object.__new__(tkinter_analyse_app.PipelineGUI)
+    gui.pipeline_queue = queue.Queue()
+    config = AnalysisConfig(
+        steps=("prepare",),
+        input_dir=tmp_path / "input",
+        database_dir=tmp_path / "database",
+        output_root=tmp_path / "output",
+        rooms=["101 lobby"],
+    )
+
+    gui._run_pipeline_worker("prepare", config)
+
+    messages = []
+    while not gui.pipeline_queue.empty():
+        messages.append(gui.pipeline_queue.get_nowait())
+
+    assert captured["config"] is config
+    assert messages[-1] == ("done", ("prepare", True))
+    assert any(message_type == "log" and "service log" in payload for message_type, payload in messages)
+    assert any(message_type == "log" and "Erzeugte Dateien:" in payload for message_type, payload in messages)
+
+
+def test_tkinter_pipeline_worker_reports_service_errors(monkeypatch, tmp_path):
+    def fake_run_analysis_action(config):
+        return AnalysisResult(
+            success=False,
+            steps=config.steps,
+            errors=["Backendfehler"],
+        )
+
+    monkeypatch.setattr(
+        "ma_ui.tkinter_app.module_views.analyse.pipeline_runner.run_analysis_action",
+        fake_run_analysis_action,
+    )
+    monkeypatch.setattr(
+        "ma_ui.tkinter_app.module_views.analyse.pipeline_runner.should_log_command",
+        lambda _command: False,
+    )
+    gui = object.__new__(tkinter_analyse_app.PipelineGUI)
+    gui.pipeline_queue = queue.Queue()
+    config = AnalysisConfig(
+        steps=("heating",),
+        input_dir=tmp_path / "input",
+        database_dir=tmp_path / "database",
+        output_root=tmp_path / "output",
+        rooms=["101 lobby"],
+    )
+
+    gui._run_pipeline_worker("heating", config)
+
+    messages = []
+    while not gui.pipeline_queue.empty():
+        messages.append(gui.pipeline_queue.get_nowait())
+
+    assert messages[-1] == ("done", ("heating", False))
+    assert any(message_type == "log" and "Backendfehler" in payload for message_type, payload in messages)
 
 
 def test_streamlit_width_api_is_current():
@@ -1014,6 +1262,39 @@ def test_tkinter_analyse_launcher_uses_module_command():
     command = build_tkinter_analyse_command("python")
 
     assert command == ("python", "-m", "ma_ui.tkinter_app.module_views.analyse")
+
+
+def test_tkinter_analyse_parser_builds_gui_args():
+    args = parse_tkinter_analyse_args(
+        [
+            "--variants",
+            "Variant_A,Variant_B",
+            "--rooms",
+            "101 lobby,208 office",
+            "--output-root",
+            "data/test_output/gui",
+            "--heating-mode",
+            "single",
+            "--series-layout",
+            "combined",
+            "--export-format",
+            "both",
+            "--gui-window-maximized",
+            "1",
+        ]
+    )
+
+    assert args.command == "gui"
+    assert args.variants == ["Variant_A", "Variant_B"]
+    assert args.rooms == ["101 lobby", "208 office"]
+    assert args.output_root == "data/test_output/gui"
+    assert args.output_root_explicit is True
+    assert args.variant_mode_explicit is True
+    assert args.series_layout_explicit is True
+    assert args.heating_mode == "single"
+    assert args.heating_series_layout == "combined"
+    assert args.export_format == "both"
+    assert args.gui_window_maximized == 1
 
 
 def test_tkinter_analyse_launcher_returns_process_id(monkeypatch, tmp_path):
@@ -1337,8 +1618,48 @@ def test_weather_dataset_label_shows_dataset_type():
 
     assert weather_dataset_type_label(summer_dataset) == "Sommer"
     assert weather_dataset_type_label(winter_dataset) == "Winter"
-    assert "[Sommer]" in weather_dataset_label(summer_dataset)
-    assert "[Winter]" in weather_dataset_label(winter_dataset)
+    assert weather_dataset_label(summer_dataset) == "Test Sommer"
+    assert weather_dataset_label(winter_dataset) == "Test Winter"
+
+
+def test_weather_dataset_type_filter_keeps_only_selected_type():
+    datasets = [
+        WeatherDataset(
+            weather_key="TRY_TEST_JAHR",
+            display_name="Test Jahr",
+            file_path=Path("data/ma_weather/input/test_jahr.dat"),
+            file_format="TRY",
+            source="DWD",
+            location="Testort",
+            year_type="reference_year",
+        ),
+        WeatherDataset(
+            weather_key="TRY_TEST_SOMM",
+            display_name="Test Sommer",
+            file_path=Path("data/ma_weather/input/test_somm.dat"),
+            file_format="TRY",
+            source="DWD",
+            location="Testort",
+            year_type="summer_extreme",
+        ),
+        WeatherDataset(
+            weather_key="TRY_TEST_WINT",
+            display_name="Test Winter",
+            file_path=Path("data/ma_weather/input/test_wint.dat"),
+            file_format="TRY",
+            source="DWD",
+            location="Testort",
+            year_type="winter_extreme",
+        ),
+    ]
+
+    year_datasets = weather_page._datasets_for_weather_dataset_type(datasets, "Jahr")
+    summer_datasets = weather_page._datasets_for_weather_dataset_type(datasets, "Sommer")
+    winter_datasets = weather_page._datasets_for_weather_dataset_type(datasets, "Winter")
+
+    assert [dataset.weather_key for dataset in year_datasets] == ["TRY_TEST_JAHR"]
+    assert [dataset.weather_key for dataset in summer_datasets] == ["TRY_TEST_SOMM"]
+    assert [dataset.weather_key for dataset in winter_datasets] == ["TRY_TEST_WINT"]
 
 
 def test_weather_status_rows_show_open_dataset_context():
@@ -1379,7 +1700,7 @@ def test_weather_open_discovery_rows_mark_scan_drafts():
         location_name="",
         selection_priority=10,
         metadata={"rechtswert_m": "494997", "hochwert_m": "084777"},
-        missing_fields=("location_id", "weather_key"),
+        missing_fields=("location_id", "weather_key", "display_name", "dataset_role"),
         messages=("Keine Standortzuordnung vorhanden.",),
         status=WeatherDiscoveryStatus.OPEN,
     )
@@ -1389,8 +1710,8 @@ def test_weather_open_discovery_rows_mark_scan_drafts():
     assert rows[0]["Typ"] == "Scan-Entwurf"
     assert rows[0]["Status"] == "offen"
     assert rows[0]["Datei"] == "data/ma_weather/input/TRY_000000000000/TRY2015_000000000000_Jahr.dat"
-    assert rows[0]["Offene Punkte"] == "location_id, weather_key"
-    assert rows[0]["Fehler"] == 2
+    assert rows[0]["Offene Punkte"] == "Stadt"
+    assert rows[0]["Fehler"] == 4
 
 
 def test_weather_discovery_file_value_rows_show_read_file_context():
@@ -1426,6 +1747,59 @@ def test_weather_discovery_file_value_rows_show_read_file_context():
     assert values["Bezugsjahr"] == 2015
     assert values["Rechtswert"] == "494997"
     assert values["Hoehenlage"] == "99"
+
+
+def test_weather_discovery_overview_hides_unconfirmed_coordinate_suggestions():
+    suggested_discovery = WeatherFileDiscovery(
+        weather_key="",
+        display_name="",
+        file_path=Path("data/ma_weather/input/TRY_524031130658/TRY2015_524031130658_Jahr.dat"),
+        try_folder_key="TRY_524031130658",
+        try_id="524031130658",
+        year=2015,
+        dataset_type="Jahr",
+        year_type="reference_year",
+        climate_scenario="present",
+        dataset_role="",
+        location_id="",
+        reference_location_id="",
+        location_name="",
+        selection_priority=10,
+        metadata={
+            "suggested_location_name": "Hamburg",
+            "suggested_location_id": "LOC_001",
+            "location_resolution_source": "try_coordinates",
+            "location_resolution_status": "suggested",
+        },
+        missing_fields=("location_id",),
+        status=WeatherDiscoveryStatus.OPEN,
+    )
+    confirmed_discovery = WeatherFileDiscovery(
+        weather_key="TRY_MA_2015_JAHR",
+        display_name="TRY Mannheim 2015 Jahr",
+        file_path=Path("data/ma_weather/input/TRY_494997084777/TRY2015_494997084777_Jahr.dat"),
+        try_folder_key="TRY_494997084777",
+        try_id="494997084777",
+        year=2015,
+        dataset_type="Jahr",
+        year_type="reference_year",
+        climate_scenario="present",
+        dataset_role="try_reference",
+        location_id="LOC_053",
+        reference_location_id="LOC_053",
+        location_name="Mannheim",
+        selection_priority=10,
+        metadata={
+            "location_resolution_source": "file_reference",
+            "location_resolution_status": "confirmed",
+        },
+    )
+
+    rows = weather_page._weather_discovery_overview_rows([suggested_discovery, confirmed_discovery])
+
+    assert rows[0]["Ort / Vorschlag"] == "offen"
+    assert rows[0]["Offene Punkte"] == "Stadt"
+    assert rows[1]["Ort / Vorschlag"] == "Mannheim"
 
 
 def test_weather_discovery_key_parameter_rows_keep_editable_targets_together():

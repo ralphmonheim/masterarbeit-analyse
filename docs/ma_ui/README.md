@@ -33,8 +33,8 @@ Oberflaechen zugaenglich machen, ohne Fachlogik in die UI zu verschieben.
 
 Geplant. Ein nutzbarer Streamlit-Prototyp mit Dashboard, Navigation und
 mehreren Fachansichten ist vorhanden. Die bestehende Tkinter-Analyse ist nach
-`ma_ui.tkinter_app.module_views.analyse` verschoben und ueber
-`ma_analyse.gui` weiterhin kompatibel erreichbar.
+`ma_ui.tkinter_app.module_views.analyse` verschoben. `ma_analyse` fuehrt
+keinen Tkinter-Kompatibilitaetspfad mehr.
 
 ## Naechster Schritt
 

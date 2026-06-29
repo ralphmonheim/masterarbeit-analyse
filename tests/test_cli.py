@@ -1,3 +1,5 @@
+import pytest
+
 from ma_analyse.app.cli import apply_plot_template_config_defaults, build_parser
 
 
@@ -12,6 +14,13 @@ def test_cli_parser_accepts_main_commands():
     assert parser.parse_args(["plot-template"]).command == "plot-template"
     assert parser.parse_args(["plot-template-examples"]).command == "plot-template-examples"
     assert parser.parse_args(["all"]).command == "all"
+
+
+def test_cli_parser_rejects_removed_gui_command():
+    parser = build_parser()
+
+    with pytest.raises(SystemExit):
+        parser.parse_args(["gui"])
 
 
 def test_cli_parser_accepts_plot_template_options():

@@ -21,7 +21,7 @@ Diesen Installationsbefehl brauchst du nur beim ersten Einrichten, nach dem Neue
 ```powershell
 cd "C:\Users\ralph\Documents\Master\5.Semester\Masterarbeit - lokal\TEIL1_Fach-Anwendungskompetenz\260524_Masterarbeit_Analyse"
 .\.venv\Scripts\Activate.ps1
-python -m ma_analyse gui
+python -m ma_analyse <befehl> [optionen]
 ```
 
 Relative Standardpfade:
@@ -33,12 +33,11 @@ Relative Standardpfade:
 
 ## Sammelbefehle
 
-Diese Befehle starten eine Oberflaeche, eine kombinierte Pipeline oder erzeugen
-mehrere Referenzartefakte.
+Diese Befehle starten eine kombinierte Pipeline oder erzeugen mehrere
+Referenzartefakte.
 
 | Befehl | Zweck | Beispiel |
 |---|---|---|
-| `gui` | Grafische Oberflaeche starten | `python -m ma_analyse gui` |
 | `all` | Standardausgaben kombiniert erzeugen | `python -m ma_analyse all` |
 | `plot-template-examples` | Erzeugt die Beispielgalerie fuer alle Plot-Template-Werte | `python -m ma_analyse plot-template-examples` |
 
@@ -71,8 +70,14 @@ Gemeinsame Optionen:
 
 ## GUI-Struktur
 
-Die grafischen Oberflaechen fuer `ma_analyse` werden fachlich nach denselben
-Bereichen sortiert:
+Die Tkinter-Analyse ist kein `ma_analyse`-CLI-Befehl mehr. Sie liegt als
+getrennter UI-Zweig unter `ma_ui` und wird bei Bedarf so gestartet:
+
+```powershell
+python -m ma_ui.tkinter_app.module_views.analyse
+```
+
+Tkinter und Streamlit werden fachlich nach denselben Bereichen sortiert:
 
 - `Befehl`
 - `Unterbefehl`
@@ -112,8 +117,9 @@ wo sie fachlich gebraucht werden:
   sekundaere Y-Achsen gesetzt werden.
 - Die Tkinter-GUI besitzt unten die Reihenfolge `Zuruecksetzen`,
   `Vorschau aktualisieren`, `Start`. Der Vorschau-Button nutzt aktuell den
-  bestehenden Analysepfad mit den aktuellen Einstellungen; ein eingebettetes
-  Bild-Vorschaufenster bleibt ein geplanter Folgeschritt.
+  normalen `AnalysisConfig`-/`ma_workflow`-Analysepfad mit den aktuellen
+  Einstellungen; ein eingebettetes Bild-Vorschaufenster bleibt ein geplanter
+  Folgeschritt.
 
 Varianten werden als `Eine Variante`, `Mehrere Varianten` oder `Alle Varianten`
 gewaehlt. Raeume werden als `Ein Raum`, `Mehrere Raeume` oder `Alle Raeume`

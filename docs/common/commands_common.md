@@ -61,6 +61,10 @@ keine Python-CLI-Befehle.
 ### Sammelbefehle
 
 Sammelbefehle buendeln mehrere Routinen oder Arbeitsbereiche.
+Sie gelten als vorab freigegebene Arbeitsroutinen: Wenn der Nutzer einen
+Sammelbefehl nennt, fuehrt Codex die dokumentierten Schritte ohne separate
+Umsetzungsfreigabe aus. Rueckfragen sind nur bei Blockern, unklaren oder
+riskanten Abweichungen und technisch notwendigen Sicherheitsfreigaben noetig.
 
 - `aktualisieren und tagesende direkt`
 - `aktualisieren und direkt update repo`

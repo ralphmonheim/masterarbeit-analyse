@@ -2,10 +2,13 @@
 
 Stand: 2026-06-10
 
-Aktueller Nachtrag 2026-06-24: Die Tkinter-Analyse wurde in den gemeinsamen
-UI-Bereich verschoben. Der aktive Zielort ist
-`ma_ui.tkinter_app.module_views.analyse`; `ma_analyse.gui` enthaelt nur noch
-Kompatibilitaetswrapper. Aeltere Hinweise auf `ma_ui_legacy` sind historisch.
+Aktueller Nachtrag 2026-06-28: Die Tkinter-Analyse wurde hart aus
+`ma_analyse` herausgeloest. Der aktive Zielort ist
+`ma_ui.tkinter_app.module_views.analyse`; `ma_analyse.gui` und der CLI-Befehl
+`python -m ma_analyse gui` existieren nicht mehr. Aeltere Hinweise auf
+`ma_ui_legacy` sind historisch. Der Tkinter-Runner baut seinen Analyseauftrag
+inzwischen ueber `pipeline_config.py` als `AnalysisConfig` und startet ueber
+`ma_workflow.run_analysis_action`.
 
 ## Zweck
 
@@ -15,11 +18,10 @@ Dieses Dokument ist Phase 1 von P005. Es beschreibt den aktuellen Bestand von
 ## Kurzbefund
 
 - `ma_analyse` enthaelt keine Streamlit-Abhaengigkeit.
-- Tkinter kommt nur im GUI-Bereich vor: `src/ma_analyse/gui/app.py` und
-  `src/ma_analyse/gui/dialogs.py`.
-- `src/ma_analyse/gui/app.py` ist mit rund 3800 Zeilen der groesste
-  Risikobereich. Die Datei mischt Tkinter-Layout, GUI-State, Validierung,
-  Threading, Loganzeige und Aufruf der Analysepipeline.
+- `ma_analyse` enthaelt keine Tkinter-Abhaengigkeit mehr.
+- Die Tkinter-Analyse liegt unter `src/ma_ui/tkinter_app/module_views/analyse/`
+  und ist dort intern in Fassade, Mixins, Parser, Restart-, Auswahl- und
+  Runner-Helfer zerlegt.
 - Die fachliche Analyse liegt bereits ueberwiegend unter `src/ma_analyse/analysis/`
   und `src/ma_analyse/preprocessing/`.
 - `src/ma_analyse/app/commands.py` ist der aktuelle zentrale Orchestrator, ist
@@ -40,24 +42,26 @@ Dieses Dokument ist Phase 1 von P005. Es beschreibt den aktuellen Bestand von
 | `analysis/tables/` und `analysis/excel.py` | Excel-Reports und Tabellen | fachlicher Exportkern, bleibt in `ma_analyse` |
 | `analysis/components/` | gemeinsame Helper fuer Zeitfenster, Varianten, Raeume, Runtime und Layout | fachliche Shared-Komponenten innerhalb von `ma_analyse` |
 | `core/` und `settings/` | Pfade, Logging, Formate, Naming, Plot-Template-Defaults | technische Basis von `ma_analyse` |
-| `gui/app.py` | Tkinter-Hauptoberflaeche, Ablaufsteuerung, Validierung, Worker-Thread, Logfenster | Legacy-UI, nicht direkt nach `ma_ui` verschieben |
-| `gui/dialogs.py` | Tkinter-Dialoge fuer Ausgabeformate und Namensmapping | Legacy-UI mit fachnahen Settings-Aufrufen |
-| `gui/selection.py` | Auswahlhelfer fuer Varianten/Raeume | teilweise fachlich nutzbar, spaeter extrahieren oder in Service uebernehmen |
-| `gui/singleton.py` | Tkinter-App-Instanzsteuerung und Refresh-Koordination | Legacy-UI-Technik |
-| `gui/worker.py` | Queue-Writer fuer Worker-Logs | kleiner Hilfsbaustein, Zielort spaeter entscheiden |
 
 ## Tkinter-Bestandteile
 
+- Ort: `src/ma_ui/tkinter_app/module_views/analyse/`.
+- Kanonischer Start: `python -m ma_ui.tkinter_app.module_views.analyse`.
 - Fensterstart und Hauptloop: `run_gui()`, `run_gui_refresh()`, `run_gui_menu()`.
 - Hauptklasse: `PipelineGUI`.
-- Layout und Eingaben: viele `tk.*`- und `ttk.*`-Widgets direkt in `app.py`.
+- `app.py` ist nur noch Fassade; Layout, Schrittfluss, Auswahl-State,
+  Plot-Template-State und Pipeline-Runner liegen in internen Mixins.
+- Analyseauftrag: `pipeline_config.py` baut `AnalysisConfig` aus dem
+  Tkinter-Zustand; `pipeline_runner.py` startet ueber
+  `ma_workflow.run_analysis_action`.
 - Status und Fehler: `messagebox.showinfo`, `showwarning`, `showerror`.
 - Laufsteuerung: Hintergrundthread, Queue, Logfenster und Statusanzeige.
 - Neustart/Refresh: `subprocess.Popen`, Singleton-Controller und Refresh-Port.
 
 Bewertung: Dieser Bereich ist funktionsfaehiger Altbestand und bleibt vorerst
-unangetastet. Eine spaetere Auslagerung nach `ma_ui_legacy` braucht einen
-separaten Refactoring-Slice.
+unter `ma_ui`. Die technische Zerlegung und der Service-Adapter fuer den
+Pipeline-Start sind umgesetzt; offen bleiben Vorschau-Cache, feinere
+Ergebnisanzeige und weitere Reduktion von UI-Mapping-Dopplung.
 
 ## Bedienlogik aus der bestehenden GUI
 
@@ -71,20 +75,20 @@ Erkannte Bedienentscheidungen:
 |---|---|---|
 | Analyseumfang | `PipelineGUI` | bestimmt, ob eine, mehrere oder alle Varianten verarbeitet werden |
 | Befehl | `PipelineGUI` | waehlt Prepare, Comfort, Analyse, Heating, Cooling, Plot-Template oder All |
-| Prepare-Format | `dialogs.py`, `app.py` | bestimmt CSV, Excel oder beide Exportformate |
-| Comfort-Typ | `app.py` | bestimmt Plot, Uebersicht, Analyse oder kombinierte Comfort-Auswertung |
-| Lasttyp | `app.py` | Heating oder Cooling |
-| Zeitansicht | `app.py` | Bar, Year, Month, Week oder Day |
-| Template-Auswahl | `app.py` | waehlt vorbereitete Plot-Templates und deren Optionen |
-| Varianten | `selection.py`, `app.py` | bestimmt die zu verarbeitenden Varianten |
-| Raeume | `selection.py`, `app.py` | bestimmt die zu verarbeitenden Raeume |
-| Start/Validierung | `app.py` | prueft Pflichtauswahlen und startet die Pipeline |
-| Status/Log | `worker.py`, `app.py` | zeigt laufende Verarbeitung und Protokollausgaben |
+| Prepare-Format | `layout_steps.py`, `selection_state.py` | bestimmt CSV, Excel oder beide Exportformate |
+| Comfort-Typ | `selection_state.py` | bestimmt Plot, Uebersicht, Analyse oder kombinierte Comfort-Auswertung |
+| Lasttyp | `selection_state.py` | Heating oder Cooling |
+| Zeitansicht | `selection_state.py` | Bar, Year, Month, Week oder Day |
+| Template-Auswahl | `plot_template_state.py` | waehlt vorbereitete Plot-Templates und deren Optionen |
+| Varianten | `selection.py`, `selection_state.py` | bestimmt die zu verarbeitenden Varianten |
+| Raeume | `selection.py`, `selection_state.py` | bestimmt die zu verarbeitenden Raeume |
+| Start/Validierung | `pipeline_runner.py`, `pipeline_config.py` | prueft Pflichtauswahlen, baut `AnalysisConfig` und startet ueber `ma_workflow` |
+| Status/Log | `worker.py`, `pipeline_runner.py` | zeigt laufende Verarbeitung und Protokollausgaben |
 
 Ableitung fuer Streamlit:
 
 - Die spaetere Analyseansicht muss denselben fachlichen Ablauf abdecken.
-- Die technische Umsetzung erfolgt ueber `ma_ui/module_views/analyse_view.py`,
+- Die technische Umsetzung erfolgt ueber `ma_ui.streamlit_app.module_views.analyse_view`,
   `ma_workflow` und `ma_analyse.services`.
 - Messageboxen werden durch Status-, Warn- und Fehlerbereiche ersetzt.
 - Tkinter-Threads und Queues werden nicht direkt uebernommen.
@@ -112,8 +116,9 @@ Diese Bestandteile sollen langfristig aus dem fachlichen Kern heraus:
 
 ## Aktuelle Kopplungsrisiken
 
-- Die GUI baut heute aus Widget-State direkt Pipeline-Optionen und ruft
-  `execute_steps()` oder `run_all()` auf.
+- Die GUI baut aus Widget-State einen `AnalysisConfig`-Adapter. Das reduziert
+  die Kopplung an `app.commands`, kann aber weiterhin Mapping-Dopplung zu
+  Streamlit erzeugen.
 - Die zentrale Befehlsausfuehrung nutzt `argparse.Namespace`, `print()` und
   teilweise `SystemExit`.
 - Rueckgaben sind uneinheitlich: einige Funktionen geben Tabellen zurueck,
@@ -125,10 +130,11 @@ Diese Bestandteile sollen langfristig aus dem fachlichen Kern heraus:
 
 ## Konsequenz fuer P005
 
-Der sichere Weg bleibt: keine GUI-Dateien verschieben, bevor die Service-Schicht
-stabil genug ist. Eine erste UI-neutrale Service-Fassade ist umgesetzt. Der
-naechste Schritt ist die fachliche Erweiterung dieser Fassade und der
-Analyse-Seite. Die minimale `ma_ui`-/`ma_workflow`-Shell ist bereits umgesetzt.
+Der sichere Weg bleibt: Die Tkinter-Datei wurde nach der harten Migration
+zunaechst technisch zerlegt und startet Analyseauftraege jetzt ueber die
+UI-neutrale Service-Fassade. Der naechste Schritt ist die weitere fachliche
+Erweiterung dieser Fassade, der Vorschau-Logik und der Analyse-Seite. Die
+minimale `ma_ui`-/`ma_workflow`-Shell ist bereits umgesetzt.
 
 ## Abdeckung in der Streamlit-Analyse-View
 
@@ -161,10 +167,12 @@ Noch nicht abgebildet:
 
 ## Offene Inventarfragen
 
-- Welche Tkinter-Optionen sind noch nicht in `AnalysisConfig` abgebildet?
+- Welche Tkinter-Optionen brauchen noch eine bessere gemeinsame Mapping-Schicht
+  mit der Streamlit-Analyse?
 - Welche bestehenden Analysefunktionen liefern bereits verwertbare
   Ergebnisobjekte statt nur Dateien und stdout?
 - Welche GUI-Validierungen gehoeren fachlich in `ma_analyse.services` und
   welche bleiben reine UI-Hinweise?
-- Welche Auswahlhelfer aus `gui/selection.py` sollen spaeter fachlich nach
-  `ma_analyse` oder technisch nach `ma_ui` wandern?
+- Welche Auswahlhelfer aus `ma_ui.tkinter_app.module_views.analyse.selection`
+  sollen spaeter fachlich nach `ma_analyse` oder technisch innerhalb von
+  `ma_ui` weiter aufgeteilt werden?

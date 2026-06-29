@@ -1,6 +1,6 @@
 # Zielarchitektur
 
-Stand: 2026-06-24
+Stand: 2026-06-28
 Grundlage: P007
 
 ## Zweck
@@ -165,8 +165,10 @@ P009 einen sicheren Schnittstellenvertrag und Migrationsweg definiert.
 - Tkinter wird nicht direkt mit Streamlit vermischt. Spaetere
   Tkinter-Fachansichten werden unter
   `ma_ui.tkinter_app.module_views/<fachbereich>/` geplant.
-- `ma_analyse.gui` bleibt vorerst als Kompatibilitaetswrapper bestehen und
-  enthaelt keine neue Fachlogik.
+- `ma_analyse` enthaelt keinen Tkinter-Kompatibilitaetspfad mehr. Die
+  Tkinter-Analyse wird ausschliesslich unter
+  `ma_ui.tkinter_app.module_views.analyse` gestartet und nutzt das
+  `ma_analyse`-Backend nur fachlich.
 
 ## Ergebnisverarbeitung
 

@@ -2,9 +2,9 @@
 
 Datum der Pruefung: 2026-06-22
 
-Aktueller Nachtrag 2026-06-24: Dieser Review ist historisch. Die aktive
+Aktueller Nachtrag 2026-06-28: Dieser Review ist historisch. Die aktive
 UI-Struktur liegt inzwischen unter `ma_ui.streamlit_app` und
-`ma_ui.tkinter_app`; `ma_analyse.gui` bleibt als Kompatibilitaetswrapper.
+`ma_ui.tkinter_app`; `ma_analyse.gui` wurde entfernt.
 
 ## Projektuebersicht
 
@@ -28,7 +28,7 @@ weitergefuehrt.
 
 ## Gefundene Ordnerstruktur
 
-- `src/ma_analyse/`: Analyse, CLI, GUI, Preprocessing, Plot-Templates.
+- `src/ma_analyse/`: Analyse, CLI, Preprocessing, Plot-Templates.
 - `src/ma_variants/`: Parameter, Optionen, Varianten, Datenbank, IDA-Export, Simulationsergebnisse, Wirtschaftlichkeit, Kataloge, UI.
 - `src/ma_weather/`: Wetterkatalog, TRY-Import, Validierung, Kennwerte, Plots, Reports und Runner.
 - `src/ma_workflow/`: zentraler Workflow- und Statuskatalog,
@@ -74,7 +74,8 @@ weitergefuehrt.
 
 ## Schwachstellen
 
-- `src/ma_analyse/gui/app.py` ist sehr gross und sollte spaeter aufgeteilt werden.
+- Die Tkinter-Analyse unter `src/ma_ui/tkinter_app/module_views/analyse/app.py`
+  ist sehr gross und sollte spaeter aufgeteilt werden.
 - `src/ma_analyse/analysis/heating.py` und `src/ma_analyse/analysis/cooling.py` enthalten aehnliche Strukturen und sollten spaeter ueber gemeinsame Runner/Helper weiter vereinheitlicht werden.
 - In `data/test_output/` liegen lokale Arbeits- und Testartefakte verschiedener Pruefungen. Der Ordner ist bewusst nicht als Referenzbereich gedacht.
 - `ma_weather` benoetigt noch reale lokale Pruefungen der verbleibenden fuenf
@@ -83,7 +84,7 @@ weitergefuehrt.
   liegen Teilverantwortlichkeiten weiterhin in `ma_variants`, zum Beispiel
   Parameterkatalog, IDA-Uebergabe, Simulationsergebnisadapter und
   Wirtschaftlichkeit.
-- Es gibt weiterhin mehrere UI-Bestaende: Tkinter in `ma_analyse`, die
+- Es gibt weiterhin mehrere UI-Bestaende: Tkinter in `ma_ui`, die
   modulbezogene Streamlit-UI in `ma_variants` und die zentrale Streamlit-UI
   `ma_ui`. `ma_ui` ist die Zieloberflaeche; Tkinter bleibt Legacy-Bestand.
 - Die Kompatibilitaetswrapper unter `ma_ui/pages/` bestehen parallel zu den
@@ -96,7 +97,8 @@ weitergefuehrt.
 
 - Eine weitere GUI-Aufteilung sollte nicht parallel zu groesseren Analyse-Refactorings erfolgen.
 - Die Plan-Inbox enthaelt aktive Plaene. Umgesetzte Plaene muessen konsequent nach `docs/project/archive/plans/` verschoben werden.
-- Eine direkte Verschiebung von `ma_analyse/gui/app.py` in `ma_ui` waere hohes Risiko, weil dort UI, Prozesssteuerung und Analyseoptionen eng gekoppelt sind.
+- Eine Zerlegung der Tkinter-Hauptdatei waere hohes Risiko, weil dort UI,
+  Prozesssteuerung und Analyseoptionen eng gekoppelt sind.
 - Eine direkte Vermischung von Tkinter und Streamlit wuerde die Zielarchitektur unklar machen.
 - Eine zu fruehe Extraktion von `ma_parameters`, `ma_export_simulation` oder
   `ma_assessment` aus `ma_variants` kann funktionierende Tests und Importpfade

@@ -29,27 +29,29 @@ Der aktuelle Stand umfasst:
    automatisch aus dem Standortkatalog ableiten.
 3. Fuer ortsgenaue TRY-Dateien Rechtswert und Hochwert aus dem TRY-Kopf als
    fuehrende Standortquelle verwenden.
-4. TRY-Referenzdatensatz zuerst empfehlen, sofern er katalogisiert ist.
-5. Standortgenaue Datensaetze fuer die gewaehlte Stadt zusaetzlich anbieten.
-6. Datensatz ueber `weather_key` aus dem Katalog auswaehlen.
-7. Fehlende TRY-Jahres-, Sommer- und Winterdateien beim Deutschen
+4. Datensatztyp `Jahr`, `Sommer` oder `Winter` in der UI vorfiltern.
+5. TRY-Referenzdatensatz zuerst anbieten, sofern er katalogisiert ist.
+6. Standortgenaue Datensaetze fuer die gewaehlte Stadt zusaetzlich anbieten.
+7. Wetterdatensatz ueber den Anzeigenamen auswaehlen; `weather_key`, Rolle
+   und Status bleiben technische Detaildaten.
+8. Fehlende TRY-Jahres-, Sommer- und Winterdateien beim Deutschen
    Wetterdienst herunterladen.
-8. Eigene entpackte TRY-`.dat`-Datei in Streamlit im Bereich
+9. Eigene entpackte TRY-`.dat`-Datei in Streamlit im Bereich
    `Wetterdatensaetze` importieren oder manuell unter
    `data/ma_weather/input/` bereitstellen.
-9. Manuell abgelegte TRY-Dateien ueber `Lokale TRY-Dateien scannen` als
+10. Manuell abgelegte TRY-Dateien ueber `Lokale TRY-Dateien scannen` als
    Datensatzentwuerfe erkennen und vollstaendige Entwuerfe bewusst in den
    lokalen Katalog uebernehmen.
-10. TRY-Datei pruefen und validieren.
-11. Import-ID, Quellenmetadaten, Validierungsstatus und Sitzungslog
+11. TRY-Datei pruefen und validieren.
+12. Import-ID, Quellenmetadaten, Validierungsstatus und Sitzungslog
    miteinander verknuepfen.
-12. Wetterkennwerte berechnen.
-13. Aufbereitete Wetterdaten unter `data/ma_weather/database/` schreiben.
-14. Diagramme unter `data/ma_weather/output/` schreiben.
-15. Bericht unter `data/ma_weather/reports/` schreiben.
-16. Freigegebene Datensaetze bewusst aktivieren.
-17. Einen aktivierten Datensatz bewusst als Projekt-Default setzen.
-18. Kritische Wetterereignisse aus genau diesem ausgewaehlten Datensatz
+13. Wetterkennwerte berechnen.
+14. Aufbereitete Wetterdaten unter `data/ma_weather/database/` schreiben.
+15. Diagramme unter `data/ma_weather/output/` schreiben.
+16. Bericht unter `data/ma_weather/reports/` schreiben.
+17. Freigegebene Datensaetze bewusst aktivieren.
+18. Einen aktivierten Datensatz bewusst als Projekt-Default setzen.
+19. Kritische Wetterereignisse aus genau diesem ausgewaehlten Datensatz
     erkennen und fuer spaetere P021-Nutzung anzeigen.
 
 Der DWD-Download bleibt ein manueller Vorbereitungsschritt. Die TRY-Dateien
@@ -68,6 +70,13 @@ automatisch katalogisiert. Die Streamlit-Wetterseite bietet dafuer den Button
 die versionierte Standortzuordnung unter
 `config/ma_weather/try_locations/example_try_file_locations.yaml` und zeigt
 vollstaendige oder offene Datensatzentwuerfe an.
+
+Unsichere Standortvorschlaege aus TRY-Koordinaten werden in der Fundliste nicht
+als erkannte Stadt angezeigt. Erst ein bestaetigter Dateiverweis, eine
+bestaetigte TRY-Ordner-Zuordnung oder eine bewusst uebernommene manuelle
+Zuordnung macht aus dem Vorschlag einen Standort. Berlin-/Potsdam-nahe
+TRY-Dateien bleiben ohne bestaetigte Zuordnung offen und duerfen nicht als
+Hamburg oder anderer Ersatzstandort erscheinen.
 
 ## Verbindung zu Varianten
 
@@ -130,6 +139,21 @@ zeigt nur `Feld` und `Wert` fuer Stadt, Bezugsjahr, Datensatztyp und
 Szenario. Rolle, `weather_key` und Anzeigename werden aus diesen Angaben
 generiert und nicht als eigene Eingabefelder angezeigt. Offene Datensaetze
 sind sichtbar, aber nicht regulaer auswaehlbar.
+
+Die obere Wetterauswahl bleibt bewusst schlank. Nach der Stadt wird zuerst der
+Datensatztyp ueber eine segmentierte Auswahl `Jahr`, `Sommer` oder `Winter`
+gewaehlt. Aktuell ist genau ein Datensatztyp aktiv. Die anschliessende
+Datensatzliste zeigt nur Anzeigenamen; technische Details wie `weather_key`,
+Rolle, Dateistatus und Aktivierungsstatus bleiben in den Tabellen und
+Pruefbereichen sichtbar. Direkt vor der Datensatzliste erklaert ein kurzer
+Hinweis, dass der Referenzdatensatz der Klimaregion zuerst steht und
+standortgenaue Datensaetze fuer die gewaehlte Stadt zusaetzlich angeboten
+werden koennen.
+
+Eine spaetere Mehrfachauswahl mehrerer Wetterdatensaetze fuer Vergleichsanalysen
+bleibt als Ziel vorgemerkt. Dafuer muessen Analyseausfuehrung,
+Diagrammaufbau, Ergebniszustand und Ereignisauswertung separat erweitert
+werden.
 
 Das Standort-Mapping nutzt zuerst die versionierte TRY-Ordner-Zuordnung. Nur
 bestaetigte Zuordnungen duerfen automatisch vorbelegen. Rechtswert, Hochwert

@@ -1025,11 +1025,5 @@ def dispatch_command(args):
             run_plot_template_examples(args)
         return
 
-    if args.command == "gui":
-        from ma_ui.tkinter_app.module_views.analyse.app import run_gui
-
-        run_gui(args)
-        return
-
     if args.command == "all":
         run_all(args)

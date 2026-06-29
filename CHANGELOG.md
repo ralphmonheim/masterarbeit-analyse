@@ -4,6 +4,27 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.20.0 - 2026-06-29
+
+### Added
+- Wochenabschlussbericht fuer KW27 unter
+  `docs/project/weekly_reviews/2026-KW27.md` angelegt.
+
+### Changed
+- Tkinter-Analyse hart aus `ma_analyse` geloest: `ma_analyse gui` und
+  `ma_analyse.gui.*` wurden entfernt; kanonischer Start ist
+  `python -m ma_ui.tkinter_app.module_views.analyse`.
+- Tkinter-Analyse unter `ma_ui` intern in Mixins fuer Initialisierung,
+  Fenster/Style, Layout, Schrittfluss, Auswahl-State, Plot-Template-State und
+  Pipeline-Runner zerlegt; `app.py` bleibt oeffentliche Fassade.
+- Tkinter-Runner nutzt `AnalysisConfig` und
+  `ma_workflow.run_analysis_action` statt direkter
+  `ma_analyse.app.commands`-Aufrufe; `AnalysisResult` wird ins bestehende
+  Protokollfenster geschrieben.
+- Wetterdatensatz-Auswahl in Streamlit auf kurze Labels,
+  Datensatztyp-Vorfilter und reduzierte Standortkontexte nachgezogen.
+- Codex-Sammelbefehle als vorab freigegebene Arbeitsroutinen dokumentiert.
+
 ## 0.19.0 - 2026-06-28
 
 ### Added

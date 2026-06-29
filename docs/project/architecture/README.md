@@ -30,5 +30,6 @@ Er ist Planungs- und Entscheidungsgrundlage, keine Fachlogik.
   Statuskatalog, Dashboard-Aktionen, Kompatibilitaetslisten,
   Feedback-Routing und den Analyse-Adapter. Echte Fachservice-Orchestrierung
   bleibt ein spaeterer Ausbau.
-- `ma_analyse/gui/` enthaelt nur noch Kompatibilitaetswrapper auf die
-  Tkinter-Analyse unter `ma_ui.tkinter_app.module_views.analyse`.
+- `ma_analyse` enthaelt keinen Tkinter-Kompatibilitaetspfad mehr; die
+  Tkinter-Analyse liegt ausschliesslich unter
+  `ma_ui.tkinter_app.module_views.analyse`.

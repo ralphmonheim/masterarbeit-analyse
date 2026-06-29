@@ -14,6 +14,12 @@ Dokumentationsroutine, kein Python-CLI-Befehl.
 
 ## Sammelbefehle
 
+Sammelbefehle gelten als vorab freigegebene Arbeitsroutinen. Wenn der Nutzer
+einen Sammelbefehl nennt, fuehrt Codex die dokumentierten Schritte ohne
+separate Umsetzungsfreigabe aus. Rueckfragen sind nur bei Blockern, unklaren
+oder riskanten Abweichungen und technisch notwendigen Sicherheitsfreigaben
+noetig.
+
 | Ausloesephrase | Ziel | Ergebnis |
 | --- | --- | --- |
 | `aktualisieren` | Projektsteuerung, Modulstatus und Versionslage aktualisieren | Codex prueft Projektlage, Planung, Entscheidungen, Command-Dokumentation, den Umsetzungsstand der Module, Streamlit-Statusanzeigen, Changelog und Versionskonsistenz; die naechste Version wird vorgeschlagen, aber nicht automatisch geschrieben. |

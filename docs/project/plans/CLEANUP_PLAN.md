@@ -1,6 +1,6 @@
 # Cleanup Plan
 
-Stand: 2026-06-27
+Stand: 2026-06-28
 
 ## Sichere Sofortmassnahmen
 
@@ -34,11 +34,14 @@ Stand: 2026-06-27
   Modul-READMEs anlegen, ohne bestehende Fachlogik zu verschieben.
 - Erledigt: Allgemeine Schnittstellen `ma_export_simulation` und
   `ma_import_simulation` mit vorbereiteten IDA-ICE-Adaptergrenzen anlegen.
+- Erledigt: Tkinter-Analyse hart aus `ma_analyse` loesen; alter
+  `ma_analyse.gui`-Pfad und `python -m ma_analyse gui` sind entfernt.
 
 ## Aenderungen mit Rueckfragebedarf
 
 - Bestehende Analyse-GUI in mehrere Dateien aufteilen.
-- Allgemein nutzbare UI-Bestandteile aus `src/ma_analyse/gui/` nach `ma_ui` auslagern.
+- Allgemein nutzbare UI-Bestandteile innerhalb von
+  `src/ma_ui/tkinter_app/module_views/analyse/` spaeter weiter aufteilen.
 - Bestehende `src/ma_ui/pages/`-Struktur nach und nach durch konkrete
   `src/ma_ui/module_views/` ersetzen.
 - Den zentralen Katalog in `src/ma_workflow/catalog.py` stabil halten und
@@ -54,7 +57,8 @@ Stand: 2026-06-27
 
 ## Spaetere Refactorings
 
-- `src/ma_analyse/gui/app.py` in Layout, State, Dialoge, Runner und Ergebnisanzeige aufteilen.
+- `src/ma_ui/tkinter_app/module_views/analyse/app.py` in Layout, State,
+  Dialoge, Runner und Ergebnisanzeige aufteilen.
 - `ma_ui` und `ma_workflow` schrittweise erweitern, ohne Fachlogik in die UI zu ziehen.
 - `ma_parameters`, `ma_export_simulation`, `ma_economy`,
   `ma_sustainability` und `ma_assessment` erst nach stabilen Schnittstellen
@@ -70,7 +74,7 @@ Stand: 2026-06-27
 
 - Bestehende Simulationsergebnisse und IDA-ICE-Rohdaten ohne Backup.
 - Bestehende Analysefunktionen ohne gezielte Pruefung.
-- Bestehende `ma_analyse`-GUI ohne eigenen Refactoring-Plan.
+- Bestehende Tkinter-Analyse unter `ma_ui` ohne eigenen Refactoring-Plan.
 - Bestehende Tkinter-GUI nicht direkt nach Streamlit kopieren.
 - Aktuelle `ma_ui`- und `ma_workflow`-Zwischenstaende nicht umbenennen, ohne
   Tests und Importpfade im selben Slice anzupassen.

@@ -3,8 +3,8 @@
 `ma_analyse` ist als Python-Paket unter `src/ma_analyse` aufgebaut. Die CLI,
 die Streamlit-Ansicht und die Tkinter-Analyse nutzen dieselben fachlichen
 Funktionen, damit Ergebnisse reproduzierbar bleiben. Die Tkinter-Dateien liegen
-strukturell unter `ma_ui.tkinter_app`; `ma_analyse.gui` ist nur noch ein
-Kompatibilitaetszugriff.
+strukturell unter `ma_ui.tkinter_app`; `ma_analyse` enthaelt keinen
+Tkinter-Kompatibilitaetspfad mehr.
 
 ## Datenfluss
 
@@ -32,7 +32,6 @@ Kompatibilitaetszugriff.
 | `analysis/components/` | gemeinsame Analyse-Komponenten fuer Raeume, Varianten, Zeitfenster, Laufordner und Figures |
 | `analysis/energy/` | gemeinsame Ausgabe-, Zeit- und Dateinamenlogik fuer Heating und Cooling |
 | `analysis/tables/` | Schema, Kennwertberechnung und Excel-Schreiben fuer Tabellenberichte |
-| `gui/` | Kompatibilitaetswrapper zur Tkinter-Analyse unter `ma_ui.tkinter_app.module_views.analyse` |
 | `settings.naming` | Namensmapping lesen und anwenden; Dokument liegt daneben als `naming.md` |
 | `settings.formats` | Ausgabeformate lesen und bereitstellen; Dokument liegt daneben als `output_formats.md` |
 | `settings.plot_templates` | Plot-Template-Defaults aus `plot_templates.toml` lesen |

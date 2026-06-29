@@ -1,6 +1,6 @@
 # Entscheidungen
 
-Stand: 2026-06-24
+Stand: 2026-06-29
 
 Dieses Dokument sammelt technische und architektonische Entscheidungen. Echte Nutzerentscheidungen stehen getrennt in `USER_DECISIONS_MASTERTHESIS_CODE.md`.
 
@@ -125,8 +125,9 @@ bestehende CLI, Tkinter-GUI oder Fachmodule sofort umzubauen.
 
 Begruendung:
 
-- `src/ma_analyse/gui/app.py` ist stark mit Tkinter-State, Worker-Thread und
-  Pipelineaufrufen gekoppelt.
+- Die fruehere Tkinter-Hauptdatei war stark mit Tkinter-State, Worker-Thread
+  und Pipelineaufrufen gekoppelt; die Datei liegt inzwischen unter
+  `src/ma_ui/tkinter_app/module_views/analyse/app.py`.
 - `src/ma_analyse/app/commands.py` ist bereits ein guter Einstiegspunkt, aber
   noch CLI-nah durch `argparse.Namespace`, `print()` und `SystemExit`.
 - Eine Fassade reduziert Risiko, weil sie bestehende Funktionen nutzt und
@@ -179,13 +180,15 @@ Begruendung:
 
 ## Entscheidung 15: Tkinter wird nicht technisch nach Streamlit uebersetzt
 
-Die bestehende Tkinter-GUI in `src/ma_analyse/gui/` wird als fachliche
-Ablaufquelle genutzt, aber nicht als technische Vorlage fuer Streamlit.
+Die Tkinter-Analyse in `src/ma_ui/tkinter_app/module_views/analyse/` wird als
+fachliche Ablaufquelle genutzt, aber nicht als technische Vorlage fuer
+Streamlit.
 
 Begruendung:
 
 - Tkinter-Widgets, Messageboxen, Worker-Threads und GUI-State sind eng mit der
-  aktuellen Datei `src/ma_analyse/gui/app.py` gekoppelt.
+  aktuellen Datei `src/ma_ui/tkinter_app/module_views/analyse/app.py`
+  gekoppelt.
 - Streamlit braucht eine andere Zustands- und Anzeigeform.
 - Die fachliche Analyse muss ueber neutrale Services nutzbar bleiben.
 
@@ -195,6 +198,8 @@ Technische Folge:
 - Analysebezogene Bedienung entsteht spaeter in
   `ma_ui/module_views/analyse_view.py`.
 - Fachliche Analysefunktionen bleiben in `ma_analyse`.
+- `ma_analyse` bekommt keine neuen Tkinter-Startpfade oder
+  Kompatibilitaetswrapper.
 
 ## Entscheidung 16: Plot-Template-Ausgabemodus wird zentral orchestriert
 

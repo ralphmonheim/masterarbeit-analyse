@@ -2,10 +2,10 @@
 
 Stand: 2026-06-10
 
-Aktueller Nachtrag 2026-06-24: Die Service-Schnittstelle bleibt fachlich
-gueltig. Die Tkinter-Analyse liegt inzwischen unter
-`ma_ui.tkinter_app.module_views.analyse`; `ma_analyse.gui` ist nur noch
-Kompatibilitaet.
+Aktueller Nachtrag 2026-06-28: Die Service-Schnittstelle bleibt fachlich
+gueltig. Die Tkinter-Analyse liegt inzwischen ausschliesslich unter
+`ma_ui.tkinter_app.module_views.analyse`; der alte Kompatibilitaetspfad
+`ma_analyse.gui` und der CLI-Befehl `python -m ma_analyse gui` wurden entfernt.
 
 ## Zweck
 
@@ -42,6 +42,16 @@ P029-Fortschreibung 4 vom 2026-06-27: Der Servicepfad nutzt
 werden als strukturierte Servicefehler in `AnalysisResult.errors`
 zurueckgegeben; CLI und Tkinter bleiben ueber `ensure_required_data(...)`
 kompatibel.
+
+P029-Fortschreibung 5 vom 2026-06-28: Tkinter ist nicht mehr Teil von
+`ma_analyse`. Das Fachmodul stellt weiterhin Services, Runner, Templates und
+Konfigurationen bereit; der Tkinter-Startpfad und der lokale GUI-Parser liegen
+unter `ma_ui.tkinter_app.module_views.analyse`.
+
+P029-Fortschreibung 6 vom 2026-06-28: Die Tkinter-Analyse baut ihren
+Analyseauftrag ueber `pipeline_config.py` als `AnalysisConfig` und startet ihn
+ueber `ma_workflow.run_analysis_action`. Direkte Tkinter-Runner-Aufrufe von
+`build_runtime_args`, `execute_steps` und `run_all` sind entfernt.
 
 ## Ziel
 
@@ -153,9 +163,9 @@ Neuschreibung.
 
 Die aktuelle Grenze ist bewusst pragmatisch: `AnalysisRuntimeOptions` ist noch
 keine oeffentliche API, sondern ein interner Zwischenschritt. Dadurch bleiben
-CLI, Tkinter, Streamlit und `ma_workflow` kompatibel, waehrend spaetere Slices
-`ma_analyse.app.commands`, `heating.py`, `cooling.py` und Tkinter gezielter
-entkoppeln koennen.
+CLI, Streamlit, `ma_workflow` und die getrennte Tkinter-Analyse kompatibel,
+waehrend spaetere Slices `ma_analyse.app.commands`, `heating.py`,
+`cooling.py` und die Tkinter-Datei unter `ma_ui` gezielter entkoppeln koennen.
 
 ## Einbindung in ma_ui
 
@@ -190,8 +200,7 @@ aus.
 
 ## Nicht-Ziele des ersten Code-Slices
 
-- Keine Aufteilung von `src/ma_analyse/gui/app.py`.
-- Keine Verschiebung nach `ma_ui_legacy`.
+- Keine Aufteilung der Tkinter-Hauptdatei unter `ma_ui`.
 - Keine fachlich vollstaendige Streamlit-Analyseoberflaeche.
 - Keine Neuschreibung von Heating, Cooling oder Comfort.
 - Keine Aenderung der bestehenden CLI.

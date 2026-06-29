@@ -8,32 +8,35 @@ Dieses Dokument bewertet die bestehenden Oberflaechen und bereitet eine spaetere
 Auslagerung in eine gemeinsame `ma_ui`-Struktur vor. Es werden keine Dateien
 verschoben und keine Imports geaendert.
 
-Aktueller Nachtrag 2026-06-24: Die vorbereitete Auslagerung wurde als
+Aktueller Nachtrag 2026-06-28: Die vorbereitete Auslagerung wurde als
 kombinierter UI-Strukturumzug umgesetzt. Streamlit liegt unter
 `ma_ui.streamlit_app`, Tkinter unter `ma_ui.tkinter_app`; `ma_analyse.gui`
-bleibt als Kompatibilitaetswrapper bestehen. Angaben zu `ma_ui_legacy` sind
+und `python -m ma_analyse gui` wurden entfernt. Angaben zu `ma_ui_legacy` sind
 historisch.
 
-Streamlit ist die Zieltechnik fuer die neue zentrale Oberflaeche. Die bestehende
-Tkinter-Oberflaeche aus `ma_analyse` wird als Legacy-Bestand bewertet und darf
-nicht direkt mit Streamlit vermischt werden.
+Streamlit ist die Zieltechnik fuer die neue zentrale Oberflaeche. Die
+Tkinter-Analyse liegt als getrennter UI-Zweig unter
+`ma_ui.tkinter_app.module_views.analyse` und darf nicht direkt mit Streamlit
+vermischt werden.
 
 ## Bestand
 
 | Datei | Rolle | Allgemein nutzbar | Empfohlener Zielort | Risiko | Kommentar |
 |---|---|---|---|---|---|
-| `src/ma_analyse/gui/app.py` | Tkinter-Hauptoberflaeche, Fenster, Ablaufsteuerung, Auswahl, Loganzeige und Analysebefehle | teilweise | spaeter optional nach `ma_ui_legacy/tkinter_analyse_app.py`; neue Analyseansicht separat unter `ma_ui/pages/analyse.py` | hoch | Datei ist sehr gross und mischt UI, Prozesssteuerung und Analyseoptionen. Nicht direkt verschieben. |
-| `src/ma_analyse/gui/dialogs.py` | Tkinter-Dialoge fuer Ausgabeformate und Namensmapping | teilweise | spaeter `ma_ui_legacy` oder fachnahe Settings bei `ma_analyse` | mittel | Enthaltene Logik ist an Analyse-Settings und Tkinter-Dialoge gekoppelt. |
-| `src/ma_analyse/gui/selection.py` | Auswahlhelfer fuer Varianten und Raeume | teilweise | fachliche Auswahl fuer Analyse bleibt in `ma_analyse`; reine UI-State-Helfer koennen spaeter extrahiert werden | mittel | Enthaltene Variantenlogik nutzt Analysepfade und Suffixe. |
-| `src/ma_analyse/gui/singleton.py` | Steuerung fuer nur eine laufende Tkinter-Instanz | teilweise | spaeter `ma_ui_legacy` | mittel | Technisch Tkinter-/Socket-nah und fuer Streamlit nicht relevant. |
-| `src/ma_analyse/gui/worker.py` | Queue-Writer fuer Worker-Logs | ja, klein | spaeter `ma_ui_legacy` oder neutraler Logging-Helfer | gering | Einfacher Helfer; Zielort haengt von der spaeteren Service-Struktur ab. |
-| `src/ma_variants/ui/app.py` | Streamlit-Oberflaeche fuer Variantenkontrolle | teilweise | spaeter als Modulseite in `ma_ui/pages/variants.py` denkbar | mittel | Besser getrennt als `ma_analyse/gui/app.py`, aber Streamlit-spezifisch. |
+| `src/ma_ui/tkinter_app/module_views/analyse/app.py` | oeffentliche Fassade fuer `PipelineGUI`, `run_gui`, `run_gui_refresh` und `run_gui_menu` | ja, als Einstieg | stabil halten | mittel | Startpfade bleiben hier; die Detailmethoden liegen in Mixins. |
+| `src/ma_ui/tkinter_app/module_views/analyse/*_state.py`, `layout_steps.py`, `theme_window.py`, `pipeline_config.py`, `pipeline_runner.py` | interne Tkinter-Mixins und Adapter fuer Zustand, Layout, Fenster, Analyseauftrag und Laufsteuerung | teilweise | unter `ma_ui` weiterfuehren; spaeter fachlich weiter entkoppeln | mittel | Technische Zerlegung plus `AnalysisConfig`-Adapter ohne Fachlogik-Kopie. |
+| `src/ma_ui/tkinter_app/module_views/analyse/dialogs.py` | Tkinter-Dialoge fuer Ausgabeformate und Namensmapping | teilweise | unter `ma_ui` weiterfuehren; fachnahe Settings bleiben bei `ma_analyse` | mittel | Enthaltene Logik ist an Analyse-Settings und Tkinter-Dialoge gekoppelt. |
+| `src/ma_ui/tkinter_app/module_views/analyse/selection.py` | Auswahlhelfer fuer Varianten und Raeume | teilweise | bei weiterer Zerlegung zwischen UI-State und fachlicher Auswahl trennen | mittel | Enthaltene Variantenlogik nutzt Analysepfade und Suffixe. |
+| `src/ma_ui/tkinter_app/module_views/analyse/singleton.py` | Tkinter-App-Instanzsteuerung und Refresh-Koordination | teilweise | unter `ma_ui` weiterfuehren | mittel | Technisch Tkinter-/Socket-nah und fuer Streamlit nicht relevant. |
+| `src/ma_ui/tkinter_app/module_views/analyse/worker.py` | Queue-Writer fuer Worker-Logs | ja, klein | unter `ma_ui` weiterfuehren oder spaeter als neutraler Logging-Helfer pruefen | gering | Einfacher Helfer; Zielort haengt von der spaeteren Service-Struktur ab. |
+| `src/ma_variants/ui/app.py` | Streamlit-Oberflaeche fuer Variantenkontrolle | teilweise | spaeter als Modulseite in `ma_ui/pages/variants.py` denkbar | mittel | Besser getrennt als die alte Tkinter-Hauptdatei, aber Streamlit-spezifisch. |
 | `src/ma_variants/ui/services.py` | UI-nahe Services ohne Streamlit-Abhaengigkeit | ja | Muster fuer weitere UI-Services | gering | Gute Trennung zwischen Oberflaeche und Fachlogik. |
 
 ## Konkrete Tkinter-Inventur
 
-Der aktuelle Tkinter-Bestand liegt fachlich vor allem in
-`src/ma_analyse/gui/app.py`.
+Der aktuelle Tkinter-Bestand liegt fachlich unter
+`src/ma_ui/tkinter_app/module_views/analyse/`. `app.py` ist nur noch die
+Fassade; die Detailmethoden liegen in internen Mixins.
 
 Gefundene Einstiegspunkte:
 
@@ -55,10 +58,10 @@ Gefundene UI-Bereiche:
 
 Gefundene technische Kopplungen:
 
-- Tkinter-State wird direkt in Analyseoptionen uebersetzt.
+- Tkinter-State wird in `AnalysisConfig` uebersetzt.
 - Messageboxen werden fuer Validierung und Fehler genutzt.
 - Worker-Thread und Queue sind Teil der Tkinter-Laufsteuerung.
-- Die GUI ruft bestehende Pipeline-Einstiegspunkte aus der Analyse auf.
+- Die GUI startet den Analyseauftrag ueber `ma_workflow.run_analysis_action`.
 
 Bewertung: Diese Struktur ist fachlich wertvoll, aber technisch nicht geeignet
 fuer eine direkte Uebernahme in Streamlit.
@@ -92,19 +95,23 @@ aber ueber `ma_workflow` und `ma_analyse.services`, nicht ueber Tkinter-Code.
 | Tabellenanzeige | `ma_ui/shared/tables.py` | Anzeige in UI, Datenberechnung im Fachmodul |
 | Diagrammanzeige | `ma_ui/shared/plot_viewer.py` | Anzeige in UI, Plot-Erzeugung im Fachmodul |
 | Analysebedienung | `ma_ui/module_views/analyse_view.py` | baut `AnalysisConfig` und ruft Workflow-Aktion |
-| Tkinter-Hauptfenster | `ma_ui_legacy/tkinter_analyse_app.py` | nur nach separater Freigabe |
+| Tkinter-Hauptfenster | `ma_ui.tkinter_app.module_views.analyse` | bestehender getrennter UI-Zweig, baut `AnalysisConfig` und nutzt die Workflow-Aktion |
 | Analysefunktionen | `ma_analyse` | bleiben fachlicher Kern |
 
 ## Bewertung
 
-`ma_analyse` enthaelt aktuell die kritischste UI-Struktur. `app.py` ist gross
-und sollte nicht direkt in `ma_ui` verschoben werden. Der sichere Weg ist:
+Die Tkinter-Analyse ist weiterhin die kritischste UI-Struktur, ist aber
+technisch in kleinere Dateien gegliedert. Der sichere Weg ist:
 
 1. Fachliche Analysebefehle in `ma_analyse` belassen.
-2. Tkinter-Bestandteile als Legacy-Bestand dokumentieren.
+2. Tkinter-Bestandteile unter `ma_ui` dokumentiert weiterfuehren.
 3. Wiederverwendbare UI-Helfer in kleinen Schritten identifizieren.
 4. Die minimale Streamlit-`ma_ui`-Shell nur als Adapter auf Fachservices ausbauen.
 5. Analyseansicht schrittweise ueber die UI-neutrale `ma_analyse`-Service-Schnittstelle erweitern.
+
+Der Pipeline-Start der Tkinter-Analyse folgt diesem Zielpfad inzwischen:
+`pipeline_config.py` baut `AnalysisConfig`, `pipeline_runner.py` ruft
+`ma_workflow.run_analysis_action`.
 
 `ma_variants` zeigt bereits die bessere Richtung: Die Streamlit-Datei ist
 vergleichsweise klein, und die fachnahen Operationen liegen in `ui/services.py`.
@@ -112,8 +119,8 @@ vergleichsweise klein, und die fachnahen Operationen liegen in `ui/services.py`.
 ## Zielregeln
 
 - `ma_ui` nutzt Streamlit.
-- `ma_ui_legacy` kann spaeter die bestehende Tkinter-Oberflaeche aufnehmen.
-- `ma_analyse` soll langfristig keine verpflichtende Tkinter-Abhaengigkeit haben.
+- Tkinter bleibt unter `ma_ui.tkinter_app`.
+- `ma_analyse` hat keine Tkinter-Abhaengigkeit mehr.
 - Streamlit- und Tkinter-Code werden nicht in derselben Oberflaeche kombiniert.
 - Berechnungslogik, Plotlogik und Excel-Reportlogik bleiben in Fachmodulen.
 - UI-Seiten bauen Konfigurationen, rufen Services auf und zeigen Ergebnisse an.
@@ -138,10 +145,11 @@ Ausbauschritt.
 
 ## Nicht jetzt umsetzen
 
-- `src/ma_analyse/gui/app.py` nicht verschieben.
+- Die Tkinter-Mixins unter `ma_ui` nicht ohne eigenen Folgeslice fachlich
+  umbauen.
 - Bestehende Tkinter-GUI nicht auf Streamlit umbauen.
 - Keine Tkinter-Bestandteile direkt in Streamlit-Seiten einbauen.
-- Keine Importpfade in `ma_analyse` aendern.
+- Keine neuen Tkinter-Importpfade in `ma_analyse` einfuehren.
 - Keine Fachlogik in `ma_ui` duplizieren.
 - Keine neuen Zielmodule ohne separaten Implementierungsplan anlegen.
 - Bestehende `src/ma_ui/pages/`-Struktur nicht ungeprueft nach

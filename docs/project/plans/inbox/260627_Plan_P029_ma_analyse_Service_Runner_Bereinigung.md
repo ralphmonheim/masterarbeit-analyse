@@ -1,6 +1,6 @@
 # P029 ma_analyse Service- und Runner-Bereinigung
 
-Stand: 2026-06-27
+Stand: 2026-06-29
 Status: Aktiv
 Prioritaet: Hoch
 Abhaengigkeiten: P005, P019, P027, bestehendes `ma_analyse`
@@ -8,8 +8,8 @@ Abhaengigkeiten: P005, P019, P027, bestehendes `ma_analyse`
 ## Ziel
 
 `ma_analyse` soll schrittweise besser aufgeraeumt werden, ohne bestehende
-Analysefunktionen, CLI-Befehle, Tkinter-Bedienung oder Streamlit-Anbindung zu
-gefaehrden.
+Analysefunktionen, fachliche CLI-Befehle, getrennte Tkinter-Bedienung oder
+Streamlit-Anbindung zu gefaehrden.
 
 Der naechste grosse Schritt ist eine stabilere Service- und Runner-Schicht
 zwischen `AnalysisConfig` und den bestehenden Fachfunktionen. Danach koennen
@@ -24,7 +24,9 @@ zwischen `AnalysisConfig` und den bestehenden Fachfunktionen. Danach koennen
 - `ma_analyse.app.commands` ist weiterhin stark CLI-nah:
   `argparse.Namespace`, `print()` und `SystemExit` sind noch Teil des
   internen Ausfuehrungspfads.
-- Tkinter nutzt noch direkte Funktionen aus `ma_analyse.app.commands`.
+- Tkinter liegt inzwischen unter `ma_ui.tkinter_app.module_views.analyse` und
+  nutzt fuer den Start ueber den Runner inzwischen `AnalysisConfig` und
+  `ma_workflow.run_analysis_action`.
 - `heating.py` und `cooling.py` sind gross und aehnlich, sollen aber erst nach
   stabilerer Ausfuehrungsschicht zerlegt werden.
 
@@ -70,7 +72,8 @@ Fachfunktionen bleiben in diesem Plan zunaechst an Ort und Stelle.
 - Keine Aenderung bestehender Ausgabepfade oder Dateinamen.
 - Keine grosse Zerlegung von `heating.py` oder `cooling.py` im ersten Slice.
 - Keine direkte Uebernahme von Tkinter-Widgets in Streamlit.
-- Keine Entfernung von `ma_analyse.gui`-Kompatibilitaetsimporten.
+- Keine fachliche Kopie von Analysefunktionen nach `ma_ui`; Tkinter nutzt
+  weiterhin das `ma_analyse`-Backend.
 
 ## Akzeptanzkriterien
 
@@ -158,6 +161,42 @@ Slice 6:
 - CLI und Tkinter bleiben ueber `ensure_required_data(...)` kompatibel.
 - Tests sichern strukturierte Servicefehler, Alias-/Sammelbefehlpfade und den
   Nichtaufruf des Legacy-Runners bei fehlenden Nutzdaten ab.
+
+Slice 7:
+
+- Die harte Tkinter-Migration entfernt `ma_analyse.gui.*` und den alten
+  CLI-Befehl `python -m ma_analyse gui`.
+- `ma_ui.tkinter_app.module_views.analyse` wird alleiniger Eigentumer der
+  Tkinter-Analyse und erhaelt einen eigenen kleinen Parser fuer GUI-Startwerte.
+- Der Streamlit-Launcher bleibt beim kanonischen Modulstart
+  `python -m ma_ui.tkinter_app.module_views.analyse`.
+- Tests sichern, dass die `ma_analyse`-CLI keinen `gui`-Befehl mehr anbietet
+  und der neue Tkinter-Parser weiter lauffaehig ist.
+
+Slice 8:
+
+- Die Tkinter-Analyse unter `ma_ui.tkinter_app.module_views.analyse` wurde
+  intern in Mixins fuer Initialisierung, Fenster/Style, Layout, Schrittfluss,
+  Auswahl-State, Plot-Template-State und Pipeline-Runner zerlegt.
+- `app.py` bleibt die oeffentliche Fassade mit `PipelineGUI`, `run_gui`,
+  `run_gui_refresh` und `run_gui_menu`; die privaten Methodennamen bleiben
+  fuer bestehende Tests und interne Aufrufe stabil.
+- `restart.py`, `tk_compat.py` und `constants.py` kapseln Restart-Argumente,
+  Tkinter-Importe und UI-Konstanten.
+- Tests sichern Paketimports, Restart-Argumente, Parser-Defaults und die
+  bisherigen GUI-Helfer ab.
+
+Slice 9:
+
+- `pipeline_config.py` baut aus dem Tkinter-Zustand einen UI-neutralen
+  `AnalysisConfig`.
+- `pipeline_runner.py` ruft die Analyse ueber `ma_workflow.run_analysis_action`
+  auf und nutzt nicht mehr direkt `build_runtime_args`, `execute_steps` oder
+  `run_all` aus `ma_analyse.app.commands`.
+- `AnalysisResult.log_text`, Warnungen, Fehler und erzeugte Dateien werden in
+  das bestehende Tkinter-Protokollfenster geschrieben.
+- Tests sichern den Config-Adapter und den Worker-Aufruf ueber die
+  Workflow-Aktion ab.
 
 ## Risiken
 

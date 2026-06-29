@@ -12,13 +12,12 @@ sondern dient als schneller Statusabgleich.
 |---|---|---:|---:|---:|---|---|
 | `ma_ui` | `python -m streamlit run src/ma_ui/app.py` | ja, UI-Shell | ja | nein | nutzbar | `docs/ma_ui/commands_ui.md`, `src/ma_ui/app.py` |
 | `ma_ui` | Workspace-/Workflow-Modus | ja, Navigation | ja | nein | minimal umgesetzt | `src/ma_ui/streamlit_app/app.py`, `src/ma_ui/streamlit_app/navigation.py` |
-| `ma_ui` | `Tkinter-Analyse oeffnen` | ja, Launcher | ja | ja, separater Prozess | nutzbar | `src/ma_ui/tkinter_app/launcher.py`, `src/ma_ui/streamlit_app/app.py` |
+| `ma_ui` | `Tkinter-Analyse oeffnen` | ja, Launcher und `AnalysisConfig`-Adapter | ja | ja, separater Prozess | nutzbar | `src/ma_ui/tkinter_app/launcher.py`, `src/ma_ui/tkinter_app/module_views/analyse/pipeline_config.py`, `src/ma_ui/tkinter_app/module_views/analyse/pipeline_runner.py` |
 | `ma_workflow` | zentraler Modulkatalog | ja | ja, Modulinfos und Startseite | nein | nutzbar | `src/ma_workflow/catalog.py`, `docs/ma_workflow/commands_workflow.md` |
 | `ma_weather` | `python -m ma_weather.run_weather_analysis --weather-key ...` | ja | ja, Wetterdaten-Seite | nein | nutzbar | `src/ma_weather/run_weather_analysis.py`, `docs/ma_weather/commands_weather.md` |
 | `ma_weather` | `plot-template-weather <diagramm> --weather-key ...` | ja | ja, Wetterdiagramm-Auswahl | nein | nutzbar | `pyproject.toml`, `src/ma_weather/run_weather_analysis.py` |
 | `ma_weather` | Wetterdiagramme `all`, `temperature_year`, `temperature_heatmap`, `monthly_radiation`, `monthly_degree_hours`, `wind_rose`, `temperature_humidity_scatter` | ja | ja | nein | nutzbar | `src/ma_weather/weather_plots.py` |
 | `ma_weather` | TRY-Import, Scan, Validierung, Aktivierung | ja | ja | nein | teilweise umgesetzt | `src/ma_ui/streamlit_app/pages/weather.py`, `src/ma_weather/weather_file_discovery.py` |
-| `ma_analyse` | `python -m ma_analyse gui` | ja | ja, als Launcher/Kompatibilitaet | ja | nutzbar | `docs/ma_analyse/commands_analyse.md`, `src/ma_analyse/gui/` |
 | `ma_analyse` | `prepare` | ja | ja, Analyse-Wizard | ja | nutzbar | `docs/ma_analyse/commands_analyse.md`, `src/ma_analyse/app/cli.py` |
 | `ma_analyse` | `comfort` | ja | ja, Analyse-Wizard | ja | nutzbar | `docs/ma_analyse/commands_analyse.md`, `src/ma_analyse/analysis_wizard.py` |
 | `ma_analyse` | `analyze-data` | ja | ja, Analyse-Wizard | ja | nutzbar | `docs/ma_analyse/commands_analyse.md`, `src/ma_analyse/analysis_ui.py` |

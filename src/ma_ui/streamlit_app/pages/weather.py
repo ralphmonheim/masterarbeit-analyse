@@ -59,6 +59,7 @@ WEATHER_RESULT_SESSION_KEY = "ma_ui_weather_analysis_result"
 WEATHER_KEY_WIDGET_KEY = "ma_ui_weather_key"
 WEATHER_PLOT_WIDGET_KEY = "ma_ui_weather_plot_template"
 WEATHER_LOCATION_WIDGET_KEY = "ma_ui_weather_location"
+WEATHER_DATASET_TYPE_WIDGET_KEY = "ma_ui_weather_dataset_type"
 WEATHER_SESSION_ID_SESSION_KEY = "ma_ui_weather_session_id"
 WEATHER_RELEASE_DECISION_SESSION_KEY = "ma_ui_weather_release_decision"
 WEATHER_RELEASE_NOTE_WIDGET_KEY = "ma_ui_weather_release_note"
@@ -87,6 +88,22 @@ WEATHER_YEAR_TYPE_LABELS = {
     "future_year": "Jahr",
     "summer_extreme": "Sommer",
     "winter_extreme": "Winter",
+}
+WEATHER_DATASET_TYPE_FILTER_OPTIONS = ("Jahr", "Sommer", "Winter")
+GENERATED_DISCOVERY_FIELDS = {
+    "dataset_role",
+    "display_name",
+    "weather_key",
+}
+DISCOVERY_FIELD_LABELS = {
+    "climate_scenario": "Szenario",
+    "dataset_type": "Datensatztyp",
+    "location_id": "Stadt",
+    "location_resolution": "Standortaufloesung",
+    "try_folder_key": "TRY-Ordner",
+    "try_id": "TRY-ID",
+    "year": "Bezugsjahr",
+    "year_type": "Jahrtyp",
 }
 
 WEATHER_IMPORT_TYPE_OPTIONS = {
@@ -227,22 +244,26 @@ def weather_dataset_type_label(dataset: WeatherDataset) -> str:
     return WEATHER_YEAR_TYPE_LABELS.get(dataset.year_type, dataset.year_type or "Unbekannt")
 
 
+def _datasets_for_weather_dataset_type(
+    datasets: list[WeatherDataset],
+    dataset_type: str,
+) -> list[WeatherDataset]:
+    """Filtert Datensaetze fuer die kompakte Auswahl nach Jahr, Sommer oder Winter."""
+    return [
+        dataset
+        for dataset in datasets
+        if weather_dataset_type_label(dataset) == dataset_type
+    ]
+
+
 def weather_dataset_label(
     dataset: WeatherDataset,
     status: WeatherDatasetStatus | None = None,
     selection_state: WeatherSelectionState | None = None,
 ) -> str:
     """Baut eine kompakte Auswahlbeschriftung fuer Wetterdatensaetze."""
-    role_label = weather_dataset_role_label(dataset)
-    type_label = weather_dataset_type_label(dataset)
-    prefix = "Empfohlen: " if dataset.dataset_role == DATASET_ROLE_TRY_REFERENCE else ""
-    state_suffix = ""
-    if selection_state and selection_state.project_default_weather_key == dataset.weather_key:
-        state_suffix = " | Projekt-Default"
-    elif selection_state and selection_state.is_activated(dataset.weather_key):
-        state_suffix = " | aktiviert"
-    status_suffix = f" | {status.status_label}" if status else ""
-    return f"{prefix}{dataset.weather_key} - {dataset.location} [{type_label}] ({role_label}{status_suffix}{state_suffix})"
+    _ = status, selection_state
+    return dataset.display_name
 
 
 def weather_location_label(location: WeatherLocation) -> str:
@@ -250,6 +271,14 @@ def weather_location_label(location: WeatherLocation) -> str:
     if location.legacy_code:
         return f"{location.location_name} ({location.legacy_code})"
     return location.location_name
+
+
+def _weather_region_display_code(region: WeatherRegion) -> str:
+    """Kuerzt TRY12 in der Auswahlansicht zu 12."""
+    region_code = region.region_code.strip()
+    if region_code.upper().startswith("TRY") and region_code[3:].isdigit():
+        return region_code[3:]
+    return region_code
 
 
 def weather_location_rows(catalog: WeatherLocationCatalog) -> list[dict[str, object]]:
@@ -752,24 +781,39 @@ def _render_weather_import_panel() -> None:
     st.rerun()
 
 
+def _discovery_location_overview_value(discovery: WeatherFileDiscovery) -> str:
+    """Zeigt nur bestaetigte Standorte als Ort in der Entwurfsuebersicht."""
+    if discovery.location_id and discovery.location_name:
+        return discovery.location_name
+    return "offen"
+
+
 def _weather_discovery_overview_rows(discoveries: list[WeatherFileDiscovery]) -> list[dict[str, object]]:
     """Reduzierte Uebersicht fuer lokale TRY-Dateientwuerfe."""
     rows: list[dict[str, object]] = []
     for discovery in discoveries:
-        suggested_location = discovery.metadata.get("suggested_location_name", "")
-        detected_location = discovery.metadata.get("detected_municipality_name", "")
         rows.append(
             {
                 "Datei": discovery.file_path.name,
                 "Status": discovery.status.value,
-                "Ort / Vorschlag": discovery.location_name or detected_location or suggested_location,
+                "Ort / Vorschlag": _discovery_location_overview_value(discovery),
                 "Jahr": discovery.year if discovery.year is not None else "",
                 "Typ": discovery.dataset_type,
                 "Szenario": discovery.climate_scenario,
-                "Offene Punkte": ", ".join(discovery.missing_fields),
+                "Offene Punkte": _visible_discovery_missing_fields(discovery),
             }
         )
     return rows
+
+
+def _visible_discovery_missing_fields(discovery: WeatherFileDiscovery) -> str:
+    """Zeigt nur fachlich relevante offene Entwurfspunkte in der UI."""
+    visible_fields = [
+        DISCOVERY_FIELD_LABELS.get(field_name, field_name)
+        for field_name in discovery.missing_fields
+        if field_name not in GENERATED_DISCOVERY_FIELDS
+    ]
+    return ", ".join(dict.fromkeys(visible_fields))
 
 
 def _render_weather_discoveries(*, show_validation_hint: bool = False) -> None:
@@ -999,7 +1043,7 @@ def _render_weather_map() -> None:
     st.markdown("**Klimaregionen**")
     image_path = _weather_map_image_path()
     if image_path.exists():
-        st.image(str(image_path), caption="TRY-Klimaregionen Deutschland", width="stretch")
+        st.image(str(image_path), caption="Klimaregionen Deutschland", width="stretch")
     else:
         st.info(
             "Die Klimaregionenkarte ist noch nicht hinterlegt. "
@@ -1013,16 +1057,26 @@ def _render_location_context(
 ) -> tuple[WeatherRegion, WeatherLocation]:
     region = location_catalog.region_for_location(selected_location.location_id)
     reference_location = location_catalog.reference_location_for_city(selected_location.location_id)
-    st.markdown(f"**Klimaregion:** {region.region_code} - {region.region_name or 'ohne Bezeichnung'}")
-    st.markdown(f"**TRY-Referenzstandort:** {reference_location.location_name}")
+    st.markdown(f"**Klimaregion:** {_weather_region_display_code(region)}")
+    st.markdown(f"**Referenzstandort:** {reference_location.location_name}")
     return region, reference_location
 
 
 def _render_unselected_weather_context() -> tuple[None, bool]:
     """Haelt die Auswahlbereiche sichtbar, solange noch keine Stadt gewaehlt ist."""
     st.markdown("**Klimaregion:** -")
-    st.markdown("**TRY-Referenzstandort:** -")
+    st.markdown("**Referenzstandort:** -")
     st.info("Bitte zuerst eine Stadt auswaehlen.")
+    st.segmented_control(
+        "Datensatztyp",
+        options=WEATHER_DATASET_TYPE_FILTER_OPTIONS,
+        selection_mode="single",
+        default=WEATHER_DATASET_TYPE_FILTER_OPTIONS[0],
+        required=True,
+        disabled=True,
+        key=f"{WEATHER_DATASET_TYPE_WIDGET_KEY}_placeholder",
+        width="stretch",
+    )
     st.selectbox(
         "Wetterdatensatz",
         options=("Noch keine Stadt ausgewaehlt",),
@@ -1080,17 +1134,30 @@ def _render_weather_selection(
                 ),
                 status_by_key,
             )
-            if not _try_reference_datasets(selectable_datasets):
-                st.info(
-                    "Fuer diesen TRY-Referenzstandort ist noch kein aktiver "
-                    "TRY-Referenzdatensatz katalogisiert."
-                )
-            if _site_specific_datasets(selectable_datasets):
-                st.caption("Standortgenaue Datensaetze werden zusaetzlich zur Referenz angezeigt.")
+
+        selected_dataset_type = st.segmented_control(
+            "Datensatztyp",
+            options=WEATHER_DATASET_TYPE_FILTER_OPTIONS,
+            selection_mode="single",
+            default=WEATHER_DATASET_TYPE_FILTER_OPTIONS[0],
+            required=True,
+            key=WEATHER_DATASET_TYPE_WIDGET_KEY,
+            width="stretch",
+        )
+        selected_dataset_type = selected_dataset_type or WEATHER_DATASET_TYPE_FILTER_OPTIONS[0]
+        selectable_datasets = _datasets_for_weather_dataset_type(selectable_datasets, selected_dataset_type)
+        if location_catalog is not None and not _try_reference_datasets(selectable_datasets):
+            st.info("Fuer diesen Referenzstandort ist noch kein aktiver Referenzdatensatz katalogisiert.")
 
         if not selectable_datasets:
             st.warning("Fuer die aktuelle Auswahl ist kein eindeutig zugeordneter aktiver Wetterdatensatz vorhanden.")
             return None, False
+
+        if location_catalog is not None:
+            st.caption(
+                "Referenzdatensatz der Klimaregion steht zuerst; standortgenaue Datensaetze "
+                "fuer die gewaehlte Stadt koennen zusaetzlich angeboten werden."
+            )
 
         datasets_by_key = {dataset.weather_key: dataset for dataset in selectable_datasets}
         selected_key = st.selectbox(
@@ -1204,7 +1271,7 @@ def weather_open_discovery_rows(discoveries: list[WeatherFileDiscovery]) -> list
                 "Warnungen": 0,
                 "Fehler": len(discovery.missing_fields),
                 "Datei": discovery.file_path.as_posix(),
-                "Offene Punkte": ", ".join(discovery.missing_fields),
+                "Offene Punkte": _visible_discovery_missing_fields(discovery),
                 "Hinweise": "; ".join(discovery.messages),
             }
         )

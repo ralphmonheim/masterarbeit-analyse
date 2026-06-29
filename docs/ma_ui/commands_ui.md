@@ -33,8 +33,8 @@ Alternative:
   klickbare Modul-Infoseiten sichtbar.
 - `src/ma_ui/app.py` bleibt der stabile Streamlit-Einstieg. Die eigentliche
   Streamlit-Logik liegt unter `ma_ui.streamlit_app`.
-- Tkinter liegt als eigener UI-Zweig unter `ma_ui.tkinter_app`. Alte
-  `ma_analyse.gui`-Importe bleiben nur als Kompatibilitaetswrapper bestehen.
+- Tkinter liegt als eigener UI-Zweig unter `ma_ui.tkinter_app`. `ma_analyse`
+  enthaelt keinen Tkinter-Kompatibilitaetspfad mehr.
 - Die technische Streamlit-Multipage-Navigation ist ueber
   `.streamlit/config.toml` ausgeblendet. Sichtbar bleiben soll nur die
   fachliche Projektnavigation.
@@ -76,13 +76,14 @@ Alternative:
 - Fachlogik wird nicht in der UI berechnet.
 - Analyseaufrufe laufen ueber `ma_workflow` und die Service-Fassade von
   `ma_analyse`.
+- Die getrennte Tkinter-Analyse baut ihren Analyseauftrag ebenfalls als
+  `AnalysisConfig` und startet ihn ueber `ma_workflow`; sie bleibt trotzdem ein
+  eigener Prozess und wird nicht in Streamlit eingebettet.
 - Die Analyse-Seite enthaelt einen Button `Tkinter-Analyse oeffnen`, der die
   Tkinter-Analyse als getrennten Prozess startet:
   `python -m ma_ui.tkinter_app.module_views.analyse`.
 - Die Tkinter-Analyse startet im ersten Befehlsschritt standardmaessig mit
   `plot-template`, damit Analyse-Template-Ausgaben direkt sichtbar sind.
-- Der alte Aufruf `python -m ma_analyse gui` bleibt als Kompatibilitaetspfad
-  nutzbar.
 - Die Seite `Analyse` ist als sichtbare Schrittstruktur aufgebaut:
   `Befehl`, `Unterbefehl`, `Template / Diagramm`, optional `Overlay`,
   `Varianten`, `Raeume`, `Export / Ausgabe` und einen festen Aktionsbereich.
@@ -120,7 +121,8 @@ Alternative:
   nicht einklappbar.
 - Die Tkinter-Analyse besitzt ebenfalls einen Button
   `Vorschau aktualisieren` zwischen `Zuruecksetzen` und `Start`; er nutzt
-  aktuell den bestehenden Analysepfad mit den aktuellen Einstellungen.
+  aktuell den normalen `AnalysisConfig`-/`ma_workflow`-Analysepfad mit den
+  aktuellen Einstellungen.
 - Plot-Template-Overlays werden direkt nach der Templatewahl bedient. Der
   Katalog nutzt weiterhin die erste gewaehlte Variante und den ersten
   gewaehlten Raum, weil die verfuegbaren CSV-/AUX-Spalten aus konkreten
@@ -147,6 +149,9 @@ Alternative:
   Lauf und Entscheidung werden unter `logs/sessions/` protokolliert.
 - Die Tkinter-Analyse bleibt separat von Streamlit und liegt unter
   `ma_ui.tkinter_app.module_views.analyse`.
+- Die Tkinter-Analyse ist intern in kleine Module fuer Start, Initialisierung,
+  Layout, Schrittfluss, Auswahl, Plot-Templates und Pipeline-Runner zerlegt;
+  `app.py` bleibt der stabile Import- und Startpunkt.
 - Wenn Streamlit nach Codeaenderungen alte Importfehler zeigt, den laufenden
   Streamlit-Prozess stoppen und mit dem empfohlenen venv-Befehl neu starten.
 - Wenn alte Modul-/Workflow-Darstellungen auf Modulviews sichtbar bleiben, ebenfalls

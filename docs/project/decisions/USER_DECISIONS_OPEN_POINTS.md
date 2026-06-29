@@ -1,6 +1,6 @@
 # Offene Nutzerentscheidungen
 
-Stand: 2026-06-23
+Stand: 2026-06-29
 
 Diese Datei enthaelt nur offene Nutzerentscheidungen. Erledigte Entscheidungen
 werden nach der Dokumentation als `UD-*` aus dieser Datei entfernt und stehen in
@@ -13,7 +13,9 @@ werden nach der Dokumentation als `UD-*` aus dieser Datei entfernt und stehen in
 - Thema: ma_analyse Cooling-Auswertung
 - Status: offen
 - Frage: Soll nach Abschluss der Diagrammbearbeitung die relative/absolute Cooling-Trennung auch in den regulaeren `cooling`-Befehl und die GUI-Auswahl uebernommen werden?
-- Auswirkung: Betrifft spaeter `src/ma_analyse/analysis/cooling.py`, `src/ma_analyse/app/cli.py` und `src/ma_analyse/gui/app.py`.
+- Auswirkung: Betrifft spaeter `src/ma_analyse/analysis/cooling.py`,
+  `src/ma_analyse/app/cli.py` und
+  `src/ma_ui/tkinter_app/module_views/analyse/app.py`.
 
 ### OP-008 ma_analyse-weite Normierungsstrategie
 

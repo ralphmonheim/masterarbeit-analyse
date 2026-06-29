@@ -1,6 +1,6 @@
 # Nutzerentscheidungen Masterarbeit Code
 
-Stand: 2026-06-24
+Stand: 2026-06-29
 
 ## UD-001 Modulare Projektstruktur
 
@@ -153,7 +153,9 @@ Stand: 2026-06-24
 - Entscheidung: Relative und absolute Cooling-Logik wird vorerst nur in den Plot-Templates getrennt. Der regulaere `cooling`-Befehl und die GUI-Auswahl werden noch nicht angepasst.
 - Begruendung: Die Diagrammlogik soll zuerst fertig bearbeitet und geprueft werden, bevor sie in das Hauptportal uebernommen wird.
 - Auswirkung: `cooling-year`, `cooling-month`, `cooling-week`, `cooling-day` und `cooling-absolute-*` bleiben die aktuelle Trennung. `python -m ma_analyse cooling ...` und die GUI behalten vorerst ihr bestehendes Verhalten.
-- Betroffene Module oder Dateien: `src/ma_analyse/analysis/templates/`, `src/ma_analyse/analysis/cooling.py`, `src/ma_analyse/app/cli.py`, `src/ma_analyse/gui/app.py`
+- Betroffene Module oder Dateien: `src/ma_analyse/analysis/templates/`,
+  `src/ma_analyse/analysis/cooling.py`, `src/ma_analyse/app/cli.py`,
+  `src/ma_ui/tkinter_app/module_views/analyse/app.py`
 - Status: getroffen
 - Offene Folgefragen: Nach Abschluss der Diagrammbearbeitung pruefen, ob regulaerer Cooling-Befehl und GUI die Trennung ebenfalls erhalten sollen.
 - Quelle oder Chatbezug: aktueller Codex-Chat zu Cooling-Logik
@@ -177,7 +179,8 @@ Stand: 2026-06-24
 - Entscheidung: `ma_ui` wird die gemeinsame Oberflaeche; `ma_workflow` wird die Orchestrierungsebene zwischen Oberflaeche und Fachmodulen.
 - Begruendung: UI, Workflowsteuerung und Fachlogik sollen nicht vermischt werden.
 - Auswirkung: Fachlogik bleibt in den Fachmodulen. Die minimale `ma_ui`-/`ma_workflow`-Shell ist umgesetzt und dient als Einstieg fuer spaetere Modulansichten.
-- Betroffene Module oder Dateien: `src/ma_ui/`, `src/ma_workflow/`, bestehend `src/ma_analyse/gui/`, `src/ma_variants/ui/`
+- Betroffene Module oder Dateien: `src/ma_ui/`, `src/ma_workflow/`,
+  `src/ma_ui/tkinter_app/module_views/analyse/`, `src/ma_variants/ui/`
 - Status: getroffen
 - Offene Folgefragen: Welche Fachseite wird als naechstes konkret angebunden?
 - Quelle oder Chatbezug: P005 Gesamtmodulstruktur
@@ -190,13 +193,14 @@ Stand: 2026-06-24
   Allgemein nutzbare UI-Bestandteile aus `ma_analyse` duerfen spaeter
   geprueft und nach Freigabe in `ma_ui` ueberfuehrt werden.
 - Begruendung: Die bestehende Analysepipeline ist funktionsfaehig und soll nicht durch eine direkte GUI-Verschiebung gefaehrdet werden.
-- Auswirkung: `src/ma_analyse/gui/app.py` wurde zuerst dokumentarisch
-  bewertet. Die Tkinter-Analyse liegt nach UD-062 unter `ma_ui.tkinter_app`,
-  waehrend `ma_analyse.gui` als Kompatibilitaetswrapper bleibt.
-- Betroffene Module oder Dateien: `src/ma_analyse/gui/`,
+- Auswirkung: Die fruehere Tkinter-Analyse wurde zuerst dokumentarisch
+  bewertet. Die Tkinter-Analyse liegt nach UD-062 unter `ma_ui.tkinter_app`;
+  der alte `ma_analyse.gui`-Pfad wurde durch UD-064 entfernt.
+- Betroffene Module oder Dateien: ehemals `src/ma_analyse/gui/`,
   `src/ma_ui/streamlit_app/pages/analyse.py`,
   `src/ma_ui/tkinter_app/module_views/analyse/`
-- Status: historisch, durch UD-062 strukturell praezisiert
+- Status: historisch, durch UD-062 strukturell praezisiert und durch UD-064
+  hart migriert
 - Offene Folgefragen: Welche Bestandteile der Tkinter-GUI sind fachliche Analyse, welche Legacy-UI und welche neutralen Helfer?
 - Quelle oder Chatbezug: P005 Gesamtmodulstruktur
 
@@ -233,11 +237,13 @@ Stand: 2026-06-24
   nicht direkt mit Streamlit vermischt. Die damalige Idee einer spaeteren
   Auslagerung nach `ma_ui_legacy` wurde durch UD-062 ersetzt.
 - Begruendung: Die bestehende Arbeit soll gesichert werden, ohne die neue Streamlit-Zielarchitektur technisch zu vermischen.
-- Auswirkung: `src/ma_analyse/gui/` bleibt als Kompatibilitaetsfassade
-  bestehen. Die echte Tkinter-Analyse liegt unter `ma_ui.tkinter_app`.
-- Betroffene Module oder Dateien: `src/ma_analyse/gui/`,
+- Auswirkung: Die echte Tkinter-Analyse liegt unter `ma_ui.tkinter_app`.
+  Der fruehere Kompatibilitaetspfad `ma_analyse.gui` wurde durch UD-064
+  entfernt.
+- Betroffene Module oder Dateien: ehemals `src/ma_analyse/gui/`,
   `src/ma_ui/tkinter_app/`
-- Status: historisch, durch UD-062 strukturell ersetzt
+- Status: historisch, durch UD-062 strukturell ersetzt und durch UD-064
+  hart migriert
 - Offene Folgefragen: konkrete Auslagerung erst nach Tkinter-Bestandsanalyse.
 - Quelle oder Chatbezug: P005 Anpassung Streamlit-Ziel-UI
 
@@ -276,7 +282,7 @@ Stand: 2026-06-24
 - Auswirkung: Streamlit-Ansichten werden neu ueber `ma_ui`, `ma_workflow`
   und UI-neutrale Fachservices aufgebaut. Tkinter liegt nach UD-062 als
   eigener UI-Zweig unter `ma_ui.tkinter_app`.
-- Betroffene Module oder Dateien: `src/ma_analyse/gui/`,
+- Betroffene Module oder Dateien: `src/ma_ui/tkinter_app/module_views/analyse/`,
   `src/ma_ui/streamlit_app/module_views/analyse_view.py`,
   `src/ma_ui/tkinter_app/`
 - Status: historisch, durch UD-062 strukturell praezisiert
@@ -372,8 +378,7 @@ Stand: 2026-06-24
   bleibt Haupteinstieg; Tkinter liegt getrennt unter `ma_ui.tkinter_app`.
 - Betroffene Module oder Dateien:
   `src/ma_ui/streamlit_app/module_views/analyse_view.py`,
-  `src/ma_ui/tkinter_app/module_views/analyse/app.py`,
-  `src/ma_analyse/gui/app.py`
+  `src/ma_ui/tkinter_app/module_views/analyse/app.py`
 - Status: historisch, durch UD-062 strukturell praezisiert
 - Offene Folgefragen: Wann ist die Streamlit-Analyse fachlich ausreichend, um die Legacy-Schaltflaeche zu entfernen?
 - Quelle oder Chatbezug: aktueller Codex-Chat zu Streamlit und Tkinter-Analyse
@@ -421,7 +426,10 @@ Stand: 2026-06-24
 - Entscheidung: Das Tkinter-Vorschaufenster soll Diagramme in einem temporaeren Vorschau- oder Cachebereich erzeugen, der automatisch geleert oder ueberschrieben werden kann.
 - Begruendung: Die Vorschau soll helfen, Diagramme vor dem finalen Export zu pruefen, ohne den regulaeren Output-Ordner mit vielen falschen Diagrammen zu fuellen.
 - Auswirkung: Der bestehende Button `Vorschau aktualisieren` soll perspektivisch nicht direkt dauerhaft in `data/ma_analyse/output/` schreiben, sondern einen getrennten Vorschaupfad nutzen und das Ergebnis im Vorschaufenster anzeigen.
-- Betroffene Module oder Dateien: `src/ma_analyse/gui/app.py`, spaeter Vorschau-/Cachepfad unter `data/test_output/` oder einem dedizierten Temp-Bereich
+- Betroffene Module oder Dateien:
+  `src/ma_ui/tkinter_app/module_views/analyse/app.py`, spaeter
+  Vorschau-/Cachepfad unter `data/test_output/` oder einem dedizierten
+  Temp-Bereich
 - Status: getroffen
 - Offene Folgefragen: Konkreten Cachepfad und Loeschregel im Umsetzungsslice festlegen.
 - Quelle oder Chatbezug: aktueller Codex-Chat zu strukturellen Entscheidungen
@@ -922,13 +930,12 @@ Stand: 2026-06-24
 - Auswirkung: Die Streamlit-Logik liegt unter `ma_ui.streamlit_app`.
   `src/ma_ui/app.py` bleibt stabiler Streamlit-Einstieg. Die Tkinter-Analyse
   liegt unter `ma_ui.tkinter_app.module_views.analyse`. Alte
-  `ma_analyse.gui.*`-Importe bleiben vorerst als Kompatibilitaetswrapper
-  bestehen.
+  `ma_analyse.gui.*`-Importe wurden durch UD-064 entfernt.
 - Betroffene Module oder Dateien: `src/ma_ui/app.py`,
   `src/ma_ui/streamlit_app/`, `src/ma_ui/tkinter_app/`,
-  `src/ma_analyse/gui/`, `docs/ma_ui/`,
+  ehemals `src/ma_analyse/gui/`, `docs/ma_ui/`,
   `docs/project/architecture/`
-- Status: umgesetzt
+- Status: umgesetzt, durch UD-064 verschaerft
 - Offene Folgefragen: Welche weiteren Fachmodule spaeter eine Tkinter-Ansicht
   erhalten, wird nur ueber eigene Fachslices entschieden.
 - Quelle oder Chatbezug: aktueller Codex-Chat zum kombinierten
@@ -958,3 +965,27 @@ Stand: 2026-06-24
 - Offene Folgefragen: Ob spaeter weitere Wetterdiagramme oder Wetter-Templates
   hinzukommen, wird ueber den Wetterdiagramm-Katalog erweitert.
 - Quelle oder Chatbezug: aktueller Codex-Chat zur UI-/Workflow-Anpassung
+
+## UD-064 ma_analyse.gui-Kompatibilitaet wird entfernt
+
+- Datum: 2026-06-28
+- Thema: Harte Tkinter-Migration aus `ma_analyse`
+- Entscheidung: `ma_analyse` fuehrt keinen `gui`-Unterbefehl und kein
+  `ma_analyse.gui.*`-Paket mehr. Die Tkinter-Analyse wird ausschliesslich ueber
+  `ma_ui.tkinter_app.module_views.analyse` und den Streamlit-Launcher
+  gestartet.
+- Begruendung: Tkinter gehoert zur Bedienoberflaeche und nicht in den
+  fachlichen Analyse-Kern. Der harte Schnitt reduziert doppelte Startpfade und
+  macht die Grenze zwischen `ma_ui` und `ma_analyse` eindeutiger.
+- Auswirkung: `python -m ma_analyse gui` ist bewusst kein gueltiger Befehl
+  mehr. `ma_ui` besitzt den GUI-Parser fuer Tkinter-Startwerte; `ma_analyse`
+  stellt weiterhin fachliche Services, Runner, Templates und Konfigurationen
+  bereit.
+- Betroffene Module oder Dateien: `src/ma_analyse/app/cli.py`,
+  `src/ma_analyse/app/commands.py`, ehemals `src/ma_analyse/gui/`,
+  `src/ma_ui/tkinter_app/module_views/analyse/`, `docs/ma_analyse/`,
+  `docs/ma_ui/`, `docs/project/architecture/`
+- Status: getroffen und umgesetzt
+- Offene Folgefragen: Die grosse Tkinter-Hauptdatei unter `ma_ui` soll erst in
+  einem spaeteren Folgeslice zerlegt werden.
+- Quelle oder Chatbezug: freigegebener P029-Slice zur harten Tkinter-Migration
