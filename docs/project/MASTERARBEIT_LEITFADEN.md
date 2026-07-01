@@ -342,16 +342,20 @@ Paketgeruest, eine Infoseite oder vorhandener Prototypcode genuegt nicht fuer
 
 #### ma_building
 
-- **Zweck:** Gebaeude-, Raum-, Zonen- und Modellrandbedingungen strukturiert
-  bereitstellen.
-- **Eingaben:** Geometrie, Flaechen, Zonen, Bauteile, Fenster, Nutzung und
-  Referenzmodellinformationen.
-- **Ausgaben:** neutrale Gebaeude- und Zonenobjekte fuer Varianten,
-  Normierungen, Simulation-Setup und Export.
-- **Abgrenzung:** Keine Variantenkombination, Simulation oder
-  Ergebnisanalyse.
-- **Status:** Geplant; vor Implementierung muessen Datenumfang und Bezug zum
-  IDA-ICE-Modell definiert werden.
+- **Zweck:** Programmneutrales Gebaeudemodell mit Gebaeuden, Geschossen,
+  geometrischen Raeumen, Bauteilen, Flaechen, Oeffnungen, einfachen
+  Sonnenschutzinformationen und baulichem Raumregister bereitstellen.
+- **Eingaben:** einfache Demo-`BuildingModelSpecification`, manuelle oder
+  textliche YAML-/JSON-Daten und lokale Dateidiagnosen. Die aktuelle
+  IFC-Arbeitsdatei ist als lokale Trainings- und Diagnosebasis vorgesehen.
+- **Ausgaben:** freigegebene Gebaeudedaten fuer `ma_parameters`,
+  Raumreferenzen und Zonierungsvorschlaege fuer `ma_zones` sowie spaetere
+  Mengen- und Modellinformationen fuer Bewertung und Simulationsadapter.
+- **Abgrenzung:** Keine Nutzungsprofile, keine technische Anlagenlogik, keine
+  Variantenkombination, keine Simulation und keine direkte IDA-ICE-Aenderung.
+- **Status:** Geplant; P012 konkretisiert Demo-Spec, IFC-Diagnose,
+  Reifegrade, Raumregister und Schnittstellen. IFC-Lite und Rhino bleiben
+  offene Ausbaupfade.
 
 #### ma_zones
 
@@ -696,9 +700,11 @@ modulare Ablage besitzt.
 | `data/ma_weather/database/` | aufbereitete Wetterdaten |
 | `data/ma_weather/output/` | Wetterdiagramme |
 | `data/ma_weather/reports/` | Wetterberichte |
+| `data/ma_building/input/ifc/` | lokale IFC-Arbeitsdateien fuer Diagnose und Training |
 | `data/ma_variants/` | Variantenimporte, Exporte und IDA-Uebergaben |
 | `data/ma_project/config/` | lokale Simulationsprogramm- und Naming-Profile |
 | `data/ma_parameters/config/` | lokale Parameter- und Optionsarbeitsstaende |
+| `config/ma_building/examples/` | versionierte Beispiel-Specs fuer `ma_building` |
 | `data/catalogs/documents/` | Struktur fuer Produkt- und Materialdokumente |
 | `data/test_output/` | lokaler Arbeits- und Smoke-Test-Bereich |
 | `logs/sessions/` | lokale strukturierte Lauf-, Diagnose- und Freigabeereignisse |

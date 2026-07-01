@@ -26,6 +26,9 @@ Produktiver Kern fuer die Masterarbeit.
   `data/ma_parameters/config/options/` speichern.
 - Manuelle UI-Ueberschreibung mit Aenderungsnachweis vorsehen.
 - Baseline-Snapshot von spaeteren Stage-1-Vorschlaegen trennen.
+- Gebaeudedaten aus P012 nur nach freigegebener
+  `BuildingModelSpecification` beziehungsweise freigegebener
+  Gebaeudemodellversion uebernehmen.
 - Nur freigegebene Snapshots an `ma_variants` uebergeben.
 
 ## Akzeptanzkriterien
@@ -52,3 +55,10 @@ der produktive Kern von P015.
 manuelle `InputChange`-Eintraege und eine gueltige Freigabe referenzieren.
 Fehler bleiben blockierend; Warnungen benoetigen eine dokumentierte
 Entscheidung.
+
+## Umsetzungsbezug P012
+
+`ma_parameters` darf keine unvalidierten IFC-, Rhino-, YAML-, JSON- oder
+Textdaten direkt verwenden. P012 liefert nur freigegebene und versionierte
+Gebaeudeparameter, zum Beispiel Flaechen, Volumen, Bauteilkennwerte,
+Orientierungen, Oeffnungsanteile, Raumreferenzen und Modellreifegrade.

@@ -1,21 +1,12 @@
 # Offene Nutzerentscheidungen
 
-Stand: 2026-06-29
+Stand: 2026-07-01
 
 Diese Datei enthaelt nur offene Nutzerentscheidungen. Erledigte Entscheidungen
 werden nach der Dokumentation als `UD-*` aus dieser Datei entfernt und stehen in
 `USER_DECISIONS_MASTERTHESIS_CODE.md`.
 
 ## Offene Punkte
-
-### OP-006 Cooling-Trennung spaeter ins Hauptportal uebernehmen
-
-- Thema: ma_analyse Cooling-Auswertung
-- Status: offen
-- Frage: Soll nach Abschluss der Diagrammbearbeitung die relative/absolute Cooling-Trennung auch in den regulaeren `cooling`-Befehl und die GUI-Auswahl uebernommen werden?
-- Auswirkung: Betrifft spaeter `src/ma_analyse/analysis/cooling.py`,
-  `src/ma_analyse/app/cli.py` und
-  `src/ma_ui/tkinter_app/module_views/analyse/app.py`.
 
 ### OP-008 ma_analyse-weite Normierungsstrategie
 
@@ -38,6 +29,10 @@ werden nach der Dokumentation als `UD-*` aus dieser Datei entfernt und stehen in
 - Frage: Welche Inhalte sind in den konkreten IFC-Arbeitsstaenden belastbar
   vorhanden und koennen ohne umfangreiche Geometrieinterpretation sicher
   uebernommen werden?
+- Ergaenzung: Die aktuelle lokale IFC-Arbeitsdatei soll fuer P012 zunaechst
+  als Trainings- und Diagnosebasis dienen. Zu klaeren ist, welche
+  Metadaten, Entitaeten, Raeume, Bauteile, Oeffnungen und IDs daraus sicher
+  auslesbar sind.
 - Auswirkung: Entscheidet, ob P012 nur Demo-/YAML-Daten oder zusaetzlich einen
   begrenzten IFC-Lite-Adapter umsetzt.
 
@@ -48,5 +43,8 @@ werden nach der Dokumentation als `UD-*` aus dieser Datei entfernt und stehen in
 - Frage: Welche Datei- und Programmvorlagen werden fuer Building, Zones,
   Technical, Parameters und Naming im Masterarbeitsumfang verbindlich
   unterstuetzt?
+- Ergaenzung: Fuer `ma_building` ist `.3dm` fachlich als spaeterer
+  Ausbaupfad dokumentiert, aber wegen der bestehenden CAD-Grenze noch kein
+  verbindliches Eingangsformat.
 - Auswirkung: Wird in P010 als Formatmatrix vorbereitet und vor den jeweiligen
   Fachimplementierungen entschieden.

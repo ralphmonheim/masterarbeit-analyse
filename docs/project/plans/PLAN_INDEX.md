@@ -1,6 +1,6 @@
 # Plan Index
 
-Stand: 2026-06-29
+Stand: 2026-07-01
 
 | Plan ID | Titel | Datei | Modul | Status | Prioritaet | Abhaengigkeiten | Naechster Schritt |
 |---|---|---|---|---|---|---|---|
@@ -15,7 +15,7 @@ Stand: 2026-06-29
 | P009 | Allgemeine Simulationsschnittstellen mit IDA-ICE-Adapter | `inbox/260621_Plan_P009_Simulationsschnittstellen_IDA_Adapter.md` | ma_export_simulation, ma_import_simulation | Zurueckgestellt | Mittel | P007, P018 | Nach validiertem Run-Manifest weiterfuehren |
 | P010 | Eingabe- und Datenhaltungsarchitektur | `../archive/plans/260622_Plan_P010_Eingabe_Datenhaltungsarchitektur.md` | alle Eingabemodule, ma_validation | Archiviert, Wetterpilot umgesetzt | Hoch | P007 | Vertraege in P011 bis P015 fachmodulweise anwenden |
 | P011 | ma_project Projektinitialisierung | `inbox/260622_Plan_P011_ma_project_Projektinitialisierung.md` | ma_project | Geplant | Hoch | P010 | Projektkonfiguration und Quellenwahl planen |
-| P012 | ma_building Gebaeudeinput | `inbox/260622_Plan_P012_ma_building_Gebaeudeinput.md` | ma_building | Geplant, Konzept/Demo | Hoch | P010, P011 | Demo-Fachmodell und IFC-Diagnose planen |
+| P012 | ma_building Gebaeudeinput | `inbox/260622_Plan_P012_ma_building_Gebaeudeinput.md` | ma_building | Geplant, Konzept/Demo, IFC-Diagnose | Hoch | P010, P011, P013, P015, P027 | Einfache Demo-Spec, aktuelle IFC-Diagnose und BuildingModelSpecification vorbereiten |
 | P013 | ma_zones Zonen und Nutzungen | `inbox/260622_Plan_P013_ma_zones_Zonen_Nutzungen.md` | ma_zones | Geplant, Konzept/Demo | Mittel | P010, P012 | Zonen-, Nutzungs- und Profilmodell planen |
 | P014 | ma_technical Technische Systeme | `inbox/260622_Plan_P014_ma_technical_Technische_Systeme.md` | ma_technical | Geplant, Lite/Demo | Hoch | P010, P013 | Bestehende Systemtemplates inventarisieren |
 | P015 | ma_parameters Zentrale Parameter | `inbox/260622_Plan_P015_ma_parameters_Zentrale_Parameter.md` | ma_parameters | Geplant | Hoch | P008, P010, P012-P014 | ParameterSnapshot und Importvorlagen planen |

@@ -47,7 +47,13 @@ Diese Logik wird in P009 nicht kopiert oder ungeprueft verschoben.
 3. Run-Manifest und gemeinsame Simulationskonfiguration dokumentieren.
 4. Verifiziertes Parametermapping zwischen zentraler Parameterliste und
    IDA-ICE-Zielen einfuehren.
-5. Exportindex fuer Projekt, Run und Varianten erzeugen.
+5. Freigegebene Gebaeudemodellversionen aus P012 als moegliche spaetere
+   Geometrie- und Raumquelle beruecksichtigen, ohne daraus vor P018 einen
+   produktiven IFC- oder IDA-ICE-Export abzuleiten.
+6. IFC als moegliches semantisches Austauschformat zum IDA-ICE-Adapter pruefen,
+   sobald der Schnittstellenvertrag und der konkrete Exportweg verifiziert
+   sind.
+7. Exportindex fuer Projekt, Run und Varianten erzeugen.
 
 ## Entwicklungsstufe 3: Kontrollierter IDA-ICE-Importadapter
 
@@ -64,6 +70,8 @@ Diese Logik wird in P009 nicht kopiert oder ungeprueft verschoben.
 - Keine erfundenen IDA-ICE-Skript- oder API-Befehle.
 - Kein automatischer Simulationsstart in der ersten Zielstufe.
 - Keine Fachlogik in Streamlit.
+- Keine direkte Uebergabe von unvalidierten IFC-, Rhino- oder
+  Demo-Gebaeudedaten an IDA ICE.
 
 ## Tests und Akzeptanzkriterien
 

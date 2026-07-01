@@ -1,6 +1,6 @@
 # Eingabe- und Formatmatrix
 
-Stand: 2026-06-23
+Stand: 2026-07-01
 Grundlage: P010
 
 ## Reifegrade
@@ -19,8 +19,11 @@ Grundlage: P010
 | gemeinsame Konfiguration | YAML geschuetzt speichern | supported | Vorlagen- und Kollisionsschutz aus P028 |
 | Wetter | TRY importieren und validieren | supported | P010-Pilot mit `InputSource`, Diagnosen und Freigabe |
 | Analyse | CSV, XLSX | prototype | vorhandene Analysepfade, keine allgemeine Eingabeschnittstelle |
-| Building | YAML-Demo | planned | P012 |
-| Building | IFC-Lite | planned | Umfang bleibt von OP-012 abhaengig |
+| Building | YAML-Demo | planned | P012, erster verbindlicher Demonstrator |
+| Building | JSON | planned | Folgeformat zur gleichen BuildingModelSpecification |
+| Building | aktuelle lokale IFC-Datei | planned | Diagnose- und Trainingsbasis, kein Vollimport |
+| Building | IFC-Lite | planned | Umfang bleibt von OP-012 und realen IFC-Inhalten abhaengig |
+| Building | Rhino `.3dm` | out_of_scope | fachlicher Ausbaupfad; direkte CAD-Integration ist im aktuellen Umfang nicht freigegeben |
 | Zones | YAML-Demo und spaetere Importprofile | planned | P013 |
 | Technical | YAML-Demo und Systemvorlagen | planned | P014 |
 | Parameters | YAML-Kataloge und spaetere Importvorlagen | prototype | P028-Demo vorhanden, produktiver Snapshot folgt in P015 |

@@ -1,6 +1,6 @@
 # Nutzerentscheidungen Masterarbeit Code
 
-Stand: 2026-06-29
+Stand: 2026-07-01
 
 ## UD-001 Modulare Projektstruktur
 
@@ -989,3 +989,25 @@ Stand: 2026-06-29
 - Offene Folgefragen: Die grosse Tkinter-Hauptdatei unter `ma_ui` soll erst in
   einem spaeteren Folgeslice zerlegt werden.
 - Quelle oder Chatbezug: freigegebener P029-Slice zur harten Tkinter-Migration
+
+## UD-065 Relative/absolute Cooling-Trennung ins Hauptportal uebernehmen
+
+- Datum: 2026-07-01
+- Thema: ma_analyse Cooling-Auswertung
+- Entscheidung: Die relative/absolute Cooling-Trennung soll spaeter auch in
+  den regulaeren `cooling`-Befehl und in die GUI-Auswahl uebernommen werden.
+- Begruendung: Die bereits getrennten Plot-Templates sollen nicht dauerhaft
+  eine Sonderlogik bleiben; regulaerer Cooling-Befehl, Streamlit-Analyse und
+  Tkinter-Analyse sollen dieselbe fachliche Auswahl anbieten.
+- Auswirkung: OP-006 ist geschlossen. Die Umsetzung wird als Folgeaufgabe fuer
+  `src/ma_analyse/analysis/cooling.py`, `src/ma_analyse/app/cli.py`,
+  `src/ma_ui/streamlit_app/module_views/analyse_view.py` und
+  `src/ma_ui/tkinter_app/module_views/analyse/` gefuehrt.
+- Betroffene Module oder Dateien: `src/ma_analyse/analysis/cooling.py`,
+  `src/ma_analyse/app/cli.py`, `src/ma_ui/streamlit_app/module_views/analyse_view.py`,
+  `src/ma_ui/tkinter_app/module_views/analyse/`, `docs/ma_analyse/`,
+  `docs/ma_ui/`
+- Status: getroffen
+- Offene Folgefragen: Konkrete CLI-Option, UI-Wording und Rueckwaertskompatibilitaet
+  im Umsetzungsslice festlegen.
+- Quelle oder Chatbezug: Nutzerantwort auf OP-006 am 2026-07-01

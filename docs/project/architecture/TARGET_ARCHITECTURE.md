@@ -105,8 +105,14 @@ Modulstatus nicht.
 - YAML ist das erste menschenlesbare Format, die Fachmodelle und Services
   bleiben jedoch fuer spaetere Formate offen.
 - Building und Zones werden mindestens als Konzept und Demo aufgebaut.
-- IFC-Lite bleibt bis zur Analyse konkreter IFC-Arbeitsstaende offen.
-- CAD-Integration gehoert nicht zum Masterarbeitsumfang.
+- P012 konkretisiert fuer `ma_building` eine einfache
+  `BuildingModelSpecification` als Demo- und Trainingsbasis.
+- Die aktuelle IFC-Arbeitsdatei darf lokal als Diagnose- und Trainingsquelle
+  dienen; ein produktiver IFC-Lite-Import bleibt bis zur Analyse konkreter
+  IFC-Arbeitsstaende offen.
+- Rhino `.3dm` ist fachlich als spaeterer Ausbaupfad dokumentiert, aber keine
+  freigegebene Pflicht fuer den aktuellen Masterarbeitsumfang.
+- Direkte CAD-Integration gehoert nicht zum aktuellen Masterarbeitsumfang.
 
 Die aktuelle Reifegradmatrix steht in
 `docs/project/architecture/INPUT_DATA_FORMAT_MATRIX.md`. P010 hat die

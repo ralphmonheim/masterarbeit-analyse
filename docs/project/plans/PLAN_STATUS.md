@@ -1,6 +1,6 @@
 # Plan Status
 
-Stand: 2026-06-29
+Stand: 2026-07-01
 
 Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt und nach jeder Planumsetzung aktualisiert. Vollstaendige alte Planstaende liegen unter `docs/project/archive/plans/`.
 
@@ -149,9 +149,14 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - Gemeinsamer Projekt-, Parameter- und Naming-Slice: P028 ist als Demo
   umgesetzt; produktive Projektstammdaten und `ParameterSnapshot` folgen ueber
   P011 und P015.
-- `ma_building` und `ma_zones` werden mindestens konzeptuell und mit
-  Demo-Datensaetzen aufgebaut. IFC-Lite bleibt bis zur Analyse konkreter
-  IFC-Arbeitsstaende offen; CAD-Integration ist ausgeschlossen.
+- P012 ist mit dem ergaenzenden `ma_building`-Fachkonzept aktualisiert:
+  `BuildingModelSpecification`, einfache Demo, lokale aktuelle
+  IFC-Arbeitsdatei als Trainings-/Diagnosebasis, Reifegrade, Raumregister,
+  Bauteile, Oeffnungen, Validierung und Schnittstellen zu `ma_zones`,
+  `ma_parameters`, `ma_assessment` und `ma_export_simulation` sind geplant.
+  IFC-Lite bleibt bis zur Analyse konkreter IFC-Arbeitsstaende offen; Rhino
+  und direkte CAD-Integration bleiben Ausbaupfade ohne aktuelle
+  Implementierungszusage.
 
 ### Teilweise umgesetzt
 
@@ -389,7 +394,8 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   `src/ma_analyse/analysis/heating.py`, `src/ma_analyse/analysis/cooling.py`,
   `src/ma_ui/tkinter_app/module_views/analyse/app.py`,
   `src/ma_analyse/app/cli.py`.
-- Nach Abschluss der Diagrammbearbeitung pruefen, ob der normale `cooling`-Befehl und die GUI relative Rohwerte und absolute Betraege als eigene Modi erhalten sollen.
+- UD-065 umsetzen: Der normale `cooling`-Befehl und die GUI sollen relative
+  Rohwerte und absolute Betraege als eigene Modi erhalten.
 - Tkinter-Folgeslice planen: Vorschau in einen temporaeren Cachebereich legen,
   Ergebnis-/Loganzeige weiter aus `AnalysisResult` strukturieren und verbleibende
   Options-/Preview-Dopplung zwischen Streamlit-Analyse und Tkinter-Analyse
@@ -405,7 +411,6 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 
 ### Unklar
 
-- Soll die relative/absolute Cooling-Logik nach Abschluss der Diagrammbearbeitung auch in den regulaeren `cooling`-Befehl und die GUI uebernommen werden?
 - Soll aus den Internal-Loads-Templates ein eigener Befehl entstehen oder eine Integration in bestehende Auswertungen?
 - Welche `ma_analyse`-Auswertungen sollen absolute Werte, flaechenbezogene Werte
   wie `[W/m2]` oder beides anbieten, und welche Bezugsflaeche gilt dafuer?
@@ -493,7 +498,6 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 
 ## Offene Nutzerentscheidungen
 
-- Nach Abschluss der Diagrammbearbeitung klaeren, ob relative/absolute Cooling-Logik in den regulaeren `cooling`-Befehl und in die GUI uebernommen wird.
 - Klaeren, welche `ma_analyse`-Auswertungen absolute Werte, flaechenbezogene
   Werte oder beides anbieten sollen und welche Bezugsflaeche verwendet wird.
 - Wissensprofile, Stundensaetze, Prozessgrenzen und Messmethoden fuer den

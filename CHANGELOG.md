@@ -4,6 +4,17 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.20.2 - 2026-07-01
+
+### Changed
+- P012 fuer `ma_building` als vertieften Plan mit
+  `BuildingModelSpecification`, einfacher Demo-Spec, lokaler IFC-Diagnose,
+  Reifegraden, Raumregister und Schnittstellen zu Nachbarmodulen
+  aktualisiert.
+- Nutzerentscheidung UD-065 dokumentiert: Relative/absolute Cooling-Trennung
+  soll spaeter auch in den regulaeren `cooling`-Befehl und die GUI-Auswahl
+  uebernommen werden; OP-006 ist geschlossen.
+
 ## 0.20.1 - 2026-06-29
 
 ### Added
