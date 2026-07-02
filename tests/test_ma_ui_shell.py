@@ -638,7 +638,13 @@ def test_weather_city_selection_starts_without_default():
         maxsplit=1,
     )[0]
 
+    assert weather_page.WEATHER_SELECTION_MODE_OPTIONS == ("Stadt", "Klimaregion")
+    assert '"Auswahl"' in selection_source
+    assert "WEATHER_SELECTION_MODE_OPTIONS" in selection_source
+    assert "WEATHER_SELECTION_MODE_CITY" in selection_source
     assert 'placeholder="Stadt auswaehlen"' in selection_source
+    assert 'placeholder="Klimaregion auswaehlen"' in selection_source
+    assert "index=None" in selection_source
 
 
 def test_weather_selection_uses_dataset_type_prefilter_and_slim_labels():
@@ -667,8 +673,10 @@ def test_weather_selection_uses_dataset_type_prefilter_and_slim_labels():
     assert "return dataset.display_name" in label_source
     assert "Empfohlen:" not in label_source
     assert "status.status_label" not in label_source
-    assert "Referenzdatensatz der Klimaregion steht zuerst" not in selection_source
-    assert "Referenzdatensatz der Klimaregion steht zuerst" in dataset_section_source
+    assert "Bei Stadtauswahl werden standortgenaue Datensaetze bevorzugt" in selection_source
+    assert "Bei Klimaregionsauswahl werden nur Referenzdatensaetze" in selection_source
+    assert "Bei Stadtauswahl werden standortgenaue Datensaetze bevorzugt" in dataset_section_source
+    assert "Referenzdatensatz der Klimaregion steht zuerst" not in weather_source
     assert "Standortgenaue Datensaetze werden zusaetzlich zur Referenz angezeigt." not in selection_source
 
 
@@ -699,9 +707,12 @@ def test_weather_selection_context_uses_short_labels():
     assert "st.segmented_control(" in unselected_source
     assert '"**Referenzstandort:** -"' in unselected_source
     assert "index=None" in selection_source
-    assert "return _render_unselected_weather_context()" in selection_source
+    assert "return _render_unselected_weather_context(WEATHER_SELECTION_MODE_CITY)" in selection_source
+    assert "return _render_unselected_weather_context(WEATHER_SELECTION_MODE_REGION)" in selection_source
     assert "Bitte zuerst eine Stadt auswaehlen." in weather_source
+    assert "Bitte zuerst eine Klimaregion auswaehlen." in weather_source
     assert "Noch keine Stadt ausgewaehlt" in weather_source
+    assert "Noch keine Klimaregion ausgewaehlt" in weather_source
     assert "WEATHER_KEY_WIDGET_KEY" in weather_source
     assert "_placeholder" in weather_source
 

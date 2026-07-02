@@ -34,6 +34,7 @@ def test_workflow_contains_analysis_step():
 
 
 def test_workflow_statuses_reflect_current_module_implementation():
+    assert get_workflow_step("building").status == "partial"
     assert get_workflow_step("parameters").status == "planned"
     assert get_workflow_step("dimensioning").status == "planned"
     assert get_workflow_step("data_preparation").status == "partial"
@@ -48,7 +49,7 @@ def test_workflow_statuses_reflect_current_module_implementation():
     assert get_workflow_step("validation").status == "planned"
 
 
-def test_only_weather_and_analysis_are_partially_available():
+def test_partial_modules_reflect_current_module_implementation():
     partial_modules = {
         module.module_key
         for module in list_module_definitions()
@@ -61,6 +62,7 @@ def test_only_weather_and_analysis_are_partially_available():
     }
 
     assert partial_modules == {
+        "ma_building",
         "ma_weather",
         "ma_analyse",
         "ma_analyse.data_preparation",

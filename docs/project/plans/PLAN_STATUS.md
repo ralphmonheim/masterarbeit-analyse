@@ -1,6 +1,6 @@
 # Plan Status
 
-Stand: 2026-07-01
+Stand: 2026-07-02
 
 Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt und nach jeder Planumsetzung aktualisiert. Vollstaendige alte Planstaende liegen unter `docs/project/archive/plans/`.
 
@@ -157,6 +157,16 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   IFC-Lite bleibt bis zur Analyse konkreter IFC-Arbeitsstaende offen; Rhino
   und direkte CAD-Integration bleiben Ausbaupfade ohne aktuelle
   Implementierungszusage.
+- P012 v1 ist umgesetzt: `ma_building` enthaelt eine versionierte
+  Demo-`BuildingModelSpecification`, einfache Fachmodelle, Validierung nach
+  `ma_validation`, lokale IFC-Entity-Diagnose, 3DM-Metadatendiagnose,
+  vorbereitete lokale Arbeitsdatenordner und eine Streamlit-Pruefansicht.
+- P012-Referenz festgelegt: Fuer die Masterarbeit wird lokal
+  `SmallOffice_d_IFC2x3.ifc` als massgebliches IDA-ICE-IFC-Referenzmodell
+  verwendet; weitere IDA-Samples bleiben Vergleichsdaten.
+- Nutzerentscheidung UD-066 festgehalten: DWG bleibt im aktuellen
+  Masterarbeitsumfang lokale ungepruefte CAD-Quelle; ein produktiver
+  DWG-Parser oder DWG-Importadapter wird nicht aufgebaut.
 
 ### Teilweise umgesetzt
 

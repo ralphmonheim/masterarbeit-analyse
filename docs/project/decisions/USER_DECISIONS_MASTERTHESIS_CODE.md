@@ -1,6 +1,6 @@
 # Nutzerentscheidungen Masterarbeit Code
 
-Stand: 2026-07-01
+Stand: 2026-07-02
 
 ## UD-001 Modulare Projektstruktur
 
@@ -1011,3 +1011,33 @@ Stand: 2026-07-01
 - Offene Folgefragen: Konkrete CLI-Option, UI-Wording und Rueckwaertskompatibilitaet
   im Umsetzungsslice festlegen.
 - Quelle oder Chatbezug: Nutzerantwort auf OP-006 am 2026-07-01
+
+## UD-066 DWG bleibt kein produktiver ma_building-Importpfad
+
+- Datum: 2026-07-02
+- Thema: ma_building, CAD-Dateien und DWG-Parser
+- Entscheidung: Fuer den aktuellen Masterarbeitsumfang wird kein DWG-Parser,
+  Add-on oder externe DWG-Library als produktiver Importpfad in `ma_building`
+  aufgenommen. DWG-Dateien duerfen lokal als ungepruefte CAD-Quellen
+  aufbewahrt und mit Metadaten diagnostiziert werden. Fachlich belastbare
+  Gebaeudemodelldaten sollen bevorzugt ueber IFC oder bei Bedarf ueber einen
+  vorher bewusst erzeugten DXF-/IFC-Export geprueft werden.
+- Begruendung: DWG ist ein proprietaeres Binaerformat. Ohne externen Parser
+  kann `ma_building` nicht belastbar erkennen, ob eine DWG ein fachlich
+  nutzbares Gebaeudemodell enthaelt. Ein produktiver DWG-Import wuerde den
+  aktuellen Masterarbeitsumfang technisch und wartungsseitig unnoetig
+  erweitern.
+- Auswirkung: `data/ma_building/input/cad/` bleibt ein lokaler Ablageort fuer
+  ungepruefte CAD-Beispieldateien. Die Streamlit- und Diagnoseansicht darf DWG
+  als Quelle anzeigen, aber nur mit Parser-Warnung und ohne
+  Gebaeudemodell-Importversprechen. `SmallOffice_d_IFC2x3.ifc` bleibt das
+  massgebliche `ma_building`-Referenzmodell.
+- Betroffene Module oder Dateien: `src/ma_building/diagnostics.py`,
+  `data/ma_building/input/cad/`, `docs/ma_building/README.md`,
+  `docs/project/plans/inbox/260622_Plan_P012_ma_building_Gebaeudeinput.md`,
+  `docs/project/architecture/INPUT_DATA_FORMAT_MATRIX.md`
+- Status: getroffen
+- Offene Folgefragen: Nur falls DWG spaeter fachlich zwingend wird, braucht
+  es einen eigenen Tool-/Parser-Entscheid. Dieser gehoert nicht zu P012 v1.
+- Quelle oder Chatbezug: Nutzerentscheidung am 2026-07-02 nach Rueckfrage zum
+  DWG-Parser

@@ -936,7 +936,7 @@ def test_weather_location_catalog_resolves_city_region_and_reference():
     assert reference_location.is_reference_location is True
 
 
-def test_weather_dataset_selection_prioritizes_reference_then_site_specific():
+def test_weather_dataset_selection_prioritizes_site_specific_then_reference_for_city():
     weather_catalog = import_weather_catalog(include_local=False)
     location_catalog = import_weather_location_catalog()
 
@@ -974,6 +974,45 @@ def test_weather_dataset_selection_prioritizes_reference_then_site_specific():
     ]
     assert all(dataset.dataset_role == DATASET_ROLE_SITE_SPECIFIC for dataset in frankfurt_datasets)
     assert not any(dataset.dataset_role == DATASET_ROLE_TRY_REFERENCE for dataset in frankfurt_datasets)
+
+    synthetic_catalog = WeatherCatalog(
+        [
+            WeatherDataset(
+                weather_key="TRY_REF",
+                display_name="TRY Referenz",
+                file_path=Path("data/ma_weather/input/ref.dat"),
+                file_format="TRY",
+                source="DWD TRY",
+                location="Referenz",
+                year_type="reference_year",
+                dataset_role=DATASET_ROLE_TRY_REFERENCE,
+                reference_location_id="LOC_REF",
+                selection_priority=10,
+            ),
+            WeatherDataset(
+                weather_key="TRY_CITY",
+                display_name="TRY Stadt",
+                file_path=Path("data/ma_weather/input/city.dat"),
+                file_format="TRY",
+                source="DWD TRY",
+                location="Stadt",
+                year_type="reference_year",
+                dataset_role=DATASET_ROLE_SITE_SPECIFIC,
+                location_id="LOC_CITY",
+                reference_location_id="LOC_REF",
+                selection_priority=20,
+            ),
+        ]
+    )
+
+    city_datasets = synthetic_catalog.datasets_for_location(
+        location_id="LOC_CITY",
+        reference_location_id="LOC_REF",
+    )
+    reference_datasets = synthetic_catalog.datasets_for_reference_location(reference_location_id="LOC_REF")
+
+    assert [dataset.weather_key for dataset in city_datasets] == ["TRY_CITY", "TRY_REF"]
+    assert [dataset.weather_key for dataset in reference_datasets] == ["TRY_REF"]
 
 
 def test_weather_placeholder_modules_are_importable():

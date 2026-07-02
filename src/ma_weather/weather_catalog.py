@@ -19,6 +19,11 @@ DATASET_ROLE_ORDER = {
     DATASET_ROLE_SITE_SPECIFIC: 1,
     "": 2,
 }
+CITY_SELECTION_ROLE_ORDER = {
+    DATASET_ROLE_SITE_SPECIFIC: 0,
+    DATASET_ROLE_TRY_REFERENCE: 1,
+    "": 2,
+}
 
 REQUIRED_TEXT_FIELDS = (
     "weather_key",
@@ -90,8 +95,8 @@ class WeatherCatalog:
     ) -> list[WeatherDataset]:
         """Gibt eindeutig zugeordnete Datensaetze fuer eine Stadt sortiert zurueck.
 
-        TRY-Referenzdatensaetze werden zuerst gelistet. Standortgenaue
-        Datensaetze folgen danach. Datensaetze ohne klare neue Zuordnung werden
+        Standortgenaue Datensaetze werden zuerst gelistet. TRY-Referenzdatensaetze
+        folgen danach als Vergleich/Fallback. Datensaetze ohne klare neue Zuordnung werden
         hier bewusst nicht als Ersatz zurueckgegeben.
         """
         matching_datasets = [
@@ -106,7 +111,23 @@ class WeatherCatalog:
         return sorted(
             matching_datasets,
             key=lambda dataset: (
-                DATASET_ROLE_ORDER.get(dataset.dataset_role, 99),
+                CITY_SELECTION_ROLE_ORDER.get(dataset.dataset_role, 99),
+                dataset.selection_priority,
+                dataset.display_name,
+            ),
+        )
+
+    def datasets_for_reference_location(self, *, reference_location_id: str) -> list[WeatherDataset]:
+        """Gibt aktive TRY-Referenzdatensaetze fuer einen Referenzstandort sortiert zurueck."""
+        matching_datasets = [
+            dataset
+            for dataset in self.active_datasets()
+            if dataset.dataset_role == DATASET_ROLE_TRY_REFERENCE
+            and dataset.reference_location_id == reference_location_id
+        ]
+        return sorted(
+            matching_datasets,
+            key=lambda dataset: (
                 dataset.selection_priority,
                 dataset.display_name,
             ),

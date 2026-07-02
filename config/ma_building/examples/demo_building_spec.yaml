@@ -1,0 +1,88 @@
+schema_version: "1.0"
+project:
+  project_id: "PROJECT-DEMO-BUILDING"
+  name: "ma_building Demo"
+building:
+  building_id: "BUILDING-DEMO-0001"
+  name: "Einfaches Demo-Gebaeude"
+  unit: "m"
+  north_angle_deg: 0.0
+  length_m: 12.0
+  width_m: 8.0
+  height_m: 3.2
+model_version:
+  version_id: "BUILDING-MODEL-DEMO-V1"
+  source_input_level: "BIL-4"
+  detected_input_level: "BIL-4"
+  confirmed_input_level: "BIL-4"
+  current_maturity_level: "BIL-4"
+  target_maturity_level: "BIL-4"
+storeys:
+  - storey_id: "STOREY-0001"
+    name: "Erdgeschoss"
+    elevation_m: 0.0
+    height_m: 3.2
+spaces:
+  - space_id: "SPACE-0001"
+    name: "Buero"
+    storey_id: "STOREY-0001"
+    floor_area_m2: 24.0
+    volume_m3: 76.8
+  - space_id: "SPACE-0002"
+    name: "Nebenraum"
+    storey_id: "STOREY-0001"
+    floor_area_m2: 18.0
+    volume_m3: 57.6
+elements:
+  - element_id: "WALL-0001"
+    element_type: "external_wall"
+    construction_code: "AW"
+    storey_id: "STOREY-0001"
+    area_m2: 38.4
+    orientation_deg: 0.0
+    adjacent_space_ids: ["SPACE-0001"]
+  - element_id: "WALL-0002"
+    element_type: "external_wall"
+    construction_code: "AW"
+    storey_id: "STOREY-0001"
+    area_m2: 25.6
+    orientation_deg: 90.0
+    adjacent_space_ids: ["SPACE-0001", "SPACE-0002"]
+  - element_id: "WALL-0003"
+    element_type: "internal_wall"
+    construction_code: "IW"
+    storey_id: "STOREY-0001"
+    area_m2: 19.2
+    adjacent_space_ids: ["SPACE-0001", "SPACE-0002"]
+  - element_id: "SLAB-0001"
+    element_type: "floor_slab"
+    construction_code: "BP"
+    storey_id: "STOREY-0001"
+    area_m2: 96.0
+    adjacent_space_ids: ["SPACE-0001", "SPACE-0002"]
+  - element_id: "ROOF-0001"
+    element_type: "roof"
+    construction_code: "DA"
+    storey_id: "STOREY-0001"
+    area_m2: 96.0
+    adjacent_space_ids: ["SPACE-0001", "SPACE-0002"]
+openings:
+  - opening_id: "OPENING-0001"
+    opening_type: "window"
+    host_element_id: "WALL-0001"
+    construction_code: "FA"
+    area_m2: 3.0
+  - opening_id: "OPENING-0002"
+    opening_type: "door"
+    host_element_id: "WALL-0002"
+    construction_code: "TA"
+    area_m2: 2.1
+shading_devices:
+  - shading_id: "SHADING-0001"
+    opening_id: "OPENING-0001"
+    shading_type: "external_blind_concept"
+    description: "Konzeptioneller aussenliegender Sonnenschutz fuer die Demo."
+assumptions:
+  - assumption_id: "ASSUMPTION-0001"
+    location: "building"
+    text: "Demo-Geometrie ist bewusst einfach und dient als validierbarer Trainingsdatensatz."

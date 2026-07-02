@@ -1,7 +1,7 @@
 # P012 ma_building Gebaeudeinput
 
-Stand: 2026-07-01
-Status: Geplant
+Stand: 2026-07-02
+Status: Teilweise umgesetzt
 Prioritaet: Hoch
 Abhaengigkeiten: P010, P011, P013, P015, P027
 
@@ -25,10 +25,10 @@ Die Eingabequelle darf die nachgelagerte Datenstruktur nicht veraendern.
 
 ## Reifegrad
 
-Konzept plus Demo. Ein konkreter IFC-Arbeitsstand und eine einfache Demo werden
-als Trainings-, Diagnose- und Plausibilisierungsbasis geplant. Ein produktiver
-IFC-Lite- oder Rhino-Import wird erst nach gesonderter Analyse und Freigabe
-umgesetzt.
+Konzept plus v1-Demo. Eine versionierte Demo-`BuildingModelSpecification`,
+lokale IFC-Entity-Diagnose und lokale 3DM-Metadatendiagnose sind umgesetzt.
+Ein produktiver IFC-Lite- oder Rhino-Import wird erst nach gesonderter Analyse
+und Freigabe umgesetzt.
 
 ## Trainings- und Diagnosebasis
 
@@ -39,6 +39,21 @@ umgesetzt.
 - Echte IFC-Arbeitsdateien bleiben lokale Projektdaten und werden nicht
   automatisch versioniert. Vorgesehener lokaler Pfad:
   `data/ma_building/input/ifc/`.
+- Fuer die Masterarbeit ist `SmallOffice_d_IFC2x3.ifc` das fachliche
+  Referenzmodell. Die weiteren IDA-ICE-Sample-IFCs dienen nur als Vergleichs-
+  und Plausibilisierungsdateien.
+- 3DM-Arbeitsdateien bleiben ebenfalls lokale Projektdaten und werden in v1
+  nur als Quelle mit Dateimetadaten diagnostiziert. Vorgesehener lokaler Pfad:
+  `data/ma_building/input/rhino/`.
+- DWG-Beispieldateien bleiben lokale CAD-Arbeitsdaten. Ohne DWG-Parser kann
+  `ma_building` v1 nicht belastbar pruefen, ob daraus ein Gebaeudemodell
+  ableitbar ist. Vorgesehener lokaler Pfad:
+  `data/ma_building/input/cad/`.
+- Nutzerentscheidung UD-066 legt fest: Ein DWG-Parser, Add-on oder eine
+  externe DWG-Library wird fuer den aktuellen Masterarbeitsumfang nicht als
+  produktiver Importpfad aufgenommen. Falls CAD-Daten fachlich gebraucht
+  werden, sollen sie zuerst bewusst nach IFC oder DXF exportiert und separat
+  bewertet werden.
 - Zusaetzlich wird eine einfache, klar gekennzeichnete Demo geplant. Sie soll
   klein genug sein, um das Modul zu trainieren, Tests zu schreiben und die UI
   zu pruefen. Vorgeschlagener versionierter Zielpfad:
@@ -108,10 +123,11 @@ Geplanter Umgang nach Reife:
 |---|---|
 | YAML-Demo | erster verbindlicher Demonstrator |
 | JSON | vorbereitet als textliches Folgeformat |
-| aktuelle IFC-Datei | Diagnose- und Trainingsbasis, kein Vollimport |
+| aktuelle IFC-Datei | lokale Metadaten- und Entity-Diagnose, kein Vollimport |
 | IFC-Lite | offen bis OP-012 anhand realer Inhalte entschieden ist |
-| Rhino `.3dm` | fachlicher Ausbaupfad, nicht automatisch im aktuellen Masterarbeitsumfang |
-| DXF/DWG/SKP/OBJ/STL | spaetere Option, derzeit nicht verbindlich |
+| Rhino `.3dm` | lokale Metadatendiagnose; produktiver Parser bleibt Ausbaupfad |
+| DWG/CAD-Beispiel | lokale Ablage als ungepruefte CAD-Quelle, kein Vollimport; UD-066 schliesst produktiven DWG-Parser fuer den aktuellen Umfang aus |
+| DXF/SKP/OBJ/STL | spaetere Option, derzeit nicht verbindlich |
 
 Wichtig: Der ChatGPT-Input nennt `.3dm` als moegliches bevorzugtes
 Geometrieformat. Die bestehende Zielarchitektur schliesst eine direkte
@@ -250,22 +266,46 @@ Zu pruefen sind mindestens:
 
 ## Arbeitspakete
 
-1. Bestehende Repository-, Daten-, UI- und Planstruktur pruefen.
+1. Bestehende Repository-, Daten-, UI- und Planstruktur pruefen. Umgesetzt in
+   P012 v1.
 2. Aktuelle IFC-Datei lokal als Diagnosequelle einplanen und klare Ablagegrenze
-   dokumentieren.
-3. Einfache versionierte Demo-`BuildingModelSpecification` planen.
-4. YAML-Demo-Schema und spaetere JSON-Kompatibilitaet beschreiben.
+   dokumentieren. Umgesetzt ueber `data/ma_building/input/ifc/`.
+3. Einfache versionierte Demo-`BuildingModelSpecification` planen und
+   bereitstellen. Umgesetzt unter
+   `config/ma_building/examples/demo_building_spec.yaml`.
+4. YAML-Demo-Schema und spaetere JSON-Kompatibilitaet beschreiben. YAML ist in
+   v1 umgesetzt; JSON bleibt vorbereitetes Folgeformat.
 5. Fachmodelle fuer Gebaeude, Geschosse, Raeume, Bauteile, Oeffnungen,
-   Sonnenschutz und Reifegrade entwerfen.
+   Sonnenschutz und Reifegrade entwerfen. Umgesetzt als kompakte
+   `ma_building`-Dataclasses.
 6. Quellen-, Diagnose-, Validierungs- und Freigabeprotokoll nach P010 anbinden.
+   Umgesetzt mit `InputSource`, `ImportDiagnostic` und `ValidationResult`.
 7. Schnittstellen zu `ma_zones`, `ma_parameters`, `ma_assessment` und
-   `ma_export_simulation` dokumentieren.
+   `ma_export_simulation` dokumentieren. In v1 nur als Zielrichtung
+   dokumentiert; keine produktive Uebergabe.
 8. IFC-Inhaltsdiagnose mit realem Arbeitsstand auswerten, bevor ein
-   IFC-Lite-Adapter freigegeben wird.
+   IFC-Lite-Adapter freigegeben wird. Diagnosewerkzeug ist umgesetzt; die
+   fachliche Auswertung realer IFC-Dateien bleibt naechster Schritt.
 9. UI-Darstellung als geplante Modulansicht vorbereiten, ohne Fachreife
-   vorzutaueschen.
-10. Offene Entscheidungen vor Implementierung in den Entscheidungsdokumenten
-    fuehren.
+   vorzutaueschen. Umgesetzt als Streamlit-Pruefansicht fuer Demo und
+   Quelldiagnosen.
+10. Offene Entscheidungen vor produktivem IFC-/Rhino-Import in den
+    Entscheidungsdokumenten fuehren.
+
+## Umsetzungsstand v1
+
+- Paketstruktur: `src/ma_building/` enthaelt Fachmodelle, Standardpfade,
+  Demo-Lader, Quelldiagnose und Validierung.
+- Versionierte Demo: `config/ma_building/examples/demo_building_spec.yaml`.
+- Lokale Arbeitsdatenstruktur: `data/ma_building/input/ifc/`,
+  `data/ma_building/input/rhino/`, `data/ma_building/input/cad/` und
+  `data/ma_building/diagnostics/`.
+- Masterarbeits-Referenzmodell: lokal
+  `data/ma_building/input/ifc/SmallOffice_d_IFC2x3.ifc`.
+- UI: `ma_ui` zeigt eine einfache Pruefansicht fuer Demo-Validierung und
+  lokale Modellquellen.
+- Tests: Demo-Lader, Fachmodelle, Validierung und Diagnose sind automatisiert
+  abgedeckt.
 
 ## Akzeptanzkriterien
 
@@ -288,6 +328,7 @@ Zu pruefen sind mindestens:
 
 - produktiver vollstaendiger IFC-Import
 - produktiver Rhino- oder CAD-Workflow
+- produktiver DWG-Parser oder DWG-Importadapter
 - CAD-Modellerstellung
 - allgemeingueltige Geometrieinterpretation externer Modelle
 - direkte Aenderung des IDA-ICE-Modells
@@ -297,6 +338,8 @@ Zu pruefen sind mindestens:
 
 - OP-012: Welche Inhalte sind in den konkreten IFC-Arbeitsstaenden belastbar
   vorhanden und fuer IFC-Lite sicher uebernehmbar?
+- OP-012a: Welche Inhalte aus `SmallOffice_d_IFC2x3.ifc` sollen in eine
+  spaetere IFC-Lite-`BuildingModelSpecification` uebernommen werden?
 - Soll `.3dm` nach dem Demo-/IFC-Diagnose-Slice als bevorzugter
   Geometrieimport weiter geplant werden oder bewusst Zukunftspfad bleiben?
 - Welche lokalen IFC-Dateien duerfen als Trainingsdaten verwendet werden und

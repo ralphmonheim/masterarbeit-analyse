@@ -1,6 +1,6 @@
 # Offene Nutzerentscheidungen
 
-Stand: 2026-07-01
+Stand: 2026-07-02
 
 Diese Datei enthaelt nur offene Nutzerentscheidungen. Erledigte Entscheidungen
 werden nach der Dokumentation als `UD-*` aus dieser Datei entfernt und stehen in
@@ -45,6 +45,8 @@ werden nach der Dokumentation als `UD-*` aus dieser Datei entfernt und stehen in
   unterstuetzt?
 - Ergaenzung: Fuer `ma_building` ist `.3dm` fachlich als spaeterer
   Ausbaupfad dokumentiert, aber wegen der bestehenden CAD-Grenze noch kein
-  verbindliches Eingangsformat.
+  verbindliches Eingangsformat. DWG ist durch UD-066 fuer den aktuellen
+  Masterarbeitsumfang kein produktiver Importpfad und bleibt nur lokale
+  ungepruefte CAD-Quelle.
 - Auswirkung: Wird in P010 als Formatmatrix vorbereitet und vor den jeweiligen
   Fachimplementierungen entschieden.

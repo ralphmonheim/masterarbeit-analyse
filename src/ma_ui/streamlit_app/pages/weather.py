@@ -61,6 +61,8 @@ WEATHER_RESULT_SESSION_KEY = "ma_ui_weather_analysis_result"
 WEATHER_KEY_WIDGET_KEY = "ma_ui_weather_key"
 WEATHER_PLOT_WIDGET_KEY = "ma_ui_weather_plot_template"
 WEATHER_LOCATION_WIDGET_KEY = "ma_ui_weather_location"
+WEATHER_REGION_WIDGET_KEY = "ma_ui_weather_region"
+WEATHER_SELECTION_MODE_WIDGET_KEY = "ma_ui_weather_selection_mode"
 WEATHER_DATASET_TYPE_WIDGET_KEY = "ma_ui_weather_dataset_type"
 WEATHER_SESSION_ID_SESSION_KEY = "ma_ui_weather_session_id"
 WEATHER_RELEASE_DECISION_SESSION_KEY = "ma_ui_weather_release_decision"
@@ -91,6 +93,9 @@ WEATHER_YEAR_TYPE_LABELS = {
     "summer_extreme": "Sommer",
     "winter_extreme": "Winter",
 }
+WEATHER_SELECTION_MODE_CITY = "Stadt"
+WEATHER_SELECTION_MODE_REGION = "Klimaregion"
+WEATHER_SELECTION_MODE_OPTIONS = (WEATHER_SELECTION_MODE_CITY, WEATHER_SELECTION_MODE_REGION)
 WEATHER_DATASET_TYPE_FILTER_OPTIONS = ("Jahr", "Sommer", "Winter")
 GENERATED_DISCOVERY_FIELDS = {
     "dataset_role",
@@ -273,6 +278,11 @@ def weather_location_label(location: WeatherLocation) -> str:
     if location.legacy_code:
         return f"{location.location_name} ({location.legacy_code})"
     return location.location_name
+
+
+def weather_region_label(region: WeatherRegion) -> str:
+    """Baut eine kompakte Auswahlbeschriftung fuer Klimaregionen."""
+    return _weather_region_display_code(region)
 
 
 def _weather_region_display_code(region: WeatherRegion) -> str:
@@ -1089,11 +1099,28 @@ def _render_location_context(
     return region, reference_location
 
 
-def _render_unselected_weather_context() -> tuple[None, bool]:
-    """Haelt die Auswahlbereiche sichtbar, solange noch keine Stadt gewaehlt ist."""
+def _render_region_context(
+    location_catalog: WeatherLocationCatalog,
+    selected_region: WeatherRegion,
+) -> WeatherLocation:
+    """Zeigt den Kontext einer direkt gewaehlten Klimaregion an."""
+    reference_location = location_catalog.get_location(selected_region.reference_location_id)
+    st.markdown(f"**Klimaregion:** {_weather_region_display_code(selected_region)}")
+    st.markdown(f"**Referenzstandort:** {reference_location.location_name}")
+    return reference_location
+
+
+def _render_unselected_weather_context(selection_mode: str) -> tuple[None, bool]:
+    """Haelt die Auswahlbereiche sichtbar, solange Standort oder Klimaregion fehlen."""
+    if selection_mode == WEATHER_SELECTION_MODE_REGION:
+        missing_message = "Bitte zuerst eine Klimaregion auswaehlen."
+        missing_dataset_placeholder = "Noch keine Klimaregion ausgewaehlt"
+    else:
+        missing_message = "Bitte zuerst eine Stadt auswaehlen."
+        missing_dataset_placeholder = "Noch keine Stadt ausgewaehlt"
     st.markdown("**Klimaregion:** -")
     st.markdown("**Referenzstandort:** -")
-    st.info("Bitte zuerst eine Stadt auswaehlen.")
+    st.info(missing_message)
     st.segmented_control(
         "Datensatztyp",
         options=WEATHER_DATASET_TYPE_FILTER_OPTIONS,
@@ -1106,7 +1133,7 @@ def _render_unselected_weather_context() -> tuple[None, bool]:
     )
     st.selectbox(
         "Wetterdatensatz",
-        options=("Noch keine Stadt ausgewaehlt",),
+        options=(missing_dataset_placeholder,),
         disabled=True,
         key=f"{WEATHER_KEY_WIDGET_KEY}_placeholder",
     )
@@ -1137,30 +1164,70 @@ def _render_weather_selection(
             st.warning("Der Standortkatalog konnte nicht geladen werden. Es werden alle aktiven Datensaetze angezeigt.")
             selectable_datasets = selectable_active_datasets
         else:
+            selection_mode = st.segmented_control(
+                "Auswahl",
+                options=WEATHER_SELECTION_MODE_OPTIONS,
+                selection_mode="single",
+                default=WEATHER_SELECTION_MODE_CITY,
+                required=True,
+                key=WEATHER_SELECTION_MODE_WIDGET_KEY,
+                width="stretch",
+            )
+            selection_mode = selection_mode or WEATHER_SELECTION_MODE_CITY
             active_locations = location_catalog.active_locations()
-            if not active_locations:
-                st.info("Im Standortkatalog ist aktuell kein aktiver Standort vorhanden.")
-                return None, False
-            locations_by_id = {location.location_id: location for location in active_locations}
-            selected_location_id = st.selectbox(
-                "Stadt",
-                options=tuple(locations_by_id),
-                format_func=lambda location_id: weather_location_label(locations_by_id[location_id]),
-                index=None,
-                placeholder="Stadt auswaehlen",
-                key=WEATHER_LOCATION_WIDGET_KEY,
-            )
-            if selected_location_id is None:
-                return _render_unselected_weather_context()
-            selected_location = locations_by_id[selected_location_id]
-            _, reference_location = _render_location_context(location_catalog, selected_location)
-            selectable_datasets = _regularly_selectable_datasets(
-                catalog.datasets_for_location(
-                    location_id=selected_location.location_id,
-                    reference_location_id=reference_location.location_id,
-                ),
-                status_by_key,
-            )
+            if selection_mode == WEATHER_SELECTION_MODE_REGION:
+                active_regions = location_catalog.active_regions()
+                if not active_regions:
+                    st.info("Im Standortkatalog ist aktuell keine aktive Klimaregion vorhanden.")
+                    return None, False
+                regions_by_id = {region.region_id: region for region in active_regions}
+                selected_region_id = st.selectbox(
+                    "Klimaregion",
+                    options=tuple(regions_by_id),
+                    format_func=lambda region_id: weather_region_label(regions_by_id[region_id]),
+                    index=None,
+                    placeholder="Klimaregion auswaehlen",
+                    key=WEATHER_REGION_WIDGET_KEY,
+                )
+                if selected_region_id is None:
+                    return _render_unselected_weather_context(WEATHER_SELECTION_MODE_REGION)
+                selected_region = regions_by_id[selected_region_id]
+                reference_location = _render_region_context(location_catalog, selected_region)
+                selectable_datasets = _regularly_selectable_datasets(
+                    catalog.datasets_for_reference_location(reference_location_id=reference_location.location_id),
+                    status_by_key,
+                )
+                selection_help_text = (
+                    "Bei Klimaregionsauswahl werden nur Referenzdatensaetze der gewaehlten Klimaregion angeboten."
+                )
+            else:
+                if not active_locations:
+                    st.info("Im Standortkatalog ist aktuell kein aktiver Standort vorhanden.")
+                    return None, False
+                locations_by_id = {location.location_id: location for location in active_locations}
+                selected_location_id = st.selectbox(
+                    "Stadt",
+                    options=tuple(locations_by_id),
+                    format_func=lambda location_id: weather_location_label(locations_by_id[location_id]),
+                    index=None,
+                    placeholder="Stadt auswaehlen",
+                    key=WEATHER_LOCATION_WIDGET_KEY,
+                )
+                if selected_location_id is None:
+                    return _render_unselected_weather_context(WEATHER_SELECTION_MODE_CITY)
+                selected_location = locations_by_id[selected_location_id]
+                _, reference_location = _render_location_context(location_catalog, selected_location)
+                selectable_datasets = _regularly_selectable_datasets(
+                    catalog.datasets_for_location(
+                        location_id=selected_location.location_id,
+                        reference_location_id=reference_location.location_id,
+                    ),
+                    status_by_key,
+                )
+                selection_help_text = (
+                    "Bei Stadtauswahl werden standortgenaue Datensaetze bevorzugt; "
+                    "der Referenzdatensatz der Klimaregion bleibt als Vergleich verfuegbar."
+                )
 
         selected_dataset_type = st.segmented_control(
             "Datensatztyp",
@@ -1173,6 +1240,8 @@ def _render_weather_selection(
         )
         selected_dataset_type = selected_dataset_type or WEATHER_DATASET_TYPE_FILTER_OPTIONS[0]
         selectable_datasets = _datasets_for_weather_dataset_type(selectable_datasets, selected_dataset_type)
+        if location_catalog is not None:
+            st.caption(selection_help_text)
         if location_catalog is not None and not _try_reference_datasets(selectable_datasets):
             st.info("Fuer diesen Referenzstandort ist noch kein aktiver Referenzdatensatz katalogisiert.")
 
@@ -1548,8 +1617,8 @@ def _render_weather_dataset_section(
     active_datasets = _regularly_selectable_datasets(catalog.active_datasets(), status_by_key)
     st.subheader("Wetterdatensaetze")
     st.caption(
-        "Referenzdatensatz der Klimaregion steht zuerst; standortgenaue Datensaetze "
-        "fuer die gewaehlte Stadt koennen zusaetzlich angeboten werden."
+        "Bei Stadtauswahl werden standortgenaue Datensaetze bevorzugt; "
+        "bei Klimaregionsauswahl werden nur Referenzdatensaetze angeboten."
     )
     _render_weather_dataset_actions(catalog, location_catalog)
 

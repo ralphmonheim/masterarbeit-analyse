@@ -4,6 +4,20 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.21.0 - 2026-07-02
+
+### Added
+- `ma_building` v1 umgesetzt: versionierte Demo-`BuildingModelSpecification`,
+  Fachmodelle, Validierung, lokale IFC-/3DM-Quelldiagnose, Arbeitsdatenstruktur
+  und Streamlit-Pruefansicht.
+- `SmallOffice_d_IFC2x3.ifc` als lokales `ma_building`-Referenzmodell der
+  Masterarbeit festgelegt; weitere IDA-ICE-IFCs bleiben Vergleichs-Samples.
+- Lokale DWG-Beispieldatei als ungepruefte CAD-Quelle unter
+  `data/ma_building/input/cad/` eingeordnet; DWG bleibt ohne Parser kein
+  produktiver Importpfad.
+- Nutzerentscheidung UD-066 dokumentiert: Kein DWG-Parser, Add-on oder externe
+  DWG-Library fuer `ma_building` im aktuellen Masterarbeitsumfang.
+
 ## 0.20.2 - 2026-07-01
 
 ### Changed

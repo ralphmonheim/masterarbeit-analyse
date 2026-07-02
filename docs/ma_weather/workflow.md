@@ -155,15 +155,17 @@ Szenario. Rolle, `weather_key` und Anzeigename werden aus diesen Angaben
 generiert und nicht als eigene Eingabefelder angezeigt. Offene Datensaetze
 sind sichtbar, aber nicht regulaer auswaehlbar.
 
-Die obere Wetterauswahl bleibt bewusst schlank. Nach der Stadt wird zuerst der
-Datensatztyp ueber eine segmentierte Auswahl `Jahr`, `Sommer` oder `Winter`
-gewaehlt. Aktuell ist genau ein Datensatztyp aktiv. Die anschliessende
-Datensatzliste zeigt nur Anzeigenamen; technische Details wie `weather_key`,
-Rolle, Dateistatus und Aktivierungsstatus bleiben in den Tabellen und
-Pruefbereichen sichtbar. Im unteren Bereich `Wetterdatensaetze` erklaert ein
-kurzer Hinweis, dass der Referenzdatensatz der Klimaregion zuerst steht und
-standortgenaue Datensaetze fuer die gewaehlte Stadt zusaetzlich angeboten
-werden koennen.
+Die obere Wetterauswahl bleibt bewusst schlank und unterscheidet zwischen den
+Modi `Stadt` und `Klimaregion`. Im Stadtmodus wird eine konkrete Stadt
+gewaehlt; standortgenaue Datensaetze werden dann bevorzugt und der
+Referenzdatensatz der Klimaregion bleibt als Vergleich/Fallback verfuegbar. Im
+Klimaregionsmodus wird keine Stadt angenommen; regulaer angeboten werden nur
+TRY-Referenzdatensaetze des Referenzstandorts der gewaehlten Klimaregion. In
+beiden Modi wird der Datensatztyp ueber eine segmentierte Auswahl `Jahr`,
+`Sommer` oder `Winter` gewaehlt. Aktuell ist genau ein Datensatztyp aktiv. Die
+anschliessende Datensatzliste zeigt nur Anzeigenamen; technische Details wie
+`weather_key`, Rolle, Dateistatus und Aktivierungsstatus bleiben in den
+Tabellen und Pruefbereichen sichtbar.
 
 Eine spaetere Mehrfachauswahl mehrerer Wetterdatensaetze fuer Vergleichsanalysen
 bleibt als Ziel vorgemerkt. Dafuer muessen Analyseausfuehrung,

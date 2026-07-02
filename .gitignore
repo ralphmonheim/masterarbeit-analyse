@@ -51,6 +51,14 @@ data/ma_weather/exports/*
 !data/ma_weather/exports/.gitkeep
 data/ma_weather/reports/*
 !data/ma_weather/reports/.gitkeep
+data/ma_building/input/ifc/*
+!data/ma_building/input/ifc/.gitkeep
+data/ma_building/input/rhino/*
+!data/ma_building/input/rhino/.gitkeep
+data/ma_building/input/cad/*
+!data/ma_building/input/cad/.gitkeep
+data/ma_building/diagnostics/*
+!data/ma_building/diagnostics/.gitkeep
 data/catalogs/documents/products/*
 !data/catalogs/documents/products/.gitkeep
 data/catalogs/documents/materials/*

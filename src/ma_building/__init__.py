@@ -1,2 +1,66 @@
-"""Gebaeudemodell, Bauteile und bauphysikalische Randbedingungen."""
+"""Gebaeudemodul mit Demo-Spezifikation und lokaler Quelldiagnose."""
 
+from .demo_loader import load_building_spec, load_demo_building_spec
+from .diagnostics import (
+    BuildingSourceDiagnostic,
+    diagnose_building_source,
+    scan_building_input_directory,
+    scan_default_building_input_files,
+)
+from .models import (
+    VALID_CONSTRUCTION_CODES,
+    Assumption,
+    BuildingInfo,
+    BuildingMaturityLevel,
+    BuildingModelSpecification,
+    BuildingModelVersion,
+    Opening,
+    PhysicalElement,
+    ProjectInfo,
+    ShadingDevice,
+    Space,
+    Storey,
+    building_specification_from_dict,
+)
+from .paths import (
+    BUILDING_CAD_INPUT_DIR,
+    BUILDING_DATA_DIR,
+    BUILDING_DIAGNOSTICS_DIR,
+    BUILDING_IFC_INPUT_DIR,
+    BUILDING_RHINO_INPUT_DIR,
+    DEFAULT_DEMO_BUILDING_SPEC_PATH,
+    MASTER_THESIS_REFERENCE_IFC_FILENAME,
+    MASTER_THESIS_REFERENCE_IFC_PATH,
+)
+from .validation import validate_building_spec
+
+__all__ = [
+    "BUILDING_DATA_DIR",
+    "BUILDING_DIAGNOSTICS_DIR",
+    "BUILDING_CAD_INPUT_DIR",
+    "BUILDING_IFC_INPUT_DIR",
+    "BUILDING_RHINO_INPUT_DIR",
+    "DEFAULT_DEMO_BUILDING_SPEC_PATH",
+    "MASTER_THESIS_REFERENCE_IFC_FILENAME",
+    "MASTER_THESIS_REFERENCE_IFC_PATH",
+    "VALID_CONSTRUCTION_CODES",
+    "Assumption",
+    "BuildingInfo",
+    "BuildingMaturityLevel",
+    "BuildingModelSpecification",
+    "BuildingModelVersion",
+    "BuildingSourceDiagnostic",
+    "Opening",
+    "PhysicalElement",
+    "ProjectInfo",
+    "ShadingDevice",
+    "Space",
+    "Storey",
+    "building_specification_from_dict",
+    "diagnose_building_source",
+    "load_building_spec",
+    "load_demo_building_spec",
+    "scan_building_input_directory",
+    "scan_default_building_input_files",
+    "validate_building_spec",
+]
