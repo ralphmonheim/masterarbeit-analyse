@@ -517,9 +517,9 @@ def _render_gallery_markdown(entries: list[dict[str, object]], output_file: Path
     lines = [
         "# Plot-Template Beispiele",
         "",
-        "Diese Galerie zeigt stabil erzeugte Beispielbilder und -dokumente fuer alle `plot-template`-Vorlagen.",
+        "Diese Galerie zeigt stabil erzeugte Beispielbilder und -dokumente fuer alle `plot-template-analyse`-Vorlagen.",
         "",
-        "Die Bilder liegen unter `docs/examples/plot_templates/`.",
+        "Die Bilder liegen unter `docs/examples/plot_template_analyse/`.",
         "",
     ]
 
@@ -583,9 +583,9 @@ def _render_gallery_markdown(entries: list[dict[str, object]], output_file: Path
             lines.append(f"**Beispielbefehl:** `{entry['command']}`")
             lines.append("")
             if target_file.lower().endswith(".pdf"):
-                lines.append(f"[PDF-Ausgabe](../examples/plot_templates/{target_file})")
+                lines.append(f"[PDF-Ausgabe](../examples/plot_template_analyse/{target_file})")
             else:
-                lines.append(f"![{template}](../examples/plot_templates/{target_file})")
+                lines.append(f"![{template}](../examples/plot_template_analyse/{target_file})")
             lines.append("")
         lines.append("")
 
@@ -612,7 +612,7 @@ def _copy_gallery_file(source: str | Path, target_dir: Path, template: str) -> P
 
 def run_plot_template_examples(args):
     """Erzeugt die Dokumentationsgalerie fuer alle Plot-Template-Beispiele."""
-    gallery_dir = DOCS_DIR / "examples" / "plot_templates"
+    gallery_dir = DOCS_DIR / "examples" / "plot_template_analyse"
     gallery_dir.mkdir(parents=True, exist_ok=True)
     for existing_file in gallery_dir.iterdir():
         if existing_file.is_file():

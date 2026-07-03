@@ -23,6 +23,7 @@ from ma_weather import (
     WeatherDiscoveryStatus,
     WeatherLocationMappingSuggestion,
     WeatherLocationResolutionStatus,
+    build_weather_output_paths,
     build_weather_plot,
     discover_weather_input_files,
     import_local_weather_dataset,
@@ -111,6 +112,8 @@ def test_weather_catalog_imports_example_dataset():
     assert frankfurt_dataset.dataset_role == DATASET_ROLE_SITE_SPECIFIC
     assert frankfurt_dataset.location_id == "LOC_049"
     assert frankfurt_dataset.reference_location_id == "LOC_053"
+    assert munich_dataset.reference_location_id == "LOC_061"
+    assert munich_2045_dataset.reference_location_id == "LOC_061"
     assert frankfurt_summer_dataset.year_type == "summer_extreme"
     assert frankfurt_winter_dataset.year_type == "winter_extreme"
     assert hamburg_dataset.dataset_role == DATASET_ROLE_TRY_REFERENCE
@@ -626,7 +629,7 @@ def test_local_bkg_vg250_geodata_resolves_potsdam_and_berlin_when_available():
         assert result.federal_state == expected_state
 
 
-def test_local_discovery_uses_bkg_vg250_locations_when_available():
+def test_local_discovery_uses_bkg_vg250_locations_when_available(tmp_path):
     pytest.importorskip("pyproj")
     pytest.importorskip("shapely")
 
@@ -649,10 +652,13 @@ def test_local_discovery_uses_bkg_vg250_locations_when_available():
     missing_files = [Path(path) for path in expected_files if not Path(path).exists()]
     if missing_files:
         pytest.skip(f"Lokale Berlin-/Potsdam-TRY-Testdateien fehlen: {missing_files}")
+    empty_mapping = tmp_path / "empty_try_file_locations.yaml"
+    empty_mapping.write_text("try_file_locations: []\n", encoding="utf-8")
 
     discoveries = discover_weather_input_files(
         existing_catalog=WeatherCatalog([]),
         location_catalog=import_weather_location_catalog(),
+        mapping_path=empty_mapping,
     )
     discoveries_by_path = {discovery.file_path.as_posix(): discovery for discovery in discoveries}
 
@@ -664,6 +670,66 @@ def test_local_discovery_uses_bkg_vg250_locations_when_available():
         assert discovery.dataset_role == expected_role
         assert discovery.metadata["location_resolution_source"] == "try_coordinates"
         assert discovery.metadata["location_resolution_status"] == "confirmed"
+
+
+def test_local_discovery_maps_vg250_places_to_confirmed_climate_map_points_when_available():
+    pytest.importorskip("pyproj")
+    pytest.importorskip("shapely")
+
+    geodata_path = Path("data/ma_weather/geodata/germany/germany_municipalities.geojson")
+    if not geodata_path.exists():
+        pytest.skip("Lokale BKG-VG250-Gemeinde-GeoJSON-Datei ist nicht vorhanden.")
+
+    expected_files = {
+        "data/ma_weather/input/TRY_486536098525/TRY2015_486536098525_Jahr.dat": (
+            "Geislingen an der Steige",
+            "LOC_064",
+            "Stoetten",
+            DATASET_ROLE_TRY_REFERENCE,
+            "TRY_OAL_2015_JAHR",
+        ),
+        "data/ma_weather/input/TRY_504215129662/TRY2015_504215129662_Jahr.dat": (
+            "Oberwiesenthal",
+            "LOC_048",
+            "Fichtelberg",
+            DATASET_ROLE_TRY_REFERENCE,
+            "TRY_FBG_2015_JAHR",
+        ),
+        "data/ma_weather/input/TRY_506557079568/TRY2015_506557079568_Jahr.dat": (
+            "Bad Marienberg (Westerwald)",
+            "LOC_033",
+            "Bad Marienberg",
+            DATASET_ROLE_TRY_REFERENCE,
+            "TRY_WW_2015_JAHR",
+        ),
+        "data/ma_weather/input/TRY_485721134578/TRY2015_485721134578_Jahr.dat": (
+            "Passau",
+            "LOC_061",
+            "Passau",
+            DATASET_ROLE_TRY_REFERENCE,
+            "TRY_PA_2015_JAHR",
+        ),
+    }
+    missing_files = [Path(path) for path in expected_files if not Path(path).exists()]
+    if missing_files:
+        pytest.skip(f"Lokale TRY-Testdateien fuer Klimakartenpunkte fehlen: {missing_files}")
+
+    discoveries = discover_weather_input_files(
+        existing_catalog=import_weather_catalog(),
+        location_catalog=import_weather_location_catalog(),
+    )
+    discoveries_by_path = {discovery.file_path.as_posix(): discovery for discovery in discoveries}
+
+    for path, (detected_name, expected_location_id, expected_name, expected_role, expected_key) in expected_files.items():
+        discovery = discoveries_by_path[path]
+
+        assert discovery.metadata["detected_municipality_name"] == detected_name
+        assert discovery.location_id == expected_location_id
+        assert discovery.location_name == expected_name
+        assert discovery.reference_location_id == expected_location_id
+        assert discovery.dataset_role == expected_role
+        assert discovery.weather_key == expected_key
+        assert discovery.is_complete is True
 
 
 def test_stage_weather_input_file_writes_try_file_without_catalog_entry(tmp_path):
@@ -935,6 +1001,18 @@ def test_weather_location_catalog_resolves_city_region_and_reference():
     assert reference_location.location_name == "Mannheim"
     assert reference_location.is_reference_location is True
 
+    passau = catalog.get_location_by_name("Passau")
+    munich = catalog.get_location_by_name("Muenchen")
+    region13 = catalog.region_for_location(passau.location_id)
+    munich_reference = catalog.reference_location_for_city(munich.location_id)
+    legacy_codes = [location.legacy_code for location in catalog.locations if location.legacy_code]
+
+    assert region13.region_code == "TRY13"
+    assert region13.reference_location_id == passau.location_id
+    assert passau.is_reference_location is True
+    assert munich_reference.location_name == "Passau"
+    assert len(legacy_codes) == len(set(legacy_codes))
+
 
 def test_weather_dataset_selection_prioritizes_site_specific_then_reference_for_city():
     weather_catalog = import_weather_catalog(include_local=False)
@@ -1165,6 +1243,22 @@ def test_weather_plots_and_report_are_written(tmp_path):
     assert "Wetterbericht TRY_TEST" in report_path.read_text(encoding="utf-8")
 
 
+def test_weather_output_paths_build_run_folder_structure(tmp_path):
+    output_paths = build_weather_output_paths(
+        "TRY TEST/2015",
+        "run 01",
+        output_root=tmp_path / "weather_output",
+    )
+
+    assert output_paths.run_output_dir == tmp_path / "weather_output" / "TRY_TEST_2015" / "run_01"
+    assert output_paths.data_dir == output_paths.run_output_dir / "data"
+    assert output_paths.plots_dir == output_paths.run_output_dir / "plots"
+    assert output_paths.reports_dir == output_paths.run_output_dir / "reports"
+    assert output_paths.processed_data_path.name == "TRY_TEST_2015_weather_data.csv"
+    assert output_paths.report_path.name == "TRY_TEST_2015_weather_report.md"
+    assert output_paths.manifest_path == output_paths.run_output_dir / "weather_run_manifest.json"
+
+
 def test_weather_plot_builder_allows_single_plot_and_all(tmp_path):
     import_result = import_try_weather_file(_write_small_try_file(tmp_path), weather_key="TRY_TEST")
 
@@ -1229,14 +1323,47 @@ def test_weather_runner_processes_catalog_dataset(tmp_path):
     )
 
     assert result.import_result.row_count == 4
+    assert result.run_output_dir == tmp_path / "data" / "ma_weather" / "output" / "TRY_TEST" / "weather_run_test"
     assert result.processed_data_path.exists()
+    assert result.processed_data_path.parent == result.run_output_dir / "data"
     assert result.report_path.exists()
+    assert result.report_path.parent == result.run_output_dir / "reports"
+    assert result.manifest_path.exists()
+    assert result.manifest_path == result.run_output_dir / "weather_run_manifest.json"
     assert result.session_id == "session_weather_test"
     assert result.run_id == "weather_run_test"
     assert result.import_id == "weather_import_test"
     assert result.release_decision is None
     assert result.validation_report.validation_result.release_status is ReleaseStatus.CONFIRMATION_REQUIRED
     assert result.session_log_path.exists()
+    assert all(plot.path is None or plot.path.parent == result.run_output_dir / "plots" for plot in result.plot_results)
+    manifest = json.loads(result.manifest_path.read_text(encoding="utf-8"))
+    assert manifest["dataset"]["weather_key"] == "TRY_TEST"
+    assert manifest["ids"] == {
+        "session_id": "session_weather_test",
+        "run_id": "weather_run_test",
+        "import_id": "weather_import_test",
+    }
+    assert manifest["artifacts"]["processed_data"].endswith("TRY_TEST_weather_data.csv")
+    assert manifest["artifacts"]["processed_data"] == (
+        "data/ma_weather/output/TRY_TEST/weather_run_test/data/TRY_TEST_weather_data.csv"
+    )
+    assert manifest["artifacts"]["report"].endswith("TRY_TEST_weather_report.md")
+    assert manifest["artifacts"]["run_output_dir"] == "data/ma_weather/output/TRY_TEST/weather_run_test"
+    assert manifest["artifacts"]["plots"]
+
+    second_result = run_weather_analysis(
+        "TRY_TEST",
+        catalog_path=catalog_file,
+        project_root=tmp_path,
+        session_id="session_weather_test",
+        run_id="weather_run_test_2",
+        import_id="weather_import_test_2",
+        print_summary=False,
+    )
+    assert second_result.run_output_dir != result.run_output_dir
+    assert second_result.processed_data_path != result.processed_data_path
+    assert second_result.manifest_path.exists()
 
     blocked_decision = record_weather_release_decision(
         result,
@@ -1285,13 +1412,17 @@ def test_plot_template_weather_runner_allows_single_plot(tmp_path):
         "TRY_TEST",
         catalog_path=catalog_file,
         project_root=tmp_path,
+        run_id="plot_weather_run_test",
         plot_key="temperature_year",
         print_summary=False,
     )
 
     assert [plot.plot_key for plot in result.plot_results] == ["temperature_year"]
+    assert result.run_output_dir == tmp_path / "data" / "ma_weather" / "output" / "TRY_TEST" / "plot_weather_run_test"
     assert result.plot_results[0].path is not None
     assert result.plot_results[0].path.exists()
+    assert result.plot_results[0].path.parent == result.run_output_dir / "plots"
+    assert result.manifest_path.exists()
 
 
 def test_plot_template_weather_cli_forwards_diagram(monkeypatch):
@@ -1313,12 +1444,15 @@ def test_plot_template_weather_cli_forwards_diagram(monkeypatch):
             "weather_datasets.yaml",
             "--start-year",
             "2045",
+            "--output-root",
+            "data/test_weather_output",
         ]
     )
 
     assert calls["weather_key"] == "TRY_TEST"
     assert calls["catalog_path"] == "weather_datasets.yaml"
     assert calls["start_year"] == 2045
+    assert calls["output_dir"] == "data/test_weather_output"
     assert calls["plot_key"] == "temperature_year"
 
 

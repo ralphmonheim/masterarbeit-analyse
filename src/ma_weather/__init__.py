@@ -54,6 +54,12 @@ from .weather_locations import (
     import_weather_location_catalog,
 )
 from .weather_metrics import WeatherMetrics, calculate_weather_metrics
+from .weather_outputs import (
+    DEFAULT_WEATHER_OUTPUT_ROOT,
+    WeatherOutputPaths,
+    build_weather_output_paths,
+    write_weather_run_manifest,
+)
 from .weather_plots import (
     ALL_WEATHER_PLOTS,
     WEATHER_PLOT_CHOICES,
@@ -96,6 +102,7 @@ __all__ = [
     "DEFAULT_WEATHER_INPUT_DIR",
     "DEFAULT_WEATHER_SELECTION_STATE_PATH",
     "DEFAULT_WEATHER_GEODATA_CONFIG",
+    "DEFAULT_WEATHER_OUTPUT_ROOT",
     "DWD_TRY_URL",
     "LOCAL_WEATHER_DATASETS_CONFIG",
     "LOCAL_WEATHER_INPUT_DIR",
@@ -123,6 +130,7 @@ __all__ = [
     "WeatherLocationResolution",
     "WeatherLocationResolutionStatus",
     "WeatherMetrics",
+    "WeatherOutputPaths",
     "WeatherPlotResult",
     "WeatherPlotSpec",
     "WeatherRegion",
@@ -134,6 +142,7 @@ __all__ = [
     "activate_weather_dataset",
     "build_weather_plot",
     "build_weather_plots",
+    "build_weather_output_paths",
     "calculate_weather_metrics",
     "create_weather_import_id",
     "detect_critical_weather_events",
@@ -170,4 +179,5 @@ __all__ = [
     "weather_status_from_analysis_result",
     "weather_statuses_by_key",
     "write_weather_report",
+    "write_weather_run_manifest",
 ]

@@ -4,6 +4,14 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.22.0 - 2026-07-03
+
+### Changed
+- Beispielgalerien unter `docs/examples/` getrennt: Analyse-Plot-Templates
+  liegen unter `plot_template_analyse/`, Wetter-Template-Beispiele unter
+  `plot_template_weather/`; der Analyse-Galeriegenerator nutzt den neuen
+  Zielordner.
+
 ## 0.21.0 - 2026-07-02
 
 ### Added

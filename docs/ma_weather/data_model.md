@@ -110,6 +110,19 @@ Vollstaendige Entwuerfe werden erst nach Nutzeraktion in den lokalen Katalog
 geschrieben. Unvollstaendige Entwuerfe bleiben offen und werden nicht regulaer
 auswaehlbar.
 
+Die TRY-Ordnerzuordnung bildet lokale DWD-Dateiordner auf fachliche
+Klimakartenpunkte ab. Die aus BKG VG250 erkannte Gemeinde bleibt als technische
+Metadaten erhalten, kann aber vom Klimakartenpunkt abweichen. Beispiele:
+
+| VG250-Gemeinde | Fachlicher Klimakartenpunkt |
+|---|---|
+| Geislingen an der Steige | Stoetten |
+| Oberwiesenthal | Fichtelberg |
+| Bad Marienberg (Westerwald) | Bad Marienberg |
+
+Klimaregion 13 fuehrt `Passau` als TRY-Referenzpunkt. `Muehldorf` bleibt
+Standort der Klimaregion, ist aber kein Referenzpunkt.
+
 ## Datenordner
 
 | Ordner | Zweck |
@@ -117,9 +130,11 @@ auswaehlbar.
 | `data/ma_weather/input/` | lokale TRY-Eingabedateien |
 | `data/ma_weather/input/custom/` | ueber Streamlit importierte TRY-Dateien |
 | `data/ma_weather/config/datasets/` | lokaler, nicht versionierter Importkatalog |
-| `data/ma_weather/database/` | spaeter aufbereitete Wetterdaten |
-| `data/ma_weather/output/` | spaeter erzeugte Wetterdiagramme |
-| `data/ma_weather/reports/` | spaetere Markdown-Berichte |
+| `data/ma_weather/database/` | lokaler Auswahlstatus und spaetere Datenbankartefakte |
+| `data/ma_weather/output/<weather_key>/<run_id>/data/` | aufbereitete Wetterdaten je Lauf |
+| `data/ma_weather/output/<weather_key>/<run_id>/plots/` | Wetterdiagramme je Lauf |
+| `data/ma_weather/output/<weather_key>/<run_id>/reports/` | Markdown-Wetterberichte je Lauf |
+| `data/ma_weather/output/<weather_key>/<run_id>/weather_run_manifest.json` | Run-Manifest je Wetterlauf |
 | `data/ma_weather/exports/` | spaetere strukturierte Exporte |
 
 ## Validierung
@@ -145,12 +160,15 @@ Die Wetteranalyse nutzt zusaetzliche strukturierte Rueckgaben:
 | `WeatherValidationReport` | Status, Warnungen, Fehler, Zeilenanzahl, fehlende Werte |
 | `WeatherMetrics` | abgeleitete Wetterkennwerte |
 | `WeatherPlotResult` | Status und Pfad je Diagramm |
+| `WeatherOutputPaths` | gebuendelte Run-Pfade fuer CSV, Plots, Bericht und Manifest |
 | `WeatherAnalysisResult` | Gesamtergebnis des Runners |
 | `WeatherEvent` | Kritisches Wetterereignis aus einem ausgewaehlten Datensatz |
 
 Jeder Analyseimport besitzt zusaetzlich eine stabile `import_id`. Sie verbindet
 Wetterdatensatz, Quelle, Validierung, `session_id`, `run_id`, Logpfad und
-Ausgabepfade.
+Ausgabepfade. Das Run-Manifest wird unter
+`data/ma_weather/output/<weather_key>/<run_id>/weather_run_manifest.json`
+geschrieben.
 
 ## Lokaler Auswahlstatus
 

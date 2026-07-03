@@ -87,8 +87,8 @@ weather_regions:
     region_number: 13
     region_code: TRY13
     region_name: Klimaregion 13
-    reference_location_id: LOC_058
-    reference_location_name: Muehldorf
+    reference_location_id: LOC_061
+    reference_location_name: Passau
     active: true
   - region_id: TRY14
     region_number: 14
@@ -115,7 +115,7 @@ weather_locations:
     active: true
   - location_id: LOC_002
     location_name: Bremerhaven
-    legacy_code: HB
+    legacy_code: BHV
     region_id: TRY01
     reference_location_id: LOC_002
     is_reference_location: true
@@ -437,7 +437,7 @@ weather_locations:
     active: true
   - location_id: LOC_048
     location_name: Fichtelberg
-    legacy_code: BT
+    legacy_code: FBG
     region_id: TRY11
     reference_location_id: LOC_048
     is_reference_location: true
@@ -488,63 +488,63 @@ weather_locations:
     location_name: Wuerzburg
     legacy_code: WUE
     region_id: TRY13
-    reference_location_id: LOC_058
+    reference_location_id: LOC_061
     is_reference_location: false
     active: true
   - location_id: LOC_056
     location_name: Augsburg
     legacy_code: A
     region_id: TRY13
-    reference_location_id: LOC_058
+    reference_location_id: LOC_061
     is_reference_location: false
     active: true
   - location_id: LOC_057
     location_name: Lindau
     legacy_code: LI
     region_id: TRY13
-    reference_location_id: LOC_058
+    reference_location_id: LOC_061
     is_reference_location: false
     active: true
   - location_id: LOC_058
     location_name: Muehldorf
     legacy_code: MUE
     region_id: TRY13
-    reference_location_id: LOC_058
-    is_reference_location: true
+    reference_location_id: LOC_061
+    is_reference_location: false
     active: true
   - location_id: LOC_059
     location_name: Muenchen
     legacy_code: M
     region_id: TRY13
-    reference_location_id: LOC_058
+    reference_location_id: LOC_061
     is_reference_location: false
     active: true
   - location_id: LOC_060
     location_name: Nuernberg
     legacy_code: N
     region_id: TRY13
-    reference_location_id: LOC_058
+    reference_location_id: LOC_061
     is_reference_location: false
     active: true
   - location_id: LOC_061
     location_name: Passau
     legacy_code: PA
     region_id: TRY13
-    reference_location_id: LOC_058
-    is_reference_location: false
+    reference_location_id: LOC_061
+    is_reference_location: true
     active: true
   - location_id: LOC_062
     location_name: Regensburg
     legacy_code: R
     region_id: TRY13
-    reference_location_id: LOC_058
+    reference_location_id: LOC_061
     is_reference_location: false
     active: true
   - location_id: LOC_063
     location_name: Ulm
     legacy_code: UL
     region_id: TRY13
-    reference_location_id: LOC_058
+    reference_location_id: LOC_061
     is_reference_location: false
     active: true
   - location_id: LOC_064

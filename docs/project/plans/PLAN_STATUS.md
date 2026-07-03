@@ -1,6 +1,6 @@
 # Plan Status
 
-Stand: 2026-07-02
+Stand: 2026-07-03
 
 Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt und nach jeder Planumsetzung aktualisiert. Vollstaendige alte Planstaende liegen unter `docs/project/archive/plans/`.
 
@@ -13,7 +13,7 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - `docs/project/archive/plans/250603_Plan_Variantenmodul_GUI_Logikpruefung.md` ist nach Abschluss von P001 archiviert.
 - `docs/project/archive/plans/PLAN_Projektplan_Version_1_0_0.md` ist ein abgelegter Plan und nicht mehr die aktive Steuerdatei.
 - `data/test_output/` bleibt ein lokaler, semi-wichtiger Arbeits- und Smoke-Test-Ordner. Der Nutzer leert ihn regelmaessig manuell.
-- `docs/examples/plot_templates/` bleibt die belastbare Referenzgalerie fuer aktuelle `ma_analyse`-Plot-Template-Beispiele.
+- `docs/examples/plot_template_analyse/` bleibt die belastbare Referenzgalerie fuer aktuelle `ma_analyse`-Plot-Template-Beispiele; `docs/examples/plot_template_weather/` fuehrt Wetter-Template-Beispiele getrennt.
 - Der leere, nicht versionierte Ordner `scripts/` wurde entfernt.
 - `docs/project/UPDATE_ROUTINES.md` dokumentiert die festen Codex-Routinen `update repo`, `direkt update repo` und `update planung`.
 - `docs/project/UPDATE_ROUTINES.md` dokumentiert zusaetzlich `tagesstart`, `tagesende`, `tagesende direkt`, `wochenabschluss`, `projektlage`, `plan aufnehmen`, `entscheidung festhalten` und `release check`.
@@ -348,7 +348,7 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 
 - Plot-Template-Katalog aktualisiert: `heating-year` ist overlayfrei, `heating-overlay` fuehrt die festen Heating-Overlays separat.
 - Cooling-Plot-Templates getrennt: `cooling-year`, `cooling-month`, `cooling-week` und `cooling-day` verwenden Rohwerte aus `zone_energy_q_cool`; `cooling-absolute-year`, `cooling-absolute-month`, `cooling-absolute-week` und `cooling-absolute-day` zeigen Betraege positiv nach oben.
-- Plot-Template-Referenzgalerie unter `docs/examples/plot_templates/` wurde mit 33 aktuellen Beispielen neu erzeugt.
+- Plot-Template-Referenzgalerie unter `docs/examples/plot_template_analyse/` wurde mit 33 aktuellen Analyse-Beispielen bereitgestellt.
 - GUI-Mousewheel-Handler faengt nicht aufloesbare Tkinter-Combobox-Popups robust ab und verhindert `KeyError: 'popdown'`.
 - IDA-Importordner umbenannt: `ma_analyse` nutzt fuer Rohdatenvarianten `data/ma_analyse/ida_imports`; der bisherige Eingangsordner wurde entfernt.
 - Datenvorbereitung als eigener Workflow-Schritt eingeordnet:
@@ -357,7 +357,7 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 
 ### Teilweise umgesetzt
 
-- Plot-Template-Katalog: Referenzbilder liegen unter `docs/examples/plot_templates/`; die Dokumentation liegt unter `docs/ma_analyse/plot_template_examples.md`.
+- Plot-Template-Katalog: Referenzbilder liegen unter `docs/examples/plot_template_analyse/`; die Dokumentation liegt unter `docs/ma_analyse/plot_template_examples.md`.
 - Heating-Jahresplot nutzt eine gemeinsame Layoutbasis. Absolute Cooling-Jahresplots koennen diese Layoutbasis ebenfalls nutzen; relative Cooling-Templates bleiben als eigene signierte Darstellung erhalten.
 - Interne Lasten und Energiebilanz sind als Plot-Template-Experimente vorhanden.
 - P029 ist als aktiver Aufraeumplan aufgenommen: Zuerst wird der
@@ -491,7 +491,7 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   vorhandene TRY-Dateien pruefen und Testergebnisse dokumentieren.
 - Fachliche Definition der kritischen Wetterereignisse fuer P021 schaerfen
   und mit vorhandenen Tages- und Wochenzeitfenstern verbinden.
-- TRY-Referenzdatensaetze fuer Referenzstandorte wie Mannheim und Muehldorf
+- TRY-Referenzdatensaetze fuer Referenzstandorte wie Mannheim und Passau
   fachlich ergaenzen oder bewusst als fehlend dokumentieren.
 - Weitere ortsgenaue TRY-Dateien gegen die aktivierte BKG-VG250-
   Gemeindeaufloesung testen und erkannte Standortwerte dokumentieren.

@@ -24,6 +24,11 @@ from .try_importer import TryImportResult, import_try_weather_file
 from .weather_catalog import DEFAULT_WEATHER_DATASETS_CONFIG, WeatherDataset, import_weather_catalog
 from .weather_events import WeatherEvent, detect_critical_weather_events
 from .weather_metrics import WeatherMetrics, calculate_weather_metrics
+from .weather_outputs import (
+    DEFAULT_WEATHER_OUTPUT_ROOT,
+    build_weather_output_paths,
+    write_weather_run_manifest,
+)
 from .weather_plots import ALL_WEATHER_PLOTS, WEATHER_PLOT_CHOICES, WeatherPlotResult, build_weather_plots
 from .weather_report import write_weather_report
 from .weather_status import create_weather_import_id
@@ -40,8 +45,10 @@ class WeatherAnalysisResult:
     metrics: WeatherMetrics
     critical_events: tuple[WeatherEvent, ...]
     plot_results: tuple[WeatherPlotResult, ...]
+    run_output_dir: Path
     processed_data_path: Path
     report_path: Path
+    manifest_path: Path
     import_id: str
     session_id: str
     run_id: str
@@ -55,7 +62,7 @@ def run_weather_analysis(
     catalog_path: str | Path = DEFAULT_WEATHER_DATASETS_CONFIG,
     project_root: str | Path | None = None,
     database_dir: str | Path = "data/ma_weather/database",
-    output_dir: str | Path = "data/ma_weather/output",
+    output_dir: str | Path = DEFAULT_WEATHER_OUTPUT_ROOT,
     reports_dir: str | Path = "data/ma_weather/reports",
     session_log_dir: str | Path = "logs/sessions",
     start_year: int = 2015,
@@ -66,6 +73,7 @@ def run_weather_analysis(
     print_summary: bool = True,
 ) -> WeatherAnalysisResult:
     """Fuehrt Import, Validierung, Kennwerte, Diagramme und Bericht fuer einen Datensatz aus."""
+    _ = database_dir, reports_dir
     root = Path.cwd() if project_root is None else Path(project_root)
     resolved_session_id = session_id or create_session_id()
     resolved_run_id = run_id or create_run_id("weather")
@@ -89,6 +97,11 @@ def run_weather_analysis(
         catalog = import_weather_catalog(catalog_path)
         dataset = catalog.get(weather_key)
         source_path = dataset.resolved_file_path(root)
+        output_paths = build_weather_output_paths(
+            dataset.weather_key,
+            resolved_run_id,
+            output_root=root / output_dir,
+        )
 
         import_result = import_try_weather_file(source_path, weather_key=dataset.weather_key, start_year=start_year)
         append_session_event(
@@ -138,11 +151,11 @@ def run_weather_analysis(
 
         metrics = calculate_weather_metrics(import_result.data)
         critical_events = detect_critical_weather_events(import_result.data, weather_key=dataset.weather_key)
-        processed_data_path = _write_processed_data(import_result, root / database_dir, dataset.weather_key)
+        processed_data_path = _write_processed_data(import_result, output_paths.processed_data_path)
         plot_results = build_weather_plots(
             import_result.data,
             weather_key=dataset.weather_key,
-            output_dir=root / output_dir,
+            output_dir=output_paths.plots_dir,
             plot_keys=weather_plot_keys,
         )
         report_path = write_weather_report(
@@ -151,7 +164,7 @@ def run_weather_analysis(
             validation_report=validation_report,
             metrics=metrics,
             plot_results=plot_results,
-            output_dir=root / reports_dir,
+            output_dir=output_paths.reports_dir,
         )
 
         release_decision = _automatic_release_decision(
@@ -162,6 +175,22 @@ def run_weather_analysis(
         )
         if release_decision is not None:
             _append_release_decision_event(release_decision, resolved_log_dir, import_id=resolved_import_id)
+        manifest_path = write_weather_run_manifest(
+            manifest_path=output_paths.manifest_path,
+            dataset=dataset,
+            import_result=import_result,
+            validation_report=validation_report,
+            plot_results=plot_results,
+            critical_events=critical_events,
+            processed_data_path=processed_data_path,
+            report_path=report_path,
+            session_log_path=session_log_path,
+            session_id=resolved_session_id,
+            run_id=resolved_run_id,
+            import_id=resolved_import_id,
+            run_output_dir=output_paths.run_output_dir,
+            project_root=root,
+        )
 
         append_session_event(
             SessionLogEvent(
@@ -180,6 +209,7 @@ def run_weather_analysis(
                     "critical_event_count": len(critical_events),
                     "processed_data_path": str(processed_data_path),
                     "report_path": str(report_path),
+                    "manifest_path": str(manifest_path),
                     "validation_status": validation_report.status,
                 },
             ),
@@ -210,8 +240,10 @@ def run_weather_analysis(
         metrics=metrics,
         critical_events=critical_events,
         plot_results=plot_results,
+        run_output_dir=output_paths.run_output_dir,
         processed_data_path=processed_data_path,
         report_path=report_path,
+        manifest_path=manifest_path,
         import_id=resolved_import_id,
         session_id=resolved_session_id,
         run_id=resolved_run_id,
@@ -229,7 +261,7 @@ def plot_template_weather(
     catalog_path: str | Path = DEFAULT_WEATHER_DATASETS_CONFIG,
     project_root: str | Path | None = None,
     database_dir: str | Path = "data/ma_weather/database",
-    output_dir: str | Path = "data/ma_weather/output",
+    output_dir: str | Path = DEFAULT_WEATHER_OUTPUT_ROOT,
     reports_dir: str | Path = "data/ma_weather/reports",
     session_log_dir: str | Path = "logs/sessions",
     start_year: int = 2015,
@@ -333,9 +365,8 @@ def record_weather_release_decision(
     return decision
 
 
-def _write_processed_data(import_result: TryImportResult, output_dir: Path, weather_key: str) -> Path:
-    output_dir.mkdir(parents=True, exist_ok=True)
-    output_path = output_dir / f"{weather_key}_weather_data.csv"
+def _write_processed_data(import_result: TryImportResult, output_path: Path) -> Path:
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     import_result.data.to_csv(output_path, index=True)
     return output_path
 
@@ -346,7 +377,9 @@ def _print_summary(result: WeatherAnalysisResult) -> None:
     print(f"Status Validierung: {result.validation_report.status}")
     print(f"Stundenwerte: {result.import_result.row_count}")
     print(f"Diagramme erzeugt: {len(created_plots)}")
+    print(f"Run-Ordner: {result.run_output_dir}")
     print(f"Bericht: {result.report_path}")
+    print(f"Manifest: {result.manifest_path}")
     print(f"Import-ID: {result.import_id}")
     print(f"Session-Log: {result.session_log_path}")
 
@@ -362,6 +395,11 @@ def main(argv: Sequence[str] | None = None) -> None:
     )
     parser.add_argument("--start-year", type=int, default=2015, help="Jahr fuer den abgeleiteten Zeitindex.")
     parser.add_argument(
+        "--output-root",
+        default=str(DEFAULT_WEATHER_OUTPUT_ROOT),
+        help="Wurzelverzeichnis fuer Wetter-Run-Ausgaben.",
+    )
+    parser.add_argument(
         "--plot",
         choices=(ALL_WEATHER_PLOTS, *WEATHER_PLOT_CHOICES),
         default=ALL_WEATHER_PLOTS,
@@ -373,6 +411,7 @@ def main(argv: Sequence[str] | None = None) -> None:
         args.weather_key,
         catalog_path=args.catalog,
         start_year=args.start_year,
+        output_dir=args.output_root,
         plot_key=args.plot,
     )
 
@@ -394,12 +433,18 @@ def main_plot_template_weather(argv: Sequence[str] | None = None) -> None:
         help="Pfad zur Wetterkatalog-YAML.",
     )
     parser.add_argument("--start-year", type=int, default=2015, help="Jahr fuer den abgeleiteten Zeitindex.")
+    parser.add_argument(
+        "--output-root",
+        default=str(DEFAULT_WEATHER_OUTPUT_ROOT),
+        help="Wurzelverzeichnis fuer Wetter-Run-Ausgaben.",
+    )
     plot_args = parser.parse_args(argv)
 
     plot_template_weather(
         plot_args.weather_key,
         catalog_path=plot_args.catalog,
         start_year=plot_args.start_year,
+        output_dir=plot_args.output_root,
         plot_key=plot_args.diagram,
     )
 

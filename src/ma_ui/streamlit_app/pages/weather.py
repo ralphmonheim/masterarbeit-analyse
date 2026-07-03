@@ -360,8 +360,10 @@ def weather_plot_rows(plot_results: tuple[WeatherPlotResult, ...]) -> list[dict[
 def weather_analysis_file_rows(result: WeatherAnalysisResult) -> list[dict[str, object]]:
     """Listet die zentralen Dateien eines Wetteranalyse-Laufs."""
     files = (
+        ("Run-Ordner", result.run_output_dir),
         ("Aufbereitete Wetterdaten", result.processed_data_path),
         ("Markdown-Bericht", result.report_path),
+        ("Run-Manifest", result.manifest_path),
     )
     return [
         {

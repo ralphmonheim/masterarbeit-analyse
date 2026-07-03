@@ -11,8 +11,8 @@ Markdown-Bericht.
 - Aktuell sind 18 Datensaetze aktiv: Frankfurt am Main, Muenchen und Hamburg
   jeweils fuer 2015 und 2045 als Jahr-, Sommer- und Winterdatensatz.
 - Echte TRY-Dateien liegen lokal unter `data/ma_weather/input/` und werden nicht versioniert.
-- Aufbereitete Wetterdaten sind spaeter fuer `data/ma_weather/database/` vorgesehen.
-- Wetterdiagramme sind spaeter fuer `data/ma_weather/output/` vorgesehen.
+- Neue Wetteranalyselaeufe schreiben ihre Artefakte in Run-Ordner unter
+  `data/ma_weather/output/<weather_key>/<run_id>/`.
 - Der Runner kann als Modul gestartet werden.
 - Der aktive Plan liegt unter `docs/project/plans/inbox/260623_Plan_P008_ma_weather_Gesamtplan.md`.
 - Ein YAML-Standortkatalog liegt unter `config/ma_weather/locations/example_weather_locations.yaml`.
@@ -69,9 +69,8 @@ Der Befehl fuehrt folgende Schritte aus:
 - TRY-Datei aus dem Wetterkatalog laden
 - Wetterdaten validieren
 - Wetterkennwerte berechnen
-- aufbereitete CSV unter `data/ma_weather/database/` schreiben
-- Diagramme unter `data/ma_weather/output/` erzeugen
-- Markdown-Bericht unter `data/ma_weather/reports/` schreiben
+- aufbereitete CSV, Diagramme, Markdown-Bericht und Run-Manifest unter
+  `data/ma_weather/output/<weather_key>/<run_id>/` schreiben
 - kritische Wetterereignisse fuer den ausgewaehlten Datensatz erkennen
 
 Die gleiche Pipeline kann auch in `ma_ui` ueber die Seite `Wetterdaten`
@@ -101,6 +100,22 @@ weiterhin freigegeben sind.
 Der lokale Auswahlstatus liegt unter
 `data/ma_weather/database/weather_selection_state.yaml` und wird nicht
 versioniert.
+
+Neue Analyseausgaben liegen gesammelt in einem Run-Ordner:
+
+```text
+data/ma_weather/output/<weather_key>/<run_id>/
+  data/<weather_key>_weather_data.csv
+  plots/<weather_key>_<plot_key>.png
+  reports/<weather_key>_weather_report.md
+  weather_run_manifest.json
+```
+
+Das Manifest verbindet `weather_key`, `session_id`, `run_id`, `import_id`,
+Quellmetadaten, Validierungsstatus, erzeugte Artefakte und erkannte kritische
+Wetterereignisse. Bestehende aeltere Dateien unter `data/ma_weather/reports/`
+oder flacheren Outputordnern bleiben Altartefakte und werden nicht automatisch
+verschoben.
 
 Der Schritt `Pruefen` zeigt `Gefundene lokale TRY-Dateien` und
 `Parameter pruefen`. Katalogisierte Bestandspruefungen bleiben technisch
@@ -137,6 +152,15 @@ Diagramm aus dem vorhandenen Wetterdiagramm-Katalog.
 .\.venv\Scripts\plot-template-weather.exe temperature_year --weather-key TRY_FFM_2015_JAHR
 .\.venv\Scripts\plot-template-weather.exe wind_rose --weather-key TRY_FFM_2015_JAHR
 ```
+
+Optional kann die Wurzel der Run-Ausgaben gesetzt werden:
+
+```powershell
+.\.venv\Scripts\plot-template-weather.exe all --weather-key TRY_FFM_2015_JAHR --output-root data/ma_weather/output
+```
+
+Stabile Beispielbilder liegen getrennt von den Analyse-Templates unter
+`docs/examples/plot_template_weather/`.
 
 Vorhandene Diagramm-Schluessel:
 

@@ -46,9 +46,12 @@ Der aktuelle Stand umfasst:
 12. Import-ID, Quellenmetadaten, Validierungsstatus und Sitzungslog
    miteinander verknuepfen.
 13. Wetterkennwerte berechnen.
-14. Aufbereitete Wetterdaten unter `data/ma_weather/database/` schreiben.
-15. Diagramme unter `data/ma_weather/output/` schreiben.
-16. Bericht unter `data/ma_weather/reports/` schreiben.
+14. Laufbezogenen Ausgabeordner unter
+    `data/ma_weather/output/<weather_key>/<run_id>/` anlegen.
+15. Aufbereitete Wetterdaten, Diagramme, Bericht und Manifest in diesen
+    Run-Ordner schreiben.
+16. Run-Manifest mit `weather_key`, `session_id`, `run_id`, `import_id`,
+    Quelle, Validierung, Artefakten und kritischen Ereignissen schreiben.
 17. Freigegebene und bewusst uebernommene Entwuerfe im Katalog aktiv fuehren.
 18. Einen aktiven Datensatz bewusst als Projekt-Default setzen.
 19. Kritische Wetterereignisse aus genau diesem ausgewaehlten Datensatz
@@ -57,6 +60,23 @@ Der aktuelle Stand umfasst:
 Der DWD-Download bleibt ein manueller Vorbereitungsschritt. Die TRY-Dateien
 werden nicht versioniert; im Repo liegen nur Katalogeintraege, Pfade und
 Dokumentation.
+
+Die produktive Wetterausgabe orientiert sich an der laufbezogenen
+Output-Strategie von `ma_analyse`, bleibt aber wettermodulspezifisch
+strukturiert:
+
+```text
+data/ma_weather/output/<weather_key>/<run_id>/
+  data/<weather_key>_weather_data.csv
+  plots/<weather_key>_<plot_key>.png
+  reports/<weather_key>_weather_report.md
+  weather_run_manifest.json
+```
+
+`plot-template-weather` ist damit kein reiner Test-/Galeriebefehl, sondern ein
+produktiver Wetterdiagramm-Einstieg. Einzelne Diagramme und `all` schreiben in
+dieselbe Run-Struktur. Der lokale Auswahlstatus
+`data/ma_weather/database/weather_selection_state.yaml` bleibt davon getrennt.
 
 Lokale UI-Imports werden unter
 `data/ma_weather/input/custom/<weather_key>/` abgelegt. Der zugehoerige lokale
@@ -77,6 +97,20 @@ wenn ein bestaetigter Dateiverweis, eine bestaetigte TRY-Ordner-Zuordnung oder
 eine eindeutige BKG-Gemeindeaufloesung vorliegt und die Gemeinde im
 Standortkatalog existiert. Berlin-/Potsdam-nahe TRY-Dateien duerfen ohne diese
 belastbare Aufloesung nicht als Hamburg oder anderer Ersatzstandort erscheinen.
+
+Die fachliche TRY-Zuordnung orientiert sich an den Punkten der Klimakarte. Die
+BKG-Gemeinde aus dem Dateiheader bleibt als technische Erkennung erhalten,
+muss aber nicht identisch mit dem fachlichen Klimakartenpunkt sein. Bestaetigte
+TRY-Ordner-Zuordnungen duerfen deshalb eine erkannte Gemeinde bewusst auf den
+Klimakartenpunkt abbilden, zum Beispiel:
+
+- `Geislingen an der Steige` -> `Stoetten`
+- `Oberwiesenthal` -> `Fichtelberg`
+- `Bad Marienberg (Westerwald)` -> `Bad Marienberg`
+
+Klimaregion 13 verwendet `Passau` als fachlichen TRY-Referenzpunkt. `Muehldorf`
+bleibt als Standort in dieser Klimaregion erhalten, ist aber nicht mehr der
+Referenzpunkt.
 
 ## Verbindung zu Varianten
 
@@ -176,8 +210,10 @@ Das Standort-Mapping nutzt zuerst die versionierte TRY-Ordner-Zuordnung. Nur
 bestaetigte Zuordnungen duerfen automatisch vorbelegen. Danach kann eine
 eindeutige lokale BKG-Gemeindeaufloesung aus Rechtswert, Hochwert und
 Hoehenlage den Standort vorbelegen, wenn die Gemeinde im Standortkatalog
-vorhanden ist. Reine Naechstvorschlaege ohne Gemeinde-Treffer bleiben
-Vorschlaege und muessen bewusst uebernommen werden.
+vorhanden ist. Weichen VG250-Gemeinde und fachlicher Klimakartenpunkt
+voneinander ab, hat die bestaetigte TRY-Ordner-Zuordnung Vorrang. Reine
+Naechstvorschlaege ohne Gemeinde-Treffer bleiben Vorschlaege und muessen
+bewusst uebernommen werden.
 
 Projekt-Default und Auswahlstatus werden lokal unter
 `data/ma_weather/database/weather_selection_state.yaml` gespeichert. Diese Datei

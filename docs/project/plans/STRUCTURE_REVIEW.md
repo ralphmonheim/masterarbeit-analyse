@@ -118,7 +118,7 @@ weitergefuehrt.
 - P020 als Research-Plan fuer deutsche Norm-Nachweise fuehren; internationale
   Normen bleiben erweiterbare Profile.
 - `data/test_output/` regelmaessig manuell leeren, aber nicht als Referenzgalerie verwenden.
-- `docs/examples/plot_templates/` als wichtige Referenz fuer aktuelle `ma_analyse`-Plot-Templates behalten.
+- `docs/examples/plot_template_analyse/` als wichtige Referenz fuer aktuelle `ma_analyse`-Plot-Templates behalten; Wetter-Template-Beispiele getrennt unter `docs/examples/plot_template_weather/` fuehren.
 - Die aus P005 uebernommenen Restarbeiten nur in kleinen P007-Slices
   fortsetzen: Streamlit-/Tkinter-Analyse mit realen Projektdaten pruefen und
   erst danach Vorschau-Cache oder weitere Fachservice-Anbindungen planen.

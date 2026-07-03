@@ -1,6 +1,6 @@
 # Befehls- und Ausgabeninventar
 
-Stand: 2026-06-25
+Stand: 2026-07-03
 
 Diese Uebersicht buendelt die bisher aufgebauten Befehle, Ausgaben und
 Frontend-/Backend-Verbindungen. Sie ersetzt nicht die Modul-Befehlsdateien,
@@ -35,9 +35,10 @@ sondern dient als schneller Statusabgleich.
 |---|---|---:|---:|---:|---|---|
 | `ma_core` | InputSource, IDs, Sitzungslogs | ja | indirekt | nein | nutzbar fuer Wetterpilot | `src/ma_core/`, `src/ma_weather/run_weather_analysis.py` |
 | `ma_validation` | Diagnosen, Freigabestatus, Entscheidungen | ja | ja, Wetterdaten-Seite | nein | nutzbar fuer Wetterpilot | `src/ma_validation/`, `src/ma_ui/streamlit_app/pages/weather.py` |
-| `ma_weather` | aufbereitete CSV | ja | als Ergebnisdatei sichtbar | nein | nutzbar | `data/ma_weather/database/`, `src/ma_weather/run_weather_analysis.py` |
-| `ma_weather` | PNG-Wetterdiagramme | ja | ja, Vorschau | nein | nutzbar | `data/ma_weather/output/`, `src/ma_weather/weather_plots.py` |
-| `ma_weather` | Markdown-Wetterbericht | ja | als Ausgabedatei sichtbar | nein | nutzbar | `data/ma_weather/reports/`, `src/ma_weather/weather_report.py` |
+| `ma_weather` | aufbereitete CSV | ja | als Ergebnisdatei sichtbar | nein | nutzbar | `data/ma_weather/output/<weather_key>/<run_id>/data/`, `src/ma_weather/run_weather_analysis.py` |
+| `ma_weather` | PNG-Wetterdiagramme | ja | ja, Vorschau | nein | nutzbar | `data/ma_weather/output/<weather_key>/<run_id>/plots/`, `src/ma_weather/weather_plots.py` |
+| `ma_weather` | Markdown-Wetterbericht | ja | als Ausgabedatei sichtbar | nein | nutzbar | `data/ma_weather/output/<weather_key>/<run_id>/reports/`, `src/ma_weather/weather_report.py` |
+| `ma_weather` | Wetter-Run-Manifest | ja | als Ergebnisdatei sichtbar | nein | nutzbar | `data/ma_weather/output/<weather_key>/<run_id>/weather_run_manifest.json`, `src/ma_weather/weather_outputs.py` |
 | `ma_weather` | kritische Wetterereignisse | ja | ja | nein | nutzbar | `src/ma_weather/weather_events.py` |
 | `ma_analyse.data_preparation` | Raumtabellen, Basisbericht, Excel-Datenuebersicht | ja | ja, Wizard | ja | nutzbar | `src/ma_analyse/`, `docs/ma_analyse/commands_analyse.md` |
 | `ma_analyse.stage_2_optimization` | Variantenvergleiche, Diagramme, Tabellen | ja | ja, Wizard | ja | nutzbar | `src/ma_analyse/analysis/`, `src/ma_ui/streamlit_app/module_views/analyse_view.py` |

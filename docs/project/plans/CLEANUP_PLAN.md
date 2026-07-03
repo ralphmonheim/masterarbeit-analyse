@@ -1,6 +1,6 @@
 # Cleanup Plan
 
-Stand: 2026-06-28
+Stand: 2026-07-03
 
 ## Sichere Sofortmassnahmen
 
@@ -8,7 +8,7 @@ Stand: 2026-06-28
 - Erledigt: Planungsdokumentation modularisieren.
 - Erledigt: Nutzerentscheidungen von technischen Entscheidungen trennen.
 - Erledigt: `data/test_output/` als lokalen, semi-wichtigen Arbeitsordner dokumentieren.
-- Erledigt: `docs/examples/plot_templates/` als wichtige Referenzgalerie dokumentieren.
+- Erledigt: `docs/examples/plot_template_analyse/` und `docs/examples/plot_template_weather/` als getrennte Referenzgalerien dokumentieren.
 - Erledigt: Externe OneDrive-Plaene in die Plan-Inbox uebernehmen und konsistente Markdown-Dateinamen verwenden.
 - Erledigt: `ma_analyse` hart auf `data/ma_analyse/ida_imports`, `data/ma_analyse/database` und `data/ma_analyse/output` migrieren.
 - Erledigt: Alten leeren Root-Dokumentenordner entfernen; aktive Katalogdokumente liegen unter `data/catalogs/documents/`.
@@ -79,7 +79,7 @@ Stand: 2026-06-28
 - Aktuelle `ma_ui`- und `ma_workflow`-Zwischenstaende nicht umbenennen, ohne
   Tests und Importpfade im selben Slice anzupassen.
 - Alembic-Migrationen ohne Datenbankgrund.
-- `docs/examples/plot_templates/`, ausser neue Beispielgalerie wird bewusst erzeugt.
+- `docs/examples/plot_template_analyse/` und `docs/examples/plot_template_weather/`, ausser neue Beispielgalerien werden bewusst erzeugt.
 
 ## Empfohlene Reihenfolge
 

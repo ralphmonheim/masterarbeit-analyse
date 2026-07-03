@@ -20,7 +20,7 @@ Die Dokumentation ist nach Projektorganisation und Fachmodulen gegliedert.
 | `ma_reporting/`, `ma_data_export/` | Berichte und maschinenlesbare Datenpakete |
 | `ma_validation/`, `ma_feedback/` | phasenuebergreifende Freigaben und Rueckspruenge |
 | `common/` | uebergreifende Hinweise wie Commit- und Hook-Dokumentation |
-| `examples/` | belastbare Beispielausgaben, aktuell vor allem Plot-Template-Galerie |
+| `examples/` | belastbare Beispielausgaben, getrennt fuer Analyse- und Wetter-Plot-Templates |
 
 `CHANGELOG.md` bleibt im Projekt-Root und dokumentiert nur tatsaechlich umgesetzte Aenderungen.
 

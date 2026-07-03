@@ -93,7 +93,7 @@ weather_datasets:
     climate_scenario: present
     dataset_role: site_specific
     location_id: LOC_059
-    reference_location_id: LOC_058
+    reference_location_id: LOC_061
     selection_priority: 10
     is_active: true
     notes: Lokale TRY-Datei wird vom Nutzer bereitgestellt und nicht im Repo versioniert.
@@ -107,7 +107,7 @@ weather_datasets:
     climate_scenario: future_2045
     dataset_role: site_specific
     location_id: LOC_059
-    reference_location_id: LOC_058
+    reference_location_id: LOC_061
     selection_priority: 20
     is_active: true
     notes: Lokale TRY-Datei wird vom Nutzer bereitgestellt und nicht im Repo versioniert.
@@ -121,7 +121,7 @@ weather_datasets:
     climate_scenario: present
     dataset_role: site_specific
     location_id: LOC_059
-    reference_location_id: LOC_058
+    reference_location_id: LOC_061
     selection_priority: 11
     is_active: true
     notes: Sommer-TRY-Datei wird als eigener Wetterdatensatz behandelt.
@@ -135,7 +135,7 @@ weather_datasets:
     climate_scenario: present
     dataset_role: site_specific
     location_id: LOC_059
-    reference_location_id: LOC_058
+    reference_location_id: LOC_061
     selection_priority: 12
     is_active: true
     notes: Winter-TRY-Datei wird als eigener Wetterdatensatz behandelt.
@@ -149,7 +149,7 @@ weather_datasets:
     climate_scenario: future_2045
     dataset_role: site_specific
     location_id: LOC_059
-    reference_location_id: LOC_058
+    reference_location_id: LOC_061
     selection_priority: 21
     is_active: true
     notes: Sommer-TRY-Datei wird als eigener Wetterdatensatz behandelt.
@@ -163,7 +163,7 @@ weather_datasets:
     climate_scenario: future_2045
     dataset_role: site_specific
     location_id: LOC_059
-    reference_location_id: LOC_058
+    reference_location_id: LOC_061
     selection_priority: 22
     is_active: true
     notes: Winter-TRY-Datei wird als eigener Wetterdatensatz behandelt.

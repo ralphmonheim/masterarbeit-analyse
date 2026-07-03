@@ -1,21 +1,161 @@
 try_file_locations:
+  - try_folder_key: TRY_474946110908
+    location_id: LOC_066
+    mapping_status: confirmed
+    mapping_source: Klimakarte und VG250-Abgleich 2026-07-02
+    notes: Garmisch-Partenkirchen, TRY-Referenzpunkt 15.
+  - try_folder_key: TRY_481399115778
+    location_id: LOC_059
+    mapping_status: confirmed
+    mapping_source: manuell bestaetigt
+    notes: Muenchen, standortgenauer TRY-Datensatz; Referenzpunkt der Klimaregion 13 ist Passau.
+  - try_folder_key: TRY_485721134578
+    location_id: LOC_061
+    mapping_status: confirmed
+    mapping_source: Klimakarte und VG250-Abgleich 2026-07-02
+    notes: Passau, TRY-Referenzpunkt 13.
+  - try_folder_key: TRY_486536098525
+    location_id: LOC_064
+    mapping_status: confirmed
+    mapping_source: Klimakarte und VG250-Abgleich 2026-07-02
+    notes: VG250 erkennt Geislingen an der Steige; fachlicher Klimakartenpunkt ist Stoetten.
+  - try_folder_key: TRY_494997084777
+    location_id: LOC_053
+    mapping_status: confirmed
+    mapping_source: manuell bestaetigt
+    notes: Mannheim, TRY-Referenzpunkt 12.
+  - try_folder_key: TRY_499994082595
+    location_id: LOC_052
+    mapping_status: confirmed
+    mapping_source: Klimakarte und VG250-Abgleich 2026-07-02
+    notes: Mainz, standortgenauer TRY-Datensatz.
+  - try_folder_key: TRY_500737082423
+    location_id: LOC_054
+    mapping_status: confirmed
+    mapping_source: Klimakarte und VG250-Abgleich 2026-07-02
+    notes: Wiesbaden, standortgenauer TRY-Datensatz.
   - try_folder_key: TRY_501262086894
     location_id: LOC_049
     mapping_status: confirmed
     mapping_source: manuell bestaetigt
     notes: Frankfurt am Main, standortgenauer TRY-Datensatz.
-  - try_folder_key: TRY_481399115778
-    location_id: LOC_059
+  - try_folder_key: TRY_503133119120
+    location_id: LOC_045
     mapping_status: confirmed
-    mapping_source: manuell bestaetigt
-    notes: Muenchen, standortgenauer TRY-Datensatz.
+    mapping_source: Klimakarte und VG250-Abgleich 2026-07-02
+    notes: Hof, TRY-Referenzpunkt 10.
+  - try_folder_key: TRY_504215129662
+    location_id: LOC_048
+    mapping_status: confirmed
+    mapping_source: Klimakarte und VG250-Abgleich 2026-07-02
+    notes: VG250 erkennt Oberwiesenthal; fachlicher Klimakartenpunkt ist Fichtelberg.
+  - try_folder_key: TRY_506557079568
+    location_id: LOC_033
+    mapping_status: confirmed
+    mapping_source: Klimakarte und VG250-Abgleich 2026-07-02
+    notes: VG250 erkennt Bad Marienberg (Westerwald); fachlicher Klimakartenpunkt ist Bad Marienberg.
+  - try_folder_key: TRY_508068087732
+    location_id: LOC_039
+    mapping_status: confirmed
+    mapping_source: Klimakarte und VG250-Abgleich 2026-07-02
+    notes: Marburg, standortgenauer TRY-Datensatz.
+  - try_folder_key: TRY_508323129334
+    location_id: LOC_043
+    mapping_status: confirmed
+    mapping_source: Klimakarte und VG250-Abgleich 2026-07-02
+    notes: Chemnitz, TRY-Referenzpunkt 9.
+  - try_folder_key: TRY_509319069572
+    location_id: LOC_029
+    mapping_status: confirmed
+    mapping_source: Klimakarte und VG250-Abgleich 2026-07-02
+    notes: Koeln, standortgenauer TRY-Datensatz.
+  - try_folder_key: TRY_509764110248
+    location_id: LOC_044
+    mapping_status: confirmed
+    mapping_source: Klimakarte und VG250-Abgleich 2026-07-02
+    notes: Erfurt, standortgenauer TRY-Datensatz.
+  - try_folder_key: TRY_512337067444
+    location_id: LOC_027
+    mapping_status: confirmed
+    mapping_source: Klimakarte und VG250-Abgleich 2026-07-02
+    notes: Duesseldorf, standortgenauer TRY-Datensatz.
+  - try_folder_key: TRY_514551070121
+    location_id: LOC_028
+    mapping_status: confirmed
+    mapping_source: Klimakarte und VG250-Abgleich 2026-07-02
+    notes: Essen, TRY-Referenzpunkt 5.
+  - try_folder_key: TRY_514994107978
+    location_id: LOC_035
+    mapping_status: confirmed
+    mapping_source: Klimakarte und VG250-Abgleich 2026-07-02
+    notes: Nordhausen, standortgenauer TRY-Datensatz.
+  - try_folder_key: TRY_515123074712
+    location_id: LOC_026
+    mapping_status: confirmed
+    mapping_source: Klimakarte und VG250-Abgleich 2026-07-02
+    notes: Dortmund, standortgenauer TRY-Datensatz.
+  - try_folder_key: TRY_517239106069
+    location_id: LOC_042
+    mapping_status: confirmed
+    mapping_source: Klimakarte und VG250-Abgleich 2026-07-02
+    notes: Braunlage, TRY-Referenzpunkt 8.
+  - try_folder_key: TRY_519625076271
+    location_id: LOC_030
+    mapping_status: confirmed
+    mapping_source: Klimakarte und VG250-Abgleich 2026-07-02
+    notes: Muenster, standortgenauer TRY-Datensatz.
+  - try_folder_key: TRY_522773080507
+    location_id: LOC_031
+    mapping_status: confirmed
+    mapping_source: Klimakarte und VG250-Abgleich 2026-07-02
+    notes: Osnabrueck, standortgenauer TRY-Datensatz.
+  - try_folder_key: TRY_524031130658
+    location_id: LOC_020
+    mapping_status: confirmed
+    mapping_source: Klimakarte und VG250-Abgleich 2026-07-02
+    notes: Potsdam, TRY-Referenzpunkt 4.
+  - try_folder_key: TRY_525331134258
+    location_id: LOC_013
+    mapping_status: confirmed
+    mapping_source: Klimakarte und VG250-Abgleich 2026-07-02
+    notes: Berlin, standortgenauer TRY-Datensatz.
+  - try_folder_key: TRY_526910072975
+    location_id: LOC_011
+    mapping_status: confirmed
+    mapping_source: Klimakarte und VG250-Abgleich 2026-07-02
+    notes: Meppen, standortgenauer TRY-Datensatz.
+  - try_folder_key: TRY_530780088187
+    location_id: LOC_001
+    mapping_status: confirmed
+    mapping_source: Klimakarte und VG250-Abgleich 2026-07-02
+    notes: Bremen, standortgenauer TRY-Datensatz.
+  - try_folder_key: TRY_533683072095
+    location_id: LOC_003
+    mapping_status: confirmed
+    mapping_source: Klimakarte und VG250-Abgleich 2026-07-02
+    notes: Emden, standortgenauer TRY-Datensatz.
   - try_folder_key: TRY_535578099766
     location_id: LOC_009
     mapping_status: confirmed
     mapping_source: manuell bestaetigt
-    notes: Hamburg, TRY-Referenzdatensatz.
-  - try_folder_key: TRY_494997084777
-    location_id: LOC_053
+    notes: Hamburg, TRY-Referenzpunkt 3.
+  - try_folder_key: TRY_538720106682
+    location_id: LOC_008
     mapping_status: confirmed
-    mapping_source: manuell bestaetigt
-    notes: Mannheim, TRY-Referenzdatensatz.
+    mapping_source: Klimakarte und VG250-Abgleich 2026-07-02
+    notes: Luebeck, standortgenauer TRY-Datensatz.
+  - try_folder_key: TRY_540883121096
+    location_id: LOC_005
+    mapping_status: confirmed
+    mapping_source: Klimakarte und VG250-Abgleich 2026-07-02
+    notes: Rostock, TRY-Referenzpunkt 2.
+  - try_folder_key: TRY_543102101509
+    location_id: LOC_007
+    mapping_status: confirmed
+    mapping_source: Klimakarte und VG250-Abgleich 2026-07-02
+    notes: Kiel, standortgenauer TRY-Datensatz.
+  - try_folder_key: TRY_547825094300
+    location_id: LOC_004
+    mapping_status: confirmed
+    mapping_source: Klimakarte und VG250-Abgleich 2026-07-02
+    notes: Flensburg, standortgenauer TRY-Datensatz.
