@@ -1,4 +1,8 @@
 from ma_building import (
+    BUSINESS_INTEGRATION_REFERENCE_RHINO_FILENAME,
+    BUSINESS_INTEGRATION_REFERENCE_RHINO_PATH,
+    FACHLICHER_TEIL_REFERENCE_IFC_FILENAME,
+    FACHLICHER_TEIL_REFERENCE_IFC_PATH,
     MASTER_THESIS_REFERENCE_IFC_FILENAME,
     MASTER_THESIS_REFERENCE_IFC_PATH,
     diagnose_building_source,
@@ -84,6 +88,12 @@ def test_missing_building_source_returns_error_diagnostic(tmp_path):
     assert diagnostic.messages[0].code == "BUILDING_SOURCE_NOT_FOUND"
 
 
-def test_master_thesis_reference_ifc_points_to_smalloffice_sample():
-    assert MASTER_THESIS_REFERENCE_IFC_FILENAME == "SmallOffice_d_IFC2x3.ifc"
+def test_reference_paths_separate_fachteil_and_business_integration_models():
+    assert FACHLICHER_TEIL_REFERENCE_IFC_FILENAME == "SmallOffice_d_IFC2x3.ifc"
+    assert FACHLICHER_TEIL_REFERENCE_IFC_PATH.name == FACHLICHER_TEIL_REFERENCE_IFC_FILENAME
+    assert BUSINESS_INTEGRATION_REFERENCE_RHINO_FILENAME == "ma_building_testgebaeude_6x4x4_oeffnungen_v1.3dm"
+    assert BUSINESS_INTEGRATION_REFERENCE_RHINO_PATH.name == BUSINESS_INTEGRATION_REFERENCE_RHINO_FILENAME
+
+    # Bestehende P012-v1-Importe bleiben gueltig.
+    assert MASTER_THESIS_REFERENCE_IFC_FILENAME == FACHLICHER_TEIL_REFERENCE_IFC_FILENAME
     assert MASTER_THESIS_REFERENCE_IFC_PATH.name == MASTER_THESIS_REFERENCE_IFC_FILENAME

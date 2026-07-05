@@ -237,6 +237,11 @@ def _weather_dataset_default_table(rows: list[dict[str, object]]):
     return table.loc[:, visible_columns]
 
 
+def _active_weather_location_count(datasets: list[WeatherDataset]) -> int:
+    """Zaehlt eindeutig abgebildete Orte in der aktiven Datensatzuebersicht."""
+    return len({dataset.location.strip() for dataset in datasets if dataset.location.strip()})
+
+
 def weather_dataset_role_label(dataset: WeatherDataset) -> str:
     """Gibt die fachliche Rolle eines Wetterdatensatzes lesbar aus."""
     if dataset.dataset_role == DATASET_ROLE_TRY_REFERENCE:
@@ -1597,7 +1602,11 @@ def _render_active_weather_datasets(
 ) -> None:
     """Zeigt die regulaer aktiven Wetterdatensaetze."""
     st.markdown("**Aktive Wetterdatensaetze**")
-    st.metric("Aktive Wetterdatensaetze", len(datasets))
+    dataset_metric_column, location_metric_column = st.columns(2)
+    with dataset_metric_column:
+        st.metric("Aktive Wetterdatensaetze", len(datasets))
+    with location_metric_column:
+        st.metric("Abgebildete Staedte", _active_weather_location_count(datasets))
     rows = weather_dataset_rows(
         datasets,
         status_by_key=status_by_key,

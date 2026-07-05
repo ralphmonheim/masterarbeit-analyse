@@ -4,6 +4,20 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.23.0 - 2026-07-05
+
+### Changed
+- BusinessIntegration-LoD-1 als versionierte `BuildingModelSpecification`
+  ergaenzt: LoD beschreibt den Eingabeumfang; Kubatur, Huellkennwerte,
+  U-Werte, Fensteranteil, Validierung, Loader, Streamlit-Auswahl und Tests
+  sind fuer den kleinen P012-Einstieg vorhanden.
+- Referenzrollen fuer P012 getrennt: `SmallOffice_d_IFC2x3.ifc` fuer den
+  fachlichen Teil, Rhino-Testgebaeude fuer BusinessIntegration und
+  Softwaretests; P012 startet bewusst mit kleinen Eingabe-LoD-Stufen.
+- Alten Kompatibilitaetspfad `docs/examples/plot_templates/` entfernt; die
+  Analyse-Referenzgalerie liegt verbindlich unter
+  `docs/examples/plot_template_analyse/`.
+
 ## 0.22.0 - 2026-07-03
 
 ### Changed

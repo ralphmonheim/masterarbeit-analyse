@@ -6,13 +6,19 @@ from collections import defaultdict
 
 from ma_validation import DiagnosticMessage, DiagnosticSeverity, ValidationResult, build_validation_result
 
-from .models import VALID_CONSTRUCTION_CODES, BuildingMaturityLevel, BuildingModelSpecification
+from .models import (
+    VALID_CONSTRUCTION_CODES,
+    BuildingInputDetailLevel,
+    BuildingMaturityLevel,
+    BuildingModelSpecification,
+)
 
 
 def validate_building_spec(spec: BuildingModelSpecification) -> ValidationResult:
     """Prueft die v1-Spezifikation und erzeugt ein gemeinsames ValidationResult."""
     messages: list[DiagnosticMessage] = []
     messages.extend(_validate_header(spec))
+    messages.extend(_validate_input_detail(spec))
     messages.extend(_validate_object_ids(spec))
     messages.extend(_validate_storey_references(spec))
     messages.extend(_validate_spaces(spec))
@@ -20,6 +26,10 @@ def validate_building_spec(spec: BuildingModelSpecification) -> ValidationResult
     messages.extend(_validate_openings(spec))
     messages.extend(_validate_shading_devices(spec))
     return build_validation_result(tuple(messages))
+
+
+def _is_lod_1(spec: BuildingModelSpecification) -> bool:
+    return spec.input_detail_level is BuildingInputDetailLevel.LOD_1
 
 
 def _message(
@@ -35,6 +45,7 @@ def _validate_header(spec: BuildingModelSpecification) -> list[DiagnosticMessage
     messages: list[DiagnosticMessage] = []
     required_values = {
         "schema_version": spec.schema_version,
+        "input_detail_level": spec.input_detail_level,
         "project.project_id": spec.project.project_id,
         "project.name": spec.project.name,
         "building.building_id": spec.building.building_id,
@@ -76,6 +87,16 @@ def _validate_header(spec: BuildingModelSpecification) -> list[DiagnosticMessage
                 )
             )
 
+    if spec.input_detail_level and not isinstance(spec.input_detail_level, BuildingInputDetailLevel):
+        messages.append(
+            _message(
+                DiagnosticSeverity.ERROR,
+                "BUILDING_INPUT_DETAIL_LEVEL_INVALID",
+                f"Unbekannter Gebaeude-Eingabeumfang: {spec.input_detail_level}",
+                "input_detail_level",
+            )
+        )
+
     if spec.building.unit != "m":
         messages.append(
             _message(
@@ -103,6 +124,70 @@ def _validate_header(spec: BuildingModelSpecification) -> list[DiagnosticMessage
                 "building",
             )
         )
+    return messages
+
+
+def _validate_input_detail(spec: BuildingModelSpecification) -> list[DiagnosticMessage]:
+    messages: list[DiagnosticMessage] = []
+    if not isinstance(spec.input_detail_level, BuildingInputDetailLevel):
+        return messages
+    if _is_lod_1(spec) and spec.simple_envelope is None:
+        messages.append(
+            _message(
+                DiagnosticSeverity.ERROR,
+                "BUILDING_SIMPLE_ENVELOPE_MISSING",
+                "LoD-1 benoetigt einfache Huellparameter fuer U-Werte und Fensteranteil.",
+                "simple_envelope",
+            )
+        )
+        return messages
+    if spec.simple_envelope is None:
+        return messages
+
+    envelope = spec.simple_envelope
+    u_values = {
+        "simple_envelope.external_wall_u_value_w_m2k": envelope.external_wall_u_value_w_m2k,
+        "simple_envelope.window_u_value_w_m2k": envelope.window_u_value_w_m2k,
+        "simple_envelope.roof_u_value_w_m2k": envelope.roof_u_value_w_m2k,
+        "simple_envelope.floor_u_value_w_m2k": envelope.floor_u_value_w_m2k,
+    }
+    for location, value in u_values.items():
+        if value is not None and value <= 0:
+            messages.append(
+                _message(
+                    DiagnosticSeverity.ERROR,
+                    "BUILDING_SIMPLE_ENVELOPE_U_VALUE_INVALID",
+                    "U-Werte der einfachen Gebaeudehuelle muessen groesser als 0 sein.",
+                    location,
+                )
+            )
+
+    if not 0 <= envelope.window_area_ratio_percent <= 100:
+        messages.append(
+            _message(
+                DiagnosticSeverity.ERROR,
+                "BUILDING_WINDOW_AREA_RATIO_INVALID",
+                "Der Fensterflaechenanteil muss im Bereich 0 bis 100 Prozent liegen.",
+                "simple_envelope.window_area_ratio_percent",
+            )
+        )
+
+    area_values = {
+        "simple_envelope.external_wall_area_m2": envelope.external_wall_area_m2,
+        "simple_envelope.window_area_m2": envelope.window_area_m2,
+        "simple_envelope.roof_area_m2": envelope.roof_area_m2,
+        "simple_envelope.floor_area_m2": envelope.floor_area_m2,
+    }
+    for location, value in area_values.items():
+        if value is not None and value <= 0:
+            messages.append(
+                _message(
+                    DiagnosticSeverity.ERROR,
+                    "BUILDING_SIMPLE_ENVELOPE_AREA_INVALID",
+                    "Direkt eingegebene Huellflaechen muessen groesser als 0 sein.",
+                    location,
+                )
+            )
     return messages
 
 
@@ -137,7 +222,7 @@ def _validate_object_ids(spec: BuildingModelSpecification) -> list[DiagnosticMes
 
 def _validate_storey_references(spec: BuildingModelSpecification) -> list[DiagnosticMessage]:
     messages: list[DiagnosticMessage] = []
-    if not spec.storeys:
+    if not spec.storeys and not _is_lod_1(spec):
         messages.append(
             _message(
                 DiagnosticSeverity.ERROR,
@@ -161,7 +246,7 @@ def _validate_storey_references(spec: BuildingModelSpecification) -> list[Diagno
 
 def _validate_spaces(spec: BuildingModelSpecification) -> list[DiagnosticMessage]:
     messages: list[DiagnosticMessage] = []
-    if not spec.spaces:
+    if not spec.spaces and not _is_lod_1(spec):
         messages.append(
             _message(
                 DiagnosticSeverity.ERROR,
@@ -194,7 +279,7 @@ def _validate_spaces(spec: BuildingModelSpecification) -> list[DiagnosticMessage
 
 def _validate_elements(spec: BuildingModelSpecification) -> list[DiagnosticMessage]:
     messages: list[DiagnosticMessage] = []
-    if not spec.elements:
+    if not spec.elements and not _is_lod_1(spec):
         messages.append(
             _message(
                 DiagnosticSeverity.ERROR,

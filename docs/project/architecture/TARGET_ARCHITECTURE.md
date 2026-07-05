@@ -1,6 +1,6 @@
 # Zielarchitektur
 
-Stand: 2026-06-28
+Stand: 2026-07-05
 Grundlage: P007
 
 ## Zweck
@@ -107,11 +107,16 @@ Modulstatus nicht.
 - Building und Zones werden mindestens als Konzept und Demo aufgebaut.
 - P012 konkretisiert fuer `ma_building` eine einfache
   `BuildingModelSpecification` als Demo- und Trainingsbasis.
+- `SmallOffice_d_IFC2x3.ifc` dient dem fachlichen Teil als IDA-ICE-
+  Referenzmodell; das Rhino-Testgebaeude dient BusinessIntegration und
+  Softwaretests als lokale Arbeitsreferenz.
 - Die aktuelle IFC-Arbeitsdatei darf lokal als Diagnose- und Trainingsquelle
   dienen; ein produktiver IFC-Lite-Import bleibt bis zur Analyse konkreter
   IFC-Arbeitsstaende offen.
-- Rhino `.3dm` ist fachlich als spaeterer Ausbaupfad dokumentiert, aber keine
-  freigegebene Pflicht fuer den aktuellen Masterarbeitsumfang.
+- Rhino `.3dm` ist als BusinessIntegration-Referenz nutzbar, aber keine
+  freigegebene produktive Importschnittstelle. P012-S2 setzt LoD-1 als
+  Eingabeumfang um: Kubatur, Huellkennwerte, U-Werte und Fensteranteil.
+  LoD-2/LoD-3 bleiben Folgeausbau.
 - Direkte CAD-Integration gehoert nicht zum aktuellen Masterarbeitsumfang.
 
 Die aktuelle Reifegradmatrix steht in
@@ -189,8 +194,8 @@ P009 einen sicheren Schnittstellenvertrag und Migrationsweg definiert.
 | Status | Module |
 |---|---|
 | verfuegbar | Projektdokumentation |
-| teilweise | `ma_weather`, `ma_analyse`, `ma_analyse.data_preparation`, `ma_analyse.stage_2_optimization` |
-| geplant | `ma_core`, `ma_database`, `ma_ui`, `ma_workflow`, `ma_project`, `ma_building`, `ma_zones`, `ma_technical`, `ma_parameters`, `ma_analyse.stage_1_dimensioning`, `ma_analyse.stage_3_standards_compliance`, `ma_analyse.stage_4_sensitivity`, `ma_variants`, `ma_simulation_setup`, `ma_export_simulation`, `ma_import_simulation`, `ma_economy`, `ma_sustainability`, `ma_assessment`, `ma_reporting`, `ma_data_export`, `ma_validation`, `ma_feedback` |
+| teilweise | `ma_weather`, `ma_building`, `ma_analyse`, `ma_analyse.data_preparation`, `ma_analyse.stage_2_optimization` |
+| geplant | `ma_core`, `ma_database`, `ma_ui`, `ma_workflow`, `ma_project`, `ma_zones`, `ma_technical`, `ma_parameters`, `ma_analyse.stage_1_dimensioning`, `ma_analyse.stage_3_standards_compliance`, `ma_analyse.stage_4_sensitivity`, `ma_variants`, `ma_simulation_setup`, `ma_export_simulation`, `ma_import_simulation`, `ma_economy`, `ma_sustainability`, `ma_assessment`, `ma_reporting`, `ma_data_export`, `ma_validation`, `ma_feedback` |
 | manuell | IDA ICE |
 
 Die Statuswerte werden zentral in `ma_workflow` gepflegt und von Navigation

@@ -56,6 +56,7 @@ from ma_analyse.analysis_wizard import (
     visible_analysis_steps,
 )
 from ma_analyse.models import AnalysisConfig, AnalysisResult
+from ma_building import load_business_integration_lod1_building_spec
 from ma_ui import app as ma_ui_app
 from ma_ui import workflow_view
 from ma_ui.app import (
@@ -413,6 +414,21 @@ def test_module_views_are_importable():
     assert all(callable(renderer) for renderer in renderers)
 
 
+def test_building_view_exposes_business_integration_lod1_spec():
+    option_rows = building_view.building_spec_option_rows()
+    option_keys = {row["Schluessel"] for row in option_rows}
+
+    assert "business_integration_lod1" in option_keys
+
+    spec = load_business_integration_lod1_building_spec()
+    summary_rows = building_view.building_spec_summary_rows(spec)
+    summary_by_key = {row["Kennwert"]: row["Wert"] for row in summary_rows}
+
+    assert summary_by_key["Eingabe-LoD"] == "LOD-1"
+    assert summary_by_key["U-Wert Aussenwand [W/m2K]"] == 0.24
+    assert summary_by_key["Fensteranteil [%]"] == 25.0
+
+
 def test_dashboard_and_workflow_rows_cover_target_structure():
     dashboard_rows = dashboard_action_rows()
     workflow_rows = workflow_step_rows()
@@ -619,6 +635,8 @@ def test_weather_dataset_default_columns_only_affect_active_table():
         "Szenario",
     )
     assert "_weather_dataset_default_table(rows)" in active_source
+    assert 'st.metric("Aktive Wetterdatensaetze", len(datasets))' in active_source
+    assert 'st.metric("Abgebildete Staedte", _active_weather_location_count(datasets))' in active_source
     assert "_weather_dataset_default_table" not in open_source
     assert "_weather_dataset_default_table" not in discovery_source
 
@@ -1660,6 +1678,49 @@ def test_weather_dataset_default_table_keeps_source_rows_broad():
     assert "Aktiviert" in rows[0]
     assert "Projekt-Default" in rows[0]
     assert "weather_key" not in default_table.columns
+
+
+def test_active_weather_location_count_uses_unique_non_empty_locations():
+    datasets = [
+        WeatherDataset(
+            weather_key="TRY_FFM_2015_JAHR",
+            display_name="Frankfurt Jahr",
+            file_path=Path("data/ma_weather/input/ffm_jahr.dat"),
+            file_format="TRY",
+            source="DWD",
+            location="Frankfurt am Main",
+            year_type="reference_year",
+        ),
+        WeatherDataset(
+            weather_key="TRY_FFM_2015_SOMM",
+            display_name="Frankfurt Sommer",
+            file_path=Path("data/ma_weather/input/ffm_somm.dat"),
+            file_format="TRY",
+            source="DWD",
+            location="Frankfurt am Main",
+            year_type="summer_extreme",
+        ),
+        WeatherDataset(
+            weather_key="TRY_MA_2015_JAHR",
+            display_name="Mannheim Jahr",
+            file_path=Path("data/ma_weather/input/ma_jahr.dat"),
+            file_format="TRY",
+            source="DWD",
+            location=" Mannheim ",
+            year_type="reference_year",
+        ),
+        WeatherDataset(
+            weather_key="TRY_EMPTY",
+            display_name="Ohne Ort",
+            file_path=Path("data/ma_weather/input/empty.dat"),
+            file_format="TRY",
+            source="DWD",
+            location="",
+            year_type="reference_year",
+        ),
+    ]
+
+    assert weather_page._active_weather_location_count(datasets) == 2
 
 
 def test_weather_dataset_label_shows_dataset_type():

@@ -21,6 +21,14 @@ class BuildingMaturityLevel(StrEnum):
     BIL_5 = "BIL-5"
 
 
+class BuildingInputDetailLevel(StrEnum):
+    """Umfang der Eingabedaten fuer ma_building."""
+
+    LOD_1 = "LOD-1"
+    LOD_2 = "LOD-2"
+    LOD_3 = "LOD-3"
+
+
 @dataclass(frozen=True, slots=True)
 class ProjectInfo:
     """Projektbezogene Kopfdaten der Gebaeudespezifikation."""
@@ -72,6 +80,21 @@ class BuildingModelVersion:
                 object.__setattr__(self, field_name, BuildingMaturityLevel(value_text))
             except ValueError:
                 object.__setattr__(self, field_name, value_text)
+
+
+@dataclass(frozen=True, slots=True)
+class SimpleEnvelopeInput:
+    """LoD-1-Huellparameter fuer einfache Dimensionierung und erste Analysen."""
+
+    external_wall_u_value_w_m2k: float
+    window_u_value_w_m2k: float
+    window_area_ratio_percent: float
+    roof_u_value_w_m2k: float | None = None
+    floor_u_value_w_m2k: float | None = None
+    external_wall_area_m2: float | None = None
+    window_area_m2: float | None = None
+    roof_area_m2: float | None = None
+    floor_area_m2: float | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -155,6 +178,8 @@ class BuildingModelSpecification:
     openings: tuple[Opening, ...] = ()
     shading_devices: tuple[ShadingDevice, ...] = ()
     assumptions: tuple[Assumption, ...] = ()
+    input_detail_level: BuildingInputDetailLevel | str = BuildingInputDetailLevel.LOD_2
+    simple_envelope: SimpleEnvelopeInput | None = None
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "storeys", tuple(self.storeys))
@@ -163,6 +188,12 @@ class BuildingModelSpecification:
         object.__setattr__(self, "openings", tuple(self.openings))
         object.__setattr__(self, "shading_devices", tuple(self.shading_devices))
         object.__setattr__(self, "assumptions", tuple(self.assumptions))
+        if not isinstance(self.input_detail_level, BuildingInputDetailLevel):
+            value_text = str(self.input_detail_level).strip()
+            try:
+                object.__setattr__(self, "input_detail_level", BuildingInputDetailLevel(value_text))
+            except ValueError:
+                object.__setattr__(self, "input_detail_level", value_text)
 
     @property
     def storey_ids(self) -> set[str]:
@@ -208,6 +239,31 @@ def _sequence(data: Mapping[str, Any], key: str) -> tuple[Mapping[str, Any], ...
     if not all(isinstance(item, Mapping) for item in value):
         raise ValueError(f"{key} darf nur Mapping-Eintraege enthalten.")
     return tuple(value)
+
+
+def _optional_float(data: Mapping[str, Any], key: str) -> float | None:
+    value = data.get(key)
+    if value is None:
+        return None
+    return float(value)
+
+
+def _simple_envelope_from_dict(data: Any) -> SimpleEnvelopeInput | None:
+    if data is None:
+        return None
+    if not isinstance(data, Mapping):
+        raise ValueError("simple_envelope fehlt oder ist keine Mapping-Struktur.")
+    return SimpleEnvelopeInput(
+        external_wall_u_value_w_m2k=float(data.get("external_wall_u_value_w_m2k", 0.0)),
+        window_u_value_w_m2k=float(data.get("window_u_value_w_m2k", 0.0)),
+        window_area_ratio_percent=float(data.get("window_area_ratio_percent", -1.0)),
+        roof_u_value_w_m2k=_optional_float(data, "roof_u_value_w_m2k"),
+        floor_u_value_w_m2k=_optional_float(data, "floor_u_value_w_m2k"),
+        external_wall_area_m2=_optional_float(data, "external_wall_area_m2"),
+        window_area_m2=_optional_float(data, "window_area_m2"),
+        roof_area_m2=_optional_float(data, "roof_area_m2"),
+        floor_area_m2=_optional_float(data, "floor_area_m2"),
+    )
 
 
 def building_specification_from_dict(data: Mapping[str, Any]) -> BuildingModelSpecification:
@@ -297,4 +353,6 @@ def building_specification_from_dict(data: Mapping[str, Any]) -> BuildingModelSp
             )
             for item in _sequence(data, "assumptions")
         ),
+        input_detail_level=str(data.get("input_detail_level", BuildingInputDetailLevel.LOD_2.value)).strip(),
+        simple_envelope=_simple_envelope_from_dict(data.get("simple_envelope")),
     )

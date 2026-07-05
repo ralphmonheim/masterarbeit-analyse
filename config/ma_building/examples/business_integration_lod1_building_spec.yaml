@@ -1,0 +1,45 @@
+schema_version: "1.0"
+input_detail_level: "LOD-1"
+project:
+  project_id: "PROJECT-BI-TEST-BUILDING"
+  name: "BusinessIntegration Testgebaeude"
+building:
+  building_id: "BUILDING-BI-LOD1-0001"
+  name: "Rhino-Testgebaeude LoD-1"
+  unit: "m"
+  north_angle_deg: 0.0
+  length_m: 6.0
+  width_m: 4.0
+  height_m: 4.0
+model_version:
+  version_id: "BUILDING-BI-LOD1-V1"
+  source_input_level: "BIL-1"
+  detected_input_level: "BIL-1"
+  confirmed_input_level: "BIL-1"
+  current_maturity_level: "BIL-1"
+  target_maturity_level: "BIL-4"
+simple_envelope:
+  external_wall_u_value_w_m2k: 0.24
+  window_u_value_w_m2k: 1.30
+  window_area_ratio_percent: 25.0
+  roof_u_value_w_m2k: 0.20
+  floor_u_value_w_m2k: 0.30
+  external_wall_area_m2: 80.0
+  window_area_m2: 20.0
+  roof_area_m2: 24.0
+  floor_area_m2: 24.0
+storeys: []
+spaces: []
+elements: []
+openings: []
+shading_devices: []
+assumptions:
+  - assumption_id: "ASSUMPTION-BI-LOD1-0001"
+    location: "building"
+    text: "LoD-1 ist eine manuelle, strukturierte Ableitung aus dem Rhino-Testgebaeude; es wird kein Rhino-Parser verwendet."
+  - assumption_id: "ASSUMPTION-BI-LOD1-0002"
+    location: "simple_envelope.window_area_ratio_percent"
+    text: "Fenster werden in LoD-1 als pauschaler Fensterflaechenanteil der Aussenwandflaeche gefuehrt."
+  - assumption_id: "ASSUMPTION-BI-LOD1-0003"
+    location: "simple_envelope"
+    text: "U-Werte und Huellflaechen sind erste Arbeitswerte fuer einfache Dimensionierung und muessen vor belastbaren Nachweisen fachlich bestaetigt werden."

@@ -1,6 +1,6 @@
 # Offene Nutzerentscheidungen
 
-Stand: 2026-07-02
+Stand: 2026-07-05
 
 Diese Datei enthaelt nur offene Nutzerentscheidungen. Erledigte Entscheidungen
 werden nach der Dokumentation als `UD-*` aus dieser Datei entfernt und stehen in
@@ -36,6 +36,21 @@ werden nach der Dokumentation als `UD-*` aus dieser Datei entfernt und stehen in
 - Auswirkung: Entscheidet, ob P012 nur Demo-/YAML-Daten oder zusaetzlich einen
   begrenzten IFC-Lite-Adapter umsetzt.
 
+### OP-012b LoD-2/LoD-3-Inhalte aus dem Rhino-Testgebaeude
+
+- Thema: ma_building, BusinessIntegration-Testmodell und Level of Detail
+- Status: offen
+- Frage: Welche weiteren Inhalte aus dem Rhino-Testgebaeude werden nach
+  LoD-1 fuer LoD-2 oder LoD-3 manuell oder als strukturierte Demo in die
+  `BuildingModelSpecification` uebernommen?
+- Ergaenzung: UD-068 legt fest, dass LoD den Umfang der Eingabe beschreibt.
+  LoD-1 ist mit Kubatur, einfachen Huellkennwerten, U-Werten,
+  Fensterflaechenanteil und Annahmen umgesetzt, ohne produktiven
+  Rhino-Import.
+- Auswirkung: Bestimmt, ob als naechstes Raeume, orientierte Bauteile,
+  Oeffnungsobjekte, Host-Beziehungen, Sonnenschutz und weitere
+  bauphysikalische Werte als LoD-2/LoD-3 erfasst werden.
+
 ### OP-013 Verbindliche Importformate je Eingabemodul
 
 - Thema: Eingabe- und Datenhaltungsarchitektur
@@ -43,9 +58,10 @@ werden nach der Dokumentation als `UD-*` aus dieser Datei entfernt und stehen in
 - Frage: Welche Datei- und Programmvorlagen werden fuer Building, Zones,
   Technical, Parameters und Naming im Masterarbeitsumfang verbindlich
   unterstuetzt?
-- Ergaenzung: Fuer `ma_building` ist `.3dm` fachlich als spaeterer
-  Ausbaupfad dokumentiert, aber wegen der bestehenden CAD-Grenze noch kein
-  verbindliches Eingangsformat. DWG ist durch UD-066 fuer den aktuellen
+- Ergaenzung: Fuer `ma_building` ist das Rhino-Testgebaeude durch UD-067 als
+  BusinessIntegration-Referenz festgelegt. Die daraus abgeleitete
+  BusinessIntegration-LoD-1-YAML ist unterstuetzt, aber `.3dm` ist weiterhin
+  kein produktives Eingangsformat. DWG ist durch UD-066 fuer den aktuellen
   Masterarbeitsumfang kein produktiver Importpfad und bleibt nur lokale
   ungepruefte CAD-Quelle.
 - Auswirkung: Wird in P010 als Formatmatrix vorbereitet und vor den jeweiligen

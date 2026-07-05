@@ -1,7 +1,7 @@
 # Masterarbeit Leitfaden
 
 Leitfaden-Version: 0.5.6
-Stand: 2026-06-29
+Stand: 2026-07-05
 
 Diese Datei ist der zentrale Orientierungsleitfaden fuer die Masterarbeit und
 die begleitende Software. Sie ersetzt keine aktive Steuerdatei. Der operative
@@ -265,7 +265,7 @@ unveraendert im Planarchiv.
 | `ma_ui` | geplant | Streamlit-Prototyp mit Modul-/Workflow-Ansicht, Referenzdiagramm und getrenntem Tkinter-Zweig vorhanden |
 | `ma_workflow` | geplant | Katalog- und Orchestrierungsprototyp vorhanden |
 | `ma_parameters` | geplant | Parameter- und Optionslogik liegt noch in `ma_variants` |
-| `ma_building` | geplant | Gebaeudemodell, Bauteile und bauphysikalische Randbedingungen |
+| `ma_building` | teilweise | Gebaeudemodell, Bauteile und bauphysikalische Randbedingungen |
 | `ma_zones` | geplant | thermische Zonen, Nutzungen, Sollwerte und Profile |
 | `ma_technical` | geplant | technische Systeme, Komponenten und Regelung |
 | `ma_analyse.stage_1_dimensioning` | geplant | Referenzdimensionierung vor der Variantenbildung |
@@ -346,16 +346,20 @@ Paketgeruest, eine Infoseite oder vorhandener Prototypcode genuegt nicht fuer
   geometrischen Raeumen, Bauteilen, Flaechen, Oeffnungen, einfachen
   Sonnenschutzinformationen und baulichem Raumregister bereitstellen.
 - **Eingaben:** einfache Demo-`BuildingModelSpecification`, manuelle oder
-  textliche YAML-/JSON-Daten und lokale Dateidiagnosen. Die aktuelle
-  IFC-Arbeitsdatei ist als lokale Trainings- und Diagnosebasis vorgesehen.
+  textliche YAML-/JSON-Daten und lokale Dateidiagnosen. SmallOffice ist
+  Referenz fuer den fachlichen Teil; das Rhino-Testgebaeude ist
+  Arbeitsreferenz fuer BusinessIntegration und Softwaretests. LoD-1 ist als
+  versionierte Minimal-Spec fuer Kubatur, Huellkennwerte, U-Werte und
+  Fensteranteil umgesetzt.
 - **Ausgaben:** freigegebene Gebaeudedaten fuer `ma_parameters`,
   Raumreferenzen und Zonierungsvorschlaege fuer `ma_zones` sowie spaetere
   Mengen- und Modellinformationen fuer Bewertung und Simulationsadapter.
 - **Abgrenzung:** Keine Nutzungsprofile, keine technische Anlagenlogik, keine
   Variantenkombination, keine Simulation und keine direkte IDA-ICE-Aenderung.
-- **Status:** Geplant; P012 konkretisiert Demo-Spec, IFC-Diagnose,
-  Reifegrade, Raumregister und Schnittstellen. IFC-Lite und Rhino bleiben
-  offene Ausbaupfade.
+- **Status:** Teilweise umgesetzt; P012 konkretisiert Demo-Spec,
+  BusinessIntegration-LoD-1, IFC-/3DM-/CAD-Diagnose, Reifegrade,
+  Raumregister und Schnittstellen. IFC-Lite und produktiver Rhino-Import
+  bleiben offene Ausbaupfade.
 
 #### ma_zones
 
@@ -701,6 +705,7 @@ modulare Ablage besitzt.
 | `data/ma_weather/output/` | Wetterdiagramme |
 | `data/ma_weather/reports/` | Wetterberichte |
 | `data/ma_building/input/ifc/` | lokale IFC-Arbeitsdateien fuer Diagnose und Training |
+| `data/ma_building/input/rhino/` | lokale Rhino-Testgebaeude fuer BusinessIntegration und Softwaretests |
 | `data/ma_variants/` | Variantenimporte, Exporte und IDA-Uebergaben |
 | `data/ma_project/config/` | lokale Simulationsprogramm- und Naming-Profile |
 | `data/ma_parameters/config/` | lokale Parameter- und Optionsarbeitsstaende |

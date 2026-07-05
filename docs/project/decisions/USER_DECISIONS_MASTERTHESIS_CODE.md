@@ -1,6 +1,6 @@
 # Nutzerentscheidungen Masterarbeit Code
 
-Stand: 2026-07-02
+Stand: 2026-07-05
 
 ## UD-001 Modulare Projektstruktur
 
@@ -54,10 +54,10 @@ Stand: 2026-07-02
 
 - Datum: 2026-06-04
 - Thema: Dokumentationsbeispiele
-- Entscheidung: `docs/examples/plot_templates/` soll von jedem `ma_analyse`-Testbefehl das aktuellste wichtige Diagramm enthalten.
+- Entscheidung: `docs/examples/plot_template_analyse/` soll von jedem `ma_analyse`-Testbefehl das aktuellste wichtige Diagramm enthalten. Der fruehere Ordner `docs/examples/plot_templates/` wurde durch die getrennte Analyse-/Wettergalerie ersetzt.
 - Begruendung: Diese Beispiele sind fuer Pruefung und Dokumentation belastbar.
-- Auswirkung: `docs/examples/plot_templates/` wird nicht wie `data/test_output/` behandelt.
-- Betroffene Module oder Dateien: `docs/examples/plot_templates/`, `docs/ma_analyse/plot_template_examples.md`
+- Auswirkung: `docs/examples/plot_template_analyse/` wird nicht wie `data/test_output/` behandelt.
+- Betroffene Module oder Dateien: `docs/examples/plot_template_analyse/`, `docs/ma_analyse/plot_template_examples.md`
 - Status: getroffen
 - Offene Folgefragen: Spaetere Beispielordner fuer neue Module erst bei Bedarf anlegen.
 - Quelle oder Chatbezug: aktueller Codex-Chat zu Beispielausgaben
@@ -117,7 +117,7 @@ Stand: 2026-07-02
 - Entscheidung: Relative Cooling-Plot-Templates sollen `zone_energy_q_cool` exakt wie in den CSV-Dateien darstellen. Absolute Cooling-Templates sollen separat den Betrag `abs(zone_energy_q_cool)` positiv nach oben zeigen.
 - Begruendung: Die relative Darstellung soll die Vorzeichenlogik der Simulation transparent zeigen und keine Werte stillschweigend umdrehen.
 - Auswirkung: `cooling-year`, `cooling-month`, `cooling-week` und `cooling-day` nutzen Rohwerte; `cooling-absolute-year`, `cooling-absolute-month`, `cooling-absolute-week` und `cooling-absolute-day` nutzen Betraege.
-- Betroffene Module oder Dateien: `src/ma_analyse/analysis/templates/`, `docs/ma_analyse/commands_analyse.md`, `docs/examples/plot_templates/`
+- Betroffene Module oder Dateien: `src/ma_analyse/analysis/templates/`, `docs/ma_analyse/commands_analyse.md`, `docs/examples/plot_template_analyse/`
 - Status: getroffen
 - Offene Folgefragen: Soll dieselbe relative/absolute Logik spaeter auch fuer den regulaeren `cooling`-Befehl und die GUI-Auswahl gelten?
 - Quelle oder Chatbezug: aktueller Codex-Chat zu Cooling-Plot-Templates
@@ -1030,8 +1030,9 @@ Stand: 2026-07-02
 - Auswirkung: `data/ma_building/input/cad/` bleibt ein lokaler Ablageort fuer
   ungepruefte CAD-Beispieldateien. Die Streamlit- und Diagnoseansicht darf DWG
   als Quelle anzeigen, aber nur mit Parser-Warnung und ohne
-  Gebaeudemodell-Importversprechen. `SmallOffice_d_IFC2x3.ifc` bleibt das
-  massgebliche `ma_building`-Referenzmodell.
+  Gebaeudemodell-Importversprechen. `SmallOffice_d_IFC2x3.ifc` bleibt die
+  Fachteil-Referenz; UD-067 trennt davon das Rhino-Testgebaeude fuer
+  BusinessIntegration.
 - Betroffene Module oder Dateien: `src/ma_building/diagnostics.py`,
   `data/ma_building/input/cad/`, `docs/ma_building/README.md`,
   `docs/project/plans/inbox/260622_Plan_P012_ma_building_Gebaeudeinput.md`,
@@ -1041,3 +1042,67 @@ Stand: 2026-07-02
   es einen eigenen Tool-/Parser-Entscheid. Dieser gehoert nicht zu P012 v1.
 - Quelle oder Chatbezug: Nutzerentscheidung am 2026-07-02 nach Rueckfrage zum
   DWG-Parser
+
+## UD-067 P012 Referenzmodelle fuer Fachteil und BusinessIntegration trennen
+
+- Datum: 2026-07-03
+- Thema: ma_building, Referenzmodelle und Level of Detail
+- Entscheidung: `SmallOffice_d_IFC2x3.ifc` wird fuer den fachlichen Teil der
+  Masterarbeit genutzt. Fuer den BusinessIntegration- und Softwareteil wird
+  das Rhino-Testgebaeude
+  `ma_building_testgebaeude_6x4x4_oeffnungen_v1.3dm` als lokale
+  Arbeitsreferenz verwendet. Der Einstieg in P012 soll klein bleiben und
+  verschiedene Level of Detail als Eingabeumfang abbilden.
+- Begruendung: Fachlicher IDA-ICE-Bezug und BusinessIntegration-/Softwaretest
+  haben unterschiedliche Nachweisziele. SmallOffice eignet sich als
+  fachliches IDA-/IFC-Referenzmodell; das Rhino-Testgebaeude eignet sich als
+  kontrollierbare, einfache Arbeitsquelle fuer Demo, UI und Validierung.
+- Auswirkung: P012 unterscheidet kuenftig Fachteil-Referenz und
+  BusinessIntegration-Referenz. Verbindliche Softwarestruktur bleibt eine
+  kleine daraus abgeleitete `BuildingModelSpecification`; ein produktiver
+  Rhino-Import ist dadurch nicht freigegeben. LOD-1 reicht fuer erste
+  Trainings- und UI-Tests, LOD-2/LOD-3 bleiben Ziel fuer spaetere analysefaehige
+  Pflichtdaten.
+- Betroffene Module oder Dateien: `src/ma_building/paths.py`,
+  `src/ma_ui/streamlit_app/module_views/building_view.py`,
+  `docs/ma_building/README.md`,
+  `docs/project/plans/inbox/260622_Plan_P012_ma_building_Gebaeudeinput.md`,
+  `docs/project/architecture/INPUT_DATA_FORMAT_MATRIX.md`
+- Status: getroffen
+- Offene Folgefragen: LoD-2 und LoD-3 klaeren spaeter, welche weiteren Inhalte
+  aus dem Rhino-Testgebaeude in die `BuildingModelSpecification` uebernommen
+  werden.
+- Quelle oder Chatbezug: Nutzerentscheidung am 2026-07-03 zur Trennung von
+  fachlichem SmallOffice-Modell und Rhino-Testgebaeude fuer
+  BusinessIntegration
+
+## UD-068 LoD beschreibt in P012 den Umfang der Eingabe
+
+- Datum: 2026-07-05
+- Thema: ma_building, Eingabe-LoD und BusinessIntegration-LoD-1
+- Entscheidung: Level of Detail wird in P012 als Umfang der Eingabe
+  verstanden, nicht als Detailgrad einer CAD-/BIM-Geometrie. LoD-1 umfasst
+  Kubatur, einfache Aussenwand-/Huellflaechen, U-Werte fuer Aussenwand und
+  Fenster, Fensterflaechenanteil in Prozent sowie optionale Dach- und
+  Bodenkennwerte. LoD-3 beschreibt die vollstaendige Eingabe aller fuer die
+  Software benoetigten Gebaeudedaten in der Eingabephase.
+- Begruendung: Fuer erste Dimensionierung und einfache Analysen ist ein
+  kleiner, nachvollziehbarer Eingabeumfang wichtiger als ein komplexer
+  CAD-Parser. Dadurch bleibt `ma_building` fuer die Masterarbeit erklaerbar
+  und testbar.
+- Auswirkung: P012-S2 setzt `BuildingInputDetailLevel`, `SimpleEnvelopeInput`
+  und eine versionierte BusinessIntegration-LoD-1-Spec um. LoD-1 darf ohne
+  Raeume, Einzelfenster und Host-Beziehungen freigegeben werden, wenn Kubatur,
+  U-Werte, Fensteranteil und Annahmen valide sind. BIL bleibt davon getrennt
+  der Informations-/Modellreifegrad.
+- Betroffene Module oder Dateien: `src/ma_building/models.py`,
+  `src/ma_building/validation.py`,
+  `config/ma_building/examples/business_integration_lod1_building_spec.yaml`,
+  `src/ma_ui/streamlit_app/module_views/building_view.py`,
+  `docs/project/plans/inbox/260622_Plan_P012_ma_building_Gebaeudeinput.md`
+- Status: getroffen und umgesetzt fuer LoD-1
+- Offene Folgefragen: LoD-2 und LoD-3 brauchen eigene Umfangsentscheidungen,
+  bevor Raum-/Bauteilstruktur oder vollstaendige Eingabephase umgesetzt
+  werden.
+- Quelle oder Chatbezug: Nutzerentscheidung am 2026-07-05 zur Bedeutung von
+  LoD als Eingabeumfang und Freigabe des LoD-1-Slices

@@ -715,7 +715,7 @@ def test_local_discovery_maps_vg250_places_to_confirmed_climate_map_points_when_
         pytest.skip(f"Lokale TRY-Testdateien fuer Klimakartenpunkte fehlen: {missing_files}")
 
     discoveries = discover_weather_input_files(
-        existing_catalog=import_weather_catalog(),
+        existing_catalog=WeatherCatalog([]),
         location_catalog=import_weather_location_catalog(),
     )
     discoveries_by_path = {discovery.file_path.as_posix(): discovery for discovery in discoveries}

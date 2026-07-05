@@ -1,6 +1,6 @@
 # Entscheidungen
 
-Stand: 2026-06-29
+Stand: 2026-07-05
 
 Dieses Dokument sammelt technische und architektonische Entscheidungen. Echte Nutzerentscheidungen stehen getrennt in `USER_DECISIONS_MASTERTHESIS_CODE.md`.
 
@@ -100,7 +100,7 @@ Heating-Overlay und Cooling-Absolute werden als eigene Plot-Template-Namen gefue
 
 Begruendung:
 
-- Die Galerie unter `docs/examples/plot_templates/` kann fuer jede fachliche Darstellung ein stabiles Referenzbild enthalten.
+- Die Galerie unter `docs/examples/plot_template_analyse/` kann fuer jede fachliche Darstellung ein stabiles Referenzbild enthalten.
 - Die CLI bleibt fuer einzelne Diagrammideen eindeutig: `heating-overlay` und `cooling-absolute-year` beschreiben direkt die gewuenschte Darstellung.
 - Bestehende Templates bleiben rueckwaertskompatibel nutzbar, ohne eine zusaetzliche globale Modusoption einzufuehren.
 

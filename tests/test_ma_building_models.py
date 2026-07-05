@@ -1,4 +1,4 @@
-from ma_building import BuildingMaturityLevel, building_specification_from_dict
+from ma_building import BuildingInputDetailLevel, BuildingMaturityLevel, building_specification_from_dict
 
 
 def test_building_specification_from_dict_normalizes_tuples_and_levels():
@@ -44,3 +44,41 @@ def test_building_specification_from_dict_normalizes_tuples_and_levels():
     assert spec.space_ids == {"R1"}
     assert spec.element_ids == {"W1"}
     assert spec.object_id_locations()[0] == ("B1", "building.building_id")
+
+
+def test_building_specification_from_dict_reads_lod1_simple_envelope():
+    spec = building_specification_from_dict(
+        {
+            "schema_version": "1.0",
+            "input_detail_level": "LOD-1",
+            "project": {"project_id": "P1", "name": "Projekt"},
+            "building": {
+                "building_id": "B1",
+                "name": "Gebaeude",
+                "unit": "m",
+                "north_angle_deg": 0,
+                "length_m": 6,
+                "width_m": 4,
+                "height_m": 4,
+            },
+            "model_version": {
+                "version_id": "V1",
+                "source_input_level": "BIL-1",
+                "detected_input_level": "BIL-1",
+                "confirmed_input_level": "BIL-1",
+                "current_maturity_level": "BIL-1",
+                "target_maturity_level": "BIL-4",
+            },
+            "simple_envelope": {
+                "external_wall_u_value_w_m2k": 0.24,
+                "window_u_value_w_m2k": 1.3,
+                "window_area_ratio_percent": 25,
+            },
+        }
+    )
+
+    assert spec.input_detail_level is BuildingInputDetailLevel.LOD_1
+    assert spec.simple_envelope is not None
+    assert spec.simple_envelope.external_wall_u_value_w_m2k == 0.24
+    assert spec.storeys == ()
+    assert spec.elements == ()

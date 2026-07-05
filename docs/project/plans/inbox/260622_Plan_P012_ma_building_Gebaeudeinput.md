@@ -1,6 +1,6 @@
 # P012 ma_building Gebaeudeinput
 
-Stand: 2026-07-02
+Stand: 2026-07-05
 Status: Teilweise umgesetzt
 Prioritaet: Hoch
 Abhaengigkeiten: P010, P011, P013, P015, P027
@@ -25,10 +25,12 @@ Die Eingabequelle darf die nachgelagerte Datenstruktur nicht veraendern.
 
 ## Reifegrad
 
-Konzept plus v1-Demo. Eine versionierte Demo-`BuildingModelSpecification`,
-lokale IFC-Entity-Diagnose und lokale 3DM-Metadatendiagnose sind umgesetzt.
-Ein produktiver IFC-Lite- oder Rhino-Import wird erst nach gesonderter Analyse
-und Freigabe umgesetzt.
+Konzept plus v1-Demo und P012-S2. Eine versionierte
+Demo-`BuildingModelSpecification`, lokale IFC-Entity-Diagnose, lokale
+3DM-Metadatendiagnose und eine versionierte BusinessIntegration-LoD-1-Spec
+sind umgesetzt. Ein produktiver IFC-Lite- oder Rhino-Import wird erst nach
+gesonderter Analyse und Freigabe umgesetzt. LoD beschreibt in P012 den Umfang
+der Eingabe, nicht den Detailgrad einer CAD-Geometrie.
 
 ## Trainings- und Diagnosebasis
 
@@ -39,12 +41,17 @@ und Freigabe umgesetzt.
 - Echte IFC-Arbeitsdateien bleiben lokale Projektdaten und werden nicht
   automatisch versioniert. Vorgesehener lokaler Pfad:
   `data/ma_building/input/ifc/`.
-- Fuer die Masterarbeit ist `SmallOffice_d_IFC2x3.ifc` das fachliche
-  Referenzmodell. Die weiteren IDA-ICE-Sample-IFCs dienen nur als Vergleichs-
-  und Plausibilisierungsdateien.
+- Fuer den fachlichen Teil der Masterarbeit ist `SmallOffice_d_IFC2x3.ifc`
+  das IDA-ICE-Referenzmodell. Die weiteren IDA-ICE-Sample-IFCs dienen nur als
+  Vergleichs- und Plausibilisierungsdateien.
 - 3DM-Arbeitsdateien bleiben ebenfalls lokale Projektdaten und werden in v1
   nur als Quelle mit Dateimetadaten diagnostiziert. Vorgesehener lokaler Pfad:
   `data/ma_building/input/rhino/`.
+- Fuer den BusinessIntegration- und Softwareteil wird das Rhino-Testgebaeude
+  `ma_building_testgebaeude_6x4x4_oeffnungen_v1.3dm` als lokale
+  Arbeitsreferenz verwendet. Verbindlich fuer Tests und UI bleibt eine kleine
+  daraus abgeleitete `BuildingModelSpecification`, nicht ein automatischer
+  Rhino-Import.
 - DWG-Beispieldateien bleiben lokale CAD-Arbeitsdaten. Ohne DWG-Parser kann
   `ma_building` v1 nicht belastbar pruefen, ob daraus ein Gebaeudemodell
   ableitbar ist. Vorgesehener lokaler Pfad:
@@ -62,6 +69,10 @@ und Freigabe umgesetzt.
   Aussenwaende, Innenwaende, Bodenplatte, Dach oder Decke, Fenster, Tuer,
   Bauteilcodes, Objekt-IDs, Flaechenorientierungen und offene Annahmen
   enthalten.
+- Die BusinessIntegration-LoD-1-Demo bildet den kleinsten fachlich nutzbaren
+  Eingabeumfang ab: Kubatur, einfache Huellkennwerte, Fensteranteil und
+  Annahmen. Sie dient fuer erste Dimensionierungsideen und einfache Analysen,
+  ohne Raeume, Einzelfenster oder Host-Beziehungen vorauszusetzen.
 
 ## Modulabgrenzung
 
@@ -95,8 +106,10 @@ Mindestinhalte:
 
 - `schema_version`
 - Projekt-, Gebaeude- und Modellversionsdaten
+- Eingabeumfang `input_detail_level`
 - Einheit, Nordrichtung und Massbezug
 - Gebaeudeabmessungen
+- einfache Huellparameter fuer LoD-1, falls gewaehlt
 - Geschosse
 - Raeume und Raumregister
 - Bauteile und Begrenzungsflaechen
@@ -122,18 +135,21 @@ Geplanter Umgang nach Reife:
 | Format oder Quelle | Einordnung fuer P012 |
 |---|---|
 | YAML-Demo | erster verbindlicher Demonstrator |
+| BusinessIntegration-LoD-1-YAML | implementierte Minimal-Spec aus dem Rhino-Testgebaeude fuer einfache Dimensionierung und UI-Tests |
 | JSON | vorbereitet als textliches Folgeformat |
-| aktuelle IFC-Datei | lokale Metadaten- und Entity-Diagnose, kein Vollimport |
+| SmallOffice-IFC | Referenzmodell fuer den fachlichen Teil, lokale Metadaten- und Entity-Diagnose, kein Vollimport |
+| Rhino-Testgebaeude | Referenzmodell fuer BusinessIntegration und Softwaretest, Quelle fuer eine kleine abgeleitete `BuildingModelSpecification`, kein Vollimport |
+| weitere IFC-Dateien | Vergleichs- und Plausibilisierungsdiagnose, kein Vollimport |
 | IFC-Lite | offen bis OP-012 anhand realer Inhalte entschieden ist |
 | Rhino `.3dm` | lokale Metadatendiagnose; produktiver Parser bleibt Ausbaupfad |
 | DWG/CAD-Beispiel | lokale Ablage als ungepruefte CAD-Quelle, kein Vollimport; UD-066 schliesst produktiven DWG-Parser fuer den aktuellen Umfang aus |
 | DXF/SKP/OBJ/STL | spaetere Option, derzeit nicht verbindlich |
 
 Wichtig: Der ChatGPT-Input nennt `.3dm` als moegliches bevorzugtes
-Geometrieformat. Die bestehende Zielarchitektur schliesst eine direkte
-CAD-Integration fuer den aktuellen Masterarbeitsumfang aus. Deshalb wird
-`.3dm` hier als spaeterer Ausbaupfad dokumentiert, nicht als freigegebene
-MVP-Pflicht.
+Geometrieformat. Das Rhino-Testgebaeude ist fuer BusinessIntegration die
+lokale Arbeitsreferenz, aber keine freigegebene produktive Importschnittstelle.
+Die verbindliche Softwarequelle ist die kleine strukturierte
+`BuildingModelSpecification`; ein Rhino-Parser bleibt Ausbaupfad.
 
 ### Option C - manuelle oder textliche Eingabe
 
@@ -141,6 +157,7 @@ P012 sieht eine einfache manuelle beziehungsweise YAML-basierte Eingabe vor:
 
 - gefuehrte Minimaldaten fuer Gebaeude, Geschosse, Waende, Raeume,
   Oeffnungen und Nordrichtung
+- LoD-1-Minimaldaten fuer Kubatur, U-Werte und Fensteranteil
 - YAML-/JSON-Editor oder Dateiimport
 - Validierung vor Freigabe
 - klare Kennzeichnung manuell ergaenzter Werte
@@ -151,8 +168,10 @@ Geplante Kernobjekte:
 
 - `BuildingModel`
 - `BuildingModelVersion`
+- `BuildingInputDetailLevel`
 - `Building`
 - `BuildingSection`
+- `SimpleEnvelopeInput`
 - `Storey`
 - `Space`
 - `PhysicalElement`
@@ -181,7 +200,7 @@ Jedes konkrete Objekt erhaelt zusaetzlich eine eindeutige Objekt-ID, zum
 Beispiel `WALL-0001`, `SLAB-0001`, `OPENING-0001`, `SPACE-0001` oder
 `SHADING-0001`. Technische Datenbank-IDs bleiben davon getrennt.
 
-## Reifegrade
+## Reifegrade und Level of Detail
 
 Der Eingangsmodell-Reifegrad wird nach Informationsgehalt bewertet, nicht nach
 Dateiformat:
@@ -205,6 +224,18 @@ Zu speichern sind mindestens:
 
 BIL-4 ist der regulaere Freigabestatus von `ma_building`. BIL-5 verteilt seine
 Informationen auf mehrere Module und ist kein zwingender naechster Schritt.
+
+LoD beschreibt in P012 den Umfang der Eingabe:
+
+| Eingabe-LoD | Ziel | Typischer Inhalt |
+|---|---|---|
+| LOD-1 | Minimaler Gebaeudeinput | Laenge, Breite, Hoehe, einfache Aussenwand-/Huellflaechen, U-Werte fuer Aussenwand und Fenster, Fensterflaechenanteil in Prozent, optionale Dach-/Bodenkennwerte |
+| LOD-2 | Strukturierter Gebaeudeinput | Geschosse, Raeume oder Zonen, orientierte Bauteile, Oeffnungen als Prozentwerte je Orientierung oder einfache Oeffnungsobjekte, Flaechen, Volumen und Annahmen |
+| LOD-3 | Vollstaendige Eingabephase | alle fuer die Software benoetigten Raeume, Bauteile, Oeffnungen, Host-Beziehungen, Orientierungen, Sonnenschutz- und bauphysikalischen Werte |
+
+LOD-1 ist in P012-S2 umgesetzt. LOD-2 und LOD-3 bleiben Folgeausbau. LOD-3
+heisst nicht automatisch vollstaendiger IFC-/Rhino-Parser, sondern dass die
+Eingabe fuer die geplante Analyse in der Software vollstaendig vorliegt.
 
 ## Geometrie- und Bauteilregeln
 
@@ -257,6 +288,8 @@ Zu pruefen sind mindestens:
 - eindeutige Objekt-IDs
 - gueltige Bauteilcodes
 - Einheiten und Nordrichtung
+- gueltiger Eingabe-LoD
+- LoD-1: einfache Huellparameter, U-Werte und Fensterflaechenanteil
 - Pflichtfelder der `BuildingModelSpecification`
 - Raeume, Geschosse und Bauteilzuordnungen
 - Host-Beziehungen von Oeffnungen
@@ -291,19 +324,33 @@ Zu pruefen sind mindestens:
    Quelldiagnosen.
 10. Offene Entscheidungen vor produktivem IFC-/Rhino-Import in den
     Entscheidungsdokumenten fuehren.
+11. BusinessIntegration-LoD-1 als minimale, versionierte Spec aus dem
+    Rhino-Testgebaeude umsetzen. Umgesetzt in P012-S2 mit
+    `BuildingInputDetailLevel`, `SimpleEnvelopeInput`, Loader, Validierung,
+    UI-Auswahl und Tests.
 
 ## Umsetzungsstand v1
 
 - Paketstruktur: `src/ma_building/` enthaelt Fachmodelle, Standardpfade,
   Demo-Lader, Quelldiagnose und Validierung.
 - Versionierte Demo: `config/ma_building/examples/demo_building_spec.yaml`.
+- Versionierte BusinessIntegration-LoD-1-Spec:
+  `config/ma_building/examples/business_integration_lod1_building_spec.yaml`.
 - Lokale Arbeitsdatenstruktur: `data/ma_building/input/ifc/`,
   `data/ma_building/input/rhino/`, `data/ma_building/input/cad/` und
   `data/ma_building/diagnostics/`.
-- Masterarbeits-Referenzmodell: lokal
+- Referenzmodell fachlicher Teil: lokal
   `data/ma_building/input/ifc/SmallOffice_d_IFC2x3.ifc`.
+- Referenzmodell BusinessIntegration: lokal
+  `data/ma_building/input/rhino/ma_building_testgebaeude_6x4x4_oeffnungen_v1.3dm`;
+  verbindlich bleibt die daraus abgeleitete kleine
+  `BuildingModelSpecification`.
+- Eingabe-LoD: LoD-1 ist fuer BusinessIntegration umgesetzt; LoD-2 und LoD-3
+  bleiben Folgeausbau. Ein vollstaendiger CAD-/BIM-Geometrieimport ist nicht
+  Teil von v1.
 - UI: `ma_ui` zeigt eine einfache Pruefansicht fuer Demo-Validierung und
-  lokale Modellquellen.
+  lokale Modellquellen. Die Ansicht kann zwischen Demo-Spec und
+  BusinessIntegration-LoD-1-Spec wechseln.
 - Tests: Demo-Lader, Fachmodelle, Validierung und Diagnose sind automatisiert
   abgedeckt.
 
@@ -311,6 +358,10 @@ Zu pruefen sind mindestens:
 
 - Eine einfache Demo kann als `BuildingModelSpecification` beschrieben und
   validiert werden.
+- Das Rhino-Testgebaeude kann als LoD-1-`BuildingModelSpecification` ohne
+  produktiven Rhino-Import beschrieben und validiert werden.
+- LoD-1 blockiert fehlende U-Werte oder ungueltige Fensterflaechenanteile,
+  verlangt aber keine Raeume, Einzelfenster oder Host-Beziehungen.
 - Die aktuelle IFC-Datei wird als lokale Trainings- und Diagnosequelle im Plan
   beruecksichtigt, ohne einen Vollimport zu behaupten.
 - Unbekannte oder unvollstaendige Dateien erzeugen strukturierte Diagnosen
@@ -340,8 +391,9 @@ Zu pruefen sind mindestens:
   vorhanden und fuer IFC-Lite sicher uebernehmbar?
 - OP-012a: Welche Inhalte aus `SmallOffice_d_IFC2x3.ifc` sollen in eine
   spaetere IFC-Lite-`BuildingModelSpecification` uebernommen werden?
-- Soll `.3dm` nach dem Demo-/IFC-Diagnose-Slice als bevorzugter
-  Geometrieimport weiter geplant werden oder bewusst Zukunftspfad bleiben?
+- OP-012b: Fuer LoD-1 sind Kubatur, einfache Huellparameter, U-Werte,
+  Fensterflaechenanteil und Annahmen aus dem Rhino-Testgebaeude uebernommen.
+  Offen bleibt, welche Inhalte fuer LoD-2 oder LoD-3 folgen.
 - Welche lokalen IFC-Dateien duerfen als Trainingsdaten verwendet werden und
   welche Metadaten duerfen dokumentiert werden?
 - Welche Demo-Geometrie ist klein genug fuer Tests, aber fachlich ausreichend

@@ -1,6 +1,6 @@
 # Plan Status
 
-Stand: 2026-07-03
+Stand: 2026-07-05
 
 Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt und nach jeder Planumsetzung aktualisiert. Vollstaendige alte Planstaende liegen unter `docs/project/archive/plans/`.
 
@@ -161,9 +161,16 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   Demo-`BuildingModelSpecification`, einfache Fachmodelle, Validierung nach
   `ma_validation`, lokale IFC-Entity-Diagnose, 3DM-Metadatendiagnose,
   vorbereitete lokale Arbeitsdatenordner und eine Streamlit-Pruefansicht.
-- P012-Referenz festgelegt: Fuer die Masterarbeit wird lokal
-  `SmallOffice_d_IFC2x3.ifc` als massgebliches IDA-ICE-IFC-Referenzmodell
-  verwendet; weitere IDA-Samples bleiben Vergleichsdaten.
+- P012-Referenzen getrennt: Fuer den fachlichen Teil wird lokal
+  `SmallOffice_d_IFC2x3.ifc` als IDA-ICE-IFC-Referenzmodell verwendet; fuer
+  BusinessIntegration und Softwaretests dient das Rhino-Testgebaeude
+  `ma_building_testgebaeude_6x4x4_oeffnungen_v1.3dm` als Arbeitsreferenz.
+  Verbindliche Softwarestruktur bleibt die kleine
+  `BuildingModelSpecification`.
+- P012-S2 ist umgesetzt: BusinessIntegration-LoD-1 liegt als versionierte
+  `BuildingModelSpecification` vor. LoD beschreibt den Eingabeumfang; LoD-1
+  enthaelt Kubatur, einfache Huellkennwerte, U-Werte, Fensteranteil und
+  Annahmen, aber keine Raeume, Einzelfenster oder Host-Beziehungen.
 - Nutzerentscheidung UD-066 festgehalten: DWG bleibt im aktuellen
   Masterarbeitsumfang lokale ungepruefte CAD-Quelle; ein produktiver
   DWG-Parser oder DWG-Importadapter wird nicht aufgebaut.

@@ -8,7 +8,7 @@ from typing import Any
 import yaml
 
 from .models import BuildingModelSpecification, building_specification_from_dict
-from .paths import DEFAULT_DEMO_BUILDING_SPEC_PATH
+from .paths import BUSINESS_INTEGRATION_LOD1_BUILDING_SPEC_PATH, DEFAULT_DEMO_BUILDING_SPEC_PATH
 
 
 def load_building_spec(path: str | Path) -> BuildingModelSpecification:
@@ -24,3 +24,8 @@ def load_building_spec(path: str | Path) -> BuildingModelSpecification:
 def load_demo_building_spec() -> BuildingModelSpecification:
     """Laedt die versionierte kleine Demo-Spezifikation."""
     return load_building_spec(DEFAULT_DEMO_BUILDING_SPEC_PATH)
+
+
+def load_business_integration_lod1_building_spec() -> BuildingModelSpecification:
+    """Laedt die LoD-1-Spezifikation des BusinessIntegration-Testgebaeudes."""
+    return load_building_spec(BUSINESS_INTEGRATION_LOD1_BUILDING_SPEC_PATH)

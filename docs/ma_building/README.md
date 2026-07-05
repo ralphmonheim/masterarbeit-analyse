@@ -4,17 +4,29 @@
   geometrischen Raeumen, Bauteilen, Flaechen, Oeffnungen, einfachen
   Sonnenschutzinformationen und bauphysikalischen Randbedingungen verwalten.
 - **Eingaben:** versionierte Demo-`BuildingModelSpecification` unter
-  `config/ma_building/examples/demo_building_spec.yaml` und lokale
-  IFC-/3DM-Arbeitsdateien unter `data/ma_building/input/`.
-- **Referenzmodell Masterarbeit:** Fuer fachliche Aussagen und weitere
-  `ma_building`-Tests ist das lokale IDA-ICE-Sample
+  `config/ma_building/examples/demo_building_spec.yaml`, die
+  BusinessIntegration-LoD-1-Spec unter
+  `config/ma_building/examples/business_integration_lod1_building_spec.yaml`
+  und lokale IFC-/3DM-Arbeitsdateien unter `data/ma_building/input/`.
+- **Referenzmodell fachlicher Teil:** Fuer fachliche Aussagen im
+  Masterarbeitsteil zu IDA ICE ist das lokale IDA-ICE-Sample
   `data/ma_building/input/ifc/SmallOffice_d_IFC2x3.ifc` massgeblich. Andere
   IFC-Samples bleiben Vergleichsdaten.
+- **Referenzmodell BusinessIntegration:** Fuer den Software- und
+  BusinessIntegration-Teil wird das lokal erzeugte Rhino-Testgebaeude
+  `data/ma_building/input/rhino/ma_building_testgebaeude_6x4x4_oeffnungen_v1.3dm`
+  verwendet. Verbindliche Eingabe fuer `ma_building` bleibt eine kleine daraus
+  abgeleitete `BuildingModelSpecification`; ein produktiver Rhino-Import ist
+  damit nicht freigegeben.
+- **LoD-Start:** LoD beschreibt den Umfang der Eingabe. LoD-1 ist umgesetzt:
+  Kubatur, einfache Huellkennwerte, U-Werte, Fensterflaechenanteil und
+  Annahmen reichen fuer erste Dimensionierungsideen und einfache Analysen.
+  Raeume, Einzelfenster und Host-Beziehungen folgen erst in LoD-2/LoD-3.
 - **CAD-Beispieldateien:** DWG-Dateien liegen lokal unter
   `data/ma_building/input/cad/` und werden in v1 nicht fachlich interpretiert.
   Ohne externen DWG-Parser gelten sie als ungepruefte CAD-Quellen, nicht als
-  Masterarbeitsreferenz. UD-066 schliesst einen produktiven DWG-Parser fuer
-  den aktuellen Masterarbeitsumfang aus.
+  Fachteil- oder BusinessIntegration-Referenz. UD-066 schliesst einen
+  produktiven DWG-Parser fuer den aktuellen Masterarbeitsumfang aus.
 - **Ausgaben:** validierbare Demo-Gebaeudedaten, strukturierte
   Quelldiagnosen mit `InputSource`, IFC-Entity-Zaehlern und
   `ma_validation`-Meldungen; spaeter freigegebene Gebaeudedaten fuer
@@ -25,8 +37,9 @@
   in `ma_database`; IDA-ICE-Uebergabe in `ma_export_simulation`.
 - **Abhaengigkeiten:** `ma_project`, P010/P027-Diagnose- und
   Freigabevertraege; Phase 2.
-- **Status:** teilweise umgesetzt. v1 umfasst Demo-Spec, Fachmodelle,
-  Validierung und lokale IFC-/3DM-Diagnose ohne produktiven Geometrieimport.
-- **Naechster Schritt:** reale IFC-Inhalte auswerten und separat entscheiden,
-  ob ein IFC-Lite-Import fachlich noetig und im Masterarbeitsumfang tragbar
-  ist. Rhino bleibt ein Ausbaupfad ohne aktive Parser-Abhaengigkeit.
+- **Status:** teilweise umgesetzt. v1 umfasst Demo-Spec, BusinessIntegration-
+  LoD-1-Spec, Fachmodelle, Validierung und lokale IFC-/3DM-Diagnose ohne
+  produktiven Geometrieimport.
+- **Naechster Schritt:** LoD-2-Inhalte fuer Raum-/Bauteilstruktur klaeren und
+  reale IFC-Inhalte separat auswerten, bevor ein IFC-Lite-Import freigegeben
+  wird. Rhino bleibt ohne aktive Parser-Abhaengigkeit.

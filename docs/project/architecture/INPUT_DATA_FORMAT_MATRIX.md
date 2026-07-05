@@ -1,6 +1,6 @@
 # Eingabe- und Formatmatrix
 
-Stand: 2026-07-01
+Stand: 2026-07-05
 Grundlage: P010
 
 ## Reifegrade
@@ -20,8 +20,10 @@ Grundlage: P010
 | Wetter | TRY importieren und validieren | supported | P010-Pilot mit `InputSource`, Diagnosen und Freigabe |
 | Analyse | CSV, XLSX | prototype | vorhandene Analysepfade, keine allgemeine Eingabeschnittstelle |
 | Building | YAML-Demo | supported | P012 v1, versionierte `BuildingModelSpecification` mit Tests |
+| Building | BusinessIntegration-LoD-1-YAML | supported | P012-S2, minimaler Eingabeumfang aus dem Rhino-Testgebaeude fuer Kubatur, Huellkennwerte, U-Werte und Fensteranteil |
 | Building | JSON | planned | Folgeformat zur gleichen BuildingModelSpecification |
-| Building | SmallOffice-IFC als Masterarbeitsreferenz | supported | lokale Metadaten- und Entity-Diagnose, kein Vollimport |
+| Building | SmallOffice-IFC als Fachteil-Referenz | supported | lokale Metadaten- und Entity-Diagnose, kein Vollimport |
+| Building | Rhino-Testgebaeude als BusinessIntegration-Referenz | supported | lokale Metadaten- und Hash-Diagnose; verbindliche Quelle bleibt die daraus abgeleitete kleine `BuildingModelSpecification` |
 | Building | weitere lokale IDA-ICE-IFC-Samples | supported | Vergleichs- und Plausibilisierungsdiagnose, kein Vollimport |
 | Building | IFC-Lite | planned | Umfang bleibt von OP-012 und realen IFC-Inhalten abhaengig |
 | Building | Rhino `.3dm` Quelldiagnose | supported | lokale Metadaten- und Hash-Diagnose, kein Rhino-Parser |
