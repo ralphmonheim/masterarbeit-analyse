@@ -11,6 +11,8 @@ Archivierung nachvollziehbar fuehren.
 
 - freigegebene Plaene und Nutzerentscheidungen
 - technische Entscheidungen, Pruefergebnisse und Projektstaende
+- temporaere Entwicklungsinputs aus `data/project_inbox/`, wenn sie mit
+  `projektinput aufnehmen` in bestehende Zielordner einsortiert werden
 
 ## Ausgaben
 
@@ -43,5 +45,11 @@ fortschreiben.
 - `archive/leitfaeden/`: archivierte Leitfadenfassungen und externe Referenzen.
 - `archive/plans/`: archivierte und alte Planstaende.
 - `archive/workflow/`: ersetzte Workflow-Grafiken und zugehoerige Reviews.
+
+Temporaere neue Projektdateien koennen waehrend der Entwicklungsphase zuerst
+unter `data/project_inbox/new/` gesammelt werden. Dieser Eingang ist kein
+dauerhafter Dokumentationsbereich; Codex verteilt eindeutige Inhalte mit
+`projektinput aufnehmen` in die bestehenden Projekt-, Modul- und lokalen
+Datenordner.
 
 Vor groesseren Umsetzungen zuerst `plans/PLAN_STATUS.md`, `plans/PLAN_INDEX.md`, `architecture/` und die offenen Nutzerentscheidungen pruefen.

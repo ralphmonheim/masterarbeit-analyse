@@ -57,6 +57,7 @@ from ma_analyse.analysis_wizard import (
 )
 from ma_analyse.models import AnalysisConfig, AnalysisResult
 from ma_building import load_business_integration_lod1_building_spec
+from ma_technical import load_business_integration_lod1_technical_spec
 from ma_ui import app as ma_ui_app
 from ma_ui import workflow_view
 from ma_ui.app import (
@@ -71,6 +72,7 @@ from ma_ui.module_views import (
     analyse_view,
     assessment_view,
     building_view,
+    dimensioning_view,
     export_ida_view,
     feedback_view,
     home_view,
@@ -78,8 +80,10 @@ from ma_ui.module_views import (
     module_info_view,
     parameters_view,
     simulation_setup_view,
+    technical_view,
     variants_view,
     weather_view,
+    zones_view,
 )
 from ma_ui.navigation import (
     CONFIGURATION_RETURN_PAGE_SESSION_KEY,
@@ -143,6 +147,7 @@ from ma_weather import (
     import_weather_location_catalog,
 )
 from ma_workflow import get_step
+from ma_zones import load_business_integration_lod1_zone_spec
 
 
 def test_combined_ui_package_branches_are_importable():
@@ -273,6 +278,10 @@ def test_module_info_mode_is_only_active_for_registered_module_views():
     assert has_module_view("parameters") is True
     assert has_module_view("project") is True
     assert has_module_view("workflow") is True
+    assert has_module_view("building") is True
+    assert has_module_view("zones") is True
+    assert has_module_view("technical") is True
+    assert has_module_view("dimensioning") is True
     assert has_module_view("home") is False
     assert is_module_info_active("weather", "weather") is True
     assert is_module_info_active("weather", "analyse") is False
@@ -400,6 +409,9 @@ def test_module_views_are_importable():
         parameters_view.render,
         weather_view.render,
         building_view.render,
+        zones_view.render,
+        technical_view.render,
+        dimensioning_view.render,
         variants_view.render,
         simulation_setup_view.render,
         export_ida_view.render,
@@ -427,6 +439,46 @@ def test_building_view_exposes_business_integration_lod1_spec():
     assert summary_by_key["Eingabe-LoD"] == "LOD-1"
     assert summary_by_key["U-Wert Aussenwand [W/m2K]"] == 0.24
     assert summary_by_key["Fensteranteil [%]"] == 25.0
+
+
+def test_building_zones_and_technical_views_are_registered():
+    assert ma_ui_app._PAGE_RENDERERS["building"] is building_view.render
+    assert ma_ui_app._PAGE_RENDERERS["zones"] is zones_view.render
+    assert ma_ui_app._PAGE_RENDERERS["technical"] is technical_view.render
+
+    zone_rows = zones_view.zones_scope_rows()
+    technical_rows = technical_view.technical_scope_rows()
+
+    assert any(row["Stand"] == "Raumdaten" for row in zone_rows)
+    assert any(row["Stand"] == "Zonenanforderungen" for row in technical_rows)
+
+
+def test_zones_and_technical_views_show_lod1_demo_data():
+    zone_spec = load_business_integration_lod1_zone_spec()
+    technical_spec = load_business_integration_lod1_technical_spec()
+
+    zone_summary = {row["Kennwert"]: row["Wert"] for row in zones_view.zone_summary_rows(zone_spec)}
+    technical_summary = {row["Kennwert"]: row["Wert"] for row in technical_view.technical_summary_rows(technical_spec)}
+
+    assert zone_summary["Eingabe-LoD"] == "LOD-1"
+    assert zone_summary["Zonen"] == 1
+    assert technical_summary["Eingabe-LoD"] == "LOD-1"
+    assert technical_summary["Systeme"] == 3
+
+
+def test_dimensioning_view_is_registered_and_uses_lod1_result():
+    from ma_analyse.stage_1_dimensioning import run_business_integration_lod1_reference_dimensioning
+
+    assert ma_ui_app._PAGE_RENDERERS["dimensioning"] is dimensioning_view.render
+
+    result = run_business_integration_lod1_reference_dimensioning()
+    summary_rows = {
+        row["Kennwert"]: row["Wert"]
+        for row in dimensioning_view.dimensioning_summary_rows(result)
+    }
+
+    assert summary_rows["Status"] == "evaluated"
+    assert summary_rows["Heizlast gesamt"] == 1701.6
 
 
 def test_dashboard_and_workflow_rows_cover_target_structure():
@@ -625,6 +677,10 @@ def test_weather_dataset_default_columns_only_affect_active_table():
         "def _render_weather_scan_panel",
         maxsplit=1,
     )[0]
+    dataset_section_source = weather_source.split("def _render_weather_dataset_section", maxsplit=1)[1].split(
+        "def _save_generated_weather_plot",
+        maxsplit=1,
+    )[0]
 
     assert weather_page.WEATHER_DATASET_DEFAULT_COLUMNS == (
         "Name",
@@ -635,8 +691,10 @@ def test_weather_dataset_default_columns_only_affect_active_table():
         "Szenario",
     )
     assert "_weather_dataset_default_table(rows)" in active_source
-    assert 'st.metric("Aktive Wetterdatensaetze", len(datasets))' in active_source
-    assert 'st.metric("Abgebildete Staedte", _active_weather_location_count(datasets))' in active_source
+    assert "active_metric_column, location_metric_column, open_metric_column = st.columns(3)" in dataset_section_source
+    assert 'st.metric("Aktive Wetterdatensaetze", len(active_datasets))' in dataset_section_source
+    assert 'st.metric("Abgebildete Staedte", _active_weather_location_count(active_datasets))' in dataset_section_source
+    assert 'st.metric("Offene Wetterdatensaetze", len(open_rows))' in dataset_section_source
     assert "_weather_dataset_default_table" not in open_source
     assert "_weather_dataset_default_table" not in discovery_source
 

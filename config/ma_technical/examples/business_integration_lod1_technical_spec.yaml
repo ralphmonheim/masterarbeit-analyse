@@ -1,0 +1,42 @@
+schema_version: "1.0"
+technical_model_id: "TECH-BI-LOD1-MODEL-0001"
+project_id: "PROJECT-BI-TEST-BUILDING"
+building_id: "BUILDING-BI-LOD1-0001"
+source_zone_model_id: "ZONE-BI-LOD1-MODEL-0001"
+input_detail_level: "LOD-1"
+systems:
+  - system_id: "TECH-HEATING-BI-LOD1-0001"
+    name: "Einfache Heizungsannahme LoD-1"
+    system_type: "heating"
+    served_zone_ids:
+      - "ZONE-BI-LOD1-0001"
+    design_power_w_m2: 50.0
+    supply_temperature_c: 45.0
+    return_temperature_c: 35.0
+    performance_factor: 0.95
+    control_strategy: "zone_setpoint"
+  - system_id: "TECH-COOLING-BI-LOD1-0001"
+    name: "Einfache Kuehlannahme LoD-1"
+    system_type: "cooling"
+    served_zone_ids:
+      - "ZONE-BI-LOD1-0001"
+    design_power_w_m2: 35.0
+    supply_temperature_c: 16.0
+    return_temperature_c: 20.0
+    performance_factor: 3.0
+    control_strategy: "zone_setpoint"
+  - system_id: "TECH-VENTILATION-BI-LOD1-0001"
+    name: "Einfache Lueftungsannahme LoD-1"
+    system_type: "ventilation"
+    served_zone_ids:
+      - "ZONE-BI-LOD1-0001"
+    air_change_rate_1_h: 0.7
+    heat_recovery_efficiency_percent: 70.0
+    control_strategy: "schedule"
+assumptions:
+  - assumption_id: "ASSUMPTION-TECH-LOD1-0001"
+    location: "systems"
+    text: "Technische Systeme sind LoD-1-Arbeitsannahmen fuer die BusinessIntegration-Kette, keine ausgelegte Anlage."
+  - assumption_id: "ASSUMPTION-TECH-LOD1-0002"
+    location: "systems.0.design_power_w_m2"
+    text: "Spezifische Heiz- und Kuehlleistungen dienen nur als einfache Startwerte fuer spaetere Dimensionierung."

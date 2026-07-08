@@ -2,34 +2,39 @@
 
 ## Zweck
 
-Geplanter Teilbereich fuer die Dimensionierung der Referenz vor der
-Variantenbildung.
+LoD-1-Referenzdimensionierung vor der Variantenbildung.
 
 ## Eingaben
 
-- validierte zentrale Parameterliste aus `ma_parameters`
-- dokumentierte Norm-, Auslegungs- und Randbedingungen
+- validierter `ParameterSnapshot` v1 aus `ma_parameters`
+- dokumentierte LoD-1-Auslegungsannahmen
 
 ## Ausgaben
 
-- nachvollziehbare Vorschlaege fuer Heizlast, Kuehllast und Luftmengen
+- nachvollziehbare LoD-1-Startwerte fuer Heizlast, interne Kuehllastannahme
+  und Mindest-Luftvolumenstrom
+- Rechenweg mit Formel, Wert, Einheit und Quellenparametern
+- Hinweise zur Ergebnisqualitaet
 
 ## Abgrenzung
 
 - keine Variantenbildung
 - keine Simulationsergebnisanalyse
-- keine fachliche Implementierung in diesem Strukturpaket
+- kein normatives Heiz- oder Kuehllastverfahren
+- keine automatische Systemauslegung
 
 ## Abhaengigkeiten
 
 - `ma_parameters`
-- spaeter belastbare Referenzfaelle und fachliche Tests
+- P015-S1 `ParameterSnapshot` v1
+- spaeter belastbare Referenzfaelle und IDA-Plausibilisierung
 
 ## Status
 
-Geplant. Das Python-Paket enthaelt nur die dokumentierte Modulgrenze.
+Teilweise umgesetzt. P016-S1 berechnet eine LoD-1-Referenzdimensionierung aus
+dem BusinessIntegration-`ParameterSnapshot` v1.
 
 ## Naechster Schritt
 
-Fachlichen Minimalumfang, Berechnungsgrundlagen und Referenzfaelle in einem
-eigenen P007-Teilplan festlegen.
+Stage-1-Ergebnis als Folgesnapshot beziehungsweise Vorschlag modellieren und
+gegen IDA-/SmallOffice-Referenzen plausibilisieren.

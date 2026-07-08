@@ -19,7 +19,8 @@ Tabellen, Diagramme und Analyseberichte bereitstellen.
 ## Abgrenzung
 
 - keine Kosten-, Nachhaltigkeits- oder Gesamtbewertung
-- Stage 1 bleibt bis P016 nur strukturell vorbereitet
+- Stage 1 enthaelt eine LoD-1-Referenzdimensionierung aus dem
+  `ParameterSnapshot` v1
 - Stage 3 implementiert keine ungeprueften Normregeln
 
 ## Abhaengigkeiten
@@ -30,7 +31,8 @@ Tabellen, Diagramme und Analyseberichte bereitstellen.
 ## Status
 
 Die gemeinsamen Analysefunktionen, die Datenvorbereitung und Stage 2 sind
-teilweise vorhanden. Stage 1, Stage 3 und Stage 4 sind geplant.
+teilweise vorhanden. Stage 1 ist als LoD-1-Dimensionierung teilweise
+umgesetzt; Stage 3 und Stage 4 sind geplant.
 
 ## Naechster Schritt
 
@@ -44,8 +46,8 @@ wiederverwenden.
 - `data_preparation/README.md`: vorbereitender Schritt fuer `prepare` und
   `analyze-data` vor Analyse Stufe 2.
 - `plot_template_examples.md`: Referenzgalerie der Plot-Template-Beispiele.
-- `stage_1_dimensioning/README.md`: geplanter, noch nicht fachlich
-  implementierter Bereich fuer die Referenzdimensionierung.
+- `stage_1_dimensioning/README.md`: LoD-1-Referenzdimensionierung aus dem
+  validierten `ParameterSnapshot` v1.
 - `stage_2_optimization/README.md`: vorhandene Analysebefehle als spaeterer
   Optimierungsablauf.
 - `stage_3_standards_compliance/README.md`: geplanter Norm-Nachweis mit

@@ -9,6 +9,7 @@ _ALIASES = (
     "analyse_view",
     "assessment_view",
     "building_view",
+    "dimensioning_view",
     "export_ida_view",
     "feedback_view",
     "home_view",
@@ -17,8 +18,10 @@ _ALIASES = (
     "parameters_view",
     "project_view",
     "simulation_setup_view",
+    "technical_view",
     "variants_view",
     "weather_view",
+    "zones_view",
 )
 
 for _name in _ALIASES:

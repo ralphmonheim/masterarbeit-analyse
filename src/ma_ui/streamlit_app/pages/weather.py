@@ -242,6 +242,17 @@ def _active_weather_location_count(datasets: list[WeatherDataset]) -> int:
     return len({dataset.location.strip() for dataset in datasets if dataset.location.strip()})
 
 
+def _open_weather_dataset_rows(
+    status_by_key: dict[str, WeatherDatasetStatus],
+    *,
+    discoveries: list[WeatherFileDiscovery] | None = None,
+) -> list[dict[str, object]]:
+    """Bereitet offene katalogisierte Datensaetze und Scan-Entwuerfe gemeinsam auf."""
+    open_statuses = [status for status in status_by_key.values() if status.is_open]
+    open_discoveries = list(discoveries or [])
+    return weather_status_rows(open_statuses) + weather_open_discovery_rows(open_discoveries)
+
+
 def weather_dataset_role_label(dataset: WeatherDataset) -> str:
     """Gibt die fachliche Rolle eines Wetterdatensatzes lesbar aus."""
     if dataset.dataset_role == DATASET_ROLE_TRY_REFERENCE:
@@ -1579,11 +1590,8 @@ def _render_open_weather_datasets(
     *,
     discoveries: list[WeatherFileDiscovery] | None = None,
 ) -> None:
-    open_statuses = [status for status in status_by_key.values() if status.is_open]
-    open_discoveries = list(discoveries or [])
-    rows = weather_status_rows(open_statuses) + weather_open_discovery_rows(open_discoveries)
+    rows = _open_weather_dataset_rows(status_by_key, discoveries=discoveries)
     st.markdown("**Offene Wetterdatensaetze**")
-    st.metric("Offene Wetterdatensaetze", len(rows))
     if not rows:
         st.success("Keine offenen, fehlenden oder blockierten Wetterdatensaetze im aktuellen Status.")
         return
@@ -1602,11 +1610,6 @@ def _render_active_weather_datasets(
 ) -> None:
     """Zeigt die regulaer aktiven Wetterdatensaetze."""
     st.markdown("**Aktive Wetterdatensaetze**")
-    dataset_metric_column, location_metric_column = st.columns(2)
-    with dataset_metric_column:
-        st.metric("Aktive Wetterdatensaetze", len(datasets))
-    with location_metric_column:
-        st.metric("Abgebildete Staedte", _active_weather_location_count(datasets))
     rows = weather_dataset_rows(
         datasets,
         status_by_key=status_by_key,
@@ -1644,6 +1647,16 @@ def _render_weather_dataset_section(
         _render_weather_validation_panel(catalog, location_catalog, status_by_key)
         return
 
+    stored_discoveries = _stored_weather_discoveries()
+    open_rows = _open_weather_dataset_rows(status_by_key, discoveries=stored_discoveries)
+    active_metric_column, location_metric_column, open_metric_column = st.columns(3)
+    with active_metric_column:
+        st.metric("Aktive Wetterdatensaetze", len(active_datasets))
+    with location_metric_column:
+        st.metric("Abgebildete Staedte", _active_weather_location_count(active_datasets))
+    with open_metric_column:
+        st.metric("Offene Wetterdatensaetze", len(open_rows))
+
     active_column, open_column = st.columns(2)
     with active_column:
         _render_active_weather_datasets(
@@ -1652,7 +1665,7 @@ def _render_weather_dataset_section(
             selection_state=selection_state,
         )
     with open_column:
-        _render_open_weather_datasets(status_by_key, discoveries=_stored_weather_discoveries())
+        _render_open_weather_datasets(status_by_key, discoveries=stored_discoveries)
 
 
 def _render_critical_weather_events(result: WeatherAnalysisResult) -> None:

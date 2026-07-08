@@ -1,7 +1,7 @@
 # Masterarbeit Leitfaden
 
 Leitfaden-Version: 0.5.6
-Stand: 2026-07-05
+Stand: 2026-07-08
 
 Diese Datei ist der zentrale Orientierungsleitfaden fuer die Masterarbeit und
 die begleitende Software. Sie ersetzt keine aktive Steuerdatei. Der operative
@@ -318,14 +318,16 @@ Paketgeruest, eine Infoseite oder vorhandener Prototypcode genuegt nicht fuer
 
 - **Zweck:** Zentrale Verwaltung technischer Parameter, Optionsgruppen,
   Pflichtfelder, Einheiten und Kategorien.
-- **Eingaben:** YAML als erstes Format sowie spaeter JSON-, CSV-, Excel- oder
-  Datenbankdaten.
-- **Ausgaben:** validierte Parameter- und Optionsobjekte fuer Varianten,
-  Simulation-Setup und Export.
+- **Eingaben:** freigegebene Fachmoduldaten, aktuell aus der
+  BusinessIntegration-LoD-1-Kette von `ma_building`, `ma_zones` und
+  `ma_technical`; spaeter Wetter, Stage-1-Vorschlaege und Importvorlagen.
+- **Ausgaben:** validierter `ParameterSnapshot` v1, Parameter- und
+  Optionsobjekte fuer Varianten, Simulation-Setup und Export.
 - **Abgrenzung:** Das Modul bildet keine Varianten und schreibt keine
   IDA-ICE-Dateien.
-- **Status:** Geplant; P028-Demo fuer schreibgeschuetzte Parameteranzeige und
-  aktive Optionsauswahl umgesetzt. Der produktive `ParameterSnapshot` fehlt.
+- **Status:** Teilweise umgesetzt; P028-Demo fuer schreibgeschuetzte
+  Parameteranzeige und aktive Optionsauswahl umgesetzt. P015-S1 liefert einen
+  validierten `ParameterSnapshot` v1 fuer die BusinessIntegration-LoD-1-Kette.
 
 #### ma_weather
 
@@ -365,28 +367,40 @@ Paketgeruest, eine Infoseite oder vorhandener Prototypcode genuegt nicht fuer
 
 - **Zweck:** Thermische Zonen, Nutzungen, Sollwerte, interne Lasten und
   Profile verwalten.
-- **Ausgaben:** validierte Zonendaten fuer `ma_parameters`.
+- **Eingaben:** validierte BusinessIntegration-LoD-1-Gebaeudedaten aus
+  `ma_building`; LoD-2-Raumreferenzen folgen spaeter.
+- **Ausgaben:** validierte Zonendaten fuer `ma_parameters` und
+  Zonenanforderungen fuer `ma_technical`.
 - **Abgrenzung:** Keine Gebaeudegeometrie und keine Anlagenberechnung.
-- **Status:** Geplant.
+- **Status:** Teilweise umgesetzt; P013-S1 enthaelt eine versionierte
+  Gesamtgebaeudezone mit Buero-Nutzungsprofil, Sollwerten, internen Lasten,
+  Betriebszeiten, Validierung und Streamlit-Pruefansicht.
 
 #### ma_technical
 
 - **Zweck:** Erzeugung, Verteilung, Uebergabe, Regelung und Komponenten
   beschreiben.
+- **Eingaben:** validierte LoD-1-Zonendaten aus `ma_zones` und einfache
+  Referenzsystemannahmen.
 - **Ausgaben:** validierte Technikdaten fuer `ma_parameters`.
-- **Abgrenzung:** Keine Variantenbildung.
-- **Status:** Geplant.
+- **Abgrenzung:** Keine Variantenbildung, keine Produktdatenbank und keine
+  automatische Anlagenauslegung.
+- **Status:** Teilweise umgesetzt; P014-S1 enthaelt einfache
+  Referenzannahmen fuer Heizung, Kuehlung und Lueftung mit Validierung und
+  Streamlit-Pruefansicht.
 
 #### ma_analyse.stage_1_dimensioning
 
 - **Zweck:** Heizlast, Kuehllast und Luftmengen fuer die Referenz
   nachvollziehbar dimensionieren.
-- **Eingaben:** validierte zentrale Parameterliste sowie dokumentierte Norm-
-  und Auslegungsannahmen.
-- **Ausgaben:** Dimensionierungsvorschlaege fuer die Referenz.
+- **Eingaben:** validierter `ParameterSnapshot` v1 sowie dokumentierte
+  LoD-1-Auslegungsannahmen.
+- **Ausgaben:** LoD-1-Referenzdimensionierung mit Heizlast, interner
+  Kuehllastannahme, Mindest-Luftvolumenstrom, Rechenweg und Hinweisen.
 - **Abgrenzung:** Keine Variantenbildung und keine Analyse von
   Simulationsergebnissen.
-- **Status:** Geplant; Paket und Dokumentation bilden nur die Modulgrenze ab.
+- **Status:** Teilweise umgesetzt; P016-S1 berechnet eine transparente
+  LoD-1-Referenzdimensionierung aus dem `ParameterSnapshot` v1.
 
 #### ma_variants
 

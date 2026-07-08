@@ -1,6 +1,6 @@
 # Plan Status
 
-Stand: 2026-07-05
+Stand: 2026-07-08
 
 Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt und nach jeder Planumsetzung aktualisiert. Vollstaendige alte Planstaende liegen unter `docs/project/archive/plans/`.
 
@@ -171,6 +171,25 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   `BuildingModelSpecification` vor. LoD beschreibt den Eingabeumfang; LoD-1
   enthaelt Kubatur, einfache Huellkennwerte, U-Werte, Fensteranteil und
   Annahmen, aber keine Raeume, Einzelfenster oder Host-Beziehungen.
+- P013-S1 ist umgesetzt: `ma_zones` enthaelt eine versionierte
+  BusinessIntegration-LoD-1-Zonenspezifikation mit einer Gesamtgebaeudezone,
+  einfachem Buero-Nutzungsprofil, Sollwerten, internen Lasten,
+  Betriebszeiten, Validierung und Streamlit-Pruefansicht.
+- P014-S1 ist umgesetzt: `ma_technical` enthaelt eine versionierte
+  BusinessIntegration-LoD-1/Lite-Technikspezifikation mit einfachen
+  Referenzannahmen fuer Heizung, Kuehlung und Lueftung, Validierung und
+  Streamlit-Pruefansicht.
+- P015-S1 ist umgesetzt: `ma_parameters` enthaelt `ParameterSnapshot`,
+  `ParameterValue` und `ParameterSourceReference`, baut einen validierten
+  BusinessIntegration-LoD-1-`ParameterSnapshot` v1 aus `ma_building`,
+  `ma_zones` und `ma_technical` und zeigt ihn in Streamlit mit Quellen,
+  Einheiten und Freigabestatus. Snapshot-Speicherung, Wetteruebernahme,
+  manuelle Aenderungsnachweise und Stage-1-Folgesnapshots bleiben Folgearbeit.
+- P016-S1 ist umgesetzt: `ma_analyse.stage_1_dimensioning` berechnet aus dem
+  validierten `ParameterSnapshot` v1 eine LoD-1-Referenzdimensionierung mit
+  Transmissions-Heizlast, Lueftungs-Heizlast, Gesamt-Heizlast, Mindest-
+  Luftvolumenstrom, interner Kuehllastannahme, Rechenweg und Hinweisen.
+  Normverfahren, IDA-Plausibilisierung und Folgesnapshot bleiben Folgearbeit.
 - Nutzerentscheidung UD-066 festgehalten: DWG bleibt im aktuellen
   Masterarbeitsumfang lokale ungepruefte CAD-Quelle; ein produktiver
   DWG-Parser oder DWG-Importadapter wird nicht aufgebaut.

@@ -9,6 +9,10 @@ Wenn du morgens VS Code neu oeffnest und im Projekt arbeiten willst:
 Die erste Zeile setzt für die aktuelle PowerShell-Sitzung die Ausführungsrichtlinie auf RemoteSigned. Damit dürfen Skripte in dieser Sitzung ausgeführt werden, ohne dass du die Windows-Einstellung dauerhaft ändern musst.
 
 ```powershell
+(Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned) ; (& "c:\Users\ralph\Documents\Master\5.Semester\Masterarbeit - lokal\TEIL1_Fach-Anwendungskompetenz\260524_Masterarbeit_Analyse\.venv\Scripts\Activate.ps1")
+```
+
+```powershell
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
 ```
 
@@ -100,6 +104,10 @@ Pruefschritte enthalten.
   Entscheidungen ausgeben.
 - `plan aufnehmen`: neue Plaene aus `docs/project/plans/inbox/` in Planindex
   und Planstatus einordnen.
+- `projektinput aufnehmen`: neue Dateien aus der lokalen Entwicklungs-Inbox
+  `data/project_inbox/new/` scannen und eindeutig zuordenbare Inhalte in die
+  bestehenden Projekt-, Modul- oder lokalen Datenordner verteilen; unklare
+  Dateien bleiben in `data/project_inbox/needs_review/`.
 - `entscheidung festhalten`: echte Nutzerentscheidung dokumentieren und
   passende offene Punkte schliessen.
 - `release check`: pruefen, ob Version, Changelog, Tags und Tests fuer ein

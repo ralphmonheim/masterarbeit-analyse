@@ -10,10 +10,15 @@ from ma_parameters import (
     DEFAULT_OPTION_CONFIG,
     ParameterOptionSelection,
     apply_option_selection,
+    build_business_integration_lod1_parameter_snapshot,
     list_local_option_files,
     load_parameter_catalog,
+    parameter_snapshot_source_rows,
+    parameter_snapshot_summary_rows,
+    parameter_snapshot_value_rows,
     save_option_selection,
     validate_option_selection,
+    validate_parameter_snapshot,
 )
 from ma_ui.streamlit_app.shared import (
     normalize_table_for_streamlit,
@@ -128,7 +133,9 @@ def render() -> None:
     )
     _render_option_file_controls(state)
 
-    definition_tab, option_tab = st.tabs(["Parameterdefinitionen", "Optionsauswahl"])
+    definition_tab, option_tab, snapshot_tab = st.tabs(
+        ["Parameterdefinitionen", "Optionsauswahl", "LoD-1-Snapshot"]
+    )
     with definition_tab:
         st.info("Parameterdefinitionen sind in diesem Umsetzungsschritt nicht bearbeitbar.")
         st.dataframe(
@@ -202,3 +209,45 @@ def render() -> None:
             width="stretch",
         )
         _render_save_controls(state, selection_is_valid=selection_is_valid)
+
+    with snapshot_tab:
+        st.info("Dieser Snapshot v1 buendelt die validierte BusinessIntegration-LoD-1-Eingabekette.")
+        try:
+            snapshot = build_business_integration_lod1_parameter_snapshot()
+            validation_result = validate_parameter_snapshot(snapshot)
+        except (OSError, ValueError) as exc:
+            st.error(f"ParameterSnapshot konnte nicht erzeugt werden: {exc}")
+        else:
+            st.metric("Freigabestatus", validation_result.release_status.value)
+            st.dataframe(
+                normalize_table_for_streamlit(parameter_snapshot_summary_rows(snapshot)),
+                hide_index=True,
+                width="stretch",
+            )
+            value_tab, source_tab, message_tab = st.tabs(["Parameterwerte", "Quellen", "Validierung"])
+            with value_tab:
+                st.dataframe(
+                    normalize_table_for_streamlit(parameter_snapshot_value_rows(snapshot)),
+                    hide_index=True,
+                    width="stretch",
+                )
+            with source_tab:
+                st.dataframe(
+                    normalize_table_for_streamlit(parameter_snapshot_source_rows(snapshot)),
+                    hide_index=True,
+                    width="stretch",
+                )
+            with message_tab:
+                message_rows = [
+                    {
+                        "Schwere": message.severity.value,
+                        "Code": message.code,
+                        "Meldung": message.message,
+                        "Fundstelle": message.location,
+                    }
+                    for message in validation_result.messages
+                ]
+                if message_rows:
+                    st.dataframe(normalize_table_for_streamlit(message_rows), hide_index=True, width="stretch")
+                else:
+                    st.success("Keine Validierungsmeldungen.")

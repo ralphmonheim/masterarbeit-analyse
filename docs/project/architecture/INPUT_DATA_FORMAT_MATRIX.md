@@ -1,6 +1,6 @@
 # Eingabe- und Formatmatrix
 
-Stand: 2026-07-05
+Stand: 2026-07-08
 Grundlage: P010
 
 ## Reifegrade
@@ -30,9 +30,13 @@ Grundlage: P010
 | Building | Rhino `.3dm` Produktivimport | out_of_scope | fachlicher Ausbaupfad; direkte CAD-Integration ist im aktuellen Umfang nicht freigegeben |
 | Building | DWG/CAD-Beispieldatei | supported | lokale Metadaten-/Warnungsdiagnose als ungepruefte CAD-Quelle, kein Gebaeudemodellimport |
 | Building | DWG-Produktivimport | out_of_scope | UD-066: kein DWG-Parser, Add-on oder externe DWG-Library im aktuellen Masterarbeitsumfang |
-| Zones | YAML-Demo und spaetere Importprofile | planned | P013 |
-| Technical | YAML-Demo und Systemvorlagen | planned | P014 |
-| Parameters | YAML-Kataloge und spaetere Importvorlagen | prototype | P028-Demo vorhanden, produktiver Snapshot folgt in P015 |
+| Zones | BusinessIntegration-LoD-1-YAML | supported | P013-S1, eine validierte Gesamtgebaeudezone mit einfachem Buero-Nutzungsprofil |
+| Zones | spaetere Importprofile | planned | LoD-2/LoD-3 nach Raum-Zonen-Zuordnung |
+| Technical | BusinessIntegration-LoD-1-YAML | supported | P014-S1, validierte Referenzannahmen fuer Heizung, Kuehlung und Lueftung |
+| Technical | Systemvorlagen und Produktdaten | planned | P014-Folgeausbau |
+| Parameters | BusinessIntegration-LoD-1-ParameterSnapshot | supported | P015-S1, validierter Snapshot v1 aus Building, Zones und Technical mit Quellenreferenzen |
+| Parameters | YAML-Kataloge und spaetere Importvorlagen | prototype | P028-Demo vorhanden, Snapshot-Speicherung und Importvorlagen folgen |
+| Dimensioning | ParameterSnapshot v1 | supported | P016-S1, LoD-1-Referenzdimensionierung mit Rechenweg und Hinweisen |
 | Naming | YAML | supported | P028-Demo mit geschuetzter lokaler Speicherung |
 | Simulationsadapter | programmspezifische Vorlagen | planned | P009 nach validiertem Run-Manifest |
 | CAD-Integration | direkte CAD-Steuerung | out_of_scope | nicht Teil der Masterarbeit |

@@ -1,6 +1,6 @@
 # Plan Index
 
-Stand: 2026-07-05
+Stand: 2026-07-08
 
 | Plan ID | Titel | Datei | Modul | Status | Prioritaet | Abhaengigkeiten | Naechster Schritt |
 |---|---|---|---|---|---|---|---|
@@ -16,11 +16,11 @@ Stand: 2026-07-05
 | P010 | Eingabe- und Datenhaltungsarchitektur | `../archive/plans/260622_Plan_P010_Eingabe_Datenhaltungsarchitektur.md` | alle Eingabemodule, ma_validation | Archiviert, Wetterpilot umgesetzt | Hoch | P007 | Vertraege in P011 bis P015 fachmodulweise anwenden |
 | P011 | ma_project Projektinitialisierung | `inbox/260622_Plan_P011_ma_project_Projektinitialisierung.md` | ma_project | Geplant | Hoch | P010 | Projektkonfiguration und Quellenwahl planen |
 | P012 | ma_building Gebaeudeinput | `inbox/260622_Plan_P012_ma_building_Gebaeudeinput.md` | ma_building | Teilweise umgesetzt, v1-Demo, Quelldiagnose, getrennte Referenzrollen und BusinessIntegration-LoD-1 | Hoch | P010, P011, P013, P015, P027 | LoD-2-Raum-/Bauteilumfang klaeren und reale IFC-Inhalte fuer IFC-Lite auswerten |
-| P013 | ma_zones Zonen und Nutzungen | `inbox/260622_Plan_P013_ma_zones_Zonen_Nutzungen.md` | ma_zones | Geplant, Konzept/Demo | Mittel | P010, P012 | Zonen-, Nutzungs- und Profilmodell planen |
-| P014 | ma_technical Technische Systeme | `inbox/260622_Plan_P014_ma_technical_Technische_Systeme.md` | ma_technical | Geplant, Lite/Demo | Hoch | P010, P013 | Bestehende Systemtemplates inventarisieren |
-| P015 | ma_parameters Zentrale Parameter | `inbox/260622_Plan_P015_ma_parameters_Zentrale_Parameter.md` | ma_parameters | Geplant | Hoch | P008, P010, P012-P014 | ParameterSnapshot und Importvorlagen planen |
-| P016 | Analyse Stufe 1 Dimensionierung | `inbox/260622_Plan_P016_Stage1_Dimensionierung.md` | ma_analyse.stage_1_dimensioning | Geplant | Hoch | P015 | Vereinfachte Verfahren und Referenzfall festlegen |
-| P017 | ma_variants und Naming-Anbindung | `inbox/260622_Plan_P017_ma_variants_Naming_Anbindung.md` | ma_variants | Geplant | Hoch | P015, P016 | Snapshot- und Naming-Schnittstelle planen |
+| P013 | ma_zones Zonen und Nutzungen | `inbox/260622_Plan_P013_ma_zones_Zonen_Nutzungen.md` | ma_zones | Teilweise umgesetzt, BusinessIntegration-LoD-1 | Mittel | P010, P012 | LoD-2-Raum-Zonen-Zuordnung und Nutzungsprofilbibliothek planen |
+| P014 | ma_technical Technische Systeme | `inbox/260622_Plan_P014_ma_technical_Technische_Systeme.md` | ma_technical | Teilweise umgesetzt, BusinessIntegration-LoD-1/Lite | Hoch | P010, P013 | Referenzsysteme fuer LoD-2 und Dimensionierung abgrenzen |
+| P015 | ma_parameters Zentrale Parameter | `inbox/260622_Plan_P015_ma_parameters_Zentrale_Parameter.md` | ma_parameters | Teilweise umgesetzt, ParameterSnapshot v1 | Hoch | P008, P010, P012-P014 | Stage-1-Folgesnapshot und Variantenanbindung auf Snapshot v1 vorbereiten |
+| P016 | Analyse Stufe 1 Dimensionierung | `inbox/260622_Plan_P016_Stage1_Dimensionierung.md` | ma_analyse.stage_1_dimensioning | Teilweise umgesetzt, LoD-1-Referenzdimensionierung | Hoch | P015-S1 | Stage-1-Ergebnis als Folgesnapshot und IDA-Plausibilisierung planen |
+| P017 | ma_variants und Naming-Anbindung | `inbox/260622_Plan_P017_ma_variants_Naming_Anbindung.md` | ma_variants | Geplant | Hoch | P015-S1, P016 | Snapshot- und Naming-Schnittstelle planen |
 | P018 | ma_simulation_setup und Run-Manifest | `inbox/260622_Plan_P018_ma_simulation_setup_Run_Manifest.md` | ma_simulation_setup | Geplant | Hoch | P008, P011, P017 | RunManifest und Freigaberegeln planen |
 | P019 | Analyse Stufe 2 Optimierung | `inbox/260622_Plan_P019_Stage2_Optimierung.md` | ma_analyse.stage_2_optimization | Geplant, teilweise vorhanden | Mittel | bestehendes ma_analyse | Vorhandene Befehle als Stufe-2-Ablauf ordnen |
 | P020 | Analyse Stufe 3 Standards Compliance | `inbox/260622_Plan_P020_Stage3_Standards_Compliance.md` | ma_analyse.stage_3_standards_compliance | Research-Plan | Hoch | P019 | Deutsche Normen- und Methodenmatrix erstellen |

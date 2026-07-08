@@ -1,6 +1,6 @@
 # Offene Nutzerentscheidungen
 
-Stand: 2026-07-05
+Stand: 2026-07-08
 
 Diese Datei enthaelt nur offene Nutzerentscheidungen. Erledigte Entscheidungen
 werden nach der Dokumentation als `UD-*` aus dieser Datei entfernt und stehen in
@@ -63,6 +63,12 @@ werden nach der Dokumentation als `UD-*` aus dieser Datei entfernt und stehen in
   BusinessIntegration-LoD-1-YAML ist unterstuetzt, aber `.3dm` ist weiterhin
   kein produktives Eingangsformat. DWG ist durch UD-066 fuer den aktuellen
   Masterarbeitsumfang kein produktiver Importpfad und bleibt nur lokale
-  ungepruefte CAD-Quelle.
+  ungepruefte CAD-Quelle. Fuer `ma_zones` und `ma_technical` sind
+  BusinessIntegration-LoD-1-YAML-Demos durch UD-069 unterstuetzt. Der
+  BusinessIntegration-LoD-1-`ParameterSnapshot` v1 ist durch UD-070
+  unterstuetzt; produktive Importprofile, Systemvorlagen,
+  Snapshot-Speicherung und Wetteruebernahme bleiben offen. P016-S1 nutzt den
+  Snapshot v1 fuer eine LoD-1-Referenzdimensionierung; Stage-1-Folgesnapshots
+  und normative Verfahren bleiben offen.
 - Auswirkung: Wird in P010 als Formatmatrix vorbereitet und vor den jeweiligen
   Fachimplementierungen entschieden.

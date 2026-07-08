@@ -1,6 +1,6 @@
 # UI-Migrationsplan
 
-Stand: 2026-06-10
+Stand: 2026-07-08
 
 Status: historische P005-Umsetzungsreferenz. P007 ersetzt seit 2026-06-21 die
 aktive Phasen- und Modulstruktur. Alte View- und Runner-Namen in diesem
@@ -238,8 +238,9 @@ Startbefehl:
 streamlit run src/ma_ui/app.py
 ```
 
-Ergebnis: Die Streamlit-App kann lokal gestartet werden. Weitere Seiten sind
-als Platzhalter erreichbar, aber noch nicht fachlich angebunden.
+Ergebnis: Die Streamlit-App kann lokal gestartet werden. Erste Fachansichten
+fuer Gebaeude, Zonen, Technik, Parameter und Referenzdimensionierung sind
+angebunden; weitere Seiten bleiben schrittweise auszubauen.
 
 Verschaerfter Zielzuschnitt:
 

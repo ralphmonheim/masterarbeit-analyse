@@ -9,12 +9,16 @@ from ma_ui.streamlit_app import workflow_view
 from ma_ui.streamlit_app.module_views import (
     analyse_view,
     assessment_view,
+    building_view,
+    dimensioning_view,
     home_view,
     module_info_view,
     parameters_view,
     project_view,
+    technical_view,
     variants_view,
     weather_view,
+    zones_view,
 )
 from ma_ui.streamlit_app.navigation import (
     CURRENT_PAGE_SESSION_KEY,
@@ -39,7 +43,11 @@ _PAGE_RENDERERS = {
     "home": home_view.render,
     "project": project_view.render,
     "workflow": workflow_view.render,
+    "building": building_view.render,
+    "zones": zones_view.render,
+    "technical": technical_view.render,
     "parameters": parameters_view.render,
+    "dimensioning": dimensioning_view.render,
     "weather": weather_view.render,
     "variants": variants_view.render,
     "analyse": analyse_view.render,

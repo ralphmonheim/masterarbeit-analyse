@@ -4,6 +4,27 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.24.0 - 2026-07-08
+
+### Added
+- BusinessIntegration-LoD-1-Eingabekette erweitert: `ma_zones` enthaelt eine
+  validierte Gesamtgebaeudezone mit Buero-Nutzungsprofil, `ma_technical`
+  einfache Referenzannahmen fuer Heizung, Kuehlung und Lueftung, und
+  `ma_parameters` erzeugt einen validierten `ParameterSnapshot` v1 mit
+  Quellenreferenzen.
+- Streamlit zeigt fuer `ma_zones` und `ma_technical` jetzt echte
+  Pruefansichten mit Freigabestatus, Demo-Daten und Annahmen.
+- Streamlit zeigt fuer `ma_parameters` eine Snapshot-Pruefansicht mit
+  Freigabestatus, Kopfdaten, Parameterwerten, Quellen und
+  Validierungsmeldungen.
+- `ma_analyse.stage_1_dimensioning` berechnet eine LoD-1-
+  Referenzdimensionierung aus dem validierten `ParameterSnapshot` v1 und zeigt
+  Heizlast, interne Kuehllastannahme, Mindest-Luftvolumenstrom, Rechenweg und
+  Hinweise in Streamlit.
+- Lokale Entwicklungs-Inbox `data/project_inbox/` mit vorsortierten
+  Eingangsbereichen und dokumentierter Codex-Routine `projektinput aufnehmen`
+  ergaenzt.
+
 ## 0.23.0 - 2026-07-05
 
 ### Changed
@@ -11,6 +32,8 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
   ergaenzt: LoD beschreibt den Eingabeumfang; Kubatur, Huellkennwerte,
   U-Werte, Fensteranteil, Validierung, Loader, Streamlit-Auswahl und Tests
   sind fuer den kleinen P012-Einstieg vorhanden.
+- Streamlit registriert die vorhandene `ma_building`-Fachansicht und ergaenzt
+  einfache geplante Modulansichten fuer `ma_zones` und `ma_technical`.
 - Referenzrollen fuer P012 getrennt: `SmallOffice_d_IFC2x3.ifc` fuer den
   fachlichen Teil, Rhino-Testgebaeude fuer BusinessIntegration und
   Softwaretests; P012 startet bewusst mit kleinen Eingabe-LoD-Stufen.

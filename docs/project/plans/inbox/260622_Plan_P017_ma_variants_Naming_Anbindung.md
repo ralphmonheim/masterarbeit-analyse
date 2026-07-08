@@ -1,9 +1,9 @@
 # P017 ma_variants und Naming-Anbindung
 
-Stand: 2026-06-23
+Stand: 2026-07-08
 Status: Geplant
 Prioritaet: Hoch
-Abhaengigkeiten: P015, P016
+Abhaengigkeiten: P015-S1, P016
 
 ## Ziel
 
@@ -41,3 +41,19 @@ Der Demo-Variantenraum konsumiert bereits die aktuelle Optionsauswahl aus
 Fehlende Tokens und doppelte Namen blockieren die Anwendung. Die dauerhafte
 Zuordnung zu versionierten `ParameterSnapshot`- und Naming-Regelstaenden
 bleibt Aufgabe von P017.
+
+## Umsetzungsbezug P015-S1
+
+P015-S1 stellt einen validierten `ParameterSnapshot` v1 mit Snapshot-ID,
+Version, Quellenreferenzen, Einheiten und Freigabestatus bereit. P017 soll
+den bestehenden Variantenkern schrittweise so anbinden, dass Varianten ihre
+fachlichen Eingaben aus einem freigegebenen Snapshot referenzieren, ohne die
+bisherigen Kataloge und Exportfunktionen abrupt zu brechen.
+
+## Umsetzungsbezug P016-S1
+
+P016-S1 liefert ein LoD-1-`ReferenceDimensioningResult` mit Heizlast,
+Lueftungs-Heizlast, interner Kuehllastannahme, Luftvolumenstrom, Rechenweg
+und Hinweisen. P017 darf diese Ergebnisse spaeter nicht direkt als stille
+Variantenparameter verwenden; sie muessen ueber einen freigegebenen
+Folgesnapshot oder einen dokumentierten Stage-1-Vorschlag angebunden werden.

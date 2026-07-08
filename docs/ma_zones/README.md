@@ -7,7 +7,15 @@
 - **Ausgaben:** validierte Zonendaten fuer `ma_parameters` und Anforderungen an `ma_technical`.
 - **Abgrenzung:** keine Gebaeudegeometrie und keine Anlagenberechnung.
 - **Abhaengigkeiten:** `ma_building`; Phase 2.
-- **Status:** geplant.
-- **Naechster Schritt:** P013 mit Demo, Importvorlage,
-  Raum-Zonen-Zuordnung und klarer Trennung zwischen importierten Vorschlaegen
-  und bestaetigten thermischen Zonen umsetzen.
+- **Status:** teilweise umgesetzt. P013-S1 stellt eine LoD-1-Demo fuer das
+  BusinessIntegration-Testgebaeude bereit:
+  `config/ma_zones/examples/business_integration_lod1_zone_spec.yaml`.
+- **LoD-1-Inhalt:** eine Gesamtgebaeudezone, ein einfaches Buero-Nutzungsprofil,
+  Sollwerte, interne Lasten, Betriebszeiten und Mindestluftwechsel.
+- **Validierung:** Pflichtfelder, eindeutige IDs, Profilreferenzen,
+  Flaeche/Volumen, Sollwerte, Betriebszeiten und Gebaeudebezug werden geprueft.
+  Fehler blockieren; Warnungen benoetigen eine bewusste Freigabeentscheidung.
+- **Streamlit:** Die Modulansicht zeigt Demo, Nutzungsprofil, Freigabestatus
+  und Annahmen.
+- **Naechster Schritt:** LoD-2-Raum-Zonen-Zuordnung und belastbare
+  Nutzungsprofilbibliothek planen.

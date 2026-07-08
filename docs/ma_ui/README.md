@@ -87,6 +87,14 @@ Workflow-Service-Aufrufe getrennt anbinden.
   zeigen nur eigene Inhalte oder bei geplantem Stand eine blaue Hinweisbox.
 - Analyse-Seite ruft die UI-neutrale `ma_analyse`-Service-Fassade ueber
   `ma_workflow` auf.
+- `ma_building`, `ma_zones` und `ma_technical` sind als echte
+  Streamlit-Modulansichten registriert. `ma_zones` und `ma_technical` zeigen
+  die BusinessIntegration-LoD-1-Demos mit Freigabestatus statt nur
+  Infokarten.
+- `ma_parameters` zeigt den BusinessIntegration-LoD-1-`ParameterSnapshot` v1
+  mit Freigabestatus, Parameterwerten, Quellen und Validierungsmeldungen.
+- `ma_analyse.stage_1_dimensioning` zeigt die LoD-1-Referenzdimensionierung
+  mit Ergebniswerten, Rechenweg und Hinweisen.
 - Analyse-Seite kann die Tkinter-Analyse als separates Fenster starten, falls
   eine Bedienfunktion in Streamlit noch fehlt.
 - Analyse-Seite nutzt eine sichtbare Schrittstruktur:

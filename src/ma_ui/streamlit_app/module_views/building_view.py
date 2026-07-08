@@ -30,7 +30,7 @@ _BUILDING_SPEC_OPTIONS = (
 
 def render() -> None:
     """Zeigt Demo-Spezifikation und lokale Quelldiagnosen."""
-    render_page_header("Gebaeude und Zonen", "Gebaeude- und Modellrandbedingungen")
+    render_page_header("Gebaeude", "Gebaeude- und Modellrandbedingungen")
     _render_demo_spec_section()
     _render_local_sources_section()
 

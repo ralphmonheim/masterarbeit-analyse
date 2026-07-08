@@ -1,6 +1,6 @@
 # Nutzerentscheidungen Masterarbeit Code
 
-Stand: 2026-07-05
+Stand: 2026-07-08
 
 ## UD-001 Modulare Projektstruktur
 
@@ -1106,3 +1106,83 @@ Stand: 2026-07-05
   werden.
 - Quelle oder Chatbezug: Nutzerentscheidung am 2026-07-05 zur Bedeutung von
   LoD als Eingabeumfang und Freigabe des LoD-1-Slices
+
+## UD-069 BusinessIntegration-LoD-1 als naechster grosser Slice
+
+- Datum: 2026-07-07
+- Thema: ma_building, ma_zones, ma_technical und ma_parameters
+- Entscheidung: Der naechste grosse Umsetzungsslice ist die
+  BusinessIntegration-LoD-1-Eingabekette. Aus dem kleinen Rhino-Testgebaeude
+  wird nach `ma_building` eine einfache Gesamtgebaeudezone in `ma_zones`, eine
+  einfache Referenztechnik in `ma_technical` und eine nicht-produktive
+  Parameter-Vorschau in `ma_parameters` aufgebaut.
+- Begruendung: Der Slice bleibt klein und erklaerbar, zeigt aber den
+  fachlichen Durchstich von Gebaeude ueber Nutzung und Technik bis zur
+  Parameter-Vorschau. Damit eignet er sich fuer die BusinessIntegration-
+  Argumentation der Masterarbeit.
+- Auswirkung: `ma_zones` und `ma_technical` erhalten versionierte YAML-Demos,
+  Fachmodelle, Loader, Validierung, Tests und Streamlit-Pruefansichten. P015
+  bekommt nur eine Vorschau; ein produktiver `ParameterSnapshot` bleibt
+  Folgearbeit.
+- Betroffene Module oder Dateien: `src/ma_zones/`, `src/ma_technical/`,
+  `src/ma_parameters/previews.py`, `config/ma_zones/examples/`,
+  `config/ma_technical/examples/`, `src/ma_ui/streamlit_app/module_views/`
+- Status: getroffen und umgesetzt fuer LoD-1
+- Offene Folgefragen: LoD-2/LoD-3 fuer Raum-Zonen-Zuordnung,
+  Nutzungsprofilbibliothek, Referenzsysteme und produktiver
+  `ParameterSnapshot` bleiben separat zu klaeren.
+- Quelle oder Chatbezug: Nutzerfreigabe am 2026-07-07 fuer den grossen
+  BusinessIntegration-LoD-1-Slice
+
+## UD-070 ParameterSnapshot v1 als naechster grosser Slice
+
+- Datum: 2026-07-07
+- Thema: ma_parameters, P015 und BusinessIntegration-LoD-1
+- Entscheidung: Der naechste grosse Umsetzungsslice nach der
+  BusinessIntegration-LoD-1-Eingabekette ist ein produktiver
+  `ParameterSnapshot` v1. Der Snapshot buendelt die validierten Werte aus
+  `ma_building`, `ma_zones` und `ma_technical` mit Quellenreferenz, Einheit,
+  Version und Freigabestatus.
+- Begruendung: Ohne Snapshot bleibt die LoD-1-Kette nur eine Demo- und
+  UI-Vorschau. Der Snapshot schafft den stabilen Datenvertrag fuer Stage 1,
+  Variantenbildung und spaeteres Simulation Setup.
+- Auswirkung: `ma_parameters` enthaelt Snapshot-Fachmodelle, Builder,
+  Validierung, Streamlit-Pruefansicht und Tests. Stage 1 und `ma_variants`
+  sollen kuenftig auf freigegebene Snapshot-Werte zugreifen, nicht direkt auf
+  Building-, Zonen- oder Technik-Demos.
+- Betroffene Module oder Dateien: `src/ma_parameters/models.py`,
+  `src/ma_parameters/snapshots.py`, `src/ma_parameters/validation.py`,
+  `src/ma_ui/streamlit_app/module_views/parameters_view.py`,
+  `docs/project/plans/inbox/260622_Plan_P015_ma_parameters_Zentrale_Parameter.md`
+- Status: getroffen und umgesetzt fuer Snapshot v1
+- Offene Folgefragen: Snapshot-Speicherung, manuelle Aenderungsnachweise,
+  Wetteruebernahme, Stage-1-Folgesnapshots und Variantenanbindung bleiben
+  separat zu klaeren.
+- Quelle oder Chatbezug: Nutzerfreigabe am 2026-07-07 fuer P015-S1
+  `ParameterSnapshot` v1
+
+## UD-071 LoD-1-Referenzdimensionierung als naechster grosser Slice
+
+- Datum: 2026-07-07
+- Thema: P016, ma_analyse.stage_1_dimensioning und ParameterSnapshot v1
+- Entscheidung: Nach dem `ParameterSnapshot` v1 wird als naechster grosser
+  Slice eine LoD-1-Referenzdimensionierung umgesetzt. Sie liest ausschliesslich
+  aus dem freigegebenen Snapshot v1 und berechnet transparente Startwerte fuer
+  Heizlast, Lueftungs-Heizlast, interne Kuehllastannahme und Luftvolumenstrom.
+- Begruendung: Nach der Eingabekette entsteht damit erstmals ein fachlich
+  sichtbares Berechnungsergebnis. Der Slice bleibt klein genug fuer die
+  Masterarbeit und vermeidet vorerst normative oder dynamische Verfahren.
+- Auswirkung: `ma_analyse.stage_1_dimensioning` enthaelt Fachmodelle,
+  LoD-1-Service, Rechenweg, Diagnosehinweise, Tests und eine Streamlit-
+  Pruefansicht. Stage 1 greift nicht direkt auf Building-, Zonen- oder
+  Technikdemos zu.
+- Betroffene Module oder Dateien: `src/ma_analyse/stage_1_dimensioning/`,
+  `src/ma_ui/streamlit_app/module_views/dimensioning_view.py`,
+  `src/ma_workflow/catalog.py`,
+  `docs/project/plans/inbox/260622_Plan_P016_Stage1_Dimensionierung.md`
+- Status: getroffen und umgesetzt fuer P016-S1
+- Offene Folgefragen: Normverfahren, IDA-/SmallOffice-Plausibilisierung,
+  Folgesnapshot fuer Stage-1-Ergebnisse und Variantenanbindung bleiben
+  separat zu klaeren.
+- Quelle oder Chatbezug: Nutzerfreigabe am 2026-07-07 fuer P016-S1
+  LoD-1-Referenzdimensionierung
