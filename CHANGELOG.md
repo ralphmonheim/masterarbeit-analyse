@@ -4,6 +4,19 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.24.2 - 2026-07-08
+
+### Changed
+- P013 `ma_zones` fachlich konsolidiert: Der bisherige Kurzplan wurde durch
+  das Gesamtkonzept mit neuer Eingabereihenfolge, allgemeinem Zonenobjekt,
+  MVP-Regeln, Entscheidungsregister, offenen Folgefragen und P013-S3 bis
+  P013-S7 ersetzt.
+- Workflow-Katalog, Planindex, Planstatus, Modul-READMEs, Architekturmatrix
+  und Nutzerentscheidungen auf den P013-S2-Zielvertrag
+  `ma_weather -> ma_building -> ma_technical -> ma_zones -> ma_validation ->
+  ma_parameters` nachgezogen; aktuelle LoD-1-Technik-Zonenreferenzen bleiben
+  als Uebergangsvertrag dokumentiert.
+
 ## 0.24.1 - 2026-07-08
 
 ### Added

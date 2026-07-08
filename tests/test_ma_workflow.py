@@ -51,6 +51,12 @@ def test_workflow_statuses_reflect_current_module_implementation():
     assert get_workflow_step("validation").status == "planned"
 
 
+def test_phase_2_input_steps_follow_p013_s2_order():
+    phase_2_steps = [step.step_key for step in list_workflow_steps() if step.phase_key == "phase_2"]
+
+    assert phase_2_steps[:5] == ["weather", "building", "technical", "zones", "parameters"]
+
+
 def test_partial_modules_reflect_current_module_implementation():
     partial_modules = {
         module.module_key

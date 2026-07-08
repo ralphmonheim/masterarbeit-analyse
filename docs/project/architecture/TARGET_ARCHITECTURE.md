@@ -1,6 +1,6 @@
 # Zielarchitektur
 
-Stand: 2026-07-05
+Stand: 2026-07-08
 Grundlage: P007
 
 ## Zweck
@@ -41,7 +41,7 @@ gesonderte Teilplaene analysiert, freigegeben und getestet.
 |---|---|---|
 | Phase 0 | `ma_core`, `ma_database`, `ma_ui`, `ma_workflow`, Dokumentationsinfrastruktur | technische und organisatorische Plattform |
 | Phase 1 | `ma_project` | Projekt und Untersuchungsrahmen initialisieren |
-| Phase 2 | `ma_building`, `ma_weather`, `ma_zones`, `ma_technical`, `ma_parameters` | Eingaben erfassen, validieren und vereinheitlichen |
+| Phase 2 | `ma_weather`, `ma_building`, `ma_technical`, `ma_zones`, `ma_parameters` | Eingaben erfassen, validieren und vereinheitlichen |
 | Phase 3 | `ma_analyse.stage_1_dimensioning`, `ma_variants`, `ma_simulation_setup`, `ma_export_simulation` | Referenz dimensionieren, Varianten und Run vorbereiten |
 | Phase 4 | IDA ICE, `ma_import_simulation`, `ma_analyse.data_preparation`, `ma_analyse.stage_2_optimization`, `ma_analyse.stage_3_standards_compliance`, `ma_analyse.stage_4_sensitivity` | simulieren, Daten vorbereiten, optimieren, Norm-Nachweise und Sensitivitaet auswerten |
 | Phase 5 | `ma_economy`, `ma_sustainability`, `ma_assessment` | wirtschaftlich, oekologisch und gesamthaft bewerten |
@@ -52,11 +52,13 @@ gesonderte Teilplaene analysiert, freigegeben und getestet.
 ## Verbindlicher Datenfluss
 
 ```text
-ma_building
 ma_weather
-ma_zones
+ma_building
 ma_technical
+ma_zones
+    -> ma_validation Eingabecheckpoint
     -> ma_parameters
+    -> ma_validation Parametercheckpoint
     -> ma_analyse.stage_1_dimensioning
     -> ma_variants
     -> ma_simulation_setup
@@ -86,11 +88,11 @@ Zonen oder Technik sind im Zielbild nicht vorgesehen.
 `ma_variants` wendet das von `ma_project` referenzierte neutrale
 Benennungsprofil an, besitzt dessen Konfiguration aber nicht.
 
-P028 bildet diesen Datenfluss als begrenzte Streamlit-Demo ab. Die Demo
-verwendet vorhandene Parameter- und Optionskataloge, einen gemeinsamen
-Sitzungsstand und lokale geschuetzte Arbeitsdateien. Sie ist noch kein
-produktiver `ParameterSnapshot` und aendert deshalb die fachlichen
-Modulstatus nicht.
+P028 bildet Projekt-, Parameter- und Naming-Demo in Streamlit ab. P015-S1
+stellt darueber hinaus einen produktiven BusinessIntegration-LoD-1-
+`ParameterSnapshot` v1 aus freigegebenen Demoquellen bereit. P013-S2
+konsolidiert den Zielvertrag fuer den spaeteren vollstaendigen Zonenstand;
+Status-/Fingerprint-Logik und Variantensperre bleiben Folgearbeit.
 
 ## Eingabequellen
 
@@ -194,8 +196,8 @@ P009 einen sicheren Schnittstellenvertrag und Migrationsweg definiert.
 | Status | Module |
 |---|---|
 | verfuegbar | Projektdokumentation |
-| teilweise | `ma_weather`, `ma_building`, `ma_analyse`, `ma_analyse.data_preparation`, `ma_analyse.stage_2_optimization` |
-| geplant | `ma_core`, `ma_database`, `ma_ui`, `ma_workflow`, `ma_project`, `ma_zones`, `ma_technical`, `ma_parameters`, `ma_analyse.stage_1_dimensioning`, `ma_analyse.stage_3_standards_compliance`, `ma_analyse.stage_4_sensitivity`, `ma_variants`, `ma_simulation_setup`, `ma_export_simulation`, `ma_import_simulation`, `ma_economy`, `ma_sustainability`, `ma_assessment`, `ma_reporting`, `ma_data_export`, `ma_validation`, `ma_feedback` |
+| teilweise | `ma_weather`, `ma_building`, `ma_zones`, `ma_technical`, `ma_parameters`, `ma_analyse`, `ma_analyse.data_preparation`, `ma_analyse.stage_1_dimensioning`, `ma_analyse.stage_2_optimization` |
+| geplant | `ma_core`, `ma_database`, `ma_ui`, `ma_workflow`, `ma_project`, `ma_analyse.stage_3_standards_compliance`, `ma_analyse.stage_4_sensitivity`, `ma_variants`, `ma_simulation_setup`, `ma_export_simulation`, `ma_import_simulation`, `ma_economy`, `ma_sustainability`, `ma_assessment`, `ma_reporting`, `ma_data_export`, `ma_validation`, `ma_feedback` |
 | manuell | IDA ICE |
 
 Die Statuswerte werden zentral in `ma_workflow` gepflegt und von Navigation

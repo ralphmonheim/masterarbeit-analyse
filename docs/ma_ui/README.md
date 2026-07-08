@@ -87,10 +87,10 @@ Workflow-Service-Aufrufe getrennt anbinden.
   zeigen nur eigene Inhalte oder bei geplantem Stand eine blaue Hinweisbox.
 - Analyse-Seite ruft die UI-neutrale `ma_analyse`-Service-Fassade ueber
   `ma_workflow` auf.
-- `ma_building`, `ma_zones` und `ma_technical` sind als echte
+- `ma_building`, `ma_technical` und `ma_zones` sind als echte
   Streamlit-Modulansichten registriert. `ma_zones` und `ma_technical` zeigen
   die BusinessIntegration-LoD-1-Demos mit Freigabestatus statt nur
-  Infokarten.
+  Infokarten; P013-S2 ordnet `ma_technical` fachlich vor `ma_zones` ein.
 - `ma_parameters` zeigt den BusinessIntegration-LoD-1-`ParameterSnapshot` v1
   mit Freigabestatus, Parameterwerten, Quellen und Validierungsmeldungen.
 - `ma_analyse.stage_1_dimensioning` zeigt die LoD-1-Referenzdimensionierung

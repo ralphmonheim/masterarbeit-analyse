@@ -1,7 +1,7 @@
 # P015 ma_parameters Zentrale Parameter
 
 Stand: 2026-07-08
-Status: Teilweise umgesetzt, P015-S1 ParameterSnapshot v1
+Status: Teilweise umgesetzt, P015-S1 ParameterSnapshot v1; P013-S2-Zonenstand als Folgearbeit
 Prioritaet: Hoch
 Abhaengigkeiten: P010, P008, P012, P013, P014
 
@@ -29,6 +29,10 @@ Produktiver Kern fuer die Masterarbeit.
 - Gebaeudedaten aus P012 nur nach freigegebener
   `BuildingModelSpecification` beziehungsweise freigegebener
   Gebaeudemodellversion uebernehmen.
+- Zonenstaende aus P013-S2 nur nach abgeschlossenem Eingabecheckpoint
+  uebernehmen.
+- Status `current`, `outdated` und `validation_required` fuer spaetere
+  Zonen- und Parameterstaende vorbereiten.
 - Nur freigegebene Snapshots an `ma_variants` uebergeben.
 
 ## Akzeptanzkriterien
@@ -64,6 +68,22 @@ Textdaten direkt verwenden. P012 liefert nur freigegebene und versionierte
 Gebaeudeparameter, zum Beispiel Flaechen, Volumen, Bauteilkennwerte,
 Orientierungen, Oeffnungsanteile, Raumreferenzen und Modellreifegrade.
 
+## Umsetzungsbezug P013-S2
+
+P013-S2 legt den Zielvertrag fuer `ma_zones` fachlich neu fest:
+
+- `ma_zones` liegt nach `ma_technical` und vor dem Eingabecheckpoint von
+  `ma_validation`.
+- `ma_parameters` uebernimmt erst danach den freigegebenen vollstaendigen
+  Zonenstand.
+- Aenderungen in `ma_zones` muessen spaeter den Parameterstand als veraltet
+  markieren und die Variantengenerierung blockieren, bis `ma_parameters` und
+  der Parametercheckpoint aktualisiert sind.
+- `ma_variants` greift weiterhin nicht direkt auf `ma_zones` zu.
+
+Der bestehende BusinessIntegration-LoD-1-Snapshot bleibt kompatibel. Die
+konkrete Status-/Fingerprint-Logik gehoert in einen Folgeslice.
+
 ## Umsetzungsbezug BusinessIntegration-LoD-1
 
 P015-S1 setzt einen ersten produktiven `ParameterSnapshot` v1 fuer die
@@ -97,10 +117,12 @@ blockieren, Warnungen benoetigen eine bewusste Freigabeentscheidung.
 - persistente lokale Snapshot-Speicherung
 - manuelle Ueberschreibung mit `InputChange`-Aenderungsnachweis
 - Wetterdaten-Uebernahme in den Snapshot
+- vollstaendiger P013-S2-Zonenstand mit Aenderungsfingerprint
+- Status `current/outdated/validation_required`
 - Stage-1-Ergebnis als neuer Snapshot-Vorschlag
 - direkte Umstellung von `ma_variants` auf den Snapshot
 
 ## Naechster Schritt
 
-Stage-1-Ergebnisse als Folgesnapshot beziehungsweise Vorschlag modellieren
-und Variantenanbindung auf `ParameterSnapshot` v1 vorbereiten.
+P013-S2-Zonenstand, Stage-1-Ergebnisse als Folgesnapshot beziehungsweise
+Vorschlag und Variantenanbindung auf `ParameterSnapshot` v1 vorbereiten.

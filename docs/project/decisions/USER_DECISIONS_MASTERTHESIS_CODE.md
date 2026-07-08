@@ -1186,3 +1186,37 @@ Stand: 2026-07-08
   separat zu klaeren.
 - Quelle oder Chatbezug: Nutzerfreigabe am 2026-07-07 fuer P016-S1
   LoD-1-Referenzdimensionierung
+
+## UD-072 P013-S2 Gesamtkonzept ma_zones verbindlich konsolidieren
+
+- Datum: 2026-07-08
+- Thema: ma_zones, Eingabeworkflow, Parameter- und Variantenkette
+- Entscheidung: Der bisherige Kurzplan P013 wird durch das fachlich
+  konsolidierte Gesamtkonzept `ma_zones` ersetzt. Verbindlich ist die
+  Eingabereihenfolge `ma_weather -> ma_building -> ma_technical -> ma_zones
+  -> ma_validation -> ma_parameters`, ein allgemeines Zonenobjekt statt
+  getrennter Zonentypen, vollstaendige Raum-Zonen-Zuordnung im MVP, keine
+  Raumteilung, getrennte Normprofilfassungen 2018/2025, modulinterne
+  `ma_zones`-Pruefung und spaetere Uebergabe des freigegebenen Zonenstands an
+  `ma_parameters`.
+- Begruendung: Der LoD-1-Demo-Stand war konsistent, aber zu kurz und noch auf
+  thermische Zonen sowie einen Rueckfluss zu `ma_technical` fokussiert. P013-S2
+  klaert die fachliche Zielstruktur, ohne die vorhandene Demo ungeplant zu
+  brechen.
+- Auswirkung: `ma_workflow`, `ma_ui`, P014, P015, P017 und die zentrale
+  Dokumentation muessen die neue Reihenfolge und die Uebergangsgrenze
+  beachten. Die aktuelle P014-LoD-1-Demo mit `source_zone_model_id` und
+  `served_zone_ids` bleibt kompatibler Uebergangsbestand und wird nicht
+  stillschweigend als Zielvertrag verstanden.
+- Betroffene Module oder Dateien: `src/ma_zones/`, `src/ma_technical/`,
+  `src/ma_parameters/`, `src/ma_workflow/catalog.py`,
+  `docs/project/plans/inbox/260622_Plan_P013_ma_zones_Zonen_Nutzungen.md`,
+  P014, P015, P017, `docs/project/plans/PLAN_INDEX.md`,
+  `docs/project/plans/PLAN_STATUS.md`
+- Status: getroffen; P013-S2 dokumentarisch und im Workflow-Katalog
+  konsolidiert
+- Offene Folgefragen: Sonderhohlraeume, gleichzeitiger Heiz-/Kuehlbetrieb,
+  Bedeutung des Prozentwerts bei Uebergabesystemen, LoD-1-
+  Variantenparameter und konkrete DIN-Datenabbildung bleiben als
+  P013-Folgeentscheidungen offen.
+- Quelle oder Chatbezug: Nutzerfreigabe am 2026-07-08 fuer P013-S2

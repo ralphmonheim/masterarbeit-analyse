@@ -1,6 +1,6 @@
 # Masterarbeit Leitfaden
 
-Leitfaden-Version: 0.5.6
+Leitfaden-Version: 0.5.7
 Stand: 2026-07-08
 
 Diese Datei ist der zentrale Orientierungsleitfaden fuer die Masterarbeit und
@@ -38,6 +38,7 @@ Der Leitfaden fuehrt zwei Quellen zusammen:
 | 0.5.4 | 2026-06-24 | Datenvorbereitung als eigenen Workflow-Schritt und UI-Struktur mit Streamlit-/Tkinter-Zweigen unter `ma_ui` aufgenommen |
 | 0.5.5 | 2026-06-26 | Entscheidungen zu P010/P008, `plot-template-weather`, lokaler TRY-Dateisuche, UI-Modul-/Workflow-Ansicht und Befehlsinventar nachgezogen |
 | 0.5.6 | 2026-06-29 | Harten Tkinter-Schnitt aus `ma_analyse`, P029-Fortschritt und Sammelbefehl-Freigaberegel nachgezogen |
+| 0.5.7 | 2026-07-08 | P013-S2-Gesamtkonzept fuer `ma_zones` und neue Eingabereihenfolge nachgezogen |
 
 ## 1. Zweck der Software
 
@@ -213,7 +214,7 @@ Ist-Entwurf; verbindliche Zielmodule und Modulgrenzen stehen weiterhin in
 |---|---|---|
 | 0 | `ma_core`, `ma_database`, `ma_ui`, `ma_workflow`, Dokumentationsinfrastruktur | technische und organisatorische Grundlage |
 | 1 | `ma_project` | Projekt und Untersuchungsrahmen initialisieren |
-| 2 | `ma_building`, `ma_weather`, `ma_zones`, `ma_technical`, `ma_parameters` | Eingaben erfassen und vereinheitlichen |
+| 2 | `ma_weather`, `ma_building`, `ma_technical`, `ma_zones`, `ma_parameters` | Eingaben erfassen und vereinheitlichen |
 | 3 | `ma_analyse.stage_1_dimensioning`, `ma_variants`, `ma_simulation_setup`, `ma_export_simulation` | Referenz dimensionieren, Varianten und Run vorbereiten |
 | 4 | IDA ICE, `ma_import_simulation`, `ma_analyse.data_preparation`, `ma_analyse.stage_2_optimization`, `ma_analyse.stage_3_standards_compliance`, `ma_analyse.stage_4_sensitivity` | simulieren, Daten vorbereiten, optimieren, Norm-Nachweise und Sensitivitaet auswerten |
 | 5 | `ma_economy`, `ma_sustainability`, `ma_assessment` | wirtschaftlich, oekologisch und gesamthaft bewerten |
@@ -365,26 +366,30 @@ Paketgeruest, eine Infoseite oder vorhandener Prototypcode genuegt nicht fuer
 
 #### ma_zones
 
-- **Zweck:** Thermische Zonen, Nutzungen, Sollwerte, interne Lasten und
-  Profile verwalten.
-- **Eingaben:** validierte BusinessIntegration-LoD-1-Gebaeudedaten aus
-  `ma_building`; LoD-2-Raumreferenzen folgen spaeter.
-- **Ausgaben:** validierte Zonendaten fuer `ma_parameters` und
-  Zonenanforderungen fuer `ma_technical`.
-- **Abgrenzung:** Keine Gebaeudegeometrie und keine Anlagenberechnung.
+- **Zweck:** Zonen, Nutzungen, Profile, Konditionierung, interne Lasten,
+  Zeitprofile und zonenbezogene Uebergabe verwalten.
+- **Eingaben:** freigegebene Gebaeude-/Raumdaten aus `ma_building`, zentrale
+  technische Systemreferenzen aus `ma_technical` und Nutzungsanforderungen.
+- **Ausgaben:** validierte Zonendaten fuer `ma_parameters` sowie
+  zonenbezogene Betriebs-, Konditionierungs- und Uebergabezuordnungen.
+- **Abgrenzung:** Keine Gebaeudegeometrie, keine zentralen Erzeugungsanlagen
+  und keine automatische Zonenbildung im MVP.
 - **Status:** Teilweise umgesetzt; P013-S1 enthaelt eine versionierte
   Gesamtgebaeudezone mit Buero-Nutzungsprofil, Sollwerten, internen Lasten,
-  Betriebszeiten, Validierung und Streamlit-Pruefansicht.
+  Betriebszeiten, Validierung und Streamlit-Pruefansicht. P013-S2 ist als
+  Gesamtkonzept fachlich konsolidiert.
 
 #### ma_technical
 
-- **Zweck:** Erzeugung, Verteilung, Uebergabe, Regelung und Komponenten
-  beschreiben.
-- **Eingaben:** validierte LoD-1-Zonendaten aus `ma_zones` und einfache
+- **Zweck:** Zentrale technische Systeme, Kreise, Anlagen, Lueftung,
+  Regelung und generische technische Datensaetze beschreiben.
+- **Eingaben:** freigegebene Gebaeudedaten und einfache
   Referenzsystemannahmen.
-- **Ausgaben:** validierte Technikdaten fuer `ma_parameters`.
-- **Abgrenzung:** Keine Variantenbildung, keine Produktdatenbank und keine
-  automatische Anlagenauslegung.
+- **Ausgaben:** validierte Technikdaten fuer `ma_parameters` und zentrale
+  Systemreferenzen fuer `ma_zones`.
+- **Abgrenzung:** Keine Variantenbildung, keine Produktdatenbank, keine
+  zonenbezogene Uebergabekonfiguration und keine automatische
+  Anlagenauslegung.
 - **Status:** Teilweise umgesetzt; P014-S1 enthaelt einfache
   Referenzannahmen fuer Heizung, Kuehlung und Lueftung mit Validierung und
   Streamlit-Pruefansicht.

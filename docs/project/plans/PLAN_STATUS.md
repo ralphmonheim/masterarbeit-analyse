@@ -175,16 +175,28 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   BusinessIntegration-LoD-1-Zonenspezifikation mit einer Gesamtgebaeudezone,
   einfachem Buero-Nutzungsprofil, Sollwerten, internen Lasten,
   Betriebszeiten, Validierung und Streamlit-Pruefansicht.
+- P013-S2 ist fachlich konsolidiert: Der bisherige Kurzplan wurde durch das
+  Gesamtkonzept `ma_zones` ersetzt. Verbindlich festgehalten sind die
+  Reihenfolge `ma_weather -> ma_building -> ma_technical -> ma_zones ->
+  ma_validation -> ma_parameters`, das allgemeine Zonenobjekt, vollstaendige
+  Raum-Zonen-Zuordnung im MVP, keine Raumteilung, getrennte
+  Normprofilfassungen 2018/2025, Zeitprofile, Feiertagslogik,
+  zonenbezogene Uebergabesysteme, Parameter-/Variantenregeln und offene
+  Fachentscheidungen fuer Sonderhohlraeume, paralleles Heizen/Kuehlen,
+  Prozentbedeutung, LoD-1-Variantenparameter und DIN-Datenabbildung.
 - P014-S1 ist umgesetzt: `ma_technical` enthaelt eine versionierte
   BusinessIntegration-LoD-1/Lite-Technikspezifikation mit einfachen
   Referenzannahmen fuer Heizung, Kuehlung und Lueftung, Validierung und
-  Streamlit-Pruefansicht.
+  Streamlit-Pruefansicht. P014 muss im naechsten Fachslice an P013-S2
+  angepasst werden: zentrale Technik liegt fachlich vor `ma_zones`, waehrend
+  die aktuelle LoD-1-Demo noch Zonenreferenzen als Uebergangsvertrag nutzt.
 - P015-S1 ist umgesetzt: `ma_parameters` enthaelt `ParameterSnapshot`,
   `ParameterValue` und `ParameterSourceReference`, baut einen validierten
   BusinessIntegration-LoD-1-`ParameterSnapshot` v1 aus `ma_building`,
   `ma_zones` und `ma_technical` und zeigt ihn in Streamlit mit Quellen,
   Einheiten und Freigabestatus. Snapshot-Speicherung, Wetteruebernahme,
-  manuelle Aenderungsnachweise und Stage-1-Folgesnapshots bleiben Folgearbeit.
+  manuelle Aenderungsnachweise, P013-S2-Zonenstand und
+  Stage-1-Folgesnapshots bleiben Folgearbeit.
 - P016-S1 ist umgesetzt: `ma_analyse.stage_1_dimensioning` berechnet aus dem
   validierten `ParameterSnapshot` v1 eine LoD-1-Referenzdimensionierung mit
   Transmissions-Heizlast, Lueftungs-Heizlast, Gesamt-Heizlast, Mindest-
@@ -343,6 +355,10 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   Plan-Inbox. Die beiden Ausgangsplaene wurden archiviert.
 - P010-Vertraege in P011, P012, P013, P014 und P015 nur mit dem jeweiligen
   Fachslice anbinden.
+- P013-S3 Raum-Zonen-Grundmodell erst umsetzen, wenn der P013-S2-Uebergang
+  zu P014/P015 bewusst behandelt ist: `ma_technical` soll fachlich zentrale
+  Systeme vor `ma_zones` liefern, die bestehende LoD-1-Technikdemo nutzt aber
+  noch `source_zone_model_id` und `served_zone_ids`.
 - P020 beginnt mit Recherche und darf vor einer belastbaren Normen- und
   Methodenmatrix keine Grenzwerte als Norm-Nachweis implementieren.
 - Aus P005 nach P007 uebernommen: Analyse-View in laufender Streamlit-App manuell gegen

@@ -1,4 +1,4 @@
-"""Thermische Zonen, Nutzungen, Sollwerte, Lasten und Profile."""
+"""Zonen, Nutzungen, Sollwerte, Lasten und Profile."""
 
 from .demo_loader import load_business_integration_lod1_zone_spec, load_zone_spec
 from .models import (

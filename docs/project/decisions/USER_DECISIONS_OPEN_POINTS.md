@@ -65,6 +65,8 @@ werden nach der Dokumentation als `UD-*` aus dieser Datei entfernt und stehen in
   Masterarbeitsumfang kein produktiver Importpfad und bleibt nur lokale
   ungepruefte CAD-Quelle. Fuer `ma_zones` und `ma_technical` sind
   BusinessIntegration-LoD-1-YAML-Demos durch UD-069 unterstuetzt. Der
+  P013-S2-Gesamtplan fuer `ma_zones` ist durch UD-072 fachlich konsolidiert,
+  ersetzt aber noch keine produktiven Importprofile. Der
   BusinessIntegration-LoD-1-`ParameterSnapshot` v1 ist durch UD-070
   unterstuetzt; produktive Importprofile, Systemvorlagen,
   Snapshot-Speicherung und Wetteruebernahme bleiben offen. P016-S1 nutzt den
@@ -72,3 +74,17 @@ werden nach der Dokumentation als `UD-*` aus dieser Datei entfernt und stehen in
   und normative Verfahren bleiben offen.
 - Auswirkung: Wird in P010 als Formatmatrix vorbereitet und vor den jeweiligen
   Fachimplementierungen entschieden.
+
+### OP-014 ma_zones Folgeentscheidungen aus P013-S2
+
+- Thema: ma_zones, P013-S3 bis P013-S7
+- Status: offen
+- Frage: Wie werden die in P013-S2 markierten offenen Fachpunkte entschieden:
+  Sonderhohlraeume, gleichzeitiger Heiz- und Kuehlbetrieb, Bedeutung des
+  Prozentwerts bei Uebergabesystemen, LoD-1-Variantenparameter und konkrete
+  DIN-Datenabbildung?
+- Ergaenzung: P013-S2 legt die Grundstruktur fest, darf diese offenen Punkte
+  aber nicht stillschweigend in Berechnungs- oder UI-Logik uebersetzen.
+- Auswirkung: Betrifft `ma_zones`, `ma_technical`, `ma_parameters`,
+  `ma_variants`, `ma_validation`, die UI-Reiter und die spaetere
+  Normprofil-/Zeitprofilabbildung.

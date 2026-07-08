@@ -1099,7 +1099,9 @@ Geometrie und bauphysikalische Eigenschaften haben unterschiedliche Datenlogiken
 
 Entscheidung
 
-Thermische Zonen werden in `ma_zones` definiert.
+Zonen und zonenbezogene Nutzungs- und Betriebsdaten werden in `ma_zones`
+definiert. P013-S2 praezisiert dies spaeter als allgemeines Zonenobjekt statt
+als ausschliesslich thermische Zone.
 
 Begründung
 
