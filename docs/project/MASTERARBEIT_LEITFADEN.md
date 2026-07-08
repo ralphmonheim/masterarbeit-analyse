@@ -746,6 +746,7 @@ Die Ordnerstruktur bleibt reproduzierbar; Inhalte koennen lokal entstehen.
 | `docs/project/archive/leitfaeden/` | archivierte Leitfadenfassungen |
 | `docs/project/archive/workflow/` | ersetzte Workflow-Grafiken und Reviews |
 | `docs/project/UPDATE_ROUTINES.md` | Codex-Routinen und Updateablaeufe |
+| `docs/project/PROJECT_INPUT_WORKFLOW.md` | Regeln fuer lokale Entwicklungs-Inbox und Projektinput |
 | `CHANGELOG.md` | tatsaechlich umgesetzte Aenderungen |
 
 ### Archivierungsregel

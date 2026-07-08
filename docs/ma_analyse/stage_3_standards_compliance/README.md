@@ -10,6 +10,7 @@ deutsche Normen nachweisen und spaeter internationale Normenprofile ergaenzen.
 - standardisierte Analysekennwerte
 - versioniertes Normenprofil
 - Projekt-, Nutzungs- und Systemrandbedingungen
+- lokale Normenextrakte und Reviewlisten unter `data/common/normen/`
 
 ## Ausgaben
 
@@ -20,6 +21,7 @@ deutsche Normen nachweisen und spaeter internationale Normenprofile ergaenzen.
 
 - keine allgemeine Modellvalidierung
 - keine ungepruefte Uebernahme bestehender Komfortzonen oder Grenzwerte
+- keine direkte Ausfuehrung automatisch extrahierter Formelkandidaten
 
 ## Abhaengigkeiten
 
@@ -29,8 +31,11 @@ deutsche Normen nachweisen und spaeter internationale Normenprofile ergaenzen.
 ## Status
 
 Geplant. Der fruehere Arbeitsname `stage_3_verification` ist durch
-`stage_3_standards_compliance` ersetzt.
+`stage_3_standards_compliance` ersetzt. Lokale Normen- und
+Kalenderarbeitsdaten liegen unter `data/common/normen/` als Pruefbestand fuer
+P020. Sie sind noch keine produktiven Regeln.
 
 ## Naechster Schritt
 
-P020 mit einer Quellen- und Methodenmatrix fuer deutsche Normen beginnen.
+P020 mit einer Quellen- und Methodenmatrix fuer deutsche Normen beginnen und
+die lokalen Extraktionsdaten nur nach fachlicher Pruefung uebernehmen.

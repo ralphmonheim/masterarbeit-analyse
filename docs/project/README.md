@@ -45,9 +45,12 @@ fortschreiben.
 - `archive/leitfaeden/`: archivierte Leitfadenfassungen und externe Referenzen.
 - `archive/plans/`: archivierte und alte Planstaende.
 - `archive/workflow/`: ersetzte Workflow-Grafiken und zugehoerige Reviews.
+- `PROJECT_INPUT_WORKFLOW.md`: zentrale Regelung fuer die lokale
+  Entwicklungs-Inbox und die Uebernahme neuer Projektdateien.
 
-Temporaere neue Projektdateien koennen waehrend der Entwicklungsphase zuerst
-unter `data/project_inbox/new/` gesammelt werden. Dieser Eingang ist kein
+Temporaere neue Projektdateien koennen waehrend der Entwicklungsphase zuerst in
+der lokalen Entwicklungs-Inbox `data/project_inbox/new/` gesammelt werden. Die
+Regeln dafuer stehen in `PROJECT_INPUT_WORKFLOW.md`. Der Eingang ist kein
 dauerhafter Dokumentationsbereich; Codex verteilt eindeutige Inhalte mit
 `projektinput aufnehmen` in die bestehenden Projekt-, Modul- und lokalen
 Datenordner.

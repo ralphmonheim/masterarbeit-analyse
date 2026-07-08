@@ -65,6 +65,15 @@ data/catalogs/documents/materials/*
 !data/catalogs/documents/materials/.gitkeep
 data/common/reports/*
 !data/common/reports/.gitkeep
+data/common/normen/rounds/*/incoming/*
+data/common/normen/rounds/*/extracted/*
+data/common/normen/rounds/*/review/*
+!data/common/normen/**/.gitkeep
+!data/common/normen/**/README.md
+data/common/kalender/*/incoming/*
+data/common/kalender/*/extracted/*
+!data/common/kalender/**/.gitkeep
+!data/common/kalender/**/README.md
 data/project_inbox/new/*
 !data/project_inbox/new/.gitkeep
 !data/project_inbox/new/docs/

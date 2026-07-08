@@ -28,6 +28,25 @@ Der fruehere Name `stage_3_verification` bleibt nur als Uebergangshinweis.
    definieren.
 6. Erweiterungsmechanismus fuer internationale Profile dokumentieren.
 
+## Lokaler Pruefbestand Runde 1
+
+Unter `data/common/normen/rounds/round1_v0_1/` liegt die erste lokale
+Normenauswertung als Entwicklungs- und Reviewbestand. Sie enthaelt ein
+Normenregister, nummerierte und unnummerierte Formelkandidaten,
+Symbolabschnitte, Beziehungen, Projektmapping und Review-Hinweise.
+
+Die Runde ist noch keine freigegebene Normlogik. Alle Formeln und Regeln
+bleiben `review_required`, bis Quelle, Ausgabe, Abschnitt, PDF-Seite,
+Gleichungsnummer, Variablen, Einheiten, Randbedingungen und Tests fachlich
+geprueft sind. Alte Mapping-Bezeichnungen wie `stage_3_verification` werden
+bei der spaeteren Aufarbeitung auf den kanonischen Namen
+`ma_analyse.stage_3_standards_compliance` abgebildet.
+
+Kalender- und Feiertagsdaten fuer 2025 liegen als gemeinsame Regelgrundlage
+unter `data/common/kalender/2025/`. Sie duerfen spaeter Nutzungszeiten,
+Bewertungszeitraeume oder Randbedingungen unterstuetzen, ersetzen aber keine
+fachliche Kalenderlogik.
+
 ## Moegliche Nachweisbereiche
 
 - thermischer Komfort und operative Temperatur

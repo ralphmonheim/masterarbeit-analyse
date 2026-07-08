@@ -105,9 +105,10 @@ Pruefschritte enthalten.
 - `plan aufnehmen`: neue Plaene aus `docs/project/plans/inbox/` in Planindex
   und Planstatus einordnen.
 - `projektinput aufnehmen`: neue Dateien aus der lokalen Entwicklungs-Inbox
-  `data/project_inbox/new/` scannen und eindeutig zuordenbare Inhalte in die
-  bestehenden Projekt-, Modul- oder lokalen Datenordner verteilen; unklare
-  Dateien bleiben in `data/project_inbox/needs_review/`.
+  `data/project_inbox/new/` nach den Regeln in
+  `docs/project/PROJECT_INPUT_WORKFLOW.md` scannen und eindeutig zuordenbare
+  Inhalte in die bestehenden Projekt-, Modul- oder lokalen Datenordner
+  verteilen; unklare Dateien bleiben in `data/project_inbox/needs_review/`.
 - `entscheidung festhalten`: echte Nutzerentscheidung dokumentieren und
   passende offene Punkte schliessen.
 - `release check`: pruefen, ob Version, Changelog, Tags und Tests fuer ein
@@ -135,6 +136,8 @@ Details stehen in `docs/project/UPDATE_ROUTINES.md`.
 
 - `docs/project/COMMAND_OUTPUT_INVENTORY.md`: modulweise Uebersicht der
   aufgebauten Befehle, Ausgaben und Frontend-/Backend-Verbindungen.
+- `docs/project/PROJECT_INPUT_WORKFLOW.md`: Regeln fuer die lokale
+  Entwicklungs-Inbox und die Uebernahme neuer Projektdateien.
 - `docs/ma_analyse/commands_analyse.md`: Analysepipeline, GUI und Plot-Templates.
 - `docs/ma_variants/commands_variants.md`: Variantenkern und Varianten-UI.
 - `docs/ma_weather/commands_weather.md`: Wettermodul und lokale TRY-Analyse.

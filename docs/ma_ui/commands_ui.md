@@ -23,6 +23,40 @@ Alternative:
 .\.venv\Scripts\streamlit.exe run src\ma_ui\app.py
 ```
 
+### Laufende Streamlit-Oberflaeche schliessen
+
+Dieser Befehl beendet lokale Streamlit-Prozesse und prueft zusaetzlich die
+ueblichen Streamlit-Ports 8501 bis 8505:
+
+```powershell
+$streamlitPids = @()
+
+try {
+    $streamlitPids += Get-CimInstance Win32_Process -ErrorAction Stop |
+        Where-Object { $_.CommandLine -match "streamlit" } |
+        ForEach-Object { $_.ProcessId }
+} catch {
+    Write-Host "Kommandozeilenpruefung nicht verfuegbar; pruefe Streamlit-Ports."
+}
+
+$streamlitPorts = "8501|8502|8503|8504|8505"
+$streamlitPids += netstat -ano |
+    Select-String -Pattern "LISTENING|ABH" |
+    Where-Object { $_.Line -match ":($streamlitPorts)\s" } |
+    ForEach-Object { ($_.Line -split "\s+")[-1] }
+
+$streamlitPids |
+    Where-Object { $_ } |
+    Sort-Object -Unique |
+    ForEach-Object { Stop-Process -Id ([int]$_) -Force }
+```
+
+Zur Kontrolle sollten danach keine Treffer mehr erscheinen:
+
+```powershell
+netstat -ano | Select-String -Pattern ':8501|:8502|:8503|:8504|:8505'
+```
+
 ## Referenz und Hinweise
 
 - Das uebergreifende Befehls- und Ausgabeninventar steht unter

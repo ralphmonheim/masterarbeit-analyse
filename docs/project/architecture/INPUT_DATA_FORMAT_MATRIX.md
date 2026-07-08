@@ -37,6 +37,8 @@ Grundlage: P010
 | Parameters | BusinessIntegration-LoD-1-ParameterSnapshot | supported | P015-S1, validierter Snapshot v1 aus Building, Zones und Technical mit Quellenreferenzen |
 | Parameters | YAML-Kataloge und spaetere Importvorlagen | prototype | P028-Demo vorhanden, Snapshot-Speicherung und Importvorlagen folgen |
 | Dimensioning | ParameterSnapshot v1 | supported | P016-S1, LoD-1-Referenzdimensionierung mit Rechenweg und Hinweisen |
+| Normen | CSV, JSON, YAML und Review-Dokumente | prototype | lokaler Pruefbestand unter `data/common/normen/`; keine freigegebene Normlogik |
+| Kalender | XLSX, CSV und PDF | prototype | lokale Feiertags- und Kalenderreferenzen unter `data/common/kalender/`; noch keine allgemeine Kalender-API |
 | Naming | YAML | supported | P028-Demo mit geschuetzter lokaler Speicherung |
 | Simulationsadapter | programmspezifische Vorlagen | planned | P009 nach validiertem Run-Manifest |
 | CAD-Integration | direkte CAD-Steuerung | out_of_scope | nicht Teil der Masterarbeit |
@@ -49,6 +51,9 @@ konkretisiert. Die Matrix legt keine noch ungeprueften Pflichtformate fest.
 
 - Originaldateien bleiben unveraendert in lokalen Modul-Eingangsordnern.
 - Normalisierte Daten liegen in den jeweiligen lokalen Modul-Datenordnern.
+- Normenextrakte, Formelkandidaten und Kalenderreferenzen bleiben lokale
+  Pruefbestaende, bis sie fachlich validiert und in konkrete Fachmodelle
+  ueberfuehrt wurden.
 - Fachberichte bleiben von Sitzungs- und Laufprotokollen getrennt.
 - Maschinenlesbare Sitzungsereignisse liegen unter
   `logs/sessions/<session_id>.jsonl`.

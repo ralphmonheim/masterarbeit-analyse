@@ -4,6 +4,10 @@ Dieser Ordner ist ein temporaerer Sammelplatz fuer neue Projektdateien in der
 Entwicklungsphase. Er ersetzt keine Fachordner. Inhalte unter `new/`,
 `processed/` und `needs_review/` bleiben lokal und werden nicht versioniert.
 
+Die zentrale Regelung steht in
+`docs/project/PROJECT_INPUT_WORKFLOW.md`. Diese README dient nur als kurzer
+lokaler Einstieg fuer den Arbeitsordner.
+
 ## Nutzung
 
 1. Neue Dateien in den passendsten Unterordner unter `new/` legen.
@@ -15,17 +19,18 @@ Entwicklungsphase. Er ersetzt keine Fachordner. Inhalte unter `new/`,
 
 ## Eingangsordner
 
-| Ordner | Typische Inhalte | Zielbereich |
-| --- | --- | --- |
-| `new/docs/` | Plaene, Entscheidungsnotizen, Architektur- oder Moduldoku | `docs/project/`, `docs/*/` |
-| `new/weather/` | TRY-Dateien, Wetter-Handbuecher, lokale Geodaten | `data/ma_weather/input/`, `data/ma_weather/geodata/` |
-| `new/building/` | IFC, Rhino, CAD, Gebaeudeinput-Notizen | `data/ma_building/input/` |
-| `new/analyse/` | IDA-ICE-Analyse-Rohdaten | `data/ma_analyse/ida_imports/` |
-| `new/variants/` | Variantenimporte und Simulationsuebergaben | `data/ma_variants/imports/`, `data/ma_variants/ida_exports/` |
-| `new/catalogs/` | Produkt-, Material-, Quellen- und Datenblattdateien | `data/catalogs/`, `config/ma_variants/` |
-| `new/parameters/` | Parameterkonzepte, Snapshots, lokale Parameterdateien | `config/ma_parameters/`, `data/ma_parameters/config/` |
-| `new/zones_technical/` | Zonen-, Nutzungs- und Techniksystemdaten | `config/ma_zones/`, `config/ma_technical/` |
-| `new/unknown/` | Nicht eindeutig zuordenbare Dateien | `needs_review/` nach Sichtung |
+Die Unterordner unter `new/` entsprechen den Kategorien aus
+`docs/project/PROJECT_INPUT_WORKFLOW.md`:
+
+- `docs/`
+- `weather/`
+- `building/`
+- `analyse/`
+- `variants/`
+- `catalogs/`
+- `parameters/`
+- `zones_technical/`
+- `unknown/`
 
 ## Grenzen
 

@@ -4,6 +4,24 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.24.1 - 2026-07-08
+
+### Added
+- Lokalen Normen- und Regelgrundlagenbereich `data/common/normen/` fuer
+  Normenextrakte und Reviewlisten sowie getrennten Kalenderbereich
+  `data/common/kalender/` angelegt.
+- Wochenabschlussbericht fuer KW28 unter
+  `docs/project/weekly_reviews/2026-KW28.md` angelegt.
+- UI-Command-Dokumentation um einen PowerShell-Befehl zum Schliessen lokaler
+  Streamlit-Prozesse ergaenzt.
+
+### Changed
+- Projektinput-Dokumentation unter `docs/project/PROJECT_INPUT_WORKFLOW.md`
+  zentralisiert; `data/project_inbox/` bleibt der lokale temporaere
+  Arbeitsordner.
+- P020-Planung und Stage-3-Dokumentation um lokalen Normen- und
+  Kalender-Pruefbestand als noch nicht freigegebene Arbeitsgrundlage erweitert.
+
 ## 0.24.0 - 2026-07-08
 
 ### Added

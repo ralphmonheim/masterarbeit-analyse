@@ -19,7 +19,7 @@ python -m pip install -e ".[dev]"
 | `data/ma_variants/` | Import-, Export- und IDA-Uebergabedaten des Variantenkerns |
 | `data/ma_weather/` | lokale TRY-Dateien, aufbereitete Wetterdaten, Wetterdiagramme und Berichte |
 | `data/catalogs/` | Produkt-, Material-, Quellen- und Dokumentkataloge |
-| `docs/project/` | Planstatus, Planindex, Entscheidungen und Strukturreviews |
+| `docs/project/` | Planstatus, Planindex, Entscheidungen, Strukturreviews und Projektinput-Regeln |
 | `docs/ma_analyse/` | Befehle, Architektur und Plot-Template-Beispiele der Analysepipeline |
 | `docs/ma_variants/` | Workflow, Datenmodell und Wirtschaftlichkeitsmodell des Variantenkerns |
 | `docs/ma_weather/` | Wetterdatenanalyse und TRY-Integration |

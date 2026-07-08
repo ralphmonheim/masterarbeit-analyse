@@ -37,7 +37,7 @@ noetig.
 | `update planung` | Plan- und Entscheidungsstruktur aktualisieren | Codex prueft Plan-Inbox, Planindex, Planstatus und offene Entscheidungen. |
 | `projektlage` | Kurze Projektlage lesen | Codex berichtet Git-Stand, Version, aktive Plaene, offene Entscheidungen und naechste sinnvolle Schritte. |
 | `plan aufnehmen` | Neuen Plan einordnen | Codex liest neue Plaene aus der Inbox und aktualisiert Planindex sowie Planstatus. |
-| `projektinput aufnehmen` | Entwicklungs-Inbox aufraeumen | Codex scannt `data/project_inbox/new/`, verteilt eindeutig zuordenbare Inhalte in bestehende Zielordner und laesst unklare Dateien in `data/project_inbox/needs_review/`. |
+| `projektinput aufnehmen` | Entwicklungs-Inbox aufraeumen | Codex nutzt `docs/project/PROJECT_INPUT_WORKFLOW.md`, scannt `data/project_inbox/new/`, verteilt eindeutig zuordenbare Inhalte in bestehende Zielordner und laesst unklare Dateien in `data/project_inbox/needs_review/`. |
 | `entscheidung festhalten` | Nutzerentscheidung dokumentieren | Codex dokumentiert echte Nutzerentscheidungen und bereinigt passende offene Punkte. |
 | `release check` | Release-Bereitschaft pruefen | Codex prueft Versionen, Changelog, Tags, Tests und offene Aenderungen ohne Release auszufuehren. |
 
@@ -57,7 +57,7 @@ noetig.
 | Commit-Text pruefen | `docs/common/commit_message.md` | Release-Muster `Release x.y.z - ...` | Commit-Titel folgt dem dokumentierten Muster. |
 | Git-Stand pruefen | Git-Arbeitsbaum | `git status --short`, `git diff --stat`, Branch, Tags | Vor Commit muessen alle gewuenschten Aenderungen sichtbar sein. |
 | Planung aktualisieren | `docs/project/plans/inbox/`, `PLAN_INDEX.md`, `PLAN_STATUS.md` | neue Plaene, Status, naechster Schritt | Jeder relevante Plan hat genau einen aktiven Eintrag. |
-| Projektinput aufnehmen | `data/project_inbox/new/`, `data/project_inbox/processed/`, `data/project_inbox/needs_review/` | neue lokale Entwicklungsdateien | Eingang bleibt temporaer; Zielordner bleiben die bestehenden Projekt- und Modulordner. |
+| Projektinput aufnehmen | `docs/project/PROJECT_INPUT_WORKFLOW.md`, `data/project_inbox/new/`, `data/project_inbox/processed/`, `data/project_inbox/needs_review/` | neue lokale Entwicklungsdateien | Regeln liegen unter `docs/project/`; der Eingang bleibt temporaer und Zielordner bleiben die bestehenden Projekt- und Modulordner. |
 | Nutzerentscheidungen aktualisieren | `docs/project/decisions/USER_DECISIONS_MASTERTHESIS_CODE.md` | echte Nutzerentscheidungen | Keine technischen Empfehlungen eintragen. |
 | Offene Entscheidungen aktualisieren | `docs/project/decisions/USER_DECISIONS_OPEN_POINTS.md` | offene Nutzerentscheidungen | Offene Punkte klar von getroffenen Entscheidungen trennen. |
 | Technische Entscheidungen aktualisieren | `docs/project/decisions/TECHNICAL_DECISIONS.md` | Architektur- und Umsetzungsentscheidungen | Nicht mit Nutzerentscheidungen vermischen. |
@@ -186,7 +186,8 @@ git push origin vx.y.z
 
 ## Routine `projektinput aufnehmen`
 
-1. `data/project_inbox/new/` mit den vorsortierten Unterordnern lesen:
+1. `docs/project/PROJECT_INPUT_WORKFLOW.md` als zentrale Regelung lesen.
+2. `data/project_inbox/new/` mit den vorsortierten Unterordnern lesen:
    - `docs/`
    - `weather/`
    - `building/`
@@ -196,22 +197,22 @@ git push origin vx.y.z
    - `parameters/`
    - `zones_technical/`
    - `unknown/`
-2. Dateien nur bei eindeutiger Zuordnung verschieben oder in bestehende
+3. Dateien nur bei eindeutiger Zuordnung verschieben oder in bestehende
    Dokumente einarbeiten.
-3. Projektplaene nach `docs/project/plans/inbox/` uebernehmen und danach wie
+4. Projektplaene nach `docs/project/plans/inbox/` uebernehmen und danach wie
    bei `plan aufnehmen` in `PLAN_INDEX.md` und `PLAN_STATUS.md` einordnen.
-4. Entscheidungsnotizen nach Nutzerentscheidung, offener Nutzerentscheidung
+5. Entscheidungsnotizen nach Nutzerentscheidung, offener Nutzerentscheidung
    oder technischer Entscheidung trennen.
-5. Wetterdateien nur in lokale Wetterordner wie `data/ma_weather/input/` oder
+6. Wetterdateien nur in lokale Wetterordner wie `data/ma_weather/input/` oder
    `data/ma_weather/geodata/` vorbereiten. Registrierung und Freigabe bleiben
    beim bestehenden Wetter-Scan und Pruefworkflow.
-6. Gebaeude-, Analyse-, Varianten-, Katalog-, Parameter-, Zonen- und
+7. Gebaeude-, Analyse-, Varianten-, Katalog-, Parameter-, Zonen- und
    Technikdateien in die bereits dokumentierten Modulordner verteilen.
-7. Verarbeitete Originale nach `data/project_inbox/processed/` verschieben.
-8. Unklare oder riskante Dateien nach `data/project_inbox/needs_review/`
+8. Verarbeitete Originale nach `data/project_inbox/processed/` verschieben.
+9. Unklare oder riskante Dateien nach `data/project_inbox/needs_review/`
    verschieben oder dort belassen und Rueckfrage stellen.
-9. Keine Dateien loeschen und keine Fachfreigabe automatisch setzen.
-10. `CHANGELOG.md` nur aktualisieren, wenn versionierte Struktur,
+10. Keine Dateien loeschen und keine Fachfreigabe automatisch setzen.
+11. `CHANGELOG.md` nur aktualisieren, wenn versionierte Struktur,
     Dokumentation oder produktive Dateien geaendert wurden.
 
 ## Kurze Einzelroutinen
