@@ -1,6 +1,6 @@
 # Plan Status
 
-Stand: 2026-07-08
+Stand: 2026-07-12
 
 Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt und nach jeder Planumsetzung aktualisiert. Vollstaendige alte Planstaende liegen unter `docs/project/archive/plans/`.
 
@@ -130,6 +130,9 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - P009 bleibt bis zum validierten `RunManifest` aus P018 zurueckgestellt. Der
   vorhandene Basisexport in `ma_variants.ida_export` wird spaeter
   wiederverwendet, nicht dupliziert.
+- P009 ist auf die P017/P018-Schnittstelle nachgezogen: Export und Import
+  sollen ueber `RUN-ID + VAR-ID` zuordnen; `CASE-ID` und `SimulationCase`
+  werden nicht als neue Hauptobjekte eingefuehrt.
 - Direkte IDM-Manipulation, erfundene IDA-Befehle und automatischer
   Simulationsstart bleiben bis zur lokalen Verifikation ausgeschlossen.
 
@@ -197,11 +200,43 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   Einheiten und Freigabestatus. Snapshot-Speicherung, Wetteruebernahme,
   manuelle Aenderungsnachweise, P013-S2-Zonenstand und
   Stage-1-Folgesnapshots bleiben Folgearbeit.
+- P015-S2 ist umgesetzt: `ma_parameters` leitet aus dem vorhandenen
+  `ParameterSnapshot` v1 einen `BaselineParameterSnapshot` v2 mit
+  `parameter_value_id`, Scope-Typen, Parameterklassen, Variierbarkeit,
+  erweiterten Quellenreferenzen, Referenzversionen, Content-Hash,
+  Freigabe- und Aktualitaetsstatus ab. Streamlit zeigt den Baseline-v2-Stand
+  in einer eigenen Pruefansicht.
+- P015-S3a ist umgesetzt: `ma_parameters` fuehrt ein
+  `ParameterInputPackage` als Eingangspaket-Checkpoint ein, uebernimmt den
+  aktivierten und freigegebenen Projekt-Default aus `ma_weather` als
+  Wetterquelle und blockiert fehlende, nicht aktivierte oder nicht
+  freigegebene Wetterstaende. Streamlit zeigt das Eingangspaket getrennt von
+  Snapshot v1 und Baseline v2.
+- P015 ist fachlich konsolidiert: Zielbild sind
+  `BaselineParameterSnapshot`, `ReferenceDimensioningResult` und
+  `ParameterVariationSpecification` mit Scopes, Parameterklassen,
+  Variationsmodell, Status/Freshness, Persistenz und stabilem Handover an
+  `ma_variants`. Naechster Slice ist P015-S3b mit P013/P014-Anschluss,
+  Quellenfingerprints und vollstaendigem Eingabecheckpoint.
 - P016-S1 ist umgesetzt: `ma_analyse.stage_1_dimensioning` berechnet aus dem
   validierten `ParameterSnapshot` v1 eine LoD-1-Referenzdimensionierung mit
   Transmissions-Heizlast, Lueftungs-Heizlast, Gesamt-Heizlast, Mindest-
   Luftvolumenstrom, interner Kuehllastannahme, Rechenweg und Hinweisen.
   Normverfahren, IDA-Plausibilisierung und Folgesnapshot bleiben Folgearbeit.
+- P016 ist auf P017 vorbereitet: Stage 1 bleibt frei von Variantenbildung,
+  soll aber spaeter `DimensioningRequest`-Gruppen aus `VariantVerification`
+  ueber `ma_workflow` beantworten koennen.
+- P017 ist fachlich konsolidiert: aktive erste Ausbaustufe ist
+  `VariantSpace -> VariantVerification -> VariantCatalog ->
+  VariantSelection -> VariantGeneration -> ma_simulation_setup`.
+  `VCAT` ist auf 500 Eintraege begrenzt, `VSEL` nutzt zuerst `all`,
+  `manual` und `random`, `SimulationCase` und `CASE` entfallen.
+- P018 ist auf die P017-Uebergabe geschaerft: `ma_simulation_setup`
+  uebernimmt vollstaendig erzeugte Varianten nach `VGEN`, ergaenzt ein
+  gemeinsames Setup je Run und fuehrt direkte `RUN -> VAR`-Zuordnungen.
+- P027 begleitet P017 mit Checkpoints fuer `VSP`, `VVER`, `VCAT`, `VSEL`
+  und `VGEN`, Reload-/Abort-Logik und der technischen
+  Dimensionierungsunterbrechung innerhalb von `VVER`.
 - Nutzerentscheidung UD-066 festgehalten: DWG bleibt im aktuellen
   Masterarbeitsumfang lokale ungepruefte CAD-Quelle; ein produktiver
   DWG-Parser oder DWG-Importadapter wird nicht aufgebaut.

@@ -10,14 +10,25 @@ from ma_parameters import (
     DEFAULT_OPTION_CONFIG,
     ParameterOptionSelection,
     apply_option_selection,
+    baseline_parameter_snapshot_reference_rows,
+    baseline_parameter_snapshot_source_rows,
+    baseline_parameter_snapshot_summary_rows,
+    baseline_parameter_snapshot_value_rows,
+    build_business_integration_lod1_baseline_parameter_snapshot,
+    build_business_integration_lod1_parameter_input_package,
     build_business_integration_lod1_parameter_snapshot,
     list_local_option_files,
     load_parameter_catalog,
+    parameter_input_package_source_rows,
+    parameter_input_package_summary_rows,
+    parameter_input_package_value_rows,
     parameter_snapshot_source_rows,
     parameter_snapshot_summary_rows,
     parameter_snapshot_value_rows,
     save_option_selection,
+    validate_baseline_parameter_snapshot,
     validate_option_selection,
+    validate_parameter_input_package,
     validate_parameter_snapshot,
 )
 from ma_ui.streamlit_app.shared import (
@@ -133,8 +144,8 @@ def render() -> None:
     )
     _render_option_file_controls(state)
 
-    definition_tab, option_tab, snapshot_tab = st.tabs(
-        ["Parameterdefinitionen", "Optionsauswahl", "LoD-1-Snapshot"]
+    definition_tab, option_tab, snapshot_tab, input_package_tab, baseline_tab = st.tabs(
+        ["Parameterdefinitionen", "Optionsauswahl", "LoD-1-Snapshot", "Eingangspaket", "Baseline v2"]
     )
     with definition_tab:
         st.info("Parameterdefinitionen sind in diesem Umsetzungsschritt nicht bearbeitbar.")
@@ -246,6 +257,98 @@ def render() -> None:
                         "Fundstelle": message.location,
                     }
                     for message in validation_result.messages
+                ]
+                if message_rows:
+                    st.dataframe(normalize_table_for_streamlit(message_rows), hide_index=True, width="stretch")
+                else:
+                    st.success("Keine Validierungsmeldungen.")
+
+    with input_package_tab:
+        st.info("P015-S3a prueft die LoD-1-Eingabekette mit aktiviertem Wetter-Default.")
+        try:
+            input_package = build_business_integration_lod1_parameter_input_package()
+            input_package_validation = validate_parameter_input_package(input_package)
+        except (OSError, ValueError, KeyError) as exc:
+            st.error(f"Parameter-Eingangspaket konnte nicht erzeugt werden: {exc}")
+        else:
+            st.metric("Freigabestatus", input_package_validation.release_status.value)
+            st.dataframe(
+                normalize_table_for_streamlit(parameter_input_package_summary_rows(input_package)),
+                hide_index=True,
+                width="stretch",
+            )
+            value_tab, source_tab, message_tab = st.tabs(["Parameterwerte", "Quellen", "Validierung"])
+            with value_tab:
+                st.dataframe(
+                    normalize_table_for_streamlit(parameter_input_package_value_rows(input_package)),
+                    hide_index=True,
+                    width="stretch",
+                )
+            with source_tab:
+                st.dataframe(
+                    normalize_table_for_streamlit(parameter_input_package_source_rows(input_package)),
+                    hide_index=True,
+                    width="stretch",
+                )
+            with message_tab:
+                message_rows = [
+                    {
+                        "Schwere": message.severity.value,
+                        "Code": message.code,
+                        "Meldung": message.message,
+                        "Fundstelle": message.location,
+                    }
+                    for message in input_package_validation.messages
+                ]
+                if message_rows:
+                    st.dataframe(normalize_table_for_streamlit(message_rows), hide_index=True, width="stretch")
+                else:
+                    st.success("Keine Validierungsmeldungen.")
+
+    with baseline_tab:
+        st.info("P015-S2 leitet aus dem Snapshot v1 einen BaselineParameterSnapshot mit Scopes ab.")
+        try:
+            baseline_snapshot = build_business_integration_lod1_baseline_parameter_snapshot()
+            baseline_validation = validate_baseline_parameter_snapshot(baseline_snapshot)
+        except (OSError, ValueError) as exc:
+            st.error(f"BaselineParameterSnapshot konnte nicht erzeugt werden: {exc}")
+        else:
+            st.metric("Freigabestatus", baseline_validation.release_status.value)
+            st.dataframe(
+                normalize_table_for_streamlit(baseline_parameter_snapshot_summary_rows(baseline_snapshot)),
+                hide_index=True,
+                width="stretch",
+            )
+            value_tab, source_tab, reference_tab, message_tab = st.tabs(
+                ["Parameterwerte", "Quellen", "Referenzen", "Validierung"]
+            )
+            with value_tab:
+                st.dataframe(
+                    normalize_table_for_streamlit(baseline_parameter_snapshot_value_rows(baseline_snapshot)),
+                    hide_index=True,
+                    width="stretch",
+                )
+            with source_tab:
+                st.dataframe(
+                    normalize_table_for_streamlit(baseline_parameter_snapshot_source_rows(baseline_snapshot)),
+                    hide_index=True,
+                    width="stretch",
+                )
+            with reference_tab:
+                st.dataframe(
+                    normalize_table_for_streamlit(baseline_parameter_snapshot_reference_rows(baseline_snapshot)),
+                    hide_index=True,
+                    width="stretch",
+                )
+            with message_tab:
+                message_rows = [
+                    {
+                        "Schwere": message.severity.value,
+                        "Code": message.code,
+                        "Meldung": message.message,
+                        "Fundstelle": message.location,
+                    }
+                    for message in baseline_validation.messages
                 ]
                 if message_rows:
                     st.dataframe(normalize_table_for_streamlit(message_rows), hide_index=True, width="stretch")

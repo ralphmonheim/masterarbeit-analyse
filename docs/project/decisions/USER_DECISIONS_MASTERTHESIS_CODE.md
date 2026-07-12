@@ -1,6 +1,6 @@
 # Nutzerentscheidungen Masterarbeit Code
 
-Stand: 2026-07-08
+Stand: 2026-07-12
 
 ## UD-001 Modulare Projektstruktur
 
@@ -1220,3 +1220,35 @@ Stand: 2026-07-08
   Variantenparameter und konkrete DIN-Datenabbildung bleiben als
   P013-Folgeentscheidungen offen.
 - Quelle oder Chatbezug: Nutzerfreigabe am 2026-07-08 fuer P013-S2
+
+## UD-073 P015/P017 Handover ohne SimulationCase konsolidieren
+
+- Datum: 2026-07-12
+- Thema: ma_parameters, ma_variants, ma_simulation_setup,
+  Simulationsschnittstellen
+- Entscheidung: Der neue Inputstand zu P015 und das aktualisierte
+  `ma_variants`-Handover werden in die bestehenden Plaene verteilt, ohne neue
+  Parallelplaene anzulegen. P015 fuehrt `BaselineParameterSnapshot`,
+  `ReferenceDimensioningResult` und `ParameterVariationSpecification` als
+  Zielvertrag. P017 fuehrt den aktiven Prozess `VSP -> VVER -> VCAT -> VSEL ->
+  VGEN -> ma_simulation_setup`. `SimulationCase`, `CASE-ID` und ein separates
+  Varianten-Handover-Objekt gehoeren nicht zur aktiven Architektur.
+- Begruendung: Die Variantenkette bleibt fuer die Masterarbeit
+  nachvollziehbar, begrenzt und modular. Fachliche Provenienz verbleibt in
+  `ma_variants`, waehrend P018/P009 nur simulationsrelevante Varianten- und
+  Run-Daten erhalten.
+- Auswirkung: P015, P016, P017, P018, P009, P014 und P027 wurden
+  dokumentarisch auf den neuen Schnittstellenstand gebracht. P018 und P009
+  verwenden als Zielvertrag direkte `RUN-ID + VAR-ID`-Zuordnung.
+- Betroffene Module oder Dateien: `docs/project/plans/inbox/260622_Plan_P015_ma_parameters_Zentrale_Parameter.md`,
+  `docs/project/plans/inbox/260622_Plan_P017_ma_variants_Naming_Anbindung.md`,
+  P014, P016, P018, P009, P027, `docs/project/plans/PLAN_INDEX.md`,
+  `docs/project/plans/PLAN_STATUS.md`,
+  `docs/project/architecture/TARGET_ARCHITECTURE.md`,
+  `docs/project/architecture/INPUT_DATA_FORMAT_MATRIX.md`
+- Status: getroffen; dokumentarisch konsolidiert, Codeumsetzung offen
+- Offene Folgefragen: Regelkatalog-Grenze, finale Variantennamen und
+  Exportpfade, erweiterte Samplingmethoden sowie iterative Prozesse bleiben
+  getrennte Folgeentscheidungen.
+- Quelle oder Chatbezug: Nutzerfreigabe `frei` am 2026-07-12 zur Verteilung
+  der neuen Inputdaten auf bestehende Plaene

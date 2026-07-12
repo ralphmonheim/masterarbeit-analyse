@@ -4,6 +4,35 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.25.0 - 2026-07-12
+
+### Added
+- P015-S3a umgesetzt: `ma_parameters` besitzt nun ein
+  `ParameterInputPackage` als Eingangspaket-Checkpoint, uebernimmt den
+  aktivierten und freigegebenen `ma_weather`-Projekt-Default als
+  Wetterquelle, validiert fehlende/nicht aktivierte/nicht freigegebene
+  Wetterstaende und zeigt das Paket in Streamlit getrennt von Snapshot v1 und
+  Baseline v2.
+- P015-S2 umgesetzt: `ma_parameters` erzeugt aus dem vorhandenen
+  BusinessIntegration-LoD-1-`ParameterSnapshot` v1 einen
+  `BaselineParameterSnapshot` v2 mit Scope-Typen, `parameter_value_id`,
+  Parameterklassen, Variierbarkeit, Quellenreferenzen, Referenzversionen und
+  Content-Hash; Streamlit zeigt den neuen Baseline-Stand in einer eigenen
+  Pruefansicht.
+
+### Changed
+- P015 `ma_parameters` fachlich konsolidiert: Baseline, Stage-1-Referenz,
+  VariationSpecification, Scopes, Variationsmodell, Status/Freshness,
+  Persistenz und Handover an `ma_variants` sind als bestehender Plan
+  nachgezogen.
+- P017 `ma_variants` fachlich konsolidiert: aktiver Prozess
+  `VSP -> VVER -> VCAT -> VSEL -> VGEN -> ma_simulation_setup`, VCAT-Grenze
+  500, Selection-Modi `all`, `manual`, `random` und direkte VAR-Uebergabe
+  ohne `SimulationCase`.
+- P014, P016, P018, P009, P027, Planindex, Planstatus, Architekturmatrix,
+  Modul-READMEs und Nutzerentscheidungen auf den P015/P017-Handoverstand vom
+  2026-07-12 abgeglichen.
+
 ## 0.24.2 - 2026-07-08
 
 ### Changed

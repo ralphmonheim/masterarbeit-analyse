@@ -330,8 +330,10 @@ Vor einer Migration sind zu klaeren:
 
 ### `ma_parameters`
 
-`ma_parameters` uebernimmt spaeter nur freigegebene Wetterdaten aus
-`ma_weather`. Die Uebergabe erfolgt nicht direkt von offenen Importen.
+`ma_parameters` uebernimmt seit P015-S3a nur aktivierte und freigegebene
+Wetterdaten aus `ma_weather` als Metadaten- und Quellenreferenz im
+`ParameterInputPackage`. Die Uebergabe erfolgt nicht direkt von offenen
+Importen; TRY-Import und Wettervalidierung bleiben in `ma_weather`.
 
 Langfristig soll `ma_parameters` eine zentrale Parameterdarstellung erzeugen,
 die Wetterparameter, Projektparameter, Gebaeude, Zonen und Technik
@@ -761,7 +763,8 @@ enthalten, wird aber nicht mehr als operative Reihenfolge verwendet.
 - Uebernahme und Projekt-Default als bewusste Streamlit-Aktionen fuehren,
 - lokale YAML-Grundlage bis zur spaeteren Datenbankmigration verwenden,
 - Uebergabe an `ma_parameters` nur fuer aktive, validierte und freigegebene
-  Wetterdatensaetze vorbereiten.
+  Wetterdatensaetze vorbereiten; P015-S3a konsumiert diesen Vertrag bereits
+  als `ParameterInputPackage`.
 
 ### Slice 4 Wetterdatensatztyp und kritische Ereignisse
 
@@ -844,7 +847,8 @@ enthalten, wird aber nicht mehr als operative Reihenfolge verwendet.
 - Ein neuer Import aktiviert keinen Datensatz automatisch und setzt keinen
   Projekt-Default automatisch; ein gepruefter Entwurf wird erst nach bewusster
   Uebernahme aktiv registriert.
-- `ma_weather` uebergibt nur freigegebene Daten an `ma_parameters`.
+- `ma_weather` uebergibt nur aktivierte und freigegebene Daten als
+  Quellenreferenz an `ma_parameters`.
 - Offene Wetterdatensaetze koennen nicht fuer Varianten oder Simulationen
   genutzt werden.
 - Kritische Wetterereignisse werden nur aus dem bewusst ausgewaehlten

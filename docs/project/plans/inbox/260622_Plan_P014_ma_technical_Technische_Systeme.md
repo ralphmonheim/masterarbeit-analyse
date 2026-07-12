@@ -1,9 +1,9 @@
 # P014 ma_technical Technische Systeme
 
-Stand: 2026-07-08
-Status: Teilweise umgesetzt, P014-S1 BusinessIntegration-LoD-1/Lite; P013-S2-Anpassung offen
+Stand: 2026-07-12
+Status: Teilweise umgesetzt, P014-S1 BusinessIntegration-LoD-1/Lite; P013-S2-Anpassung und technische Regelquellen offen
 Prioritaet: Hoch
-Abhaengigkeiten: P010, P012, P013
+Abhaengigkeiten: P010, P012, P013, P015, P017
 
 ## Ziel
 
@@ -30,6 +30,9 @@ Uebergangsvertrag, bis P014 fachlich angepasst wird.
 - Importvorlagen und manuelle UI-Anpassung kombinieren.
 - Leistungswerte, Temperaturen, Wirkungsgrade, Luftmengen und Regelarten
   einheitenklar validieren.
+- Technische Grenzen, empfohlene Bereiche, Produktreferenzen und Kurzkennungen
+  so modellieren, dass `ma_parameters` und spaeter P017-Regelpruefungen sie
+  referenzieren koennen.
 - Abgrenzung zu Stage 1 und Variantenbildung sichern.
 
 ## Umsetzungsstand P014-S1
@@ -54,6 +57,31 @@ Uebergangsvertrag, bis P014 fachlich angepasst wird.
 - IDA-ICE-spezifische Systemtemplates
 - Kopplung an Stage-1-Dimensionierung
 - P013-S2-Zielstruktur mit zentraler Technik vor `ma_zones`
+- technische Produktgrenzen und empfohlene Bereiche als versionierte
+  Regelquelle fuer Variantenpruefungen
+
+## Umsetzungsbezug P015/P017
+
+P014 liefert technische Optionen und Grenzen nicht direkt an `ma_variants`.
+Der Zielweg lautet:
+
+```text
+ma_technical
+    -> ma_parameters
+    -> ma_variants
+```
+
+Fuer komplexe technische Optionen sollen spaeter stabile Referenzen verwendet
+werden:
+
+- `reference_id`
+- `reference_version`
+- `content_hash`
+- `technical_short_code`
+
+Technische Limits sind blockierend. Empfohlene Bereiche sind in der Regel
+Warnungen. Die konkrete Regelauswertung liegt nicht in P014, sondern in der
+spateren Regel-/Validierungsschicht, die von P017 genutzt wird.
 
 ## Akzeptanzkriterien
 
@@ -67,4 +95,5 @@ Uebergangsvertrag, bis P014 fachlich angepasst wird.
 
 P014 an P013-S2 anpassen: zentrale Technik vor `ma_zones` modellieren,
 aktuelle Zonenreferenzen als Uebergangsvertrag pruefen und Referenzsysteme
-fuer LoD-2 sowie spaetere Dimensionierung genauer abgrenzen.
+fuer LoD-2, spaetere Dimensionierung und P017-Regelpruefungen genauer
+abgrenzen.

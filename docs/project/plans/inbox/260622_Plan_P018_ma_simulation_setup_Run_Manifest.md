@@ -1,14 +1,15 @@
 # P018 ma_simulation_setup und Run-Manifest
 
-Stand: 2026-06-22
-Status: Geplant
+Stand: 2026-07-12
+Status: Geplant, Schnittstelle aus P017 fachlich konsolidiert
 Prioritaet: Hoch
-Abhaengigkeiten: P008, P011, P017
+Abhaengigkeiten: P008, P011, P017, P027
 
 ## Ziel
 
-Varianten, Wetter, Zeitraum, Zeitschritt, Ausgabeumfang und Modellreferenz als
-validierten Simulationslauf festlegen.
+Vollstaendig erzeugte Varianten aus P017 mit Simulationsprogramm, Zeitraum,
+Zeitschritt, Ausgabeumfang und Modellreferenz zu einem validierten
+Simulationslauf verbinden.
 
 ## Reifegrad
 
@@ -17,15 +18,63 @@ Produktiver Vorbereitungsschritt ohne Simulationssteuerung.
 ## Arbeitspakete
 
 - Projektweit eindeutige Run-ID und Statusmodell definieren.
-- `RunManifest` mit Projekt, Modellstand, Parametersnapshot, Varianten,
-  `weather_key`, Zeitraum, Zeitschritt und Ausgabeanforderungen planen.
+- Eingang aus P017 auf vollstaendige Varianten nach `VGEN` begrenzen.
+- `RunManifest` mit Projekt, Modellstand, Parametersnapshot, VariantSelection,
+  Varianten, `weather_key`, Zeitraum, Zeitschritt und Ausgabeanforderungen
+  planen.
 - Standard-Jahreslauf und ereignisbezogene Laufarten unterscheiden.
 - UI-Eingabe, YAML-Import und Validierungsbericht vorsehen.
 - Uebergabegrenze zu P009 dokumentieren.
+- Direkte Zuordnung `RUN -> VAR` ohne `SimulationCase` festlegen.
+
+## Eingang aus P017
+
+P018 erhaelt nach erfolgreicher `VariantGeneration`:
+
+- `VAR-ID`
+- vollstaendigen fachlichen Parametersatz
+- simulationsrelevante Fachwerte
+- notwendige Modell- und Projektreferenzen
+
+P018 erhaelt keine gesamte wissenschaftliche Provenienz aus P017. Verifikation,
+Regelprotokolle, RejectionReports und Auswahlbegruendungen bleiben in
+`ma_variants`.
+
+## Run-Struktur
+
+Fuer den ersten Ausbau gilt:
+
+```text
+RUN-000001
+|-- VAR-000041
+|-- VAR-000043
+`-- VAR-000047
+```
+
+Jeder Run referenziert genau eine `VariantSelection` und ein aufgeloestes
+SimulationSetup. Alle Varianten eines Runs verwenden dasselbe Setup.
+
+Eine Selection wird genau fuer einen Run verwendet. Fuer einen weiteren Run
+wird eine neue Selection erzeugt, auch wenn dieselben Varianten ausgewaehlt
+werden.
+
+Run-interne Daten je Variante:
+
+- Status
+- Exportpfad
+- Logpfad
+- Ergebnispfad
+- Fehlercode
+- Start- und Abschlusszeitpunkt
+
+Diese Daten sind Zuordnungen innerhalb des Runs und keine eigenstaendigen
+`SimulationCase`-Objekte.
 
 ## Akzeptanzkriterien
 
 - Ein Run ist ohne IDA-Installation vollstaendig beschreibbar.
 - Fehlende Referenzen blockieren die Freigabe.
 - Manifest ist unveraenderlich versionierbar und reproduzierbar.
+- Fachliche Variantenwerte werden in P018 nicht neu berechnet oder veraendert.
+- Es gibt keine `CASE-ID` und keine `SimulationCase`-Ebene.
 - Kein Simulationsstart und keine Modellmanipulation erfolgen.

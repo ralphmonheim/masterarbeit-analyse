@@ -8,6 +8,7 @@ LoD-1-Referenzdimensionierung vor der Variantenbildung.
 
 - validierter `ParameterSnapshot` v1 aus `ma_parameters`
 - dokumentierte LoD-1-Auslegungsannahmen
+- spaeter DimensioningRequests aus `ma_variants.VariantVerification`
 
 ## Ausgaben
 
@@ -15,6 +16,7 @@ LoD-1-Referenzdimensionierung vor der Variantenbildung.
   und Mindest-Luftvolumenstrom
 - Rechenweg mit Formel, Wert, Einheit und Quellenparametern
 - Hinweise zur Ergebnisqualitaet
+- spaeter `VariantDimensioningResult` je dimensionierungsrelevanter Gruppe
 
 ## Abgrenzung
 
@@ -22,11 +24,13 @@ LoD-1-Referenzdimensionierung vor der Variantenbildung.
 - keine Simulationsergebnisanalyse
 - kein normatives Heiz- oder Kuehllastverfahren
 - keine automatische Systemauslegung
+- keine Selection- oder Katalogentscheidung
 
 ## Abhaengigkeiten
 
 - `ma_parameters`
 - P015-S1 `ParameterSnapshot` v1
+- P017 fuer spaetere dimensionierungsrelevante Variantengruppen
 - spaeter belastbare Referenzfaelle und IDA-Plausibilisierung
 
 ## Status
@@ -36,5 +40,6 @@ dem BusinessIntegration-`ParameterSnapshot` v1.
 
 ## Naechster Schritt
 
-Stage-1-Ergebnis als Folgesnapshot beziehungsweise Vorschlag modellieren und
-gegen IDA-/SmallOffice-Referenzen plausibilisieren.
+Stage-1-Ergebnis als Folgesnapshot beziehungsweise Vorschlag modellieren,
+`VariantDimensioningResult` vorbereiten und gegen IDA-/SmallOffice-Referenzen
+plausibilisieren.

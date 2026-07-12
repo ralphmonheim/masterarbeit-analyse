@@ -1,6 +1,6 @@
 # Zielarchitektur
 
-Stand: 2026-07-08
+Stand: 2026-07-12
 Grundlage: P007
 
 ## Zweck
@@ -24,8 +24,9 @@ gesonderte Teilplaene analysiert, freigegeben und getestet.
   ueberfuehrt.
 - `ma_project` verwaltet die frei erweiterbare Simulationsprogrammliste und
   neutrale Varianten-Benennungsprofile.
-- `ma_parameters` besitzt Parameterdefinitionen, Optionsgruppen und
-  ausgewaehlte Werte; `ma_variants` konsumiert diese Daten.
+- `ma_parameters` besitzt Baseline-Snapshots, Stage-1-Referenzen,
+  Parameterdefinitionen und VariationSpecifications; `ma_variants` konsumiert
+  diese Daten.
 - Produkt- und Materialbezeichnungen bleiben neutrale Katalogdaten.
 - Programmspezifische Objekt- und Exportcodes liegen in den jeweiligen
   Simulationsadaptern.
@@ -60,7 +61,8 @@ ma_zones
     -> ma_parameters
     -> ma_validation Parametercheckpoint
     -> ma_analyse.stage_1_dimensioning
-    -> ma_variants
+    -> ma_parameters VariationSpecification
+    -> ma_variants VariantSpace/Verification/Catalog/Selection/Generation
     -> ma_simulation_setup
     -> ma_export_simulation
        -> adapters.ida_ice
@@ -83,16 +85,31 @@ ma_zones
 `ma_variants`. Direkte Abhaengigkeiten von `ma_variants` zu Gebaeude, Wetter,
 Zonen oder Technik sind im Zielbild nicht vorgesehen.
 
-`ma_parameters` erzeugt versionierte `ParameterSnapshot`-Staende.
-`ma_simulation_setup` referenziert diese in einem validierten `RunManifest`.
+`ma_parameters` erzeugt versionierte `BaselineParameterSnapshot`-Staende und
+freigegebene `ParameterVariationSpecification`-Staende. `ma_variants` erzeugt
+aus diesen Eingaben verifizierte Kataloge, Selections und vollstaendige
+Varianten. `ma_simulation_setup` referenziert die ausgewaehlten Varianten in
+einem validierten `RunManifest`.
 `ma_variants` wendet das von `ma_project` referenzierte neutrale
 Benennungsprofil an, besitzt dessen Konfiguration aber nicht.
 
 P028 bildet Projekt-, Parameter- und Naming-Demo in Streamlit ab. P015-S1
 stellt darueber hinaus einen produktiven BusinessIntegration-LoD-1-
-`ParameterSnapshot` v1 aus freigegebenen Demoquellen bereit. P013-S2
-konsolidiert den Zielvertrag fuer den spaeteren vollstaendigen Zonenstand;
-Status-/Fingerprint-Logik und Variantensperre bleiben Folgearbeit.
+`ParameterSnapshot` v1 aus freigegebenen Demoquellen bereit. P015-S2 leitet
+daraus einen `BaselineParameterSnapshot` v2 mit stabiler
+`parameter_value_id`, Scopes, Parameterklassen, Variierbarkeit,
+Quellenreferenzen, Referenzversionen und Content-Hash ab. P015-S3a ergaenzt
+ein `ParameterInputPackage`, das den aktivierten, freigegebenen
+`ma_weather`-Projekt-Default als Wetterquelle uebernimmt, ohne TRY-Dateien in
+`ma_parameters` zu importieren. P013-S2 konsolidiert den Zielvertrag fuer den
+spaeteren vollstaendigen Zonenstand; Status-/Fingerprint-Logik und
+Variantensperre bleiben Folgearbeit.
+
+P015 ist seit 2026-07-12 fachlich auf Baseline, Stage-1-Referenz und
+VariationSpecification konsolidiert. P017 ist seit 2026-07-12 fachlich auf den
+Prozess `VSP -> VVER -> VCAT -> VSEL -> VGEN` konsolidiert. `SimulationCase`
+und `CASE` sind im aktiven Zielbild nicht vorgesehen; Runs referenzieren
+Varianten direkt ueber `RUN-ID + VAR-ID`.
 
 ## Eingabequellen
 
@@ -159,6 +176,8 @@ diese Namen nicht als neue Hauptmodule verwenden.
 
 Der vorhandene Basisexport unter `ma_variants.ida_export` bleibt bestehen, bis
 P009 einen sicheren Schnittstellenvertrag und Migrationsweg definiert.
+P009 nutzt als Zielvertrag die von P018 vorbereitete direkte
+`RUN-ID + VAR-ID`-Zuordnung ohne separate `CASE-ID`.
 
 ## UI- und Workflow-Vertrag
 

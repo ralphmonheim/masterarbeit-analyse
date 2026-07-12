@@ -9,12 +9,14 @@ auswaehlen, benennen und nachvollziehbar verwalten.
 
 ## Eingaben
 
-- zentrale Parameterliste aus `ma_parameters`
+- `BaselineParameterSnapshot`, `ReferenceDimensioningResult` und
+  `ParameterVariationSpecification` aus `ma_parameters`
 - Auswahlregeln und neutrales Benennungsprofil aus `ma_project`
 
 ## Ausgaben
 
-- Varianten, Auswahlmengen, Metadaten und Variantenuebersichten
+- verifizierter Variantenkatalog, VariantSelection, vollstaendig erzeugte
+  Varianten, Metadaten und wissenschaftliche Reports
 
 ## Abgrenzung
 
@@ -23,6 +25,8 @@ auswaehlen, benennen und nachvollziehbar verwalten.
   Technikmodulen
 - keine Verwaltung von Projekt-, Produkt- oder programmspezifischen
   Exportbezeichnungen
+- keine Heiz-/Kuehllastberechnung und keine fachliche Veraenderung von
+  Simulationssetup-Werten
 
 ## Abhaengigkeiten
 
@@ -31,15 +35,17 @@ auswaehlen, benennen und nachvollziehbar verwalten.
 
 ## Status
 
-Geplant. Ein umfangreicher Prototyp ist vorhanden, aber die verbindliche
-Eingangsquelle `ma_parameters` und die Integration bis `ma_simulation_setup`
-fehlen. P028 bindet die Demo-Optionsauswahl und das neutrale Benennungsprofil
-bereits ueber einen gemeinsamen Streamlit-Sitzungsstand an.
+Geplant und fachlich konsolidiert. Ein umfangreicher Prototyp ist vorhanden,
+aber die verbindliche Eingangsquelle `ma_parameters` und die Integration bis
+`ma_simulation_setup` fehlen. Der aktive Zielprozess lautet
+`VSP -> VVER -> VCAT -> VSEL -> VGEN -> ma_simulation_setup`. P028 bindet die
+Demo-Optionsauswahl und das neutrale Benennungsprofil bereits ueber einen
+gemeinsamen Streamlit-Sitzungsstand an.
 
 ## Naechster Schritt
 
-Bestehenden Kern stabil halten und die P028-Demo ueber P017 auf versionierte
-`ParameterSnapshot`- und Naming-Regelstaende umstellen.
+P017-S1 planen: Grundobjekte, projektweite IDs, `VariantSpace`, Zaehlmodell und
+stabile Eingangsreferenzen auf P015/P016 ohne Bruch des bestehenden Prototyps.
 
 ## Dateien
 

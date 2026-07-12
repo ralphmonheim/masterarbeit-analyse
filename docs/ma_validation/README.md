@@ -8,5 +8,8 @@
 - **Abhaengigkeiten:** `ma_workflow`; phasenuebergreifend.
 - **Status:** geplant; P010 stellt gemeinsame Modelle und einen getesteten
   Wetterpiloten bereit. Die moduluebergreifende Workflow-Freigabe fehlt.
+- **P017-Bezug:** Checkpoints fuer `VSP`, `VVER`, `VCAT`, `VSEL` und `VGEN`
+  pruefen Struktur, Referenzen, Limits, Reloads und Alles-oder-nichts-
+  Uebergaben.
 - **Naechster Schritt:** P010-Vertraege ueber P027 und die Fachplaene auf
   weitere Module anwenden.

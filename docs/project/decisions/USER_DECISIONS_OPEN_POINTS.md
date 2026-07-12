@@ -1,6 +1,6 @@
 # Offene Nutzerentscheidungen
 
-Stand: 2026-07-08
+Stand: 2026-07-12
 
 Diese Datei enthaelt nur offene Nutzerentscheidungen. Erledigte Entscheidungen
 werden nach der Dokumentation als `UD-*` aus dieser Datei entfernt und stehen in
@@ -68,10 +68,12 @@ werden nach der Dokumentation als `UD-*` aus dieser Datei entfernt und stehen in
   P013-S2-Gesamtplan fuer `ma_zones` ist durch UD-072 fachlich konsolidiert,
   ersetzt aber noch keine produktiven Importprofile. Der
   BusinessIntegration-LoD-1-`ParameterSnapshot` v1 ist durch UD-070
-  unterstuetzt; produktive Importprofile, Systemvorlagen,
-  Snapshot-Speicherung und Wetteruebernahme bleiben offen. P016-S1 nutzt den
-  Snapshot v1 fuer eine LoD-1-Referenzdimensionierung; Stage-1-Folgesnapshots
-  und normative Verfahren bleiben offen.
+  unterstuetzt; P015-S3a unterstuetzt die Wetteruebergabe als aktivierten,
+  freigegebenen `ma_weather`-Projekt-Default im `ParameterInputPackage`.
+  Produktive Importprofile, Systemvorlagen, Snapshot-Speicherung,
+  Freshness-Abgleich und vollstaendige Quellenfingerprints bleiben offen.
+  P016-S1 nutzt den Snapshot v1 fuer eine LoD-1-Referenzdimensionierung;
+  Stage-1-Folgesnapshots und normative Verfahren bleiben offen.
 - Auswirkung: Wird in P010 als Formatmatrix vorbereitet und vor den jeweiligen
   Fachimplementierungen entschieden.
 
@@ -88,3 +90,20 @@ werden nach der Dokumentation als `UD-*` aus dieser Datei entfernt und stehen in
 - Auswirkung: Betrifft `ma_zones`, `ma_technical`, `ma_parameters`,
   `ma_variants`, `ma_validation`, die UI-Reiter und die spaetere
   Normprofil-/Zeitprofilabbildung.
+
+### OP-015 ma_variants Folgeentscheidungen nach P017-Handover
+
+- Thema: ma_variants, ma_rules, Naming, Exportpfade und Iterationen
+- Status: offen
+- Frage: Welche der bewusst zurueckgestellten P017-Erweiterungen werden nach
+  der ersten Ausbaustufe aufgenommen: projektweiter Regelkatalog, lange
+  Variantennamen und Baumdarstellung, Exportpfadprofile, Filter-/Rule-based
+  Selection, Monte-Carlo-/Latin-Hypercube-Sampling oder iterative
+  StudyCase-Prozesse?
+- Ergaenzung: Die aktive erste Ausbaustufe bleibt bewusst klein:
+  `VSP -> VVER -> VCAT -> VSEL -> VGEN`, `VCAT <= 500`, Selection zuerst
+  `all`, `manual` und `random`, keine `SimulationCase`-Ebene.
+- Auswirkung: Betrifft `ma_variants`, `ma_parameters`, `ma_rules` als
+  moeglichen spaeteren Zielbereich, `ma_validation`, `ma_feedback`,
+  `ma_workflow`, `ma_simulation_setup`, Exportpfade und wissenschaftliche
+  Dokumentation.

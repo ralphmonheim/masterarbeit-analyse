@@ -83,6 +83,31 @@ def test_partial_modules_reflect_current_module_implementation():
     assert available_modules == {"project_documentation"}
 
 
+def test_workflow_catalog_documents_parameter_variant_and_run_contracts():
+    parameters = get_module_definition("ma_parameters")
+    dimensioning = get_module_definition("ma_analyse.stage_1_dimensioning")
+    variants = get_module_definition("ma_variants")
+    simulation_setup = get_module_definition("ma_simulation_setup")
+
+    parameter_text = " ".join((*parameters.outputs, parameters.next_step))
+    dimensioning_text = " ".join((*dimensioning.outputs, dimensioning.next_step))
+    variant_text = " ".join((*variants.inputs, *variants.outputs, variants.next_step))
+    run_text = " ".join((*simulation_setup.inputs, *simulation_setup.outputs, simulation_setup.next_step))
+
+    assert "BaselineParameterSnapshot" in parameter_text
+    assert "ParameterVariationSpecification" in parameter_text
+    assert "ReferenceDimensioningResult" in dimensioning_text
+    assert "VariantVerification" in dimensioning_text
+    assert "VariantSpace" in variant_text
+    assert "VariantCatalog" in variant_text
+    assert "VariantSelection" in variant_text
+    assert "VariantGeneration" in variant_text
+    assert "RunManifest" in run_text
+    assert "RUN -> VAR" in run_text
+    assert "SimulationCase" not in variant_text
+    assert "SimulationCase" not in run_text
+
+
 def test_post_process_contains_separate_economy_sustainability_and_assessment_steps():
     step_keys = [step.step_key for step in list_post_process_steps()]
 

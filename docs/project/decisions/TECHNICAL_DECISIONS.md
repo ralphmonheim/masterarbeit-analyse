@@ -1,6 +1,6 @@
 # Entscheidungen
 
-Stand: 2026-07-05
+Stand: 2026-07-12
 
 Dieses Dokument sammelt technische und architektonische Entscheidungen. Echte Nutzerentscheidungen stehen getrennt in `USER_DECISIONS_MASTERTHESIS_CODE.md`.
 
@@ -289,13 +289,19 @@ Technische Folgen:
 
 ## Entscheidung 21: ParameterSnapshot und RunManifest bilden Freigabegrenzen
 
-`ma_parameters` liefert versionierte, freigegebene Parametersnapshots.
-`ma_simulation_setup` referenziert diese zusammen mit Projekt, Varianten,
-Wetter und Modellstand in einem unveraenderlichen Run-Manifest.
+`ma_parameters` liefert versionierte, freigegebene Parametersnapshots. Der
+`ParameterSnapshot` v1 bleibt der kompatible LoD-1-Eingangsstand; der
+`BaselineParameterSnapshot` v2 bildet die stabilere Freigabegrenze mit
+Scope, Parameterwert-ID, Quellenreferenzen und Content-Hash.
+`ma_simulation_setup` referenziert diese Staende zusammen mit Projekt,
+Varianten, Wetter und Modellstand in einem unveraenderlichen Run-Manifest.
 
 Technische Folgen:
 
-- Stage-1-Vorschlaege erzeugen neue Snapshot-Versionen.
+- Stage-1-Vorschlaege erzeugen spaeter neue Snapshot-Versionen oder
+  referenzierte Ergebnisparameter, ohne die Baseline still zu veraendern.
+- `ma_variants` konsumiert Baseline- und Variation-Spezifikationen, erzeugt
+  aber keine neuen Eingangsparameter.
 - Varianten und Runs bleiben auf ihren Eingabestand rueckfuehrbar.
 - P009 darf erst hinter dem validierten Run-Manifest technisch weitergehen.
 
@@ -383,3 +389,19 @@ Technische Folgen:
 - Jahres-, Sommer- und Winterdateien bleiben getrennte Katalogeintraege.
 - Die YAML-basierte Katalog- und Statuslogik bleibt bestehen, bis ein
   Datenbankmodell separat freigegeben wird.
+
+## Entscheidung 27: ma_parameters uebernimmt Wetter nur als freigegebenen Verweis
+
+`ma_parameters` importiert oder parst keine TRY-Dateien. Der P015-S3a-
+Eingangspaketvertrag uebernimmt Wetter nur als aktivierten Projekt-Default aus
+`ma_weather` inklusive `weather_key`, Quellen-/Importreferenz,
+Datensatzrolle, Standort, Jahrtyp und Freigabestatus.
+
+Technische Folgen:
+
+- `ma_weather` bleibt Eigentumer von TRY-Dateien, Import, Validierung,
+  Aktivierung und Projekt-Default.
+- `ma_parameters` braucht fuer Baseline und Varianten nur stabile,
+  versionierte Quellenreferenzen und fachliche Parameterwerte.
+- Die Grenze verhindert doppelte Wettervalidierung und haelt P015 kompatibel
+  mit spaeteren Freshness- und Fingerprint-Slices.

@@ -1,9 +1,9 @@
 # P016 Analyse Stufe 1 Dimensionierung
 
-Stand: 2026-07-08
-Status: Teilweise umgesetzt, P016-S1 LoD-1-Referenzdimensionierung
+Stand: 2026-07-12
+Status: Teilweise umgesetzt, P016-S1 LoD-1-Referenzdimensionierung; VariantDimensioningResult fuer P017 geplant
 Prioritaet: Hoch
-Abhaengigkeiten: P015-S1
+Abhaengigkeiten: P015, P017, P027
 
 ## Ziel
 
@@ -22,6 +22,8 @@ Ausbau zu ausfuehrlicheren und normnaeheren Verfahren.
 - Rechenweg, Zwischenwerte, Warnungen und Ergebnisqualitaet ausgeben.
 - Ergebnisse gegen bekannte IDA-Referenzwerte plausibilisieren.
 - `DimensioningResult` und Uebergabe als neuer Parametersnapshot planen.
+- Variantenspezifische Dimensionierungsanfragen aus P017 entgegennehmen,
+  sobald `VariantVerification` dimensionierungsrelevante Gruppen bildet.
 - Ausbaustufe fuer ausfuehrliche Verfahren getrennt dokumentieren.
 
 ## Umsetzungsbezug P015-S1
@@ -56,7 +58,28 @@ sondern muessen als neuer Vorschlag oder Folgesnapshot modelliert werden.
 - dynamische oder solare Kuehllastberechnung
 - Plausibilisierung gegen IDA-ICE-Ergebnisse
 - Speicherung als neuer Parameter-Folgesnapshot
+- `VariantDimensioningResult` fuer dimensionierungsrelevante
+  P017-Kandidatengruppen
 - Variantenbildung oder automatische Systemauslegung
+
+## Umsetzungsbezug P017
+
+P017 berechnet keine Heiz- oder Kuehllasten selbst. Wenn
+`VariantVerification` dimensionierungsrelevante Aenderungen erkennt, bildet
+es Gruppen mit gleichem `dimensioning_input_fingerprint` und uebergibt
+`DimensioningRequest`-Objekte ueber `ma_workflow` an Stage 1.
+
+P016 liefert dafuer spaeter je Gruppe:
+
+- `dimensioning_result_id`
+- erforderliche Heizlast
+- erforderliche Kuehllastannahme
+- erforderlicher Luftvolumenstrom
+- Rechenstatus, Rechenweg und Provenienz
+
+Diese Ergebnisse werden an `VariantVerification` zurueckgegeben und dort den
+Candidates zugeordnet. P016 erzeugt keine Varianten und trifft keine
+VariantSelection.
 
 ## Akzeptanzkriterien
 
@@ -67,5 +90,6 @@ sondern muessen als neuer Vorschlag oder Folgesnapshot modelliert werden.
 
 ## Naechster Schritt
 
-Stage-1-Ergebnis als Folgesnapshot beziehungsweise Vorschlag modellieren und
-gegen IDA-/SmallOffice-Referenzen plausibilisieren.
+Stage-1-Ergebnis als Folgesnapshot beziehungsweise Vorschlag modellieren,
+`VariantDimensioningResult` fuer P017 vorbereiten und gegen
+IDA-/SmallOffice-Referenzen plausibilisieren.

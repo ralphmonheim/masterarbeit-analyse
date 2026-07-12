@@ -25,4 +25,6 @@
 - **Streamlit:** Die Modulansicht zeigt Demo-Systeme, Freigabestatus und
   Annahmen.
 - **Naechster Schritt:** Zentrale Technik vor `ma_zones` modellieren und
-  Referenzsysteme fuer LoD-2 sowie spaetere Dimensionierung genauer abgrenzen.
+  Referenzsysteme, technische Limits, empfohlene Bereiche und Kurzkennungen
+  fuer LoD-2, spaetere Dimensionierung und P017-Regelpruefungen genauer
+  abgrenzen.

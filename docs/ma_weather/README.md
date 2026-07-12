@@ -17,7 +17,8 @@ fuer nachfolgende Module referenzierbar machen.
 ## Ausgaben
 
 - validierte Wetterdaten, Kennwerte, Diagramme, CSV und Bericht
-- dokumentierter `weather_key` fuer die spaetere Uebergabe an `ma_parameters`
+- dokumentierter `weather_key` und aktivierter Projekt-Default fuer die
+  Uebergabe an `ma_parameters`
 - Quellenmetadaten, strukturierte Diagnosen, Freigabestatus und lokaler
   Sitzungsnachweis
 
@@ -40,9 +41,9 @@ die Diagrammabstimmung fehlen noch.
 
 ## Naechster Schritt
 
-P008 mit der vereinfachten `Pruefen`-Ansicht, der ortsgenauen
-EPSG:3034-/Gemeinde-Standorterkennung, optionaler PLZ-Aufloesung und der
-kontrollierten Uebergabe an `ma_parameters` fortsetzen.
+P008 mit weiteren Realtests, fachlicher Ereignisdefinition und spaeterem
+Freshness-/Fingerprint-Abgleich fuer die kontrollierte Uebergabe an
+`ma_parameters` fortsetzen.
 
 Der erste P002-Struktur-Slice hat das Paket `src/ma_weather/` und einen
 einfachen Wetterkatalog angelegt. Der aktuelle Stand enthaelt zusaetzlich eine
@@ -90,6 +91,11 @@ Die reduzierte P008-Umsetzung fuehrt Datensatzstatus, `import_id`,
 offene Wetterdatensaetze, bewusste Aktivierung und einen lokalen
 Projekt-Default ein. Aktivierung und Default werden nicht automatisch aus einem
 Import abgeleitet.
+
+P015-S3a nutzt diesen lokalen Projekt-Default als Eingang fuer
+`ma_parameters`: Nur ein aktivierter und freigegebener Wetterdatensatz wird als
+Quelle in das `ParameterInputPackage` uebernommen. TRY-Import und
+Wettervalidierung bleiben weiterhin in `ma_weather`.
 
 Slice 4 ergaenzt kritische Wetterereignisse je bewusst ausgewaehltem
 Datensatz. Jahr-, Sommer- und Winterdateien werden nicht vermischt.

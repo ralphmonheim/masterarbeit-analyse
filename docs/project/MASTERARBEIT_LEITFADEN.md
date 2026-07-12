@@ -1,7 +1,7 @@
 # Masterarbeit Leitfaden
 
-Leitfaden-Version: 0.5.7
-Stand: 2026-07-08
+Leitfaden-Version: 0.5.10
+Stand: 2026-07-12
 
 Diese Datei ist der zentrale Orientierungsleitfaden fuer die Masterarbeit und
 die begleitende Software. Sie ersetzt keine aktive Steuerdatei. Der operative
@@ -39,6 +39,9 @@ Der Leitfaden fuehrt zwei Quellen zusammen:
 | 0.5.5 | 2026-06-26 | Entscheidungen zu P010/P008, `plot-template-weather`, lokaler TRY-Dateisuche, UI-Modul-/Workflow-Ansicht und Befehlsinventar nachgezogen |
 | 0.5.6 | 2026-06-29 | Harten Tkinter-Schnitt aus `ma_analyse`, P029-Fortschritt und Sammelbefehl-Freigaberegel nachgezogen |
 | 0.5.7 | 2026-07-08 | P013-S2-Gesamtkonzept fuer `ma_zones` und neue Eingabereihenfolge nachgezogen |
+| 0.5.8 | 2026-07-12 | Planuebernahme P009/P014/P015/P016/P017/P018/P027, P017-Variantenkette und direkte RUN-zu-VAR-Schnittstelle nachgezogen |
+| 0.5.9 | 2026-07-12 | P015-S2 BaselineParameterSnapshot v2, Scopes und Quellenreferenzen umgesetzt |
+| 0.5.10 | 2026-07-12 | P015-S3a ParameterInputPackage mit aktiviertem Wetter-Default und Paketvalidierung umgesetzt |
 
 ## 1. Zweck der Software
 
@@ -261,28 +264,28 @@ unveraendert im Planarchiv.
 | `ma_database` | geplant | Datenbanklogik liegt derzeit vor allem in `ma_variants` |
 | `ma_project` | geplant | Projektstammdaten, Randbedingungen und Projektstatus |
 | `ma_analyse` | teilweise | Analyse von IDA-ICE-Ergebnisdaten, CLI, UI-neutrale Services, Plot-Templates |
-| `ma_variants` | geplant | Prototyp fuer Variantenkern, Datenmodelle, Auswahl, Naming, Export und Kataloge vorhanden |
+| `ma_variants` | geplant | Prototyp vorhanden; P017-Zielkette `VariantSpace -> VariantVerification -> VariantCatalog -> VariantSelection -> VariantGeneration` ist fachlich konsolidiert |
 | `ma_weather` | teilweise | TRY-Katalog, Import, Scan, Validierung, Freigabe, Diagramme, Bericht und kritische Ereignisse |
 | `ma_ui` | geplant | Streamlit-Prototyp mit Modul-/Workflow-Ansicht, Referenzdiagramm und getrenntem Tkinter-Zweig vorhanden |
-| `ma_workflow` | geplant | Katalog- und Orchestrierungsprototyp vorhanden |
-| `ma_parameters` | geplant | Parameter- und Optionslogik liegt noch in `ma_variants` |
+| `ma_workflow` | geplant | Katalog- und Orchestrierungsprototyp vorhanden; P027 beschreibt Checkpoints, Reloads und Rueckspruenge |
+| `ma_parameters` | teilweise | `ParameterSnapshot` v1, erster `BaselineParameterSnapshot` v2 und P015-S3a-`ParameterInputPackage` mit Wetter-Default umgesetzt; P015-S3b fuehrt P013/P014-Anschluss und Quellenfingerprints weiter |
 | `ma_building` | teilweise | Gebaeudemodell, Bauteile und bauphysikalische Randbedingungen |
-| `ma_zones` | geplant | thermische Zonen, Nutzungen, Sollwerte und Profile |
-| `ma_technical` | geplant | technische Systeme, Komponenten und Regelung |
-| `ma_analyse.stage_1_dimensioning` | geplant | Referenzdimensionierung vor der Variantenbildung |
+| `ma_zones` | teilweise | Gesamtgebaeudezone umgesetzt; P013-S2-Gesamtkonzept fuer Raum-Zonen-Modell konsolidiert |
+| `ma_technical` | teilweise | LoD-1/Lite-Referenztechnik umgesetzt; technische Grenzen und Regelquellen fuer P015/P017 folgen |
+| `ma_analyse.stage_1_dimensioning` | teilweise | LoD-1-Referenzdimensionierung umgesetzt; spaetere `DimensioningRequest`-Antworten fuer P017 geplant |
 | `ma_analyse.stage_2_optimization` | teilweise | vorhandene Analysebefehle, gemeinsamer Stufenablauf fehlt |
 | `ma_analyse.stage_3_standards_compliance` | geplant | Norm-Nachweis, deutsche Normenprofile zuerst |
 | `ma_analyse.stage_4_sensitivity` | geplant | Vorarbeiten fuer Zeitfenster und Wetterkennwerte vorhanden, Ereignisverknuepfung fehlt |
-| `ma_simulation_setup` | geplant | Simulationsrandbedingungen und Run-Definition |
-| `ma_export_simulation` | geplant | Basisexport liegt noch in `ma_variants`; IDA ICE wird Adapter |
+| `ma_simulation_setup` | geplant | P018 plant `RunManifest` nach `VariantGeneration` mit direkter `RUN -> VAR`-Zuordnung |
+| `ma_export_simulation` | geplant | Basisexport liegt noch in `ma_variants`; P009 wird nach P018 ueber `RUN-ID + VAR-ID` weitergefuehrt |
 | `ma_import_simulation` | geplant | Ergebnisadapter und Aufbereitung existieren noch ausserhalb des Zielmoduls |
 | `ma_economy` | geplant | Wirtschaftlichkeitsprototyp liegt noch in `ma_variants` |
 | `ma_sustainability` | geplant | Nachhaltigkeitsbewertung als eigenes Fachmodul |
 | `ma_assessment` | geplant | Bewertungs- und Scoringschicht ueber Analyse, Wirtschaft und Nachhaltigkeit |
 | `ma_reporting` | geplant | Reportfunktionen liegen noch in Fachmodulen |
 | `ma_data_export` | geplant | Exporte liegen noch verteilt in Fachmodulen |
-| `ma_validation` | geplant, P010-Pilot nutzbar | Diagnose- und Freigabevertraege sind im Wetterpilot vorhanden |
-| `ma_feedback` | geplant | phasenuebergreifende Ruecksprungsteuerung |
+| `ma_validation` | geplant, P010-Pilot nutzbar | Diagnose- und Freigabevertraege sind im Wetterpilot vorhanden; P027 erweitert Checkpoint-Freigaben |
+| `ma_feedback` | geplant | phasenuebergreifende Ruecksprungsteuerung mit Reload-/Abort-Regeln aus P027 |
 
 ### Vollstaendiger Modulkatalog
 
@@ -321,7 +324,8 @@ Paketgeruest, eine Infoseite oder vorhandener Prototypcode genuegt nicht fuer
   Pflichtfelder, Einheiten und Kategorien.
 - **Eingaben:** freigegebene Fachmoduldaten, aktuell aus der
   BusinessIntegration-LoD-1-Kette von `ma_building`, `ma_zones` und
-  `ma_technical`; spaeter Wetter, Stage-1-Vorschlaege und Importvorlagen.
+  `ma_technical` sowie ein aktivierter, freigegebener Wetter-Default aus
+  `ma_weather`; spaeter Stage-1-Vorschlaege und Importvorlagen.
 - **Ausgaben:** validierter `ParameterSnapshot` v1, Parameter- und
   Optionsobjekte fuer Varianten, Simulation-Setup und Export.
 - **Abgrenzung:** Das Modul bildet keine Varianten und schreibt keine
@@ -329,6 +333,13 @@ Paketgeruest, eine Infoseite oder vorhandener Prototypcode genuegt nicht fuer
 - **Status:** Teilweise umgesetzt; P028-Demo fuer schreibgeschuetzte
   Parameteranzeige und aktive Optionsauswahl umgesetzt. P015-S1 liefert einen
   validierten `ParameterSnapshot` v1 fuer die BusinessIntegration-LoD-1-Kette.
+  P015-S2 liefert daraus einen ersten `BaselineParameterSnapshot` v2 mit
+  Scopes, Parameterklassen, Variierbarkeit, Quellenreferenzen,
+  Referenzversionen und Content-Hash. P015-S3a liefert ein
+  `ParameterInputPackage` mit aktiviertem Wetter-Default und blockierender
+  Paketvalidierung. Naechster Zielstand sind P013-S2-Zonenstand,
+  `ReferenceDimensioningResult`, `ParameterVariationSpecification`, Persistenz
+  und ein stabiler Handover an `ma_variants`.
 
 #### ma_weather
 
@@ -392,7 +403,10 @@ Paketgeruest, eine Infoseite oder vorhandener Prototypcode genuegt nicht fuer
   Anlagenauslegung.
 - **Status:** Teilweise umgesetzt; P014-S1 enthaelt einfache
   Referenzannahmen fuer Heizung, Kuehlung und Lueftung mit Validierung und
-  Streamlit-Pruefansicht.
+  Streamlit-Pruefansicht. P014 wird fachlich an P013-S2 angepasst:
+  `ma_technical` liegt vor `ma_zones`, liefert zentrale technische
+  Optionen, Grenzen und Referenzen an `ma_parameters` und bildet selbst keine
+  Varianten.
 
 #### ma_analyse.stage_1_dimensioning
 
@@ -406,32 +420,43 @@ Paketgeruest, eine Infoseite oder vorhandener Prototypcode genuegt nicht fuer
   Simulationsergebnissen.
 - **Status:** Teilweise umgesetzt; P016-S1 berechnet eine transparente
   LoD-1-Referenzdimensionierung aus dem `ParameterSnapshot` v1.
+  P016 bleibt frei von Variantenbildung, kann spaeter aber
+  `DimensioningRequest`-Gruppen aus `VariantVerification` ueber
+  `ma_workflow` beantworten.
 
 #### ma_variants
 
 - **Zweck:** Varianten erzeugen, auswaehlen, benennen und nachvollziehbar
   verwalten.
-- **Eingaben:** validierte Parameter, Optionsgruppen, Auswahlregeln und
-  ein neutrales Benennungsprofil aus `ma_project`.
-- **Ausgaben:** Variantenobjekte, Variantenwerte, Auswahlmengen,
-  Variantenuebersichten und Exporte.
+- **Eingaben:** `BaselineParameterSnapshot`,
+  `ReferenceDimensioningResult`, `ParameterVariationSpecification`,
+  Auswahlregeln und ein neutrales Benennungsprofil aus `ma_project`.
+- **Ausgaben:** `VariantSpace`, `VariantVerification`,
+  `VariantCatalog`, `VariantSelection`, `VariantGeneration`,
+  Variantenobjekte, Variantenwerte und Variantenmetadaten.
 - **Abgrenzung:** Das Modul soll langfristig weder Simulationsrandbedingungen
   noch Wirtschaftlichkeits- oder IDA-Dateilogik besitzen.
-- **Status:** Geplant; ein Prototyp ist vorhanden, enthaelt aber noch spaetere
-  Extraktionsquellen fuer Parameter, IDA-Export, Ergebnisadapter und
-  Wirtschaftlichkeit.
+- **Status:** Geplant; ein Prototyp ist vorhanden. P017 ist fachlich
+  konsolidiert und trennt `VSP`, `VVER`, `VCAT`, `VSEL` und `VGEN`.
+  `VCAT` ist auf 500 Eintraege begrenzt, `VSEL` ist eine Auswahl und kein
+  zweiter Katalog. `SimulationCase` und `CASE-ID` werden nicht als neue
+  Hauptobjekte eingefuehrt. Naechster Umsetzungsslice ist P017-S1 mit
+  Grundobjekten, IDs, `VariantSpace`, Zaehlmodell und stabilen
+  Eingangsreferenzen.
 
 #### ma_simulation_setup
 
-- **Zweck:** Festlegen, wie eine Variante simuliert wird.
-- **Eingaben:** Varianten, Wetterdatensatz, Zeitraum, Zeitschritt,
+- **Zweck:** Festlegen, wie ausgewaehlte Varianten simuliert werden.
+- **Eingaben:** vollstaendig erzeugte Varianten nach `VariantGeneration`,
+  `VAR-ID`, `VariantSelection`, Wetterdatensatz, Zeitraum, Zeitschritt,
   Ausgabeintervall und Szenario.
-- **Ausgaben:** validierte Run-Definition mit Run-ID und
-  Simulationsmetadaten.
+- **Ausgaben:** validiertes `RunManifest`, `RUN-ID`,
+  `VAR-ID`-Referenzen und Simulationsmetadaten.
 - **Abgrenzung:** Das Modul erzeugt keine Varianten und veraendert keine
   IDA-ICE-Dateien.
-- **Status:** Geplant; es liegt bewusst zwischen `ma_variants` und
-  `ma_export_simulation`.
+- **Status:** Geplant; P018 ist auf die P017-Uebergabe geschaerft.
+  `ma_simulation_setup` ergaenzt ein gemeinsames Setup je Run und fuehrt eine
+  direkte `RUN -> VAR`-Zuordnung ohne `SimulationCase`-Ebene.
 
 #### ma_export_simulation
 
@@ -445,7 +470,9 @@ Paketgeruest, eine Infoseite oder vorhandener Prototypcode genuegt nicht fuer
   ungesicherte Textmanipulation und kein Simulationsstart.
 - **Status:** Geplant; eine erste Uebergabestruktur existiert noch
   in `ma_variants.ida_export`. P009 beschreibt die weitere Schnittstelle und
-  den IDA-ICE-Adapter.
+  den IDA-ICE-Adapter. P009 bleibt bis zum validierten `RunManifest` aus P018
+  zurueckgestellt und soll Export und Import ueber `RUN-ID + VAR-ID`
+  zuordnen.
 
 #### IDA ICE
 
@@ -776,9 +803,11 @@ modulbezogene Inhalte.
 
 Aktueller Stand:
 
-- `Start`: Modul-Ansicht, Workflow-Referenzdiagramm und technische
-  Detailtabellen im Expander
-- `ma_workflow`: eigene Workflow-Ansicht mit demselben Referenzdiagramm
+- `Start`: leichte Modul-Ansicht mit Statuskennzahlen, Phasenkarten,
+  Navigationsbuttons, Iterationspfaden und technischen Detailtabellen im
+  Expander
+- `ma_workflow`: eigene Workflow-Ansicht mit Workflow-Referenzdiagramm,
+  Modulstatus und Workflow-Schritten
 - `Analyse`: Streamlit-Wizard fuer `ma_analyse`, orientiert an Tkinter-Ablauf
 - `Analyse`: Overlay-Schritt direkt nach `Template / Diagramm`; der
   Overlay-Katalog wird erst nach Varianten- und Raumauswahl befuellt.
@@ -813,6 +842,10 @@ und schrittweise in UI-neutrale Logik ueberfuehrt. Der alte
 `ma_workflow` vermittelt zwischen `ma_ui` und den Fachmodulen. Das Modul
 koordiniert Reihenfolge, Projektzustand und neutrale Service-Aufrufe, enthaelt
 aber keine eigene Fachberechnung und keine Streamlit-Darstellung.
+P027 beschreibt die naechsten fachlichen Steuerpunkte fuer P017:
+`VSP`, `VVER`, `VCAT`, `VSEL` und `VGEN` erhalten eigene Checkpoints,
+Reload-/Abort-Regeln und eine technische Dimensionierungsunterbrechung
+innerhalb von `VVER`.
 
 ### Eingabe, Diagnose und Freigabe
 
@@ -902,6 +935,7 @@ folgende Entscheidungen:
 | Phasenmodell | Phase 0 und sechs fachliche P007-Phasen ersetzen die bisherige aktive Vierer-Gliederung. | UD-042 |
 | Simulationsschnittstellen | `ma_export_simulation` und `ma_import_simulation` sind allgemein; IDA ICE liegt in Adaptern. | UD-043 |
 | Eingabemodule | Gebaeude, Wetter, Zonen und Technik bleiben getrennt und liefern ueber `ma_parameters` an `ma_variants`. | UD-044 |
+| Parameter- und Variantenuebergabe | P015 fuehrt den Zielpfad ueber `BaselineParameterSnapshot`, `ReferenceDimensioningResult` und `ParameterVariationSpecification`; P017 verarbeitet daraus `VariantSpace`, `VariantVerification`, `VariantCatalog`, `VariantSelection` und `VariantGeneration`. | PLAN_STATUS 2026-07-12, P015, P017 |
 | Strukturaufbau | Zielmodule werden als leichte Pakete und klickbare Infoseiten sichtbar, ohne Fachreife vorzutäuschen. | UD-045 |
 | Validierung und Feedback | Lokale Pruefungen bleiben fachlich; zentrale Freigaben und Rueckspruenge wirken phasenuebergreifend. | UD-046 |
 | Ergebnisverarbeitung | Assessment, Reporting, Datenexport und Projektdokumentation bleiben getrennte Verantwortlichkeiten. | UD-047 |
@@ -909,6 +943,7 @@ folgende Entscheidungen:
 | Fachlogik | Fachlogik von `ma_analyse` bleibt in `ma_analyse` und wird ueber UI-neutrale Services bereitgestellt. | UD-016, UD-020 |
 | Tkinter | Tkinter wird nicht technisch mit Streamlit vermischt; die Tkinter-Analyse liegt unter `ma_ui.tkinter_app` und kann spaeter um weitere Fachansichten ergaenzt werden. | UD-019, UD-022, UD-062 |
 | Simulationskette | `ma_simulation_setup` liegt zwischen Variantenbildung und allgemeinem Simulationsexport; Export, Import und Feedback bleiben getrennte Zielbereiche. | UD-021, UD-043 |
+| Varianten-Run-Schnittstelle | P018 uebernimmt vollstaendige Varianten nach `VGEN`, fuehrt `RunManifest` und direkte `RUN -> VAR`-Zuordnungen; `CASE-ID` und `SimulationCase` werden nicht als Hauptobjekte eingefuehrt. | PLAN_STATUS 2026-07-12, P009, P018 |
 | Bewertung | `ma_economy` und `ma_sustainability` rechnen fachlich; `ma_assessment` bewertet, `ma_reporting` berichtet. | UD-036, UD-047 |
 | Datenhaltung | Echte Projekt-, Produkt-, Material-, Datenbank- und TRY-Inhalte bleiben lokal; versioniert werden Struktur und gekennzeichnete Beispiele. | UD-012, UD-029 |
 | Eingabe, Diagnose und Freigabe | P010 trennt Fachpruefung, Freigabe und Sitzungsnachweis; Fehler blockieren, Warnungen brauchen eine bewusste Entscheidung mit ID und Sitzungslog. | UD-057 |
@@ -936,16 +971,19 @@ stehen ausschliesslich in
   spaeter fuer Hauptbefehl und GUI erneut bewertet.
 - Normierung wird `ma_analyse`-weit geplant: absolute Werte, flaechenbezogene
   Werte oder beides brauchen spaeter eine konsistente Strategie.
-- `ma_workflow` soll spaeter echte Fachservice-Aufrufe koordinieren.
-- P010 bis P018 priorisieren die funktionsfaehige Eingabekette bis
-  `ma_simulation_setup`.
+- `ma_workflow` soll spaeter echte Fachservice-Aufrufe koordinieren; P027
+  konkretisiert zunaechst die P017-Checkpoints, Reloads und Abbrueche.
+- P015-S3b, P017-S1 und P018 priorisieren die funktionsfaehige Eingabekette
+  von stabilem Eingangspaket und Baseline ueber Varianten bis zum
+  `RunManifest`.
 - `ma_economy` und `ma_sustainability` erhalten kleine Demos mit
   vollstaendigem Fachkonzept; `ma_assessment`, `ma_reporting` und
   `ma_data_export` bleiben zunaechst konzeptuell.
 - Fuer den Vergleich von Zeit- und Personalkosten sind Wissensprofile,
   Stundensaetze, Prozessgrenzen und Messmethoden noch festzulegen.
 - P008 muss weitere Realtests, fachliche Wetterereignisdefinitionen fuer P021
-  und die Uebergabe an `ma_parameters` abschliessen.
+  und den Freshness-/Fingerprint-Abgleich fuer die Uebergabe an
+  `ma_parameters` abschliessen.
 - P009 wird erst nach P018 weitergefuehrt.
 - P020 darf Normregeln erst nach dokumentierter Quellen- und Methodenmatrix
   implementieren.

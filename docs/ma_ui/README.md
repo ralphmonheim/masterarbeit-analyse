@@ -91,8 +91,11 @@ Workflow-Service-Aufrufe getrennt anbinden.
   Streamlit-Modulansichten registriert. `ma_zones` und `ma_technical` zeigen
   die BusinessIntegration-LoD-1-Demos mit Freigabestatus statt nur
   Infokarten; P013-S2 ordnet `ma_technical` fachlich vor `ma_zones` ein.
-- `ma_parameters` zeigt den BusinessIntegration-LoD-1-`ParameterSnapshot` v1
-  mit Freigabestatus, Parameterwerten, Quellen und Validierungsmeldungen.
+- `ma_parameters` zeigt den BusinessIntegration-LoD-1-`ParameterSnapshot` v1,
+  das P015-S3a-`ParameterInputPackage` mit Wetter-Default-Status und den
+  daraus beziehungsweise aus v1 abgeleiteten `BaselineParameterSnapshot` v2
+  mit Freigabestatus, Scopes, Parameterwerten, Quellen, Referenzen und
+  Validierungsmeldungen.
 - `ma_analyse.stage_1_dimensioning` zeigt die LoD-1-Referenzdimensionierung
   mit Ergebniswerten, Rechenweg und Hinweisen.
 - Analyse-Seite kann die Tkinter-Analyse als separates Fenster starten, falls

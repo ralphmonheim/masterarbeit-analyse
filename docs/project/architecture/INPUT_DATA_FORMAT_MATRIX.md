@@ -1,6 +1,6 @@
 # Eingabe- und Formatmatrix
 
-Stand: 2026-07-08
+Stand: 2026-07-12
 Grundlage: P010
 
 ## Reifegrade
@@ -37,13 +37,19 @@ Grundlage: P010
 | Technical | zentrale Systemreferenzen fuer ma_zones | planned | P014-Folgeausbau gemaess P013-S2, zentrale Technik vor Zonen |
 | Technical | Systemvorlagen und Produktdaten | planned | P014-Folgeausbau |
 | Parameters | BusinessIntegration-LoD-1-ParameterSnapshot | supported | P015-S1, validierter Snapshot v1 aus Building, Zones und Technical mit Quellenreferenzen |
+| Parameters | ParameterInputPackage mit aktiviertem Wetter-Default | supported | P015-S3a, Eingangspaket-Checkpoint aus Snapshot v1 plus freigegebenem `ma_weather`-Projekt-Default |
 | Parameters | P013-S2-Zonenstand mit Status/Fingerprint | planned | `current`, `outdated` und `validation_required` sowie Blockierung der Variantengenerierung bei veraltetem Stand |
+| Parameters | BaselineParameterSnapshot v2 aus BusinessIntegration-LoD-1 | supported | P015-S2, Scopes, Parameterklassen, Variierbarkeit, Quellenreferenzen, Referenzversionen und Content-Hash automatisiert getestet |
+| Parameters | ReferenceDimensioningResult und ParameterVariationSpecification | planned | P015 konsolidiert; Stage-1-Einbindung und VariationSpecification folgen in P015-S6 bis P015-S9 |
 | Parameters | YAML-Kataloge und spaetere Importvorlagen | prototype | P028-Demo vorhanden, Snapshot-Speicherung und Importvorlagen folgen |
 | Dimensioning | ParameterSnapshot v1 | supported | P016-S1, LoD-1-Referenzdimensionierung mit Rechenweg und Hinweisen |
+| Dimensioning | VariantDimensioningResult fuer P017 | planned | Stage 1 beantwortet spaeter DimensioningRequests aus `VariantVerification` ueber `ma_workflow` |
+| Variants | VSP/VVER/VCAT/VSEL/VGEN | planned | P017 konsolidiert; erster Ausbau mit VCAT max 500, Selection all/manual/random und direkter Uebergabe an P018 |
 | Normen | CSV, JSON, YAML und Review-Dokumente | prototype | lokaler Pruefbestand unter `data/common/normen/`; keine freigegebene Normlogik |
 | Kalender | XLSX, CSV und PDF | prototype | lokale Feiertags- und Kalenderreferenzen unter `data/common/kalender/`; noch keine allgemeine Kalender-API |
 | Naming | YAML | supported | P028-Demo mit geschuetzter lokaler Speicherung |
-| Simulationsadapter | programmspezifische Vorlagen | planned | P009 nach validiertem Run-Manifest |
+| Simulation setup | RunManifest mit direkter RUN/VAR-Zuordnung | planned | P018 nach P017; kein `SimulationCase`, keine `CASE-ID` |
+| Simulationsadapter | programmspezifische Vorlagen | planned | P009 nach validiertem Run-Manifest; Export/Import ueber `RUN-ID + VAR-ID` |
 | CAD-Integration | direkte CAD-Steuerung | out_of_scope | nicht Teil der Masterarbeit |
 
 Import wird je Fachmodul bevorzugt. Manuelle und Demo-Quellen sind durch

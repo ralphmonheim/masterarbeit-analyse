@@ -22,6 +22,7 @@ UI-neutral beschreiben.
 
 - keine Fachberechnung
 - keine Streamlit- oder Tkinter-Abhaengigkeit
+- keine fachliche Iterationsentscheidung
 
 ## Abhaengigkeiten
 
@@ -64,6 +65,10 @@ freigegebenen Modulslices ergaenzen.
   eigene katalogisierte Analysestufen.
 - Weitere Adapter fuer Varianten, Wetterdaten, Simulationsexport/-import und
   Bewertung folgen spaeter nach separaten Slices.
+- Fuer P017 koordiniert `ma_workflow` spaeter die technische
+  Dimensionierungsunterbrechung innerhalb von `VariantVerification`:
+  `VVER -> DimensioningRequest -> ma_analyse -> DimensioningResult -> VVER`.
+  Das ist Wiederaufnahme eines laufenden Schritts, keine aktive CaseIteration.
 
 Oeffentliche Katalogfunktionen:
 

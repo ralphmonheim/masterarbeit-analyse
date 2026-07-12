@@ -1,7 +1,7 @@
 # P009 Allgemeine Simulationsschnittstellen mit IDA-ICE-Adapter
 
-Stand: 2026-06-22
-Status: Zurueckgestellt bis P018
+Stand: 2026-07-12
+Status: Zurueckgestellt bis P018; RUN/VAR-Zuordnung fachlich geschaerft
 Bezug: P007, P018, archivierter P006
 
 ## Ziel
@@ -38,6 +38,8 @@ Diese Logik wird in P009 nicht kopiert oder ungeprueft verschoben.
 3. Historische Schluessel `ma_export_ida`, `ma_import_ida`, `export_ida` und
    `import_ida` nur als Uebergangsaliase behandeln.
 4. `RunManifest` aus P018 als verbindliche Eingabegrenze verwenden.
+5. Export und Import ueber `RUN-ID + VAR-ID` zuordnen; keine `CASE-ID`
+   einfuehren.
 
 ## Entwicklungsstufe 2: Kontrollierter IDA-ICE-Exportadapter
 
@@ -55,6 +57,17 @@ Diese Logik wird in P009 nicht kopiert oder ungeprueft verschoben.
    sind.
 7. Exportindex fuer Projekt, Run und Varianten erzeugen.
 
+Eingang fuer den Export:
+
+- `RUN-ID`
+- `VAR-IDs`
+- vorbereitete Dateien oder Dateispezifikationen aus P018
+- Zielpfad
+- Adapterversion
+
+`ma_export_simulation` bestimmt keine fachlichen Variantenwerte und veraendert
+keine Selection.
+
 ## Entwicklungsstufe 3: Kontrollierter IDA-ICE-Importadapter
 
 1. Ergebnisdateien und Ergebnisordner erkennen.
@@ -62,6 +75,10 @@ Diese Logik wird in P009 nicht kopiert oder ungeprueft verschoben.
 3. Rohdaten unveraendert sichern.
 4. Namen, Einheiten und Zeitstempel vereinheitlichen.
 5. Standardisierte Ergebnisdaten an `ma_analyse` uebergeben.
+
+Simulationsergebnisse werden mindestens ueber `RUN-ID + VAR-ID` zugeordnet.
+Ein fehlgeschlagenes Ergebnis erzeugt keinen separaten Case, sondern einen
+run-internen Status je `VAR-ID`.
 
 ## Sicherheitsgrenzen
 
@@ -83,6 +100,8 @@ Diese Logik wird in P009 nicht kopiert oder ungeprueft verschoben.
   mit strukturierten Fehlern oder Warnungen.
 - Alle erzeugten Artefakte sind Projekt, Run und Variante eindeutig
   zugeordnet.
+- Historische oder externe Begriffe wie `CASE` werden nicht als neue
+  Hauptobjekte eingefuehrt.
 
 ## Historischer Bezug
 
