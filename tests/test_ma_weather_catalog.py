@@ -39,6 +39,7 @@ from ma_weather import (
     validate_weather_file_discovery,
     weather_discovery_rows,
 )
+from ma_weather.dwd_try2011_converter import convert_dwd_try2011_prn_folder
 from ma_weather.run_weather_analysis import plot_template_weather, record_weather_release_decision, run_weather_analysis
 from ma_weather.try_importer import import_try_weather_file
 from ma_weather.weather_catalog import DATASET_ROLE_SITE_SPECIFIC, DATASET_ROLE_TRY_REFERENCE
@@ -413,6 +414,63 @@ def test_weather_file_discovery_uses_explicit_header_location_reference(tmp_path
     assert discovery.metadata["location_resolution_source"] == "file_reference"
     assert discovery.metadata["location_resolution_status"] == "confirmed"
     assert "location_id" not in discovery.missing_fields
+
+
+def test_weather_file_discovery_explicit_header_location_overrides_geodata_block(tmp_path):
+    try_file = tmp_path / "data" / "ma_weather" / "input" / "TRY_11_Fichtelberg" / "TRY2010_11_Jahr.dat"
+    geodata_config = tmp_path / "config" / "ma_weather" / "geodata" / "example_weather_geodata_sources.yaml"
+    try_file.parent.mkdir(parents=True, exist_ok=True)
+    geodata_config.parent.mkdir(parents=True, exist_ok=True)
+    geodata_config.write_text("enabled: true\ngeodata_sources: []\n", encoding="utf-8")
+    try_file.write_text(
+        "Kopfbereich\n"
+        "Standort          : Fichtelberg\n"
+        "Hoehenlage        : 1213 Meter ueber NN\n"
+        "***\n"
+        "MM DD HH t RF WR WG B D\n",
+        encoding="latin-1",
+    )
+
+    discovery = discover_weather_input_files(
+        existing_catalog=WeatherCatalog([]),
+        location_catalog=import_weather_location_catalog(),
+        project_root=tmp_path,
+    )[0]
+
+    assert discovery.location_id == "LOC_048"
+    assert discovery.status is WeatherDiscoveryStatus.READY
+    assert discovery.metadata["location_resolution_source"] == "file_reference"
+    assert discovery.metadata["location_resolution_status"] == "confirmed"
+    assert discovery.metadata["geodata_location_resolution_status"] == "invalid_coordinates"
+    assert discovery.metadata["geodata_location_resolution_blocking"] == "false"
+
+
+def test_weather_file_discovery_accepts_city_suffix_folder_and_legacy_years(tmp_path):
+    try_file = tmp_path / "data" / "ma_weather" / "input" / "TRY_12_Mannheim" / "TRY2035_12_Jahr.dat"
+    try_file.parent.mkdir(parents=True, exist_ok=True)
+    try_file.write_text(
+        "Kopfbereich\n"
+        "Standort          : Mannheim\n"
+        "Hoehenlage        : 97 Meter ueber NN\n"
+        "Art des TRY       : mittleres Jahr\n"
+        "***\n"
+        "MM DD HH t RF WR WG B D\n",
+        encoding="latin-1",
+    )
+
+    discovery = discover_weather_input_files(
+        existing_catalog=WeatherCatalog([]),
+        location_catalog=import_weather_location_catalog(),
+        project_root=tmp_path,
+    )[0]
+
+    assert discovery.try_folder_key == "TRY_12"
+    assert discovery.try_id == "12"
+    assert discovery.location_id == "LOC_053"
+    assert discovery.weather_key == "TRY_MA_2035_JAHR"
+    assert discovery.year_type == "future_year"
+    assert discovery.climate_scenario == "future_2035"
+    assert discovery.status is WeatherDiscoveryStatus.READY
 
 
 def test_weather_file_discovery_blocks_conflicting_header_and_mapping_location(tmp_path):
@@ -1137,6 +1195,53 @@ def test_try_importer_reads_data_block_and_calculates_global_radiation(tmp_path)
     assert len(result.source.sha256 or "") == 64
     assert result.import_diagnostic.record_count == 4
     assert result.import_diagnostic.accepted_count == 4
+
+
+def test_dwd_try2011_prn_converter_writes_importable_dat_file(tmp_path):
+    input_dir = tmp_path / "input"
+    output_dir = tmp_path / "output"
+    input_dir.mkdir()
+    (input_dir / "DWD TRY Daten 2011.idm").write_text(
+        ';IDA 3.9 Document\n'
+        '((CLIMATE-DEF :N "Mannheim_2010_Jahr" :T CLIMATE-DEF '
+        ':D "Deutscher Wetterdienst Test reference year for Mannheim 2010 mittleres Jahr") '
+        '(:PAR :N FILENAME :V "TRY2010_12_Jahr_DAT.PRN") '
+        '(:PAR :N COUNTRY :V "Deutschland") '
+        '(:PAR :N STATION :V "Mannheim 2010 mittleres Jahr") '
+        '(:PAR :N LATITUDE :V 49.250) '
+        '(:PAR :N LONGITUDE :V -8.280) '
+        '(:PAR :N ELEVATION :V 97.000) '
+        '(:PAR :N TIME_ZONE :V -1.000) '
+        '(:PAR :N WIND-HEIGHT :V 10.000))\n',
+        encoding="utf-8",
+    )
+    prn_rows = [
+        "#  Time  TAir  RelHum  WindX  WindY  IDirNorm  IDiffHor  SkyCover",
+        *[
+            f"{hour:.2f} 20.00 50.00 1.00 0.00 0.00 10.00 50.0"
+            for hour in range(8785)
+        ],
+    ]
+    (input_dir / "TRY2010_12_Jahr_DAT.PRN").write_text("\n".join(prn_rows), encoding="utf-8")
+
+    summary = convert_dwd_try2011_prn_folder(input_dir, output_dir=output_dir)
+
+    target_file = output_dir / "TRY_12_Mannheim" / "TRY2010_12_Jahr.dat"
+    assert summary.converted_count == 1
+    assert summary.converted_files[0].rows_read == 8785
+    assert summary.converted_files[0].rows_written == 8760
+    assert summary.converted_files[0].rows_dropped == 25
+    assert target_file.exists()
+
+    result = import_try_weather_file(target_file, weather_key="TRY_MA_2010_JAHR", start_year=2010)
+
+    assert result.row_count == 8760
+    assert result.data.index[0] == pd.Timestamp("2010-01-01 00:00:00")
+    assert result.data.index[-1] == pd.Timestamp("2010-12-31 23:00:00")
+    assert result.data["temperature_c"].iloc[0] == pytest.approx(20.0)
+    assert result.data["relative_humidity_pct"].iloc[0] == pytest.approx(50.0)
+    assert result.data["wind_speed_m_s"].iloc[0] == pytest.approx(1.0)
+    assert result.data["global_radiation_w_m2"].iloc[0] == pytest.approx(10.0)
 
 
 def test_weather_validation_reports_warnings_and_errors(tmp_path):

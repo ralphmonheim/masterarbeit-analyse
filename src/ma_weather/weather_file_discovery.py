@@ -38,7 +38,7 @@ TRY_FILE_PATTERN = re.compile(
     r"^TRY(?P<year>20\d{2})_(?P<try_id>\d+)_(?P<kind>Jahr|Somm|Wint)\.dat$",
     re.IGNORECASE,
 )
-TRY_FOLDER_PATTERN = re.compile(r"^TRY_(?P<try_id>\d+)$", re.IGNORECASE)
+TRY_FOLDER_PATTERN = re.compile(r"^TRY_(?P<try_id>\d+)(?:_[A-Za-z0-9_-]+)?$", re.IGNORECASE)
 CUSTOM_INPUT_PART = "custom"
 
 DATASET_TYPE_BY_KIND = {
@@ -536,16 +536,18 @@ def _build_file_discovery(
 
     metadata = _read_try_header_metadata(file_path)
     location_resolution = resolve_weather_file_location(metadata, project_root=project_root)
+    location_resolution_is_blocking = False
     if location_resolution.status is not WeatherLocationResolutionStatus.NOT_CONFIGURED:
         metadata.update(_geodata_location_resolution_metadata(location_resolution.to_metadata()))
         messages.extend(location_resolution.messages)
-        if location_resolution.is_blocking:
-            missing_fields.append("location_resolution")
+        location_resolution_is_blocking = location_resolution.is_blocking
     mapping_entry = try_location_mapping.get(folder_key)
     metadata.update(_mapping_metadata(mapping_entry))
     file_location = _location_from_file_reference(metadata, location_catalog)
     mapping_location_id = mapping_entry.location_id if mapping_entry is not None and mapping_entry.is_confirmed else ""
     geodata_location = _location_from_geodata_resolution(metadata, location_catalog)
+    if location_resolution_is_blocking and file_location is None and not mapping_location_id:
+        missing_fields.append("location_resolution")
     location_id = file_location.location_id if file_location is not None else mapping_location_id
     if not location_id and geodata_location is not None:
         location_id = geodata_location.location_id
@@ -582,6 +584,9 @@ def _build_file_discovery(
                 detail=detail,
             )
         )
+        if metadata.get("geodata_location_resolution_blocking") == "true":
+            metadata["geodata_location_resolution_blocking"] = "false"
+            metadata["geodata_location_resolution_override"] = source
     elif mapping_entry is not None and not mapping_entry.is_confirmed:
         missing_fields.append("location_id")
         messages.append(f"Standortzuordnung fuer {folder_key or relative_path.parent.name} ist noch nicht bestaetigt.")
@@ -1013,7 +1018,7 @@ def _location_or_none(catalog: WeatherLocationCatalog, location_id: str) -> Weat
 
 def _year_type_for_kind(kind: str, year: int | None) -> str:
     if kind == "jahr":
-        return "future_year" if year == 2045 else "reference_year"
+        return "future_year" if year in {2035, 2045} else "reference_year"
     return YEAR_TYPE_BY_KIND.get(kind, "")
 
 
@@ -1031,24 +1036,28 @@ def _kind_for_dataset_type(dataset_type: str) -> str:
 def _year_type_for_dataset_type(dataset_type: str, climate_scenario: str) -> str:
     kind = _kind_for_dataset_type(dataset_type)
     if kind == "jahr":
-        if climate_scenario == "future_2045":
+        if climate_scenario in {"future_2035", "future_2045"}:
             return "future_year"
-        if climate_scenario == "present":
+        if climate_scenario in {"present", "present_2010"}:
             return "reference_year"
         return ""
     return YEAR_TYPE_BY_KIND.get(kind, "")
 
 
 def _climate_scenario_for_year(year: int | None) -> str:
+    if year == 2010:
+        return "present_2010"
     if year == 2015:
         return "present"
+    if year == 2035:
+        return "future_2035"
     if year == 2045:
         return "future_2045"
     return ""
 
 
 def _selection_priority(kind: str, year: int | None) -> int:
-    base = 20 if year == 2045 else 10
+    base = 20 if year in {2035, 2045} else 10
     return base + {"jahr": 0, "somm": 1, "wint": 2}.get(kind, 9)
 
 

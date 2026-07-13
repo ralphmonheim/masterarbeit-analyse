@@ -42,6 +42,11 @@ Aktive `year_type` Werte fuer den P008-Wetterkatalog:
 | `summer_extreme` | Sommer-TRY-Datei als eigener Datensatz |
 | `winter_extreme` | Winter-TRY-Datei als eigener Datensatz |
 
+Die automatische Dateierkennung kennt fuer DWD-TRY-2011-Altdateien zusaetzlich
+die Szenarien `present_2010` und `future_2035`. Fuer den regulaeren
+DWD-TRY-2015/2045-Datenbestand bleiben `present` und `future_2045` die
+Standardwerte.
+
 ## Standort- und Referenzkatalog
 
 Der P008-Slice fuer Standortlogik fuehrt einen YAML-basierten
@@ -129,6 +134,7 @@ Standort der Klimaregion, ist aber kein Referenzpunkt.
 |---|---|
 | `data/ma_weather/input/` | lokale TRY-Eingabedateien |
 | `data/ma_weather/input/custom/` | ueber Streamlit importierte TRY-Dateien |
+| `data/ma_weather/input/TRY_01_Bremerhaven/` | Beispiel fuer konvertierte DWD-TRY-2011-PRN-Dateien mit lesbarem Stadtordner |
 | `data/ma_weather/config/datasets/` | lokaler, nicht versionierter Importkatalog |
 | `data/ma_weather/database/` | lokaler Auswahlstatus und spaetere Datenbankartefakte |
 | `data/ma_weather/output/<weather_key>/<run_id>/data/` | aufbereitete Wetterdaten je Lauf |

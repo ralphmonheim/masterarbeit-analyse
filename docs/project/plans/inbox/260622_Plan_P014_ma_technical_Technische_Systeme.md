@@ -1,99 +1,141 @@
 # P014 ma_technical Technische Systeme
 
-Stand: 2026-07-12
-Status: Teilweise umgesetzt, P014-S1 BusinessIntegration-LoD-1/Lite; P013-S2-Anpassung und technische Regelquellen offen
+Stand: 2026-07-13
+Status: Fachlich konsolidiert, P014-S1 Legacy-v1 kompatibel, P014-S2 Slice 0/1 gestartet
 Prioritaet: Hoch
-Abhaengigkeiten: P010, P012, P013, P015, P017
+Abhaengigkeiten: P010, P012, P013, P015, P017, P027
 
 ## Ziel
 
-Zentrale technische Systeme, Kreise, Anlagen, Lueftung, Regelung und
-generische technische Datensaetze fuer Referenz und Varianten strukturiert
-erfassen.
+`ma_technical` erfasst zentrale technische Systeme programmneutral,
+typisiert, versioniert und manuell bearbeitbar. Das Modul liefert langfristig:
 
-## Reifegrad
+- freigegebene Technikrevisionen,
+- zentrale Plant-, Erzeuger-, Speicher-, AHU-, Elektro- und Topologieobjekte,
+- Serviceinterfaces fuer `ma_zones`,
+- technische Parameter- und Regelquellen fuer `ma_parameters`, `ma_rules` und
+  spaeter `ma_variants`,
+- reproduzierbare Fachstaende fuer Varianten und Runs.
 
-Lite-Implementierung mit versionierter BusinessIntegration-Demo. P013-S2 legt
-fachlich fest, dass `ma_technical` vor `ma_zones` bearbeitet wird und zentrale
-Systeme bereitstellt, die `ma_zones` spaeter referenziert. Die aktuelle
-LoD-1-Demo enthaelt noch Zonenreferenzen und bleibt ein bewusst dokumentierter
-Uebergangsvertrag, bis P014 fachlich angepasst wird.
+## Schutzgrenzen
 
-## Arbeitspakete
+Fuer den aktuellen Masterarbeitsumfang gelten folgende Grenzen:
 
-- Bestehende Systemtemplates aus `ma_variants` inventarisieren.
-- Neutrale Referenzsysteme fuer Heizung, Kuehlung und Lueftung planen.
-- Zentrale Systeme, Kreise und generische technische Datensaetze von
-  zonenbezogenen Uebergabesystemen trennen.
-- Aktuelle Felder `source_zone_model_id` und `served_zone_ids` als
-  Uebergangsbestand der LoD-1-Demo bewerten.
-- Importvorlagen und manuelle UI-Anpassung kombinieren.
-- Leistungswerte, Temperaturen, Wirkungsgrade, Luftmengen und Regelarten
-  einheitenklar validieren.
-- Technische Grenzen, empfohlene Bereiche, Produktreferenzen und Kurzkennungen
-  so modellieren, dass `ma_parameters` und spaeter P017-Regelpruefungen sie
-  referenzieren koennen.
-- Abgrenzung zu Stage 1 und Variantenbildung sichern.
+- kein IDA-ICE-Adapter,
+- kein IDA-ICE-Export,
+- keine automatische Dimensionierung,
+- keine Templates oder Fremdimporte,
+- erste UI ausschliesslich manuell,
+- keine Variantenbildung in `ma_technical`,
+- keine automatische Aenderung von `ma_parameters`, `ma_variants` oder Runs,
+- freigegebene Revisionen, historische Varianten und Runs werden nie
+  ueberschrieben,
+- Kapazitaetsausreichung ist keine blockierende Eingabevalidierung.
 
-## Umsetzungsstand P014-S1
+Eine bewusst kleine oder unbegrenzte technische Leistung ist als Eingabewert
+zulaessig. Ob sie unter Wetter-, Nutzungs- und Gebaeuderandbedingungen
+ausreicht, wird erst spaeter durch Simulation und Analyse bewertet.
 
-- Paketstruktur `src/ma_technical/` enthaelt Fachmodelle, Standardpfade,
+## Bestehender v1-Vertrag
+
+P014-S1 ist umgesetzt und bleibt als Legacy-v1-Vertrag erhalten:
+
+- Paketstruktur `src/ma_technical/` mit Fachmodellen, Standardpfaden,
   YAML-Loader und Validierung.
 - Versionierte BusinessIntegration-LoD-1/Lite-Demo:
   `config/ma_technical/examples/business_integration_lod1_technical_spec.yaml`.
-- Die Demo beschreibt einfache Referenzannahmen fuer Heizung, Kuehlung und
-  Lueftung bezogen auf die validierte LoD-1-Zone.
-- Validiert werden Pflichtfelder, eindeutige IDs, Systemtypen, bediente Zonen,
-  positive Leistungs-/Luftwechselwerte, Waermerueckgewinnung und
-  Zonenmodellbezug.
-- Streamlit zeigt eine echte Pruefansicht mit Freigabestatus, Systemen und
-  Annahmen.
+- Demo mit einfachen Referenzannahmen fuer Heizung, Kuehlung und Lueftung.
+- Validierung von Pflichtfeldern, eindeutigen IDs, Systemtypen,
+  bedienten Zonen, positiven Leistungs-/Luftwechselwerten,
+  Waermerueckgewinnung und Zonenmodellbezug.
+- Streamlit-Pruefansicht mit Freigabestatus, Systemen und Annahmen.
 
-## Nicht umgesetzt in P014-S1
+Die Felder `source_zone_model_id` und `served_zone_ids` sind direkte
+Zonenreferenzen und damit Legacy. Sie bleiben kompatibel, bis eine
+kontrollierte Migration auf Serviceinterfaces umgesetzt ist.
 
-- automatische Anlagenauslegung
-- Produktdatenbank oder Herstellerdaten
-- Variantenbildung
-- IDA-ICE-spezifische Systemtemplates
-- Kopplung an Stage-1-Dimensionierung
-- P013-S2-Zielstruktur mit zentraler Technik vor `ma_zones`
-- technische Produktgrenzen und empfohlene Bereiche als versionierte
-  Regelquelle fuer Variantenpruefungen
+## Zielmodell v2
 
-## Umsetzungsbezug P015/P017
-
-P014 liefert technische Optionen und Grenzen nicht direkt an `ma_variants`.
-Der Zielweg lautet:
+P014-S2 fuehrt ein paralleles Schema v2 ein. Es ersetzt v1 nicht sofort,
+sondern beschreibt die kuenftige Fachstruktur:
 
 ```text
-ma_technical
-    -> ma_parameters
-    -> ma_variants
+TechnicalModelSpecification
+├── building_reference
+├── plant
+├── air_handling_unit
+├── electrical_system
+├── schedules
+├── topology
+├── service_interfaces
+├── assumptions
+└── source_metadata
 ```
 
-Fuer komplexe technische Optionen sollen spaeter stabile Referenzen verwendet
-werden:
+Kernprinzipien:
 
-- `reference_id`
-- `reference_version`
-- `content_hash`
-- `technical_short_code`
+- physische Geraete und funktionale Rollen getrennt modellieren,
+- reversible Geraete ueber Referenzen mehrfach nutzbar machen,
+- IDA-Slot und fachliche Rolle trennen,
+- technische Parameter als konkrete Fachfelder, keine IDA-Key-Value-Maps,
+- Serviceinterfaces statt direkter Zonenreferenzen,
+- Zeitplaene im technischen Register referenzieren,
+- Quellen, Annahmen und Entscheidungskontext mitfuehren.
 
-Technische Limits sind blockierend. Empfohlene Bereiche sind in der Regel
-Warnungen. Die konkrete Regelauswertung liegt nicht in P014, sondern in der
-spateren Regel-/Validierungsschicht, die von P017 genutzt wird.
+## Slice 0 - Dokumentation und Schutz
 
-## Akzeptanzkriterien
+Umgesetzt bzw. aufzunehmen:
 
-- Ein Demo-System liefert validierte Technikdaten an `ma_parameters`.
-- Bestehende Vorlagen werden wiederverwendet, nicht dupliziert.
-- Unvollstaendige Systeme erzeugen nachvollziehbare Warnungen oder Fehler.
-- Der naechste P014-Slice trennt zentrale Systemdaten von zonenbezogener
-  Uebergabekonfiguration, ohne die bestehende LoD-1-Demo ungeplant zu brechen.
+- P014 mit dem neuen Gesamtplan konsolidieren,
+- v1/LoD-1 als Legacy-Vertrag kennzeichnen,
+- Planindex und Planstatus aktualisieren,
+- Nutzerentscheidungen zum v2-Zielmodell dokumentieren,
+- keine alte Demo loeschen oder ungeplant umstellen.
 
-## Naechster Schritt
+## Slice 1 - Kerntypen und Schema v2
 
-P014 an P013-S2 anpassen: zentrale Technik vor `ma_zones` modellieren,
-aktuelle Zonenreferenzen als Uebergangsvertrag pruefen und Referenzsysteme
-fuer LoD-2, spaetere Dimensionierung und P017-Regelpruefungen genauer
-abgrenzen.
+Der erste Code-Slice legt nur typisierte Kerne an:
+
+```text
+src/ma_technical/
+├── enums.py
+├── metadata.py
+├── equipment.py
+├── plant.py
+├── distribution.py
+├── domestic_hot_water.py
+├── ahu.py
+├── electrical.py
+├── topology.py
+├── schedules.py
+└── specification.py
+```
+
+Nicht Teil von Slice 1:
+
+- v1-zu-v2-Migration,
+- Repository, Working Drafts und Revisionen,
+- Parameterexport,
+- UI-Editor,
+- Topologie-Befehle,
+- technische Regelengine,
+- IDA-Adapter oder Export.
+
+## Naechste Slices
+
+1. Serialisierung und lokale Speicherung mit Working Drafts, Revisionen,
+   Branches und Content-Hash.
+2. Strukturvalidierung, technische Limits und Empfehlungen ohne
+   Kapazitaetsausreichungsblockade.
+3. Gefuehrte Topologie und Serviceinterfaces.
+4. Parametersicht fuer `ma_parameters`.
+5. Manuelle Streamlit-Bearbeitung.
+6. Kontrollierte Migration v1 -> v2.
+
+## Abnahmekriterien fuer Slice 1
+
+- v2-Kerntypen sind immutable und importierbar.
+- `TechnicalModelSpecification` v2 kann ein minimales Modell beschreiben.
+- `CapacityMode.ideal_unlimited` benoetigt keine Leistungszahl.
+- Serviceinterfaces enthalten keine direkten `served_zone_ids`.
+- v1-Demo-Loader und vorhandene P015/UI-Vertraege bleiben gruen.

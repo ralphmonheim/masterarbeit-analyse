@@ -187,12 +187,15 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   zonenbezogene Uebergabesysteme, Parameter-/Variantenregeln und offene
   Fachentscheidungen fuer Sonderhohlraeume, paralleles Heizen/Kuehlen,
   Prozentbedeutung, LoD-1-Variantenparameter und DIN-Datenabbildung.
-- P014-S1 ist umgesetzt: `ma_technical` enthaelt eine versionierte
-  BusinessIntegration-LoD-1/Lite-Technikspezifikation mit einfachen
-  Referenzannahmen fuer Heizung, Kuehlung und Lueftung, Validierung und
-  Streamlit-Pruefansicht. P014 muss im naechsten Fachslice an P013-S2
-  angepasst werden: zentrale Technik liegt fachlich vor `ma_zones`, waehrend
-  die aktuelle LoD-1-Demo noch Zonenreferenzen als Uebergangsvertrag nutzt.
+- P014-S1 ist umgesetzt und bleibt als Legacy-v1-Vertrag kompatibel:
+  `ma_technical` enthaelt eine versionierte BusinessIntegration-LoD-1/Lite-
+  Technikspezifikation mit einfachen Referenzannahmen fuer Heizung, Kuehlung
+  und Lueftung, Validierung und Streamlit-Pruefansicht. P014-S2 ist fachlich
+  konsolidiert: Ziel sind zentrale Technik, typisierte Fachfelder,
+  Serviceinterfaces statt direkter Zonenreferenzen, Revisionen/Branches und
+  manuelle Bearbeitung. Slice 0/1 legt Schutzgrenzen und v2-Kerntypen an,
+  ohne v1-Demo, IDA-Adapter, Export, Templates oder automatische
+  Dimensionierung umzusetzen.
 - P015-S1 ist umgesetzt: `ma_parameters` enthaelt `ParameterSnapshot`,
   `ParameterValue` und `ParameterSourceReference`, baut einen validierten
   BusinessIntegration-LoD-1-`ParameterSnapshot` v1 aus `ma_building`,

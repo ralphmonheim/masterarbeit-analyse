@@ -1252,3 +1252,38 @@ Stand: 2026-07-12
   getrennte Folgeentscheidungen.
 - Quelle oder Chatbezug: Nutzerfreigabe `frei` am 2026-07-12 zur Verteilung
   der neuen Inputdaten auf bestehende Plaene
+
+## UD-074 P014 ma_technical Gesamtplan und Schema v2 aufnehmen
+
+- Datum: 2026-07-13
+- Thema: ma_technical, P014-S2, technische Systeme und Nachbarmodulvertraege
+- Entscheidung: Der konsolidierte Gesamtplan fuer `ma_technical` wird als
+  verbindliches Zielbild in P014 aufgenommen. Die bestehende
+  BusinessIntegration-LoD-1/Lite-Demo bleibt als Legacy-v1-Vertrag
+  kompatibel. Parallel wird ein Schema v2 aufgebaut, das zentrale Plant-,
+  Heizungs-, Kuehlungs-, Speicher-/DHW-, AHU-, Elektro-, Topologie-,
+  Zeitplan- und Serviceinterface-Objekte typisiert beschreibt. Direkte
+  Zonenreferenzen sind Legacy; Ziel sind Serviceinterfaces, die spaeter von
+  `ma_zones` zugeordnet werden.
+- Begruendung: Der neue Plan klaert die Modulgrenze deutlich: `ma_technical`
+  beschreibt zentrale technische Systeme und Regel-/Parameterquellen, erzeugt
+  aber keine Varianten und fuehrt keine Simulation oder automatische
+  Dimensionierung aus. Dadurch bleibt die Eingabekette fuer die Masterarbeit
+  nachvollziehbar und die bestehende v1-Demo wird nicht ungeplant gebrochen.
+- Auswirkung: P014, Planindex, Planstatus, Modul-README und Changelog werden
+  nachgezogen. In `src/ma_technical/` entstehen v2-Kerntypen parallel zum
+  bisherigen v1-Modell. `ma_parameters`, `ma_zones`, `ma_variants`,
+  `ma_validation`, `ma_workflow`, `ma_ui`, `ma_analyse` und
+  `ma_simulation_setup` behalten ihre bestehenden Vertraege, bis spaetere
+  Slices Migration, Serviceinterface-Zuordnung, Parameterexport und
+  Revisionen bewusst umsetzen.
+- Betroffene Module oder Dateien: `src/ma_technical/`,
+  `docs/project/plans/inbox/260622_Plan_P014_ma_technical_Technische_Systeme.md`,
+  `docs/ma_technical/README.md`, `docs/project/plans/PLAN_INDEX.md`,
+  `docs/project/plans/PLAN_STATUS.md`
+- Status: getroffen; Slice 0/1 freigegeben
+- Offene Folgefragen: lokale Repository-/Revisionsstruktur,
+  v1-zu-v2-Migration, Serviceinterface-Zuordnung in `ma_zones`,
+  Parametersicht fuer `ma_parameters`, technische Regeln und UI-Draft-Editor.
+- Quelle oder Chatbezug: Nutzerfreigabe `frei` am 2026-07-13 zum
+  konsolidierten `ma_technical`-Plan

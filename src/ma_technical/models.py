@@ -4,18 +4,12 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import dataclass
-from enum import StrEnum
 from typing import Any
 
+from .enums import TechnicalInputDetailLevel
+from .metadata import TechnicalAssumption
+
 VALID_SYSTEM_TYPES = frozenset({"heating", "cooling", "ventilation"})
-
-
-class TechnicalInputDetailLevel(StrEnum):
-    """Umfang der Eingabedaten fuer ma_technical."""
-
-    LOD_1 = "LOD-1"
-    LOD_2 = "LOD-2"
-    LOD_3 = "LOD-3"
 
 
 @dataclass(frozen=True, slots=True)
@@ -37,15 +31,6 @@ class ReferenceTechnicalSystem:
     def __post_init__(self) -> None:
         object.__setattr__(self, "served_zone_ids", tuple(self.served_zone_ids))
         object.__setattr__(self, "system_type", str(self.system_type).strip())
-
-
-@dataclass(frozen=True, slots=True)
-class TechnicalAssumption:
-    """Dokumentierte Annahme fuer technische Systeme."""
-
-    assumption_id: str
-    text: str
-    location: str | None = None
 
 
 @dataclass(frozen=True, slots=True)

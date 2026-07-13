@@ -4,6 +4,19 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.26.0 - 2026-07-13
+
+### Added
+- DWD-TRY-2011-PRN-Konverter fuer `ma_weather` ergaenzt: `.PRN` plus `.idm`
+  werden in lokale TRY-`.dat`-Arbeitskopien mit lesbaren Ordnernamen wie
+  `TRY_01_Bremerhaven` uebertragen; die Dateierkennung akzeptiert diese
+  Ordnernamen und die Szenarien `present_2010`/`future_2035`.
+- P014-S2 Slice 0/1 fuer `ma_technical` aufgenommen: P014 ist auf den
+  konsolidierten Gesamtplan abgeglichen, die LoD-1-Demo bleibt als
+  Legacy-v1-Vertrag kompatibel und parallele Schema-v2-Kerntypen fuer Plant,
+  Geraete, AHU, Elektrik, Topologie, Serviceinterfaces und Metadaten sind
+  ergaenzt.
+
 ## 0.25.0 - 2026-07-12
 
 ### Added

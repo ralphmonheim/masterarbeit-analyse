@@ -59,6 +59,14 @@ unter `logs/sessions/<session_id>.jsonl`.
 Reale TRY-Dateien werden vom Nutzer lokal unter `data/ma_weather/input/`
 bereitgestellt und nicht im Git-Repo versioniert.
 
+DWD-TRY-2011-Dateien aus IDA/ICE im `.PRN`-Format koennen aus dem lokalen
+Projekt-Input in dieses Arbeitsformat uebertragen werden. Der Konverter nutzt
+die zugehoerige `.idm`-Uebersichtsdatei fuer Stadt, Jahr, TRY-Art und
+Metadaten, laesst die Originaldateien unveraendert und schreibt lesbare
+Zielordner wie `data/ma_weather/input/TRY_01_Bremerhaven/`. Die PRN-Dateien
+enthalten 8785 Stuetzstellen; fuer das vorhandene TRY-Jahresformat werden die
+ersten 8760 Jahresstunden exportiert.
+
 Slice 5 ergaenzt den lokalen Import in der Streamlit-Wetterseite. Der
 Importbutton liegt unten im Bereich `Wetterdatensaetze`, vor der Tabelle der
 aktiven Datensaetze. Eigene entpackte TRY-`.dat`-Dateien werden unter

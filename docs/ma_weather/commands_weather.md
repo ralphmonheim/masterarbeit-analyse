@@ -123,6 +123,31 @@ erhalten, sind aber nicht Teil dieser Entwurfspruefung. In `Parameter pruefen`
 werden nur Stadt, Bezugsjahr, Datensatztyp und Szenario angezeigt. Rolle,
 `weather_key` und Anzeigename werden daraus generiert.
 
+### DWD TRY 2011 PRN-Dateien konvertieren
+
+DWD-TRY-2011-Dateien aus IDA/ICE liegen im Projekt-Input als `.PRN` plus
+`.idm`-Uebersicht. Der Konverter erzeugt lokale Arbeitskopien im bestehenden
+TRY-`.dat`-Format unter `data/ma_weather/input/` und behaelt die TRY-Nummer
+mit Stadtname im Ordner:
+
+```powershell
+.\.venv\Scripts\python.exe -m ma_weather.dwd_try2011_converter
+```
+
+Beispiel-Zielpfade:
+
+```text
+data/ma_weather/input/TRY_01_Bremerhaven/TRY2010_01_Jahr.dat
+data/ma_weather/input/TRY_13_Muehldorf/TRY2035_13_Wint.dat
+```
+
+Die PRN-Dateien enthalten 8785 Stuetzstellen. Exportiert werden die ersten
+8760 Jahresstunden, damit der bestehende TRY-Importer und die
+8760-Stunden-Validierung direkt nutzbar bleiben. `IDirNorm` wird mit einer
+vereinfachten Sonnenstandsberechnung auf direkte horizontale Strahlung
+projiziert; `WindX` und `WindY` werden in Windgeschwindigkeit und
+Windrichtung umgerechnet.
+
 Lokale BKG-VG250-Geodaten werden unter
 `data/ma_weather/geodata/_incoming/bkg_vg250_2025_01_01/` abgelegt. Der aus
 dem Layer `v_vg250_gem` exportierte GeoJSON-Zielpfad ist

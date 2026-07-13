@@ -28,3 +28,24 @@
   Referenzsysteme, technische Limits, empfohlene Bereiche und Kurzkennungen
   fuer LoD-2, spaetere Dimensionierung und P017-Regelpruefungen genauer
   abgrenzen.
+
+## Schema v2
+
+P014-S2 fuehrt parallel zur bestehenden LoD-1-Demo ein neues Zielmodell v2 ein.
+Die alte Demo bleibt kompatibel; sie ist ein Legacy-v1-Vertrag mit direkten
+Zonenreferenzen. Das v2-Modell beschreibt zentrale Technik ueber Plant,
+physische Geraete, Heizung, Kuehlung, Verteilungen, Speicher/DHW, AHU,
+Elektrik, Zeitplaene, Topologie und Serviceinterfaces.
+
+Schutzgrenzen fuer den aktuellen Stand:
+
+- kein IDA-ICE-Adapter oder Export,
+- keine automatische Dimensionierung,
+- keine Templates oder Fremdimporte,
+- keine Variantenbildung in `ma_technical`,
+- Kapazitaetsausreichung ist keine blockierende Eingabevalidierung.
+
+Die ersten v2-Kerntypen liegen in separaten Dateien wie `enums.py`,
+`metadata.py`, `plant.py`, `topology.py` und `specification.py`. Migration,
+Revisionen, Repository, Parameterexport und UI-Editor folgen in spaeteren
+Slices.
