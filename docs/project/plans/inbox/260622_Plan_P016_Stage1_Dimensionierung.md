@@ -1,6 +1,6 @@
 # P016 Analyse Stufe 1 Dimensionierung
 
-Stand: 2026-07-12
+Stand: 2026-07-14
 Status: Teilweise umgesetzt, P016-S1 LoD-1-Referenzdimensionierung; VariantDimensioningResult fuer P017 geplant
 Prioritaet: Hoch
 Abhaengigkeiten: P015, P017, P027
@@ -93,3 +93,10 @@ VariantSelection.
 Stage-1-Ergebnis als Folgesnapshot beziehungsweise Vorschlag modellieren,
 `VariantDimensioningResult` fuer P017 vorbereiten und gegen
 IDA-/SmallOffice-Referenzen plausibilisieren.
+
+## Preprocess V1-Mindestumfang
+
+P016 liest in Preprocess V1 die freigegebene Baseline aus P015 und erzeugt
+einen eigenen `ReferenceDimensioningResult` mit Eingangs-Fingerprint,
+Rechenweg und Status. Eine normative Berechnung, IDA-Plausibilisierung und
+variantenspezifische Dimensionierungsgruppen sind keine V1-Voraussetzung.

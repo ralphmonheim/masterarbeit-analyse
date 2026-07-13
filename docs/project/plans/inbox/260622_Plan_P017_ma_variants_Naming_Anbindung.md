@@ -1,6 +1,6 @@
 # P017 ma_variants und Naming-Anbindung
 
-Stand: 2026-07-12
+Stand: 2026-07-14
 Status: Fachlich konsolidiert, Umsetzung geplant
 Prioritaet: Hoch
 Abhaengigkeiten: P015, P016, P018, P027
@@ -390,6 +390,19 @@ Criticals bestehen, alle Pflichtwerte vorhanden sind, alle Referenzen
 aufloesbar sind und erforderliche Freigaben dokumentiert sind.
 
 ## Umsetzungsslices
+
+### Preprocess V1-Mindestumfang
+
+Preprocess V1 setzt die Grundkette `VSP -> VVER -> VCAT -> VSEL -> VGEN` mit
+einer kleinen expliziten VariationSpecification aus P015 um. Der Referenzlauf
+enthaelt eine Baseline und nur wenige kontrollierte Varianten; die bestehende
+500er-Grenze bleibt die harte Obergrenze, ist aber kein V1-Zielwert.
+
+`baseline_only` bleibt ein gueltiger Test- und Fallback-Modus. Die erste
+fachlich nutzbare V1 schliesst jedoch mindestens eine kleine
+`variant_study` ein, damit der Uebergang an P018 nicht nur demonstriert wird.
+Die vorhandenen Prototypen werden dabei nicht stillschweigend zum neuen
+Zielvertrag umgedeutet.
 
 1. IDs und Grundobjekte `PRJ`, `SDIR`, `STC`.
 2. `VariantSpace` und Zaehlmodell.

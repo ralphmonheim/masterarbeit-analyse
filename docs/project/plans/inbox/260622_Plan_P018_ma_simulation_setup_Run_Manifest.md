@@ -1,6 +1,6 @@
 # P018 ma_simulation_setup und Run-Manifest
 
-Stand: 2026-07-12
+Stand: 2026-07-14
 Status: Geplant, Schnittstelle aus P017 fachlich konsolidiert
 Prioritaet: Hoch
 Abhaengigkeiten: P008, P011, P017, P027
@@ -14,6 +14,18 @@ Simulationslauf verbinden.
 ## Reifegrad
 
 Produktiver Vorbereitungsschritt ohne Simulationssteuerung.
+
+## Preprocess V1-Mindestumfang
+
+P018 bildet den Abschluss von Preprocess V1. Ein Run erhaelt eine
+unveraenderliche `RUN-ID`, eine vollstaendige `VariantSelection`, das
+aufgeloeste Jahres-Setup, Wetter- und Modellreferenzen sowie die direkte
+`RUN -> VAR`-Zuordnung. Das freigegebene `RunManifest` dient als
+reproduzierbarer manueller Uebergabestand an IDA ICE und referenziert die
+nach der Compliance-Grenze erforderliche Entscheidung.
+
+Nicht Teil von V1 sind ein IDA-ICE-Adapter, das Schreiben oder Veraendern von
+IDA-Dateien, ein Simulationsstart und ein separates `SimulationCase`-Objekt.
 
 ## Compliance-Grenze
 

@@ -1,6 +1,6 @@
 # Plan Index
 
-Stand: 2026-07-13
+Stand: 2026-07-14
 
 | Plan ID | Titel | Datei | Modul | Status | Prioritaet | Abhaengigkeiten | Naechster Schritt |
 |---|---|---|---|---|---|---|---|
@@ -15,11 +15,11 @@ Stand: 2026-07-13
 | P009 | Allgemeine Simulationsschnittstellen mit IDA-ICE-Adapter | `inbox/260621_Plan_P009_Simulationsschnittstellen_IDA_Adapter.md` | ma_export_simulation, ma_import_simulation | Zurueckgestellt, RUN/VAR-Zuordnung geschaerft | Mittel | P007, P018 | Nach validiertem Run-Manifest ueber RUN-ID und VAR-ID weiterfuehren |
 | P010 | Eingabe- und Datenhaltungsarchitektur | `../archive/plans/260622_Plan_P010_Eingabe_Datenhaltungsarchitektur.md` | alle Eingabemodule, ma_validation | Archiviert, Wetterpilot umgesetzt | Hoch | P007 | Vertraege in P011 bis P015 fachmodulweise anwenden |
 | P011 | ma_project Projektinitialisierung | `inbox/260622_Plan_P011_ma_project_Projektinitialisierung.md` | ma_project | Geplant | Hoch | P010 | Projektkonfiguration und Quellenwahl planen |
-| P012 | ma_building Gebaeudeinput | `inbox/260622_Plan_P012_ma_building_Gebaeudeinput.md` | ma_building | Teilweise umgesetzt, v1-Demo, Quelldiagnose, getrennte Referenzrollen und BusinessIntegration-LoD-1 | Hoch | P010, P011, P013, P015, P027 | LoD-2-Raum-/Bauteilumfang klaeren und reale IFC-Inhalte fuer IFC-Lite auswerten |
+| P012 | ma_building Gebaeudeinput | `inbox/260622_Plan_P012_ma_building_Gebaeudeinput.md` | ma_building | Teilweise umgesetzt, v1-Demo, Quelldiagnose, getrennte Referenzrollen und BusinessIntegration-LoD-1 | Hoch | P010, P011, P013, P015, P027 | Preprocess V1: kleinen manuellen Raumregister-Slice fuer P013-S3 planen; IFC-Lite bleibt Folgearbeit |
 | P013 | ma_zones Zonen und Nutzungen | `inbox/260622_Plan_P013_ma_zones_Zonen_Nutzungen.md` | ma_zones | Fachlich konsolidiert, P013-S2 auf Basis BusinessIntegration-LoD-1 | Hoch | P008, P010, P012, P014, P015, P017, P027 | P013-S3 Raum-Zonen-Grundmodell vorbereiten; aktuelle LoD-1-Demo kompatibel halten |
-| P014 | ma_technical Technische Systeme | `inbox/260622_Plan_P014_ma_technical_Technische_Systeme.md` | ma_technical | Fachlich konsolidiert, v1-Legacy kompatibel, v2-Kerntypen gestartet | Hoch | P010, P012, P013, P015, P017, P027 | Slice 2 Serialisierung, Working Drafts und Revisionen vorbereiten |
+| P014 | ma_technical Technische Systeme | `inbox/260622_Plan_P014_ma_technical_Technische_Systeme.md` | ma_technical | Fachlich konsolidiert, v1-Legacy kompatibel, v2-Kerntypen vorhanden | Hoch | P010, P012, P013, P015, P017, P027 | Preprocess V1: P014-S1.1 Aggregat/Referenzen, P014-S1.2 v2-Validierung, danach Persistenz/Revision und P013/P015-Handover |
 | P015 | ma_parameters Zentrale Parameter | `inbox/260622_Plan_P015_ma_parameters_Zentrale_Parameter.md` | ma_parameters | Fachlich konsolidiert, P015-S1, P015-S2 und P015-S3a umgesetzt | Hoch | P008, P010, P012-P014, P016, P017, P027 | P015-S3b P013/P014-Anschluss und Quellenfingerprints vorbereiten |
-| P016 | Analyse Stufe 1 Dimensionierung | `inbox/260622_Plan_P016_Stage1_Dimensionierung.md` | ma_analyse.stage_1_dimensioning | Teilweise umgesetzt, LoD-1-Referenzdimensionierung | Hoch | P015, P017, P027 | Folgesnapshot, VariantDimensioningResult und IDA-Plausibilisierung planen |
+| P016 | Analyse Stufe 1 Dimensionierung | `inbox/260622_Plan_P016_Stage1_Dimensionierung.md` | ma_analyse.stage_1_dimensioning | Teilweise umgesetzt, LoD-1-Referenzdimensionierung | Hoch | P015, P017, P027 | Preprocess V1: ReferenceDimensioningResult an freigegebene P015-Baseline anbinden |
 | P017 | ma_variants und Naming-Anbindung | `inbox/260622_Plan_P017_ma_variants_Naming_Anbindung.md` | ma_variants | Fachlich konsolidiert, Umsetzung geplant | Hoch | P015, P016, P018, P027 | P017-S1 Grundobjekte, IDs, VariantSpace und Eingangsreferenzen planen |
 | P018 | ma_simulation_setup und Run-Manifest | `inbox/260622_Plan_P018_ma_simulation_setup_Run_Manifest.md` | ma_simulation_setup | Geplant, P017-Schnittstelle geschaerft | Hoch | P008, P011, P017, P027 | RunManifest mit direkter RUN-zu-VAR-Zuordnung planen |
 | P019 | Analyse Stufe 2 Optimierung | `inbox/260622_Plan_P019_Stage2_Optimierung.md` | ma_analyse.stage_2_optimization | Geplant, teilweise vorhanden | Mittel | bestehendes ma_analyse | Vorhandene Befehle als Stufe-2-Ablauf ordnen |

@@ -1406,3 +1406,54 @@ Stand: 2026-07-13
   `red`-/`unknown`-Regeln bleibt ein separater Code-Folgeslice.
 - Quelle oder Chatbezug: Nutzerfreigabe `Freigegeben fuer Compliance-Agent und
   Routine-Integration.` am 2026-07-13
+
+## UD-079 Preprocess V1 bis zum RunManifest festlegen
+
+- Datum: 2026-07-14
+- Thema: Preprocess, P011 bis P018, P027 und manuelle IDA-ICE-Uebergabe
+- Entscheidung: Der erste verbindliche Software-Meilenstein ist
+  `Preprocess V1`. Er endet mit einem validierten, reproduzierbaren
+  `RunManifest` fuer eine freigegebene Baseline und eine kleine explizite
+  Variantenstudie. Die Reihenfolge ist Projekt, Wetter, Gebaeude, Technik,
+  Zonen, Parameter, Referenzdimensionierung, Varianten und
+  Simulationssetup.
+- Begruendung: Der Meilenstein zeigt den kompletten fachlichen Durchstich bis
+  zur Simulationsvorbereitung, bleibt aber fuer die Masterarbeit beherrschbar.
+  Ein reiner Baseline-Durchlauf bleibt Testmodus; eine kleine Variantenstudie
+  prueft den eigentlichen Zweck der Software.
+- Auswirkung: P014 schliesst zuerst die Vollstaendigkeit des v2-Aggregats und
+  die Referenzintegritaet. P012/P013 liefern einen kleinen manuellen
+  Raum-/Zonenstand. P015 liefert Fingerprints und Aktualitaetspruefung,
+  P016 einen eigenen Ergebnisstand, P017 die minimale Variantenkette und P018
+  das RunManifest mit Compliance-Entscheidungsreferenz. P027 begleitet die
+  Checkpoints.
+- Nicht Teil: produktiver IFC-/Rhino-Import, IDA-ICE-Adapter und
+  Modellmanipulation, Produktkataloge, technische Regelengine, Draft-Branches
+  und vollstaendige Facheditoren.
+- Status: getroffen; Planungsdokumentation freigegeben, Umsetzung folgt in
+  einzelnen freizugebenden Slices.
+- Quelle oder Chatbezug: Nutzerfreigabe `frei Fahrplan Preprocess V1` am
+  2026-07-13
+
+## UD-080 P014-v2-Aggregat, Freigabe und Handover staffeln
+
+- Datum: 2026-07-14
+- Thema: P014 `ma_technical`, v2-Aggregat, Referenzintegritaet und Preprocess-V1-Handover
+- Entscheidung: P014 wird fuer Preprocess V1 in die aufeinanderfolgenden
+  Slices P014-S1.1 Aggregat/Referenzen, P014-S1.2 getrennte
+  Strukturvalidierung, P014-S2 Persistenz/freigegebene Revision,
+  P014-S3 P013/P015-Handover und P014-S4 Referenzfall/Abnahme gegliedert.
+  `plant`, RLT und Electrical sind optionale Primaerbereiche; fehlende
+  Bereiche werden nicht durch Dummy-Objekte ersetzt. Nur eine erfolgreich
+  validierte Revision darf an P015 uebergeben werden. Der Content-Hash umfasst
+  fachliche Daten, Quellenreferenzen und Annahmen, nicht aber lokale Pfade oder
+  Erstellungszeitpunkte. P013 erhaelt zentrale Serviceinterface-Referenzen;
+  lokale Terminal- und Zonenzuordnung verbleiben in P013.
+- Auswirkung: Der Legacy-v1-Vertrag und sein Validator bleiben unveraendert.
+  P014 erhaelt einen separaten v2-Validator und eine klar abgegrenzte
+  Freigabegrenze vor `ma_parameters`; weitergehende Eignungspruefungen,
+  Draft-Branches, Editor und IDA-Anbindung bleiben Folgearbeit.
+- Betroffene Module oder Dateien: `src/ma_technical/`, P014, P013, P015,
+  `docs/project/plans/PLAN_INDEX.md`, `docs/project/plans/PLAN_STATUS.md`
+- Status: getroffen; P014-S1.1 als naechster Umsetzungsslice geplant
+- Quelle oder Chatbezug: Nutzerfreigabe `passt machen wir so` am 2026-07-14

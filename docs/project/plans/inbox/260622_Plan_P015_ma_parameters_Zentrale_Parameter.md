@@ -1,6 +1,6 @@
 # P015 ma_parameters Zentrale Parameter
 
-Stand: 2026-07-12
+Stand: 2026-07-14
 Status: Fachlich konsolidiert, P015-S1, P015-S2 und P015-S3a Eingangspaket/Wetter-Handover umgesetzt
 Prioritaet: Hoch
 Abhaengigkeiten: P008, P010, P012, P013, P014, P016, P017, P027
@@ -351,6 +351,18 @@ Weiter offen fuer P015-S3b sind P013-S2-Zonenstand, angepasster
 P014-Technikvertrag und ein vollstaendiger Eingabecheckpoint ueber alle
 Quellenfingerprints.
 
+### Preprocess V1-Mindestumfang
+
+Preprocess V1 schliesst P015-S3b ab und uebernimmt den freigegebenen
+P014-v2-Technikstand sowie den freigegebenen Zonenstand als eigene,
+fingerprintbare Quellen. Der Eingangspunkt blockiert fehlende, nicht
+freigegebene oder veraltete Quellen.
+
+Aus P015-S4 ist fuer V1 nur die lokale, unveraenderliche Ablage von
+Eingangspaket und Baseline mit `current/outdated`-Pruefung erforderlich.
+Die breite Migration alter Variantenkataloge und komplexe
+Abhaengigkeitsregeln bleiben Folgeslices.
+
 ### P015-S4 Persistenz, Versionierung und Aktualitaet
 
 Lokale Speicherung, `content_hash`, Quellenfingerprint, `current/outdated` und
@@ -380,6 +392,10 @@ Abhaengigkeitsregeln.
 
 Freigegebene `ParameterVariationSpecification` inklusive Handover-Vertrag an
 P017.
+
+Fuer Preprocess V1 reicht eine kleine, explizite VariationSpecification mit
+ein bis drei Variationsdimensionen. Sie liefert keine technischen Regeln oder
+Produktkataloge und veraendert die Baseline nicht.
 
 ### P015-S10 Fachmasken und Workflow-Integration
 

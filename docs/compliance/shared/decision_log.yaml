@@ -42,3 +42,13 @@ decisions:
     release_scope: "origin https://github.com/ralphmonheim/masterarbeit-analyse.git; local v0.26.0 commit 01a08a5f2f647a9c5d8016a4df1fce400d6ec0c2 and release candidate v0.27.0"
     evidence: ["User confirmation in Codex chat on 2026-07-13: origin is public.", "git ls-files reviewed: no protected DWD, IDA, DIN or working-input files are tracked.", "git check-ignore reviewed for DWD TRY and IDA inbox inputs.", "Ruff passed and pytest: 470 passed on 2026-07-13."]
     sources: [SHARED-COMPLIANCE-003, SHARED-COMPLIANCE-004]
+  - decision_id: SHARED-RELEASE-002
+    date: "2026-07-14"
+    status: active
+    decision: "Public GitHub release of the Preprocess V1 planning update"
+    rationale: "The user invoked the documented direct public repo-update routine. The release diff contains only own project documentation, planning, user decisions and the changelog; it contains no protected working inputs, credentials, external source content or new dependencies."
+    allowed_scope: [own_documentation, own_planning, own_decisions, changelog, metadata]
+    excluded_scope: [norm_pdfs, norm_tables, equa_libraries, ida_idm_files, dwd_try_data, real_project_working_data, credentials, session_audits, external_upload]
+    release_scope: "origin https://github.com/ralphmonheim/masterarbeit-analyse.git; release candidate v0.27.1 based on v0.27.0 commit 8703016813f318b680c298e9f247dfea9a3052fa"
+    evidence: ["User command in Codex chat on 2026-07-14: aktualisieren und direkt update repo.", "git diff reviewed: 14 tracked documentation and planning files, 283 insertions and 32 deletions.", "git diff --check passed.", "Compliance preflight on 2026-07-14: no protected DWD, IDA, DIN, EQUA or working-input content in the release diff."]
+    sources: [SHARED-COMPLIANCE-003, SHARED-COMPLIANCE-004, SHARED-RELEASE-001]

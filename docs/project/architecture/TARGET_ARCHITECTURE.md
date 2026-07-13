@@ -103,6 +103,15 @@ freigegebene `ParameterVariationSpecification`-Staende. `ma_variants` erzeugt
 aus diesen Eingaben verifizierte Kataloge, Selections und vollstaendige
 Varianten. `ma_simulation_setup` referenziert die ausgewaehlten Varianten in
 einem validierten `RunManifest`.
+
+## Preprocess V1
+
+Der erste verbindliche Durchstich endet mit einem validierten `RunManifest`
+und einer manuellen, compliance-geprueften Uebergabe an IDA ICE. Er umfasst
+eine freigegebene Baseline, eine kleine explizite Variantenstudie und die
+direkte Zuordnung `RUN-ID -> VAR-ID`. Ein IDA-ICE-Adapter, automatisierte
+Modellmanipulation, produktive CAD-Importe und umfangreiche Editor- oder
+Branch-Funktionen sind bewusste Folgeslices.
 `ma_variants` wendet das von `ma_project` referenzierte neutrale
 Benennungsprofil an, besitzt dessen Konfiguration aber nicht.
 

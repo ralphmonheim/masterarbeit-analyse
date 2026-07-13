@@ -1,6 +1,6 @@
 # Plan Status
 
-Stand: 2026-07-13
+Stand: 2026-07-14
 
 Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt und nach jeder Planumsetzung aktualisiert. Vollstaendige alte Planstaende liegen unter `docs/project/archive/plans/`.
 
@@ -199,12 +199,22 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - P014-S1 ist umgesetzt und bleibt als Legacy-v1-Vertrag kompatibel:
   `ma_technical` enthaelt eine versionierte BusinessIntegration-LoD-1/Lite-
   Technikspezifikation mit einfachen Referenzannahmen fuer Heizung, Kuehlung
-  und Lueftung, Validierung und Streamlit-Pruefansicht. P014-S2 ist fachlich
-  konsolidiert: Ziel sind zentrale Technik, typisierte Fachfelder,
+  und Lueftung, Validierung und Streamlit-Pruefansicht. Das parallele v2-Modell
+  ist fachlich konsolidiert: Ziel sind zentrale Technik, typisierte Fachfelder,
   Serviceinterfaces statt direkter Zonenreferenzen, Revisionen/Branches und
-  manuelle Bearbeitung. Slice 0/1 legt Schutzgrenzen und v2-Kerntypen an,
+  manuelle Bearbeitung. Die vorbereitenden Slices 0/1 legen Schutzgrenzen und
+  v2-Kerntypen an. Als naechstes schliesst P014-S1.1 das v2-Aggregat und seine
+  Referenzen, P014-S1.2 liefert die getrennte v2-Strukturvalidierung; erst
+  danach folgen Persistenz, freigegebene Revisionen und P013/P015-Handover.
   ohne v1-Demo, IDA-Adapter, Export, Templates oder automatische
   Dimensionierung umzusetzen.
+- Preprocess V1 ist als verbindlicher erster Durchstich festgelegt:
+  Projekt- und Eingabequellen, freigegebene Baseline, Referenzdimensionierung,
+  kleine Variantenstudie und validiertes `RunManifest` bilden den Umfang. Die
+  Uebergabe an IDA ICE bleibt manuell und folgt der P018-Compliance-Grenze;
+  P009 folgt erst danach. P014 beginnt dafuer mit der Vollstaendigkeit des
+  v2-Aggregats und seiner Referenzen, vor Serialisierung, Branches oder einem
+  Editor.
 - P015-S1 ist umgesetzt: `ma_parameters` enthaelt `ParameterSnapshot`,
   `ParameterValue` und `ParameterSourceReference`, baut einen validierten
   BusinessIntegration-LoD-1-`ParameterSnapshot` v1 aus `ma_building`,

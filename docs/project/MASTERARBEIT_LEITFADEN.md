@@ -1,7 +1,7 @@
 # Masterarbeit Leitfaden
 
-Leitfaden-Version: 0.5.10
-Stand: 2026-07-12
+Leitfaden-Version: 0.5.11
+Stand: 2026-07-14
 
 Diese Datei ist der zentrale Orientierungsleitfaden fuer die Masterarbeit und
 die begleitende Software. Sie ersetzt keine aktive Steuerdatei. Der operative
@@ -42,6 +42,7 @@ Der Leitfaden fuehrt zwei Quellen zusammen:
 | 0.5.8 | 2026-07-12 | Planuebernahme P009/P014/P015/P016/P017/P018/P027, P017-Variantenkette und direkte RUN-zu-VAR-Schnittstelle nachgezogen |
 | 0.5.9 | 2026-07-12 | P015-S2 BaselineParameterSnapshot v2, Scopes und Quellenreferenzen umgesetzt |
 | 0.5.10 | 2026-07-12 | P015-S3a ParameterInputPackage mit aktiviertem Wetter-Default und Paketvalidierung umgesetzt |
+| 0.5.11 | 2026-07-14 | Preprocess V1 bis zum compliance-geprueften RunManifest als verbindlichen ersten Durchstich festgelegt |
 
 ## 1. Zweck der Software
 

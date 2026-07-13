@@ -1,6 +1,6 @@
 # P013 - Gesamtkonzept `ma_zones`
 
-**Stand:** 8. Juli 2026
+**Stand:** 14. Juli 2026
 **Status:** Fachlich konsolidierter Planungsstand
 **Modul:** `ma_zones`
 **UI-Bezeichnung:** Zonen
@@ -1860,6 +1860,15 @@ Ergebnis:
 * keine ungepruefte Codeaenderung.
 
 ---
+
+## Preprocess V1-Mindestumfang
+
+Preprocess V1 benoetigt P013-S3 sowie eine bewusst kleine Teilmenge der
+nachfolgenden Phasen: ein einfaches Nutzungs- und Zeitprofil, die Zuordnung zu
+freigegebenen P014-Serviceinterfaces und einen fingerprintbaren Zonenstand
+fuer P015. Die vollstaendige DIN-Profilbibliothek, Feiertagslogik,
+Mehrfachbearbeitung und weitergehende Konditionierungsoptionen bleiben
+Folgeslices.
 
 ## Phase P013-S3 - Raum-Zonen-Grundmodell
 

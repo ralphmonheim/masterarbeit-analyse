@@ -224,6 +224,33 @@ Ziele
 - gemeinsame Simulationskonfiguration festlegen
 - Export für IDA ICE vorbereiten
 
+### Festlegung Preprocess V1
+
+Preprocess V1 endet mit einem validierten, reproduzierbaren `RunManifest` und
+einer dokumentierten manuellen Uebergabe an IDA ICE. Der erste fachlich
+nutzbare Referenzlauf umfasst eine freigegebene Baseline und eine kleine,
+explizite Variantenstudie.
+
+Die verbindliche Reihenfolge lautet:
+
+```text
+ma_project
+-> ma_weather
+-> ma_building
+-> ma_technical
+-> ma_zones
+-> ma_parameters
+-> ma_analyse.stage_1_dimensioning
+-> ma_variants
+-> ma_simulation_setup
+-> RunManifest
+```
+
+Nicht Teil dieses Meilensteins sind ein produktiver IFC-/Rhino-Import, ein
+IDA-ICE-Adapter, automatisierte Modellmanipulation, technische Produktkataloge,
+Branches oder ein vollstaendiger Technikeditor. Die manuelle IDA-Uebergabe
+referenziert die nach P018 erforderliche Compliance-Entscheidung.
+
 ### Phase 4 Simulation und technische Analyse
 
 Schritte und Module

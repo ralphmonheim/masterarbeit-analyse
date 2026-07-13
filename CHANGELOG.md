@@ -4,6 +4,19 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.27.1 - 2026-07-14
+
+### Changed
+- P014 fuer Preprocess V1 in die klaren Slices v2-Aggregat,
+  Strukturvalidierung, Persistenz/Freigabe, P013/P015-Handover und
+  Referenzfall-Abnahme gegliedert. Optionale Primaerbereiche vermeiden
+  Dummy-Objekte; v1 bleibt unveraendert kompatibel.
+- Preprocess V1 als verbindlichen ersten Durchstich festgelegt: von
+  Projekt- und Eingabequellen ueber Baseline, Referenzdimensionierung und
+  kleine Variantenstudie bis zum compliance-referenzierten `RunManifest`.
+  IDA-ICE-Uebergabe bleibt manuell; Adapter und Modellmanipulation sind
+  bewusst Folgeslices.
+
 ## 0.27.0 - 2026-07-13
 
 ### Added

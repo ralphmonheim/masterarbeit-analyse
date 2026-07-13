@@ -1,7 +1,7 @@
 # P014 ma_technical Technische Systeme
 
-Stand: 2026-07-13
-Status: Fachlich konsolidiert, P014-S1 Legacy-v1 kompatibel, P014-S2 Slice 0/1 gestartet
+Stand: 2026-07-14
+Status: Fachlich konsolidiert, P014-S1 Legacy-v1 kompatibel, v2-Kerntypen vorhanden; P014-S1.1 als naechster Umsetzungsslice geplant
 Prioritaet: Hoch
 Abhaengigkeiten: P010, P012, P013, P015, P017, P027
 
@@ -56,15 +56,19 @@ kontrollierte Migration auf Serviceinterfaces umgesetzt ist.
 
 ## Zielmodell v2
 
-P014-S2 fuehrt ein paralleles Schema v2 ein. Es ersetzt v1 nicht sofort,
-sondern beschreibt die kuenftige Fachstruktur:
+Das parallele Schema v2 ersetzt v1 nicht sofort, sondern beschreibt die
+kuenftige Fachstruktur:
 
 ```text
 TechnicalModelSpecification
 ├── building_reference
-├── plant
-├── air_handling_unit
-├── electrical_system
+├── equipment_register
+├── distribution_register
+├── storage_register
+├── domestic_hot_water_register
+├── plant (optional)
+├── air_handling_unit (optional)
+├── electrical_system (optional)
 ├── schedules
 ├── topology
 ├── service_interfaces
@@ -121,18 +125,91 @@ Nicht Teil von Slice 1:
 - technische Regelengine,
 - IDA-Adapter oder Export.
 
-## Naechste Slices
+## Preprocess V1
 
-1. Serialisierung und lokale Speicherung mit Working Drafts, Revisionen,
-   Branches und Content-Hash.
-2. Strukturvalidierung, technische Limits und Empfehlungen ohne
-   Kapazitaetsausreichungsblockade.
-3. Gefuehrte Topologie und Serviceinterfaces.
-4. Parametersicht fuer `ma_parameters`.
+Der verbindliche erste Zielstand ist eine simulationsbereite
+Preprocessing-Kette mit manueller IDA-ICE-Uebergabe. `ma_technical` liefert
+darin eine freigegebene, reproduzierbare v2-Technikrevision an `ma_zones` und
+`ma_parameters`; ein IDA-Adapter, Produktdaten oder ein Technikeditor gehoeren
+nicht dazu.
+
+Die naechste Arbeit beginnt bewusst nicht mit Branches oder einem Editor. Die
+v2-Kerntypen muessen zuerst als vollstaendiger, pruefbarer Fachstand vorliegen.
+
+### P014-S1.1 V2-Aggregat und Referenzintegritaet
+
+- `TechnicalModelSpecification` erhaelt vollstaendige Register fuer
+  `PhysicalEquipment`, Heiz- und Kuehlverteilungen, thermische Speicher und
+  Trinkwarmwassererzeugung.
+- Jede Objekt-ID ist im gesamten Aggregat eindeutig; alle internen
+  `ObjectReference`-Ziele sind anhand von ID und Objektart aufloesbar.
+- `plant`, `air_handling_unit` und `electrical_system` sind in V1 jeweils
+  optionale Primaerbereiche. Ein nicht benoetigter Bereich wird als fehlend
+  modelliert, nicht durch ein fachlich falsches Dummy-Objekt ersetzt.
+- Serviceinterfaces bleiben zonenfrei. Sie referenzieren nur zentrale
+  Technikobjekte und deklarieren Medium, Kapazitaetsmodus sowie
+  Terminal-Kompatibilitaet.
+- Nicht Teil: YAML-Persistenz, Revisionsverwaltung, UI, Parameterexport oder
+  eine fachliche Kapazitaetsausreichungspruefung.
+
+### P014-S1.2 V2-Struktur- und Referenzvalidierung
+
+- Eigenen v2-Validator neben `validate_technical_spec` des Legacy-v1-Vertrags
+  einfuehren; der v1-Validator wird nicht umgedeutet.
+- Pruefen: Modellkopf, Pflichtfelder, eindeutige IDs, gueltige Objektarten,
+  aufloesbare Referenzen, Kapazitaetsmodi, Zeitplanreferenzen und Topologie.
+- Pruefen: Ein Serviceinterface besitzt keine direkten Zonenreferenzen und
+  verweist auf eine passende zentrale Quelle; Medium und deklarierte
+  Terminal-Kompatibilitaet sind strukturell plausibel.
+- Eine fehlende oder zu kleine Leistung bleibt eine fachliche Annahme und keine
+  Eingabeblockade. Unaufloesbare Referenzen oder widerspruechliche Struktur
+  blockieren dagegen die Freigabe.
+
+### P014-S2 Persistenz und freigegebene Technikrevision
+
+- YAML-Schema und Roundtrip fuer eine v2-Referenztechnik definieren.
+- Ein lokaler Working Draft wird erst nach erfolgreicher v2-Validierung als
+  unveraenderliche, freigegebene Technikrevision abgelegt.
+- Die Revision fuehrt mindestens technische Modell-ID, Revisions-ID,
+  Freigabestatus, Quellen- und Annahmenmetadaten sowie Content-Hash.
+- Der Content-Hash entsteht aus einer kanonischen fachlichen Darstellung mit
+  stabiler Reihenfolge. Lokale Dateipfade und Erstellungszeitpunkte gehen nicht
+  in den Hash ein; Quellenreferenzen und Annahmen dagegen schon.
+- Nicht Teil: mehrere Draft-Branches, graphische Bearbeitung oder Migration
+  des Legacy-v1-Modells.
+
+### P014-S3 Uebergabevertrag an P013 und P015
+
+- `ma_zones` erhaelt nur stabile Referenzen auf freigegebene
+  Serviceinterfaces und zentrale technische Quellen. Lokale
+  Uebergabesysteme, Terminalauswahl und konkrete Zonenbelegung bleiben bei
+  P013.
+- `ma_parameters` uebernimmt nur eine freigegebene Technikrevision mit
+  Modell-ID, Revisions-ID, Content-Hash und Freigabestatus.
+- Fuer V1 reicht die vom Serviceinterface deklarierte
+  Terminal-Kompatibilitaet. Eine weitergehende fachliche Eignungspruefung
+  wird als Folgearbeit behandelt.
+
+### P014-S4 V2-Referenzfall und Abnahme
+
+- Eine kleine v2-Referenztechnik wird als manuell gepflegte YAML-Datei
+  hinterlegt; sie benoetigt nicht alle optionalen Primaerbereiche.
+- Tests decken Roundtrip, Hash-Stabilitaet, doppelte IDs, unbekannte
+  Referenzen, optionale Primaerbereiche, Serviceinterface-Regeln und die
+  unveraenderte v1-Kompatibilitaet ab.
+- Der Abnahmenachweis zeigt: Eine freigegebene P014-v2-Revision ist durch P013
+  referenzierbar und durch P015 als Eingabequelle uebernehmbar.
+
+## Naechste Slices nach Preprocess V1
+
+1. Mehrere Draft-Branches und weitergehende Revisionsverwaltung.
+2. Technische Limits und Empfehlungen als Regelquelle.
+3. Gefuehrte Topologie und umfassendere Serviceinterface-Bearbeitung.
+4. Erweiterte Parametersicht fuer `ma_parameters`.
 5. Manuelle Streamlit-Bearbeitung.
 6. Kontrollierte Migration v1 -> v2.
 
-## Abnahmekriterien fuer Slice 1
+## Abnahmekriterien fuer P014-S1.1
 
 - v2-Kerntypen sind immutable und importierbar.
 - `TechnicalModelSpecification` v2 kann ein minimales Modell beschreiben.

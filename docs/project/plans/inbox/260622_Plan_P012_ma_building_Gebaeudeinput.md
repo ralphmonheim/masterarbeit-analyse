@@ -1,6 +1,6 @@
 # P012 ma_building Gebaeudeinput
 
-Stand: 2026-07-05
+Stand: 2026-07-14
 Status: Teilweise umgesetzt
 Prioritaet: Hoch
 Abhaengigkeiten: P010, P011, P013, P015, P027
@@ -353,6 +353,14 @@ Zu pruefen sind mindestens:
   BusinessIntegration-LoD-1-Spec wechseln.
 - Tests: Demo-Lader, Fachmodelle, Validierung und Diagnose sind automatisiert
   abgedeckt.
+
+## Preprocess V1-Mindestumfang
+
+Fuer P013-S3 wird ein kleiner manueller Raumregister-Slice benoetigt. Er
+liefert freigegebene Raeume mit stabilen IDs an `ma_zones`, ohne einen
+produktiven IFC-, Rhino- oder CAD-Import einzufuehren. Die bestehende
+LoD-1-Spezifikation bleibt dabei kompatibel; der Raumregister-Slice ist eine
+additive Erweiterung fuer den V1-Referenzfall.
 
 ## Akzeptanzkriterien
 
