@@ -1,0 +1,4 @@
+{"date":"2026-07-13","source_id":"openai-eu-terms-2026-01-16","action":"official_terms_check","result":"Input-rights responsibility confirmed; no third-party content permission inferred.","full_document_versioned":false}
+{"date":"2026-07-13","source_id":"openai-codex-chatgpt-plan-2026-07","action":"official_codex_data_controls_check","result":"Codex follows applicable ChatGPT or organization data controls.","full_document_versioned":false}
+{"date":"2026-07-13","source_id":"openai-api-data-controls-2026-07","action":"official_api_retention_check","result":"Training, abuse monitoring, application state and ZDR documented as separate controls.","full_document_versioned":false}
+{"date":"2026-07-13","source_id":"user-consolidated-compliance-handover","action":"implementation_scope_review","result":"Technical ma_core compliance gate, safe wrappers, policies, audit and test matrix integrated; overbroad DWD OpenData assumption rejected.","full_document_versioned":false}

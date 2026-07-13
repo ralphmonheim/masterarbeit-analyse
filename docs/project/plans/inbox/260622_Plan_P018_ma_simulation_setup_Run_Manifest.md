@@ -15,6 +15,19 @@ Simulationslauf verbinden.
 
 Produktiver Vorbereitungsschritt ohne Simulationssteuerung.
 
+## Compliance-Grenze
+
+P018 bereitet nur neutral beschriebene Laeufe vor. Bis zu einer ausdruecklichen
+schriftlichen EQUA-Freigabe erfolgt die Uebergabe an IDA ICE manuell und der
+Simulationsstart manuell. P018 startet weder IDA ICE noch eine Simulation,
+nutzt IDA ICE nicht als Simulationsserver und verarbeitet keine vollstaendige
+`.idm`-Datei. Jede kuenftige IDA-bezogene Erweiterung dokumentiert vorher eine
+`ComplianceDecision` nach `docs/compliance/ida_ice/` und erzwingt sie ueber
+`ma_core.compliance`. `red` und `unknown` stoppen; `yellow` erfordert die
+dokumentierte Bestaetigung sowie alle vom Service geforderten Rechtebelege.
+Wetterreferenzen werden nur als bereits freigegebene `ma_weather`-Quellen
+uebernommen. P018 liest weder DWD-Rohdaten noch Norminhalte erneut.
+
 ## Arbeitspakete
 
 - Projektweit eindeutige Run-ID und Statusmodell definieren.
@@ -26,6 +39,8 @@ Produktiver Vorbereitungsschritt ohne Simulationssteuerung.
 - UI-Eingabe, YAML-Import und Validierungsbericht vorsehen.
 - Uebergabegrenze zu P009 dokumentieren.
 - Direkte Zuordnung `RUN -> VAR` ohne `SimulationCase` festlegen.
+- Compliance-Entscheidungs-ID fuer geschuetzte Adapteroperationen und die
+  manuelle IDA-Uebergabe in das Run-Manifest aufnehmen.
 
 ## Eingang aus P017
 
@@ -78,3 +93,7 @@ Diese Daten sind Zuordnungen innerhalb des Runs und keine eigenstaendigen
 - Fachliche Variantenwerte werden in P018 nicht neu berechnet oder veraendert.
 - Es gibt keine `CASE-ID` und keine `SimulationCase`-Ebene.
 - Kein Simulationsstart und keine Modellmanipulation erfolgen.
+- Der Run beschreibt die manuelle Uebergabegrenze nachvollziehbar; ein
+  automatisierter IDA-Start ist kein gueltiger Run-Schritt.
+- Eine rote, unbekannte oder nicht vollstaendig freigegebene gelbe
+  Compliance-Entscheidung blockiert das Manifest vor jeder Adapteroperation.

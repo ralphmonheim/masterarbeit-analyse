@@ -1,0 +1,21 @@
+version: 1
+unmodified_open_data_template: >-
+  Quelle: Deutscher Wetterdienst (DWD), [Produkt und Datensatz],
+  [offizielle URL], abgerufen am [Datum], Lizenz CC BY 4.0.
+modified_open_data_template: >-
+  Datenbasis: Deutscher Wetterdienst (DWD), [Produkt, Variante, Ort und
+  Bezugszeitraum], [offizielle URL], abgerufen am [Datum], Lizenz CC BY 4.0;
+  bearbeitet durch [Projekt], Aenderungen: [Aenderungen].
+required_locations:
+  - dataset_metadata
+  - generated_report
+  - thesis_source_list
+  - exported_weather_file_metadata
+optional_locations:
+  - local_dataset_readme
+  - repository_notice_without_dataset
+rules:
+  attribution_required_for_format_change: true
+  material_changes_must_be_identified: true
+  no_implied_endorsement: true
+  original_and_processed_hashes_required: true

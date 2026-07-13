@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.masterarbeit.invalid/source_record.schema.json",
+  "title": "ComplianceSourceRecord",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["source_type", "source_origin", "declared_license"],
+  "properties": {
+    "source_type": {"type": "string", "minLength": 1},
+    "source_origin": {"type": "string", "minLength": 1},
+    "declared_license": {"type": "string", "minLength": 1},
+    "official_source": {"type": ["boolean", "null"]},
+    "attribution_present": {"type": ["boolean", "null"]},
+    "third_party_rights_cleared": {"type": ["boolean", "null"]}
+  }
+}

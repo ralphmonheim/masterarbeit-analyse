@@ -1,9 +1,9 @@
 # P020 Analyse Stufe 3 Standards Compliance
 
-Stand: 2026-06-22
-Status: Research-Plan
+Stand: 2026-07-13
+Status: Research-Plan, Compliance-Vorpruefung integriert
 Prioritaet: Hoch
-Abhaengigkeiten: P019
+Abhaengigkeiten: P019, P027, ma_core.compliance, bestaetigte Norm-Nutzungsrechte
 
 ## Ziel
 
@@ -27,6 +27,9 @@ Der fruehere Name `stage_3_verification` bleibt nur als Uebergangshinweis.
 5. `ComplianceReport` mit `pass`, `fail`, `warning` und `not_evaluable`
    definieren.
 6. Erweiterungsmechanismus fuer internationale Profile dokumentieren.
+7. Vor jeder maschinellen Normverarbeitung eine `ComplianceDecision` aus
+   `ma_core.compliance` verlangen und Quellen-, Lizenz- und Hochschulnachweis
+   referenzieren.
 
 ## Lokaler Pruefbestand Runde 1
 
@@ -38,7 +41,10 @@ Symbolabschnitte, Beziehungen, Projektmapping und Review-Hinweise.
 Die Runde ist noch keine freigegebene Normlogik. Alle Formeln und Regeln
 bleiben `review_required`, bis Quelle, Ausgabe, Abschnitt, PDF-Seite,
 Gleichungsnummer, Variablen, Einheiten, Randbedingungen und Tests fachlich
-geprueft sind. Alte Mapping-Bezeichnungen wie `stage_3_verification` werden
+geprueft sind. Ohne bestaetigte KI-/Maschinenverarbeitungsrechte sind OCR,
+automatische Extraktion, Embeddings, RAG und produktive Implementierung aus
+diesen Extrakten gesperrt. Alte Mapping-Bezeichnungen wie
+`stage_3_verification` werden
 bei der spaeteren Aufarbeitung auf den kanonischen Namen
 `ma_analyse.stage_3_standards_compliance` abgebildet.
 
@@ -63,3 +69,5 @@ Die konkrete Auswahl wird erst durch die Methodenmatrix verbindlich.
 - Bestehende Komfortpolygone gelten nicht ohne Quellenbeleg als Normregel.
 - Deutsche und internationale Profile verwenden dieselbe neutrale
   Nachweisschnittstelle.
+- Jede produktive Regel besitzt eine gruen freigegebene Quellen- und
+  Rechteprovenienz; `yellow`, `red` und `unknown` werden nicht ausgefuehrt.

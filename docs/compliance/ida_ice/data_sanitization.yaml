@@ -1,0 +1,31 @@
+extends: ../shared/data_sanitization.yaml
+remove_or_review:
+  - license_key
+  - activation_identifier
+  - license_server_information
+  - user_name
+  - personal_names
+  - email_addresses
+  - client_name
+  - project_name
+  - project_address
+  - geographic_coordinates
+  - internal_file_paths
+  - network_paths
+  - computer_names
+  - account_names
+  - access_tokens
+  - imported_cad_geometry
+  - imported_bim_geometry
+  - imported_ifc_data
+  - manufacturer_data
+  - proprietary_libraries
+  - confidential_room_names
+  - contract_information
+  - customer_specific_parameters
+  - third_party_weather_data
+rules:
+  shared_policy_applies: true
+  original_files_must_not_be_overwritten: true
+  work_on_copy_only_after_review: true
+  unresolved_item_blocks_cloud_processing: true

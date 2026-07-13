@@ -1,0 +1,42 @@
+version: 2
+default_policy: stop_when_unclear
+green:
+  - user_created_templates
+  - user_owned_input_data
+  - exported_simulation_results
+  - sanitized_csv_json_excel_text
+  - scientific_tables_and_charts
+  - postprocessing_after_manual_simulation
+  - source_metadata
+  - contractual_paraphrases
+  - neutral_variant_data
+yellow:
+  - complete_idm_analysis
+  - cloud_upload_of_idm
+  - limited_standard_template_comparison
+  - mixed_user_and_equa_content
+  - equa_nmf_model_review
+  - project_specific_parser
+  - api_use_without_simulation_launch
+  - macro_use_without_simulation_launch
+  - short_necessary_contract_quotes
+  - third_party_bim_cad_ifc_data
+red:
+  - complete_library_upload
+  - complete_template_extraction
+  - library_mirroring
+  - proprietary_database_replication
+  - redistribution_of_equa_files
+  - reverse_engineering
+  - algorithm_reconstruction
+  - full_equation_library_extraction
+  - binary_or_dll_analysis
+  - protection_bypass
+  - license_key_processing
+  - automated_simulation_launch
+  - automated_simulation_execution
+  - external_batch_simulation
+  - simulation_server_use
+  - idm_generator
+  - full_idm_editor
+  - competing_primary_function

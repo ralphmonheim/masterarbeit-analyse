@@ -1,0 +1,26 @@
+source_id: equa-eula-2023-12
+eula_section: "3(e)"
+allowed:
+  - create_neutral_variant_data
+  - validate_own_input_data
+  - prepare_manual_import
+  - analyze_exported_results
+  - assign_results_to_variants
+  - generate_reports
+requires_review:
+  - equa_api_use
+  - macro_use
+  - non_idm_project_file_modification
+  - automated_import
+blocked_without_equa_permission:
+  - launch_ida_ice_for_simulation
+  - start_simulation
+  - execute_simulation
+  - run_batch_simulations
+  - use_as_simulation_server
+  - remote_simulation_call
+  - idm_file_modification
+note: >-
+  EULA 3(e) permits certain automation only for personal or organizational use,
+  but expressly prohibits using macros, the API or other automation to launch
+  or execute simulations without EQUA authorization.

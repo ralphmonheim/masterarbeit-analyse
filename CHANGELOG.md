@@ -4,6 +4,52 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.27.0 - 2026-07-13
+
+### Added
+- Zentrale technische Compliance-Komponente unter `src/ma_core/compliance/`
+  ergaenzt: Metadaten-Preflight, Gruen-Gelb-Rot-/Unknown-Entscheidung,
+  explizite Gelb-Freigabe mit Rechtebelegen, sichere Datei-/Parser-/Upload-/
+  Index-/Simulationswrapper, Datenbereinigung, Policies, JSON-Schemas und
+  datensparsames append-only Audit.
+- Projektweite Compliance-Dokumentation unter `docs/compliance/` um
+  gemeinsame OpenAI-/Repository-Grenzen, DIN-/Nautos-Pruefung und getrennte
+  DWD-OpenData-/Bezugsleistungsregeln erweitert.
+- Compliance-Testmatrix fuer IDA-Ergebnisse und `.idm`, EQUA-Bibliotheken,
+  DIN-Metadaten/OCR/RAG/Zitate, DWD-Attribution/Drittrechte, Lizenzdaten und
+  unbekannte Herkunft ergaenzt.
+- IDA-ICE-Compliance-Vorpruefung unter `docs/compliance/ida_ice/` ergaenzt:
+  Quellenregister, Lizenzprofil, Gruen-Gelb-Rot-Grenzen, Automatisierungs- und
+  Bibliotheksklassifikation, Preflight, Datenbereinigung, Warnvorlagen sowie
+  ein nicht versendeter EQUA-Anfrageentwurf. Die manuelle IDA-UEbergabe und
+  der manuelle Simulationsstart sind nun als Compliance-Grenze dokumentiert.
+- Projektlokales Codex-Council mit Tera als Hauptmodell, Luna fuer schnelle
+  read-only Exploration, Tera fuer freigegebene Umsetzungspakete und Sol fuer
+  technische sowie wissenschaftliche Qualitaetspruefungen eingerichtet;
+  Rollen, Delegationstiefe und Freigabegrenzen sind unter `AGENTS.md` und
+  `.codex/` konfiguriert.
+- Read-only Sol-Rolle `compliance_auditor` fuer projektweite Lizenz-,
+  Datenschutz-, Vertraulichkeits-, externe Verarbeitungs- und
+  Veroeffentlichungspruefungen eingerichtet.
+- Council-Routinen `council analyse`, `council review`, `council compliance`,
+  `council umsetzen`, `ohne council` und `mit Sol-Review` dokumentiert.
+
+### Changed
+- DWD-TRY-2011-Konverter vor dem ersten `.idm`-/`.PRN`-Zugriff an
+  `ma_core.compliance` angebunden. CLI-Aufrufe benoetigen nun dokumentierte
+  Nutzerbestaetigung und eine Referenz auf die produktspezifischen
+  Bezugsrechte; reale Wetterdaten bleiben lokal und unversioniert.
+- EQUA-EULA-Verweise fuer Automatisierung und konkurrierende Hauptfunktion
+  auf die aktuellen Abschnitte 3(e) und 3(i) korrigiert.
+- Plan-, Projektinput- und bedingte Release-Routinen um einen automatischen,
+  objektbezogen stoppenden Compliance-Preflight ergaenzt; blockierte
+  Inbox-Originale bleiben unveraendert am Eingangspfad, Plandokument- und
+  Umsetzungsrisiken werden getrennt und Release-Entscheidungen muessen den
+  konkreten Veroeffentlichungsstand abdecken.
+- Den vorhandenen Professor-Agenten zu einem read-only wissenschaftlich-
+  methodischen Gutachter fuer Annahmen, Einheiten, Rechenwege,
+  Reproduzierbarkeit und Ergebnisinterpretation fokussiert.
+
 ## 0.26.0 - 2026-07-13
 
 ### Added

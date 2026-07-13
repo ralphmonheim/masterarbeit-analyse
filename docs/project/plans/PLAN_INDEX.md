@@ -1,6 +1,6 @@
 # Plan Index
 
-Stand: 2026-07-12
+Stand: 2026-07-13
 
 | Plan ID | Titel | Datei | Modul | Status | Prioritaet | Abhaengigkeiten | Naechster Schritt |
 |---|---|---|---|---|---|---|---|
@@ -11,7 +11,7 @@ Stand: 2026-07-12
 | P005 | Gesamtmodulstruktur, Dashboard und UI-Auslagerung | `../archive/plans/250608_Plan_Gesamtmodulstruktur_PreProcess_PostProcess_Dashboard.md.txt` | Gesamtarchitektur, ma_ui, ma_workflow | Archiviert, teilweise umgesetzt | Hoch | P003 | Gueltige Struktur und Restarbeiten wurden in P007 uebernommen |
 | P006 | Kontrollierter IDA-ICE-Variantenexport und IDM-Entwurf | `../archive/plans/260618_Plan_ma_export_ida_IDM_Exportentwurf.md` | historisch ma_export_ida | Archiviert, Entwurf | Mittel | ma_variants, Referenzmodell | Verbleibende Arbeit wird in P009 weitergefuehrt |
 | P007 | Projektplan fuer die VS-Code-Umsetzung der Masterarbeitssoftware | `inbox/Masterarbeit_VSCode_Projektplan_2026-06-21.md` | Gesamtprojekt, Gesamtarchitektur | Aktiver Rahmenplan | Hoch | bestehender Projektstand und Nutzerentscheidungen | P011 als naechste Fachstufe bearbeiten |
-| P008 | ma_weather Gesamtplan | `inbox/260623_Plan_P008_ma_weather_Gesamtplan.md` | ma_weather, ma_parameters, ma_ui, Stage 4 | Aktiv | Hoch | P007, P002, P010, P015, P018, P021, P027 | Reale Geodatenquelle und Lizenz klaeren, lokale TRY-Datensaetze pruefen und P021-Ereignisdefinition schaerfen |
+| P008 | ma_weather Gesamtplan | `inbox/260623_Plan_P008_ma_weather_Gesamtplan.md` | ma_weather, ma_parameters, ma_ui, Stage 4 | Aktiv, DWD-Compliance-Gate angebunden | Hoch | P007, P002, P010, P015, P018, P021, P027 | Produktspezifische TRY-Bezugsrechte und reale Geodatenlizenzen belegen; P021-Ereignisdefinition schaerfen |
 | P009 | Allgemeine Simulationsschnittstellen mit IDA-ICE-Adapter | `inbox/260621_Plan_P009_Simulationsschnittstellen_IDA_Adapter.md` | ma_export_simulation, ma_import_simulation | Zurueckgestellt, RUN/VAR-Zuordnung geschaerft | Mittel | P007, P018 | Nach validiertem Run-Manifest ueber RUN-ID und VAR-ID weiterfuehren |
 | P010 | Eingabe- und Datenhaltungsarchitektur | `../archive/plans/260622_Plan_P010_Eingabe_Datenhaltungsarchitektur.md` | alle Eingabemodule, ma_validation | Archiviert, Wetterpilot umgesetzt | Hoch | P007 | Vertraege in P011 bis P015 fachmodulweise anwenden |
 | P011 | ma_project Projektinitialisierung | `inbox/260622_Plan_P011_ma_project_Projektinitialisierung.md` | ma_project | Geplant | Hoch | P010 | Projektkonfiguration und Quellenwahl planen |
@@ -23,13 +23,13 @@ Stand: 2026-07-12
 | P017 | ma_variants und Naming-Anbindung | `inbox/260622_Plan_P017_ma_variants_Naming_Anbindung.md` | ma_variants | Fachlich konsolidiert, Umsetzung geplant | Hoch | P015, P016, P018, P027 | P017-S1 Grundobjekte, IDs, VariantSpace und Eingangsreferenzen planen |
 | P018 | ma_simulation_setup und Run-Manifest | `inbox/260622_Plan_P018_ma_simulation_setup_Run_Manifest.md` | ma_simulation_setup | Geplant, P017-Schnittstelle geschaerft | Hoch | P008, P011, P017, P027 | RunManifest mit direkter RUN-zu-VAR-Zuordnung planen |
 | P019 | Analyse Stufe 2 Optimierung | `inbox/260622_Plan_P019_Stage2_Optimierung.md` | ma_analyse.stage_2_optimization | Geplant, teilweise vorhanden | Mittel | bestehendes ma_analyse | Vorhandene Befehle als Stufe-2-Ablauf ordnen |
-| P020 | Analyse Stufe 3 Standards Compliance | `inbox/260622_Plan_P020_Stage3_Standards_Compliance.md` | ma_analyse.stage_3_standards_compliance | Research-Plan | Hoch | P019 | Deutsche Normen- und Methodenmatrix erstellen |
+| P020 | Analyse Stufe 3 Standards Compliance | `inbox/260622_Plan_P020_Stage3_Standards_Compliance.md` | ma_analyse.stage_3_standards_compliance | Research-Plan, technische Vorpruefung vorhanden | Hoch | P019, P027, bestaetigte Norm-Nutzungsrechte | Hochschul-/DIN-Rechte klaeren, dann deutsche Normen- und Methodenmatrix erstellen |
 | P021 | Analyse Stufe 4 Sensitivitaet | `inbox/260622_Plan_P021_Stage4_Sensitivitaet.md` | ma_analyse.stage_4_sensitivity | Geplant | Mittel | P008, P019 | Wetterereignisse und Zeitfenster verbinden |
 | P022 | ma_economy Demo und Konzept | `inbox/260622_Plan_P022_ma_economy_Demo.md` | ma_economy | Konzept/Demo | Mittel | P019 | Demo-Umfang und Annahmen festlegen |
 | P023 | ma_sustainability Demo und Konzept | `inbox/260622_Plan_P023_ma_sustainability_Demo.md` | ma_sustainability | Konzept/Demo | Mittel | P019 | Emissionsfaktoren und Systemgrenzen festlegen |
 | P024 | ma_assessment Konzept | `inbox/260622_Plan_P024_ma_assessment_Konzept.md` | ma_assessment | Konzept | Niedrig | P019, P022, P023 | Kriterien- und Gewichtungsmodell planen |
 | P025 | ma_reporting Konzept und Demo-Factsheet | `inbox/260622_Plan_P025_ma_reporting_Konzept.md` | ma_reporting | Konzept | Niedrig | P024 | Berichtsinventar und Factsheet planen |
 | P026 | ma_data_export Konzept | `inbox/260622_Plan_P026_ma_data_export_Konzept.md` | ma_data_export | Konzept | Niedrig | P024, P025 | Paketformate und Manifest planen |
-| P027 | Querschnitt UI, Workflow, Validation und Feedback | `inbox/260622_Plan_P027_Querschnitt_UI_Workflow_Validation_Feedback.md` | ma_ui, ma_workflow, ma_validation, ma_feedback | Aktiv, begleitend | Hoch | alle Teilplaene | P017-Checkpoints, Reload-Logik und Dimensionierungsunterbrechung begleiten |
+| P027 | Querschnitt UI, Workflow, Validation und Feedback | `inbox/260622_Plan_P027_Querschnitt_UI_Workflow_Validation_Feedback.md` | ma_core, ma_ui, ma_workflow, ma_validation, ma_feedback | Aktiv, Compliance-Kern umgesetzt | Hoch | alle Teilplaene | Compliance-Gates nach Risiko an weitere geschuetzte Modulgrenzen anbinden |
 | P028 | Projekt-, Parameter- und Naming-Demo in Streamlit | `../archive/plans/260623_Plan_P028_Projekt_Parameter_Naming_Streamlit.md` | ma_project, ma_parameters, ma_variants, ma_ui | Archiviert, Demo umgesetzt | Hoch | P010, P011, P015, P017, P027 | ParameterSnapshot und Projektstammdaten ueber P011/P015 weiterfuehren |
 | P029 | ma_analyse Service- und Runner-Bereinigung | `inbox/260627_Plan_P029_ma_analyse_Service_Runner_Bereinigung.md` | ma_analyse | Aktiv | Hoch | P005, P019, P027, bestehendes ma_analyse | Tkinter-Folgeslice fuer Vorschau-Cache, strukturierte Ergebnisanzeige und Mapping-Dopplung planen |

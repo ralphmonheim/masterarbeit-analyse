@@ -1,0 +1,39 @@
+version: 1
+remove_or_review:
+  - license_key
+  - activation_identifier
+  - license_server_information
+  - nautos_account_information
+  - din_media_account_information
+  - dwd_account_information
+  - user_name
+  - personal_names
+  - email_addresses
+  - client_name
+  - project_name
+  - project_address
+  - geographic_coordinates
+  - internal_file_paths
+  - network_paths
+  - computer_names
+  - account_names
+  - access_tokens
+  - imported_cad_geometry
+  - imported_bim_geometry
+  - imported_ifc_data
+  - manufacturer_data
+  - proprietary_libraries
+  - confidential_room_names
+  - contract_information
+  - customer_specific_parameters
+  - third_party_weather_data
+  - complete_norm_text
+  - norm_page_images
+  - norm_tables
+  - norm_figures
+rules:
+  original_files_must_not_be_overwritten: true
+  sanitized_copy_must_be_separate: true
+  unresolved_item_blocks_external_processing: true
+  removal_must_not_destroy_required_attribution: true
+  sanitization_does_not_create_processing_rights: true

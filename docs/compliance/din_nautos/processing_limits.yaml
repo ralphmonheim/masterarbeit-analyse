@@ -1,0 +1,44 @@
+version: 1
+default_policy: stop_and_warn
+green:
+  - store_standard_number_title_edition_status
+  - store_bibliographic_reference_and_official_url
+  - create_manual_user_notes
+  - create_own_paraphrases
+  - create_own_engineering_interpretations
+  - implement_own_derived_calculation_logic
+  - implement_own_validation_rules
+  - cite_standard_in_thesis
+  - compare_own_results_with_manually_interpreted_requirements
+yellow:
+  - use_short_necessary_quote
+  - reproduce_single_formula_or_small_table_fragment
+  - reproduce_figure
+  - manually_transfer_limit_value
+  - manually_create_normative_rule
+  - share_excerpt_with_confirmed_authorized_supervisor
+  - rely_on_statutory_tdm_exception
+  - process_under_confirmed_university_permission
+red_without_documented_permission:
+  - upload_norm_pdf_or_page_image_to_ai
+  - paste_substantial_norm_text_into_prompt
+  - run_ocr_on_norm
+  - automatically_summarize_or_translate_norm
+  - automatically_extract_tables_formulas_or_requirements
+  - convert_norm_to_json_yaml_or_csv
+  - create_norm_embeddings_vector_database_or_rag
+  - create_systematic_clause_or_profile_database
+  - reconstruct_substantial_parts
+  - store_norm_pdf_or_screenshot_in_repository
+  - redistribute_norm_content
+  - scrape_or_automate_nautos
+  - bypass_nautos_protection
+local_review_data:
+  paths:
+    - data/common/normen
+    - data/ma_parameters/config/din18599_10_nutzungsprofile
+  classification: yellow
+  repository_storage_allowed: false
+  ai_processing_allowed: false
+  productive_implementation_allowed: false
+  required_status: review_required

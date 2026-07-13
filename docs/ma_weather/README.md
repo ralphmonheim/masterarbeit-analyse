@@ -67,6 +67,14 @@ Zielordner wie `data/ma_weather/input/TRY_01_Bremerhaven/`. Die PRN-Dateien
 enthalten 8785 Stuetzstellen; fuer das vorhandene TRY-Jahresformat werden die
 ersten 8760 Jahresstunden exportiert.
 
+Das vorhandene TRY-2011-/IDA-Paket ist dabei nicht pauschal als OpenData
+freigegeben. Vor dem ersten Lesen verlangt der Konverter eine dokumentierte
+Compliance-Entscheidung mit Nutzerbestaetigung und Referenz auf Angebot,
+Lizenz oder schriftliche DWD-Nutzungsfreigabe. Frei zugaengliche DWD-OpenData-
+Datensaetze koennen dagegen nur dann `green` werden, wenn offizielle Quelle,
+datensatzbezogene CC-BY-4.0-Lizenz, Attribution und Drittrechte belegt sind.
+In beiden Faellen bleiben reale Wetterdateien lokal unter `data/ma_weather/`.
+
 Slice 5 ergaenzt den lokalen Import in der Streamlit-Wetterseite. Der
 Importbutton liegt unten im Bereich `Wetterdatensaetze`, vor der Tabelle der
 aktiven Datensaetze. Eigene entpackte TRY-`.dat`-Dateien werden unter

@@ -1,0 +1,72 @@
+- term_id: EQUA-EDUCATIONAL-001
+  source_id: equa-eula-2023-12
+  topic: educational_license
+  section: "1(h)"
+  short_quote: "for use by students and faculty of educational institutions, only"
+  paraphrase: "Eine Educational Version ist fuer Studierende und Lehrende von Bildungseinrichtungen bestimmt."
+  impact_on_project: "Die behauptete Hochschullizenz ist mit der EULA-Kategorie vereinbar; der konkrete Untertyp bleibt offen."
+  confidence: high
+  requires_legal_review: false
+- term_id: EQUA-AUTOMATION-001
+  source_id: equa-eula-2023-12
+  topic: automation
+  section: "3(e)"
+  short_quote: "strictly prohibited unless expressly authorized by EQUA"
+  paraphrase: "Makros, API und Automatisierung duerfen Simulationsstarts oder -ausfuehrungen nur mit ausdruecklicher EQUA-Autorisierung ausloesen."
+  impact_on_project: "IDA ICE bleibt manueller Simulationsschritt; kein Batch-, Remote- oder Serverbetrieb."
+  confidence: high
+  requires_legal_review: false
+- term_id: EQUA-REVERSE-ENGINEERING-001
+  source_id: equa-eula-2023-12
+  topic: reverse_engineering
+  section: "3(b)"
+  short_quote: "decompile, reverse engineer, disassemble"
+  paraphrase: "Software und Teile davon duerfen weder dekompiliert noch per Reverse Engineering oder Disassemblierung untersucht werden; auch zugrunde liegende Ideen oder Algorithmen duerfen nicht ermittelt werden."
+  impact_on_project: "Allgemeiner Formatparser, Bibliotheksauszug, Binäranalyse oder Algorithmusrekonstruktion sind ausgeschlossen."
+  confidence: high
+  requires_legal_review: false
+- term_id: EQUA-PRIMARY-FUNCTION-001
+  source_id: equa-eula-2023-12
+  topic: competing_application
+  section: "3(i)"
+  short_quote: "same primary function as the Software"
+  paraphrase: "Mit der Software darf keine Anwendung mit derselben Hauptfunktion entwickelt werden."
+  impact_on_project: "Das Projekt bleibt bei Vorbereitung, Zuordnung und Ergebnisanalyse; es bildet IDA ICE nicht nach."
+  confidence: high
+  requires_legal_review: false
+- term_id: EQUA-TRADE-SECRETS-001
+  source_id: equa-eula-2023-12
+  topic: confidential_software_information
+  section: "5(c)"
+  short_quote: "valuable and confidential trade secrets"
+  paraphrase: "Struktur, Organisation und Code der Software werden als vertrauliche Geschaeftsgeheimnisse bezeichnet."
+  impact_on_project: "Unbekannte interne Strukturen, NMF-Inhalte und Bibliotheken werden als geschuetzt behandelt."
+  confidence: high
+  requires_legal_review: false
+- term_id: EQUA-OSS-001
+  source_id: equa-eula-2023-12
+  topic: open_source_components
+  section: "11(a)"
+  short_quote: "Certain software libraries"
+  paraphrase: "Einzelne enthaltene Bibliotheken stehen unter GPL oder LGPL; der Quellcode ist nur nach deren Bedingungen auf schriftliche Anfrage erhaeltlich."
+  impact_on_project: "Nur konkret identifizierte Komponenten duerfen nach ihrer eigenen Lizenz bewertet werden."
+  confidence: high
+  requires_legal_review: false
+- term_id: OPENAI-INPUT-RIGHTS-001
+  source_id: openai-terms-2026-01
+  topic: input_rights
+  section: "Content"
+  short_quote: "all rights, licenses, and permissions needed"
+  paraphrase: "Nutzende muessen die erforderlichen Rechte, Lizenzen und Erlaubnisse fuer Eingaben in OpenAI-Dienste besitzen."
+  impact_on_project: "OpenAI-Datenkontrollen ersetzen keine EQUA-, Kunden- oder Drittfreigabe."
+  confidence: high
+  requires_legal_review: false
+- term_id: OPENAI-API-RETENTION-001
+  source_id: openai-api-data-controls
+  topic: api_data_retention
+  section: "Data retention controls for abuse monitoring"
+  short_quote: "retained for up to 30 days"
+  paraphrase: "API-Abuse-Monitoring-Logs koennen standardmaessig bis zu 30 Tage aufbewahrt werden; weitergehende Kontrollen sind gesondert verfuegbar."
+  impact_on_project: "Vollstaendige oder vertrauliche IDA-Dateien werden nicht ueber die API verarbeitet."
+  confidence: high
+  requires_legal_review: false

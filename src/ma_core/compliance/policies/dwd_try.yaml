@@ -1,0 +1,23 @@
+version: 1
+source: docs/compliance/dwd
+rules:
+  DWD-ATTRIBUTION-STOP-001:
+    classification: red
+    condition: attribution_missing
+  DWD-OPENDATA-CC-BY-001:
+    classification: green
+    requirements:
+      - official_source
+      - dataset_specific_cc_by_4_0
+      - attribution_present
+      - third_party_rights_cleared
+  DWD-OPENDATA-EVIDENCE-002:
+    classification: yellow
+  DWD-AGB-OFFER-SCOPE-001:
+    classification: yellow
+    source_types: [dwd_registered_data]
+    written_permission_required: true
+  DWD-THIRD-PARTY-001:
+    classification: yellow
+    source_types: [dwd_third_party]
+    written_permission_required: true

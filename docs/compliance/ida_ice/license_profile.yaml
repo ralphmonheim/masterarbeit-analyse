@@ -1,0 +1,34 @@
+product: IDA ICE
+version: "5.1"
+license_family: educational
+license_subtype: unknown
+licensee_context: university
+license_identifier_stored: false
+evidence:
+  - source_id: equa-eula-2023-12
+    statement: "Educational Version and Classroom License are defined in EULA section 1(h)-(i)."
+    confidence: high
+  - source_id: user_statement_2026-07-13
+    statement: "IDA-ICE-5.1-Hochschullizenz exists."
+    confidence: user_provided
+  - source_id: equa-educational-options-2026-07
+    statement: "EQUA lists Educational single-user, classroom and department licenses with different research and teaching scopes."
+    confidence: high
+eula:
+  version: "2023/12"
+  source_id: equa-eula-2023-12
+  verified: true
+  full_text_versioned: false
+restrictions:
+  automated_simulation_launch: prohibited_without_permission
+  simulation_server_use: prohibited_without_permission
+  reverse_engineering: prohibited
+  software_copying: restricted
+  machine_readable_copy: backup_only
+  same_primary_function_application: prohibited
+open_questions:
+  - exact_license_subtype
+  - authorized_user_scope
+  - project_specific_idm_parser_permission
+  - api_macro_and_batch_authorization
+  - publication_of_parser_and_anonymized_examples

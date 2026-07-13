@@ -62,6 +62,50 @@ git diff --stat
 Diese Ausloesephrasen sind dokumentierte Arbeitsroutinen fuer Codex. Sie sind
 keine Python-CLI-Befehle.
 
+### Council-Routinen
+
+Das Projekt-Council arbeitet mit kontrollierter Autonomie. Tera bleibt als
+Hauptagent fuer Planung, Integration und Abschluss verantwortlich. Read-only
+Council-Mitglieder duerfen bei klar abgegrenzten Analyse- und Pruefaufgaben
+automatisch eingesetzt werden. Schreibende Council-Arbeit setzt einen zuvor
+freigegebenen Umsetzungsumfang voraus.
+
+Der read-only `compliance_auditor` wird bei erkennbaren Compliance-Risiken
+automatisch einbezogen. Dazu gehoeren insbesondere neue Plaene und
+Projektinputs, externe Software, Abhaengigkeiten oder Daten, Lizenzen,
+Norminhalte, Bilder, Cloud-Verarbeitung, personenbezogene oder vertrauliche
+Daten sowie Veroeffentlichung und Weitergabe.
+
+Neue oder geaenderte Rollen unter `.codex/agents/` werden beim Start einer
+Codex-Sitzung geladen. Nach einer Rollenaenderung ist deshalb einmalig ein
+neuer Codex-Chat oder Projekt-Reload erforderlich.
+
+- `council analyse`: eine read-only Bestandsaufnahme ausfuehren; Tera darf
+  Luna fuer gezielte Codesuche und bei fachlich oder technisch kritischen
+  Fragen Sol hinzuziehen; keine Dateien veraendern.
+- `council review`: einen read-only Sol-Review ausfuehren; der
+  `quality_auditor` prueft technische Qualitaet, der `professor` bei Bedarf
+  wissenschaftliche Methodik und Reproduzierbarkeit.
+- `council compliance`: eine projektweite read-only Compliance-Vorpruefung
+  anhand von `docs/compliance/` ausfuehren. Der `compliance_auditor` erteilt
+  keine Freigabe; ein belegter Compliance-Blocker stoppt den betroffenen
+  Vorgang.
+- `council umsetzen`: einen bereits ausdruecklich freigegebenen Plan oder
+  Umfang mit Tera umsetzen; der `implementation_engineer` darf klar
+  abgegrenzte Datei- oder Modulbereiche uebernehmen. Der Befehl ersetzt keine
+  noch fehlende Umsetzungsfreigabe.
+- `ohne council` oder `nur Tera`: die aktuelle Aufgabe ohne optionale
+  Subagenten im Hauptagenten bearbeiten. Ein verpflichtender
+  Compliance-Preflight bleibt aktiv.
+- `mit Sol-Review`: fuer die aktuelle Aufgabe nach der Umsetzung einen
+  read-only Qualitaetsreview durch Sol einplanen.
+
+Council-Mitglieder erweitern den freigegebenen Umfang nicht selbststaendig.
+Mehrere schreibende Agenten duerfen nicht gleichzeitig dieselben Dateien
+bearbeiten. Befunde werden als `Blocker`, `Wichtig` oder `Optional`
+klassifiziert. Eine blosse Risikoakzeptanz hebt keinen Compliance-Blocker auf,
+wenn ein erforderlicher Rechte- oder Freigabenachweis fehlt.
+
 ### Sammelbefehle
 
 Sammelbefehle buendeln mehrere Routinen oder Arbeitsbereiche.
@@ -75,7 +119,8 @@ riskanten Abweichungen und technisch notwendigen Sicherheitsfreigaben noetig.
 - `aktualisieren`: Projektlage, Planung, Entscheidungen, Changelog,
   Command-Dokumentation, Modulumsetzungsstaende, zentrale
   Streamlit-Statusanzeigen und Versionskonsistenz pruefen; naechste Version
-  nur vorschlagen; keine Git-Aktionen und keine Beispieloutputs erzeugen.
+  nur vorschlagen; neue Plaene durchlaufen den Compliance-Preflight; keine
+  Git-Aktionen und keine Beispieloutputs erzeugen.
 - `tagesstart` oder `Guten Morgen, es ist ein neuer Tag.`: Projektstand lesen,
   offene Nutzerentscheidungen bei Bedarf pflegen und offene Aufgaben nach
   Modulen im Chat ausgeben; `ma_ui` wird nicht automatisch gestartet.
@@ -99,20 +144,30 @@ Pruefschritte enthalten.
 - `direkt update repo`: denselben Repo-Update-Ablauf ausfuehren und Commit, Tag
   sowie Push durch Codex erledigen, sofern Git-Zugriff moeglich ist.
 - `update planung`: Plan-Inbox, Planindex, Planstatus, Nutzerentscheidungen und
-  technische Entscheidungen pruefen und aktualisieren.
+  technische Entscheidungen pruefen und aktualisieren; neue Plaene werden
+  zuerst anhand bereinigter Metadaten und erst nach bestandenem
+  Dokument-Preflight inhaltlich durch den `compliance_auditor` geprueft.
 - `projektlage`: kompakte Lage zu Git-Stand, Version, Plaenen und offenen
   Entscheidungen ausgeben.
 - `plan aufnehmen`: neue Plaene aus `docs/project/plans/inbox/` in Planindex
-  und Planstatus einordnen.
+  und Planstatus einordnen. Vor dem Inhaltszugriff wird die Zulaessigkeit des
+  Plandokuments anhand bereinigter Metadaten geprueft. Erst danach wird
+  getrennt bewertet, ob ein Compliance-Blocker die geplante Umsetzung sperrt.
 - `projektinput aufnehmen`: neue Dateien aus der lokalen Entwicklungs-Inbox
   `data/project_inbox/new/` nach den Regeln in
-  `docs/project/PROJECT_INPUT_WORKFLOW.md` scannen und eindeutig zuordenbare
+  `docs/project/PROJECT_INPUT_WORKFLOW.md` zunaechst durch den
+  `compliance_auditor` pruefen und nur eindeutig zulaessige sowie zuordenbare
   Inhalte in die bestehenden Projekt-, Modul- oder lokalen Datenordner
-  verteilen; unklare Dateien bleiben in `data/project_inbox/needs_review/`.
+  verteilen. Ein blockiertes Original bleibt unveraendert an seinem aktuellen
+  Eingangspfad; nur Metadatenhinweise oder ausdruecklich freigegebene
+  Arbeitskopien gehoeren nach `data/project_inbox/needs_review/`.
 - `entscheidung festhalten`: echte Nutzerentscheidung dokumentieren und
   passende offene Punkte schliessen.
 - `release check`: pruefen, ob Version, Changelog, Tags und Tests fuer ein
-  Release bereit sind.
+  Release bereit sind. Vor jeder Veroeffentlichung oder Weitergabe muessen
+  externe, geschuetzte, personenbezogene oder vertrauliche Inhalte sowie neue
+  Abhaengigkeiten durch eine gueltige, den konkreten Stand abdeckende
+  `compliance_decision` gedeckt sein.
 
 ### Test-/Referenzbefehle
 
@@ -123,6 +178,8 @@ Details stehen in `docs/project/UPDATE_ROUTINES.md`.
 
 ## Klassifikation
 
+- Council-Routine: steuert read-only Analyse, Qualitaetsreview oder eine
+  bereits freigegebene Umsetzung mit projektlokalen Codex-Subagenten.
 - Sammelbefehl: buendelt mehrere Routinen oder Arbeitsbereiche zu einem
   Tages-, Wochen- oder Gesamtupdate.
 - Einzelbefehl: hat einen klar abgegrenzten Zweck, zum Beispiel Repo

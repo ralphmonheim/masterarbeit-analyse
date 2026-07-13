@@ -22,6 +22,8 @@ deutsche Normen nachweisen und spaeter internationale Normenprofile ergaenzen.
 - keine allgemeine Modellvalidierung
 - keine ungepruefte Uebernahme bestehender Komfortzonen oder Grenzwerte
 - keine direkte Ausfuehrung automatisch extrahierter Formelkandidaten
+- keine OCR-, Embedding-, RAG- oder KI-Verarbeitung geschuetzter
+  Normeninhalte ohne dokumentierte passende Rechte
 
 ## Abhaengigkeiten
 
@@ -30,12 +32,15 @@ deutsche Normen nachweisen und spaeter internationale Normenprofile ergaenzen.
 
 ## Status
 
-Geplant. Der fruehere Arbeitsname `stage_3_verification` ist durch
+Geplant. Die technische Vorpruefung ist mit `ma_core.compliance` vorhanden;
+fachliche Normregeln sind noch nicht freigegeben. Der fruehere Arbeitsname
+`stage_3_verification` ist durch
 `stage_3_standards_compliance` ersetzt. Lokale Normen- und
 Kalenderarbeitsdaten liegen unter `data/common/normen/` als Pruefbestand fuer
 P020. Sie sind noch keine produktiven Regeln.
 
 ## Naechster Schritt
 
-P020 mit einer Quellen- und Methodenmatrix fuer deutsche Normen beginnen und
-die lokalen Extraktionsdaten nur nach fachlicher Pruefung uebernehmen.
+Zuerst Hochschul-/DIN-Rechte und eine Quellen- und Methodenmatrix fuer
+deutsche Normen klaeren. Lokale Extraktionsdaten erst nach fachlicher und
+rechtlicher Gruen-Freigabe uebernehmen.

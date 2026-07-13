@@ -1,6 +1,6 @@
 # Plan Status
 
-Stand: 2026-07-12
+Stand: 2026-07-13
 
 Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt und nach jeder Planumsetzung aktualisiert. Vollstaendige alte Planstaende liegen unter `docs/project/archive/plans/`.
 
@@ -8,6 +8,11 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 
 ### Abgeschlossen
 
+- Projektweites Compliance-System angelegt: `docs/compliance/` trennt
+  gemeinsame, IDA-/EQUA-, DIN-/Nautos- und DWD-Regeln. `ma_core.compliance`
+  setzt Metadaten-Preflight, Gruen-Gelb-Rot-/Unknown-Entscheidung, sichere
+  Operationswrapper, Datenbereinigung und datensparsames JSONL-Audit um. Der
+  DWD-TRY-2011-Konverter ist als erster produktiver Adapter gegatet.
 - P003 Projektstruktur, Planungsbereich und Nutzerentscheidungen: modulare Dokumentationsstruktur, Planindex, Strukturreview, Cleanup-Plan, Implementierungshinweise und getrennter Bereich fuer Nutzerentscheidungen wurden vorbereitet. Betroffen: `docs/project/`, `docs/ma_analyse/`, `docs/ma_variants/`, `docs/ma_weather/`, `docs/common/`.
 - `docs/project/archive/plans/250604_Plan_Projektstruktur_Review_Planungsbereich_Nutzerentscheidungen.md` ist nach Umsetzung archiviert.
 - `docs/project/archive/plans/250603_Plan_Variantenmodul_GUI_Logikpruefung.md` ist nach Abschluss von P001 archiviert.
@@ -133,8 +138,10 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - P009 ist auf die P017/P018-Schnittstelle nachgezogen: Export und Import
   sollen ueber `RUN-ID + VAR-ID` zuordnen; `CASE-ID` und `SimulationCase`
   werden nicht als neue Hauptobjekte eingefuehrt.
-- Direkte IDM-Manipulation, erfundene IDA-Befehle und automatischer
-  Simulationsstart bleiben bis zur lokalen Verifikation ausgeschlossen.
+- Direkte IDM-Manipulation, erfundene IDA-Befehle, automatischer
+  Simulationsstart, Batch-Ausfuehrungen und Simulationsserver-Nutzung bleiben
+  bis zu einer ausdruecklichen schriftlichen EQUA-Freigabe ausgeschlossen;
+  `docs/compliance/ida_ice/` ist die verbindliche Vorpruefung.
 
 ### Modulplanserie P011 bis P028
 
@@ -142,7 +149,9 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - Analyse Stufe 2 Optimierung: P019 auf Basis vorhandener Befehle.
 - Analyse Stufe 3 Norm-Nachweis: P020 unter dem kanonischen Namen
   `ma_analyse.stage_3_standards_compliance`; deutsche Normen zuerst,
-  internationale Profile spaeter.
+  internationale Profile spaeter. Die technische Compliance-Vorpruefung ist
+  vorhanden; produktive Normlogik bleibt bis zur bestaetigten Rechte- und
+  Quellenpruefung gesperrt.
 - Analyse Stufe 4 Sensitivitaet: P021 mit kritischen Wetterereignissen statt
   ausschliesslicher Jahresbetrachtung.
 - Economy und Sustainability: P022 und P023 als kleine Demos mit
@@ -397,8 +406,10 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   zu P014/P015 bewusst behandelt ist: `ma_technical` soll fachlich zentrale
   Systeme vor `ma_zones` liefern, die bestehende LoD-1-Technikdemo nutzt aber
   noch `source_zone_model_id` und `served_zone_ids`.
-- P020 beginnt mit Recherche und darf vor einer belastbaren Normen- und
-  Methodenmatrix keine Grenzwerte als Norm-Nachweis implementieren.
+- P020 beginnt mit Hochschul-/DIN-Rechteklaerung und Recherche. Vor einer
+  belastbaren Normen- und Methodenmatrix sowie gruen freigegebener Provenienz
+  duerfen keine extrahierten Grenzwerte als Norm-Nachweis implementiert
+  werden.
 - Aus P005 nach P007 uebernommen: Analyse-View in laufender Streamlit-App manuell gegen
   reale `ida_imports`-/Datenbankordner pruefen.
 - Aus P005 nach P007 uebernommen: Schrittweisen Analyse-Wizard in der laufenden

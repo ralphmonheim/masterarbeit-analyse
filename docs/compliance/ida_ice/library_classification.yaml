@@ -1,0 +1,24 @@
+default_policy: proprietary_until_classified
+classes:
+  user_created:
+    allowed_scope: machine_readable_storage_and_analysis
+    examples: [own_templates, own_profiles, own_system_configurations]
+  equa_provided:
+    allowed_scope: limited_review_after_preflight
+    blocked_scope: [complete_extraction, mirroring, redistribution]
+  third_party:
+    allowed_scope: unknown_until_license_checked
+    examples: [cad, bim, ifc, manufacturer_data, weather_data]
+  open_source_component:
+    allowed_scope: according_to_component_license
+    note: "EULA 11(a) identifies certain GPL/LGPL libraries only; it does not classify the whole product as open source."
+component_schema:
+  name: ""
+  origin: equa_or_third_party_or_user
+  license: proprietary_or_gpl_or_lgpl_or_other_or_unknown
+  license_file_found: false
+  source_code_available: unknown
+  extraction_allowed: unknown
+  modification_allowed: unknown
+  redistribution_allowed: unknown
+  attribution_required: unknown

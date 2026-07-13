@@ -12,6 +12,7 @@ from ma_ui.pages.weather import (
 )
 
 from ma_core import InputSourceKind
+from ma_core.compliance import ComplianceBlockedError
 from ma_validation import DiagnosticSeverity, ReleaseChoice, ReleaseStatus
 from ma_weather import (
     ALL_WEATHER_PLOTS,
@@ -39,7 +40,10 @@ from ma_weather import (
     validate_weather_file_discovery,
     weather_discovery_rows,
 )
-from ma_weather.dwd_try2011_converter import convert_dwd_try2011_prn_folder
+from ma_weather.dwd_try2011_converter import (
+    authorize_dwd_try2011_local_conversion,
+    convert_dwd_try2011_prn_folder,
+)
 from ma_weather.run_weather_analysis import plot_template_weather, record_weather_release_decision, run_weather_analysis
 from ma_weather.try_importer import import_try_weather_file
 from ma_weather.weather_catalog import DATASET_ROLE_SITE_SPECIFIC, DATASET_ROLE_TRY_REFERENCE
@@ -1224,7 +1228,20 @@ def test_dwd_try2011_prn_converter_writes_importable_dat_file(tmp_path):
     ]
     (input_dir / "TRY2010_12_Jahr_DAT.PRN").write_text("\n".join(prn_rows), encoding="utf-8")
 
-    summary = convert_dwd_try2011_prn_folder(input_dir, output_dir=output_dir)
+    with pytest.raises(ComplianceBlockedError):
+        convert_dwd_try2011_prn_folder(input_dir, output_dir=output_dir)
+
+    compliance_decision = authorize_dwd_try2011_local_conversion(
+        input_dir / "DWD TRY Daten 2011.idm",
+        confirmation_reference="TEST-COMPLIANCE-CONFIRMATION",
+        permission_reference="TEST-FIXTURE-NO-EXTERNAL-RIGHTS",
+        audit_log_path=tmp_path / "logs" / "compliance.jsonl",
+    )
+    summary = convert_dwd_try2011_prn_folder(
+        input_dir,
+        output_dir=output_dir,
+        compliance_decision=compliance_decision,
+    )
 
     target_file = output_dir / "TRY_12_Mannheim" / "TRY2010_12_Jahr.dat"
     assert summary.converted_count == 1

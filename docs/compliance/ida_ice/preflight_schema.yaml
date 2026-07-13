@@ -1,0 +1,36 @@
+extends: ../shared/preflight_schema.yaml
+preflight_check:
+  file_name: ""
+  file_type: ""
+  intended_operation: ""
+  ownership:
+    file_created_by_user: unknown
+    contains_equa_content: unknown
+    contains_third_party_content: unknown
+  license:
+    ida_license_type_known: false
+    component_license_known: false
+    redistribution_allowed: unknown
+    machine_readable_extraction_allowed: unknown
+  confidentiality:
+    contains_client_data: unknown
+    contains_personal_data: unknown
+    contains_confidential_project_data: unknown
+    contains_license_data: unknown
+    contains_internal_paths: unknown
+  processing:
+    local_processing_possible: unknown
+    cloud_processing_required: false
+    cloud_processing_approved: false
+    simulation_launch_involved: false
+    reverse_engineering_risk: unknown
+    library_replication_risk: unknown
+  classification:
+    risk_level: unknown
+    decision: stop
+    reason: ""
+rules:
+  - "The shared project preflight applies before this IDA-specific overlay."
+  - "Unknown or false essential fields block complete cloud processing."
+  - "Automated simulation launch sets classification.risk_level to red and decision to stop."
+  - "Original files must remain unchanged; work only on a controlled copy after review."

@@ -1,0 +1,19 @@
+version: 1
+source: docs/compliance/ida_ice
+rules:
+  EQUA-EULA-3E-AUTOMATION-STOP:
+    classification: red
+    operations: [execute_simulation, batch_simulation]
+  EQUA-EULA-3A-5A-LIBRARY-STOP:
+    classification: red
+    source_types: [equa_library]
+  EQUA-IDM-LOCAL-001:
+    classification: yellow
+    source_types: [ida_idm]
+    environments: [local]
+  EQUA-IDM-EXTERNAL-002:
+    classification: yellow
+    written_permission_required: true
+  EQUA-OWN-RESULTS-001:
+    classification: green
+    condition: own_exported_results

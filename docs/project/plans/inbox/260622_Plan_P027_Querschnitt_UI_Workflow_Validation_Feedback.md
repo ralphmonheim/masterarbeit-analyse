@@ -27,6 +27,9 @@ Serviceaufrufe ueber alle Fachslices konsistent darstellen und steuern.
   Status-, Reload- und Abbruchmeldungen abbilden.
 - Dimensionierungsunterbrechung innerhalb von `VVER` ueber `ma_workflow`
   koordinieren, ohne daraus eine fachliche Iteration zu machen.
+- Compliance-Warnungen aus `ma_core.compliance` einheitlich anzeigen:
+  `green` ausfuehren, `yellow` bis zur dokumentierten Bestaetigung und allen
+  erforderlichen Belegen blockieren, `red` und `unknown` stoppen.
 
 ## Akzeptanzkriterien
 
@@ -85,3 +88,12 @@ Workflow-Zustaende fuer laengere Variantenprozesse:
 
 Die Dimensionierungsschleife innerhalb von `VVER` ist technische
 Wiederaufnahme, keine fachliche CaseIteration.
+
+## Umsetzungsbezug Compliance
+
+`ma_core.compliance` stellt UI-neutrale OperationRequests, Metadaten-
+Preflights, Entscheidungen, Warntexte, sichere Operationswrapper und ein
+append-only JSONL-Audit bereit. Der DWD-TRY-2011-Konverter ist der erste
+angebundene Fachadapter. Eine spaetere UI darf rote oder unbekannte
+Entscheidungen nicht uebersteuern und bei gelben Entscheidungen nur die vom
+Service verlangten Referenzen erfassen.

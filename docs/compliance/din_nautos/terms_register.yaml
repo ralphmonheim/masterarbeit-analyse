@@ -1,0 +1,77 @@
+- term_id: DIN-INDIVIDUAL-USE-001
+  system: din_media
+  source_id: din-media-agb-2026-05
+  topic: individual_electronic_use
+  section: "5.2"
+  short_quote: "betriebsinternen Nutzung durch eine einzelne Person"
+  paraphrase: "Eine einzeln bezogene elektronische technische Regel ist grundsaetzlich fuer die interne Nutzung einer Person lizenziert."
+  impact_on_project: "Ein Hochschulzugang erlaubt nicht automatisch Mehrfachnutzung oder Weitergabe."
+  classification_effect: yellow
+  confidence: high
+  requires_legal_review: false
+- term_id: DIN-NETWORK-001
+  system: din_media
+  source_id: din-media-agb-2026-05
+  topic: network_license
+  section: "5.3"
+  short_quote: "gesonderten Erwerb einer entsprechenden Netzwerklizenz"
+  paraphrase: "Innerbetriebliche Netzwerknutzung setzt eine passende Netzwerklizenz voraus."
+  impact_on_project: "Hochschul- und Betreuerzugriffe muessen vom konkreten Lizenzumfang gedeckt sein."
+  classification_effect: yellow
+  confidence: high
+  requires_legal_review: false
+- term_id: DIN-AI-001
+  system: din_media
+  source_id: din-media-agb-2026-05
+  topic: machine_and_ai_processing
+  section: "5.4"
+  short_quote: "zusaetzlich den gesonderten Erwerb einer entsprechenden KI-Lizenz"
+  paraphrase: "Automatisierte oder KI-gestuetzte Analyse, Extraktion, Strukturierung, Verknuepfung und Indexierung setzt eine gesonderte KI-Lizenz voraus."
+  impact_on_project: "Norm-PDF, OCR, automatisierte Extraktion, LLM, Embeddings und RAG bleiben ohne Nachweis gesperrt."
+  classification_effect: red
+  confidence: high
+  requires_legal_review: false
+- term_id: DIN-ADDITIONAL-CONSENT-001
+  system: din_media
+  source_id: din-media-agb-2026-05
+  topic: additional_use
+  section: "5.6"
+  short_quote: "vorherigen, gesonderten und ausdruecklichen Einwilligung"
+  paraphrase: "Weitergehende Verarbeitung, Weitergabe, Extraktion und systematische Sammlungen benoetigen eine ausdrueckliche Einwilligung, sofern kein zwingendes Gesetz greift."
+  impact_on_project: "Eine maschinenlesbare Ersatzfassung oder systematische Normdatenbank ist nicht freigegeben."
+  classification_effect: red
+  confidence: high
+  requires_legal_review: false
+- term_id: DIN-AI-CONDITIONS-001
+  system: din_media
+  source_id: din-media-ai-license-2026-07
+  topic: ai_license_conditions
+  section: Voraussetzungen
+  short_quote: "isolierten KI-Umgebung"
+  paraphrase: "DIN Media nennt Mitgliedschaft mit Vervielfaeltigungsrecht, Netzwerklizenz und isolierte Closed-Loop-KI als Voraussetzungen."
+  impact_on_project: "Ein externer OpenAI-Dienst ist nicht automatisch durch eine DIN-KI-Lizenz abgedeckt."
+  classification_effect: yellow
+  confidence: high
+  requires_legal_review: true
+- term_id: NAUTOS-OFFER-001
+  system: nautos
+  source_id: din-media-nautos-it-agb-2024-04-21
+  topic: product_scope
+  section: EVB-Nautos 3
+  short_quote: "nach Massgabe des Angebots"
+  paraphrase: "Nautos-Funktionen und Rechte richten sich nach Angebot, Leistungsbeschreibung, IT-AGB und EVB-Nautos."
+  impact_on_project: "Der konkrete Hochschulvertrag muss durch die zustaendige Stelle bestaetigt werden."
+  classification_effect: yellow
+  confidence: high
+  requires_legal_review: false
+- term_id: URHG-TDM-REVIEW-001
+  system: other
+  source_id: urhg-60d-current
+  topic: scientific_tdm
+  section: "Paragraph 60d"
+  short_quote: "fuer Zwecke der wissenschaftlichen Forschung"
+  paraphrase: "Das UrhG enthaelt eine TDM-Regel fuer wissenschaftliche Forschung mit besonderen Voraussetzungen."
+  impact_on_project: "Keine automatische Freigabe; Hochschule muss konkrete Berechtigung, Verarbeitung, Sicherheit und Aufbewahrung bestaetigen."
+  classification_effect: yellow
+  confidence: high
+  requires_legal_review: true

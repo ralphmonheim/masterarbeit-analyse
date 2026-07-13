@@ -1,9 +1,24 @@
 # P008 ma_weather Gesamtplan
 
-Stand: 2026-06-29
+Stand: 2026-07-13
 Status: Aktiv
 Plannummer: P008
 Bezug: P007, P010, P015, P018, P021, P027, archivierter P002
+
+## Aenderungsvermerk Compliance
+
+Datum: 2026-07-13
+
+DWD-Daten werden nach ihrem konkreten Bezugsweg klassifiziert. Offizielle
+OpenData-Datensaetze koennen nur mit datensatzbezogener CC-BY-4.0-Quelle,
+Attribution und geklaerten Drittrechten freigegeben werden. Registrierte oder
+bestellte TRY-Leistungen richten sich nach Angebot und DWD-AGB. Der vorhandene
+TRY-2011-/IDA-Bestand bleibt `yellow`, lokal und unversioniert.
+
+Der bestehende Konverter ist an `ma_core.compliance` angebunden. Vor dem
+Lesen von `.idm` oder `.PRN` verlangt er eine Nutzerbestaetigung und eine
+Referenz auf die produktspezifischen Bezugsrechte. Das Audit speichert nur
+Metadaten und Entscheidungen.
 
 ## Aenderungsvermerk zur Zusammenfuehrung
 

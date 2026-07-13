@@ -1,0 +1,44 @@
+version: 1
+decisions:
+  - decision_id: SHARED-COMPLIANCE-001
+    date: "2026-07-13"
+    status: active
+    decision: "Unknown rights stop processing"
+    rationale: "Eine technische Moeglichkeit oder ein vorhandener Dateizugriff ist keine Nutzungsfreigabe."
+    allowed_scope: [metadata, official_urls, own_paraphrases, documented_safe_alternatives]
+    excluded_scope: [unknown_full_content_processing, external_upload, redistribution]
+    sources: []
+  - decision_id: SHARED-COMPLIANCE-002
+    date: "2026-07-13"
+    status: active
+    decision: "OpenAI controls do not replace source rights"
+    rationale: "Training, retention and enterprise controls govern provider processing only."
+    allowed_scope: [provider_profile_documentation]
+    excluded_scope: [inferring_third_party_permission_from_no_training]
+    sources: [openai-eu-terms-2026-01-16, openai-api-data-controls-2026-07]
+  - decision_id: SHARED-COMPLIANCE-003
+    date: "2026-07-13"
+    status: active
+    decision: "Protected source files remain outside the repository"
+    rationale: "The repository stores rules and provenance, not protected or confidential source content."
+    allowed_scope: [metadata, hashes, own_rules, own_code]
+    excluded_scope: [norm_pdfs, equa_libraries, license_data, real_project_working_data]
+    sources: []
+  - decision_id: SHARED-COMPLIANCE-004
+    date: "2026-07-13"
+    status: active
+    decision: "Central technical preflight and operation gate"
+    rationale: "Documentation alone does not prevent accidental protected-content processing."
+    allowed_scope: [metadata_preflight, deterministic_decision, approved_safe_wrapper, metadata_only_audit]
+    excluded_scope: [automatic_override_of_red, unknown_origin_processing, protected_fulltext_logging]
+    sources: []
+  - decision_id: SHARED-RELEASE-001
+    date: "2026-07-13"
+    status: active
+    decision: "Public GitHub release of repository code and documentation"
+    rationale: "The user confirmed that origin is public. The release check verified that protected working inputs remain ignored and that the tracked change set contains own code, own documentation, metadata and permitted official source references only."
+    allowed_scope: [own_source_code, own_tests, own_documentation, metadata, official_urls, own_paraphrases, policy_schemas]
+    excluded_scope: [norm_pdfs, norm_tables, equa_libraries, ida_idm_files, dwd_try_data, real_project_working_data, credentials, session_audits]
+    release_scope: "origin https://github.com/ralphmonheim/masterarbeit-analyse.git; local v0.26.0 commit 01a08a5f2f647a9c5d8016a4df1fce400d6ec0c2 and release candidate v0.27.0"
+    evidence: ["User confirmation in Codex chat on 2026-07-13: origin is public.", "git ls-files reviewed: no protected DWD, IDA, DIN or working-input files are tracked.", "git check-ignore reviewed for DWD TRY and IDA inbox inputs.", "Ruff passed and pytest: 470 passed on 2026-07-13."]
+    sources: [SHARED-COMPLIANCE-003, SHARED-COMPLIANCE-004]

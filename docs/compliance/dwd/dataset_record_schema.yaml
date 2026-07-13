@@ -1,0 +1,53 @@
+version: 1
+dwd_dataset_record:
+  dataset_id: ""
+  provider: Deutscher Wetterdienst
+  product: ""
+  variant: ""
+  access_route: open_data_or_registered_or_ordered_or_unknown
+  official_source_url: ""
+  retrieved_at: ""
+  applicable_license: ""
+  license_evidence_confirmed: false
+  third_party_rights_checked: false
+  location:
+    latitude: null
+    longitude: null
+    grid_reference: ""
+    elevation_m: null
+  climate_period:
+    reference_period: ""
+    projection_period: ""
+  original:
+    file_name: ""
+    sha256: ""
+    stored_unchanged: true
+    local_only: true
+  processed:
+    file_name: ""
+    sha256: ""
+    processing_script: ""
+    processing_script_version: ""
+    changes: []
+  attribution:
+    text: ""
+    included_in_output: false
+  compliance:
+    classification: yellow
+    preflight_complete: false
+    redistribution_allowed: false
+    external_processing_allowed: false
+change_types:
+  - format_conversion
+  - column_selection
+  - column_renaming
+  - unit_conversion
+  - timezone_conversion
+  - daylight_saving_adjustment
+  - missing_value_handling
+  - interpolation
+  - aggregation
+  - filtering
+  - coordinate_transformation
+  - weather_parameter_derivation
+  - ida_ice_specific_mapping

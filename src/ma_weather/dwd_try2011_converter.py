@@ -10,6 +10,17 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
 
+from ma_core.compliance import (
+    DEFAULT_COMPLIANCE_AUDIT_PATH,
+    ComplianceAuditLogger,
+    ComplianceDecision,
+    ComplianceOperation,
+    ComplianceService,
+    OperationRequest,
+    SourceType,
+    inspect_request_metadata,
+)
+
 DEFAULT_DWD_TRY2011_INPUT_DIR = Path("data/project_inbox/new/weather")
 DEFAULT_DWD_TRY2011_IDM_NAME = "DWD TRY Daten 2011.idm"
 DEFAULT_DWD_TRY2011_OUTPUT_DIR = Path("data/ma_weather/input")
@@ -103,6 +114,7 @@ def convert_dwd_try2011_prn_folder(
     output_dir: str | Path = DEFAULT_DWD_TRY2011_OUTPUT_DIR,
     idm_path: str | Path | None = None,
     overwrite: bool = False,
+    compliance_decision: ComplianceDecision | None = None,
 ) -> DwdTry2011ConversionSummary:
     """Konvertiert alle DWD-TRY-2011-PRN-Dateien in das lokale TRY-DAT-Format."""
     source_dir = Path(input_dir)
@@ -113,7 +125,9 @@ def convert_dwd_try2011_prn_folder(
     if not overview_path.exists():
         raise FileNotFoundError(f"IDM-Uebersichtsdatei nicht gefunden: {overview_path}")
 
-    definitions = parse_dwd_try2011_idm(overview_path)
+    _require_dwd_try2011_compliance(compliance_decision, overview_path)
+
+    definitions = parse_dwd_try2011_idm(overview_path, compliance_decision=compliance_decision)
     converted_files: list[DwdTry2011ConvertedFile] = []
     for source_path in sorted(source_dir.glob("*.PRN")):
         definition = definitions.get(source_path.name.casefold())
@@ -125,6 +139,7 @@ def convert_dwd_try2011_prn_folder(
                 definition,
                 output_dir=target_root,
                 overwrite=overwrite,
+                compliance_decision=compliance_decision,
             )
         )
 
@@ -135,9 +150,14 @@ def convert_dwd_try2011_prn_folder(
     )
 
 
-def parse_dwd_try2011_idm(idm_path: str | Path) -> dict[str, DwdTry2011ClimateDefinition]:
+def parse_dwd_try2011_idm(
+    idm_path: str | Path,
+    *,
+    compliance_decision: ComplianceDecision | None = None,
+) -> dict[str, DwdTry2011ClimateDefinition]:
     """Liest die IDA/ICE-IDM-Uebersicht und indexiert sie nach PRN-Dateiname."""
     path = Path(idm_path)
+    _require_dwd_try2011_compliance(compliance_decision, path)
     definitions: dict[str, DwdTry2011ClimateDefinition] = {}
     for line in _read_text(path).splitlines():
         if "CLIMATE-DEF" not in line or "FILENAME" not in line:
@@ -155,9 +175,11 @@ def convert_dwd_try2011_prn_file(
     *,
     output_dir: str | Path = DEFAULT_DWD_TRY2011_OUTPUT_DIR,
     overwrite: bool = False,
+    compliance_decision: ComplianceDecision | None = None,
 ) -> DwdTry2011ConvertedFile:
     """Konvertiert eine einzelne PRN-Datei in eine bestehende ma_weather-TRY-DAT-Datei."""
     source = Path(source_path)
+    _require_dwd_try2011_compliance(compliance_decision, source)
     records = list(_read_prn_records(source))
     if len(records) < TARGET_YEAR_HOURS:
         raise ValueError(f"PRN-Datei hat weniger als {TARGET_YEAR_HOURS} Datenzeilen: {source}")
@@ -180,6 +202,68 @@ def convert_dwd_try2011_prn_file(
         rows_written=TARGET_YEAR_HOURS,
         rows_dropped=max(0, len(records) - TARGET_YEAR_HOURS),
     )
+
+
+def authorize_dwd_try2011_local_conversion(
+    idm_path: str | Path,
+    *,
+    confirmation_reference: str,
+    permission_reference: str,
+    audit_log_path: str | Path = DEFAULT_COMPLIANCE_AUDIT_PATH,
+) -> ComplianceDecision:
+    """Erzeugt die dokumentierte Gelb-Freigabe fuer den lokalen TRY-2011-Konverter."""
+    request = OperationRequest(
+        source_type=SourceType.DWD_REGISTERED_DATA,
+        operation=ComplianceOperation.CONVERT,
+        purpose="Lokale Konvertierung des DWD-TRY-2011-Pakets fuer ma_weather",
+        file_path=Path(idm_path),
+        source_origin="DWD TRY 2011, bezogen als registriertes oder bestelltes IDA-ICE-Paket",
+        declared_license="Produktspezifische DWD-Bezugsrechte; Referenz erforderlich",
+        official_source=True,
+        attribution_present=True,
+        third_party_rights_cleared=False,
+    )
+    service = ComplianceService(audit_logger=ComplianceAuditLogger(audit_log_path))
+    decision = service.evaluate(request)
+    return service.approve_yellow(
+        request,
+        decision,
+        confirmation_reference=confirmation_reference,
+        permission_reference=permission_reference,
+    )
+
+
+def _require_dwd_try2011_compliance(
+    decision: ComplianceDecision | None,
+    path: Path,
+) -> None:
+    if decision is None:
+        request = OperationRequest(
+            source_type=SourceType.DWD_REGISTERED_DATA,
+            operation=ComplianceOperation.CONVERT,
+            purpose="Lokale Konvertierung des DWD-TRY-2011-Pakets fuer ma_weather",
+            file_path=path,
+            source_origin="DWD TRY 2011, Bezugsrechte noch nicht dokumentiert",
+            declared_license="Produktspezifische DWD-Bezugsrechte noch zu belegen",
+            official_source=True,
+            attribution_present=True,
+            third_party_rights_cleared=False,
+        )
+        ComplianceService().evaluate(request).require_allowed()
+        return
+    preflight_request = OperationRequest(
+        source_type=SourceType.DWD_REGISTERED_DATA,
+        operation=ComplianceOperation.CONVERT,
+        purpose="Metadaten-Preflight innerhalb der freigegebenen lokalen TRY-2011-Konvertierung",
+        file_path=path,
+        source_origin="DWD TRY 2011, freigegebener lokaler Konvertierungslauf",
+        declared_license="Produktspezifische DWD-Bezugsrechte referenziert",
+        official_source=True,
+        attribution_present=True,
+        third_party_rights_cleared=False,
+    )
+    inspect_request_metadata(preflight_request)
+    decision.require_allowed()
 
 
 def _parse_climate_definition_line(line: str) -> DwdTry2011ClimateDefinition:
@@ -458,13 +542,30 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output-dir", default=str(DEFAULT_DWD_TRY2011_OUTPUT_DIR))
     parser.add_argument("--idm-path", default=None)
     parser.add_argument("--overwrite", action="store_true")
+    parser.add_argument(
+        "--compliance-confirmation",
+        required=True,
+        help="Referenz auf die dokumentierte Nutzerbestaetigung fuer die lokale Verarbeitung.",
+    )
+    parser.add_argument(
+        "--permission-reference",
+        required=True,
+        help="Referenz auf Angebot, Lizenz oder schriftliche DWD-Nutzungsfreigabe.",
+    )
     args = parser.parse_args(argv)
 
+    overview_path = Path(args.idm_path) if args.idm_path else Path(args.input_dir) / DEFAULT_DWD_TRY2011_IDM_NAME
+    compliance_decision = authorize_dwd_try2011_local_conversion(
+        overview_path,
+        confirmation_reference=args.compliance_confirmation,
+        permission_reference=args.permission_reference,
+    )
     summary = convert_dwd_try2011_prn_folder(
         args.input_dir,
         output_dir=args.output_dir,
         idm_path=args.idm_path,
         overwrite=args.overwrite,
+        compliance_decision=compliance_decision,
     )
     print(f"Konvertierte Dateien: {summary.converted_count}")
     print(f"Geschriebene Datenzeilen: {summary.rows_written}")

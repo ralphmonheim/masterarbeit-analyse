@@ -1,0 +1,44 @@
+- term_id: OPENAI-INPUT-RIGHTS-001
+  system: openai
+  source_id: openai-eu-terms-2026-01-16
+  topic: input_rights
+  section: Content
+  short_quote: "all rights, licences, and permissions needed"
+  paraphrase: "Nutzende muessen die erforderlichen Rechte fuer jede Eingabe besitzen."
+  impact_on_project: "OpenAI-Einstellungen geben keine EQUA-, DIN-, DWD- oder Drittrechte."
+  classification_effect: red
+  confidence: high
+  requires_legal_review: false
+- term_id: OPENAI-CODEX-CONTROLS-001
+  system: openai
+  source_id: openai-codex-chatgpt-plan-2026-07
+  topic: codex_data_controls
+  section: Context and Data Controls
+  short_quote: "training data controls apply"
+  paraphrase: "Fuer Codex gelten die Datenkontrollen des verwendeten ChatGPT- oder Organisationsplans."
+  impact_on_project: "Der konkrete Plan muss vor vertraulicher externer Verarbeitung bekannt sein."
+  classification_effect: yellow
+  confidence: high
+  requires_legal_review: false
+- term_id: OPENAI-API-RETENTION-001
+  system: openai
+  source_id: openai-api-data-controls-2026-07
+  topic: api_retention
+  section: Data retention controls for abuse monitoring
+  short_quote: "retained for up to 30 days"
+  paraphrase: "API-Abuse-Monitoring-Logs koennen standardmaessig bis zu 30 Tage gespeichert werden."
+  impact_on_project: "Vertrauliche oder ungeklaerte Vollinhalte bleiben ohne gesonderte Freigabe lokal."
+  classification_effect: yellow
+  confidence: high
+  requires_legal_review: false
+- term_id: OPENAI-NO-TRAINING-001
+  system: openai
+  source_id: openai-business-data-2026-07
+  topic: business_training
+  section: OpenAI security and privacy
+  short_quote: "do not use data ... for training"
+  paraphrase: "Business-, Enterprise-, Edu- und API-Daten werden standardmaessig nicht zum Modelltraining verwendet."
+  impact_on_project: "Dies ist eine Verarbeitungseigenschaft und keine Lizenz fuer Drittinhalte."
+  classification_effect: yellow
+  confidence: high
+  requires_legal_review: false

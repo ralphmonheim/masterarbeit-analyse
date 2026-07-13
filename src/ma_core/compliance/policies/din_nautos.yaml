@@ -1,0 +1,16 @@
+version: 1
+source: docs/compliance/din_nautos
+rules:
+  DIN-METADATA-PARAPHRASE-001:
+    classification: green
+    source_types: [din_metadata, din_paraphrase]
+  DIN-SHORT-QUOTE-001:
+    classification: yellow
+    source_types: [din_short_quote]
+  DIN-AGB-5-4-5-6-AI-STOP:
+    classification: red
+    operations: [ocr, rag, index, extract, upload_external]
+  DIN-NAUTOS-REVIEW-001:
+    classification: yellow
+    written_permission_required: true
+    university_approval_required: true

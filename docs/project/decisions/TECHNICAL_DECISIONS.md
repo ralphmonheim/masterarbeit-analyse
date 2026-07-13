@@ -1,6 +1,6 @@
 # Entscheidungen
 
-Stand: 2026-07-12
+Stand: 2026-07-13
 
 Dieses Dokument sammelt technische und architektonische Entscheidungen. Echte Nutzerentscheidungen stehen getrennt in `USER_DECISIONS_MASTERTHESIS_CODE.md`.
 
@@ -405,3 +405,92 @@ Technische Folgen:
   versionierte Quellenreferenzen und fachliche Parameterwerte.
 - Die Grenze verhindert doppelte Wettervalidierung und haelt P015 kompatibel
   mit spaeteren Freshness- und Fingerprint-Slices.
+
+## Entscheidung 28: Projektlokales Codex-Council mit kontrollierter Autonomie
+
+Das Repository verwendet `gpt-5.6-terra` mit mittlerem Reasoning als
+wirtschaftlichen Hauptagenten. Spezialisierte Subagenten werden selektiv nach
+Aufgabe eingesetzt: Luna fuer read-only Exploration, Tera fuer freigegebene
+Umsetzungspakete und Sol fuer technische oder wissenschaftliche
+Qualitaetspruefungen.
+
+Technische Folgen:
+
+- Dauerhafte Arbeits- und Freigaberegeln stehen im Root-`AGENTS.md`.
+- Projektbezogene Rollen liegen als TOML-Dateien unter `.codex/agents/`.
+- Vor einer Umsetzungsfreigabe arbeiten alle Council-Mitglieder read-only.
+- Von den Council-Subagenten darf nach der Freigabe nur der
+  `implementation_engineer` innerhalb eines eindeutig zugewiesenen Datei-
+  oder Modulumfangs schreiben; der Hauptagent darf den freigegebenen Umfang
+  weiterhin selbst umsetzen.
+- Der Tera-Hauptagent bleibt fuer Integration, Validierung und Abschluss
+  verantwortlich; parallele Schreibzugriffe auf dieselben Dateien sind nicht
+  erlaubt.
+- Sol-Befunde werden als `Blocker`, `Wichtig` oder `Optional` klassifiziert
+  und erweitern den freigegebenen Umfang nicht automatisch.
+- Dokumentierte Sammelbefehle bleiben vorab freigegebene Ausnahmen.
+- GPT-5.5 bleibt Fallback oder ausdrueckliche Vergleichsinstanz und ist kein
+  regulaeres Council-Mitglied.
+- Node.js wird fuer das Council nicht als Projektabhaengigkeit eingefuehrt,
+  weil Codex die Rollen direkt aus TOML-Konfigurationen laden kann.
+
+## Entscheidung 29: Compliance wird vor geschuetzten Operationen technisch erzwungen
+
+`ma_core.compliance` bildet eine eigene rechtlich-technische Schutzgrenze vor
+Datei-, Parser-, Upload-, Index- und Simulationsoperationen. Sie bleibt von
+der fachlichen Datenvalidierung und Freigabe in `ma_validation` getrennt.
+
+Technische Folgen:
+
+- Ein Metadaten-Preflight erfasst Dateiname, Endung, Groesse, SHA-256,
+  Herkunfts- und Lizenzstatus, bevor semantischer Inhalt verarbeitet wird.
+- `green` erlaubt nur den dokumentierten Umfang. `yellow` bleibt technisch
+  gesperrt, bis Nutzerbestaetigung und alle geforderten Rechte- oder
+  Hochschulreferenzen vorliegen. `red` und `unknown` sind nicht
+  uebersteuerbar.
+- Policies unterscheiden IDA/EQUA, DIN/Nautos, DWD und gemeinsame
+  Stop-Regeln. Eine technische Moeglichkeit oder ein No-Training-Angebot
+  ersetzt keine Rechtefreigabe.
+- Das append-only Audit speichert keine geschuetzten Volltexte, Geheimnisse
+  oder absoluten lokalen Pfade.
+- Der DWD-TRY-2011-Konverter ist der erste angebundene Adapter. Er verlangt
+  vor `.idm`-/`.PRN`-Zugriff Nutzerbestaetigung und Bezugsrechtsreferenz.
+- Bestehende Fachmodelle bleiben kompatibel; weitere Adapter werden jeweils
+  an ihrer oeffentlichen Modulgrenze angebunden.
+
+## Entscheidung 30: Compliance-Audit ist ein objektbezogenes Council-Gate
+
+Der read-only `compliance_auditor` wendet das projektweite Compliance-System
+auf Codex-Arbeitsvorgaenge an. Er ist von `quality_auditor`, `professor` und
+der technischen Laufzeitdurchsetzung in `ma_core.compliance` getrennt.
+
+Technische Folgen:
+
+- Die Rolle liegt unter `.codex/agents/`, nutzt Sol mit hohem Reasoning und
+  besitzt keinen Schreibzugriff.
+- Neue Plaene und Projektinputs durchlaufen vor jedem Inhaltszugriff einen
+  Metadaten-Preflight; erst nach belegter Inhalts- und KI-Verarbeitung darf
+  der Agent den Inhalt pruefen.
+- Ein zulaessiges Plandokument mit einem Umsetzungsrisiko bleibt in Planindex
+  und Planstatus sichtbar; der Blocker sperrt die Umsetzung, nicht die
+  Dokumentation des Risikos.
+- Ein gesperrtes Inbox-Original bleibt unveraendert an seinem aktuellen
+  Eingangspfad. `needs_review/` nimmt nur Metadatenhinweise oder freigegebene
+  Arbeitskopien auf; unabhaengige, unkritische Objekte koennen weiterlaufen.
+- Vor Release oder Veroeffentlichung muss eine gueltige Entscheidung den
+  konkreten Stand und die beabsichtigte Weitergabe abdecken.
+- Der Hauptagent besitzt und dokumentiert die Prozessentscheidung mit
+  Belegreferenz. Materielle oder gelbe Entscheidungen erfordern eine
+  dokumentierte menschliche Bestaetigung und alle geforderten Rechtebelege.
+- Eine Risikoakzeptanz ersetzt keinen erforderlichen Rechte- oder
+  Genehmigungsnachweis. Der Agent erteilt selbst keine Freigabe.
+
+Offener Implementierungspunkt:
+
+- `ComplianceService` gibt aktuell die erste passende Regel zurueck. Trifft
+  eine bestaetigte rote Stop-Regel zugleich mit fehlenden Herkunfts- oder
+  Lizenzbelegen auf, kann deshalb `unknown` statt `red` protokolliert werden.
+  Die Operation bleibt gesperrt, die Klassifikation folgt aber noch nicht der
+  dokumentierten Prioritaet `red > unknown > yellow > green`. Eine Korrektur
+  in `src/ma_core/compliance/service.py` mit kombiniertem Regressionstest ist
+  ein separater Codeumfang.

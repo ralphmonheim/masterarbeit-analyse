@@ -1,0 +1,46 @@
+version: 1
+reviewed_at: "2026-07-13"
+provider: Deutscher Wetterdienst
+profiles:
+  official_open_data:
+    applicable_when:
+      - official_dwd_source_url_confirmed
+      - direct_freely_accessible_access_confirmed
+      - cc_by_4_0_notice_confirmed_for_dataset
+      - third_party_rights_checked
+    license: CC-BY-4.0
+    classification: green
+    rights:
+      copy: true
+      modify_and_convert: true
+      machine_process: true
+      redistribute: true
+      commercial_use: true
+    obligations:
+      attribution_required: true
+      changes_must_be_indicated: true
+      no_implied_endorsement: true
+      third_party_rights_must_be_checked: true
+    project_repository_policy: local_only
+  registered_or_ordered_service:
+    applicable_when:
+      - registration_or_order_required
+      - offer_or_confirmation_controls_rights
+    license: offer_specific
+    classification: yellow
+    redistribution_allowed: unknown
+    publication_allowed: unknown
+    machine_processing_allowed: unknown
+    decision: stop_until_offer_rights_documented
+  unknown_origin:
+    classification: yellow
+    decision: stop_and_warn
+    rights: unknown
+current_local_try_2011_ida_package:
+  source_route: unknown
+  exact_offer_or_license: unknown
+  classification: yellow
+  local_processing_allowed: review_required
+  external_processing_allowed: false
+  redistribution_allowed: false
+  repository_storage_allowed: false

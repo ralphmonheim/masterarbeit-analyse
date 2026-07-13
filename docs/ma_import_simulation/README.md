@@ -5,6 +5,10 @@
   Raumzuordnungen.
 - **Ausgaben:** standardisierte Ergebnisdaten fuer `ma_analyse`.
 - **Abgrenzung:** keine fachliche Kennwertberechnung oder Bewertung.
+- **Compliance:** Das Modul verarbeitet automatisch nur exportierte,
+  zuordenbare Ergebnisartefakte. Vollstaendige IDA-Projektdateien und
+  Bibliotheken sind kein regulaerer Importeingang und bleiben dem
+  Compliance-Preflight unter `docs/compliance/ida_ice/` vorbehalten.
 - **Abhaengigkeiten:** `ma_export_simulation`; Phase 4.
 - **Status:** geplant; Adapter- und Aufbereitungslogik liegt noch in bestehenden Modulen.
 - **Zuordnung:** Simulationsergebnisse werden mindestens ueber

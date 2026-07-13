@@ -1,0 +1,33 @@
+version: 1
+din_ai_preflight:
+  standard_number: ""
+  edition: ""
+  source_system: nautos_or_din_media_or_other
+  lawful_access_confirmed: false
+  university_license_type_known: false
+  network_license_confirmed: false
+  reproduction_right_confirmed: false
+  ai_license_confirmed: false
+  ai_license_covers_standard: false
+  ai_license_covers_student_and_thesis: false
+  intended_processing_covered: false
+  selected_ai_system_approved: false
+  external_provider_approved: false
+  isolated_closed_loop_confirmed: false
+  storage_and_deletion_rules_defined: false
+  human_review_defined: false
+  substantial_reconstruction_risk: unknown
+  university_legal_or_library_confirmation: false
+  decision:
+    classification: red
+    processing_allowed: false
+    reason: "No machine or AI processing until all required permissions are documented."
+statutory_exception_review:
+  university_legal_confirmation: false
+  library_confirmation: false
+  concrete_processing_covered: false
+  student_authorized_person_confirmed: false
+  external_ai_processing_covered: false
+  security_measures_defined: false
+  retention_and_deletion_rules_defined: false
+  decision: stop_and_warn

@@ -1,0 +1,77 @@
+- term_id: DWD-OPEN-DATA-001
+  system: other
+  source_id: dwd-legal-notes-cc-by-4-2026-07
+  topic: open_geodata_reuse
+  section: Rechtliche Hinweise
+  short_quote: "unter den Bedingungen der Lizenz Creative Commons BY 4.0"
+  paraphrase: "Frei zugaengliche DWD-Geodaten und Geodatendienste duerfen mit Quellenvermerk unter CC BY 4.0 weiterverwendet werden."
+  impact_on_project: "Ein konkret belegter OpenData-Datensatz kann verarbeitet und konvertiert werden."
+  classification_effect: green
+  confidence: high
+  requires_legal_review: false
+- term_id: DWD-THIRD-PARTY-001
+  system: other
+  source_id: dwd-legal-notes-cc-by-4-2026-07
+  topic: third_party_rights
+  section: Rechtliche Hinweise
+  short_quote: "Rechte Dritter"
+  paraphrase: "Drittanbieterinhalte koennen gesonderte Rechte oder Zustimmungen erfordern."
+  impact_on_project: "DWD-Ursprung allein reicht bei gemischten Inhalten nicht aus."
+  classification_effect: yellow
+  confidence: high
+  requires_legal_review: false
+- term_id: DWD-AGB-RIGHTS-001
+  system: other
+  source_id: dwd-agb-2025-08
+  topic: offer_specific_rights
+  section: "12"
+  short_quote: "Die Nutzungsrechte sind im Angebot festgelegt."
+  paraphrase: "Bei bestellten DWD-Leistungen bestimmt das konkrete Angebot den Nutzungsumfang."
+  impact_on_project: "Registrierte oder bestellte TRY-Dateien sind nicht automatisch OpenData."
+  classification_effect: yellow
+  confidence: high
+  requires_legal_review: false
+- term_id: DWD-AGB-REDISTRIBUTION-001
+  system: other
+  source_id: dwd-agb-2025-08
+  topic: redistribution_and_publication
+  section: "12"
+  short_quote: "auch in Teilen oder in verarbeiteter Form"
+  paraphrase: "Weitergabe oder Veroeffentlichung bestellter Leistungen erfordert den vereinbarten Nutzungsrahmen und gegebenenfalls eine ausdrueckliche Vereinbarung."
+  impact_on_project: "Das lokale TRY-2011-Paket wird weder roh noch konvertiert weitergegeben."
+  classification_effect: red
+  confidence: high
+  requires_legal_review: false
+- term_id: DWD-TRY-REGISTRATION-001
+  system: other
+  source_id: dwd-try-registration-2026-07
+  topic: registered_try_access
+  section: Registration
+  short_quote: "Nutzungsbedingungen (AGB/ Disclaimer)"
+  paraphrase: "Der registrierungspflichtige TRY-Zugang verlangt die Zustimmung zu AGB und Disclaimer."
+  impact_on_project: "Der Bezugsweg muss fuer jede TRY-Datei dokumentiert sein."
+  classification_effect: yellow
+  confidence: high
+  requires_legal_review: false
+- term_id: DWD-ATTRIBUTION-001
+  system: other
+  source_id: dwd-attribution-guidance-2026-07
+  topic: attribution_and_changes
+  section: Quellenvermerk
+  short_quote: "Auch bei Auszuegen oder Aenderung des Datenformats"
+  paraphrase: "Quellenvermerk und Aenderungshinweis sind auch bei Auszuegen oder Formatkonvertierung erforderlich."
+  impact_on_project: "Jede freigegebene Konvertierung traegt Herkunft und Bearbeitung."
+  classification_effect: green
+  confidence: high
+  requires_legal_review: false
+- term_id: DWD-PRIVACY-001
+  system: other
+  source_id: dwd-privacy-2025-10
+  topic: account_and_registration_data
+  section: "2.3"
+  short_quote: "Bestellungen/ Auftragsabwicklungen"
+  paraphrase: "Registrierung und Auftragsabwicklung koennen personenbezogene Kunden- und Zugangsdaten enthalten."
+  impact_on_project: "Solche Daten werden nicht in Quellenregistern, Wetterdateien oder Repository gespeichert."
+  classification_effect: yellow
+  confidence: high
+  requires_legal_review: false

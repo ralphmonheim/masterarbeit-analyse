@@ -1,0 +1,32 @@
+version: 1
+levels:
+  green:
+    decision: allow_documented_scope
+    warning_required: false
+    meaning: >-
+      Herkunft, Rechte und Verarbeitung sind fuer den konkreten Umfang
+      dokumentiert; keine rote Stop-Regel ist betroffen.
+  yellow:
+    decision: review_required
+    warning_required: true
+    meaning: >-
+      Geschuetzte, gemischte oder nicht vollstaendig geklaerte Inhalte sind
+      betroffen. Nur ein klar abgegrenzter, belegter Teilumfang ist erlaubt.
+  red:
+    decision: stop
+    warning_required: true
+    meaning: >-
+      Eine festgelegte Lizenz-, Schutz-, Automatisierungs- oder
+      Rekonstruktionsgrenze wird ueberschritten.
+  unknown:
+    decision: stop_pending_evidence
+    warning_required: true
+    meaning: >-
+      Wesentliche Herkunfts-, Lizenz- oder Rechtebelege fehlen. Der Status
+      blockiert die Verarbeitung, bezeichnet aber noch kein bestaetigtes
+      Verbot.
+precedence:
+  - red_overrides_unknown_yellow_and_green
+  - unknown_overrides_yellow_and_green_until_evidence_exists
+  - yellow_overrides_green
+  - unknown_remains_unknown_with_processing_blocked

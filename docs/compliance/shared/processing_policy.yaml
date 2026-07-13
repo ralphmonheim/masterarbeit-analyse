@@ -1,0 +1,113 @@
+version: 1
+reviewed_at: "2026-07-13"
+default_policy: stop_and_warn
+legal_advice: false
+source_hierarchy:
+  - individual_contract_or_license_evidence
+  - current_product_specific_terms
+  - current_general_terms
+  - written_permission_from_rightsholder
+  - official_rightsholder_documentation
+  - confirmed_statutory_permission
+  - documented_project_derivation
+principles:
+  technical_possibility_is_not_permission: true
+  unknown_is_not_approval: true
+  original_files_must_not_be_overwritten: true
+  minimum_required_scope: true
+  local_processing_preferred: true
+  human_review_required_for_material_decisions: true
+  full_protected_texts_must_not_be_versioned: true
+decision_gate:
+  required_for:
+    - idm
+    - equa_library
+    - nmf
+    - equa_api
+    - ida_simulation_launch
+    - din_pdf
+    - nautos_file
+    - norm_table
+    - norm_formula
+    - norm_ocr
+    - norm_embedding
+    - norm_rag
+    - norm_vector_database
+    - dwd_registered_or_ordered_dataset
+  required_fields:
+    - request
+    - affected_system
+    - classification
+    - applicable_rules
+    - allowed_scope
+    - excluded_scope
+    - warning_required
+    - permission_requirements
+    - safe_alternative
+external_processing:
+  default_allowed: false
+  requirements:
+    - rights_for_external_processing_confirmed
+    - provider_and_retention_profile_known
+    - personal_and_confidential_data_removed
+    - third_party_rights_confirmed
+    - minimum_required_content_only
+repository_allowed:
+  - bibliographic_metadata
+  - source_references
+  - official_urls_without_credentials
+  - document_versions_and_hashes
+  - own_paraphrases
+  - own_engineering_interpretations
+  - own_calculation_code
+  - own_validation_rules
+  - compliance_decisions
+  - risk_classifications
+  - warning_templates
+  - unsubmitted_permission_requests
+repository_blocked_without_documented_permission:
+  - original_norm_pdf
+  - norm_page_image
+  - extracted_norm_fulltext
+  - complete_norm_table_or_figure
+  - norm_embedding_or_vector_database
+  - reconstructed_standard
+  - complete_equa_library
+  - equa_library_file
+  - equa_database_mirror
+  - license_file_or_key
+  - activation_information
+  - confidential_project_file
+  - real_project_weather_or_norm_working_data
+stop_conditions:
+  - unknown_file_origin
+  - unknown_applicable_license
+  - unknown_component_license
+  - proprietary_library_replication_requested
+  - automatic_ida_simulation_launch_requested
+  - reverse_engineering_required
+  - binary_analysis_required
+  - protection_bypass_required
+  - license_or_access_data_visible
+  - norm_ai_processing_requested_without_confirmed_rights
+  - norm_ocr_embedding_or_rag_requested_without_confirmed_rights
+  - substantial_norm_reconstruction_requested
+  - nautos_automation_requested_without_contractual_permission
+  - dwd_dataset_origin_or_license_unknown
+stop_condition_classification:
+  unknown:
+    - unknown_file_origin
+    - unknown_applicable_license
+    - unknown_component_license
+    - dwd_dataset_origin_or_license_unknown
+  red:
+    - proprietary_library_replication_requested
+    - automatic_ida_simulation_launch_requested
+    - reverse_engineering_required
+    - binary_analysis_required
+    - protection_bypass_required
+    - license_or_access_data_visible
+    - norm_ai_processing_requested_without_confirmed_rights
+    - norm_ocr_embedding_or_rag_requested_without_confirmed_rights
+    - substantial_norm_reconstruction_requested
+    - nautos_automation_requested_without_contractual_permission

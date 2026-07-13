@@ -1,0 +1,21 @@
+version: 1
+default: stop
+rules:
+  SHARED-SECRET-001:
+    classification: red
+    condition: license_or_access_data_present
+  SHARED-UNKNOWN-001:
+    classification: unknown
+    condition: source_origin_unknown
+  SHARED-UNKNOWN-LICENSE-001:
+    classification: unknown
+    condition: applicable_license_unknown
+  SHARED-FILE-MISSING-001:
+    classification: unknown
+    condition: source_file_missing
+  SHARED-TECHNICAL-STOP-001:
+    classification: red
+    operations: [reverse_engineer, binary_analysis]
+  SHARED-USER-OWNED-001:
+    classification: green
+    condition: documented_user_owned_content

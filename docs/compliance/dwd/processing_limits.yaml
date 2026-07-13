@@ -1,0 +1,36 @@
+version: 1
+default_classification: yellow
+green_when_exact_open_data_license_confirmed:
+  - download_from_official_open_data_url
+  - read_and_parse_weather_file
+  - extract_weather_parameters
+  - convert_to_csv_json_epw_or_ida_input
+  - create_statistics_and_visualizations
+  - compare_current_future_mean_and_extreme_datasets
+  - derive_simulation_input
+  - publish_non_conflicting_processed_results
+  - redistribute_dataset_under_cc_by_conditions
+yellow:
+  - process_dataset_with_unclear_origin
+  - process_dataset_without_dataset_specific_license_metadata
+  - process_registered_or_ordered_try
+  - process_mixed_dwd_and_third_party_data
+  - publish_without_clear_provenance
+  - combine_with_restrictive_data
+  - use_figures_or_maps_with_third_party_layers
+  - external_ai_processing
+red:
+  - remove_required_attribution
+  - conceal_dwd_origin
+  - present_modified_data_as_unmodified_official_data
+  - imply_dwd_certification_or_endorsement
+  - impose_terms_or_drm_that_block_cc_by_rights
+  - reuse_separately_protected_third_party_content_without_permission
+  - falsify_dataset_provenance
+  - redistribute_registered_or_ordered_data_without_documented_right
+project_overrides:
+  real_weather_dataset_repository_storage: blocked
+  real_weather_dataset_location: data/ma_weather
+  original_files_must_not_be_overwritten: true
+  external_processing_of_mixed_project_files: blocked
+  local_try_2011_ida_package: review_required

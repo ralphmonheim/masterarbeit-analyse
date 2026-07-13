@@ -1,0 +1,50 @@
+version: 1
+compliance_preflight:
+  request_id: ""
+  file_name: ""
+  file_type: ""
+  intended_operation: ""
+  content:
+    contains_user_content: unknown
+    contains_equa_content: unknown
+    contains_din_content: unknown
+    contains_dwd_content: unknown
+    contains_third_party_content: unknown
+    contains_personal_data: unknown
+    contains_confidential_data: unknown
+    contains_license_or_access_data: unknown
+  rights:
+    file_owner_known: false
+    source_origin_known: false
+    applicable_license_known: false
+    extraction_allowed: unknown
+    machine_processing_allowed: unknown
+    ai_processing_allowed: unknown
+    redistribution_allowed: unknown
+    repository_storage_allowed: unknown
+  processing:
+    manual_processing: false
+    automated_processing: false
+    ai_processing: false
+    local_processing_possible: unknown
+    external_processing_required: false
+    creates_machine_readable_copy: unknown
+    starts_simulation: false
+    reverse_engineering_risk: unknown
+    substantial_reconstruction_risk: unknown
+  decision:
+    classification: unknown
+    warning_required: true
+    processing_allowed: false
+    written_permission_required: unknown
+    university_approval_required: unknown
+    reason: ""
+    allowed_scope: []
+    excluded_scope: []
+    safe_alternative: ""
+rules:
+  - "Unknown essential rights keep processing_allowed false."
+  - "Unknown origin, license, or rights evidence keeps classification unknown and processing blocked."
+  - "A confirmed prohibited operation sets classification red and stops processing."
+  - "Yellow requires a warning and a documented limited scope before processing."
+  - "Original files remain unchanged."

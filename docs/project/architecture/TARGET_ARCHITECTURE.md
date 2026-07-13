@@ -1,6 +1,6 @@
 # Zielarchitektur
 
-Stand: 2026-07-12
+Stand: 2026-07-13
 Grundlage: P007
 
 ## Zweck
@@ -17,7 +17,10 @@ gesonderte Teilplaene analysiert, freigegeben und getestet.
 - `ma_ui` zeigt Fachansichten oder neutrale Modul-Infoseiten.
 - Paketexistenz bedeutet nicht automatisch fachliche Verfuegbarkeit.
 - Bestehende Logik wird nicht ohne Migrationsplan verschoben.
-- IDA ICE bleibt der manuelle externe Simulationsschritt.
+- IDA ICE bleibt der manuelle externe Simulationsschritt. Diese Grenze ist
+  zugleich eine Compliance-Anforderung: kein automatisierter Start, keine
+  automatische Simulationsausfuehrung und kein Simulationsserver ohne
+  ausdrueckliche EQUA-Freigabe.
 - Import wird je Eingabemodul bevorzugt; manuelle Eingabe und Demo-Daten
   bleiben zulaessige Alternativen.
 - Externe Dateiformate werden ueber Adapter in neutrale Fachmodelle
@@ -35,6 +38,16 @@ gesonderte Teilplaene analysiert, freigegeben und getestet.
   benoetigen eine bewusste Freigabeentscheidung.
 - Lauf- und Freigabeereignisse werden lokal append-only in
   `logs/sessions/<session_id>.jsonl` dokumentiert.
+- `ma_core.compliance` prueft geschuetzte Datei- und Systemoperationen vor dem
+  Inhaltszugriff. `green` erlaubt nur den dokumentierten Umfang, `yellow`
+  benoetigt Bestaetigung und gegebenenfalls Rechte-/Hochschulbelege, `red` und
+  `unknown` stoppen technisch.
+- Compliance-Audits liegen lokal append-only unter `logs/compliance/` und
+  enthalten nur Metadaten, Hashes und Entscheidungen, keine geschuetzten
+  Volltexte oder Lizenzdaten.
+- Fachliche Datenfreigaben aus `ma_validation` und rechtlich-technische
+  Compliance-Entscheidungen bleiben getrennte Vertraege; beide muessen an
+  einer betroffenen Modulgrenze erfolgreich sein.
 
 ## Phase 0 und sechs Hauptphasen
 
@@ -66,7 +79,7 @@ ma_zones
     -> ma_simulation_setup
     -> ma_export_simulation
        -> adapters.ida_ice
-    -> manuelle IDA-ICE-Simulation
+    -> manuelle Uebergabe und manuelle IDA-ICE-Simulation
     -> ma_import_simulation
        -> adapters.ida_ice
     -> ma_analyse.data_preparation

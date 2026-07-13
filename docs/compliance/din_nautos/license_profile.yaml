@@ -1,0 +1,23 @@
+version: 1
+reviewed_at: "2026-07-13"
+provider: DIN Media GmbH
+access_system: Nautos
+nautos_access_confirmed: true
+university_license_type: unknown
+network_license_confirmed: false
+ai_license_confirmed: false
+internal_reproduction_right_confirmed: false
+din_membership_confirmed: false
+isolated_ai_environment_confirmed: false
+closed_loop_confirmed: false
+no_training_confirmed: false
+external_ai_provider_approved: false
+university_license_office_approval: false
+covered_rule_sets: unknown
+covered_users_and_thesis_work: unknown
+repository_storage_right: unknown
+derived_machine_readable_rules_right: unknown
+default_decision: stop_and_warn
+note: >-
+  Normaler Lesezugriff oder ein Hochschulzugang ist kein Nachweis einer
+  Netz-, Vervielfaeltigungs- oder KI-Lizenz.

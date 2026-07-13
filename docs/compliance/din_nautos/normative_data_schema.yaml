@@ -1,0 +1,30 @@
+version: 1
+normative_requirement:
+  requirement_id: ""
+  standard_number: ""
+  standard_edition: ""
+  standard_status: ""
+  clause_reference: ""
+  topic: ""
+  user_paraphrase: ""
+  engineering_interpretation: ""
+  input_parameters: []
+  output_parameters: []
+  units: []
+  calculation_relation: ""
+  verification_method: ""
+  evidence:
+    original_quote_stored: false
+    original_formula_stored: false
+    original_table_stored: false
+    original_figure_stored: false
+    source_pdf_stored_in_repository: false
+  review:
+    created_manually: true
+    source_checked_by_authorized_person: false
+    engineering_review_complete: false
+    substantial_reconstruction_risk: false
+    status: draft_review_required
+rules:
+  - "Entries are independent engineering derivations, not a substitute edition of a standard."
+  - "No productive rule is released before source, edition, clause, units, conditions and tests are reviewed."

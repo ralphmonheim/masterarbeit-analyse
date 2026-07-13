@@ -1,0 +1,26 @@
+version: 1
+entries:
+  - activity: process_confirmed_dwd_open_data_locally
+    classification: green
+    decision: allow
+    conditions: [official_url, dataset_specific_cc_by_confirmation, third_party_check, attribution]
+  - activity: convert_confirmed_dwd_open_data
+    classification: green
+    decision: allow
+    conditions: [reproducible_processing, changes_documented, attribution_preserved]
+  - activity: process_registered_or_ordered_try
+    classification: yellow
+    decision: review_required
+    conditions: [offer_or_confirmation_checked, allowed_scope_documented]
+  - activity: process_local_try_2011_ida_package
+    classification: yellow
+    decision: local_review_only
+    conditions: [preflight, no_redistribution, no_cloud, minimum_scope]
+  - activity: upload_mixed_weather_and_project_file
+    classification: red
+    decision: stop
+    conditions: [separate_open_weather_data_from_confidential_project_data]
+  - activity: redistribute_contract_data_without_right
+    classification: red
+    decision: stop
+    conditions: [written_right_required]

@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.masterarbeit.invalid/compliance_decision.schema.json",
+  "title": "ComplianceDecision",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "request_id",
+    "classification",
+    "processing_allowed",
+    "warning_required",
+    "reason",
+    "applicable_rules"
+  ],
+  "properties": {
+    "request_id": {"type": "string", "minLength": 1},
+    "classification": {"enum": ["green", "yellow", "red", "unknown"]},
+    "processing_allowed": {"type": "boolean"},
+    "warning_required": {"type": "boolean"},
+    "reason": {"type": "string", "minLength": 1},
+    "applicable_rules": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "allowed_scope": {"type": "array", "items": {"type": "string"}},
+    "excluded_scope": {"type": "array", "items": {"type": "string"}},
+    "safe_alternative": {"type": ["string", "null"]},
+    "confirmation_required": {"type": "boolean"},
+    "written_permission_required": {"type": "boolean"},
+    "university_approval_required": {"type": "boolean"}
+  }
+}

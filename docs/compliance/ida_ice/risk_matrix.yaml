@@ -1,0 +1,30 @@
+version: 1
+entries:
+  - activity: analyze_sanitized_user_export
+    classification: green
+    decision: allow
+    conditions: [user_or_authorized_data, no_confidential_or_personal_data]
+  - activity: analyze_complete_idm_locally
+    classification: yellow
+    decision: review_required
+    conditions: [preflight_complete, minimal_scope, no_reverse_engineering]
+  - activity: upload_complete_idm_to_cloud
+    classification: yellow
+    decision: stop_until_documented_permission
+    conditions: [rights_confirmed, data_sanitized, cloud_processing_approved, equa_permission_reviewed]
+  - activity: parse_own_project_parameters
+    classification: yellow
+    decision: review_required
+    conditions: [project_specific_only, no_format_reconstruction, local_processing_preferred]
+  - activity: inspect_equa_library_or_nmf
+    classification: yellow
+    decision: review_required
+    conditions: [limited_visible_content, no_library_replication, no_algorithm_reconstruction]
+  - activity: create_general_idm_parser_or_editor
+    classification: red
+    decision: stop
+    conditions: [written_equa_permission_required]
+  - activity: automate_ida_simulation_start
+    classification: red
+    decision: stop
+    conditions: [express_equa_authorization_required]

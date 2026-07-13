@@ -1,0 +1,34 @@
+version: 1
+decisions:
+  - decision_id: IDA-COMPLIANCE-001
+    date: "2026-07-13"
+    status: active
+    decision: "Manual IDA ICE simulation boundary"
+    rationale: "EULA 3(e) prohibits automated launch and execution of simulations without express EQUA authorization."
+    allowed_scope: [neutral_variant_preparation, manual_transfer, manual_simulation_start, result_postprocessing]
+    excluded_scope: [automated_simulation_start, batch_simulation, simulation_server_use]
+    sources: [equa-eula-2023-12]
+  - decision_id: IDA-COMPLIANCE-002
+    date: "2026-07-13"
+    status: active
+    decision: "No complete IDM or library cloud processing when unclear"
+    rationale: "Rights, content composition and confidentiality may be unknown; OpenAI controls do not establish third-party processing rights."
+    allowed_scope: [sanitized_neutral_exports, source_metadata, contractual_paraphrases]
+    excluded_scope: [complete_idm_upload, complete_library_upload, unknown_file_upload]
+    sources: [equa-eula-2023-12, openai-terms-2026-01, openai-api-data-controls]
+  - decision_id: IDA-COMPLIANCE-003
+    date: "2026-07-13"
+    status: open
+    decision: "Project-specific IDM parsing requires EQUA clarification"
+    rationale: "The EULA clearly protects software and prohibits reverse engineering, but does not classify every user-created IDM composition or limited extraction scenario."
+    allowed_scope: [manual_exports, local_preflight_only]
+    excluded_scope: [general_idm_parser, format_reconstruction]
+    sources: [equa-eula-2023-12]
+  - decision_id: IDA-COMPLIANCE-004
+    date: "2026-07-13"
+    status: active
+    decision: "Correct EULA section references to 3(e) and 3(i)"
+    rationale: "A renewed check of the official EULA page places automation under License Restrictions 3(e) and the competing-primary-function restriction under 3(i)."
+    allowed_scope: [documentation_correction]
+    excluded_scope: [changing_the_substantive_manual_simulation_boundary]
+    sources: [equa-eula-2023-12]

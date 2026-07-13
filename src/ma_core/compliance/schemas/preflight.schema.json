@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.masterarbeit.invalid/preflight.schema.json",
+  "title": "CompliancePreflight",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["request_id", "source_origin_known", "applicable_license_known"],
+  "properties": {
+    "request_id": {"type": "string", "minLength": 1},
+    "file_name": {"type": ["string", "null"]},
+    "file_suffix": {"type": ["string", "null"]},
+    "file_size_bytes": {"type": ["integer", "null"], "minimum": 0},
+    "sha256": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
+    "file_exists": {"type": ["boolean", "null"]},
+    "source_origin_known": {"type": "boolean"},
+    "applicable_license_known": {"type": "boolean"}
+  }
+}

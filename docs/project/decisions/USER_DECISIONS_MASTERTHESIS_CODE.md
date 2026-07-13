@@ -1,6 +1,6 @@
 # Nutzerentscheidungen Masterarbeit Code
 
-Stand: 2026-07-12
+Stand: 2026-07-13
 
 ## UD-001 Modulare Projektstruktur
 
@@ -1287,3 +1287,122 @@ Stand: 2026-07-12
   Parametersicht fuer `ma_parameters`, technische Regeln und UI-Draft-Editor.
 - Quelle oder Chatbezug: Nutzerfreigabe `frei` am 2026-07-13 zum
   konsolidierten `ma_technical`-Plan
+
+## UD-075 Codex-Council mit Tera-Hauptmodell und kontrollierter Autonomie
+
+- Datum: 2026-07-13
+- Thema: Codex-Arbeitsroutine, Modellwahl und Freigabegrenzen
+- Entscheidung: `gpt-5.6-terra` wird als wirtschaftliches Hauptmodell fuer
+  die normale Projektarbeit verwendet. Luna darf fuer schnelle read-only
+  Exploration eingesetzt werden. Sol uebernimmt gezielte technische und
+  wissenschaftliche Qualitaetspruefungen. Vor einer Umsetzungsfreigabe
+  arbeiten alle Council-Mitglieder read-only; nach der Freigabe darf ein
+  Tera-Worker klar abgegrenzte Umsetzungspakete uebernehmen.
+- Begruendung: Die meiste Projektarbeit soll wirtschaftlich mit Tera erfolgen,
+  waehrend Sol bei groesseren Risiken und wissenschaftlich kritischen Punkten
+  die hoechste Qualitaet absichert. Klare Rollen vermeiden Doppelarbeit und
+  unkontrollierte parallele Aenderungen.
+- Auswirkung: Das Root-`AGENTS.md`, `.codex/config.toml`, projektlokale
+  Agentendateien und die Council-Routinen bilden die dauerhafte Steuerung.
+  Einzelne read-only Council-Einsaetze benoetigen keine weitere Freigabe;
+  Schreibzugriffe bleiben an den zuvor freigegebenen Umfang gebunden.
+- Betroffene Module oder Dateien: `AGENTS.md`, `.codex/config.toml`,
+  `.codex/agents/`, `.github/agents/Professor.md`,
+  `docs/common/commands_common.md`
+- Status: getroffen und als Council-Basis umgesetzt
+- Offene Folgefragen: praktische Kalibrierung der Einsatzschwellen nach den
+  ersten Council-Laeufen; P018 kann als erster Pilot dienen.
+- Quelle oder Chatbezug: Nutzerfreigabe `Freigegeben fuer Council-Basis mit
+  kontrollierter Autonomie.` am 2026-07-13
+
+## UD-076 IDA-ICE-Compliance-Grenze fuer Hochschullizenz und Automatisierung
+
+- Datum: 2026-07-13
+- Thema: IDA ICE 5.1 Hochschullizenz, `.idm`, Bibliotheken, Cloud-Verarbeitung
+  und Simulationsautomatisierung
+- Entscheidung: Bis zu einer ausdruecklichen schriftlichen EQUA-Freigabe
+  erzeugt die eigene Software nur neutrale Variantendaten und bereitet den
+  Lauf vor. Uebergabe an IDA ICE und Simulationsstart bleiben manuell.
+  Vollstaendige oder unbekannte IDA-Dateien, mitgelieferte Bibliotheken,
+  NMF-Modelle und Drittinhalte werden vor jeder Verarbeitung anhand der
+  Compliance-Vorpruefung klassifiziert; bei Unklarheit gilt `stop`.
+- Begruendung: Die EULA 2023/12 untersagt automatisierte Simulationsstarts
+  ohne EQUA-Autorisierung und schuetzt Softwarestruktur, Organisation und
+  Code. Die konkrete Zusammensetzung einer `.idm` und Rechte an Drittinhalten
+  sind nicht pauschal als Nutzerinhalte belegbar.
+- Auswirkung: `ma_simulation_setup`, `ma_export_simulation`,
+  `ma_import_simulation` und der IDA-ICE-Adapter bilden keine automatische
+  Simulationssteuerung. Kuenftige IDA-bezogene Arbeiten dokumentieren vorab
+  eine `compliance_decision` nach `docs/compliance/ida_ice/`.
+- Betroffene Dateien: `docs/compliance/ida_ice/`, `docs/ida_ice/README.md`,
+  P018, P009, die Export-/Import-READMEs, Zielarchitektur, Planstatus und
+  Changelog.
+- Status: getroffen; technische Umsetzung einer IDA-Steuerung bleibt
+  ausgeschlossen
+- Offene Folgefragen: Hochschullizenzuntertyp, projektspezifisches lokales
+  `.idm`-Parsing, Cloud-Analyse einer bereinigten Datei, Vorlagen-/Bibliothek-
+  auszug und API-/Makro-Umfang werden bei EQUA schriftlich geklaert.
+- Quelle oder Chatbezug: Nutzerfreigabe `Freigegeben fuer die erweiterte
+  IDA-ICE-Compliance-Dokumentation.` am 2026-07-13
+
+## UD-077 Projektweites Compliance-System fuer IDA, DIN/Nautos und DWD
+
+- Datum: 2026-07-13
+- Thema: technische Schutzgrenzen fuer geschuetzte Datei- und
+  Systemoperationen
+- Entscheidung: Die freigegebene Compliance-Dokumentation wird als zentrale
+  Komponente `ma_core.compliance` technisch durchgesetzt. Gruen erlaubt nur
+  den dokumentierten Umfang. Gelb erfordert eine explizite
+  Nutzerbestaetigung und alle verlangten Rechte-/Hochschulbelege. Rot und
+  unbekannte Herkunft stoppen. Reale geschuetzte Dateien und Wetterdaten
+  bleiben lokal und unversioniert.
+- Begruendung: Dokumentation allein verhindert keinen versehentlichen
+  Dateiinhaltzugriff. Ein gemeinsamer Preflight und sichere Wrapper machen die
+  bereits festgelegten IDA-/EQUA-, DIN-/Nautos- und DWD-Grenzen testbar und
+  reproduzierbar.
+- Auswirkung: Policies, Schemas, Audit, Warntexte und Testmatrix liegen unter
+  `src/ma_core/compliance/`. Der DWD-TRY-2011-Konverter verlangt vor dem Lesen
+  eine Bezugsrechtsreferenz. P008, P018, P020 und P027 sowie Architektur- und
+  Modul-Dokumentation werden synchronisiert.
+- Betroffene Dateien: `src/ma_core/compliance/`,
+  `src/ma_weather/dwd_try2011_converter.py`, `docs/compliance/`, P008, P018,
+  P020, P027, Planindex, Planstatus, Zielarchitektur und Changelog
+- Status: getroffen und technisch umgesetzt
+- Offene Folgefragen: schriftliche EQUA-Antwort, Hochschul-/DIN-KI-Lizenz,
+  produktspezifischer DWD-TRY-Bezugsnachweis und risikobasierte Anbindung
+  weiterer Dateioperationen.
+- Quelle oder Chatbezug: Nutzerauftrag `Schliess den letzten Prozess ab` und
+  konsolidierte ChatGPT-Uebergabe vom 2026-07-13
+
+## UD-078 Projektweiter Compliance-Agent als stoppendes Council-Mitglied
+
+- Datum: 2026-07-13
+- Thema: Codex-Council, Compliance-Pruefung und Aufnahme neuer Plaene und
+  Projektinputs
+- Entscheidung: Der read-only `compliance_auditor` arbeitet projektweit mit
+  Sol und hohem Reasoning. Er wird bei erkennbaren Compliance-Risiken sowie
+  bei `plan aufnehmen` und `projektinput aufnehmen` automatisch einbezogen.
+  Ein belegter Compliance-Blocker stoppt den betroffenen Vorgang.
+- Begruendung: Die vorhandenen projektweiten Regeln unter `docs/compliance/`
+  sollen nicht nur dokumentiert, sondern auch in den Codex-Arbeitsroutinen
+  konsistent angewendet werden. Die Spezialisierung trennt Rechte-, Lizenz-,
+  Datenschutz- und Veroeffentlichungsfragen von technischer Qualitaet und
+  wissenschaftlicher Methodik.
+- Auswirkung: Neue Plandokumente durchlaufen vor dem Inhaltszugriff einen
+  Metadaten-Preflight. Ist das Dokument selbst zulaessig, bleiben spaetere
+  Umsetzungsblocker in Planindex oder Planstatus sichtbar. Unklare oder
+  blockierte Inbox-Originale werden nicht extrahiert, verschoben oder
+  eingearbeitet und bleiben am aktuellen Eingangspfad. Vor jeder
+  Veroeffentlichung wird eine gueltige Entscheidung fuer den konkreten Stand
+  geprueft.
+- Betroffene Dateien: `.codex/agents/compliance-auditor.toml`, `AGENTS.md`,
+  `docs/common/commands_common.md`, `docs/project/UPDATE_ROUTINES.md`,
+  `docs/project/PROJECT_INPUT_WORKFLOW.md`, `docs/compliance/`
+- Status: getroffen und in die Codex-Routinen integriert
+- Offene Folgefragen: Einsatzschwellen und Fehlalarme werden anhand der ersten
+  realen Plan- und Inbox-Pruefungen kalibriert. Der Hauptagent dokumentiert
+  Entscheidungen und Belegreferenzen; der Agent erteilt weiterhin keine
+  Rechts-, Vertrags- oder Fachfreigabe. Die technische Prioritaet kombinierter
+  `red`-/`unknown`-Regeln bleibt ein separater Code-Folgeslice.
+- Quelle oder Chatbezug: Nutzerfreigabe `Freigegeben fuer Compliance-Agent und
+  Routine-Integration.` am 2026-07-13

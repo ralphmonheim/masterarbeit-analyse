@@ -83,12 +83,19 @@ run-internen Status je `VAR-ID`.
 ## Sicherheitsgrenzen
 
 - Keine freie Neuerzeugung kompletter IDM-Modelle.
-- Keine textbasierte IDM-Manipulation ohne verifizierten Parser.
+- Keine textbasierte IDM-Manipulation. Ein technisch verifizierter Parser ist
+  keine Lizenz- oder Compliance-Freigabe; jede spaetere Ausnahme erfordert
+  eine ausdrueckliche schriftliche EQUA-Freigabe.
 - Keine erfundenen IDA-ICE-Skript- oder API-Befehle.
-- Kein automatischer Simulationsstart in der ersten Zielstufe.
+- Kein automatischer Simulationsstart, keine automatisierte
+  Simulationsausfuehrung und keine Nutzung als Simulationsserver ohne
+  ausdrueckliche schriftliche EQUA-Freigabe.
 - Keine Fachlogik in Streamlit.
 - Keine direkte Uebergabe von unvalidierten IFC-, Rhino- oder
   Demo-Gebaeudedaten an IDA ICE.
+- Vollstaendige `.idm`-Dateien, EQUA-Bibliotheken, NMF-Modelle und unbekannte
+  Drittdateien sind kein regulaerer Adaptereingang. Sie duerfen nur nach
+  dokumentiertem Preflight gemass `docs/compliance/ida_ice/` bewertet werden.
 
 ## Tests und Akzeptanzkriterien
 

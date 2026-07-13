@@ -1,0 +1,36 @@
+version: 1
+reviewed_at: "2026-07-13"
+scope_note: >-
+  OpenAI-Bedingungen beschreiben nur die Verarbeitung durch OpenAI. Sie
+  ersetzen keine Rechte an EQUA-, DIN-, DWD-, Kunden- oder Drittinhalten.
+profiles:
+  individual_chatgpt_and_codex:
+    governing_terms: openai-eu-terms-2026-01-16
+    input_rights_required: true
+    training_default: plan_and_account_setting_dependent
+    training_can_be_disabled: true
+    temporary_chat_training: false
+    temporary_chat_deletion_target_days: 30
+    third_party_rights_created_by_setting: false
+  business_enterprise_edu:
+    governing_terms: openai_business_terms_and_agreement
+    training_by_default: false
+    retention_controls: plan_and_contract_dependent
+    third_party_rights_created_by_plan: false
+  api:
+    training_by_default: false
+    abuse_monitoring_retention_days_up_to: 30
+    application_state_retention: endpoint_dependent
+    responses_default_application_state_days: 30
+    zero_data_retention_requires_approval: true
+    zero_data_retention_endpoint_limitations_apply: true
+    third_party_rights_created_by_control: false
+not_sufficient_as_content_permission:
+  - training_disabled
+  - temporary_chat
+  - business_no_training
+  - enterprise_no_training
+  - edu_no_training
+  - api_no_training_by_default
+  - modified_abuse_monitoring
+  - zero_data_retention

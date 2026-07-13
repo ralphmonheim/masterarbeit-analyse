@@ -8,6 +8,10 @@
 - **Abgrenzung:** kein Simulationsstart, keine ungesicherte IDM-Manipulation
   und keine direkte Uebergabe unvalidierter IFC-, Rhino- oder
   Demo-Gebaeudedaten.
+- **Compliance:** IDA ICE wird bis zu einer ausdruecklichen EQUA-Freigabe
+  ausschliesslich manuell gestartet. Vollstaendige `.idm`-Dateien,
+  mitgelieferte Bibliotheken und unbekannte Adapterdateien durchlaufen vor
+  jeder Verarbeitung den Preflight in `docs/compliance/ida_ice/`.
 - **Abhaengigkeiten:** `ma_variants`, `ma_simulation_setup`; Phase 3.
 - **Status:** geplant; der Basisexport liegt noch unter `ma_variants.ida_export`.
 - **Naechster Schritt:** P009 nach validiertem Run-Manifest umsetzen,

@@ -1,0 +1,26 @@
+version: 1
+entries:
+  - activity: store_bibliographic_standard_metadata
+    classification: green
+    decision: allow
+    conditions: [official_source_reference, no_protected_fulltext]
+  - activity: create_manual_engineering_paraphrase
+    classification: green
+    decision: allow
+    conditions: [independent_wording, no_substantial_reconstruction]
+  - activity: manually_transfer_selected_requirement
+    classification: yellow
+    decision: review_required
+    conditions: [necessary_scope, clause_reference, human_source_check, publication_scope_checked]
+  - activity: process_norm_with_ai_or_automation
+    classification: red
+    decision: stop_until_documented_permission
+    conditions: [matching_ai_license, university_approval, concrete_system_approved]
+  - activity: create_norm_ocr_embeddings_or_rag
+    classification: red
+    decision: stop
+    conditions: [written_permission_and_security_concept_required]
+  - activity: implement_local_norm_extract_as_productive_rule
+    classification: yellow
+    decision: stop_until_reviewed
+    conditions: [origin_and_rights_confirmed, manual_engineering_review, tests, no_reconstruction]
