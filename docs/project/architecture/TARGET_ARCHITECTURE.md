@@ -102,12 +102,15 @@ Zonen oder Technik sind im Zielbild nicht vorgesehen.
 freigegebene `ParameterVariationSpecification`-Staende. `ma_variants` erzeugt
 aus diesen Eingaben verifizierte Kataloge, Selections und vollstaendige
 Varianten. `ma_simulation_setup` referenziert die ausgewaehlten Varianten in
-einem validierten `RunManifest`.
+einem validierten `RunManifest` und materialisiert daraus ein neutrales
+Run-Paket.
 
 ## Preprocess V1
 
-Der erste verbindliche Durchstich endet mit einem validierten `RunManifest`
-und einer manuellen, compliance-geprueften Uebergabe an IDA ICE. Er umfasst
+Der erste verbindliche Durchstich endet mit einem validierten neutralen
+Run-Paket einschliesslich `RunManifest`, Setup, Variantenartefakten und
+technischen Logs sowie einer manuellen, compliance-geprueften Uebergabe an
+IDA ICE. Er umfasst
 eine freigegebene Baseline, eine kleine explizite Variantenstudie und die
 direkte Zuordnung `RUN-ID -> VAR-ID`. Ein IDA-ICE-Adapter, automatisierte
 Modellmanipulation, produktive CAD-Importe und umfangreiche Editor- oder
@@ -250,13 +253,15 @@ reichen nicht fuer den Status `teilweise` oder `verfuegbar`.
 
 - P008: Wettermodul, eigene Wetterimporte und kritische Ereignisse.
 - P010: Eingabe-, Diagnose- und Freigabearchitektur umgesetzt und archiviert.
-- P011 bis P018: Eingabekette bis Run-Manifest.
+- P011 bis P018: Eingabekette bis zum neutralen Run-Paket.
 - P019 bis P021: getrennte Analysestufen.
 - P022 bis P026: abgestufte Demo- und Konzeptmodule.
 - P027: begleitende Querschnittsfunktionen.
 - P028: Projekt-, Parameter- und Naming-Demo in Streamlit umgesetzt und
   archiviert.
 - P009: nach P018 zurueckgestellte Simulationsschnittstellen.
+- P030: von der Produktivsoftware getrennte Prozessmessung und
+  Vergleichsauswertung fuer die Masterarbeit.
 
 ## Migrationsgrundsaetze
 

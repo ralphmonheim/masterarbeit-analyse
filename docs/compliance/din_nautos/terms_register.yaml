@@ -75,3 +75,135 @@
   classification_effect: yellow
   confidence: high
   requires_legal_review: true
+- term_id: DBIS-FRA-UAS-ACCESS-001
+  system: nautos
+  source_id: dbis-frankfurt-uas-nautos-105040-2026-07
+  topic: institutional_access
+  section: "Lokale Lizenz; Hochschulnetz/VPN"
+  short_quote: "fuer die Frankfurt UAS lizenziert"
+  paraphrase: "DBIS bestaetigt den institutionellen Campus-, WLAN- und VPN-Zugang sowie den Walk-in-Zugang vor Ort."
+  impact_on_project: "Autorisierte manuelle Recherche und Lektuere der lokal lizenzierten Volltexte sind belegt."
+  classification_effect: green
+  confidence: high
+  requires_legal_review: false
+- term_id: DBIS-FRA-UAS-SCOPE-001
+  system: nautos
+  source_id: dbis-frankfurt-uas-nautos-105040-2026-07
+  topic: institution_specific_fulltext_scope
+  section: "Zusaetzliche Lizenz-Informationen"
+  short_quote: "ISO- und sonstige Normen stehen nicht als Online-Volltexte zur Verfuegung"
+  paraphrase: "Der lokale Frankfurter Hinweis begrenzt den Online-Volltext auf DIN, VDI und DWA; DIN-VDE liegt in der separaten VDE-NormenBibliothek."
+  impact_on_project: "Die engere institutionsspezifische Angabe geht fuer die Projektklassifikation dem allgemeinen DBIS-Beschreibungstext vor."
+  classification_effect: yellow
+  confidence: high
+  requires_legal_review: false
+- term_id: VDE-SHOP-AI-STOP-001
+  system: vde_verlag
+  source_id: vde-verlag-agb-2025-10
+  topic: ai_processing_of_acquired_products
+  section: "8.3 business customers; 9.3 consumers"
+  short_quote: "jegliche Verarbeitung und anderweitige Nutzung"
+  paraphrase: "Die aktuellen allgemeinen VDE-VERLAG-Bedingungen untersagen fuer erworbene Produkte insbesondere KI-Analyse, Zusammenfassung, Uebersetzung, Umformulierung, KI-Eingabe und Upload."
+  impact_on_project: "Beim VDE VERLAG erworbene Inhalte werden nicht mit ChatGPT, Codex, OpenAI API oder anderer KI verarbeitet."
+  classification_effect: red
+  confidence: high
+  requires_legal_review: false
+- term_id: DBIS-FRA-UAS-VDE-VIEW-001
+  system: vde_normenbibliothek
+  source_id: dbis-frankfurt-uas-vde-normenbibliothek-103475-2026-07
+  topic: institution_specific_fulltext_viewing
+  section: "Lokale Lizenz; Zusaetzliche Lizenz-Informationen"
+  short_quote: "Volltextzugriff auf alle DIN-VDE-Normen"
+  paraphrase: "Frankfurt UAS bietet autorisierten Nutzern DIN-VDE-Volltextansicht ueber Campus und VPN."
+  impact_on_project: "Die manuelle Ansicht im dokumentierten Zugangsweg ist erlaubt."
+  classification_effect: green
+  confidence: high
+  requires_legal_review: false
+- term_id: DBIS-FRA-UAS-VDE-COPY-001
+  system: vde_normenbibliothek
+  source_id: dbis-frankfurt-uas-vde-normenbibliothek-103475-2026-07
+  topic: copy_individual_text_passages
+  section: "Zusaetzliche Lizenz-Informationen"
+  short_quote: "nur Kopieren einzelner Textpassagen"
+  paraphrase: "Der lokale Zugang erlaubt das Kopieren einzelner Textpassagen, ohne deren konkrete Weiterverwendung pauschal freizugeben."
+  impact_on_project: "Umfang, Zweck, Zitat, Weitergabe und jede KI-Nutzung der Passage bleiben pruefpflichtig."
+  classification_effect: yellow
+  confidence: high
+  requires_legal_review: false
+- term_id: DBIS-FRA-UAS-VDE-DOWNLOAD-PRINT-STOP-001
+  system: vde_normenbibliothek
+  source_id: dbis-frankfurt-uas-vde-normenbibliothek-103475-2026-07
+  topic: download_and_print
+  section: "Zusaetzliche Lizenz-Informationen"
+  short_quote: "Kein Download oder Druck moeglich"
+  paraphrase: "Download und Druck sind im lokalen Frankfurter VDE-Zugang ausgeschlossen."
+  impact_on_project: "Dokumente und Ausdrucke werden ueber diesen Zugang nicht erzeugt oder gespeichert."
+  classification_effect: red
+  confidence: high
+  requires_legal_review: false
+- term_id: VDE-NORBI-PERMISSION-001
+  system: vde_normenbibliothek
+  source_id: vde-normenbibliothek-usage-contract-2026
+  topic: unlisted_use_and_written_permission
+  section: "1.10"
+  short_quote: "vorherigen schriftlichen Zustimmung"
+  paraphrase: "Nicht ausdruecklich gestattete Nutzungen und Bearbeitungen benoetigen nach dem oeffentlichen Standardvertrag eine vorherige schriftliche Einzelfallzustimmung."
+  impact_on_project: "Auszuege, Bearbeitungen, Weitergabe und Veroeffentlichung bleiben ausserhalb des belegten Umfangs gesperrt."
+  classification_effect: red
+  confidence: high
+  requires_legal_review: false
+- term_id: VDE-NORBI-TDM-AI-STOP-001
+  system: vde_normenbibliothek
+  source_id: vde-normenbibliothek-usage-contract-2026
+  topic: text_data_mining_and_ai
+  section: "1.11-1.12"
+  short_quote: "Verarbeitung und anderweitige Nutzung"
+  paraphrase: "Der oeffentliche Standardvertrag behaelt Text und Data Mining vor und untersagt KI-Verarbeitung auch fuer erlaubte Auszuege."
+  impact_on_project: "OCR, Extraktion, KI-Zusammenfassung, Embeddings, RAG und externe KI-Uebergabe sind rote Stop-Vorgaenge."
+  classification_effect: red
+  confidence: high
+  requires_legal_review: false
+- term_id: VDE-NORBI-AUTHORIZED-USERS-001
+  system: vde_normenbibliothek
+  source_id: vde-normenbibliothek-usage-contract-2026
+  topic: authorized_users_and_sharing
+  section: "2.1-2.3"
+  short_quote: "ausschliesslich autorisierten Nutzern"
+  paraphrase: "Zugang und Texte sind auf die im Vertrag autorisierten Nutzer begrenzt; auch Auszuege duerfen nicht automatisch an andere Personen weitergegeben werden."
+  impact_on_project: "Betreuendenfreigabe und Hochschulzugehoerigkeit ersetzen keinen passenden Zugriffs- und Weitergabenachweis."
+  classification_effect: yellow
+  confidence: high
+  requires_legal_review: false
+- term_id: DIN-AI-VDE-VDI-OFFER-001
+  system: din_media
+  source_id: din-media-ai-license-2026-07
+  topic: standard_ai_licence_offer_scope
+  section: "FAQ: Stand zu VDE und VDI"
+  short_quote: "kein vergleichbares KI-Lizenzangebot"
+  paraphrase: "DIN Media weist aktuell kein mit der DIN-KI-Lizenz vergleichbares Standardangebot fuer VDE oder VDI aus."
+  impact_on_project: "Dies ist kein Nachweis, dass eine Individualgenehmigung unmoeglich ist; ohne konkreten Beleg bleibt KI-Verarbeitung dennoch gesperrt."
+  classification_effect: red
+  confidence: high
+  requires_legal_review: false
+- term_id: VDI-RIGHTS-LICENCE-001
+  system: vdi
+  source_id: vdi-richtlinien-rights-2026-07
+  topic: reproduction_software_and_network_use
+  section: "FAQ: Abdruck, Kopie und Intranet"
+  short_quote: "Moeglichkeit der Lizenzvergabe"
+  paraphrase: "VDI nennt Abdruck, elektronische Vervielfaeltigung, Softwareverwertung und Netzwerknutzung als gesondert zu lizenzierende Nutzungen."
+  impact_on_project: "Eine auf konkreten VDI-Regeln beruhende Softwarelogik ist nicht pauschal als eigene freie Ableitung einzustufen."
+  classification_effect: yellow
+  confidence: high
+  requires_legal_review: true
+- term_id: VDI-VOB-ACCESS-001
+  system: vdi_vob
+  source_id: vdi-vob-personal-access-2026-07
+  topic: personal_access_only
+  section: "Exklusiver Bereich fuer registrierte Personen"
+  short_quote: "persoenlichen Zugang"
+  paraphrase: "Die oeffentliche VDI-VOB-Seite belegt nur einen persoenlich zugeordneten Zugang fuer bestimmte registrierte Nutzergruppen."
+  impact_on_project: "Der Zugang belegt keine KI-, Maschinen-, Weitergabe- oder Repository-Rechte."
+  classification_effect: yellow
+  confidence: medium
+  requires_legal_review: false

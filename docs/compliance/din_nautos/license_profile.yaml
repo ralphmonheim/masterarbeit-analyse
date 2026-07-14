@@ -1,10 +1,19 @@
-version: 1
-reviewed_at: "2026-07-13"
+version: 2
+reviewed_at: "2026-07-14"
 provider: DIN Media GmbH
 access_system: Nautos
 nautos_access_confirmed: true
+university_access_evidence: dbis_local_license_resource_105040
 university_license_type: unknown
+university_contract_terms_confirmed: false
+network_access_confirmed: true
 network_license_confirmed: false
+manual_research_confirmed: true
+manual_fulltext_access_confirmed: true
+manual_fulltext_access_scope:
+  nautos: [din_excluding_vde, vdi, dwa]
+  vde_normenbibliothek: din_vde_view_only
+  excluded_or_separate: [iso_online_fulltext, other_standards_online_fulltext]
 ai_license_confirmed: false
 internal_reproduction_right_confirmed: false
 din_membership_confirmed: false
@@ -13,11 +22,87 @@ closed_loop_confirmed: false
 no_training_confirmed: false
 external_ai_provider_approved: false
 university_license_office_approval: false
-covered_rule_sets: unknown
-covered_users_and_thesis_work: unknown
+covered_rule_sets: partially_confirmed
+covered_users_and_thesis_work: partially_confirmed
 repository_storage_right: unknown
 derived_machine_readable_rules_right: unknown
 default_decision: stop_and_warn
+
+institutional_access:
+  source_id: dbis-frankfurt-uas-nautos-105040-2026-07
+  institution: Frankfurt University of Applied Sciences
+  licence_label: local_licence
+  campus_workstations: confirmed
+  campus_wifi: confirmed
+  remote_access:
+    status: confirmed
+    method: vpn
+    eligible_users: university_members
+  walk_in_access:
+    status: confirmed
+    scope: on_site_library_access_only
+  fulltext_scope:
+    din: confirmed_excluding_vde_classification
+    vdi: confirmed
+    dwa: confirmed
+    din_vde: separate_vde_normenbibliothek
+    iso: not_available_as_nautos_online_fulltext
+    other_standards: not_available_as_nautos_online_fulltext
+  limits:
+    - "The DBIS record proves access, not the exact DIN Media contract type."
+    - "It does not prove AI, machine-processing, redistribution or repository rights."
+  vde_normenbibliothek:
+    source_id: dbis-frankfurt-uas-vde-normenbibliothek-103475-2026-07
+    licence_label: local_licence
+    campus_workstations: confirmed
+    campus_wifi: confirmed
+    remote_access: vpn_for_university_members
+    walk_in_access: on_site_only
+    din_vde_fulltext_viewing: confirmed
+    download: prohibited_by_institution_record
+    printing: prohibited_by_institution_record
+    copy_individual_text_passages: permitted_subject_to_use_review
+    excluded: [iec_standards, specialist_books]
+
+rule_set_profiles:
+  din_via_nautos:
+    manual_reading: allowed_for_authorized_users
+    machine_processing: blocked_without_matching_din_ai_licence
+    external_ai_processing: not_confirmed
+  vde_verlag_purchase:
+    source_ids: [vde-verlag-agb-2025-10]
+    manual_use: subject_to_purchase_and_product_terms
+    ai_processing: prohibited_by_current_general_terms
+    written_exception_or_individual_terms: unknown
+  vde_normenbibliothek:
+    source_ids:
+      - dbis-frankfurt-uas-vde-normenbibliothek-103475-2026-07
+      - vde-normenbibliothek-usage-contract-2026
+    institution_specific_contract_confirmed: false
+    manual_reading: confirmed_for_authorized_users
+    download: prohibited_by_institution_record
+    printing: prohibited_by_institution_record
+    copy_individual_text_passages: permitted_subject_to_use_review
+    text_and_data_mining: prohibited_by_public_standard_contract
+    ai_processing: prohibited_by_public_standard_contract
+    excerpt_sharing: not_allowed_without_matching_right
+  vdi_via_din_media_or_nautos:
+    source_ids:
+      - din-media-agb-2026-05
+      - din-media-ai-license-2026-07
+      - vdi-richtlinien-rights-2026-07
+    manual_reading: allowed_for_authorized_users_within_licence
+    comparable_standard_ai_licence_offer: not_identified_as_of_2026_07_14
+    individual_written_permission: unknown
+    software_use_right: requires_case_specific_review
+  vdi_vob:
+    source_ids: [vdi-vob-personal-access-2026-07]
+    personal_access: confirmed_for_assigned_users
+    ai_processing_right: not_confirmed
+    redistribution_right: not_confirmed
+
 note: >-
-  Normaler Lesezugriff oder ein Hochschulzugang ist kein Nachweis einer
-  Netz-, Vervielfaeltigungs- oder KI-Lizenz.
+  Institutioneller Lesezugriff ueber Campus, WLAN und VPN ist belegt. Dieser
+  Netzwerkzugang ist nicht mit dem noch ungeprueften DIN-Media-Vertragstyp
+  Netzwerklizenz gleichzusetzen. KI-, Maschinen-, Weitergabe-, Repository-
+  und Veroeffentlichungsrechte bleiben ohne passenden Einzelbeleg gesperrt.

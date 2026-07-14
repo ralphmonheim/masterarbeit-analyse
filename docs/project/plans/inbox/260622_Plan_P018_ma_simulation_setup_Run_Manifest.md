@@ -1,19 +1,23 @@
-# P018 ma_simulation_setup und Run-Manifest
+# P018 ma_simulation_setup und neutrales Run-Paket
 
 Stand: 2026-07-14
-Status: Geplant, Schnittstelle aus P017 fachlich konsolidiert
+Status: Fachlich konsolidiert, Umsetzung geplant
 Prioritaet: Hoch
-Abhaengigkeiten: P008, P011, P017, P027
+Abhaengigkeiten: P008, P011-P017, P027; spaeter P009
 
 ## Ziel
 
-Vollstaendig erzeugte Varianten aus P017 mit Simulationsprogramm, Zeitraum,
-Zeitschritt, Ausgabeumfang und Modellreferenz zu einem validierten
-Simulationslauf verbinden.
+Vollstaendig erzeugte Varianten aus P017 mit neutralen Simulationsbedingungen,
+Ausgabeanforderungen und Modellreferenzen zu einem validierten,
+reproduzierbaren `SimulationRun` verbinden. P018 erzeugt ein lokales,
+programmunabhaengiges Run-Paket; es erzeugt oder veraendert keine
+Simulationsprogrammdatei.
 
 ## Reifegrad
 
-Produktiver Vorbereitungsschritt ohne Simulationssteuerung.
+Produktiver Vorbereitungsschritt ohne Simulationssteuerung. Ein Run referenziert
+genau eine `VariantSelection`, umfasst eine oder mehrere vollstaendige
+Varianten und erhaelt eine unveraenderliche `RUN-ID`.
 
 ## Preprocess V1-Mindestumfang
 
@@ -25,7 +29,56 @@ reproduzierbarer manueller Uebergabestand an IDA ICE und referenziert die
 nach der Compliance-Grenze erforderliche Entscheidung.
 
 Nicht Teil von V1 sind ein IDA-ICE-Adapter, das Schreiben oder Veraendern von
-IDA-Dateien, ein Simulationsstart und ein separates `SimulationCase`-Objekt.
+IDA-Dateien, ein Simulationsstart, Ergebnisimport und ein separates
+`SimulationCase`-Objekt.
+
+## Neutrales Run-Paket
+
+Ein Run-Paket enthaelt mindestens:
+
+```text
+RUN-<id>/
+|-- run_manifest.yaml
+|-- simulation_setup.yaml
+|-- preparation_report.yaml
+|-- referenced_resources/
+|-- technical_logs/
+`-- variants/
+    |-- VAR-<id>/variant_config.yaml
+    `-- VAR-<id>/simulation_input.yaml
+```
+
+- `run_manifest.yaml` beschreibt Identitaet, Referenzen, Variantenmenge,
+  Status und Freigabe.
+- `simulation_setup.yaml` bleibt getrennt, weil Zeitraum, Zeitschritt und
+  Ausgabeanforderungen keine fachlichen Variantenwerte sind.
+- `variant_config.yaml` dokumentiert die vollstaendige fachliche Variante;
+  `simulation_input.yaml` ist deren neutrale, simulationsrelevante Sicht.
+- Alle Referenzen innerhalb eines freigegebenen Run-Pakets sind relativ und
+  ueber ID, Revision und Content-Hash nachvollziehbar.
+- Ressourcen werden fuer V1 nur als Referenz oder als begrenzte lokale Kopie
+  materialisiert. Programmspezifische Dateien gehoeren nicht in das Paket.
+
+## Status, Validierung und Freigabe
+
+- Vorbereitung: `created`, `preview_prepared`, `prepared`, `blocked`.
+- Validierung: `valid`, `valid_with_warnings`, `invalid`.
+- Freigabe: bis `released_for_simulation` bearbeitbar; danach unveraenderlich.
+- Ein `valid_with_warnings`-Run ist nur freigabefaehig, wenn keine Warnung
+  blockiert und alle nicht blockierenden Warnungen bestaetigt sind.
+- Die Materialisierung ist Alles-oder-nichts: eine fehlgeschlagene Variante
+  blockiert den gesamten Run.
+
+## Technische Logs und Forschungsgrenze
+
+P018 schreibt nur technische Ereignisse: Start/Ende und Dauer von
+Materialisierungsschritten, Objekt- und Dateianzahlen, Datenmenge, Status,
+Warnungs-/Fehlercodes sowie `RUN-ID` und `VAR-ID`. P027 definiert dafuer den
+gemeinsamen Ereignis- und Diagnosevertrag.
+
+Wissenschaftliche Zeitmessung, manuelle Bearbeitungszeiten und Vergleiche von
+Prozessmodi liegen ausschliesslich in P030 `research_tools`. Ein produktiver
+Run besitzt keine Pflichtreferenz auf eine Forschungsauswertung.
 
 ## Compliance-Grenze
 
@@ -53,6 +106,10 @@ uebernommen. P018 liest weder DWD-Rohdaten noch Norminhalte erneut.
 - Direkte Zuordnung `RUN -> VAR` ohne `SimulationCase` festlegen.
 - Compliance-Entscheidungs-ID fuer geschuetzte Adapteroperationen und die
   manuelle IDA-Uebergabe in das Run-Manifest aufnehmen.
+- Run-Paket, getrennte `simulation_setup.yaml`, Variantenkonfigurationen und
+  technische Logs materialisieren.
+- Analysegeleitete Pflichtausgaben als neutrale OutputRequirementProfiles
+  uebernehmen; spaetere Analyseplaene besitzen deren Fachdefinition.
 
 ## Eingang aus P017
 
@@ -100,6 +157,8 @@ Diese Daten sind Zuordnungen innerhalb des Runs und keine eigenstaendigen
 ## Akzeptanzkriterien
 
 - Ein Run ist ohne IDA-Installation vollstaendig beschreibbar.
+- Ein Run-Paket enthaelt getrennte Manifest-, Setup-, Varianten- und
+  technische Logartefakte.
 - Fehlende Referenzen blockieren die Freigabe.
 - Manifest ist unveraenderlich versionierbar und reproduzierbar.
 - Fachliche Variantenwerte werden in P018 nicht neu berechnet oder veraendert.
@@ -109,3 +168,28 @@ Diese Daten sind Zuordnungen innerhalb des Runs und keine eigenstaendigen
   automatisierter IDA-Start ist kein gueltiger Run-Schritt.
 - Eine rote, unbekannte oder nicht vollstaendig freigegebene gelbe
   Compliance-Entscheidung blockiert das Manifest vor jeder Adapteroperation.
+
+## Umsetzungsslices
+
+### P018-S1 Grundmodelle und Schemas
+
+- `SimulationRun`, `RunManifest`, `SimulationSetup`, Statusmodell und
+  RUN/VAR-Referenzen.
+- YAML-Schemas und strukturiertes Diagnosemodell.
+
+### P018-S2 Run-Materialisierung
+
+- Run-Verzeichnisstruktur, relative Ressourcenreferenzen,
+  `variant_config.yaml`, `simulation_input.yaml` und PreparationReport.
+- Preview-Beispiel mit explizit nicht aufgeloesten Platzhaltern.
+
+### P018-S3 Validierung und Freigabe
+
+- Struktur-, Referenz- und modusspezifische Vollstaendigkeitspruefung.
+- Warnungsbestaetigung, Neuaufbau vor Freigabe und Freeze bei
+  `released_for_simulation`.
+
+### P018-S4 Forschungsdarstellung
+
+- Begrenzter Vergleich von Referenz- und lokaler Ressourcenmaterialisierung.
+- Technische Kennzahlen fuer P030, ohne wissenschaftliche Messlogik in P018.

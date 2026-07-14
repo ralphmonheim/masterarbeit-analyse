@@ -24,6 +24,10 @@ deutsche Normen nachweisen und spaeter internationale Normenprofile ergaenzen.
 - keine direkte Ausfuehrung automatisch extrahierter Formelkandidaten
 - keine OCR-, Embedding-, RAG- oder KI-Verarbeitung geschuetzter
   Normeninhalte ohne dokumentierte passende Rechte
+- keine Gleichsetzung von Hochschulzugang mit KI-, Maschinen-, Weitergabe-,
+  Software- oder Veroeffentlichungsrechten
+- VDE- und VDI-Inhalte nur nach getrenntem Nachweis von Rechteinhaber,
+  Bezugsweg und anwendbaren produktspezifischen Bedingungen
 
 ## Abhaengigkeiten
 
@@ -41,6 +45,8 @@ P020. Sie sind noch keine produktiven Regeln.
 
 ## Naechster Schritt
 
-Zuerst Hochschul-/DIN-Rechte und eine Quellen- und Methodenmatrix fuer
-deutsche Normen klaeren. Lokale Extraktionsdaten erst nach fachlicher und
-rechtlicher Gruen-Freigabe uebernehmen.
+Zuerst die noch offenen Hochschul-, DIN-, VDE- und VDI-Rechte sowie eine
+Quellen- und Methodenmatrix fuer deutsche Normen klaeren. Der manuelle
+Frankfurt-UAS-Nautos-Zugang ist belegt; KI- und Maschinenverarbeitung bleibt
+gesperrt. Lokale Extraktionsdaten erst nach fachlicher und rechtlicher
+Gruen-Freigabe uebernehmen.

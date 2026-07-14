@@ -9,7 +9,8 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 ### Abgeschlossen
 
 - Projektweites Compliance-System angelegt: `docs/compliance/` trennt
-  gemeinsame, IDA-/EQUA-, DIN-/Nautos- und DWD-Regeln. `ma_core.compliance`
+  gemeinsame, IDA-/EQUA-, DIN-/Nautos-/VDE-/VDI- und DWD-Regeln.
+  `ma_core.compliance`
   setzt Metadaten-Preflight, Gruen-Gelb-Rot-/Unknown-Entscheidung, sichere
   Operationswrapper, Datenbereinigung und datensparsames JSONL-Audit um. Der
   DWD-TRY-2011-Konverter ist als erster produktiver Adapter gegatet.
@@ -150,8 +151,9 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - Analyse Stufe 3 Norm-Nachweis: P020 unter dem kanonischen Namen
   `ma_analyse.stage_3_standards_compliance`; deutsche Normen zuerst,
   internationale Profile spaeter. Die technische Compliance-Vorpruefung ist
-  vorhanden; produktive Normlogik bleibt bis zur bestaetigten Rechte- und
-  Quellenpruefung gesperrt.
+  vorhanden. Der Frankfurt-UAS-Nautos-Zugang ist fuer manuelle Recherche und
+  Lektuere belegt; produktive Normlogik sowie DIN-/VDE-/VDI-KI-Verarbeitung
+  bleiben bis zur bestaetigten Rechte- und Quellenpruefung gesperrt.
 - Analyse Stufe 4 Sensitivitaet: P021 mit kritischen Wetterereignissen statt
   ausschliesslicher Jahresbetrachtung.
 - Economy und Sustainability: P022 und P023 als kleine Demos mit
@@ -210,9 +212,12 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   Dimensionierung umzusetzen.
 - Preprocess V1 ist als verbindlicher erster Durchstich festgelegt:
   Projekt- und Eingabequellen, freigegebene Baseline, Referenzdimensionierung,
-  kleine Variantenstudie und validiertes `RunManifest` bilden den Umfang. Die
-  Uebergabe an IDA ICE bleibt manuell und folgt der P018-Compliance-Grenze;
-  P009 folgt erst danach. P014 beginnt dafuer mit der Vollstaendigkeit des
+  kleine Variantenstudie und ein neutrales, validiertes Run-Paket bilden den
+  Umfang. P018 fuehrt getrenntes Setup, Variantenkonfigurationen,
+  Simulationseingaben und technische Logs. Die Uebergabe an IDA ICE bleibt
+  manuell und folgt der P018-Compliance-Grenze; P009 folgt mit einem kleinen
+  neutralen Ergebnis-Postprocess erst nach stabilem Run-Paket. P014 beginnt
+  dafuer mit der Vollstaendigkeit des
   v2-Aggregats und seiner Referenzen, vor Serialisierung, Branches oder einem
   Editor.
 - P015-S1 ist umgesetzt: `ma_parameters` enthaelt `ParameterSnapshot`,
@@ -253,9 +258,14 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   VariantSelection -> VariantGeneration -> ma_simulation_setup`.
   `VCAT` ist auf 500 Eintraege begrenzt, `VSEL` nutzt zuerst `all`,
   `manual` und `random`, `SimulationCase` und `CASE` entfallen.
-- P018 ist auf die P017-Uebergabe geschaerft: `ma_simulation_setup`
+- P018 ist als neutrales Run-Paket konsolidiert: `ma_simulation_setup`
   uebernimmt vollstaendig erzeugte Varianten nach `VGEN`, ergaenzt ein
-  gemeinsames Setup je Run und fuehrt direkte `RUN -> VAR`-Zuordnungen.
+  getrenntes gemeinsames Setup je Run, materialisiert neutrale
+  Variantenartefakte und fuehrt direkte `RUN -> VAR`-Zuordnungen. P018 schreibt
+  nur technische Logs.
+- P030 ist als externe Forschungsschicht geplant: Es erfasst manuelle und
+  logbasierte Pre-, Simulations- und Postprocessing-Zeiten getrennt,
+  vergleicht Prozessmodi und beeinflusst keine produktiven Fachobjekte.
 - P027 begleitet P017 mit Checkpoints fuer `VSP`, `VVER`, `VCAT`, `VSEL`
   und `VGEN`, Reload-/Abort-Logik und der technischen
   Dimensionierungsunterbrechung innerhalb von `VVER`.
@@ -416,10 +426,10 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   zu P014/P015 bewusst behandelt ist: `ma_technical` soll fachlich zentrale
   Systeme vor `ma_zones` liefern, die bestehende LoD-1-Technikdemo nutzt aber
   noch `source_zone_model_id` und `served_zone_ids`.
-- P020 beginnt mit Hochschul-/DIN-Rechteklaerung und Recherche. Vor einer
-  belastbaren Normen- und Methodenmatrix sowie gruen freigegebener Provenienz
-  duerfen keine extrahierten Grenzwerte als Norm-Nachweis implementiert
-  werden.
+- P020 beginnt mit der noch offenen Vertrags- und Rechteklaerung fuer DIN,
+  VDE und VDI. Vor einer belastbaren Normen- und Methodenmatrix sowie gruen
+  freigegebener Provenienz duerfen keine extrahierten Grenzwerte oder
+  normbasierten Softwareregeln als Norm-Nachweis implementiert werden.
 - Aus P005 nach P007 uebernommen: Analyse-View in laufender Streamlit-App manuell gegen
   reale `ida_imports`-/Datenbankordner pruefen.
 - Aus P005 nach P007 uebernommen: Schrittweisen Analyse-Wizard in der laufenden

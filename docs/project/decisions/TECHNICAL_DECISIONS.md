@@ -494,3 +494,27 @@ Offener Implementierungspunkt:
   dokumentierten Prioritaet `red > unknown > yellow > green`. Eine Korrektur
   in `src/ma_core/compliance/service.py` mit kombiniertem Regressionstest ist
   ein separater Codeumfang.
+
+## Entscheidung 31: Regelwerksrechte werden nach Bezugsweg getrennt
+
+Die Normen-Compliance behandelt eine technische Regel nicht pauschal nach
+Dateityp oder Plattform. Vor jeder materiellen Nutzung werden Regelwerk,
+Rechteinhaber, Bezugsweg, autorisierter Nutzer und anwendbare
+produktspezifische oder individuelle Bedingungen bestimmt.
+
+Technische Folgen:
+
+- DBIS belegt den institutionellen Zugang, aber nicht automatisch einen
+  DIN-Media-Vertragstyp oder Maschinenverarbeitungsrechte.
+- VDE-Webshop, VDE-NormenBibliothek, VDI ueber DIN Media/Nautos und VDI-VOB
+  besitzen getrennte Quellenprofile unter `docs/compliance/din_nautos/`.
+- `unknown` bezeichnet fehlenden Vertragsbeleg. Ein ausdrueckliches
+  KI-/TDM-Verbot erzeugt `red`; eine potenzielle Einzelgenehmigung aendert den
+  aktuellen Stop-Status erst nach passendem schriftlichem Nachweis.
+- Nur unabhaengige, begrenzte eigene Fachlogik ohne Uebernahme oder
+  Rekonstruktion geschuetzter Regeln kann `green` sein. Normbasierte
+  Parameter, Formeln und Softwarelogik bleiben bis zur Einzelfallpruefung
+  `yellow`.
+- Die Dokumentation erweitert noch keine Laufzeit-Enums. Eigene
+  VDE-/VDI-SourceTypes und ihre Regressionstests bleiben ein separater
+  freizugebender Code-Slice.

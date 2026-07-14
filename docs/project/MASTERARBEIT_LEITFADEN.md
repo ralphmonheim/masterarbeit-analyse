@@ -43,6 +43,7 @@ Der Leitfaden fuehrt zwei Quellen zusammen:
 | 0.5.9 | 2026-07-12 | P015-S2 BaselineParameterSnapshot v2, Scopes und Quellenreferenzen umgesetzt |
 | 0.5.10 | 2026-07-12 | P015-S3a ParameterInputPackage mit aktiviertem Wetter-Default und Paketvalidierung umgesetzt |
 | 0.5.11 | 2026-07-14 | Preprocess V1 bis zum compliance-geprueften RunManifest als verbindlichen ersten Durchstich festgelegt |
+| 0.5.12 | 2026-07-14 | P018 als neutrales Run-Paket und P030 als getrennte Prozessmessung fuer den Masterarbeits-MVP aufgenommen |
 
 ## 1. Zweck der Software
 
@@ -277,9 +278,10 @@ unveraendert im Planarchiv.
 | `ma_analyse.stage_2_optimization` | teilweise | vorhandene Analysebefehle, gemeinsamer Stufenablauf fehlt |
 | `ma_analyse.stage_3_standards_compliance` | geplant | Norm-Nachweis, deutsche Normenprofile zuerst |
 | `ma_analyse.stage_4_sensitivity` | geplant | Vorarbeiten fuer Zeitfenster und Wetterkennwerte vorhanden, Ereignisverknuepfung fehlt |
-| `ma_simulation_setup` | geplant | P018 plant `RunManifest` nach `VariantGeneration` mit direkter `RUN -> VAR`-Zuordnung |
+| `ma_simulation_setup` | geplant | P018 plant ein neutrales Run-Paket nach `VariantGeneration` mit direkter `RUN -> VAR`-Zuordnung, Setup und technischen Logs |
 | `ma_export_simulation` | geplant | Basisexport liegt noch in `ma_variants`; P009 wird nach P018 ueber `RUN-ID + VAR-ID` weitergefuehrt |
-| `ma_import_simulation` | geplant | Ergebnisadapter und Aufbereitung existieren noch ausserhalb des Zielmoduls |
+| `ma_import_simulation` | geplant | P009-MVP plant zuerst eine manuelle neutrale Ergebnisaufnahme und Aufbereitung fuer die erste Analyse |
+| `research_tools` | geplant | P030 wertet technische Logs und manuelle Zeiten getrennt von der Produktivsoftware aus |
 | `ma_economy` | geplant | Wirtschaftlichkeitsprototyp liegt noch in `ma_variants` |
 | `ma_sustainability` | geplant | Nachhaltigkeitsbewertung als eigenes Fachmodul |
 | `ma_assessment` | geplant | Bewertungs- und Scoringschicht ueber Analyse, Wirtschaft und Nachhaltigkeit |
@@ -451,13 +453,15 @@ Paketgeruest, eine Infoseite oder vorhandener Prototypcode genuegt nicht fuer
 - **Eingaben:** vollstaendig erzeugte Varianten nach `VariantGeneration`,
   `VAR-ID`, `VariantSelection`, Wetterdatensatz, Zeitraum, Zeitschritt,
   Ausgabeintervall und Szenario.
-- **Ausgaben:** validiertes `RunManifest`, `RUN-ID`,
-  `VAR-ID`-Referenzen und Simulationsmetadaten.
+- **Ausgaben:** validiertes `RunManifest`, getrennte Simulationseinstellung,
+  `RUN-ID`-/`VAR-ID`-Referenzen, neutrale Variantenartefakte und technische
+  Logs.
 - **Abgrenzung:** Das Modul erzeugt keine Varianten und veraendert keine
   IDA-ICE-Dateien.
-- **Status:** Geplant; P018 ist auf die P017-Uebergabe geschaerft.
-  `ma_simulation_setup` ergaenzt ein gemeinsames Setup je Run und fuehrt eine
-  direkte `RUN -> VAR`-Zuordnung ohne `SimulationCase`-Ebene.
+- **Status:** Geplant; P018 ist als neutrales Run-Paket auf die P017-Uebergabe
+  geschaerft. `ma_simulation_setup` ergaenzt ein getrenntes gemeinsames Setup
+  je Run und fuehrt eine direkte `RUN -> VAR`-Zuordnung ohne
+  `SimulationCase`-Ebene.
 
 #### ma_export_simulation
 
@@ -975,8 +979,8 @@ stehen ausschliesslich in
 - `ma_workflow` soll spaeter echte Fachservice-Aufrufe koordinieren; P027
   konkretisiert zunaechst die P017-Checkpoints, Reloads und Abbrueche.
 - P015-S3b, P017-S1 und P018 priorisieren die funktionsfaehige Eingabekette
-  von stabilem Eingangspaket und Baseline ueber Varianten bis zum
-  `RunManifest`.
+  von stabilem Eingangspaket und Baseline ueber Varianten bis zum neutralen
+  Run-Paket.
 - `ma_economy` und `ma_sustainability` erhalten kleine Demos mit
   vollstaendigem Fachkonzept; `ma_assessment`, `ma_reporting` und
   `ma_data_export` bleiben zunaechst konzeptuell.
@@ -985,6 +989,7 @@ stehen ausschliesslich in
 - P008 muss weitere Realtests, fachliche Wetterereignisdefinitionen fuer P021
   und den Freshness-/Fingerprint-Abgleich fuer die Uebergabe an
   `ma_parameters` abschliessen.
-- P009 wird erst nach P018 weitergefuehrt.
+- P009 wird erst nach P018 mit einem manuellen neutralen Ergebnis-Postprocess
+  weitergefuehrt; P030 misst und vergleicht die Prozesse getrennt davon.
 - P020 darf Normregeln erst nach dokumentierter Quellen- und Methodenmatrix
   implementieren.

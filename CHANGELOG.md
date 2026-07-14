@@ -4,9 +4,40 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.27.2 - 2026-07-14
+
+### Changed
+- DIN-/Nautos-Compliance um den belegten Frankfurt-UAS-DBIS-Zugang sowie
+  getrennte VDE-/VDI-Quellenprofile erweitert. Campus-/VPN-Lesezugriff wird
+  nun von Netz-, KI-, Maschinen-, Weitergabe-, Software- und
+  Veroeffentlichungsrechten unterschieden.
+- VDE-VERLAG-AGB, NormenBibliothek-Nutzungsvertrag 2026 und VDI-Lizenzhinweise
+  als offizielle Referenzen hinterlegt; geschuetzte Volltexte werden weiterhin
+  nicht versioniert. VDE-/VDI-KI-, TDM-, OCR-, Extraktions- und RAG-Vorgaenge
+  bleiben ohne passenden schriftlichen Rechtebeleg gesperrt.
+- Den Frankfurter VDE-NormenBibliothek-Zugang anhand DBIS-Ressource 103475
+  konkretisiert: Volltextansicht ist fuer autorisierte Nutzer belegt, Download
+  und Druck sind ausgeschlossen; kopierte Einzelpassagen bleiben
+  verwendungsbezogen pruefpflichtig.
+- P020 und Stage-3-Dokumentation auf quellenabhaengige Rechtepruefung
+  nachgezogen. Normbasierte Parameter oder Softwarelogik bleiben bis zur
+  fachlichen und rechtlichen Einzelfallpruefung `review_required`.
+- P018 zum neutralen Run-Paket mit getrenntem Setup, Variantenartefakten,
+  technischer Protokollierung und kontrollierter Freigabe erweitert. P027
+  beschreibt den technischen Workflow- und Logvertrag; P030 trennt die
+  wissenschaftliche Prozessmessung von der Produktivsoftware.
+- P009 um einen begrenzten manuellen Ergebnis-Postprocess fuer die erste
+  Diagrammauswertung erweitert und den zentralen Workflow-Katalog auf den
+  P018/P009-MVP-Stand aktualisiert.
+
 ## 0.27.1 - 2026-07-14
 
 ### Changed
+- P018 als neutrales Run-Paket mit getrennter Simulationseinstellung,
+  Variantenartefakten, Materialisierung, Freigabe und technischen Logs
+  konsolidiert. P030 `research_tools` plant die davon getrennte
+  Prozesszeitmessung und Vergleichsauswertung; P009 erhaelt einen begrenzten
+  manuellen Ergebnis-Postprocess fuer die ersten Diagramme.
 - P014 fuer Preprocess V1 in die klaren Slices v2-Aggregat,
   Strukturvalidierung, Persistenz/Freigabe, P013/P015-Handover und
   Referenzfall-Abnahme gegliedert. Optionale Primaerbereiche vermeiden

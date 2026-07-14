@@ -1,13 +1,21 @@
-version: 1
+version: 2
 entries:
+  - activity: manually_research_and_read_licensed_content
+    classification: green
+    decision: allow_documented_scope
+    conditions: [authorized_user, licensed_document, permitted_access_path, no_machine_processing]
   - activity: store_bibliographic_standard_metadata
     classification: green
     decision: allow
-    conditions: [official_source_reference, no_protected_fulltext]
+    conditions: [official_source_reference, manual_capture_or_licensed_api, no_protected_fulltext]
   - activity: create_manual_engineering_paraphrase
     classification: green
     decision: allow
-    conditions: [independent_wording, no_substantial_reconstruction]
+    conditions: [independent_limited_wording, no_close_substitute, no_substantial_reconstruction]
+  - activity: implement_independently_developed_engineering_logic
+    classification: green
+    decision: allow_documented_scope
+    conditions: [not_transferred_from_specific_protected_rule, provenance_documented, engineering_review]
   - activity: manually_transfer_selected_requirement
     classification: yellow
     decision: review_required
@@ -24,3 +32,35 @@ entries:
     classification: yellow
     decision: stop_until_reviewed
     conditions: [origin_and_rights_confirmed, manual_engineering_review, tests, no_reconstruction]
+  - activity: process_vde_verlag_product_with_ai
+    classification: red
+    decision: stop
+    conditions: [matching_individual_terms_or_written_right_required]
+  - activity: process_vde_normenbibliothek_content_with_tdm_or_ai
+    classification: red
+    decision: stop
+    conditions: [institution_specific_contract_or_written_right_required]
+  - activity: copy_individual_vde_normenbibliothek_text_passage
+    classification: yellow
+    decision: review_required
+    conditions: [authorized_user, necessary_scope, intended_use_checked, no_automatic_processing, no_sharing]
+  - activity: download_or_print_vde_normenbibliothek_content_under_frankfurt_uas_access
+    classification: red
+    decision: stop
+    conditions: [institution_record_prohibits_download_and_print]
+  - activity: process_vdi_content_with_ai
+    classification: red
+    decision: stop_until_documented_permission
+    conditions: [matching_rights_holder_permission, university_contract_confirmation, concrete_system_approved]
+  - activity: implement_software_based_on_specific_vdi_or_vde_rule
+    classification: yellow
+    decision: stop_until_reviewed
+    conditions: [rights_holder_identified, licence_scope_confirmed, no_reconstruction, publication_scope_checked]
+  - activity: share_vde_or_vdi_excerpt_with_supervisor
+    classification: yellow
+    decision: stop_until_reviewed
+    conditions: [recipient_authorized_under_same_licence, sharing_right_confirmed, necessary_scope]
+  - activity: use_vdi_vob_content_beyond_personal_reading
+    classification: unknown
+    decision: stop_pending_evidence
+    conditions: [applicable_terms_required, intended_use_confirmed]

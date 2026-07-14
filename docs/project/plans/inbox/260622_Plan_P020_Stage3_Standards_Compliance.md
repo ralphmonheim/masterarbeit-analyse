@@ -1,6 +1,6 @@
 # P020 Analyse Stufe 3 Standards Compliance
 
-Stand: 2026-07-13
+Stand: 2026-07-14
 Status: Research-Plan, Compliance-Vorpruefung integriert
 Prioritaet: Hoch
 Abhaengigkeiten: P019, P027, ma_core.compliance, bestaetigte Norm-Nutzungsrechte
@@ -30,6 +30,9 @@ Der fruehere Name `stage_3_verification` bleibt nur als Uebergangshinweis.
 7. Vor jeder maschinellen Normverarbeitung eine `ComplianceDecision` aus
    `ma_core.compliance` verlangen und Quellen-, Lizenz- und Hochschulnachweis
    referenzieren.
+8. Regelwerk, Rechteinhaber und Bezugsweg getrennt nachweisen. Fuer DIN,
+   VDE-Webshop, VDE-NormenBibliothek, VDI ueber DIN Media/Nautos und VDI-VOB
+   gelten unterschiedliche Vertragsgrundlagen.
 
 ## Lokaler Pruefbestand Runde 1
 
@@ -47,6 +50,13 @@ diesen Extrakten gesperrt. Alte Mapping-Bezeichnungen wie
 `stage_3_verification` werden
 bei der spaeteren Aufarbeitung auf den kanonischen Namen
 `ma_analyse.stage_3_standards_compliance` abgebildet.
+
+Der Frankfurt-UAS-Nautos-Zugang ist fuer autorisierte manuelle Recherche und
+Lektuere belegt. Er bestaetigt keine KI- oder Maschinenverarbeitungsrechte.
+Die oeffentlichen VDE-VERLAG- und NormenBibliothek-Bedingungen stoppen
+derzeit TDM und KI-Verarbeitung. Fuer VDI ist kein vergleichbares
+Standard-KI-Angebot identifiziert; konkrete VDI-basierte Softwarelogik bleibt
+bis zur Lizenzpruefung `review_required`.
 
 Kalender- und Feiertagsdaten fuer 2025 liegen als gemeinsame Regelgrundlage
 unter `data/common/kalender/2025/`. Sie duerfen spaeter Nutzungszeiten,
@@ -71,3 +81,5 @@ Die konkrete Auswahl wird erst durch die Methodenmatrix verbindlich.
   Nachweisschnittstelle.
 - Jede produktive Regel besitzt eine gruen freigegebene Quellen- und
   Rechteprovenienz; `yellow`, `red` und `unknown` werden nicht ausgefuehrt.
+- Eine Hochschulzugangsberechtigung wird nicht mit Maschinen-,
+  Vervielfaeltigungs-, Software- oder Veroeffentlichungsrechten gleichgesetzt.

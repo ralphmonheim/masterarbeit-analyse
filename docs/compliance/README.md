@@ -1,6 +1,6 @@
 # Projektweites Compliance-System
 
-Stand: 2026-07-13
+Stand: 2026-07-14
 Status: technische und vertragliche Vorpruefung, keine Rechtsberatung
 
 ## Zweck
@@ -22,8 +22,10 @@ Verarbeitungsrecht fuehren nicht zu einer stillschweigenden Freigabe.
   Repository- und Cloud-Grenzen sowie OpenAI-Verarbeitungsprofil.
 - `ida_ice/`: IDA ICE, EQUA-EULA, Bibliotheken, `.idm`, NMF und
   Automatisierungsgrenzen.
-- `din_nautos/`: DIN Media, Nautos, Normeninhalte, KI-Lizenz und
-  wissenschaftliches Text and Data Mining.
+- `din_nautos/`: DIN Media, Nautos, institutioneller DBIS-Zugang,
+  DIN-/VDE-/VDI-Regelwerke, KI-Lizenzen und wissenschaftliches Text and Data
+  Mining. VDE und VDI werden innerhalb dieses Bereichs nach Rechteinhaber,
+  Bezugsweg und konkretem Vertrag getrennt bewertet.
 - `dwd/`: frei zugaengliche DWD-OpenData-Geodaten sowie registrierte oder
   bestellte DWD-/TRY-Leistungen.
 
@@ -55,8 +57,9 @@ Upload-, Index- und Simulationsoperationen ohne freigegebene
 nur Metadaten, Hashes und Entscheidungen, niemals geschuetzten Volltext.
 
 Vor Implementierungen mit `.idm`, NMF, EQUA-Libraries, EQUA-API,
-IDA-Simulationsstart, DIN-/Nautos-Inhalten, Norm-OCR, Embeddings, RAG oder
-Vektordatenbanken ist eine ausdrueckliche `compliance_decision` erforderlich.
+IDA-Simulationsstart, DIN-/Nautos-/VDE-/VDI-Inhalten, Norm-OCR, Embeddings,
+RAG oder Vektordatenbanken ist eine ausdrueckliche `compliance_decision`
+erforderlich.
 
 ## Codex-Durchsetzung
 
@@ -98,7 +101,7 @@ Preflight aus.
 | DWD TRY 2011 aus IDA-Paket | Konverter vorhanden | vor `.idm` und jeder `.PRN` gegatet |
 | IDA-Simulationsstart | nicht implementiert, manuell | Service-Regel `red` |
 | EQUA-Bibliotheksimport | nicht implementiert | Service-Regel `red` |
-| DIN-/Nautos-OCR, RAG, Extraktion | nicht implementiert | Service-Regel `red` |
+| Norm-OCR, RAG und Extraktion | nicht implementiert | generische Norm-Service-Regel `red`; VDE-/VDI-spezifische Laufzeittypen sind noch nicht umgesetzt |
 | Externe KI-/Cloud-Uebergabe geschuetzter Inhalte | nicht implementiert | Wrapper und Policy blockieren ohne Rechtebeleg |
 | Allgemeiner TRY-Import | neutrale Formatgrenze | Datensatzfreigabe bleibt zusaetzlich in `ma_weather`/`ma_validation` |
 
@@ -112,9 +115,14 @@ erzwingen.
 
 - IDA ICE: neutrale Daten vorbereiten, manuell uebergeben und Simulation
   manuell starten; exportierte Ergebnisse danach automatisiert auswerten.
-- DIN/Nautos: Normen manuell lesen und eigene fachliche Ableitungen bilden;
-  keine maschinelle oder KI-gestuetzte Normverarbeitung ohne nachgewiesene
-  passende Rechte.
+- DIN/Nautos: Der Frankfurt-UAS-Zugang fuer autorisierte manuelle Recherche
+  und Lektuere ist belegt. Maschinen-, KI-, Weitergabe-, Repository- und
+  Veroeffentlichungsrechte bleiben getrennt nachzuweisen.
+- VDE/VDI: Rechteinhaber, Bezugsweg und produktspezifische Bedingungen zuerst
+  bestimmen. Die aktuellen oeffentlichen VDE-Bedingungen stoppen TDM und
+  KI-Verarbeitung; fuer VDI ist kein vergleichbares Standard-KI-Angebot
+  identifiziert. Normbasierte Softwarelogik bleibt bis zur Rechtepruefung
+  `yellow`.
 - DWD: frei zugaengliche OpenData-Geodaten sind mit Quellenvermerk
   weiterverwendbar. Registrierungspflichtige oder bestellte TRY-Leistungen
   richten sich dagegen nach Angebot und AGB und sind nicht automatisch offen.
@@ -123,6 +131,6 @@ erzwingen.
 
 ## Quellenstand
 
-Die offiziellen Quellen wurden am 2026-07-13 abgeglichen. Wesentliche
+Die offiziellen Quellen wurden am 2026-07-14 abgeglichen. Wesentliche
 Aussagen stehen in den jeweiligen Quellen- und Vertragsregistern. Eigene
 Ableitungen werden als solche gekennzeichnet.

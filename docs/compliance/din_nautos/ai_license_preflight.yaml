@@ -1,8 +1,11 @@
-version: 1
+version: 2
 din_ai_preflight:
   standard_number: ""
   edition: ""
   source_system: nautos_or_din_media_or_other
+  rule_set: din_or_vde_or_vdi_or_joint_or_other
+  acquisition_source: ""
+  applicable_product_terms_confirmed: false
   lawful_access_confirmed: false
   university_license_type_known: false
   network_license_confirmed: false
@@ -31,3 +34,30 @@ statutory_exception_review:
   security_measures_defined: false
   retention_and_deletion_rules_defined: false
   decision: stop_and_warn
+vde_vdi_preflight:
+  document_number: ""
+  edition: ""
+  document_type: vde_or_vdi_or_joint_or_other
+  rights_holder: ""
+  acquisition_source: vde_verlag_or_vde_normenbibliothek_or_din_media_or_nautos_or_vdi_vob_or_other
+  applicable_contract_or_terms: ""
+  authorized_user_confirmed: false
+  university_contract_confirmation: false
+  institution_specific_override_confirmed: false
+  rights_holder_or_contract_permission: false
+  intended_processing: ""
+  selected_system: ""
+  external_provider_requested: false
+  storage_and_deletion_rules_defined: false
+  publication_scope_checked: false
+  substantial_reconstruction_risk: unknown
+  standard_ai_licence_offer:
+    vde: not_identified_as_of_2026_07_14
+    vdi: not_identified_as_of_2026_07_14
+  decision:
+    classification: red
+    processing_allowed: false
+    reason: >-
+      VDE and VDI AI or machine processing remains blocked until a matching
+      right covers the document, user, operation, system, storage and intended
+      publication scope.

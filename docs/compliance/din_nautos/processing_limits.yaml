@@ -1,6 +1,8 @@
-version: 1
+version: 2
 default_policy: stop_and_warn
 green:
+  - manually_research_authorized_licensed_content
+  - manually_read_authorized_licensed_fulltext
   - store_standard_number_title_edition_status
   - store_bibliographic_reference_and_official_url
   - create_manual_user_notes
@@ -10,6 +12,19 @@ green:
   - implement_own_validation_rules
   - cite_standard_in_thesis
   - compare_own_results_with_manually_interpreted_requirements
+green_conditions:
+  metadata:
+    - public_or_authorized_source
+    - manual_capture_or_separately_licensed_api
+    - no_automated_platform_access
+  notes_and_paraphrases:
+    - independent_limited_wording
+    - no_substantial_reconstruction
+    - no_close_substitute_for_protected_content
+  own_parameters_and_logic:
+    - independently_developed
+    - not_a_transfer_of_specific_protected_rule_content
+    - source_and_review_provenance_documented
 yellow:
   - use_short_necessary_quote
   - reproduce_single_formula_or_small_table_fragment
@@ -18,7 +33,11 @@ yellow:
   - manually_create_normative_rule
   - share_excerpt_with_confirmed_authorized_supervisor
   - rely_on_statutory_tdm_exception
-  - process_under_confirmed_university_permission
+  - process_under_confirmed_university_contract_and_matching_right
+  - save_or_print_individual_document_within_concrete_product_terms
+  - derive_parameter_from_specific_vde_or_vdi_rule
+  - implement_software_based_on_specific_vdi_or_vde_rule
+  - use_individual_written_permission
 red_without_documented_permission:
   - upload_norm_pdf_or_page_image_to_ai
   - paste_substantial_norm_text_into_prompt
@@ -32,7 +51,45 @@ red_without_documented_permission:
   - store_norm_pdf_or_screenshot_in_repository
   - redistribute_norm_content
   - scrape_or_automate_nautos
+  - scrape_or_automate_vde_normenbibliothek
+  - scrape_or_automate_vdi_vob
   - bypass_nautos_protection
+  - remove_vde_or_vdi_watermark
+  - bypass_vde_or_vdi_access_control
+rule_set_overrides:
+  vde_verlag_purchase:
+    source_ids: [vde-verlag-agb-2025-10]
+    ai_processing: red
+    applies_to:
+      - ai_input
+      - ai_upload
+      - ai_summary
+      - ai_analysis
+      - ai_translation
+      - ai_reformulation
+  vde_normenbibliothek:
+    source_ids:
+      - dbis-frankfurt-uas-vde-normenbibliothek-103475-2026-07
+      - vde-normenbibliothek-usage-contract-2026
+    text_and_data_mining: red
+    ai_processing: red
+    applies_to_excerpts: true
+    institution_specific_override_confirmed: false
+    frankfurt_uas_download: red
+    frankfurt_uas_printing: red
+    frankfurt_uas_copy_individual_text_passage: yellow
+  vdi_via_din_media_or_nautos:
+    source_ids:
+      - din-media-agb-2026-05
+      - din-media-ai-license-2026-07
+      - vdi-richtlinien-rights-2026-07
+    comparable_standard_ai_licence_offer: not_identified_as_of_2026_07_14
+    ai_processing_without_matching_written_right: red
+    software_use_based_on_specific_rule: yellow
+  vdi_vob:
+    source_ids: [vdi-vob-personal-access-2026-07]
+    personal_access_only_confirmed: true
+    ai_processing_right: unknown_and_blocked
 local_review_data:
   paths:
     - data/common/normen

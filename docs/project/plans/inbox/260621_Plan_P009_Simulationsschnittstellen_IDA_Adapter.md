@@ -15,6 +15,25 @@ Variantenanbindung und einem validierten `RunManifest` aus P018 technisch
 fortgesetzt. Die Masterarbeit priorisiert die Schritte bis
 `ma_simulation_setup`.
 
+## Masterarbeits-MVP: manueller Ergebnis-Postprocess
+
+Nach einem stabilen P018-Run-Paket wird vor dem vollstaendigen Adapterplan ein
+kleiner, programmunabhaengiger Postprocess-Slice umgesetzt:
+
+1. Ein manuell aus dem Simulationsprogramm bereitgestelltes, freigegebenes
+   Ergebnisexportformat wird einem vorhandenen `RUN-ID`-Ordner und seinen
+   `VAR-ID`s zugeordnet.
+2. Rohdaten bleiben unveraendert; eine normalisierte Ergebnissicht liefert
+   Zeitreihen und Kennwerte an vorhandene `ma_analyse`-Services.
+3. Die erste Analyse erzeugt ein begrenztes Diagrammpaket fuer Baseline und
+   Varianten: Heiz-/Kuehllast, Raumklima/Komfort und Jahres- oder Spitzenwert.
+4. P030 misst Import-, Aufbereitungs- und Diagrammerzeugungszeit getrennt von
+   manueller Ergebnisbereitstellung und fachlicher Auswertung.
+
+Nicht Teil dieses MVP-Slices sind IDA-Dateibearbeitung, automatischer Import,
+ein IDA-Adapter oder ein Simulationsstart. Das konkrete Ergebnisformat wird
+erst nach dokumentiertem Compliance- und Rechtepreflight festgelegt.
+
 ## Wiederzuverwendender Bestand
 
 - `ma_variants.ida_export` erzeugt bereits Variantenordner,

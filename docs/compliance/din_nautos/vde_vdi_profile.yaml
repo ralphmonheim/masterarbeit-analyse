@@ -1,0 +1,119 @@
+version: 1
+reviewed_at: "2026-07-14"
+status: technical_and_contractual_precheck_no_legal_advice
+default_policy: stop_and_warn
+
+source_policy:
+  vde_verlag_purchase:
+    applicable_sources: [vde-verlag-agb-2025-10]
+    ai_processing: prohibited_by_current_general_terms
+    classification: red
+    scope_note: >-
+      Applies to products acquired under the VDE VERLAG general terms.
+      Product-specific or individually agreed terms take precedence.
+  vde_normenbibliothek:
+    applicable_sources:
+      - dbis-frankfurt-uas-vde-normenbibliothek-103475-2026-07
+      - vde-normenbibliothek-usage-contract-2026
+    manual_fulltext_viewing: confirmed_for_authorized_frankfurt_uas_users
+    download: prohibited_by_institution_record
+    printing: prohibited_by_institution_record
+    copy_individual_text_passages: review_required
+    text_and_data_mining: prohibited_by_public_standard_contract
+    ai_processing: prohibited_by_public_standard_contract
+    classification: operation_specific
+    classification_by_operation:
+      authorized_fulltext_viewing: green
+      copy_individual_text_passage: yellow
+      download_or_print: red
+      text_and_data_mining_or_ai: red
+    scope_note: >-
+      The public 2026 standard contract is the current product-specific
+      evidence. The actual Frankfurt UAS contract may differ and is not yet
+      documented.
+  vdi_via_din_media_or_nautos:
+    applicable_sources:
+      - din-media-agb-2026-05
+      - din-media-ai-license-2026-07
+      - vdi-richtlinien-rights-2026-07
+    comparable_standard_ai_licence_offer: not_identified_as_of_2026_07_14
+    individual_written_permission: unknown
+    classification: red_for_ai_until_matching_right
+  vdi_vob:
+    applicable_sources: [vdi-vob-personal-access-2026-07]
+    personal_access: confirmed_for_assigned_users
+    ai_processing: not_confirmed
+    classification: unknown_and_blocked
+  joint_vdi_vde_rule:
+    classification: strictest_applicable_rule_controls
+    rights_holders_and_contracts_must_be_identified: true
+
+allowed_without_protected_content:
+  - manually_store_public_bibliographic_metadata
+  - store_official_catalog_link
+  - cite_document_bibliographically
+  - create_independent_limited_engineering_notes_without_reconstruction
+  - implement_independently_developed_logic_not_based_on_protected_rule_content
+
+review_required:
+  - quote_short_necessary_excerpt
+  - reproduce_formula_table_fragment_or_figure
+  - manually_transfer_normative_limit_value
+  - derive_parameter_from_specific_rule_content
+  - implement_software_based_on_specific_vdi_or_vde_rule
+  - share_excerpt_with_separately_authorized_person
+  - copy_individual_vde_normenbibliothek_text_passage
+  - rely_on_individual_written_permission
+
+blocked_without_matching_written_right:
+  - upload_pdf_page_image_or_screenshot_to_ai
+  - paste_original_vde_or_vdi_text_into_ai
+  - run_ocr
+  - automatically_summarize_translate_or_reformulate
+  - automatically_extract_formula_table_or_requirement
+  - convert_protected_content_to_json_yaml_or_csv
+  - create_embeddings_vector_database_or_rag
+  - reconstruct_rulebook
+  - store_original_or_substantial_extract_in_repository
+  - automate_platform_download
+  - scrape_platform
+  - remove_watermark
+  - bypass_access_control
+  - download_or_print_under_frankfurt_uas_vde_access
+
+preflight:
+  document_number: ""
+  document_type: vde_or_vdi_or_joint_or_other
+  rights_holder: ""
+  acquisition_source: ""
+  applicable_contract_or_terms: ""
+  authorized_user_confirmed: false
+  university_contract_confirmation: false
+  rights_holder_or_contract_permission: false
+  intended_processing: ""
+  selected_system: ""
+  storage_and_deletion_rules_defined: false
+  publication_scope_checked: false
+  substantial_reconstruction_risk: unknown
+  decision:
+    classification: red
+    processing_allowed: false
+    reason: >-
+      No AI or machine processing until a matching right covers the document,
+      user, operation, system, storage and intended publication scope.
+
+repository:
+  allowed:
+    - public_bibliographic_metadata
+    - official_source_references
+    - independent_limited_user_notes
+    - independently_developed_code
+    - compliance_decisions
+  blocked_without_matching_right:
+    - original_vde_or_vdi_pdf
+    - page_image_or_screenshot
+    - extracted_fulltext
+    - complete_table_figure_or_formula_collection
+    - substantial_quotes
+    - embeddings_or_vector_database
+    - reconstructed_rulebook

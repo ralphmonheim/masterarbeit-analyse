@@ -31,6 +31,25 @@ Serviceaufrufe ueber alle Fachslices konsistent darstellen und steuern.
   `green` ausfuehren, `yellow` bis zur dokumentierten Bestaetigung und allen
   erforderlichen Belegen blockieren, `red` und `unknown` stoppen.
 
+## P018- und P030-Integration
+
+P027 besitzt den produktiven Querschnittsvertrag, nicht die wissenschaftliche
+Prozessmessung:
+
+- P027-S1 definiert strukturierte technische Ereignisse mit Zeitstempel,
+  Modul, Operation, Status, Dauer, Objekt-IDs, Warnungs-/Fehlercodes sowie
+  Objekt- und Dateianzahlen.
+- P027-S2 orchestriert P017 und P018: Selection laden, Run-Entwurf,
+  Materialisierung, Validierung, Warnungsbestaetigung und Freigabe.
+- P027-S3 zeigt eine minimale Run-Ansicht mit Variantenanzahl,
+  Setup, Dateibaum-Vorschau, Validierungsbericht, Freigabestatus und Logpfad.
+- P030 liest diese technischen Logs nur lesend und fuegt manuelle Zeiten,
+  Simulationsdauer und Prozessvergleiche ausserhalb der Fachsoftware hinzu.
+
+Die Messung wissenschaftlicher Nutzer-, Pruef- und Korrekturzeit wird nicht in
+`ma_workflow`, `ma_ui` oder dem Run gespeichert. P027 darf nur technische
+Laufzeiten und Statusereignisse protokollieren.
+
 ## Akzeptanzkriterien
 
 - Keine Fachberechnung liegt in UI oder Workflow.

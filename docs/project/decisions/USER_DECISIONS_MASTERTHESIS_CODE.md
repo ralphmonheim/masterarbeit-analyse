@@ -1457,3 +1457,56 @@ Stand: 2026-07-13
   `docs/project/plans/PLAN_INDEX.md`, `docs/project/plans/PLAN_STATUS.md`
 - Status: getroffen; P014-S1.1 als naechster Umsetzungsslice geplant
 - Quelle oder Chatbezug: Nutzerfreigabe `passt machen wir so` am 2026-07-14
+
+## UD-081 DBIS-, Nautos-, VDE- und VDI-Rechte quellenabhaengig dokumentieren
+
+- Datum: 2026-07-14
+- Thema: Hochschulzugang, technische Regelwerke, KI-Verarbeitung und
+  Veroeffentlichungsgrenzen
+- Entscheidung: Die DBIS-Eintraege 105040 und 103475 werden als Belege fuer
+  den manuellen Frankfurt-UAS-Zugang zu Nautos und VDE-NormenBibliothek
+  aufgenommen. Der VDE-Zugang erlaubt Ansicht, aber keinen Download oder
+  Druck. Rechte werden nicht allein nach
+  Plattform, sondern getrennt nach Regelwerk, Rechteinhaber, Bezugsweg und
+  konkreten Vertragsbedingungen bewertet. VDE- und VDI-KI-Verarbeitung bleibt
+  bis zu einem passenden schriftlichen Rechtebeleg gesperrt.
+- Begruendung: Campus- oder VPN-Zugang beweist keine KI-, Maschinen-,
+  Weitergabe-, Software- oder Veroeffentlichungsrechte. Die VDE-VERLAG-AGB,
+  der NormenBibliothek-Nutzungsvertrag, die DIN-Media-Regeln und die
+  VDI-Lizenzhinweise haben unterschiedliche Geltungsbereiche.
+- Auswirkung: `docs/compliance/din_nautos/` erhaelt den DBIS-Nachweis,
+  getrennte VDE-/VDI-Profile, korrigierte Gruen-Gelb-Rot-Grenzen und separate
+  Anfrageentwuerfe fuer Hochschule und Rechteinhaber. Normbasierte Parameter
+  oder Softwarelogik sind nicht pauschal gruen; lokale Pruefdaten bleiben
+  `review_required` und unversioniert.
+- Status: getroffen; Dokumentationsabgleich freigegeben und umgesetzt
+- Offene Folgefragen: konkreter Hochschulvertrag, institutionelle
+  Sonderbedingungen, Nutzung kopierter VDE-Einzelpassagen,
+  Individualgenehmigungen, Zitat-/Abdruckumfang und eine
+  spaetere VDE-/VDI-spezifische Erweiterung der Laufzeit-SourceTypes.
+- Quelle oder Chatbezug: Nutzerfreigabe `Freigegeben fuer den
+  DBIS-/Nautos-/VDE-/VDI-Dokumentationsabgleich.` am 2026-07-14
+
+## UD-082 Masterarbeits-MVP mit neutralem Run-Paket und Forschungsauswertung
+
+- Datum: 2026-07-14
+- Thema: P018, P030, P027, P009 und messbarer Durchlauf der Masterarbeit
+- Entscheidung: P018 erzeugt fuer die Masterarbeit ein neutrales,
+  reproduzierbares Run-Paket mit getrenntem SimulationSetup,
+  Variantenartefakten, Validierung, Freigabe und technischen Logs. P027
+  verantwortet dazu Ereignis-, Diagnose- und Workflowvertrag, nicht aber die
+  wissenschaftliche Messung. P030 `research_tools` erfasst und vergleicht
+  ausserhalb der Produktivsoftware Preprocessing-, Simulations- und
+  Postprocessing-Zeit, aktive Nutzerzeit, Maschinenzeit sowie Prozessqualitaet.
+  P009 erhaelt nach einem stabilen Run-Paket einen begrenzten manuellen
+  Ergebnis-Postprocess fuer die ersten Diagramme.
+- Auswirkung: Ein erster Masterarbeits-MVP reicht von der Eingabeaufnahme bis
+  zu neutral vorbereiteten Runs, manueller Simulation, kontrollierter
+  Ergebnisaufnahme und einfacher Analyse. IDA-Adapter, `.idm`-Bearbeitung,
+  automatischer Simulationsstart und wissenschaftliche Logik in Fachmodulen
+  bleiben ausgeschlossen.
+- Betroffene Plaene oder Module: P009, P018, P027, P030,
+  `ma_workflow`, `ma_simulation_setup`, `ma_import_simulation`, `ma_analyse`
+- Status: getroffen; Plan- und Workflow-Integration freigegeben
+- Quelle oder Chatbezug: Nutzerfreigabe `frei` zur
+  P018/P030-MVP-Integration am 2026-07-14
