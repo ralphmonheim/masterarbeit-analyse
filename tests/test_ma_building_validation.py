@@ -95,12 +95,13 @@ def test_empty_space_list_blocks_release():
 
 def test_lod1_allows_empty_space_element_and_opening_lists():
     spec = load_business_integration_lod1_building_spec()
+    empty_lod1_spec = replace(spec, storeys=(), spaces=())
 
-    result = validate_building_spec(spec)
+    result = validate_building_spec(empty_lod1_spec)
 
-    assert spec.spaces == ()
-    assert spec.elements == ()
-    assert spec.openings == ()
+    assert empty_lod1_spec.spaces == ()
+    assert empty_lod1_spec.elements == ()
+    assert empty_lod1_spec.openings == ()
     assert result.release_status is ReleaseStatus.RELEASED
     assert result.messages == ()
 

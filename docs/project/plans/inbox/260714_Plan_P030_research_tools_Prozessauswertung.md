@@ -105,6 +105,15 @@ berechnet werden, wenn Prozessgrenze und Messherkunft vergleichbar sind.
 - Forschungsergebnisse veraendern keine Fachobjekte, Varianten, Runs oder
   Freigaben.
 
+## Masterarbeits-MVP V1
+
+Der erste Vergleich umfasst mindestens einen softwareunterstuetzten
+Referenzdurchlauf und einen dokumentierten manuellen Vergleichsdurchlauf. Er
+verwendet dieselbe Prozessgrenze und dieselben drei Ergebnisartefakte:
+Heiz-/Kuehllastdiagramm, Raumklima-/Komfortdiagramm sowie Jahres- oder
+Spitzenwertvergleich. Abweichende Messherkunft oder abweichende Grenzen werden
+nicht zu einer scheinbaren Zeitersparnis zusammengefasst.
+
 ## Nicht Teil der Masterarbeit
 
 - Bildschirmaufzeichnung und vollautomatische Erfassung aller

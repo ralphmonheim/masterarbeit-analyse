@@ -2,6 +2,7 @@ import importlib
 import queue
 from argparse import Namespace
 from pathlib import Path
+from types import MappingProxyType
 
 import pandas as pd
 from ma_ui.module_views.analyse_view import (
@@ -57,6 +58,7 @@ from ma_analyse.analysis_wizard import (
 )
 from ma_analyse.models import AnalysisConfig, AnalysisResult
 from ma_building import load_business_integration_lod1_building_spec
+from ma_database import DemoCatalog, DemoCatalogRecord
 from ma_technical import load_business_integration_lod1_technical_spec
 from ma_ui import app as ma_ui_app
 from ma_ui import workflow_view
@@ -189,6 +191,13 @@ def test_ui_navigation_contains_home_and_analysis():
     assert "import_simulation" in page_keys
     assert "reporting" in page_keys
     assert "validation" in page_keys
+
+
+def test_ui_navigation_follows_the_canonical_phase_2_input_order():
+    page_keys = [page.page_key for page in get_navigation_pages()]
+
+    assert page_keys.index("weather") < page_keys.index("building") < page_keys.index("technical")
+    assert page_keys.index("technical") < page_keys.index("zones") < page_keys.index("parameters")
 
 
 def test_ui_navigation_page_metadata():
@@ -439,6 +448,48 @@ def test_building_view_exposes_business_integration_lod1_spec():
     assert summary_by_key["Eingabe-LoD"] == "LOD-1"
     assert summary_by_key["U-Wert Aussenwand [W/m2K]"] == 0.24
     assert summary_by_key["Fensteranteil [%]"] == 25.0
+
+
+def test_building_construction_rows_resolve_demo_material_layers():
+    catalog = DemoCatalog(
+        catalog_id="CAT-TEST-UI",
+        catalog_version="test",
+        records_by_category=MappingProxyType(
+            {
+                "materials": (
+                    DemoCatalogRecord(
+                        category="materials",
+                        record_id="MAT-TEST-UI",
+                        label="Neutrales Testmaterial",
+                        data=MappingProxyType(
+                            {"verification_status": "draft_unverified", "confirmation_status": "unconfirmed"}
+                        ),
+                    ),
+                )
+            }
+        ),
+        construction_layers=(
+            MappingProxyType(
+                {
+                    "construction_id": "CON-TEST-UI",
+                    "material_ref": "MAT-TEST-UI",
+                    "layer_no": 1,
+                    "thickness_m": 0.1,
+                    "layer_function": "test_only",
+                }
+            ),
+        ),
+    )
+
+    rows = building_view._construction_layer_rows(catalog, "CON-TEST-UI")
+
+    assert len(rows) == 1
+    assert rows[0]["Material"] == "Neutrales Testmaterial"
+
+
+def test_technical_topic_options_include_not_installed():
+    assert technical_view._technical_option_label((), "not_installed") == "Nicht vorhanden"
+    assert technical_view._technical_option_label((), "present_without_demo_record") == "Vorhanden, noch ohne Demo-Datensatz"
 
 
 def test_building_zones_and_technical_views_are_registered():

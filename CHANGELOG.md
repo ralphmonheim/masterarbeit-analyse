@@ -4,6 +4,48 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.28.0 - 2026-07-15
+
+### Changed
+- Die Bearbeitungsnavigation folgt jetzt dem kanonischen Preprocess-Ablauf
+  `Projekt -> Wetter -> Gebaeude -> Technische Systeme -> Zonen -> Parameter`.
+  `ma_technical` besitzt getrennte Fachreiter mit einer expliziten Auswahl
+  `Nicht vorhanden`; Konstruktionen und Materialien liegen nur noch in der
+  Gebaeudeansicht.
+- `ma_building` zeigt Bauteile, Oeffnungen, Konstruktionszuordnungen und
+  Materialschichten getrennt. Ein optionaler lokaler Seed-Katalog bleibt
+  read-only und `demo_unverified`; seine Daten werden nicht versioniert oder
+  veroeffentlicht, und die UI bleibt auch ohne diesen Katalog bedienbar.
+- P013-S3b umgesetzt: `ThermalBuildingModel` schliesst Building-Revision,
+  Raum-Zonen-Zuordnung und freigegebene P014-Technikrevision referenzbasiert
+  zusammen; fehlende Raumzuordnungen blockieren die Freigabe.
+- P014-S2 umgesetzt: freigegebene v2-Technikrevisionen werden als
+  überschreibgeschützte YAML-Nutzlast mit stabilem Content-Hash gespeichert
+  und beim Laden gegen diesen Hash geprüft.
+- BusinessIntegration-LoD-1 auf einen manuellen Einraum-Einzonen-Referenzfall
+  fortgeschrieben: Building-Revision V2 enthaelt den Bueroraum mit 24 m2 und
+  96 m3; die bestehende Buerozone referenziert ihn eindeutig.
+- Erster ausführbarer Eingabekette-V1-Referenzpfad ergänzt: Eine freigegebene
+  P015-Baseline erzeugt Baseline und explizite Variante mit stabilen
+  Fingerprints; P018 materialisiert daraus ein neutrales Run-Paket mit
+  Manifest, Konfigurationen, Vorbereitungshinweis und drei P016-
+  Ausgabeanforderungen.
+- P014-S1.2 umgesetzt: der v2-Validator blockiert doppelte Objekt-IDs,
+  unbekannte interne Referenzen und fehlende erforderliche Leistungswerte,
+  ohne den Legacy-v1-Vertrag umzudeuten.
+- P014-S1.1 umgesetzt: Das v2-`TechnicalModelSpecification` buendelt jetzt
+  physische Geraete, Heiz-/Kuehlverteilungen, thermische Speicher und
+  Trinkwarmwassererzeugung in Registern. Plant, AHU und Elektrik sind optional;
+  die v1-LoD-1-Demo bleibt unveraendert kompatibel.
+- Masterarbeits-MVP V1 als Ziel von Eingabeaufnahme bis zu ersten
+  Simulationszahlen, drei Diagrammtypen und P030-Prozessvergleich festgelegt.
+  Preprocess V1 bleibt der technische Teilmeilenstein bis zum neutralen
+  Run-Paket.
+- Handover-Abgleich geschlossen: P013 plant ein kleines
+  `ThermalBuildingModel` als P018-Abschlussvertrag; P016 und `ma_analyse`
+  planen drei neutrale `OutputRequirementProfiles` fuer den ersten
+  Ergebnis-Postprocess.
+
 ## 0.27.2 - 2026-07-14
 
 ### Changed

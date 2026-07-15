@@ -38,8 +38,14 @@
 - **Abhaengigkeiten:** `ma_project`, P010/P027-Diagnose- und
   Freigabevertraege; Phase 2.
 - **Status:** teilweise umgesetzt. v1 umfasst Demo-Spec, BusinessIntegration-
-  LoD-1-Spec, Fachmodelle, Validierung und lokale IFC-/3DM-Diagnose ohne
-  produktiven Geometrieimport.
+  LoD-1-Spec, Fachmodelle, Validierung, lokale IFC-/3DM-Diagnose und eine
+  Streamlit-Ansicht fuer vorhandene Bauteile, Oeffnungen sowie die read-only
+  lokale Konstruktions- und Materialauswahl. Die Katalogdaten selbst bleiben
+  unveroeffentlicht und sind fuer die Ansicht optional.
+- **UI-Grenze:** Einzelbauteile werden nur angezeigt, wenn sie in der
+  `BuildingModelSpecification` enthalten sind. Die aktuelle IFC-Diagnose
+  zaehlt Entity-Typen, liest aber noch keine einzelnen IFC-Bauteile oder
+  Attribute aus; eine solche Anzeige bleibt IFC-Lite-Folgearbeit.
 - **Naechster Schritt:** LoD-2-Inhalte fuer Raum-/Bauteilstruktur klaeren und
   reale IFC-Inhalte separat auswerten, bevor ein IFC-Lite-Import freigegeben
   wird. Rhino bleibt ohne aktive Parser-Abhaengigkeit.

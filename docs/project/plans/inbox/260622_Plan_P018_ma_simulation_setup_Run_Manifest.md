@@ -32,6 +32,14 @@ Nicht Teil von V1 sind ein IDA-ICE-Adapter, das Schreiben oder Veraendern von
 IDA-Dateien, ein Simulationsstart, Ergebnisimport und ein separates
 `SimulationCase`-Objekt.
 
+## Rolle im Masterarbeits-MVP V1
+
+P018 beendet nur den Preprocess-Teil des Masterarbeits-MVP. Der gesamte
+MVP-V1-Durchlauf setzt danach die manuelle Simulation, den P009-MVP-
+Ergebnispostprocess, die drei OutputRequirementProfiles aus P016 und die
+getrennte P030-Prozessauswertung fort. P018 verwendet dabei die freigegebene
+Revision des `ThermalBuildingModel` aus P013 als Gebaeude-/Zonenabschluss.
+
 ## Neutrales Run-Paket
 
 Ein Run-Paket enthaelt mindestens:
@@ -182,6 +190,12 @@ Diese Daten sind Zuordnungen innerhalb des Runs und keine eigenstaendigen
 - Run-Verzeichnisstruktur, relative Ressourcenreferenzen,
   `variant_config.yaml`, `simulation_input.yaml` und PreparationReport.
 - Preview-Beispiel mit explizit nicht aufgeloesten Platzhaltern.
+
+Der V1-Referenzpfad ist am 2026-07-14 umgesetzt: Er erzeugt fuer eine
+freigegebene P015-Baseline und eine explizite Variante ein RunManifest sowie
+`variant_config.yaml`, `simulation_input.yaml` und `preparation_report.md`.
+Er nutzt noch die bestehenden LoD-1-Quellenreferenzen; die spaetere
+P013-/P014-Revisionspersistenz bleibt ein getrennter Anschluss.
 
 ### P018-S3 Validierung und Freigabe
 

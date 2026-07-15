@@ -23,6 +23,8 @@ def test_business_integration_lod1_zone_spec_loads_and_is_released():
     assert zone_spec.input_detail_level is ZoneInputDetailLevel.LOD_1
     assert zone_spec.zone_model_id == "ZONE-BI-LOD1-MODEL-0001"
     assert len(zone_spec.zones) == 1
+    assert zone_spec.zones[0].name == "Bueroraum LoD-1"
+    assert zone_spec.zones[0].source_space_ids == ("SPACE-BI-OFFICE-0001",)
     assert zone_spec.zones[0].floor_area_m2 == 24.0
     assert zone_spec.usage_profiles[0].operation_start_hour == 8.0
     assert result.release_status is ReleaseStatus.RELEASED

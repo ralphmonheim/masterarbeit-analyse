@@ -29,7 +29,12 @@ def test_business_integration_lod1_building_spec_loads_and_is_released():
     assert spec.building.building_id == "BUILDING-BI-LOD1-0001"
     assert spec.simple_envelope is not None
     assert spec.simple_envelope.window_area_ratio_percent == 25.0
-    assert len(spec.spaces) == 0
+    assert spec.model_version.version_id == "BUILDING-BI-LOD1-V2"
+    assert len(spec.storeys) == 1
+    assert len(spec.spaces) == 1
+    assert spec.spaces[0].space_id == "SPACE-BI-OFFICE-0001"
+    assert spec.spaces[0].floor_area_m2 == 24.0
+    assert spec.spaces[0].volume_m3 == 96.0
     assert len(spec.openings) == 0
     assert result.release_status is ReleaseStatus.RELEASED
     assert result.messages == ()

@@ -6,6 +6,7 @@ from collections.abc import Sequence
 
 import streamlit as st
 
+from ma_database import CatalogSelection, DemoCatalogRecord, load_demo_catalog, select_demo_record
 from ma_technical import (
     TechnicalSystemSpecification,
     load_business_integration_lod1_technical_spec,
@@ -77,9 +78,24 @@ def render() -> None:
     st.metric("Freigabestatus", validation_result.release_status.value)
     st.dataframe(normalize_table_for_streamlit(technical_summary_rows(technical_spec)), hide_index=True, width="stretch")
 
-    system_tab, scope_tab = st.tabs(["Systeme", "Einordnung"])
-    with system_tab:
+    overview_tab, heating_tab, cooling_tab, ventilation_tab, storage_tab, dhw_tab, electrical_tab, scope_tab = st.tabs(
+        ["Uebersicht", "Heizung", "Kuehlung", "Lueftung", "Speicher", "Trinkwarmwasser", "Elektrik", "Einordnung"]
+    )
+    with overview_tab:
         st.dataframe(normalize_table_for_streamlit(technical_system_rows(technical_spec)), hide_index=True, width="stretch")
+        _render_technical_selection_overview()
+    with heating_tab:
+        _render_technical_topic("heating", "Heizung", "heating_generators")
+    with cooling_tab:
+        _render_technical_topic("cooling", "Kuehlung", "cooling_generators")
+    with ventilation_tab:
+        _render_technical_topic("ventilation", "Lueftung")
+    with storage_tab:
+        _render_technical_topic("storage", "Speicher", "thermal_storages")
+    with dhw_tab:
+        _render_technical_topic("domestic_hot_water", "Trinkwarmwasser")
+    with electrical_tab:
+        _render_technical_topic("electrical", "Elektrik")
     with scope_tab:
         st.dataframe(normalize_table_for_streamlit(technical_scope_rows()), hide_index=True, width="stretch")
         st.info(module.next_step)
@@ -96,6 +112,115 @@ def render() -> None:
             width="stretch",
         )
     _render_messages(validation_result.messages)
+
+
+def _render_technical_topic(topic_key: str, label: str, catalog_category: str | None = None) -> None:
+    """Shows one technical topic with an explicit not-installed option."""
+    catalog = None
+    records = ()
+    if catalog_category is not None:
+        try:
+            catalog = load_demo_catalog()
+        except FileNotFoundError:
+            st.info("Lokale Katalogdaten sind nicht Bestandteil des Repositorys und wurden hier nicht gefunden.")
+        except (OSError, ValueError) as exc:
+            st.error(f"Lokaler Demo-Katalog konnte nicht geladen werden: {exc}")
+        else:
+            records = catalog.records_for(catalog_category)
+    options = ["not_installed", *[record.record_id for record in records]]
+    if not records:
+        options.append("present_without_demo_record")
+    selected_id = st.selectbox(
+        label,
+        options,
+        format_func=lambda option_id, available_records=records: _technical_option_label(available_records, option_id),
+        key=f"technical_topic_{topic_key}",
+    )
+    selection_key = f"technical_topic_selection_{topic_key}"
+    if selected_id == "not_installed":
+        st.session_state[selection_key] = {"availability": "not_installed", "topic": topic_key}
+        st.dataframe(
+            normalize_table_for_streamlit(
+                [{"Merkmal": "Status", "Wert": "Nicht vorhanden"}, {"Merkmal": "Verfuegbarkeit", "Wert": "not_installed"}]
+            ),
+            hide_index=True,
+            width="stretch",
+        )
+        return
+    if selected_id == "present_without_demo_record":
+        st.session_state[selection_key] = {"availability": "planned", "topic": topic_key}
+        st.dataframe(
+            normalize_table_for_streamlit(
+                [{"Merkmal": "Status", "Wert": "Vorhanden, noch ohne Demo-Datensatz"}, {"Merkmal": "Verfuegbarkeit", "Wert": "planned"}]
+            ),
+            hide_index=True,
+            width="stretch",
+        )
+        return
+
+    if catalog is None or catalog_category is None:
+        raise RuntimeError("Eine lokale Katalogauswahl braucht einen geladenen Katalog und eine Kategorie.")
+    selection = select_demo_record(catalog, category=catalog_category, record_id=selected_id)
+    st.session_state[selection_key] = selection
+    selected_record = next(record for record in records if record.record_id == selected_id)
+    st.warning("Demo-Wert: fachlich nicht verifiziert und nicht simulationsbereit.")
+    st.dataframe(
+        normalize_table_for_streamlit(_demo_record_rows(selected_record, selection)),
+        hide_index=True,
+        width="stretch",
+    )
+
+
+def _render_technical_selection_overview() -> None:
+    """Displays the session-only choices from the individual technical tabs."""
+    topic_labels = {
+        "heating": "Heizung",
+        "cooling": "Kuehlung",
+        "ventilation": "Lueftung",
+        "storage": "Speicher",
+        "domestic_hot_water": "Trinkwarmwasser",
+        "electrical": "Elektrik",
+    }
+    rows = []
+    for topic_key, label in topic_labels.items():
+        selection = st.session_state.get(f"technical_topic_selection_{topic_key}")
+        if isinstance(selection, CatalogSelection):
+            value = selection.label
+            status = selection.selection_status
+        elif isinstance(selection, dict):
+            value = "Nicht vorhanden" if selection.get("availability") == "not_installed" else "Vorhanden ohne Demo-Datensatz"
+            status = str(selection.get("availability"))
+        else:
+            value = "Noch nicht ausgewaehlt"
+            status = "unknown"
+        rows.append({"Thema": label, "Auswahl": value, "Status": status})
+    st.dataframe(normalize_table_for_streamlit(rows), hide_index=True, width="stretch")
+
+
+def _technical_option_label(records: tuple[DemoCatalogRecord, ...], option_id: str) -> str:
+    if option_id == "not_installed":
+        return "Nicht vorhanden"
+    if option_id == "present_without_demo_record":
+        return "Vorhanden, noch ohne Demo-Datensatz"
+    return _demo_label(records, option_id)
+
+
+def _demo_label(records: tuple[DemoCatalogRecord, ...], record_id: str) -> str:
+    record = next(record for record in records if record.record_id == record_id)
+    return f"{record.label} ({record.record_id})"
+
+
+def _demo_record_rows(record: DemoCatalogRecord, selection: CatalogSelection) -> list[dict[str, object]]:
+    """Keeps the selected record inspectable without exposing it as an editable model."""
+    fields = [
+        ("ID", record.record_id),
+        ("Name", record.label),
+        ("Kategorie", record.category),
+        ("Auswahlstatus", selection.selection_status),
+        ("Pruefstatus", record.data["verification_status"]),
+        ("Bestaetigung", record.data["confirmation_status"]),
+    ]
+    return [{"Merkmal": name, "Wert": value} for name, value in fields]
 
 
 def _display_value(value) -> str:

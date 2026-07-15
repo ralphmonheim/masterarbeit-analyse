@@ -100,3 +100,24 @@ P016 liest in Preprocess V1 die freigegebene Baseline aus P015 und erzeugt
 einen eigenen `ReferenceDimensioningResult` mit Eingangs-Fingerprint,
 Rechenweg und Status. Eine normative Berechnung, IDA-Plausibilisierung und
 variantenspezifische Dimensionierungsgruppen sind keine V1-Voraussetzung.
+
+## Handover-Abgleich: OutputRequirementProfiles fuer MVP V1
+
+P016 und die bestehende Analyse definieren gemeinsam einen kleinen,
+programmunabhaengigen Vertrag `OutputRequirementProfile`. P018 uebernimmt ihn
+nur als Pflichtausgabeanforderung; P009 und `ma_analyse` verwenden ihn bei
+Ergebnisaufnahme und Diagrammerzeugung.
+
+Der Vertrag und die drei MVP-V1-Profile sind am 2026-07-14 in
+`ma_analyse.stage_1_dimensioning` umgesetzt; P018 referenziert sie nur.
+
+Fuer MVP V1 sind genau drei Profile erforderlich:
+
+1. Heiz-/Kuehllast nach Variante und Zone,
+2. Raumtemperatur beziehungsweise Komfortzeitreihe fuer ausgewaehlte Zonen,
+3. Jahres- oder Spitzenwertvergleich zwischen Baseline und Varianten.
+
+Ein Profil beschreibt Kennwert, Einheit, zeitliche Aufloesung, Bezugsobjekt,
+Pflichtstatus und erwarteten Diagrammtyp. Es enthaelt keine
+programmspezifischen Ergebnisnamen und keine IDA-Exportlogik. Weitere
+Optimierungs-, Norm- oder Sensitivitaetsausgaben bleiben ausserhalb von MVP V1.

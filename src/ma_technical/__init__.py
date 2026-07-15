@@ -37,10 +37,11 @@ from .plant import (
     PerformanceDefinition,
     TechnicalPlant,
 )
+from .revisions import TechnicalModelRevision, load_technical_model_revision, release_technical_model
 from .schedules import TechnicalSchedule, TechnicalScheduleRegistry
 from .specification import TechnicalModelSchemaVersion, TechnicalModelSpecification
 from .topology import TechnicalConnection, TechnicalPort, TechnicalServiceInterface, TechnicalTopology
-from .validation import validate_technical_spec
+from .validation import validate_technical_model, validate_technical_spec
 
 __all__ = [
     "AirHandlingUnit",
@@ -75,6 +76,7 @@ __all__ = [
     "TechnicalMedium",
     "TechnicalModelSchemaVersion",
     "TechnicalModelSpecification",
+    "TechnicalModelRevision",
     "TechnicalPlant",
     "TechnicalPort",
     "TechnicalRepresentationMode",
@@ -91,8 +93,11 @@ __all__ = [
     "TechnicalInputDetailLevel",
     "TechnicalSystemSpecification",
     "load_business_integration_lod1_technical_spec",
+    "load_technical_model_revision",
+    "release_technical_model",
     "load_technical_spec",
     "technical_specification_from_any",
     "technical_specification_from_dict",
     "validate_technical_spec",
+    "validate_technical_model",
 ]

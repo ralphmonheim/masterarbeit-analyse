@@ -1510,3 +1510,83 @@ Stand: 2026-07-13
 - Status: getroffen; Plan- und Workflow-Integration freigegeben
 - Quelle oder Chatbezug: Nutzerfreigabe `frei` zur
   P018/P030-MVP-Integration am 2026-07-14
+
+## UD-083 Masterarbeits-MVP V1 und Handover-Vertraege festlegen
+
+- Datum: 2026-07-14
+- Thema: Gesamtziel V1, P013, P016, P018, P027, P009 und P030
+- Entscheidung: Der erste Masterarbeits-MVP endet nicht beim RunManifest,
+  sondern bei ersten Simulationszahlen, drei definierten Diagrammtypen und
+  einem nachvollziehbaren Prozessvergleich. `Preprocess V1` bleibt darin der
+  Teilmeilenstein bis zum neutralen P018-Run-Paket. P013 liefert nach dem
+  manuellen Raum-Zonen-Slice ein kleines, freigegebenes
+  `ThermalBuildingModel`; P016 und `ma_analyse` definieren drei neutrale
+  `OutputRequirementProfiles` fuer Last, Raumklima/Komfort sowie Jahres- oder
+  Spitzenwertvergleich. P009 nimmt Ergebnisse manuell und neutral auf; P030
+  misst Produktiv- und Nutzerzeit ausserhalb der Fachsoftware.
+- Auswirkung: P018 referenziert den Gebaeude-/Zonenabschluss und die
+  Ausgabeanforderungen, dupliziert aber weder deren Fachlogik noch die
+  wissenschaftliche Messung. Die MVP-Abnahme verlangt Baseline, mindestens
+  eine Variante, manuelle Simulation, Ergebnisaufnahme, drei Diagramme und
+  vergleichbare Prozessdaten.
+- Status: getroffen; Handover-Abgleich und MVP-V1-Planung freigegeben
+- Quelle oder Chatbezug: Nutzerfreigabe `Handover-Abgleich-Slice: frei` und
+  `dann MVP-V1 frei` am 2026-07-14
+
+## UD-084 Demo-Seed-Katalog fuer die Bedien- und Ablaufpruefung
+
+- Datum: 2026-07-15
+- Thema: `ma_database`, technische Katalogauswahl und fachliche Abgrenzung
+- Entscheidung: Der vom Nutzer mit ChatGPT erstellte Seed-Katalog wird als
+  versionierter read-only Demo-Katalog in das Projekt aufgenommen. Seine
+  Materialien, Konstruktionen sowie Heiz-/Kuehlerzeuger und Speicher duerfen
+  in Streamlit ausgewaehlt werden. Alle Werte bleiben `draft_unverified` bzw.
+  `demo_unverified` und duerfen weder freigegebene Technikrevisionen noch
+  Simulationen oder wissenschaftliche Referenzwerte unbemerkt beeinflussen.
+- Begruendung: Fuer die erste Programmversion soll die Auswahl- und
+  Prozesskette funktionieren; fachlich belastbare Produkt- oder Normdaten
+  sind dafuer noch nicht erforderlich.
+- Auswirkung: `ma_database` bleibt eine kleine lesende Katalogschicht.
+  Persistenz, automatische Uebernahme in Technikmodelle, Dimensionierung und
+  Produktdatenbank bleiben Folgearbeit mit eigener Validierung.
+- Status: fuer die lokale Nutzung umgesetzt; die vorgesehene Versionierung ist
+  durch UD-086 ersetzt
+- Quelle oder Chatbezug: Nutzerhinweis `gehe von demo daten aus` und
+  Umsetzungsfreigabe `frei` am 2026-07-15
+
+## UD-085 Fachreiter und Baukonstruktionsgrenze in der Eingabe-UI
+
+- Datum: 2026-07-15
+- Thema: Bearbeitungsnavigation, `ma_building`, `ma_technical` und Demo-Daten
+- Entscheidung: Die Bearbeitungsnavigation folgt der kanonischen
+  Eingabereihenfolge Projekt, Wetter, Gebaeude, Technische Systeme, Zonen und
+  Zentrale Parameter. `ma_technical` fuehrt Heizung, Kuehlung, Lueftung,
+  Speicher, Trinkwarmwasser und Elektrik als getrennte Themen; jedes Thema
+  kann explizit als `not_installed` erfasst werden. Materialien und
+  Konstruktionen werden ausschliesslich in `ma_building` angezeigt und dort
+  nur sitzungsbezogen zu Bauteilen oder Oeffnungen ausgewaehlt.
+- Begruendung: Baukonstruktionen beschreiben die Gebaeudehuelle, technische
+  Systeme die Anlagenseite. Die Trennung erleichtert die fachliche Eingabe und
+  verhindert eine unklare Datenverantwortung.
+- Auswirkung: Die aktuelle IFC-Diagnose bleibt eine Entity-Zaehldiagnose. Sie
+  darf keine einzelnen Bauteile vortaeuschen; IFC-Lite-Extraktion von Bauteil-
+  IDs und Attributen ist ein eigener Folgeslice.
+- Status: getroffen und umgesetzt; IFC-Lite bleibt offen
+- Quelle oder Chatbezug: Nutzerfreigabe `frei` am 2026-07-15
+
+## UD-086 Katalogdaten lokal halten und nicht veroeffentlichen
+
+- Datum: 2026-07-15
+- Thema: `ma_database`, Demo-Katalog und oeffentlicher Repository-Release
+- Entscheidung: Die Katalogdaten unter `config/ma_database/catalogs/` bleiben
+  ausschliesslich lokal. Sie werden durch Git ignoriert, nicht versioniert und
+  nicht zum oeffentlichen `origin` uebertragen. Loader und UI duerfen die
+  Daten optional verwenden; ein frischer Clone muss ohne diese Dateien
+  funktionieren und die manuellen Statusoptionen weiterhin anbieten.
+- Begruendung: Die Katalogwerte sollen nicht veroeffentlicht werden.
+- Auswirkung: Tests verwenden neutrale, zur Laufzeit erzeugte Fixtures statt
+  der lokalen Katalogdateien. Dokumentation und Release-Compliance schliessen
+  die Katalogdaten ausdruecklich aus.
+- Status: getroffen und umgesetzt
+- Quelle oder Chatbezug: Nutzerentscheidung `nein die Katalogdaten nicht
+  veroeffentlichen` am 2026-07-15

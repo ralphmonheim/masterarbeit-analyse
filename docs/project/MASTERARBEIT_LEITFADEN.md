@@ -44,6 +44,7 @@ Der Leitfaden fuehrt zwei Quellen zusammen:
 | 0.5.10 | 2026-07-12 | P015-S3a ParameterInputPackage mit aktiviertem Wetter-Default und Paketvalidierung umgesetzt |
 | 0.5.11 | 2026-07-14 | Preprocess V1 bis zum compliance-geprueften RunManifest als verbindlichen ersten Durchstich festgelegt |
 | 0.5.12 | 2026-07-14 | P018 als neutrales Run-Paket und P030 als getrennte Prozessmessung fuer den Masterarbeits-MVP aufgenommen |
+| 0.5.13 | 2026-07-14 | Masterarbeits-MVP V1 bis erste Diagramme und Prozessvergleich sowie P013/P016-Handover-Vertraege festgelegt |
 
 ## 1. Zweck der Software
 
@@ -991,5 +992,9 @@ stehen ausschliesslich in
   `ma_parameters` abschliessen.
 - P009 wird erst nach P018 mit einem manuellen neutralen Ergebnis-Postprocess
   weitergefuehrt; P030 misst und vergleicht die Prozesse getrennt davon.
+- Masterarbeits-MVP V1 liefert erste Simulationszahlen fuer Baseline und
+  Varianten, drei definierte Diagrammtypen und einen getrennten
+  Zeit-/Aufwandsvergleich. P013 stellt dafuer ein `ThermalBuildingModel`,
+  P016/`ma_analyse` drei `OutputRequirementProfiles` bereit.
 - P020 darf Normregeln erst nach dokumentierter Quellen- und Methodenmatrix
   implementieren.

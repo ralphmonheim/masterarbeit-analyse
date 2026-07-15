@@ -224,12 +224,18 @@ Ziele
 - gemeinsame Simulationskonfiguration festlegen
 - Export für IDA ICE vorbereiten
 
-### Festlegung Preprocess V1
+### Festlegung Masterarbeits-MVP V1
 
-Preprocess V1 endet mit einem validierten, reproduzierbaren `RunManifest` und
-einer dokumentierten manuellen Uebergabe an IDA ICE. Der erste fachlich
-nutzbare Referenzlauf umfasst eine freigegebene Baseline und eine kleine,
-explizite Variantenstudie.
+Der erste verbindliche Masterarbeits-MVP erzeugt fuer eine freigegebene
+Baseline und eine kleine explizite Variantenstudie erste Simulationszahlen,
+ein begrenztes Diagrammpaket und einen nachvollziehbaren Zeit-/Aufwands-
+vergleich. Er trennt dabei Produktivsoftware, manuelle IDA-ICE-Simulation und
+Forschungsauswertung klar.
+
+`Preprocess V1` ist darin der erste Teilmeilenstein. Er endet mit einem
+validierten, reproduzierbaren neutralen Run-Paket einschliesslich
+`RunManifest`, Setup, Variantenartefakten und technischen Logs sowie einer
+dokumentierten manuellen Uebergabe an IDA ICE.
 
 Die verbindliche Reihenfolge lautet:
 
@@ -243,13 +249,28 @@ ma_project
 -> ma_analyse.stage_1_dimensioning
 -> ma_variants
 -> ma_simulation_setup
--> RunManifest
+-> neutrales Run-Paket
+-> manuelle IDA-ICE-Simulation
+-> manueller neutraler Ergebnisimport
+-> einfache Analyse und Diagramme
+-> P030 Prozessauswertung
 ```
 
 Nicht Teil dieses Meilensteins sind ein produktiver IFC-/Rhino-Import, ein
 IDA-ICE-Adapter, automatisierte Modellmanipulation, technische Produktkataloge,
 Branches oder ein vollstaendiger Technikeditor. Die manuelle IDA-Uebergabe
 referenziert die nach P018 erforderliche Compliance-Entscheidung.
+
+### MVP-V1-Abnahme
+
+- mindestens eine freigegebene Baseline und eine explizite Variante,
+- validiertes P018-Run-Paket mit `RUN-ID`, `VAR-ID` und technischen Logs,
+- dokumentierte manuelle Simulation,
+- ein freigegebenes manuelles Ergebnisformat und neutrale RUN/VAR-Zuordnung,
+- drei Diagrammtypen: Heiz-/Kuehllast, Raumklima/Komfort sowie Jahres- oder
+  Spitzenwertvergleich,
+- getrennte Prozessdaten fuer Preprocessing, Simulation und Postprocessing,
+  einschliesslich Nutzer-, Maschinen-, Pruef- und Korrekturzeit.
 
 ### Phase 4 Simulation und technische Analyse
 
@@ -265,7 +286,8 @@ Ziele
 
 - Ergebnisse importieren
 - Daten vereinheitlichen
-- technische Optimierung auswerten
+- erste Last-, Raumklima- und Spitzenwertdiagramme auswerten
+- technische Optimierung erst nach dem MVP auswerten
 - Varianten nach deutschen Normen nachweisen
 - spaetere internationale Normenprofile ermoeglichen
 - Sensitivität und Robustheit untersuchen

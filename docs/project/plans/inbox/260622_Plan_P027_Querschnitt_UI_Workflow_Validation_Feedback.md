@@ -50,6 +50,15 @@ Die Messung wissenschaftlicher Nutzer-, Pruef- und Korrekturzeit wird nicht in
 `ma_workflow`, `ma_ui` oder dem Run gespeichert. P027 darf nur technische
 Laufzeiten und Statusereignisse protokollieren.
 
+## Masterarbeits-MVP-V1-Workflow
+
+Der minimale durchgehende Workflow lautet: freigegebene Eingaben und Varianten
+-> P018-Run-Paket -> manuelle Simulation -> P009-Ergebnisaufnahme ->
+`ma_analyse`-Diagramme -> P030-Prozessauswertung. P027 ist fuer die
+technischen Checkpoints bis zur P018-Freigabe und fuer die Anzeige der
+anschliessenden RUN/VAR-Zuordnung zustaendig. Wissenschaftliche Bewertungen
+bleiben ausserhalb dieses Workflows.
+
 ## Akzeptanzkriterien
 
 - Keine Fachberechnung liegt in UI oder Workflow.

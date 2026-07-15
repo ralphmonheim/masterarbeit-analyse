@@ -1,4 +1,4 @@
-from dataclasses import FrozenInstanceError
+from dataclasses import FrozenInstanceError, replace
 
 import pytest
 
@@ -7,8 +7,11 @@ from ma_technical import (
     CapacityDefinition,
     CapacityMode,
     ComponentAvailability,
+    CoolingDistribution,
+    DomesticHotWaterGeneration,
     ElectricalSystem,
     HeatingConfigurationMode,
+    HeatingDistribution,
     HeatingFunction,
     HeatingFunctionalRole,
     HeatingGeneration,
@@ -21,8 +24,17 @@ from ma_technical import (
     TechnicalPlant,
     TechnicalServiceInterface,
     TechnicalServiceType,
+    ThermalStorage,
     load_business_integration_lod1_technical_spec,
+    load_technical_model_revision,
+    release_technical_model,
+    validate_technical_model,
 )
+from ma_validation import ReleaseStatus
+
+
+def _codes(result):
+    return {message.code for message in result.messages}
 
 
 def test_schema_v2_minimal_model_collects_object_ids():
@@ -63,6 +75,96 @@ def test_service_interface_replaces_direct_zone_reference():
     assert interface.service_type is TechnicalServiceType.HEATING
     assert interface.medium is TechnicalMedium.WATER
     assert not hasattr(interface, "served_zone_ids")
+
+
+def test_schema_v2_collects_all_technical_registers():
+    spec = _minimal_v2_spec()
+
+    object_locations = dict(spec.object_id_locations())
+
+    assert object_locations["EQ-HEATPUMP-0001"] == "equipment_register.0.equipment_id"
+    assert object_locations["HEAT-DIST-0001"] == "heating_distribution_register.0.distribution_id"
+    assert object_locations["COOL-DIST-0001"] == "cooling_distribution_register.0.distribution_id"
+    assert object_locations["STORE-0001"] == "storage_register.0.storage_id"
+    assert object_locations["DHW-0001"] == "domestic_hot_water_register.0.generation_id"
+
+
+def test_schema_v2_allows_missing_optional_primary_areas():
+    spec = TechnicalModelSpecification(
+        schema_version=TechnicalModelSchemaVersion.V2.value,
+        technical_model_id="TECH-V2-MINIMAL-0001",
+        project_id="PROJECT-BI-TEST-BUILDING",
+        building_reference=ObjectReference(
+            object_id="BUILDING-BI-LOD1-0001",
+            object_type="BuildingModelSpecification",
+        ),
+        declared_detail_level=TechnicalInputDetailLevel.LOD_1,
+    )
+
+    assert spec.plant is None
+    assert spec.air_handling_unit is None
+    assert spec.electrical_system is None
+
+
+def test_schema_v2_validation_accepts_complete_minimal_aggregate():
+    result = validate_technical_model(_minimal_v2_spec())
+
+    assert result.release_status is ReleaseStatus.RELEASED
+
+
+def test_schema_v2_validation_blocks_duplicate_object_ids():
+    spec = _minimal_v2_spec()
+    duplicate_equipment = PhysicalEquipment(
+        equipment_id="EQ-HEATPUMP-0001",
+        equipment_type="backup_heat_pump",
+    )
+
+    result = validate_technical_model(replace(spec, equipment_register=(*spec.equipment_register, duplicate_equipment)))
+
+    assert result.release_status is ReleaseStatus.BLOCKED
+    assert "TECHNICAL_V2_OBJECT_ID_DUPLICATE" in _codes(result)
+
+
+def test_schema_v2_validation_blocks_unknown_internal_references():
+    spec = _minimal_v2_spec()
+    interface = replace(
+        spec.service_interfaces[0],
+        source_system_reference=ObjectReference("UNKNOWN-HEAT", object_type="HeatingFunction"),
+    )
+
+    result = validate_technical_model(replace(spec, service_interfaces=(interface,)))
+
+    assert result.release_status is ReleaseStatus.BLOCKED
+    assert "TECHNICAL_V2_REFERENCE_UNKNOWN" in _codes(result)
+
+
+def test_released_v2_technical_revision_roundtrips_with_stable_hash(tmp_path):
+    revision = release_technical_model(
+        _minimal_v2_spec(),
+        revision_id="TECH-V2-REV-0001",
+        target_dir=tmp_path,
+    )
+    loaded = load_technical_model_revision(tmp_path / "TECH-V2-REV-0001.yaml")
+
+    assert loaded.technical_model_id == "TECH-V2-0001"
+    assert loaded.revision_id == revision.revision_id
+    assert loaded.content_hash == revision.content_hash
+    assert loaded.release_status is ReleaseStatus.RELEASED
+    assert loaded.specification_payload["technical_model_id"] == "TECH-V2-0001"
+
+
+def test_releasing_same_technical_revision_never_overwrites_existing_file(tmp_path):
+    release_technical_model(_minimal_v2_spec(), revision_id="TECH-V2-REV-0001", target_dir=tmp_path)
+
+    with pytest.raises(FileExistsError):
+        release_technical_model(_minimal_v2_spec(), revision_id="TECH-V2-REV-0001", target_dir=tmp_path)
+
+
+def test_technical_revision_hash_ignores_creation_timestamps(tmp_path):
+    first = release_technical_model(_minimal_v2_spec(), revision_id="TECH-V2-REV-0001", target_dir=tmp_path)
+    second = release_technical_model(_minimal_v2_spec(), revision_id="TECH-V2-REV-0002", target_dir=tmp_path)
+
+    assert first.content_hash == second.content_hash
 
 
 def test_schema_v2_parallel_types_do_not_break_legacy_v1_loader():
@@ -106,6 +208,16 @@ def _minimal_v2_spec() -> TechnicalModelSpecification:
             object_type="BuildingModelSpecification",
         ),
         declared_detail_level=TechnicalInputDetailLevel.LOD_1,
+        equipment_register=(equipment,),
+        heating_distribution_register=(HeatingDistribution(distribution_id="HEAT-DIST-0001"),),
+        cooling_distribution_register=(CoolingDistribution(distribution_id="COOL-DIST-0001"),),
+        storage_register=(ThermalStorage(storage_id="STORE-0001", storage_type="buffer"),),
+        domestic_hot_water_register=(
+            DomesticHotWaterGeneration(
+                generation_id="DHW-0001",
+                generation_mode="central",
+            ),
+        ),
         plant=TechnicalPlant(
             plant_id="PLANT-0001",
             heating_generation=HeatingGeneration(

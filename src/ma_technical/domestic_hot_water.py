@@ -47,6 +47,7 @@ class ThermalStorage:
 class DomesticHotWaterGeneration:
     """Trinkwarmwasser-Erzeugung ohne normative Dimensionierung."""
 
+    generation_id: str
     generation_mode: str
     heating_function_reference: ObjectReference | None = None
     separate_generator: ObjectReference | None = None

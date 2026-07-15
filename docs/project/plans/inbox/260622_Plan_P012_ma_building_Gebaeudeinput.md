@@ -73,6 +73,10 @@ der Eingabe, nicht den Detailgrad einer CAD-Geometrie.
   Eingabeumfang ab: Kubatur, einfache Huellkennwerte, Fensteranteil und
   Annahmen. Sie dient fuer erste Dimensionierungsideen und einfache Analysen,
   ohne Raeume, Einzelfenster oder Host-Beziehungen vorauszusetzen.
+- Fuer den Einraum-Einzonen-Referenzfall enthaelt die BusinessIntegration-
+  LoD-1-Revision V2 zusaetzlich ein manuell gepflegtes Erdgeschoss und den
+  Bueroraum `SPACE-BI-OFFICE-0001` mit 24 m2 und 96 m3. Diese Referenz ist
+  keine automatisch abgeleitete Rhino-Raumgeometrie.
 
 ## Modulabgrenzung
 
@@ -350,7 +354,11 @@ Zu pruefen sind mindestens:
   Teil von v1.
 - UI: `ma_ui` zeigt eine einfache Pruefansicht fuer Demo-Validierung und
   lokale Modellquellen. Die Ansicht kann zwischen Demo-Spec und
-  BusinessIntegration-LoD-1-Spec wechseln.
+  BusinessIntegration-LoD-1-Spec wechseln und trennt Uebersicht, vorhandene
+  Bauteile, Oeffnungen, optionale lokale Konstruktionen/Materialien und
+  Modellquellen. Die lokalen Katalogdaten werden nicht veroeffentlicht;
+  Konstruktionen duerfen nur sitzungsbezogen zugeordnet werden und bleiben
+  `demo_unverified`.
 - Tests: Demo-Lader, Fachmodelle, Validierung und Diagnose sind automatisiert
   abgedeckt.
 
@@ -381,6 +389,9 @@ additive Erweiterung fuer den V1-Referenzfall.
   getrennt.
 - Kein vollstaendiger IFC-, Rhino-, CAD- oder IDA-ICE-Workflow wird
   vorgetaeuscht.
+- Eine Bauteilansicht zeigt nur explizit in der Spezifikation vorhandene
+  Einzelbauteile; IFC-Entity-Zaehler werden nicht als extrahierte Bauteile
+  ausgegeben.
 - Offene Warnungen und Annahmen sind nachvollziehbar dokumentiert.
 
 ## Nicht enthalten

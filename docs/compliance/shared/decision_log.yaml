@@ -52,3 +52,13 @@ decisions:
     release_scope: "origin https://github.com/ralphmonheim/masterarbeit-analyse.git; release candidate v0.27.1 based on v0.27.0 commit 8703016813f318b680c298e9f247dfea9a3052fa"
     evidence: ["User command in Codex chat on 2026-07-14: aktualisieren und direkt update repo.", "git diff reviewed: 14 tracked documentation and planning files, 283 insertions and 32 deletions.", "git diff --check passed.", "Compliance preflight on 2026-07-14: no protected DWD, IDA, DIN, EQUA or working-input content in the release diff."]
     sources: [SHARED-COMPLIANCE-003, SHARED-COMPLIANCE-004, SHARED-RELEASE-001]
+  - decision_id: SHARED-RELEASE-003
+    date: "2026-07-15"
+    status: active
+    decision: "Public GitHub release of the Preprocess V1 implementation without local ma_database catalog data"
+    rationale: "The user explicitly prohibited publication of the catalog data. The release contains own source code, neutral synthetic tests, own documentation, planning, decisions, example configurations and metadata. Local catalog files remain ignored and untracked."
+    allowed_scope: [own_source_code, neutral_synthetic_tests, own_documentation, own_planning, own_decisions, own_example_configurations, changelog, metadata, compliance_decision]
+    excluded_scope: [ma_database_catalog_data, ma_database_catalog_manifests, ma_database_catalog_bundles, ma_database_catalog_checksums, catalog_derived_record_values, norm_pdfs, norm_tables, equa_libraries, ida_idm_files, dwd_try_data, real_project_working_data, credentials, session_audits, external_cloud_processing]
+    release_scope: "origin https://github.com/ralphmonheim/masterarbeit-analyse.git; release candidate v0.28.0 based on v0.27.2 commit 2e3b1083854984b728bf639c14faf4a9ef8a3d29; config/ma_database/catalogs/** expressly excluded"
+    evidence: ["User decision in Codex chat on 2026-07-15: nein die Katalogdaten nicht veroeffentlichen.", "The root-anchored gitignore rule excludes config/ma_database/catalogs/; git check-ignore confirms representative manifest, YAML and bundle files.", "git ls-files and git history checks for config/ma_database/catalogs are empty.", "Catalog and UI tests use neutral generated fixtures and pass without publishing local records.", "Ruff passed and pytest: 490 passed in 191.15 seconds on 2026-07-15; the staged scope is reviewed again before push."]
+    sources: [SHARED-COMPLIANCE-003, SHARED-COMPLIANCE-004, SHARED-RELEASE-001, SHARED-RELEASE-002]

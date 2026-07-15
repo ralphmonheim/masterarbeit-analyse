@@ -1,7 +1,7 @@
 # P014 ma_technical Technische Systeme
 
-Stand: 2026-07-14
-Status: Fachlich konsolidiert, P014-S1 Legacy-v1 kompatibel, v2-Kerntypen vorhanden; P014-S1.1 als naechster Umsetzungsslice geplant
+Stand: 2026-07-15
+Status: Fachlich konsolidiert, P014-S1 Legacy-v1 kompatibel, v2-Kerntypen sowie P014-S1.1/S1.2 und P014-S2 umgesetzt; optionale lokale Katalogauswahl vorhanden; P013/P015-Handover offen
 Prioritaet: Hoch
 Abhaengigkeiten: P010, P012, P013, P015, P017, P027
 
@@ -28,6 +28,9 @@ Fuer den aktuellen Masterarbeitsumfang gelten folgende Grenzen:
 - erste UI ausschliesslich manuell,
 - keine Variantenbildung in `ma_technical`,
 - keine automatische Aenderung von `ma_parameters`, `ma_variants` oder Runs,
+- lokale Katalogdaten werden weder versioniert noch veroeffentlicht;
+  vorhandene Werte bleiben `draft_unverified` und duerfen nicht automatisch in
+  Revisionen, Parameter, Varianten oder Runs uebernommen werden,
 - freigegebene Revisionen, historische Varianten und Runs werden nie
   ueberschrieben,
 - Kapazitaetsausreichung ist keine blockierende Eingabevalidierung.
@@ -53,6 +56,21 @@ P014-S1 ist umgesetzt und bleibt als Legacy-v1-Vertrag erhalten:
 Die Felder `source_zone_model_id` und `served_zone_ids` sind direkte
 Zonenreferenzen und damit Legacy. Sie bleiben kompatibel, bis eine
 kontrollierte Migration auf Serviceinterfaces umgesetzt ist.
+
+### Optionaler lokaler Demo-Katalog
+
+Umgesetzt am 2026-07-15: Der Loader kann einen lokal vorhandenen, per
+Manifestpruefsumme gesicherten Demo-Katalog unter
+`config/ma_database/catalogs/v0.1.0/` lesen. Dieser Pfad ist ignoriert; seine
+Daten werden nicht in das Repository oder den oeffentlichen Release
+aufgenommen. Die Technikansicht fuehrt nur Heiz-/Kuehlerzeuger und thermische
+Speicher in eigenen Fachreitern. Fuer Heizung, Kuehlung, Lueftung, Speicher,
+Trinkwarmwasser und Elektrik ist `Nicht vorhanden` ein expliziter
+Sitzungsstatus `not_installed`; ohne lokalen Katalog bleibt zusaetzlich eine
+neutrale Auswahl ohne Datensatz moeglich. Materialien und Konstruktionen
+liegen allein bei `ma_building`. Jede lokale Auswahl bleibt `demo_unverified`;
+sie ist kein technisches Modell, keine freigegebene Revision und keine
+Simulations- oder Dimensionierungseingabe.
 
 ## Zielmodell v2
 
@@ -138,6 +156,22 @@ v2-Kerntypen muessen zuerst als vollstaendiger, pruefbarer Fachstand vorliegen.
 
 ### P014-S1.1 V2-Aggregat und Referenzintegritaet
 
+Umgesetzt am 2026-07-14:
+
+- `TechnicalModelSpecification` buendelt physische Geraete, Heiz- und
+  Kuehlverteilungen, thermische Speicher sowie Trinkwarmwassererzeugung in
+  unveraenderlichen Registern.
+- Die drei Primaerbereiche Plant, AHU und Elektrik sind optional, damit ein
+  fachlich nicht benoetigter Bereich nicht durch ein Dummy-Objekt modelliert
+  werden muss.
+- Die Trinkwarmwassererzeugung besitzt eine eigene ID und kann damit als
+  internes Registerobjekt referenziert und in P014-S1.2 validiert werden.
+- `object_id_locations()` liefert alle Fundstellen unverkuerzt als Grundlage
+  fuer die nachfolgende Duplikat- und Referenzpruefung.
+
+Noch nicht umgesetzt ist bewusst die Fehlerdiagnostik fuer doppelte IDs und
+nicht aufloesbare Referenzen; sie gehoert zu P014-S1.2.
+
 - `TechnicalModelSpecification` erhaelt vollstaendige Register fuer
   `PhysicalEquipment`, Heiz- und Kuehlverteilungen, thermische Speicher und
   Trinkwarmwassererzeugung.
@@ -154,6 +188,11 @@ v2-Kerntypen muessen zuerst als vollstaendiger, pruefbarer Fachstand vorliegen.
 
 ### P014-S1.2 V2-Struktur- und Referenzvalidierung
 
+Umgesetzt am 2026-07-14: separater v2-Validator mit Pruefung von Modellkopf,
+doppelten Objekt-IDs, aufloesbaren internen `ObjectReference`-Zielen,
+Serviceinterface-Referenzen und leistungswertpflichtigen Kapazitaetsmodi.
+Der Legacy-v1-Validator bleibt unveraendert parallel bestehen.
+
 - Eigenen v2-Validator neben `validate_technical_spec` des Legacy-v1-Vertrags
   einfuehren; der v1-Validator wird nicht umgedeutet.
 - Pruefen: Modellkopf, Pflichtfelder, eindeutige IDs, gueltige Objektarten,
@@ -166,6 +205,12 @@ v2-Kerntypen muessen zuerst als vollstaendiger, pruefbarer Fachstand vorliegen.
   blockieren dagegen die Freigabe.
 
 ### P014-S2 Persistenz und freigegebene Technikrevision
+
+Umgesetzt am 2026-07-14: Ein fehlerfreies v2-Modell wird als neue YAML-
+Revision mit Modell-ID, Revisions-ID, Freigabestatus und Content-Hash
+gespeichert. Bestehende Revisionen werden nie ueberschrieben; beim Laden wird
+der gespeicherte Hash gegen die YAML-Nutzlast geprueft. Zeitstempel sind nicht
+Teil des Content-Hashs.
 
 - YAML-Schema und Roundtrip fuer eine v2-Referenztechnik definieren.
 - Ein lokaler Working Draft wird erst nach erfolgreicher v2-Validierung als

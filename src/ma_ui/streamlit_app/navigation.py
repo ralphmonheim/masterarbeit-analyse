@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import MutableMapping
 
-from ma_workflow import get_module_definition, list_module_definitions
+from ma_workflow import get_module_definition, list_module_definitions, list_workflow_steps
 
 CURRENT_PAGE_SESSION_KEY = "ma_ui_current_page"
 MODULE_INFO_PAGE_SESSION_KEY = "ma_ui_module_info_page"
@@ -123,9 +123,20 @@ def _workflow_status(page_key: str) -> str:
     return get_module_definition(module_key).status
 
 
+def _navigation_module_definitions() -> tuple[tuple[str, str, str], ...]:
+    """Orders UI pages by the canonical workflow before appending unstepped modules."""
+    modules_by_key = {module.module_key: module for module in list_module_definitions()}
+    ordered_keys = [step.module_key for step in list_workflow_steps() if step.module_key in modules_by_key]
+    ordered_keys.extend(module_key for module_key in modules_by_key if module_key not in ordered_keys)
+    return tuple(
+        (modules_by_key[module_key].page_key, modules_by_key[module_key].label, module_key)
+        for module_key in ordered_keys
+    )
+
+
 _NAVIGATION_PAGE_DEFINITIONS: tuple[tuple[str, str, str], ...] = (
     ("home", "Start", "project"),
-    *tuple((module.page_key, module.label, module.module_key) for module in list_module_definitions()),
+    *_navigation_module_definitions(),
 )
 
 _NAVIGATION_PAGES: tuple[NavigationPage, ...] = tuple(

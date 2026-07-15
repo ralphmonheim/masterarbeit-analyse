@@ -205,11 +205,20 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   ist fachlich konsolidiert: Ziel sind zentrale Technik, typisierte Fachfelder,
   Serviceinterfaces statt direkter Zonenreferenzen, Revisionen/Branches und
   manuelle Bearbeitung. Die vorbereitenden Slices 0/1 legen Schutzgrenzen und
-  v2-Kerntypen an. Als naechstes schliesst P014-S1.1 das v2-Aggregat und seine
-  Referenzen, P014-S1.2 liefert die getrennte v2-Strukturvalidierung; erst
-  danach folgen Persistenz, freigegebene Revisionen und P013/P015-Handover.
-  ohne v1-Demo, IDA-Adapter, Export, Templates oder automatische
-  Dimensionierung umzusetzen.
+  v2-Kerntypen an. P014-S1.1 buendelt nun Geraete, Verteilungen, Speicher und
+  Trinkwarmwassererzeugung im v2-Aggregat; Plant, AHU und Elektrik sind
+  optional. P014-S1.2 validiert die v2-Struktur und Referenzen getrennt vom
+  Legacy-v1-Vertrag; P014-S2 speichert erfolgreich validierte Modelle als
+  ueberschreibgeschuetzte, hashgesicherte Revisionen. Die Technikansicht bietet
+  getrennte Reiter fuer Heizung, Kuehlung, Lueftung, Speicher,
+  Trinkwarmwasser und Elektrik. Jeder Reiter erlaubt `Nicht vorhanden`;
+  Materialien und Konstruktionen bleiben in `ma_building`. Optionale lokale
+  Katalogwerte bleiben `demo_unverified`, werden nicht versioniert oder
+  veroeffentlicht und duerfen nicht in Revisionen, Parameter, Varianten oder
+  Runs uebernommen werden. Die UI bleibt ohne lokale Katalogdateien nutzbar.
+  Offen bleibt P014-S3, der stabile
+  Handover an P013 und P015; v1-Demo, IDA-Adapter, Export, Templates und
+  automatische Dimensionierung bleiben ausserhalb dieses Umfangs.
 - Preprocess V1 ist als verbindlicher erster Durchstich festgelegt:
   Projekt- und Eingabequellen, freigegebene Baseline, Referenzdimensionierung,
   kleine Variantenstudie und ein neutrales, validiertes Run-Paket bilden den
@@ -266,6 +275,15 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - P030 ist als externe Forschungsschicht geplant: Es erfasst manuelle und
   logbasierte Pre-, Simulations- und Postprocessing-Zeiten getrennt,
   vergleicht Prozessmodi und beeinflusst keine produktiven Fachobjekte.
+- Masterarbeits-MVP V1 ist der uebergeordnete erste Nutzennachweis: von
+  Projekt- und Eingabeaufnahme ueber Baseline, Varianten und neutrales
+  Run-Paket bis zu manueller Simulation, neutraler Ergebnisaufnahme, drei
+  Diagrammtypen und P030-Prozessvergleich. Preprocess V1 bleibt darin der
+  erste Teilmeilenstein bis zum freigegebenen Run-Paket.
+- Der Handover-Abgleich ist geplant: P013 liefert nach dem Raum-Zonen-Slice
+  ein kleines `ThermalBuildingModel`; P016/`ma_analyse` definieren drei
+  `OutputRequirementProfiles`. P018 referenziert beide Vertraege, ohne ihre
+  Fachlogik zu duplizieren.
 - P027 begleitet P017 mit Checkpoints fuer `VSP`, `VVER`, `VCAT`, `VSEL`
   und `VGEN`, Reload-/Abort-Logik und der technischen
   Dimensionierungsunterbrechung innerhalb von `VVER`.

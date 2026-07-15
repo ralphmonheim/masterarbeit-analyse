@@ -3,11 +3,17 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from dataclasses import fields, is_dataclass
+from typing import Any
 
 from ma_validation import DiagnosticMessage, DiagnosticSeverity, ValidationResult, build_validation_result
 from ma_zones import ZoneModelSpecification
 
+from .metadata import ObjectReference
 from .models import VALID_SYSTEM_TYPES, TechnicalInputDetailLevel, TechnicalSystemSpecification
+from .plant import CapacityDefinition
+from .specification import TechnicalModelSchemaVersion, TechnicalModelSpecification
+from .topology import TechnicalServiceInterface
 
 
 def validate_technical_spec(
@@ -25,6 +31,16 @@ def validate_technical_spec(
     return build_validation_result(tuple(messages))
 
 
+def validate_technical_model(spec: TechnicalModelSpecification) -> ValidationResult:
+    """Prueft den v2-Vertrag getrennt von der kompatiblen LoD-1-Validierung."""
+    messages: list[DiagnosticMessage] = []
+    messages.extend(_validate_v2_header(spec))
+    messages.extend(_validate_v2_object_ids(spec))
+    messages.extend(_validate_v2_references(spec))
+    messages.extend(_validate_v2_capacity_definitions(spec))
+    return build_validation_result(tuple(messages))
+
+
 def _message(
     severity: DiagnosticSeverity,
     code: str,
@@ -32,6 +48,203 @@ def _message(
     location: str,
 ) -> DiagnosticMessage:
     return DiagnosticMessage(severity=severity, code=code, message=message, location=location)
+
+
+def _validate_v2_header(spec: TechnicalModelSpecification) -> list[DiagnosticMessage]:
+    messages: list[DiagnosticMessage] = []
+    required_values = {
+        "schema_version": spec.schema_version,
+        "technical_model_id": spec.technical_model_id,
+        "project_id": spec.project_id,
+        "building_reference.object_id": spec.building_reference.object_id,
+        "building_reference.object_type": spec.building_reference.object_type,
+        "declared_detail_level": spec.declared_detail_level,
+    }
+    for location, value in required_values.items():
+        if not str(value).strip():
+            messages.append(
+                _message(
+                    DiagnosticSeverity.ERROR,
+                    "TECHNICAL_V2_REQUIRED_FIELD_MISSING",
+                    "Pflichtfeld der v2-Technikspezifikation fehlt.",
+                    location,
+                )
+            )
+    if spec.schema_version != TechnicalModelSchemaVersion.V2.value:
+        messages.append(
+            _message(
+                DiagnosticSeverity.ERROR,
+                "TECHNICAL_V2_SCHEMA_VERSION_INVALID",
+                "Die v2-Validierung erwartet Schema-Version 2.0.",
+                "schema_version",
+            )
+        )
+    if not isinstance(spec.declared_detail_level, TechnicalInputDetailLevel):
+        messages.append(
+            _message(
+                DiagnosticSeverity.ERROR,
+                "TECHNICAL_V2_INPUT_DETAIL_LEVEL_INVALID",
+                "Der Eingabeumfang des v2-Technikmodells ist ungueltig.",
+                "declared_detail_level",
+            )
+        )
+    return messages
+
+
+def _validate_v2_object_ids(spec: TechnicalModelSpecification) -> list[DiagnosticMessage]:
+    locations_by_id: dict[str, list[str]] = defaultdict(list)
+    for object_id, location in spec.object_id_locations():
+        locations_by_id[object_id].append(location)
+
+    messages: list[DiagnosticMessage] = []
+    for object_id, locations in locations_by_id.items():
+        if len(locations) > 1:
+            messages.append(
+                _message(
+                    DiagnosticSeverity.ERROR,
+                    "TECHNICAL_V2_OBJECT_ID_DUPLICATE",
+                    f"Objekt-ID ist mehrfach vergeben: {object_id}",
+                    ", ".join(locations),
+                )
+            )
+    return messages
+
+
+def _validate_v2_references(spec: TechnicalModelSpecification) -> list[DiagnosticMessage]:
+    targets = _reference_targets(spec)
+    messages: list[DiagnosticMessage] = []
+    for reference, location in _object_references(spec):
+        if reference is spec.building_reference:
+            continue
+        if not reference.object_id or not reference.object_type:
+            messages.append(
+                _message(
+                    DiagnosticSeverity.ERROR,
+                    "TECHNICAL_V2_REFERENCE_INCOMPLETE",
+                    "Interne Objektreferenzen benoetigen ID und Objektart.",
+                    location,
+                )
+            )
+            continue
+        target_type = targets.get(reference.object_id)
+        if target_type is None:
+            messages.append(
+                _message(
+                    DiagnosticSeverity.ERROR,
+                    "TECHNICAL_V2_REFERENCE_UNKNOWN",
+                    f"Referenziertes Technikobjekt fehlt: {reference.object_id}",
+                    location,
+                )
+            )
+        elif target_type != reference.object_type:
+            messages.append(
+                _message(
+                    DiagnosticSeverity.ERROR,
+                    "TECHNICAL_V2_REFERENCE_TYPE_MISMATCH",
+                    f"Referenz erwartet {reference.object_type}, gefunden wurde {target_type}.",
+                    location,
+                )
+            )
+
+    interface_ids = {interface.interface_id for interface in spec.service_interfaces}
+    for index, distribution in enumerate(spec.heating_distribution_register):
+        if distribution.service_interface_reference and distribution.service_interface_reference not in interface_ids:
+            messages.append(_unknown_service_interface_message(distribution.service_interface_reference, f"heating_distribution_register.{index}.service_interface_reference"))
+    for index, distribution in enumerate(spec.cooling_distribution_register):
+        if distribution.service_interface_reference and distribution.service_interface_reference not in interface_ids:
+            messages.append(_unknown_service_interface_message(distribution.service_interface_reference, f"cooling_distribution_register.{index}.service_interface_reference"))
+    for index, interface in enumerate(spec.service_interfaces):
+        messages.extend(_validate_service_interface(interface, index))
+    return messages
+
+
+def _reference_targets(spec: TechnicalModelSpecification) -> dict[str, str]:
+    targets: dict[str, str] = {}
+    for value, _location in _dataclass_values(spec):
+        if not is_dataclass(value) or isinstance(value, ObjectReference):
+            continue
+        for field in fields(value):
+            field_value = getattr(value, field.name)
+            if field.name.endswith("_id") and isinstance(field_value, str) and field_value:
+                targets[field_value] = type(value).__name__
+    return targets
+
+
+def _object_references(value: Any, location: str = "") -> list[tuple[ObjectReference, str]]:
+    rows: list[tuple[ObjectReference, str]] = []
+    if isinstance(value, ObjectReference):
+        return [(value, location)]
+    if is_dataclass(value):
+        for field in fields(value):
+            field_location = f"{location}.{field.name}" if location else field.name
+            rows.extend(_object_references(getattr(value, field.name), field_location))
+    elif isinstance(value, tuple):
+        for index, item in enumerate(value):
+            rows.extend(_object_references(item, f"{location}.{index}"))
+    return rows
+
+
+def _dataclass_values(value: Any, location: str = "") -> list[tuple[Any, str]]:
+    rows: list[tuple[Any, str]] = []
+    if is_dataclass(value) and not isinstance(value, ObjectReference):
+        rows.append((value, location))
+        for field in fields(value):
+            field_location = f"{location}.{field.name}" if location else field.name
+            rows.extend(_dataclass_values(getattr(value, field.name), field_location))
+    elif isinstance(value, tuple):
+        for index, item in enumerate(value):
+            rows.extend(_dataclass_values(item, f"{location}.{index}"))
+    return rows
+
+
+def _validate_v2_capacity_definitions(spec: TechnicalModelSpecification) -> list[DiagnosticMessage]:
+    messages: list[DiagnosticMessage] = []
+    for value, location in _dataclass_values(spec):
+        if not isinstance(value, CapacityDefinition) or not value.requires_capacity_value:
+            continue
+        if value.nominal_capacity_kw is None and value.maximum_capacity_kw is None:
+            messages.append(
+                _message(
+                    DiagnosticSeverity.ERROR,
+                    "TECHNICAL_V2_CAPACITY_VALUE_MISSING",
+                    "Dieser Kapazitaetsmodus benoetigt mindestens eine Leistungsangabe.",
+                    location,
+                )
+            )
+    return messages
+
+
+def _validate_service_interface(interface: TechnicalServiceInterface, index: int) -> list[DiagnosticMessage]:
+    messages: list[DiagnosticMessage] = []
+    location = f"service_interfaces.{index}"
+    if not interface.compatible_terminal_types:
+        messages.append(
+            _message(
+                DiagnosticSeverity.WARNING,
+                "TECHNICAL_V2_SERVICE_INTERFACE_TERMINALS_MISSING",
+                "Das Serviceinterface deklariert keine kompatiblen Terminaltypen.",
+                f"{location}.compatible_terminal_types",
+            )
+        )
+    if hasattr(interface, "served_zone_ids"):
+        messages.append(
+            _message(
+                DiagnosticSeverity.ERROR,
+                "TECHNICAL_V2_SERVICE_INTERFACE_ZONE_REFERENCE",
+                "Serviceinterfaces duerfen keine direkten Zonenreferenzen enthalten.",
+                location,
+            )
+        )
+    return messages
+
+
+def _unknown_service_interface_message(interface_id: str, location: str) -> DiagnosticMessage:
+    return _message(
+        DiagnosticSeverity.ERROR,
+        "TECHNICAL_V2_SERVICE_INTERFACE_UNKNOWN",
+        f"Verteilungsobjekt verweist auf unbekanntes Serviceinterface: {interface_id}",
+        location,
+    )
 
 
 def _validate_header(spec: TechnicalSystemSpecification) -> list[DiagnosticMessage]:

@@ -115,6 +115,19 @@ eine freigegebene Baseline, eine kleine explizite Variantenstudie und die
 direkte Zuordnung `RUN-ID -> VAR-ID`. Ein IDA-ICE-Adapter, automatisierte
 Modellmanipulation, produktive CAD-Importe und umfangreiche Editor- oder
 Branch-Funktionen sind bewusste Folgeslices.
+
+## Masterarbeits-MVP V1
+
+Der erste Nutzennachweis umfasst den gesamten messbaren Ablauf von
+Eingabeaufnahme bis Ergebnisdiagramm: Preprocess V1 -> manuelle
+IDA-ICE-Simulation -> neutraler P009-MVP-Ergebnispostprocess -> drei
+Analyseartefakte -> P030-Prozessvergleich. P018 bleibt die technische Grenze
+des Preprocess, P030 die von Fachmodulen getrennte Forschungsschicht.
+
+P013 stellt dafuer eine freigegebene `ThermalBuildingModel`-Revision als
+Gebaeude-/Zonenabschluss bereit. P016 und `ma_analyse` definieren neutrale
+`OutputRequirementProfiles`; P018 referenziert diese nur, P009 und
+`ma_analyse` setzen sie bei Ergebnisaufnahme und Darstellung um.
 `ma_variants` wendet das von `ma_project` referenzierte neutrale
 Benennungsprofil an, besitzt dessen Konfiguration aber nicht.
 

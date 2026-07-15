@@ -7,8 +7,11 @@ from enum import StrEnum
 from typing import Any
 
 from .ahu import AirHandlingUnit
+from .distribution import CoolingDistribution, HeatingDistribution
+from .domestic_hot_water import DomesticHotWaterGeneration, ThermalStorage
 from .electrical import ElectricalSystem
 from .enums import TechnicalInputDetailLevel
+from .equipment import PhysicalEquipment
 from .metadata import ObjectReference, SourceMetadata, TechnicalAssumption, coerce_enum
 from .plant import TechnicalPlant
 from .schedules import TechnicalScheduleRegistry
@@ -30,9 +33,14 @@ class TechnicalModelSpecification:
     project_id: str
     building_reference: ObjectReference
     declared_detail_level: TechnicalInputDetailLevel | str
-    plant: TechnicalPlant
-    air_handling_unit: AirHandlingUnit
-    electrical_system: ElectricalSystem
+    equipment_register: tuple[PhysicalEquipment, ...] = ()
+    heating_distribution_register: tuple[HeatingDistribution, ...] = ()
+    cooling_distribution_register: tuple[CoolingDistribution, ...] = ()
+    storage_register: tuple[ThermalStorage, ...] = ()
+    domestic_hot_water_register: tuple[DomesticHotWaterGeneration, ...] = ()
+    plant: TechnicalPlant | None = None
+    air_handling_unit: AirHandlingUnit | None = None
+    electrical_system: ElectricalSystem | None = None
     schedules: TechnicalScheduleRegistry = field(default_factory=TechnicalScheduleRegistry)
     topology: TechnicalTopology = field(default_factory=TechnicalTopology)
     service_interfaces: tuple[TechnicalServiceInterface, ...] = ()
@@ -45,14 +53,17 @@ class TechnicalModelSpecification:
             "declared_detail_level",
             coerce_enum(self.declared_detail_level, TechnicalInputDetailLevel),
         )
+        object.__setattr__(self, "equipment_register", tuple(self.equipment_register))
+        object.__setattr__(self, "heating_distribution_register", tuple(self.heating_distribution_register))
+        object.__setattr__(self, "cooling_distribution_register", tuple(self.cooling_distribution_register))
+        object.__setattr__(self, "storage_register", tuple(self.storage_register))
+        object.__setattr__(self, "domestic_hot_water_register", tuple(self.domestic_hot_water_register))
         object.__setattr__(self, "service_interfaces", tuple(self.service_interfaces))
         object.__setattr__(self, "assumptions", tuple(self.assumptions))
 
     def object_id_locations(self) -> tuple[tuple[str, str], ...]:
         """Liefert Objekt-IDs mit Fundstelle fuer spaetere Strukturvalidierung."""
-        rows = [(self.technical_model_id, "technical_model_id")]
-        rows.extend(_object_id_locations(self, ""))
-        return tuple(dict.fromkeys((object_id, location) for object_id, location in rows if object_id))
+        return tuple((object_id, location) for object_id, location in _object_id_locations(self, "") if object_id)
 
 
 def _object_id_locations(value: Any, location: str) -> list[tuple[str, str]]:

@@ -2,7 +2,7 @@ schema_version: "1.0"
 zone_model_id: "ZONE-BI-LOD1-MODEL-0001"
 project_id: "PROJECT-BI-TEST-BUILDING"
 building_id: "BUILDING-BI-LOD1-0001"
-source_building_version_id: "BUILDING-BI-LOD1-V1"
+source_building_version_id: "BUILDING-BI-LOD1-V2"
 input_detail_level: "LOD-1"
 usage_profiles:
   - profile_id: "USE-OFFICE-DEFAULT-LOD1"
@@ -15,18 +15,19 @@ usage_profiles:
     equipment_power_w_m2: 10.0
 zones:
   - zone_id: "ZONE-BI-LOD1-0001"
-    name: "Gesamtgebaeude LoD-1"
+    name: "Bueroraum LoD-1"
     usage_profile_id: "USE-OFFICE-DEFAULT-LOD1"
     floor_area_m2: 24.0
     volume_m3: 96.0
-    source_space_ids: []
+    source_space_ids:
+      - "SPACE-BI-OFFICE-0001"
     heating_setpoint_c: 20.0
     cooling_setpoint_c: 26.0
     minimum_air_change_rate_1_h: 0.5
 assumptions:
   - assumption_id: "ASSUMPTION-ZONE-LOD1-0001"
     location: "zones.0"
-    text: "LoD-1 fuehrt das Rhino-Testgebaeude als eine Gesamtgebaeudezone; einzelne Raeume folgen erst in LoD-2."
+    text: "LoD-1 fuehrt den manuell gepflegten Bueroraum als eine thermische Zone; Raumteilung und automatische Zonierung sind nicht Teil des Referenzfalls."
   - assumption_id: "ASSUMPTION-ZONE-LOD1-0002"
     location: "usage_profiles.0"
     text: "Nutzungswerte sind einfache Arbeitsannahmen fuer Buero-Nutzung und noch keine Norm- oder Projektnachweise."

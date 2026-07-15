@@ -2283,3 +2283,42 @@ Bei einer offenen Entscheidung soll Codex:
 5. auf eine Nutzerentscheidung warten.
 
 Neue Entscheidungen sind sowohl im Plan als auch im zustaendigen zentralen Entscheidungsdokument einzutragen.
+
+---
+
+# 31. Handover-Abgleich und Masterarbeits-MVP V1
+
+## P013-S3b ThermalBuildingModel als Abschlussvertrag
+
+Umgesetzt am 2026-07-14: `ThermalBuildingModel` referenziert die Building-
+Revision, das Zonenmodell und eine freigegebene P014-Technikrevision nur ueber
+stabile IDs, Revisionen und Content-Hash. Die Validierung blockiert
+unzugeordnete oder unbekannte Raeume, unbekannte Zonen und unvollstaendige
+oder nicht freigegebene Technikreferenzen.
+
+Nach dem manuellen Raumregister und der validierten Zonenbildung liefert P013
+ein kleines, neutrales `ThermalBuildingModel` als Abschlussobjekt fuer P018.
+Es fasst nur bereits freigegebene Building- und Zonenreferenzen zusammen:
+
+- Projekt-, Gebaeude-, Raum- und Zonen-IDs mit Revision und Content-Hash,
+- Raum-zu-Zone-Zuordnung und thermische Nutzungs-/Konditionierungsangaben,
+- Referenzen auf physische Fenster- und Sonnenschutzobjekte aus P012,
+- Referenzen auf zentrale Serviceinterfaces aus P014,
+- Quellen, Annahmen und Validierungsstatus.
+
+Das Objekt dupliziert weder Geometrie noch Konstruktionen, technische
+Nennleistungen oder Parameterwerte. Es ist keine neue Zonenbildung und kein
+IDA-Exportmodell. P018 referenziert ausschliesslich eine freigegebene Revision
+dieses Abschlussobjekts.
+
+## MVP-V1-Grenze
+
+P013-S3b bleibt auf den Referenzfall mit wenigen manuell gepflegten Raeumen
+und Zonen begrenzt. Automatische IFC-/BIM-Zonierung, vollstaendige
+Sonnenschutzbibliotheken und weitergehende Komfortregelung bleiben
+Folgeslices.
+
+Der erste Referenzfall ist am 2026-07-14 als Einraum-Einzonenmodell
+konkretisiert: `SPACE-BI-OFFICE-0001` wird vollstaendig der bestehenden Zone
+`ZONE-BI-LOD1-0001` zugeordnet. Flaeche, Volumen und Buero-Nutzungsprofil
+bleiben mit dem Building-LoD-1-Stand konsistent.

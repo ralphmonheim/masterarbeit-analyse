@@ -1,6 +1,17 @@
-"""Zielpaket fuer spaetere moduluebergreifende Persistenz.
+"""Read-only demo catalogs for selectable example records."""
 
-Die vorhandene Datenbanklogik in ``ma_variants`` bleibt bis zu einem eigenen
-Migrationsplan unveraendert.
-"""
+from .catalog import (
+    CatalogSelection,
+    DemoCatalog,
+    DemoCatalogRecord,
+    load_demo_catalog,
+    select_demo_record,
+)
 
+__all__ = [
+    "CatalogSelection",
+    "DemoCatalog",
+    "DemoCatalogRecord",
+    "load_demo_catalog",
+    "select_demo_record",
+]

@@ -12,7 +12,7 @@ building:
   width_m: 4.0
   height_m: 4.0
 model_version:
-  version_id: "BUILDING-BI-LOD1-V1"
+  version_id: "BUILDING-BI-LOD1-V2"
   source_input_level: "BIL-1"
   detected_input_level: "BIL-1"
   confirmed_input_level: "BIL-1"
@@ -28,8 +28,17 @@ simple_envelope:
   window_area_m2: 20.0
   roof_area_m2: 24.0
   floor_area_m2: 24.0
-storeys: []
-spaces: []
+storeys:
+  - storey_id: "STOREY-BI-LOD1-0001"
+    name: "Erdgeschoss LoD-1"
+    elevation_m: 0.0
+    height_m: 4.0
+spaces:
+  - space_id: "SPACE-BI-OFFICE-0001"
+    name: "Bueroraum LoD-1"
+    storey_id: "STOREY-BI-LOD1-0001"
+    floor_area_m2: 24.0
+    volume_m3: 96.0
 elements: []
 openings: []
 shading_devices: []
@@ -43,3 +52,6 @@ assumptions:
   - assumption_id: "ASSUMPTION-BI-LOD1-0003"
     location: "simple_envelope"
     text: "U-Werte und Huellflaechen sind erste Arbeitswerte fuer einfache Dimensionierung und muessen vor belastbaren Nachweisen fachlich bestaetigt werden."
+  - assumption_id: "ASSUMPTION-BI-LOD1-0004"
+    location: "spaces.0"
+    text: "Der Bueroraum ist eine manuell gepflegte LoD-1-Referenzableitung der gesamten Kubatur und keine aus Rhino importierte Raumgeometrie."
