@@ -4,6 +4,72 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.29.0 - 2026-07-15
+
+### Added
+- P011-S1a umgesetzt: `ma_project` stellt jetzt additive immutable
+  Projektidentitaets-, Standort-, Untersuchungs- und Kontextmodelle sowie
+  eine reine JSON/YAML-kompatible Payload-Serialisierung bereit. Der Slice
+  bleibt frei von Dateioperationen, Assets, UI, Wetteruebergabe und
+  Naming-Pfadmigration.
+- P032-Architekturbenchmark als datierten, nicht autoritativen Review-Snapshot
+  aufgenommen: Ist-Inventar, Modulgrenzen, drei Zieloptionen, empfohlene
+   Zielstruktur, CSV-Migrationsmapping, Risikoregister und Skeptikerreview.
+   ADR-P032 ist mit Option 1, Workspace-Betriebsmodell und
+   Parameter-/Optionsownership angenommen; produktive Migrationen sind nicht
+   freigegeben.
+- P031 als einzigen aktiven Audit- und Backlogtraeger fuer das repo-lokale
+  Codex Project Operating System aufgenommen. Der Plan dokumentiert
+  Ownership, Repository-Audit, Konflikte, Tool-Capabilities, manuelle Gates
+  und die sichere Full-Local-Baseline.
+- Zwei projektlokale Skills fuer Release- und Governance-Routinen unter
+  `.agents/skills/` angelegt. Ein Contract-Test prueft Runtime-Grenzen,
+  Agentenrollen, Skill-Metadaten, Triggerownership und die positive
+  `git ls-files`-Allowlist.
+
+### Changed
+- P011 als einzige kanonische Planung fuer `ma_project` konsolidiert:
+  Projektidentitaet, Untersuchungsrahmen und spaetere Projektakte sind klar
+  von fachlicher Quellenwahl, Freigaben, Modellreferenzen und Workflowstatus
+  getrennt. P011-S1a beschraenkt sich auf reine Modelle und Serialisierung;
+  reale Assets, Persistenz und Naming-Pfadmigration bleiben eigene Gates.
+- P032-W2a als kleinsten Parameter-/Options-Code-Owner-Transfer umgesetzt:
+  `ma_parameters.catalogs` besitzt jetzt die reinen Katalogmodelle, Loader,
+  kombinierten Import- und Reporttypen. Die historischen `ma_variants`-Pfade
+  bleiben identitaetsgleiche Reexports; Konfigurations- und lokale
+  Reportpfade unter `config/ma_variants/` beziehungsweise
+  `data/ma_variants/` wurden nicht bewegt.
+- P013-S3c/P015-S3b-T2 als getrennten, lokalen Releasecheckpoint umgesetzt:
+  `ma_zones` erzeugt einen payloadfreien, kanonisch gehashten
+  `ReleasedZoneHandover`; `ma_parameters` koppelt ihn zusammen mit dem
+  P014-Handover als opt-in `checkpoint_references` an Eingangspaket und
+  Baseline. Die Referenzen bleiben ausserhalb der Wertquellen, werden auf
+  Freigabe/Aktualitaet geprueft und einschliesslich ihrer Content-Hashes im
+  bestehenden Baseline-Hash gebunden.
+- P014-S3a/P015-S3b-prep als additiven Referenzhandover umgesetzt:
+  `ma_technical` prueft eine freigegebene, hashkonsistente v2-Revision und
+  exportiert nur stabile Revisions-, Serviceinterface- und
+  Quellobjektreferenzen. `ma_parameters` bildet daraus eine echte technische
+  `ParameterSourceReference`, ohne v1-Parameterwerte oder Eingangspakete
+  umzuschreiben.
+- P032-W1a als additiven Architektur-Guardrail-Slice umgesetzt: aktuelle
+  README-Pfade, Ignore-Defense fuer lokale Katalogunterpfade und statische
+  Importcontracts sichern die bekannte Migrationsschuld ab. Der lokale
+  Build-/Wheel-Smoke erzeugte `ma_analyse-0.28.0-py3-none-any.whl` ohne
+  Download oder Dependency-Installation.
+- UD-089 verankert die Council-Mehrheitsfreigabe fuer klar abgegrenzte,
+  lokale und reversible Folgeslices. Externe, Rechte-, Dependency-, Hook-,
+  CI-, Daten- und Veroeffentlichungsgates bleiben einzeln freizugeben.
+- `UPDATE_ROUTINES.md` als einzige Ablaufwahrheit und
+  `commands_common.md` als Triggerindex festgelegt; die widerspruechliche
+  automatische UI-Startregel bei `tagesstart` entfernt.
+- Den lokalen Normen-Arbeitsbereich an die geltende Compliance-Policy
+  angeglichen: Ablage ist keine KI-, OCR-, Extraktions-, Graph- oder
+  RAG-Freigabe.
+- Die doppelte Professor-Rolle als zwei Produktoberflaechen geordnet:
+  Codex-TOML ist fuer Codex fuehrend, die GitHub-Datei ein gekennzeichneter
+  Adapter. Externe Project-OS-Aktivierungen bleiben getrennt freizugeben.
+
 ## 0.28.0 - 2026-07-15
 
 ### Changed

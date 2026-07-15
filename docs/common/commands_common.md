@@ -62,49 +62,22 @@ git diff --stat
 Diese Ausloesephrasen sind dokumentierte Arbeitsroutinen fuer Codex. Sie sind
 keine Python-CLI-Befehle.
 
+Diese Datei ist der Triggerindex. Die vollstaendigen Schritte und ihre
+Reihenfolge stehen ausschliesslich in `docs/project/UPDATE_ROUTINES.md`; bei
+einer Abweichung ist diese Ablaufdatei fuehrend.
+
 ### Council-Routinen
 
-Das Projekt-Council arbeitet mit kontrollierter Autonomie. Tera bleibt als
-Hauptagent fuer Planung, Integration und Abschluss verantwortlich. Read-only
-Council-Mitglieder duerfen bei klar abgegrenzten Analyse- und Pruefaufgaben
-automatisch eingesetzt werden. Schreibende Council-Arbeit setzt einen zuvor
-freigegebenen Umsetzungsumfang voraus.
+Die vollstaendigen Regeln stehen ausschliesslich im Abschnitt
+`Council-Routinen` von `docs/project/UPDATE_ROUTINES.md`. Dieser Index ordnet
+nur die Ausloesephrasen zu:
 
-Der read-only `compliance_auditor` wird bei erkennbaren Compliance-Risiken
-automatisch einbezogen. Dazu gehoeren insbesondere neue Plaene und
-Projektinputs, externe Software, Abhaengigkeiten oder Daten, Lizenzen,
-Norminhalte, Bilder, Cloud-Verarbeitung, personenbezogene oder vertrauliche
-Daten sowie Veroeffentlichung und Weitergabe.
-
-Neue oder geaenderte Rollen unter `.codex/agents/` werden beim Start einer
-Codex-Sitzung geladen. Nach einer Rollenaenderung ist deshalb einmalig ein
-neuer Codex-Chat oder Projekt-Reload erforderlich.
-
-- `council analyse`: eine read-only Bestandsaufnahme ausfuehren; Tera darf
-  Luna fuer gezielte Codesuche und bei fachlich oder technisch kritischen
-  Fragen Sol hinzuziehen; keine Dateien veraendern.
-- `council review`: einen read-only Sol-Review ausfuehren; der
-  `quality_auditor` prueft technische Qualitaet, der `professor` bei Bedarf
-  wissenschaftliche Methodik und Reproduzierbarkeit.
-- `council compliance`: eine projektweite read-only Compliance-Vorpruefung
-  anhand von `docs/compliance/` ausfuehren. Der `compliance_auditor` erteilt
-  keine Freigabe; ein belegter Compliance-Blocker stoppt den betroffenen
-  Vorgang.
-- `council umsetzen`: einen bereits ausdruecklich freigegebenen Plan oder
-  Umfang mit Tera umsetzen; der `implementation_engineer` darf klar
-  abgegrenzte Datei- oder Modulbereiche uebernehmen. Der Befehl ersetzt keine
-  noch fehlende Umsetzungsfreigabe.
-- `ohne council` oder `nur Tera`: die aktuelle Aufgabe ohne optionale
-  Subagenten im Hauptagenten bearbeiten. Ein verpflichtender
-  Compliance-Preflight bleibt aktiv.
-- `mit Sol-Review`: fuer die aktuelle Aufgabe nach der Umsetzung einen
-  read-only Qualitaetsreview durch Sol einplanen.
-
-Council-Mitglieder erweitern den freigegebenen Umfang nicht selbststaendig.
-Mehrere schreibende Agenten duerfen nicht gleichzeitig dieselben Dateien
-bearbeiten. Befunde werden als `Blocker`, `Wichtig` oder `Optional`
-klassifiziert. Eine blosse Risikoakzeptanz hebt keinen Compliance-Blocker auf,
-wenn ein erforderlicher Rechte- oder Freigabenachweis fehlt.
+- `council analyse`: read-only Bestandsaufnahme;
+- `council review`: read-only Qualitaetsreview;
+- `council compliance`: read-only Compliance-Vorpruefung;
+- `council umsetzen`: bereits freigegebenen Umfang umsetzen;
+- `ohne council` oder `nur Tera`: optionale Council-Arbeit auslassen;
+- `mit Sol-Review`: read-only Abschlussreview vormerken.
 
 ### Sammelbefehle
 

@@ -1,11 +1,11 @@
 # P013 - Gesamtkonzept `ma_zones`
 
-**Stand:** 14. Juli 2026
-**Status:** Fachlich konsolidierter Planungsstand
+**Stand:** 15. Juli 2026
+**Status:** Fachlich konsolidiert; LoD-1-Demo, P013-S3b-Abschlussvertrag und P013-S3c-Releasecheckpoint umgesetzt
 **Modul:** `ma_zones`
 **UI-Bezeichnung:** Zonen
 **Prioritaet:** hoch innerhalb der Eingangsdatenkette
-**Bestehender Umsetzungsstand:** LoD-1-Demo vorhanden; vor jeder Aenderung ist der vorhandene Code zu analysieren
+**Bestehender Umsetzungsstand:** LoD-1-Demo und referenz-only P013-/P014-Handover vorhanden; vor jeder Aenderung ist der vorhandene Code zu analysieren
 **Ersetzt beziehungsweise erweitert:** bisherigen Kurzplan P013 zu Zonen und Nutzungen
 
 ---
@@ -2310,6 +2310,37 @@ Das Objekt dupliziert weder Geometrie noch Konstruktionen, technische
 Nennleistungen oder Parameterwerte. Es ist keine neue Zonenbildung und kein
 IDA-Exportmodell. P018 referenziert ausschliesslich eine freigegebene Revision
 dieses Abschlussobjekts.
+
+## P013-S3c / P015-S3b-T2 ReleasedZoneCheckpoint
+
+Council-Beschluss vom 2026-07-15: Mira, Vera und Justus bilden eine
+einstimmige 3/5-Mehrheit fuer einen kleinen, lokalen Referenzcheckpoint vor
+P032-W2. P013 liefert daraus einen unveraenderlichen, payloadfreien
+`ReleasedZoneHandover`.
+
+- Der Fingerprint bindet den kanonischen vollstaendigen Zonenstand,
+  sortierte Raum-Zonen-Zuordnungen, Building-ID/-Revision sowie die exakte
+  P014-Modell-/Revisions-/Hash-Referenz. Reine Tuple-Reihenfolge aendert den
+  Fingerprint nicht, jede fachliche Aenderung dagegen schon.
+- P013 validiert Building-, Zone-, ThermalBuilding- und P014-Handover vor der
+  Uebergabe und blockiert unvollstaendige, nicht freigegebene oder nicht
+  zusammenpassende Referenzen.
+- Der Handover enthaelt keine Raum-, Zonen-, Nutzungsprofil- oder technische
+  Revisionsnutzlast. Er ist weder Persistenz noch ein P013-UI- oder
+  P032-W3a-Slice.
+
+Umgesetzt am 2026-07-15: `build_released_zone_handover(...)` erzeugt den
+frozen `ReleasedZoneHandover` erst nach erfolgreicher Building-, Zone-,
+ThermalBuilding- und P014-Pruefung. Die Revision wird deterministisch als
+`ZONE-HANDOVER-<16 hex>` aus dem kanonischen Content-Hash abgeleitet. Die
+synthetischen Tests decken Reihungsstabilitaet sowie fachliche Aenderungen an
+Zone, Building und passendem P014-Triple ab; P015 uebernimmt nur dessen
+Referenzmetadaten.
+
+Abschlussnachweis: Der gemeinsame Fokuslauf fuer Zonen-, Parameter-,
+Technik-, Workflow- und Architekturcontracts bestand mit `75 passed`; die
+vollstaendige lokale Suite bestand mit `536 passed`. Der genaue Auditnachweis
+inklusive Ruff- und Diff-Pruefung ist in Entscheidung 34 festgehalten.
 
 ## MVP-V1-Grenze
 

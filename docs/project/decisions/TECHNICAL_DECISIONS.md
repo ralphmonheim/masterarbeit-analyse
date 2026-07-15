@@ -1,6 +1,6 @@
 # Entscheidungen
 
-Stand: 2026-07-13
+Stand: 2026-07-15
 
 Dieses Dokument sammelt technische und architektonische Entscheidungen. Echte Nutzerentscheidungen stehen getrennt in `USER_DECISIONS_MASTERTHESIS_CODE.md`.
 
@@ -518,3 +518,255 @@ Technische Folgen:
 - Die Dokumentation erweitert noch keine Laufzeit-Enums. Eigene
   VDE-/VDI-SourceTypes und ihre Regressionstests bleiben ein separater
   freizugebender Code-Slice.
+
+## Entscheidung 32: Project-OS nutzt geschichtete Wahrheiten und positive Scan-Allowlists
+
+Das repo-lokale Codex Project Operating System erweitert die vorhandene
+Governance, ohne eine zweite Ablauf-, Status- oder Compliance-Architektur zu
+erzeugen.
+
+Technische Folgen:
+
+- P031 ist der einzige aktive Plan fuer den datierten Repository-Audit, das
+  temporaere Konfliktregister, den Tool-Capability-Snapshot und den Backlog.
+- `AGENTS.md`, `.codex/config.toml`, `.codex/agents/*.toml`,
+  `docs/project/UPDATE_ROUTINES.md`, die Decision-Dateien und
+  `docs/compliance/` behalten jeweils eine klar getrennte Aufgabe.
+- `.agents/skills/` enthaelt nur duenne Router. Ablaufdetails bleiben in
+  `UPDATE_ROUTINES.md` und werden nicht in Skills kopiert.
+- Allgemeine Bestands-, Skill- und spaetere Graph-Scans verwenden positiv
+  `git ls-files`. Ignorierte Dateien gelten nicht als lesefreigegeben.
+- Ein Contract-Test prueft Runtime-Grenzen, Agentensandboxes, Skills,
+  Triggerownership und ausgeschlossene geschuetzte Arbeitsdaten.
+- `.codex/agents/professor.toml` ist fuer Codex fuehrend;
+  `.github/agents/Professor.md` bleibt ein gekennzeichneter Surface-Adapter.
+- Graphify, neue MCPs, globale Codex-Aenderungen, Hook-Aenderungen,
+  Obsidian-/Zotero-Schreibwege und geschuetzte Inhaltsverarbeitung werden
+  nicht Teil der lokalen Baseline und brauchen einen eigenen freigegebenen
+  Folgeslice.
+
+## Entscheidung 33: Delegierter P014-S3a/P015-S3b-prep-Referenzhandover
+
+Gemass UD-089 wird der lokale, reversible Vorbereitungsslice
+`P014-S3a/P015-S3b-prep: ReleasedTechnicalHandover` vor P032-W2 umgesetzt.
+Er ist keine neue Nutzerentscheidung ueber Architektur, Daten oder externe
+Systeme, sondern die dokumentierte Ausfuehrung innerhalb der delegierten
+Council-Mehrheitsfreigabe.
+
+Council-Vote und Scope:
+
+- Mira empfiehlt den engen Referenzhandover vor P032-W2, weil die vollstaendige
+  P015-S3b-Werteherkunft noch nicht vorliegt.
+- Vera bestaetigt den additiven Vertrag mit Hash-/Modell-ID-Pruefung,
+  unveraenderlichen Interface-Referenzen und kompatibler Quellen-ID.
+- Justus bestaetigt den reinen lokalen Metadatenumfang ohne reale oder
+  geschuetzte Daten, externe Verarbeitung oder weitere Spezialgates.
+- Damit liegt eine einstimmige 3/5-Mehrheit fuer genau diesen Scope vor.
+
+Technische Folgen:
+
+- `ma_technical` besitzt `ReleasedTechnicalHandover` als unveraenderlichen,
+  payloadfreien Verweis auf eine freigegebene, hashkonsistente v2-Revision.
+- `ma_parameters` bildet ausschliesslich Modell-ID, Revisions-ID, Content-Hash
+  und Freigabestatus in eine bestehende `ParameterSourceReference` ab. Die
+  kompatible Quellen-ID `ma_technical:<technical_model_id>` bleibt erhalten.
+- P013-Zonenfingerprint, v2-Herkunft der vorhandenen Parameterwerte,
+  vollstaendiges P015-S3b-Eingangspaket, P014-S4-YAML, UI, Persistenz,
+  Katalogdaten, P032-W2, Dependencies, Hooks, externe Tools und
+  Veroeffentlichungen bleiben ausgeschlossen.
+
+Validierung und Ergebnis:
+
+- Die fokussierten P014-/P015-Tests bestehen mit `28 passed`.
+- Die vollstaendige lokale Testsuite besteht mit `513 passed`.
+- `ruff check` fuer die geaenderten Python-Dateien und `git diff --check` sind
+  gruen. Der Formatcheck fuer neue Dateien und geaenderte Exporte ist gruen;
+  `snapshots.py` und `ma_workflow/catalog.py` enthalten bereits bestehende,
+  ausserhalb dieses Slices liegende Formatabweichungen.
+- Der Slice ist umgesetzt. Er schliesst P015-S3b nicht ab und beansprucht
+  keine Freigabe fuer die ausgeschlossenen Folgearbeiten.
+
+## Entscheidung 34: Delegierter P013-S3c/P015-S3b-T2-Zonencheckpoint
+
+Gemass UD-089 wird nach Entscheidung 33 ein zweiter, strikt lokaler und
+reversibler P013-/P015-Slice vor P032-W2 umgesetzt. Er schliesst die fehlende
+Kontextprovenienz, ohne bestehende v1-Parameterwerte als v2-abgeleitet
+umzudeuten.
+
+Council-Vote und exakter Scope:
+
+- Mira priorisiert den P013-Zonenfingerprint und getrennte
+  `checkpoint_references`, weil `source_references` der Werteherkunfts-
+  Namespace bleibt.
+- Vera fordert einen kanonischen, reihenfolgeunabhaengigen Zonenfingerprint,
+  der den vollstaendigen Zonenstand, Building-Revision und das exakte
+  P014-Referenztriple bindet.
+- Justus bestaetigt den rein synthetischen Metadatenumfang ohne Rechte- oder
+  externe Spezialgates.
+- Damit liegt eine einstimmige 3/5-Mehrheit fuer exakt diesen Scope vor.
+
+Technische Folgen:
+
+- `ma_zones` ergaenzt einen payloadfreien `ReleasedZoneHandover`, der nur nach
+  erfolgreicher P013- und P014-Konsistenzpruefung erzeugt wird.
+- `ParameterInputPackage` und `BaselineParameterSnapshot` erhalten opt-in und
+  getrennt von Wertquellen gefuehrte `checkpoint_references`. Ein neuer
+  Checkpoint-Validator prueft das passende freigegebene und aktuelle
+  P013-/P014-Paar.
+- Bestehende `source_references`, `ParameterValue.source_reference_id`,
+  Legacy-Builder, UI und Persistenz bleiben kompatibel. Die neuen Referenzen
+  werden in den bestehenden Baseline-Hash eingebunden, aber nicht als
+  Wertquelle benutzt; ein neuer Package-Level-Hash ist nicht Teil des Slices.
+- P032-W2, P032-W3a, v2-Wertableitung, UI, Persistenz, YAML-/Katalogdaten,
+  reale oder geschuetzte Daten, externe Tools, Dependencies, Hooks, CI,
+  Commit, Push und Veroeffentlichung bleiben ausgeschlossen.
+
+Ergebnis und Validierung:
+
+- Der Scope ist umgesetzt: P013 exportiert nur den frozen, payloadfreien
+  `ReleasedZoneHandover`; P015 fuehrt `checkpoint_references` als getrennten
+  opt-in-Namespace und prueft im Factory-Pfad das urspruengliche P013-/P014-
+  Triple.
+- Bestehende Werte, `source_references`, Wertquellen-IDs, Legacy-Builder,
+  UI und Persistenz blieben unveraendert; ein Package-Level-Hash wurde nicht
+  eingefuehrt. Nur eine Baseline mit Checkpoints bindet deren vollstaendige
+  Referenzmetadaten einschliesslich Content-Hashes in ihren vorhandenen
+  Content-Hash ein.
+- Synthetische Tests pruefen Reihungsstabilitaet, fachliche Hash-Aenderungen,
+  fehlende/nicht freigegebene/nicht zusammengehoerige Handover, stale und
+  fehlende Checkpoint-Paare, Legacy-Kompatibilitaet sowie die
+  Paket-zu-Baseline-Weitergabe. Der nachtraegliche Vera-Review deckte einen
+  zu lockeren P014-Typuebergang auf; er ist durch einen Laufzeit-Typcheck und
+  Negativtests fuer rohe Revisionen und Duck-Typen behoben.
+- Abschlussaudit 2026-07-15: gemeinsamer Fokuslauf `75 passed in 8.62s`,
+  vollstaendige lokale Suite `536 passed in 151.25s`; `ruff check` fuer die
+  betroffenen Code- und Testdateien, Formatcheck fuer neue/gezielt geaenderte
+  Dateien sowie `git diff --check` sind gruen. Bestehende, nicht zum Slice
+  gehoerende Formatabweichungen in `models.py`, `validation.py`,
+  `snapshots.py` und `ma_workflow/catalog.py` wurden nicht massenformatiert.
+- Der Nachweis verwendet ausschliesslich synthetische In-Memory-Testdaten.
+  Eine spaetere Anwendung des Hashbuilders auf reale oder geschuetzte
+  Zoneninhalte bleibt ein eigener Rechte- und Freigabeumfang.
+
+## Entscheidung 35: Delegierter P032-W2a-Parameter-/Options-Code-Owner-Transfer
+
+Gemass UD-089 wird nach dem abgeschlossenen P013-/P015-Referenzcheckpoint nur
+der kleinste, nicht bewegende Teil von P032-W2 umgesetzt. Er beseitigt die
+konkrete Runtime-Rueckkante `ma_parameters -> ma_variants`, ohne eine
+fachliche P015-v2-Werteherkunft, Konfigurationsownership oder den Vollumfang
+von P032-W2 vorwegzunehmen.
+
+Council-Vote und exakter Scope:
+
+- Mira bestaetigt den dokumentierten SCC aus `ma_parameters.services` und
+  `ma_variants.preprocess` und verlangt identische Altpfad-Reexports.
+- Vera empfiehlt den reinen Owner-Transfer vor P015-v2-Werteherkunft, weil
+  er die spaetere Regressionsflaeche reduziert und die API erhalten kann.
+- Justus klassifiziert den auf versionierten Python-Code und synthetische
+  `tmp_path`-Tests begrenzten Umfang als `green`.
+- Damit liegt eine einstimmige 3/5-Mehrheit fuer exakt P032-W2a vor.
+
+Technische Folgen und Grenzen:
+
+- `ma_parameters.catalogs` wird kanonischer Owner von `Parameter`,
+  `OptionSet`, `OptionValue`, ihren Loadern sowie kombiniertem
+  Katalogimport inklusive Ergebnis-, Fehler- und Reporttypen.
+- `ma_parameters.services` darf anschliessend keinen Runtime-Import aus
+  `ma_variants` besitzen. Die bisherigen Pfade
+  `ma_variants.parameter_catalog`, `ma_variants.option_catalog` und
+  `ma_variants.importing` bleiben als identische, getestete Einweg-Reexports
+  fuer bestehende Konsumenten erhalten.
+- Neue Owner-Module duerfen weder `ma_variants.validation` noch
+  `ma_variants.importing.*` importieren. Sie nutzen nur neutrale lokale oder
+  `ma_core`-Hilfen; die Runtime-SCC muss danach leer sein.
+- Die bestehenden `DEFAULT_*`-Pfade unter `config/ma_variants/` bleiben
+  unveraendert als expliziter Legacy-Konfigurationspfad. Es gibt keine
+  Config-Moves, -Kopien, -Leseerweiterungen oder Datenverarbeitung.
+- Ausgeschlossen sind P015-v2-Werteherkunft, `ParameterValue`-,
+  `ParameterSourceReference`-, Baseline-, Hash-, Freshness- und
+  Checkpoint-Aenderungen sowie UI, DB, Alembic, weitere Kataloge, P017,
+  Hooks, CI, Dependencies, externe Tools, Commits, Pushes und
+  Veroeffentlichungen.
+
+Ergebnis und Abschlussaudit:
+
+- Der neue kanonische Namespace `ma_parameters.catalogs` enthaelt Modelle,
+  Loader, kombinierten Import sowie Resultat-, Fehler- und Reporttypen.
+  `ma_parameters.services` importiert nur noch aus diesem Owner-Namespace.
+- Alle bisherigen Katalog- und Importpfade in `ma_variants` bleiben reine,
+  identitaetsgleiche Einweg-Reexports. Ein Postreview fand zunaechst fehlende
+  direkte Untermodul-Reexports; sie wurden ohne Owner- oder Fachlogikaenderung
+  ergaenzt und durch den Contract-Test abgesichert.
+- Beide `DEFAULT_*`-Konfigurationspfade unter `config/ma_variants/` und der
+  Legacy-Reportpfad `data/ma_variants/imports/import_report.json` blieben
+  exakt unveraendert. Es gab keinen Config-, Daten- oder Kataloginhaltszugriff.
+- Der neue gezielte Guardrail prueft auch ungestagte `ma_parameters`-Dateien
+  auf Runtime-Imports nach `ma_variants`; im mit `git ls-files` erfassten
+  Source-Set ist die Runtime-SCC leer.
+- Abschlussnachweis: `46 passed` im fokussierten Lauf, danach `541 passed` in
+  der vollstaendigen lokalen Suite; zielgerichtete Ruff- und Format-Checks
+  sowie `git diff --check` sind gruen. Mira und Vera melden nach der
+  Korrektur keine Blocker; Justus bewertet den Scope `green`.
+- Bekannte, getrennte Restschuld: Der Arbeitsbaum-P013-/P014-Handover erzeugt
+  eine Runtimekante `ma_zones -> ma_technical`, waehrend die vorhandene
+  `ma_technical.validation -> ma_zones`-Kante fortbesteht. Das ist ein
+  transparenter P032-W3a-Folgepunkt und keine Behauptung eines global leeren
+  SCC-Graphen.
+
+P032-W2b (Konfigurationsownership) und der restliche P032-W2-Umfang bleiben
+gesondert menschlich freizugeben.
+
+## Entscheidung 36: P011 als schlanke Projektidentitaet und spaetere Projektakte
+
+Der vom Nutzer lokal freigegebene P011-Gesamtentwurf wird kontrolliert in den
+bestehenden kanonischen P011-Plan uebernommen. Er erzeugt keine zweite
+P011-Planwahrheit.
+
+Council- und Compliance-Preflight:
+
+- Der Dokument-Preflight pruefte den vom Nutzer bereitgestellten lokalen
+  Markdown-Kandidaten anhand von Herkunft, Metadaten und SHA-256
+  `4D6782E8CD35C902CED72BA858972B79BEFBC6E1F9D39B4B2332FA80860BE955`.
+  Nach der ausdruecklichen menschlichen Freigabe vom 2026-07-15 war die lokale
+  Inhaltsanalyse `green`; die Uebernahme realer Assets bleibt `yellow` bis zu
+  objektbezogenen Rechte- und Datenschutzbelegen.
+- Mira, Vera und Justus stimmen bedingt fuer den kontrollierten Ersatz des
+  frueheren Kurzplans und fuer genau P011-S1a. Damit liegt eine 3/5-Mehrheit
+  gemaess UD-089 vor.
+
+Verbindliche Ownership:
+
+- `ma_project` besitzt Projektidentitaet, allgemeinen Untersuchungsrahmen,
+  optionalen Standort, allgemeine Simulationsprogramm- und Namingprofile sowie
+  spaeter zulaessige beschreibende Projektassets.
+- Quellenwahl bleibt mit `InputSource` beim jeweiligen Fachmodul; P011 besitzt
+  kein projektweites Quellenregister. Fachfreigaben verbleiben bei den
+  Artefakt-Ownern und Modulstatus bei `ma_workflow`.
+- IFC-/Rhino-Modelle bleiben bei `ma_building`, IDA-/Run-Referenzen bei P018,
+  P009 und den Adaptern. P011 speichert keine Fachmodelle, Revisionen oder
+  nachgelagerten Fachobjektreferenzen.
+- `VariantNamingProfile` und seine Konfiguration bleiben bei `ma_project`,
+  `ma_variants` konsumiert sie. Rename und Pfadmigration sind kein Bestandteil
+  von P011-S1a.
+
+P011-S1a umfasst ausschliesslich additive immutable Projektmodelle,
+Validierung und reine Serialisierung mit synthetischen Tests. Nicht Teil sind
+Projektordner, `data/projects`, Assets oder Dateikopien, UI, Wetteruebergabe,
+Config-Moves, reale Daten, externe Modelle, Dependencies oder Git-Aktionen.
+
+Umsetzungsnachweis 2026-07-15:
+
+- `ma_project` exportiert nun die immutable Modelle `ProjectIdentity`,
+  `ProjectLocation`, `ProjectInvestigation`, `Project` und `ProjectContext`
+  sowie eine reine Dict-Serialisierung ohne Datei- oder Verzeichnisoperation.
+- ASCII-IDs, vollstaendige Koordinatenpaare, zeitzonenbewusste und auch an
+  DST-Umstellungen chronologisch korrekte Zeitstempel, Payload-Roundtrips und
+  die P028-Kompatibilitaet sind automatisiert getestet. Der Abschlusslauf
+  (`P011`, P028, Workflow, Architekturgrenzen) umfasst 60 gruene Tests.
+- Vera bestaetigte den Abschluss ohne Blocker oder wichtige Restmaengel;
+  Justus bestaetigte die unveraenderte Green-Abgrenzung ohne reale Daten,
+  Assets, externe Verarbeitung oder neue Abhaengigkeiten.
+
+Die spaetere Projektakte braucht vor jeder realen Dateioperation einen eigenen
+Compliance- und Speicherortscope. Absolute `original_source_path`-Angaben
+werden nicht in portable oder versionierte Projektnutzlasten persistiert.

@@ -4,12 +4,21 @@ from __future__ import annotations
 
 import hashlib
 import json
+from dataclasses import replace
 
 from ma_building import BuildingModelSpecification, load_business_integration_lod1_building_spec, validate_building_spec
 from ma_technical import (
+    ReleasedTechnicalHandover,
     TechnicalSystemSpecification,
     load_business_integration_lod1_technical_spec,
     validate_technical_spec,
+)
+from ma_validation import (
+    DiagnosticMessage,
+    DiagnosticSeverity,
+    ReleaseStatus,
+    ValidationResult,
+    build_validation_result,
 )
 from ma_weather.weather_catalog import WeatherCatalog, WeatherDataset, import_weather_catalog
 from ma_weather.weather_selection import (
@@ -19,7 +28,12 @@ from ma_weather.weather_selection import (
     project_default_weather_dataset,
 )
 from ma_weather.weather_status import WeatherDatasetStatus
-from ma_zones import ZoneModelSpecification, load_business_integration_lod1_zone_spec, validate_zone_spec
+from ma_zones import (
+    ReleasedZoneHandover,
+    ZoneModelSpecification,
+    load_business_integration_lod1_zone_spec,
+    validate_zone_spec,
+)
 
 from .models import (
     BaselineParameterSnapshot,
@@ -259,6 +273,9 @@ def build_baseline_parameter_snapshot_from_input_package(
 ) -> BaselineParameterSnapshot:
     """Leitet einen Baseline-v2-Stand aus dem P015-S3a-Eingangspaket ab."""
     source_references = tuple(_baseline_source_reference(source) for source in input_package.source_references)
+    checkpoint_references = tuple(
+        _baseline_source_reference(reference) for reference in input_package.checkpoint_references
+    )
     parameter_values = tuple(
         _baseline_parameter_value(input_package, value, source_reference_id=value.source_reference_id)
         for value in input_package.values
@@ -273,14 +290,18 @@ def build_baseline_parameter_snapshot_from_input_package(
         )
         for source in source_references
     )
-    content_hash = _stable_hash(
-        {
-            "snapshot_id": snapshot_id,
-            "source_package_id": input_package.package_id,
-            "values": [_baseline_value_hash_payload(value) for value in parameter_values],
-            "sources": [_source_hash_payload(source) for source in source_references],
+    content_hash_payload: dict[str, object] = {
+        "snapshot_id": snapshot_id,
+        "source_package_id": input_package.package_id,
+        "values": [_baseline_value_hash_payload(value) for value in parameter_values],
+        "sources": [_source_hash_payload(source) for source in source_references],
+    }
+    if input_package.requires_released_checkpoints or checkpoint_references:
+        content_hash_payload["released_checkpoints"] = {
+            "required": input_package.requires_released_checkpoints,
+            "references": [_checkpoint_hash_payload(reference) for reference in checkpoint_references],
         }
-    )
+    content_hash = _stable_hash(content_hash_payload)
     return BaselineParameterSnapshot(
         snapshot_id=snapshot_id,
         snapshot_version=snapshot_version,
@@ -292,6 +313,8 @@ def build_baseline_parameter_snapshot_from_input_package(
         reference_versions=reference_versions,
         source_snapshot_id=input_package.package_id,
         source_snapshot_version=input_package.package_version,
+        checkpoint_references=checkpoint_references,
+        requires_released_checkpoints=input_package.requires_released_checkpoints,
         content_hash=content_hash,
         release_status=_baseline_release_status_from_input_package(input_package),
         freshness_status=FreshnessStatus.CURRENT,
@@ -482,6 +505,242 @@ def baseline_parameter_snapshot_reference_rows(snapshot: BaselineParameterSnapsh
     ]
 
 
+def attach_released_checkpoints_to_parameter_input_package(
+    input_package: ParameterInputPackage,
+    *,
+    zone_handover: ReleasedZoneHandover,
+    technical_handover: ReleasedTechnicalHandover,
+) -> ParameterInputPackage:
+    """Ergaenzt ein Paket um das zusammengehoerige P013-/P014-Checkpoint-Paar.
+
+    Die bestehenden Parameterwerte und ``source_references`` bleiben bewusst
+    unveraendert. Nur dieser explizite Factory-Pfad prueft die Beziehung der
+    beiden urspruenglichen Handover; normale ``ParameterSourceReference``-
+    Objekte enthalten diese Triple-Beziehung nicht.
+    """
+    if not isinstance(input_package, ParameterInputPackage):
+        raise TypeError("input_package muss ein ParameterInputPackage sein.")
+    if input_package.checkpoint_references or input_package.requires_released_checkpoints:
+        raise ValueError("Das Eingangspaket enthaelt bereits einen Released-Checkpoint.")
+
+    validation = validate_released_checkpoint_handover_pair(
+        input_package,
+        zone_handover=zone_handover,
+        technical_handover=technical_handover,
+    )
+    if validation.release_status is not ReleaseStatus.RELEASED:
+        raise ValueError("Das P013-/P014-Checkpoint-Paar ist nicht freigegeben oder nicht zusammengehoerig.")
+
+    return replace(
+        input_package,
+        checkpoint_references=(
+            parameter_checkpoint_reference_from_released_zone_handover(zone_handover),
+            parameter_checkpoint_reference_from_released_technical_handover(technical_handover),
+        ),
+        requires_released_checkpoints=True,
+    )
+
+
+def validate_released_checkpoint_handover_pair(
+    input_package: ParameterInputPackage,
+    *,
+    zone_handover: ReleasedZoneHandover,
+    technical_handover: ReleasedTechnicalHandover,
+) -> ValidationResult:
+    """Prueft den noch nicht verlustfrei darstellbaren P013-/P014-Zusammenhang.
+
+    Die benoetigten technischen Parent-Felder liegen nur auf den beiden
+    Handover-Objekten vor. Nach der Umwandlung in die getrennten
+    ``checkpoint_references`` prueft der allgemeine Paketvalidator lediglich
+    Freigabe, Aktualitaet und die Form des Paares.
+    """
+    if not isinstance(input_package, ParameterInputPackage):
+        raise TypeError("input_package muss ein ParameterInputPackage sein.")
+
+    messages: list[DiagnosticMessage] = []
+    if not isinstance(zone_handover, ReleasedZoneHandover):
+        messages.append(
+            _checkpoint_message(
+                "PARAMETER_CHECKPOINT_ZONE_HANDOVER_INVALID",
+                "P013-Checkpoint muss ein ReleasedZoneHandover sein.",
+                "zone_handover",
+            )
+        )
+    if not isinstance(technical_handover, ReleasedTechnicalHandover):
+        messages.append(
+            _checkpoint_message(
+                "PARAMETER_CHECKPOINT_TECHNICAL_HANDOVER_INVALID",
+                "P014-Checkpoint muss ein ReleasedTechnicalHandover sein.",
+                "technical_handover",
+            )
+        )
+    if messages:
+        return build_validation_result(tuple(messages))
+
+    _append_missing_checkpoint_fields(
+        messages,
+        zone_handover,
+        field_names=(
+            "zone_handover_id",
+            "revision_id",
+            "zone_model_id",
+            "project_id",
+            "building_id",
+            "building_revision_id",
+            "technical_model_id",
+            "technical_revision_id",
+            "technical_content_hash",
+            "content_hash",
+        ),
+        location_prefix="zone_handover",
+    )
+    _append_missing_checkpoint_fields(
+        messages,
+        technical_handover,
+        field_names=("technical_model_id", "revision_id", "content_hash"),
+        location_prefix="technical_handover",
+    )
+    if _handover_release_status(zone_handover.release_status) != ReleaseStatus.RELEASED.value:
+        messages.append(
+            _checkpoint_message(
+                "PARAMETER_CHECKPOINT_ZONE_HANDOVER_NOT_RELEASED",
+                "P013-Checkpoint ist nicht freigegeben.",
+                "zone_handover.release_status",
+            )
+        )
+    if _handover_release_status(technical_handover.release_status) != ReleaseStatus.RELEASED.value:
+        messages.append(
+            _checkpoint_message(
+                "PARAMETER_CHECKPOINT_TECHNICAL_HANDOVER_NOT_RELEASED",
+                "P014-Checkpoint ist nicht freigegeben.",
+                "technical_handover.release_status",
+            )
+        )
+    if zone_handover.project_id != input_package.project_id:
+        messages.append(
+            _checkpoint_message(
+                "PARAMETER_CHECKPOINT_PROJECT_MISMATCH",
+                "P013-Checkpoint und Eingangspaket gehoeren nicht zum selben Projekt.",
+                "zone_handover.project_id",
+            )
+        )
+    if zone_handover.building_id != input_package.building_id:
+        messages.append(
+            _checkpoint_message(
+                "PARAMETER_CHECKPOINT_BUILDING_MISMATCH",
+                "P013-Checkpoint und Eingangspaket gehoeren nicht zum selben Gebaeude.",
+                "zone_handover.building_id",
+            )
+        )
+
+    zone_technical_triple = (
+        zone_handover.technical_model_id,
+        zone_handover.technical_revision_id,
+        zone_handover.technical_content_hash,
+    )
+    technical_triple = (
+        technical_handover.technical_model_id,
+        technical_handover.revision_id,
+        technical_handover.content_hash,
+    )
+    if zone_technical_triple != technical_triple:
+        messages.append(
+            _checkpoint_message(
+                "PARAMETER_CHECKPOINT_TECHNICAL_TRIPLE_MISMATCH",
+                "P013- und P014-Checkpoint referenzieren nicht dieselbe Technikrevision.",
+                "zone_handover.technical_revision_id",
+            )
+        )
+    return build_validation_result(tuple(messages))
+
+
+def parameter_checkpoint_reference_from_released_zone_handover(
+    handover: ReleasedZoneHandover,
+    *,
+    label: str = "Freigegebener P013-Zonencheckpoint",
+) -> ParameterSourceReference:
+    """Erzeugt eine getrennte, payloadfreie P013-Checkpoint-Referenz."""
+    if not isinstance(handover, ReleasedZoneHandover):
+        raise TypeError("handover muss ein ReleasedZoneHandover sein.")
+    required_values = (
+        handover.zone_handover_id,
+        handover.revision_id,
+        handover.zone_model_id,
+        handover.project_id,
+        handover.building_id,
+        handover.building_revision_id,
+        handover.technical_model_id,
+        handover.technical_revision_id,
+        handover.technical_content_hash,
+        handover.content_hash,
+    )
+    release_status = _handover_release_status(handover.release_status)
+    if release_status != ReleaseStatus.RELEASED.value or not all(str(value).strip() for value in required_values):
+        raise ValueError("Checkpoint-Referenzen duerfen nur vollstaendige, freigegebene Zonen-Handover uebernehmen.")
+    return ParameterSourceReference(
+        source_reference_id=f"checkpoint:{handover.zone_handover_id}",
+        module_key="ma_zones",
+        dataset_key=handover.zone_model_id,
+        version_id=handover.revision_id,
+        validation_status=release_status,
+        label=label,
+        reference_id=handover.zone_handover_id,
+        reference_version=handover.revision_id,
+        content_hash=handover.content_hash,
+        freshness_status=FreshnessStatus.CURRENT.value,
+    )
+
+
+def parameter_checkpoint_reference_from_released_technical_handover(
+    handover: ReleasedTechnicalHandover,
+    *,
+    label: str = "Freigegebener P014-v2-Technikcheckpoint",
+) -> ParameterSourceReference:
+    """Erzeugt eine getrennte, payloadfreie P014-Checkpoint-Referenz."""
+    if not isinstance(handover, ReleasedTechnicalHandover):
+        raise TypeError("handover muss ein ReleasedTechnicalHandover sein.")
+    return parameter_source_reference_from_released_technical_handover(
+        handover,
+        source_reference_id=(f"checkpoint:ma_technical:{handover.technical_model_id}:{handover.revision_id}"),
+        label=label,
+    )
+
+
+def parameter_source_reference_from_released_technical_handover(
+    handover: ReleasedTechnicalHandover,
+    *,
+    source_reference_id: str | None = None,
+    label: str = "Freigegebene P014-v2-Technikrevision",
+) -> ParameterSourceReference:
+    """Uebernimmt nur freigegebene P014-Referenzmetadaten als Parameterquelle.
+
+    Die Funktion ist bewusst kein v1-zu-v2-Konverter fuer Parameterwerte.
+    Sie stellt lediglich die nachweisbare Quellenreferenz fuer einen folgenden
+    P015-S3b-Eingangspaket-Slice bereit.
+    """
+    release_status = getattr(handover.release_status, "value", str(handover.release_status))
+    required_values = (
+        handover.technical_model_id,
+        handover.revision_id,
+        handover.content_hash,
+    )
+    if release_status != "released" or not all(str(value).strip() for value in required_values):
+        raise ValueError("Parameterquellen duerfen nur vollstaendige, freigegebene Technik-Handover uebernehmen.")
+
+    return ParameterSourceReference(
+        source_reference_id=source_reference_id or _source_reference_id("ma_technical", handover.technical_model_id),
+        module_key="ma_technical",
+        dataset_key=handover.technical_model_id,
+        version_id=handover.revision_id,
+        validation_status=release_status,
+        label=label,
+        reference_id=handover.technical_model_id,
+        reference_version=handover.revision_id,
+        content_hash=handover.content_hash,
+        freshness_status=FreshnessStatus.CURRENT.value,
+    )
+
+
 def _source_references(
     building_spec: BuildingModelSpecification,
     zone_spec: ZoneModelSpecification,
@@ -567,6 +826,32 @@ def _baseline_source_reference(source: ParameterSourceReference) -> ParameterSou
     )
 
 
+def _checkpoint_message(code: str, message: str, location: str) -> DiagnosticMessage:
+    return DiagnosticMessage(DiagnosticSeverity.ERROR, code, message, location)
+
+
+def _append_missing_checkpoint_fields(
+    messages: list[DiagnosticMessage],
+    handover: object,
+    *,
+    field_names: tuple[str, ...],
+    location_prefix: str,
+) -> None:
+    for field_name in field_names:
+        if not str(getattr(handover, field_name, "")).strip():
+            messages.append(
+                _checkpoint_message(
+                    "PARAMETER_CHECKPOINT_HANDOVER_FIELD_MISSING",
+                    "Released-Checkpoint enthaelt ein unvollstaendiges Referenzfeld.",
+                    f"{location_prefix}.{field_name}",
+                )
+            )
+
+
+def _handover_release_status(release_status: object) -> str:
+    return str(getattr(release_status, "value", release_status)).strip()
+
+
 def _weather_source_reference(
     dataset: WeatherDataset,
     *,
@@ -620,7 +905,48 @@ def _baseline_release_status_from_input_package(input_package: ParameterInputPac
         return "blocked"
     if any(source.validation_status != "released" for source in input_package.source_references):
         return "blocked"
+    if not _released_checkpoint_references_are_valid(
+        input_package.checkpoint_references,
+        requires_released_checkpoints=input_package.requires_released_checkpoints,
+    ):
+        return "blocked"
     return "released"
+
+
+def _released_checkpoint_references_are_valid(
+    checkpoint_references: tuple[ParameterSourceReference, ...],
+    *,
+    requires_released_checkpoints: bool,
+) -> bool:
+    """Spiegelt die Freigabekriterien fuer die Baseline-Statusableitung."""
+    if not checkpoint_references:
+        return not requires_released_checkpoints
+
+    required_fields = (
+        "source_reference_id",
+        "module_key",
+        "dataset_key",
+        "version_id",
+        "validation_status",
+        "reference_id",
+        "reference_version",
+        "content_hash",
+        "freshness_status",
+    )
+    if any(
+        not all(str(getattr(reference, field_name)).strip() for field_name in required_fields)
+        or reference.validation_status != ReleaseStatus.RELEASED.value
+        or reference.freshness_status != FreshnessStatus.CURRENT.value
+        for reference in checkpoint_references
+    ):
+        return False
+    if not requires_released_checkpoints:
+        return True
+    return (
+        len(checkpoint_references) == 2
+        and {reference.module_key for reference in checkpoint_references} == {"ma_zones", "ma_technical"}
+        and len({reference.source_reference_id for reference in checkpoint_references}) == 2
+    )
 
 
 def _weather_parameter_values(
@@ -781,4 +1107,13 @@ def _source_hash_payload(source: ParameterSourceReference) -> dict[str, object]:
         "validation_status": source.validation_status,
         "reference_id": source.reference_id,
         "reference_version": source.reference_version,
+    }
+
+
+def _checkpoint_hash_payload(reference: ParameterSourceReference) -> dict[str, object]:
+    """Liefert die vollstaendige, hashrelevante Referenz eines Checkpoints."""
+    return {
+        **_source_hash_payload(reference),
+        "content_hash": reference.content_hash,
+        "freshness_status": reference.freshness_status,
     }

@@ -14,6 +14,9 @@
   BusinessIntegration-Testgebaeude bereit; P014-S1.1 ergaenzt das v2-Aggregat
   um die zentralen technischen Register:
   `config/ma_technical/examples/business_integration_lod1_technical_spec.yaml`.
+  P014-S2 speichert freigegebene v2-Revisionen hashgesichert; P014-S3a stellt
+  daraus einen kleinen, referenzbasierten Handover fuer nachgelagerte Module
+  bereit.
 - **Uebergangsstand:** Die aktuelle LoD-1-Demo referenziert noch
   `source_zone_model_id` und `served_zone_ids`. Diese Kopplung bleibt
   kompatibel, muss im naechsten P014-Slice aber an P013-S2 angepasst werden.
@@ -30,10 +33,10 @@
   Ohne lokale Katalogdaten bleibt die manuelle Statusauswahl nutzbar.
   Materialien und Konstruktionen gehoeren in die Gebaeudeansicht und
   veraendern keine Technikrevision.
-- **Naechster Schritt:** Zentrale Technik vor `ma_zones` modellieren und
-  Referenzsysteme, technische Limits, empfohlene Bereiche und Kurzkennungen
-  fuer LoD-2, spaetere Dimensionierung und P017-Regelpruefungen genauer
-  abgrenzen.
+- **Naechster Schritt:** Den P013-Zonenfingerprint und den vollstaendigen
+  P015-S3b-Eingabecheckpoint auf den neuen Referenzvertrag aufsetzen. Die
+  v1-Demo bleibt bis zu einer getrennten, nachweisbaren Werteherkunft
+  unveraendert.
 
 ## Schema v2
 
@@ -58,3 +61,16 @@ Slices. P014-S1.1 buendelt physische Geraete, Heiz-/Kuehlverteilungen,
 thermische Speicher und Trinkwarmwassererzeugung als Register; Plant, AHU und
 Elektrik sind dabei optional. Die v2-Struktur- und Referenzvalidierung folgt
 mit P014-S1.2.
+
+## Freigegebener Technik-Handover
+
+P014-S3a ergaenzt `ReleasedTechnicalHandover` und
+`ReleasedTechnicalServiceInterfaceReference`. Der Builder akzeptiert nur eine
+freigegebene, hashkonsistente `TechnicalModelRevision` mit passender Modell-ID
+in der Revisionsnutzlast. Der Handover fuehrt ausschliesslich Modell-ID,
+Revisions-ID, Content-Hash, Freigabestatus sowie deterministisch sortierte
+Serviceinterface- und Quellobjektreferenzen.
+
+Der vollstaendige technische Payload verbleibt in `ma_technical`. Der Handover
+ist weder ein Editor noch eine v1-zu-v2-Migration und erzeugt keine
+Parameterwerte, Dateien, UI- oder Katalogaenderungen.

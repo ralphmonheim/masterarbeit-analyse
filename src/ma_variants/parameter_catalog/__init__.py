@@ -1,6 +1,5 @@
-"""Parameterkatalog fuer den Variantenkern."""
+"""Legacy-Adapter fuer den kanonischen Parameterkatalog."""
 
-from .importer import import_parameters
-from .models import Parameter
+from ma_parameters.catalogs import Parameter, import_parameters
 
 __all__ = ["Parameter", "import_parameters"]

@@ -13,6 +13,8 @@ Er ist Planungs- und Entscheidungsgrundlage, keine Fachlogik.
 - `MA_ANALYSE_INVENTORY.md`: Bestandsanalyse von `ma_analyse` fuer P005.
 - `MA_ANALYSE_SERVICE_INTERFACE.md`: Zielvertrag fuer `AnalysisConfig`, `AnalysisResult` und `run_analysis(config)`.
 - `workflow/`: aktuelle Workflow-Diagramme und fachliche Strukturreviews.
+- `reviews/2026-07-15/`: datierter, nicht autoritativer P032-Benchmark mit
+  Ist-Inventar, Modulgrenzen, Zieloptionen und Migrationsentwurf.
 
 ## Regeln
 

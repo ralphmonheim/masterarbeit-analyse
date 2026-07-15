@@ -30,7 +30,7 @@ python -m pip install -e ".[dev]"
 | `src/ma_analyse/preprocessing/` | Datenvorbereitung aus Rohdaten |
 | `src/ma_analyse/analysis/` | Datenverarbeitung, Auswertung und gemeinsame Analyse-Komponenten |
 | `src/ma_analyse/settings/` | Naming- und Formatlogik plus zugehoerige Markdown-Dateien |
-| `src/ma_analyse/gui/` | grafische Oberflaeche |
+| `src/ma_ui/tkinter_app/` | fachlich gekoppelte Tkinter-Oberflaeche der Analysepipeline |
 | `src/ma_variants/` | modularer Varianten-, Export-, Katalog- und Bewertungskern |
 | `src/ma_weather/` | Wetterkatalog und lokale TRY-Analysepipeline |
 | `src/ma_ui/` | zentrale Streamlit-Oberflaeche mit Dashboard und Modulansichten |

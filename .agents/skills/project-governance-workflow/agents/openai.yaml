@@ -1,0 +1,4 @@
+interface:
+  display_name: "Projektsteuerung"
+  short_description: "Plaene und Projektwahrheiten sicher abgleichen"
+  default_prompt: "Use $project-governance-workflow to reconcile plans, decisions, and project status."

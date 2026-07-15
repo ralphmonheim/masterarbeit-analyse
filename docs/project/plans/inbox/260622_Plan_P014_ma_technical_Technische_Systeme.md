@@ -1,7 +1,7 @@
 # P014 ma_technical Technische Systeme
 
 Stand: 2026-07-15
-Status: Fachlich konsolidiert, P014-S1 Legacy-v1 kompatibel, v2-Kerntypen sowie P014-S1.1/S1.2 und P014-S2 umgesetzt; optionale lokale Katalogauswahl vorhanden; P013/P015-Handover offen
+Status: Fachlich konsolidiert, P014-S1 Legacy-v1 kompatibel, v2-Kerntypen sowie P014-S1.1/S1.2, P014-S2 und P014-S3a umgesetzt; optionale lokale Katalogauswahl vorhanden; P013/P015-Releasecheckpoint angebunden, v2-Werteherkunft und Restumfang von P015-S3b offen
 Prioritaet: Hoch
 Abhaengigkeiten: P010, P012, P013, P015, P017, P027
 
@@ -234,6 +234,31 @@ Teil des Content-Hashs.
 - Fuer V1 reicht die vom Serviceinterface deklarierte
   Terminal-Kompatibilitaet. Eine weitergehende fachliche Eignungspruefung
   wird als Folgearbeit behandelt.
+
+#### P014-S3a / P015-S3b-prep: ReleasedTechnicalHandover
+
+Council-Beschluss vom 2026-07-15: Mira, Vera und Justus bilden eine
+einstimmige 3/5-Mehrheit fuer diesen lokalen, additiven Vorbereitungsslice
+vor einem vorgezogenen P032-W2-Zyklusabbau. Der Scope bleibt auf synthetisch
+testbare Referenzmetadaten begrenzt.
+
+- `ma_technical` liefert aus einer hashkonsistenten, freigegebenen v2-Revision
+  einen unveraenderlichen Handover mit Modell-ID, Revisions-ID, Content-Hash,
+  Freigabestatus sowie stabilen Serviceinterface- und Quellobjektreferenzen.
+- `ma_parameters` kann diesen Handover in eine bestehende
+  `ParameterSourceReference` ueberfuehren. Die bisherige
+  `ma_technical:<technical_model_id>`-Quellen-ID bleibt dabei kompatibel;
+  Revision, Hash und Freigabestatus werden echt uebernommen.
+- Nicht Teil sind die Ableitung oder Aenderung vorhandener v1-Parameterwerte,
+  ein P013-Zonenfingerprint, die vollstaendige P015-S3b-Eingangspaketumstellung,
+  P014-S4-Referenz-YAML, Persistenz, UI, Katalogdaten und P032-W2.
+
+Umgesetzt am 2026-07-15: `ReleasedTechnicalHandover` und seine
+Serviceinterface-Referenzen werden ausschliesslich aus einer freigegebenen,
+hashkonsistenten `TechnicalModelRevision` erzeugt. Manipulierte Hashes,
+inkonsistente Modell-IDs und nicht freigegebene Revisionen werden blockiert.
+Die fokussierten P014-/P015-Tests bestehen mit `28 passed`, die vollstaendige
+lokale Suite mit `513 passed`; `ruff check` und `git diff --check` sind gruen.
 
 ### P014-S4 V2-Referenzfall und Abnahme
 

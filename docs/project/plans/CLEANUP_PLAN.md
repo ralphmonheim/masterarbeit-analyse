@@ -2,6 +2,31 @@
 
 Stand: 2026-07-03
 
+## Project-OS-Aenderungsgrenzen 2026-07-15
+
+### Sicher im freigegebenen P031-Slice
+
+- Dokumentwidersprueche entlang der festgelegten Source-of-Truth-Zuordnung
+  bereinigen.
+- Repo-lokale Skills als duenne Router auf `UPDATE_ROUTINES.md` anlegen.
+- Agenten-, Skill- und Triggervertraege mit versionierten Dateien testen.
+- Allgemeine Scans auf die Allowlist aus `git ls-files` begrenzen.
+
+### Separate Freigabe erforderlich
+
+- globale Codex-Konfiguration, Agentenlimits oder externe Tools aendern;
+- Programme, Plugins, Abhaengigkeiten, MCP oder Graphify installieren;
+- Git- oder Codex-Hooks aktivieren, deaktivieren oder veraendern;
+- Obsidian, Zotero, externe APIs oder Cloud-Schreibwege anbinden;
+- Project-OS-Aenderungen committen, pushen oder veroeffentlichen.
+
+### Nicht verarbeiten
+
+- ignorierte Norm-, IDA-, Katalog- oder reale Projektarbeitsdaten durch
+  breite Scanner, Graphen oder Indexer;
+- geschuetzte PDFs, Bibliotheken, Secrets oder Lizenzdaten ohne passende
+  Rechte- und Verarbeitungsentscheidung.
+
 ## Sichere Sofortmassnahmen
 
 - Erledigt: Leeren Ordner `scripts/` entfernen.

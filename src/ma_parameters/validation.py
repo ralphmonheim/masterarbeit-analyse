@@ -20,6 +20,7 @@ from .models import (
     FreshnessStatus,
     ParameterInputPackage,
     ParameterSnapshot,
+    ParameterSourceReference,
 )
 
 REQUIRED_LOD1_PARAMETER_KEYS = frozenset(
@@ -39,6 +40,7 @@ REQUIRED_LOD1_PARAMETER_KEYS = frozenset(
 )
 REQUIRED_SOURCE_MODULES = frozenset({"ma_building", "ma_zones", "ma_technical"})
 REQUIRED_INPUT_PACKAGE_SOURCE_MODULES = frozenset({"ma_building", "ma_zones", "ma_technical"})
+REQUIRED_RELEASED_CHECKPOINT_MODULES = frozenset({"ma_zones", "ma_technical"})
 REQUIRED_WEATHER_PARAMETER_KEYS = frozenset({"weather.weather_key", "weather.location", "weather.year_type"})
 ALLOWED_BASELINE_RELEASE_STATUSES = frozenset(
     {"draft", "validation_required", "review_required", "released", "blocked", "archived"}
@@ -62,6 +64,14 @@ def validate_baseline_parameter_snapshot(snapshot: BaselineParameterSnapshot) ->
     messages.extend(_validate_baseline_header(snapshot))
     messages.extend(_validate_baseline_object_ids(snapshot))
     messages.extend(_validate_baseline_sources(snapshot))
+    messages.extend(
+        _validate_released_checkpoint_references(
+            snapshot.checkpoint_references,
+            requires_released_checkpoints=snapshot.requires_released_checkpoints,
+            location_prefix="checkpoint_references",
+            code_prefix="BASELINE",
+        )
+    )
     messages.extend(_validate_baseline_reference_versions(snapshot))
     messages.extend(_validate_baseline_values(snapshot))
     messages.extend(_validate_baseline_scoped_keys(snapshot))
@@ -74,6 +84,14 @@ def validate_parameter_input_package(input_package: ParameterInputPackage) -> Va
     messages.extend(_validate_input_package_header(input_package))
     messages.extend(_validate_input_package_object_ids(input_package))
     messages.extend(_validate_input_package_sources(input_package))
+    messages.extend(
+        _validate_released_checkpoint_references(
+            input_package.checkpoint_references,
+            requires_released_checkpoints=input_package.requires_released_checkpoints,
+            location_prefix="checkpoint_references",
+            code_prefix="PARAMETER_INPUT",
+        )
+    )
     messages.extend(_validate_input_package_values(input_package))
     messages.extend(_validate_input_package_lod1_required_values(input_package))
     return build_validation_result(tuple(messages))
@@ -505,6 +523,115 @@ def _validate_baseline_sources(snapshot: BaselineParameterSnapshot) -> list[Diag
                     "BASELINE_SOURCE_NOT_CURRENT",
                     "Quellenreferenz ist nicht als aktuell markiert.",
                     f"source_references.{index}.freshness_status",
+                )
+            )
+    return messages
+
+
+def _validate_released_checkpoint_references(
+    checkpoint_references: tuple[ParameterSourceReference, ...],
+    *,
+    requires_released_checkpoints: bool,
+    location_prefix: str,
+    code_prefix: str,
+) -> list[DiagnosticMessage]:
+    """Prueft die getrennte P013/P014-Checkpoint-Namensmenge.
+
+    Checkpoints sind keine Quellen einzelner Parameterwerte. Deshalb bleiben sie
+    getrennt von ``source_references`` und werden auch getrennt auf eindeutige
+    IDs, Freigabe und Aktualitaet geprueft. Der strenge Paarzwang gilt nur fuer
+    den expliziten Released-Checkpoint-Pfad; bestehende Pakete bleiben dadurch
+    unveraendert valide.
+    """
+    messages: list[DiagnosticMessage] = []
+    if not checkpoint_references:
+        if requires_released_checkpoints:
+            messages.append(
+                _message(
+                    DiagnosticSeverity.ERROR,
+                    f"{code_prefix}_CHECKPOINT_PAIR_REQUIRED",
+                    "Der Released-Checkpoint-Pfad benoetigt genau ein P013- und ein P014-Checkpoint.",
+                    location_prefix,
+                )
+            )
+        return messages
+
+    locations_by_id: dict[str, list[str]] = defaultdict(list)
+    for index, checkpoint in enumerate(checkpoint_references):
+        checkpoint_location = f"{location_prefix}.{index}"
+        checkpoint_id = checkpoint.source_reference_id
+        if not checkpoint_id:
+            messages.append(
+                _message(
+                    DiagnosticSeverity.ERROR,
+                    f"{code_prefix}_CHECKPOINT_ID_MISSING",
+                    "Checkpoint-Referenzen benoetigen eine eigene ID.",
+                    f"{checkpoint_location}.source_reference_id",
+                )
+            )
+        else:
+            locations_by_id[checkpoint_id].append(checkpoint_location)
+
+        required_fields = (
+            "source_reference_id",
+            "module_key",
+            "dataset_key",
+            "version_id",
+            "validation_status",
+            "reference_id",
+            "reference_version",
+            "content_hash",
+            "freshness_status",
+        )
+        for field_name in required_fields:
+            if not str(getattr(checkpoint, field_name)).strip():
+                messages.append(
+                    _message(
+                        DiagnosticSeverity.ERROR,
+                        f"{code_prefix}_CHECKPOINT_FIELD_MISSING",
+                        "Checkpoint-Referenzen benoetigen ID, Modul, Version, Referenz und Hash.",
+                        f"{checkpoint_location}.{field_name}",
+                    )
+                )
+        if checkpoint.validation_status != ReleaseStatus.RELEASED.value:
+            messages.append(
+                _message(
+                    DiagnosticSeverity.ERROR,
+                    f"{code_prefix}_CHECKPOINT_NOT_RELEASED",
+                    "Released-Checkpoints duerfen nur freigegebene Fachstaende referenzieren.",
+                    f"{checkpoint_location}.validation_status",
+                )
+            )
+        if checkpoint.freshness_status != FreshnessStatus.CURRENT.value:
+            messages.append(
+                _message(
+                    DiagnosticSeverity.ERROR,
+                    f"{code_prefix}_CHECKPOINT_NOT_CURRENT",
+                    "Released-Checkpoints duerfen nicht veraltet oder unbekannt sein.",
+                    f"{checkpoint_location}.freshness_status",
+                )
+            )
+
+    for checkpoint_id, locations in locations_by_id.items():
+        if len(locations) > 1:
+            messages.append(
+                _message(
+                    DiagnosticSeverity.ERROR,
+                    f"{code_prefix}_CHECKPOINT_ID_DUPLICATE",
+                    f"Checkpoint-ID ist mehrfach vergeben: {checkpoint_id}",
+                    ", ".join(locations),
+                )
+            )
+
+    if requires_released_checkpoints:
+        modules = {checkpoint.module_key for checkpoint in checkpoint_references}
+        if len(checkpoint_references) != 2 or modules != REQUIRED_RELEASED_CHECKPOINT_MODULES:
+            messages.append(
+                _message(
+                    DiagnosticSeverity.ERROR,
+                    f"{code_prefix}_CHECKPOINT_PAIR_INVALID",
+                    "Der Released-Checkpoint-Pfad benoetigt genau ein ma_zones- und ein ma_technical-Checkpoint.",
+                    location_prefix,
                 )
             )
     return messages

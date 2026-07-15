@@ -215,6 +215,8 @@ class ParameterInputPackage:
     source_snapshot_version: str = ""
     requires_weather: bool = True
     weather_activated: bool = False
+    checkpoint_references: tuple[ParameterSourceReference, ...] = ()
+    requires_released_checkpoints: bool = False
     schema_version: str = INPUT_PACKAGE_SCHEMA_VERSION
     created_at: datetime = field(default_factory=utc_now)
     description: str = ""
@@ -222,6 +224,7 @@ class ParameterInputPackage:
     def __post_init__(self) -> None:
         object.__setattr__(self, "values", tuple(self.values))
         object.__setattr__(self, "source_references", tuple(self.source_references))
+        object.__setattr__(self, "checkpoint_references", tuple(self.checkpoint_references))
         if self.created_at.tzinfo is None:
             raise ValueError("created_at muss eine Zeitzone enthalten.")
 
@@ -236,6 +239,11 @@ class ParameterInputPackage:
     @property
     def source_modules(self) -> set[str]:
         return {source.module_key for source in self.source_references}
+
+    @property
+    def checkpoint_reference_ids(self) -> set[str]:
+        """Liefert die getrennte ID-Namensmenge der Release-Checkpoints."""
+        return {reference.source_reference_id for reference in self.checkpoint_references}
 
     def object_id_locations(self) -> tuple[tuple[str, str], ...]:
         """Liefert IDs mit Fundstelle fuer die Validierung."""
@@ -262,6 +270,8 @@ class BaselineParameterSnapshot:
     reference_versions: tuple[ParameterReferenceVersion, ...]
     source_snapshot_id: str = ""
     source_snapshot_version: str = ""
+    checkpoint_references: tuple[ParameterSourceReference, ...] = ()
+    requires_released_checkpoints: bool = False
     schema_version: str = BASELINE_SNAPSHOT_SCHEMA_VERSION
     content_hash: str = ""
     release_status: str = "released"
@@ -273,6 +283,7 @@ class BaselineParameterSnapshot:
         object.__setattr__(self, "parameter_values", tuple(self.parameter_values))
         object.__setattr__(self, "source_references", tuple(self.source_references))
         object.__setattr__(self, "reference_versions", tuple(self.reference_versions))
+        object.__setattr__(self, "checkpoint_references", tuple(self.checkpoint_references))
         if not isinstance(self.building_detail_mode, BuildingDetailMode):
             object.__setattr__(self, "building_detail_mode", BuildingDetailMode(self.building_detail_mode))
         if not isinstance(self.freshness_status, FreshnessStatus):
@@ -287,6 +298,11 @@ class BaselineParameterSnapshot:
     @property
     def source_reference_ids(self) -> set[str]:
         return {source.source_reference_id for source in self.source_references}
+
+    @property
+    def checkpoint_reference_ids(self) -> set[str]:
+        """Liefert die getrennte ID-Namensmenge der Release-Checkpoints."""
+        return {reference.source_reference_id for reference in self.checkpoint_references}
 
     @property
     def scoped_parameter_keys(self) -> set[tuple[str, str, str]]:

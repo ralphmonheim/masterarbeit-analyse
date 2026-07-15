@@ -6,8 +6,10 @@ kein freigegebener Rechenkern.
 
 ## Zweck
 
-- ChatGPT-Auswertungen und automatische Extraktionen nachvollziehbar ablegen.
-- Normenregister, Formelkandidaten, Symbolabschnitte und Beziehungen sammeln.
+- Lokale, noch nicht freigegebene Normen-Arbeitsstaende strikt von
+  versionierter Projektlogik trennen.
+- Bereinigte Metadaten, Rechtebelege und spaetere manuelle Review-Verweise
+  nachvollziehbar zuordnen.
 - Pruefstatus und Review-Arbeit von produktiver Normlogik trennen.
 - Spaetere Plaene wie P020 und `ma_analyse.stage_3_standards_compliance`
   mit belastbaren Eingangslisten versorgen.
@@ -29,6 +31,11 @@ data/common/normen/
 
 - Inhalte unter `incoming/`, `extracted/` und `review/` bleiben lokal und
   werden nicht versioniert.
+- Ablage oder technischer Zugriff ist keine KI- oder Maschinenfreigabe.
+  OCR, automatische Extraktion, Zusammenfassung, Uebersetzung, Graphen,
+  Embeddings und RAG bleiben nach
+  `docs/compliance/din_nautos/processing_limits.yaml` gesperrt, bis der
+  konkrete Rechte- und Verarbeitungsumfang belegt ist.
 - Formeln, Grenzwerte und Regeln gelten erst nach fachlicher Pruefung als
   implementierbar.
 - Produktive Normlogik entsteht spaeter in

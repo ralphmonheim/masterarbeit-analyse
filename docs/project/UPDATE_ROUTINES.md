@@ -4,13 +4,40 @@ Diese Datei beschreibt feste Codex-Arbeitsroutinen fuer Repo-Updates,
 Release-Vorbereitung sowie Planungs- und Entscheidungsupdates. Sie ist eine
 Dokumentationsroutine, kein Python-CLI-Befehl.
 
+Sie ist die einzige Ablaufwahrheit fuer diese Routinen.
+`docs/common/commands_common.md` fuehrt nur die Ausloesephrasen und kurze
+Verweise. Bei einer Abweichung gilt diese Datei.
+
 ## Einordnung
 
+- Council-Routinen steuern read-only Analyse, Review und eine bereits
+  freigegebene Umsetzung mit kontrollierter Autonomie.
 - Sammelbefehle buendeln mehrere Routinen oder Arbeitsbereiche.
 - Einzelbefehle haben ein klar abgegrenztes Ziel, auch wenn intern mehrere
   Pruefschritte laufen.
 - Test-/Referenzbefehle aktualisieren oder pruefen Beispielbilder,
   Referenzoutputs und Tests.
+
+## Council-Routinen
+
+Tera bleibt als Hauptagent fuer Planung, Integration und Abschluss
+verantwortlich. Council-Mitglieder erweitern den freigegebenen Umfang nicht
+selbststaendig. Neue oder geaenderte Rollen unter `.codex/agents/` werden erst
+mit einem neuen Codex-Chat oder Projekt-Reload geladen.
+
+| Ausloesephrase | Ziel | Ergebnis |
+| --- | --- | --- |
+| `council analyse` | read-only Bestandsaufnahme | Tera darf den `project_explorer` fuer gezielte Suche sowie bei fachlich oder technisch kritischen Fragen weitere read-only Rollen hinzuziehen; keine Datei wird veraendert. |
+| `council review` | read-only Qualitaetsreview | Der `quality_auditor` prueft technische Qualitaet; der `professor` wird bei wissenschaftlicher Methodik oder Reproduzierbarkeit hinzugezogen. |
+| `council compliance` | read-only Compliance-Vorpruefung | Der `compliance_auditor` prueft anhand von `docs/compliance/`, erteilt keine Freigabe und stoppt den betroffenen Vorgang bei einem belegten Compliance-Blocker. |
+| `council umsetzen` | freigegebenen Umfang umsetzen | Tera setzt einen bereits ausdruecklich freigegebenen Plan um und darf dem `implementation_engineer` klar abgegrenzte Datei- oder Modulbereiche zuweisen; der Trigger ersetzt keine fehlende Nutzerfreigabe. |
+| `ohne council` / `nur Tera` | optionale Council-Arbeit auslassen | Der Hauptagent bearbeitet die aktuelle Aufgabe allein; ein verpflichtender Compliance-Preflight bleibt aktiv. |
+| `mit Sol-Review` | Abschlussreview vormerken | Nach der Umsetzung wird ein read-only Qualitaetsreview eingeplant. |
+
+Mehrere schreibende Agenten duerfen nicht gleichzeitig dieselben Dateien
+bearbeiten. Befunde werden als `Blocker`, `Wichtig` oder `Optional`
+klassifiziert. Eine blosse Risikoakzeptanz hebt keinen Compliance-Blocker auf,
+wenn ein erforderlicher Rechte- oder Freigabenachweis fehlt.
 
 ## Sammelbefehle
 
@@ -22,6 +49,8 @@ noetig.
 
 | Ausloesephrase | Ziel | Ergebnis |
 | --- | --- | --- |
+| `aktualisieren und tagesende direkt` | Projektsteuerung aktualisieren und Tagesabschluss direkt veroeffentlichen | Codex fuehrt zuerst `aktualisieren` und danach `tagesende direkt` aus; ein Blocker stoppt nur die betroffene externe Aktion. |
+| `aktualisieren und direkt update repo` | Projektsteuerung aktualisieren und Repo direkt veroeffentlichen | Codex fuehrt zuerst `aktualisieren` und danach `direkt update repo` aus; die Release- und Compliance-Gates gelten fuer den exakten Stand. |
 | `aktualisieren` | Projektsteuerung, Modulstatus und Versionslage aktualisieren | Codex prueft Projektlage, Planung, Entscheidungen, Command-Dokumentation, den Umsetzungsstand der Module, Streamlit-Statusanzeigen, Changelog und Versionskonsistenz; neue Plaene durchlaufen den Compliance-Preflight, die naechste Version wird vorgeschlagen, aber nicht automatisch geschrieben. |
 | `tagesstart` / `Guten Morgen, es ist ein neuer Tag.` | Tagesuebersicht vorbereiten | Codex liest den Projektstand, pflegt bei Bedarf offene Nutzerentscheidungen und gibt offene Aufgaben nach Modulen aus; `ma_ui` wird nicht automatisch gestartet. |
 | `tagesende` / `Gute Nacht.` | Tagesstand dokumentieren und Repo-Update vorbereiten | Codex meldet laufende Projekt-Streamlit-Prozesse, aktualisiert Planstatus, Entscheidungen und Changelog, falls noetig, und gibt Terminal-Code fuer Commit, Tag und Push aus. |

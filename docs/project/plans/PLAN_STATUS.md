@@ -1,6 +1,6 @@
 # Plan Status
 
-Stand: 2026-07-14
+Stand: 2026-07-15
 
 Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt und nach jeder Planumsetzung aktualisiert. Vollstaendige alte Planstaende liegen unter `docs/project/archive/plans/`.
 
@@ -131,8 +131,12 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - Der P028-Vorlagenschutz verhindert Aenderungen an versionierten Vorlagen.
   Eigene Dateien werden lokal gespeichert; kollidierende neue Dateinamen
   muessen geaendert werden. YAML bleibt nur der erste Schreibadapter.
-- P011 ist die naechste Fachstufe und verwendet die P010-Vertraege fuer
-  Projektstammdaten, Modellreferenzen, Quellenwahl und Freigabestatus.
+- P011 ist als Projektidentitaet und spaetere digitale Projektakte
+  konsolidiert. Quellenwahl bleibt nach P010 beim jeweiligen Fachmodul;
+  `ma_project` erzeugt weder fachliche Freigaben noch Modellreferenzregister.
+  P011-S1a stellt immutable Projektmodelle und reine Serialisierung ohne
+  Persistenz, Assets, UI oder Naming-Pfadmigration bereit. P011-S1b bleibt
+  ein eigener Pfad-, Speicherort- und Ignore-Gate-Scope.
 - P009 bleibt bis zum validierten `RunManifest` aus P018 zurueckgestellt. Der
   vorhandene Basisexport in `ma_variants.ida_export` wird spaeter
   wiederverwendet, nicht dupliziert.
@@ -198,6 +202,11 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   zonenbezogene Uebergabesysteme, Parameter-/Variantenregeln und offene
   Fachentscheidungen fuer Sonderhohlraeume, paralleles Heizen/Kuehlen,
   Prozentbedeutung, LoD-1-Variantenparameter und DIN-Datenabbildung.
+- P013-S3b und P013-S3c sind umgesetzt: `ThermalBuildingModel` prueft die
+  vollstaendige Raum-Zonen-Zuordnung gegen Building und Zone. Der darauf
+  aufbauende payloadfreie `ReleasedZoneHandover` bindet kanonisch den
+  vollstaendigen Zonenstand, Zuordnungen, Building-ID/-Revision und das
+  P014-Modell-/Revisions-/Hash-Triple; er gibt keine Fachnutzlast weiter.
 - P014-S1 ist umgesetzt und bleibt als Legacy-v1-Vertrag kompatibel:
   `ma_technical` enthaelt eine versionierte BusinessIntegration-LoD-1/Lite-
   Technikspezifikation mit einfachen Referenzannahmen fuer Heizung, Kuehlung
@@ -216,9 +225,12 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   Katalogwerte bleiben `demo_unverified`, werden nicht versioniert oder
   veroeffentlicht und duerfen nicht in Revisionen, Parameter, Varianten oder
   Runs uebernommen werden. Die UI bleibt ohne lokale Katalogdateien nutzbar.
-  Offen bleibt P014-S3, der stabile
-  Handover an P013 und P015; v1-Demo, IDA-Adapter, Export, Templates und
-  automatische Dimensionierung bleiben ausserhalb dieses Umfangs.
+  P014-S3a liefert einen referenz-only Handover aus einer freigegebenen,
+  hashkonsistenten v2-Revision an nachgelagerte Module. Zusammen mit P013-S3c
+  ist daraus ein separat validierter P013-/P014-Checkpoint fuer P015 entstanden.
+  Offen bleiben die v2-Werteherkunft und der Vollumfang von P015-S3b; v1-Demo,
+  IDA-Adapter, Export, Templates und automatische Dimensionierung bleiben
+  ausserhalb dieses Umfangs.
 - Preprocess V1 ist als verbindlicher erster Durchstich festgelegt:
   Projekt- und Eingabequellen, freigegebene Baseline, Referenzdimensionierung,
   kleine Variantenstudie und ein neutrales, validiertes Run-Paket bilden den
@@ -248,12 +260,24 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   Wetterquelle und blockiert fehlende, nicht aktivierte oder nicht
   freigegebene Wetterstaende. Streamlit zeigt das Eingangspaket getrennt von
   Snapshot v1 und Baseline v2.
+- P015-S3b-prep ist umgesetzt: Ein freigegebener `ReleasedTechnicalHandover`
+  aus P014 wird additiv in eine echte technische `ParameterSourceReference`
+  mit Modell-ID, Revisions-ID, Content-Hash und Freigabestatus ueberfuehrt.
+  Bestehende v1-Parameterwerte und das P015-S3a-Eingangspaket bleiben dabei
+  unveraendert.
+- P013-S3c/P015-S3b-T2 ist umgesetzt: `ParameterInputPackage` und
+  `BaselineParameterSnapshot` fuehren opt-in getrennte
+  `checkpoint_references` fuer genau ein passendes, freigegebenes und aktuelles
+  P013-/P014-Paar. Sie sind keine Wertquellen; der Baseline-Content-Hash bindet
+  ihre Referenz-Content-Hashes und fehlende, nicht freigegebene oder veraltete
+  Checkpoints blockieren nur diesen neuen Checkpointmodus.
 - P015 ist fachlich konsolidiert: Zielbild sind
   `BaselineParameterSnapshot`, `ReferenceDimensioningResult` und
   `ParameterVariationSpecification` mit Scopes, Parameterklassen,
   Variationsmodell, Status/Freshness, Persistenz und stabilem Handover an
-  `ma_variants`. Naechster Slice ist P015-S3b mit P013/P014-Anschluss,
-  Quellenfingerprints und vollstaendigem Eingabecheckpoint.
+  `ma_variants`. Der P013-/P014-Anschluss und sein Referenzcheckpoint sind
+  umgesetzt. Offen bleiben die v2-basierte Werteherkunft und der verbleibende
+  P015-S3b-Vollumfang; beide brauchen einen getrennten Folgeslice.
 - P016-S1 ist umgesetzt: `ma_analyse.stage_1_dimensioning` berechnet aus dem
   validierten `ParameterSnapshot` v1 eine LoD-1-Referenzdimensionierung mit
   Transmissions-Heizlast, Lueftungs-Heizlast, Gesamt-Heizlast, Mindest-
@@ -275,14 +299,36 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - P030 ist als externe Forschungsschicht geplant: Es erfasst manuelle und
   logbasierte Pre-, Simulations- und Postprocessing-Zeiten getrennt,
   vergleicht Prozessmodi und beeinflusst keine produktiven Fachobjekte.
+- P031 ordnet das repo-lokale Codex Project Operating System ohne neue
+  Parallelwahrheiten: Der Plan buendelt Audit, Konfliktregister,
+  Capability-Snapshot und Backlog; `AGENTS.md`, `.codex/`,
+  `UPDATE_ROUTINES.md`, Decisions und Compliance behalten getrennte
+  Eigentuemerschaft. Zwei duenne Skills und ein Contract-Test bilden die
+  lokale Baseline. Graphify, neue MCPs, globale Konfiguration, Hook-
+  Aenderungen, Obsidian/Zotero und geschuetzte PDF-/IDA-Verarbeitung bleiben
+  gesperrt oder manuell freizugeben. UD-089 delegiert nur klar abgegrenzte,
+  lokale und reversible Folgeslices nach dokumentierter Council-Mehrheit;
+  Rechte-, externe und irreversible Gates bleiben konkret freizugeben.
+- P032 dokumentiert den professionellen Architektur-Benchmark als datierten
+  Snapshot unter `docs/project/architecture/reviews/2026-07-15/`. ADR-P032
+  ist mit der konservativen Konsolidierung der bestehenden `ma_*`-Pakete
+  angenommen; bis zum MVP gilt das Workspace-Betriebsmodell und
+  `ma_parameters` besitzt die Parameter-/Optionskataloge. P032-W0, der
+  additive Guardrail-Slice W1a und der reine Code-Owner-Transfer W2a sind
+  abgeschlossen: lokaler Wheel-Smoke, aktuelle README-Pfade,
+  Katalog-Ignore-Defense, Importcontracts und identitaetsgleiche
+  Legacy-Reexports sind nachgewiesen. Die Katalog-Defaultpfade bleiben
+  unveraendert unter `config/ma_variants/`; W2b und alle weiteren Wellen
+  brauchen einen exakten Council-Mehrheitsbeschluss nach UD-089. Externe Tools
+  und Sondergates bleiben weiterhin getrennt.
 - Masterarbeits-MVP V1 ist der uebergeordnete erste Nutzennachweis: von
   Projekt- und Eingabeaufnahme ueber Baseline, Varianten und neutrales
   Run-Paket bis zu manueller Simulation, neutraler Ergebnisaufnahme, drei
   Diagrammtypen und P030-Prozessvergleich. Preprocess V1 bleibt darin der
   erste Teilmeilenstein bis zum freigegebenen Run-Paket.
-- Der Handover-Abgleich ist geplant: P013 liefert nach dem Raum-Zonen-Slice
-  ein kleines `ThermalBuildingModel`; P016/`ma_analyse` definieren drei
-  `OutputRequirementProfiles`. P018 referenziert beide Vertraege, ohne ihre
+- Der Handover-Abgleich liefert jetzt `ThermalBuildingModel` und den
+  payloadfreien `ReleasedZoneHandover`; P016/`ma_analyse` definieren drei
+  `OutputRequirementProfiles`. P018 referenziert die Vertraege, ohne ihre
   Fachlogik zu duplizieren.
 - P027 begleitet P017 mit Checkpoints fuer `VSP`, `VVER`, `VCAT`, `VSEL`
   und `VGEN`, Reload-/Abort-Logik und der technischen
@@ -440,10 +486,10 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   Plan-Inbox. Die beiden Ausgangsplaene wurden archiviert.
 - P010-Vertraege in P011, P012, P013, P014 und P015 nur mit dem jeweiligen
   Fachslice anbinden.
-- P013-S3 Raum-Zonen-Grundmodell erst umsetzen, wenn der P013-S2-Uebergang
-  zu P014/P015 bewusst behandelt ist: `ma_technical` soll fachlich zentrale
-  Systeme vor `ma_zones` liefern, die bestehende LoD-1-Technikdemo nutzt aber
-  noch `source_zone_model_id` und `served_zone_ids`.
+- Die P013-S3-Referenzzuordnung und der P013-/P014-Checkpoint sind umgesetzt.
+  Offen bleibt die fachlich zentrale Technikmodellierung vor weiterem
+  Zonen-/Parameterausbau; die bestehende LoD-1-Technikdemo nutzt weiterhin
+  `source_zone_model_id` und `served_zone_ids`.
 - P020 beginnt mit der noch offenen Vertrags- und Rechteklaerung fuer DIN,
   VDE und VDI. Vor einer belastbaren Normen- und Methodenmatrix sowie gruen
   freigegebener Provenienz duerfen keine extrahierten Grenzwerte oder
@@ -642,6 +688,9 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - Wissensprofile, Stundensaetze, Prozessgrenzen und Messmethoden fuer den
   Vergleich von manuellem, softwareunterstuetztem und automatisiertem Aufwand
   festlegen.
+- P031-Folgeaktivierungen getrennt entscheiden: Bedeutung von `keine Hooks`,
+  effektive MCP-Grenze, Agentenlimit 3 oder 4, Graphify-Scope,
+  Obsidian-/Zotero-Ziel sowie objektbezogene PDF- und IDA-Rechte.
 
 ## Archiv
 

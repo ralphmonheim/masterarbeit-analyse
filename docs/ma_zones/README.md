@@ -20,8 +20,13 @@
 - **Validierung:** Pflichtfelder, eindeutige IDs, Profilreferenzen,
   Flaeche/Volumen, Sollwerte, Betriebszeiten und Gebaeudebezug werden geprueft.
   Fehler blockieren; Warnungen benoetigen eine bewusste Freigabeentscheidung.
+- **Released-Zonencheckpoint:** P013-S3c erzeugt aus einem validierten
+  Building-, Zonen-, ThermalBuilding- und P014-Stand einen immutable,
+  payloadfreien `ReleasedZoneHandover`. Sein kanonischer Fingerprint bindet
+  Zonenstand, Raum-Zonen-Zuordnung, Building-ID/-Revision und das technische
+  Modell-/Revisions-/Hash-Triple; der DTO gibt keine Fachnutzlast weiter.
 - **Streamlit:** Die Modulansicht zeigt Demo, Nutzungsprofil, Freigabestatus
   und Annahmen.
-- **Naechster Schritt:** P013-S3 Raum-Zonen-Grundmodell vorbereiten:
-  eindeutige Raum-Zonen-Zuordnung, vollstaendige Raumabdeckung und
-  Blockierung nicht zugeordneter Raeume.
+- **Naechster Schritt:** Den abgeschlossenen Referenzcheckpoint nicht um
+  Persistenz oder UI erweitern. Die verbleibende P015-S3b-Werteherkunft und
+  ein P032-W2-Ownership-Scope brauchen jeweils einen getrennten Council-Slice.

@@ -8,7 +8,8 @@ Diese Regeln gelten fuer spaetere Umsetzungen.
 - Vor Repo-Updates immer `docs/project/UPDATE_ROUTINES.md` pruefen.
 - Vor Planungs- und Entscheidungsupdates immer `PLAN_INDEX.md`, `PLAN_STATUS.md`, `USER_DECISIONS_MASTERTHESIS_CODE.md` und `USER_DECISIONS_OPEN_POINTS.md` pruefen.
 - Bei `tagesstart` `USER_DECISIONS_OPEN_POINTS.md` bereinigen oder eindeutig offene Nutzerentscheidungen ergaenzen; allgemeine Aufgaben bleiben in `PLAN_STATUS.md`.
-- Bei `tagesstart` `ma_ui` ueber die Projekt-venv vorbereiten und bei freiem Port `8501` automatisch starten; kein globales `streamlit` verwenden.
+- Bei `tagesstart` keine Oberflaeche automatisch starten. Die vollstaendige
+  und allein fuehrende Routine steht in `docs/project/UPDATE_ROUTINES.md`.
 - Geschlossene Nutzerentscheidungen nicht dauerhaft in `USER_DECISIONS_OPEN_POINTS.md` fuehren, sondern als `UD-*` in `USER_DECISIONS_MASTERTHESIS_CODE.md` dokumentieren.
 - Bei `tagesende` Planstatus, Entscheidungen und Changelog nur aktualisieren, wenn sich tatsaechlich etwas geaendert hat.
 - Bei `tagesende` und `tagesende direkt` laufende projektbezogene Streamlit-Prozesse nur melden und nicht automatisch beenden.

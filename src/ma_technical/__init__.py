@@ -18,6 +18,11 @@ from .enums import (
     TechnicalServiceType,
 )
 from .equipment import PhysicalEquipment
+from .handover import (
+    ReleasedTechnicalHandover,
+    ReleasedTechnicalServiceInterfaceReference,
+    build_released_technical_handover,
+)
 from .metadata import ObjectReference, SourceMetadata, TechnicalValueMetadata
 from .models import (
     VALID_SYSTEM_TYPES,
@@ -70,6 +75,8 @@ __all__ = [
     "PerformanceMetricType",
     "PhysicalEquipment",
     "PumpConfiguration",
+    "ReleasedTechnicalHandover",
+    "ReleasedTechnicalServiceInterfaceReference",
     "SourceMetadata",
     "TECHNICAL_CONFIG_DIR",
     "TechnicalConnection",
@@ -93,6 +100,7 @@ __all__ = [
     "TechnicalInputDetailLevel",
     "TechnicalSystemSpecification",
     "load_business_integration_lod1_technical_spec",
+    "build_released_technical_handover",
     "load_technical_model_revision",
     "release_technical_model",
     "load_technical_spec",

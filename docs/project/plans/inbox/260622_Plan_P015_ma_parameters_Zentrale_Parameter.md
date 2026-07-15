@@ -1,7 +1,7 @@
 # P015 ma_parameters Zentrale Parameter
 
-Stand: 2026-07-14
-Status: Fachlich konsolidiert, P015-S1, P015-S2 und P015-S3a Eingangspaket/Wetter-Handover umgesetzt
+Stand: 2026-07-15
+Status: Fachlich konsolidiert; P015-S1, P015-S2, P015-S3a, P015-S3b-prep und P013-S3c/P015-S3b-T2-Releasecheckpoint umgesetzt; v2-Werteherkunft und Restumfang von P015-S3b offen
 Prioritaet: Hoch
 Abhaengigkeiten: P008, P010, P012, P013, P014, P016, P017, P027
 
@@ -21,22 +21,26 @@ Das Modul trennt drei Rollen sauber:
 
 ## Ausgangslage
 
-P015-S1, P015-S2 und P015-S3a sind umgesetzt. `ma_parameters` enthaelt
-`ParameterSnapshot`, `ParameterValue` und `ParameterSourceReference`, baut
-einen validierten BusinessIntegration-LoD-1-`ParameterSnapshot` v1 aus
-`ma_building`, `ma_zones` und `ma_technical` und leitet daraus einen ersten
+P015-S1, P015-S2, P015-S3a, P015-S3b-prep und P013-S3c/P015-S3b-T2 sind
+umgesetzt. `ma_parameters` enthaelt `ParameterSnapshot`, `ParameterValue`
+und `ParameterSourceReference`, baut einen validierten
+BusinessIntegration-LoD-1-`ParameterSnapshot` v1 aus `ma_building`,
+`ma_zones` und `ma_technical` und leitet daraus einen ersten
 `BaselineParameterSnapshot` v2 ab. Dieser Baseline-Stand fuehrt
 `parameter_value_id`, Scopes, Parameterklassen, Variierbarkeit, erweiterte
 Quellenreferenzen, Referenzversionen, `content_hash`, `release_status` und
 `freshness_status` ein. P015-S3a ergaenzt ein `ParameterInputPackage` als
 Eingabecheckpoint und uebernimmt Wetterdaten nur ueber den aktivierten,
-freigegebenen Projekt-Default aus `ma_weather`. Streamlit zeigt Snapshot v1,
-Eingangspaket und Baseline v2 getrennt.
+freigegebenen Projekt-Default aus `ma_weather`. Der getrennte Releasecheckpoint
+uebernimmt ein passendes P013-/P014-Paar ohne bestehende Wertquellen zu
+veraendern. Streamlit zeigt Snapshot v1, Eingangspaket und Baseline v2
+weiterhin getrennt.
 
 Noch offen sind insbesondere:
 
 - vollstaendige Wetterdaten-Persistenz und Freshness-Abgleich nach Dateiaenderung.
-- vollstaendiger P013-S2-Zonenstand mit Aenderungsfingerprint.
+- vollstaendiger P013-S2-Zonenlebenszyklus mit Aenderungsstatus jenseits des
+  umgesetzten referenz-only Checkpoints.
 - Persistenz, Versionierung und Aktualitaetsstatus.
 - Stage-1-Ergebnis als Folgesnapshot oder dokumentierter Vorschlag.
 - allgemeines Variationsmodell und Uebergabe an `ma_variants`.
@@ -347,16 +351,70 @@ Teilweise umgesetzt als P015-S3a:
 - Baseline-v2 kann additiv aus dem Eingangspaket erzeugt werden, ohne den
   bestehenden `ParameterSnapshot` v1 zu brechen.
 
-Weiter offen fuer P015-S3b sind P013-S2-Zonenstand, angepasster
-P014-Technikvertrag und ein vollstaendiger Eingabecheckpoint ueber alle
-Quellenfingerprints.
+Weiter offen fuer P015-S3b sind die v2-basierte Herkunft vorhandener
+Parameterwerte, ein vollstaendiger Eingabecheckpoint ueber alle
+Quellenfingerprints und der breitere P013-S2-Zonenstatus jenseits des
+umgesetzten referenz-only Fingerprints.
+
+#### P015-S3b-prep: ReleasedTechnicalHandover
+
+Council-Beschluss vom 2026-07-15: Der erste Teil bleibt bewusst auf die
+reine P014-Metadatenuebergabe begrenzt. `ma_parameters` erhaelt eine additive
+Konvertierung eines freigegebenen technischen Handovers in eine
+`ParameterSourceReference`; bestehende v1-Snapshots, ihre Werte und das
+P015-S3a-Eingangspaket werden nicht umgeschrieben.
+
+Damit ist noch kein Vollabschluss von P015-S3b behauptet: Der eigene
+P013-Zonenfingerprint, die v2-basierte Herkunft der Parameterwerte und der
+vollstaendige Eingabecheckpoint bleiben nachfolgende, getrennt abzugrenzende
+Schritte.
+
+Umgesetzt am 2026-07-15: Der Konverter uebernimmt nur Modell-ID,
+Revisions-ID, Content-Hash und Freigabestatus aus dem P014-Handover. Er
+laesst Werte, bestehende Snapshot-Quellen-IDs und das P015-S3a-Eingangspaket
+unveraendert.
+
+#### P013-S3c / P015-S3b-T2 ReleasedZoneCheckpoint
+
+Council-Beschluss vom 2026-07-15: Das Eingangspaket und die daraus gebaute
+Baseline erhalten additiv getrennte `checkpoint_references` fuer den
+freigegebenen P013- und P014-Handover. Sie sind keine Wertquellen:
+`source_references` und alle `ParameterValue.source_reference_id` bleiben
+fuer v1 unveraendert.
+
+- Der opt-in-Checkpoint fordert genau ein zueinander passendes, freigegebenes
+  und aktuelles P013-/P014-Paar. Fehlende, veraltete, unbekannte oder
+  triple-inkonsistente Referenzen blockieren nur den neuen Checkpointmodus.
+- Der bestehende Baseline-Content-Hash bindet die getrennten Checkpoint-
+  Referenzen ein; das nicht persistierte Eingangspaket bleibt ohne neuen
+  Package-Level-Hash. Die Baseline uebernimmt die Referenzen ohne sie als
+  Werteherkunft zu deklarieren.
+- Nicht Teil sind die v2-Herkunft vorhandener Parameterwerte, UI, Persistenz,
+  YAML-/Katalogdaten, P032-W2 und die vollstaendige Behauptung eines
+  abgeschlossenen P015-S3b.
+
+Umgesetzt am 2026-07-15: Der explizite Factory-Pfad nimmt die urspruenglichen
+P013-/P014-Handover an, prueft Projekt, Gebaeude und das technische Triple und
+fuegt genau zwei getrennte `checkpoint_references` hinzu. Sie aendern weder
+`source_references` noch `ParameterValue.source_reference_id`; die Baseline
+uebernimmt sie und bindet ihre Content-Hashes in ihren bestehenden Hash ein.
+Generische Paket- und Baseline-Validierung blockieren fehlende, doppelte,
+nicht freigegebene oder nicht aktuelle Checkpoints, auch wenn ein befuelltes
+Checkpointfeld nicht den strengen Paarmodus anfordert.
+
+Abschlussnachweis: Der gemeinsame Fokuslauf fuer Zonen-, Parameter-,
+Technik-, Workflow- und Architekturcontracts bestand mit `75 passed`; die
+vollstaendige lokale Suite bestand mit `536 passed`. Der genaue Auditnachweis
+inklusive Ruff- und Diff-Pruefung ist in Entscheidung 34 festgehalten.
 
 ### Preprocess V1-Mindestumfang
 
-Preprocess V1 schliesst P015-S3b ab und uebernimmt den freigegebenen
-P014-v2-Technikstand sowie den freigegebenen Zonenstand als eigene,
-fingerprintbare Quellen. Der Eingangspunkt blockiert fehlende, nicht
-freigegebene oder veraltete Quellen.
+Preprocess V1 verwendet den umgesetzten freigegebenen P013-/P014-
+Releasecheckpoint als getrennte, fingerprintbare Referenz. Damit ist
+P015-S3b nicht vollstaendig abgeschlossen: insbesondere die v2-Herkunft der
+bestehenden Parameterwerte, Persistenz und der breite Zonenstatus bleiben
+Folgeslices. Der Checkpointmodus blockiert fehlende, nicht freigegebene oder
+veraltete Referenzen.
 
 Aus P015-S4 ist fuer V1 nur die lokale, unveraenderliche Ablage von
 Eingangspaket und Baseline mit `current/outdated`-Pruefung erforderlich.
@@ -438,6 +496,5 @@ P015 ist fachlich abgeschlossen, wenn:
 
 ## Naechster Schritt
 
-P015-S3b vorbereiten: P013-S2-Zonenstand, angepasste Technikstruktur,
-Quellenfingerprints und vollstaendigen Eingabecheckpoint in das
-Eingangspaket einbinden.
+Die v2-basierte Werteherkunft und den verbleibenden P015-S3b-Vollumfang nach
+dem umgesetzten P013-/P014-Releasecheckpoint getrennt abgrenzen.

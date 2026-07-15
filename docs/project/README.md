@@ -47,6 +47,10 @@ fortschreiben.
 - `archive/workflow/`: ersetzte Workflow-Grafiken und zugehoerige Reviews.
 - `PROJECT_INPUT_WORKFLOW.md`: zentrale Regelung fuer die lokale
   Entwicklungs-Inbox und die Uebernahme neuer Projektdateien.
+- `plans/inbox/260715_Plan_P031_Codex_Project_Operating_System.md`:
+  aktiver, nicht autorisierender Audit- und Backlogtraeger fuer die
+  repo-lokale Codex-Steuerung. Runtime und Rollen bleiben unter `.codex/`,
+  wiederverwendbare Workflow-Router unter `.agents/skills/`.
 
 Temporaere neue Projektdateien koennen waehrend der Entwicklungsphase zuerst in
 der lokalen Entwicklungs-Inbox `data/project_inbox/new/` gesammelt werden. Die

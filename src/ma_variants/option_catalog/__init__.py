@@ -1,6 +1,5 @@
-"""Optionskatalog fuer Optionsgruppen und Optionswerte."""
+"""Legacy-Adapter fuer den kanonischen Optionskatalog."""
 
-from .importer import import_options
-from .models import OptionSet, OptionValue
+from ma_parameters.catalogs import OptionSet, OptionValue, import_options
 
 __all__ = ["OptionSet", "OptionValue", "import_options"]

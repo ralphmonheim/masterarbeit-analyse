@@ -17,6 +17,7 @@ from ma_technical import (
     HeatingGeneration,
     ObjectReference,
     PhysicalEquipment,
+    ReleasedTechnicalHandover,
     TechnicalInputDetailLevel,
     TechnicalMedium,
     TechnicalModelSchemaVersion,
@@ -25,11 +26,13 @@ from ma_technical import (
     TechnicalServiceInterface,
     TechnicalServiceType,
     ThermalStorage,
+    build_released_technical_handover,
     load_business_integration_lod1_technical_spec,
     load_technical_model_revision,
     release_technical_model,
     validate_technical_model,
 )
+from ma_technical.revisions import _content_hash
 from ma_validation import ReleaseStatus
 
 
@@ -165,6 +168,79 @@ def test_technical_revision_hash_ignores_creation_timestamps(tmp_path):
     second = release_technical_model(_minimal_v2_spec(), revision_id="TECH-V2-REV-0002", target_dir=tmp_path)
 
     assert first.content_hash == second.content_hash
+
+
+def test_released_technical_handover_contains_only_stable_reference_metadata(tmp_path):
+    revision = release_technical_model(_minimal_v2_spec(), revision_id="TECH-V2-REV-0001", target_dir=tmp_path)
+
+    handover = build_released_technical_handover(revision)
+
+    assert isinstance(handover, ReleasedTechnicalHandover)
+    assert handover.technical_model_id == "TECH-V2-0001"
+    assert handover.revision_id == "TECH-V2-REV-0001"
+    assert handover.content_hash == revision.content_hash
+    assert handover.release_status is ReleaseStatus.RELEASED
+    assert not hasattr(handover, "specification_payload")
+    assert tuple(reference.interface_id for reference in handover.service_interface_references) == ("SI-HEAT-0001",)
+    assert handover.service_interface_references[0].source_object_reference == ObjectReference(
+        object_id="HEAT-BASE-0001",
+        object_type="HeatingFunction",
+    )
+
+    with pytest.raises(FrozenInstanceError):
+        handover.revision_id = "CHANGED"
+
+
+def test_released_technical_handover_rejects_unreleased_revision(tmp_path):
+    revision = release_technical_model(_minimal_v2_spec(), revision_id="TECH-V2-REV-0001", target_dir=tmp_path)
+
+    with pytest.raises(ValueError, match="freigegebene Technikrevision"):
+        build_released_technical_handover(replace(revision, release_status=ReleaseStatus.BLOCKED))
+
+
+def test_released_technical_handover_rejects_tampered_hash(tmp_path):
+    revision = release_technical_model(_minimal_v2_spec(), revision_id="TECH-V2-REV-0001", target_dir=tmp_path)
+
+    with pytest.raises(ValueError, match="Content-Hash"):
+        build_released_technical_handover(replace(revision, content_hash="0" * 64))
+
+
+def test_released_technical_handover_rejects_inconsistent_payload_model_id(tmp_path):
+    revision = release_technical_model(_minimal_v2_spec(), revision_id="TECH-V2-REV-0001", target_dir=tmp_path)
+
+    with pytest.raises(ValueError, match="technical_model_id"):
+        build_released_technical_handover(replace(revision, technical_model_id="TECH-V2-OTHER-0001"))
+
+
+def test_released_technical_handover_rejects_non_v2_payload(tmp_path):
+    revision = release_technical_model(_minimal_v2_spec(), revision_id="TECH-V2-REV-0001", target_dir=tmp_path)
+    legacy_payload = {**revision.specification_payload, "schema_version": "1.0"}
+    legacy_revision = replace(
+        revision,
+        specification_payload=legacy_payload,
+        content_hash=_content_hash(legacy_payload),
+    )
+
+    with pytest.raises(ValueError, match="v2-Spezifikation"):
+        build_released_technical_handover(legacy_revision)
+
+
+def test_released_technical_handover_sorts_service_interfaces_deterministically(tmp_path):
+    specification = _minimal_v2_spec()
+    later_interface = specification.service_interfaces[0]
+    earlier_interface = replace(later_interface, interface_id="SI-AIR-0001")
+    revision = release_technical_model(
+        replace(specification, service_interfaces=(later_interface, earlier_interface)),
+        revision_id="TECH-V2-REV-0001",
+        target_dir=tmp_path,
+    )
+
+    handover = build_released_technical_handover(revision)
+
+    assert tuple(reference.interface_id for reference in handover.service_interface_references) == (
+        "SI-AIR-0001",
+        "SI-HEAT-0001",
+    )
 
 
 def test_schema_v2_parallel_types_do_not_break_legacy_v1_loader():

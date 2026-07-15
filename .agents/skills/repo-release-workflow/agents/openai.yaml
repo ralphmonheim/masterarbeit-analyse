@@ -1,0 +1,4 @@
+interface:
+  display_name: "Repository-Release"
+  short_description: "Gepruefte Projekt-Releases sicher ausfuehren"
+  default_prompt: "Use $repo-release-workflow to run the documented repository release routine safely."

@@ -1,6 +1,6 @@
 # Eingabe- und Formatmatrix
 
-Stand: 2026-07-12
+Stand: 2026-07-15
 Grundlage: P010
 
 ## Reifegrade
@@ -17,6 +17,8 @@ Grundlage: P010
 |---|---|---|---|
 | gemeinsame Konfiguration | YAML, JSON lesen | supported | technischer Loader in `ma_core` |
 | gemeinsame Konfiguration | YAML geschuetzt speichern | supported | Vorlagen- und Kollisionsschutz aus P028 |
+| Project | reine Projektidentitaet und JSON/YAML-kompatible Nutzlast | supported | P011-S1a: immutable Modelle und reine Payload-Serialisierung; keine Projektdatei, Assets oder Fachquellen |
+| Project | reale Projektakte, Bilder, Plaene und Dokumente | planned | P011-S5 erst mit objektbezogenem Rechte-, Datenschutz- und Repository-Gate |
 | Wetter | TRY importieren und validieren | supported | P010-Pilot mit `InputSource`, Diagnosen und Freigabe |
 | Analyse | CSV, XLSX | prototype | vorhandene Analysepfade, keine allgemeine Eingabeschnittstelle |
 | Building | YAML-Demo | supported | P012 v1, versionierte `BuildingModelSpecification` mit Tests |
@@ -32,16 +34,20 @@ Grundlage: P010
 | Building | DWG-Produktivimport | out_of_scope | UD-066: kein DWG-Parser, Add-on oder externe DWG-Library im aktuellen Masterarbeitsumfang |
 | Zones | BusinessIntegration-LoD-1-YAML | supported | P013-S1, eine validierte Gesamtgebaeudezone mit einfachem Buero-Nutzungsprofil; P013-S2 konsolidiert den Zielumfang |
 | Zones | P013-S2-Zonenstand | planned | Raum-Zonen-Zuordnung, Nutzung, Profile, Konditionierung, Uebergabe, Feiertage, Parameteruebergabe und Veraltet-Status |
+| Zones | freigegebener Zonen-Metadatenhandover | supported | P013-S3c: payloadfreier, kanonisch gehashter Building-/Zone-/ThermalBuilding-/P014-Checkpoint; keine Zonen- oder Raum-Nutzlast |
 | Zones | spaetere Importprofile | planned | nach P013-S3 bis P013-S7 und konkreter Raum-Zonen-Zuordnung |
 | Technical | BusinessIntegration-LoD-1-YAML | supported | P014-S1, validierte Referenzannahmen fuer Heizung, Kuehlung und Lueftung; aktuelle Zonenreferenz bleibt Uebergangsvertrag |
+| Technical | freigegebener v2-Metadatenhandover | supported | P014-S3a: hashkonsistente Modell-/Revisionsmetadaten sowie stabile Serviceinterface- und Quellobjektreferenzen; kein Payloadexport |
 | Technical | zentrale Systemreferenzen fuer ma_zones | planned | P014-Folgeausbau gemaess P013-S2, zentrale Technik vor Zonen |
 | Technical | Systemvorlagen und Produktdaten | planned | P014-Folgeausbau |
 | Parameters | BusinessIntegration-LoD-1-ParameterSnapshot | supported | P015-S1, validierter Snapshot v1 aus Building, Zones und Technical mit Quellenreferenzen |
 | Parameters | ParameterInputPackage mit aktiviertem Wetter-Default | supported | P015-S3a, Eingangspaket-Checkpoint aus Snapshot v1 plus freigegebenem `ma_weather`-Projekt-Default |
+| Parameters | P014-v2-Quellenreferenzadapter | supported | P015-S3b-prep: uebernimmt Modell-ID, Revisions-ID, Content-Hash und Freigabestatus in eine `ParameterSourceReference`; keine v1-Wertemigration |
+| Parameters | getrennte P013-/P014-Releasecheckpoints | supported | P015-S3b-T2: opt-in `checkpoint_references` mit strikt passendem, aktuellem Paar; Baseline-Hash bindet die Referenzen einschliesslich Content-Hashes, keine Wertquellenmigration |
 | Parameters | P013-S2-Zonenstand mit Status/Fingerprint | planned | `current`, `outdated` und `validation_required` sowie Blockierung der Variantengenerierung bei veraltetem Stand |
 | Parameters | BaselineParameterSnapshot v2 aus BusinessIntegration-LoD-1 | supported | P015-S2, Scopes, Parameterklassen, Variierbarkeit, Quellenreferenzen, Referenzversionen und Content-Hash automatisiert getestet |
 | Parameters | ReferenceDimensioningResult und ParameterVariationSpecification | planned | P015 konsolidiert; Stage-1-Einbindung und VariationSpecification folgen in P015-S6 bis P015-S9 |
-| Parameters | YAML-Kataloge und spaetere Importvorlagen | prototype | P028-Demo vorhanden, Snapshot-Speicherung und Importvorlagen folgen |
+| Parameters | YAML-Kataloge und spaetere Importvorlagen | prototype | P028-Demo vorhanden; P032-W2a besitzt die reinen Python-Katalogvertraege in `ma_parameters`, Konfigurationsownership und Snapshot-Speicherung folgen getrennt |
 | Dimensioning | ParameterSnapshot v1 | supported | P016-S1, LoD-1-Referenzdimensionierung mit Rechenweg und Hinweisen |
 | Dimensioning | VariantDimensioningResult fuer P017 | planned | Stage 1 beantwortet spaeter DimensioningRequests aus `VariantVerification` ueber `ma_workflow` |
 | Variants | VSP/VVER/VCAT/VSEL/VGEN | planned | P017 konsolidiert; erster Ausbau mit VCAT max 500, Selection all/manual/random und direkter Uebergabe an P018 |

@@ -1,6 +1,6 @@
 # Offene Nutzerentscheidungen
 
-Stand: 2026-07-12
+Stand: 2026-07-15
 
 Diese Datei enthaelt nur offene Nutzerentscheidungen. Erledigte Entscheidungen
 werden nach der Dokumentation als `UD-*` aus dieser Datei entfernt und stehen in
@@ -107,3 +107,18 @@ werden nach der Dokumentation als `UD-*` aus dieser Datei entfernt und stehen in
   moeglichen spaeteren Zielbereich, `ma_validation`, `ma_feedback`,
   `ma_workflow`, `ma_simulation_setup`, Exportpfade und wissenschaftliche
   Dokumentation.
+
+### OP-016 P031 externe Project-OS-Aktivierungen
+
+- Thema: Codex Project Operating System, Tools und lokale Datenfluesse
+- Status: offen; lokale repo-eigene Baseline ist davon nicht blockiert
+- Frage: Welche Aktivierungen werden spaeter bewusst freigegeben: bestehende
+  Git-Hooks beibehalten oder deaktivieren, effektive MCP-Werkzeuge begrenzen,
+  `max_threads` von 3 auf 4 erhoehen, Graphify mit welchem Code-Scope
+  evaluieren, welchen Obsidian-Vault-/Zotero-Zielbereich verwenden und welche
+  Normen-, Literatur- oder IDA-Dateien besitzen belegte Maschinen- und
+  KI-Verarbeitungsrechte?
+- Auswirkung: Ohne Einzelentscheidung bleiben globale Codex-Aenderungen,
+  Installationen, Hook-/MCP-Aenderungen, Graphify, externe Schreibpfade und
+  geschuetzte Inhaltsverarbeitung gesperrt. P031 dokumentiert die Gates, ist
+  aber keine Freigabeinstanz.

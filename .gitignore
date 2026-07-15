@@ -60,6 +60,13 @@ data/ma_building/input/cad/*
 !data/ma_building/input/cad/.gitkeep
 data/ma_building/diagnostics/*
 !data/ma_building/diagnostics/.gitkeep
+# Reale Kataloginhalte bleiben lokal; Strukturplatzhalter duerfen versioniert sein.
+data/catalogs/materials/*
+!data/catalogs/materials/.gitkeep
+data/catalogs/products/*
+!data/catalogs/products/.gitkeep
+data/catalogs/sources/*
+!data/catalogs/sources/.gitkeep
 data/catalogs/documents/products/*
 !data/catalogs/documents/products/.gitkeep
 data/catalogs/documents/materials/*

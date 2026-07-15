@@ -265,7 +265,7 @@ unveraendert im Planarchiv.
 |---|---|---|
 | `ma_core` | geplant, P010-Pilot nutzbar | Quellen-, ID- und Sitzungslog-Basiskontrakte sind im Wetterpilot vorhanden |
 | `ma_database` | geplant | Datenbanklogik liegt derzeit vor allem in `ma_variants` |
-| `ma_project` | geplant | Projektstammdaten, Randbedingungen und Projektstatus |
+| `ma_project` | geplant | Projektidentitaet, Untersuchungsrahmen, Simulationsprogramme, neutrales Naming und P011-S1a-Serialisierung ohne fachlichen Projektstatus |
 | `ma_analyse` | teilweise | Analyse von IDA-ICE-Ergebnisdaten, CLI, UI-neutrale Services, Plot-Templates |
 | `ma_variants` | geplant | Prototyp vorhanden; P017-Zielkette `VariantSpace -> VariantVerification -> VariantCatalog -> VariantSelection -> VariantGeneration` ist fachlich konsolidiert |
 | `ma_weather` | teilweise | TRY-Katalog, Import, Scan, Validierung, Freigabe, Diagramme, Bericht und kritische Ereignisse |
@@ -316,11 +316,14 @@ Paketgeruest, eine Infoseite oder vorhandener Prototypcode genuegt nicht fuer
 
 #### ma_project
 
-- **Zweck:** Projektstammdaten, Untersuchungsrahmen und Projektstatus
-  verwalten sowie Simulationsprogramme und neutrale
-  Varianten-Benennungsprofile referenzieren.
+- **Zweck:** Projektidentitaet, Untersuchungsrahmen und spaeter zulaessige
+  Projektakte verwalten sowie Simulationsprogramme und neutrale
+  Varianten-Benennungsprofile bereitstellen. Fachstatus, Freigaben,
+  Quellenregister und Fachmodellreferenzen bleiben ausserhalb von `ma_project`.
 - **Status:** Geplant; P028-Demo fuer Simulationsprogramme und neutrales
-  Benennungsprofil umgesetzt.
+  Benennungsprofil sowie P011-S1a mit reinen Projektmodellen und
+  dateisystemfreier Serialisierung umgesetzt. P011-S1b bleibt ein eigener
+  Speicherort- und Persistenzscope.
 
 #### ma_parameters
 
@@ -759,7 +762,8 @@ modulare Ablage besitzt.
 | `data/ma_building/input/ifc/` | lokale IFC-Arbeitsdateien fuer Diagnose und Training |
 | `data/ma_building/input/rhino/` | lokale Rhino-Testgebaeude fuer BusinessIntegration und Softwaretests |
 | `data/ma_variants/` | Variantenimporte, Exporte und IDA-Uebergaben |
-| `data/ma_project/config/` | lokale Simulationsprogramm- und Naming-Profile |
+| `config/ma_project/simulation_programs/` | lokale Simulationsprogrammprofile |
+| `config/ma_variants/naming/` | lokale neutrale Naming-Profile; P011-S7 entscheidet einen spaeteren Pfadmove getrennt |
 | `data/ma_parameters/config/` | lokale Parameter- und Optionsarbeitsstaende |
 | `config/ma_building/examples/` | versionierte Beispiel-Specs fuer `ma_building` |
 | `data/catalogs/documents/` | Struktur fuer Produkt- und Materialdokumente |

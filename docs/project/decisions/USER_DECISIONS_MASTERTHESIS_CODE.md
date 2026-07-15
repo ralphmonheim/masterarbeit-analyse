@@ -1,6 +1,6 @@
 # Nutzerentscheidungen Masterarbeit Code
 
-Stand: 2026-07-13
+Stand: 2026-07-15
 
 ## UD-001 Modulare Projektstruktur
 
@@ -1590,3 +1590,86 @@ Stand: 2026-07-13
 - Status: getroffen und umgesetzt
 - Quelle oder Chatbezug: Nutzerentscheidung `nein die Katalogdaten nicht
   veroeffentlichen` am 2026-07-15
+
+## UD-087 Project-OS-Duplikate durch Council-Konsens aufloesen
+
+- Datum: 2026-07-15
+- Thema: Codex Project Operating System, Dokumentduplikate und fuehrende
+  Projektwahrheiten
+- Entscheidung: Wenn bestehende und vorgeschlagene Agenten-, Status-,
+  Ablauf-, Architektur- oder Compliance-Dokumente dieselbe Aufgabe
+  beanspruchen, diskutiert das Council die Varianten und legt eine
+  strukturierte Single-Source-of-Truth-Loesung fest. Fuer P031 bleibt die
+  vorhandene Projektstruktur fuehrend: Ein aktiver P031-Plan buendelt Audit,
+  Konflikte, Capability-Snapshot und Backlog; neue parallele Root-, Status-
+  oder Architekturwahrheiten werden nicht angelegt.
+- Begruendung: Mehrere gleichwertige Wahrheiten wuerden den bereits
+  festgestellten Routinenkonflikt wiederholen und spaetere Pflege erschweren.
+  Die einstimmige Council-Loesung nutzt bestehende Eigentuemerschaften und
+  ergaenzt nur pruefbare Router.
+- Auswirkung: `UPDATE_ROUTINES.md` ist alleinige Ablaufwahrheit,
+  `commands_common.md` Triggerindex, `AGENTS.md` Freigaberouter, `.codex/`
+  Runtime und Rollen, `.agents/skills/` duenne Workflow-Router,
+  `docs/compliance/` alleinige Rechteinstanz und P031 der einzige aktive
+  Master-System-Audit-/Backlogtraeger.
+- Status: getroffen und lokale Baseline umgesetzt
+- Quelle oder Chatbezug: Nutzerauftrag `wenn es duplikate geben sollte
+  muessen wir uns auf eine strukturierte Loesung einigen. Disktiert
+  untereinander und entscheidet euch fuer eine Loesung` am 2026-07-15
+
+## UD-088 P032 Zielarchitektur, Workspace-Betriebsmodell und Katalogownership
+
+- Datum: 2026-07-15
+- Thema: Architecture Benchmark, Paketownership und Workspace-Semantik
+- Entscheidung: ADR-P032 mit Option 1 ist angenommen. Das Projekt bleibt bis
+  zum MVP eine Workspace-Anwendung. `ma_parameters` ist kanonischer Owner der
+  Parameter- und Optionskataloge; `ma_variants` konsumiert diese Vertraege und
+  darf nur befristete, getestete Kompatibilitaets-Reexports anbieten.
+- Begruendung: Die konservative Konsolidierung erhaelt die vorhandenen
+  `ma_*`-Pakete, vermeidet einen vorzeitigen Packaging- oder Namespaceumbau
+  und loest den Parameter-/Variantenzyklus ueber fachliche Ownership.
+- Auswirkung: P032-W1 und P032-W2 sind dadurch nicht produktiv freigegeben.
+  Jeder Move, Rename, API-Umbau, Dependency-, Hook-, CI-, Tool-, Daten- oder
+  externe Verarbeitungsslice bleibt eine eigene Entscheidung mit konkretem
+  Scope und den anwendbaren Gates.
+- Status: getroffen; keine produktive Migration freigegeben
+- Quelle oder Chatbezug: Nutzerfreigabe `Dann geb ich hiermit die Freigabe`
+  nach der Vorstellung der drei P032-Kernpunkte am 2026-07-15
+
+## UD-089 Council-Mehrheit fuer interne Folgeslices
+
+- Datum: 2026-07-15
+- Thema: Umsetzungsfreigaben, Council und kontrollierte Projektautonomie
+- Entscheidung: Klar abgegrenzte, lokale und reversible Repo-Slices duerfen
+  ohne weitere Einzelrueckfrage umgesetzt werden, wenn mindestens drei der
+  fuenf definierten Council-Rollen dieselbe Empfehlung fuer den exakten Scope
+  abgeben. Der Hauptagent dokumentiert Vote, Scope, Validation und Ergebnis in
+  den kanonischen Plan- und Entscheidungsquellen.
+- Begruendung: Der Nutzer moechte den weiteren Projektfortschritt nicht an
+  wiederholten Einzelrueckfragen ausrichten, solange das Council eine
+  nachvollziehbare Mehrheit erreicht.
+- Auswirkung: P032-W1a ist nach dem einstimmigen Votum von Mira, Vera und
+  Justus als interner Guardrail-Slice freigegeben. Die Delegation ersetzt keine
+  Rechte- oder Complianceentscheidung und deckt keine Dependencies,
+  Installationen, globale Codex-Konfiguration, Hooks, CI, MCP, Graphify,
+  Obsidian/Zotero, externe APIs, geschuetzten oder realen Daten, Loeschungen,
+  brechenden APIs, Commits, Pushes, Tags oder Veroeffentlichungen ab.
+- Status: getroffen; operative Regeln in `AGENTS.md` verankert
+- Quelle oder Chatbezug: Nutzerfreigabe `ich geb dir jetzt heirmit freigabe
+  für alle weiter teile, solange eine mehrheit im council bei entscheidungen
+  erricht werden kann, für eine gewisse entscheidung.` am 2026-07-15
+
+## UD-090 P011-Gesamtentwurf lokal freigegeben
+
+- Datum: 2026-07-15
+- Thema: `ma_project`, Projektinitialisierung und digitale Projektakte
+- Entscheidung: Der vom Nutzer bereitgestellte P011-Gesamtentwurf darf lokal
+  inhaltlich geprueft und als kontrollierte Grundlage fuer den kanonischen
+  P011-Plan verwendet werden.
+- Begruendung: Der bisherige P011-Kurzplan reicht fuer die gewuenschte
+  Projektidentitaet und die spaetere digitale Projektakte nicht aus.
+- Auswirkung: Council und Compliance pruefen die Abweichungen zu P010, P028
+  und P032. Reale Dateien, Assets, absolute lokale Quellpfade, externe Modelle
+  und jede Naming-Pfadmigration bleiben von dieser Dokumentfreigabe getrennt.
+- Status: getroffen
+- Quelle oder Chatbezug: Nutzerfreigabe `p011 ist freigewgeben` am 2026-07-15

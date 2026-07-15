@@ -28,6 +28,31 @@ vorab freigegebene Ausnahmen. Sie werden ohne weitere Umsetzungsfreigabe
 ausgefuehrt, solange kein Blocker, keine riskante Abweichung und keine
 technisch notwendige Sicherheitsfreigabe auftritt.
 
+## Operative Wahrheiten und Freigabestufen
+
+- `docs/project/UPDATE_ROUTINES.md` ist die einzige Ablaufwahrheit fuer
+  dokumentierte Codex-Routinen. `docs/common/commands_common.md` ist der
+  Triggerindex und darf keine abweichenden Schritte definieren.
+- `docs/project/plans/inbox/260715_Plan_P031_Codex_Project_Operating_System.md`
+  fuehrt den datierten Project-OS-Audit und Backlog, erteilt aber keine
+  Freigabe.
+- Ohne neue Rueckfrage sind read-only Pruefungen versionierter eigener
+  Repo-Dateien, lokale Tests und Aenderungen innerhalb eines bereits
+  ausdruecklich freigegebenen Umfangs erlaubt. Allgemeine Scans werden
+  standardmaessig auf `git ls-files` begrenzt.
+- Eine frische menschliche Freigabe ist erforderlich fuer globale
+  `~/.codex`-Aenderungen, Installationen und neue Abhaengigkeiten, Git- oder
+  Codex-Hook-Aenderungen, MCP, Graphify, Obsidian-/Zotero-Schreibzugriffe,
+  externe APIs oder Cloud-Verarbeitung sowie neue Commits, Pushes und
+  Veroeffentlichungen ausserhalb einer dokumentierten Sammelroutine.
+- Normen- oder geschuetzte Literatur-PDFs, vollstaendige IDA-/EQUA-Dateien,
+  Bibliotheken, OCR, KI-Extraktion, Graphen, Embeddings, RAG und automatische
+  IDA-Simulation bleiben bis zu den erforderlichen Rechte- und
+  Freigabenachweisen gesperrt. `.gitignore` ist kein Verarbeitungsrecht.
+- Der bestehende lokale Git-Hook-Zustand und effektiv geerbte Sitzungstools
+  werden weder als Project-OS-Abhaengigkeit vorausgesetzt noch ohne eigene
+  Freigabe veraendert.
+
 ## Code-Qualitaet
 
 - Schreibe klaren, modularen und gut strukturierten Code mit sprechenden
@@ -97,11 +122,28 @@ Nach einer konkreten Umsetzungsfreigabe gilt:
 - Mehrere Agenten duerfen nicht gleichzeitig dieselben Dateien bearbeiten.
 - Der Hauptagent prueft und integriert alle Ergebnisse selbst.
 
-Eine neue Freigabe ist erforderlich, wenn der Umfang erweitert werden soll,
-neue Abhaengigkeiten hinzukommen, Dateien geloescht oder wesentlich verschoben
-werden sollen, oeffentliche APIs anders als geplant geaendert werden oder
-externe Aktionen nicht bereits durch einen dokumentierten Sammelbefehl
-freigegeben sind.
+### Delegierte Council-Mehrheitsfreigabe
+
+UD-089 erlaubt fuer klar abgegrenzte, lokale und reversible Repo-Slices eine
+Umsetzungsfreigabe durch mindestens drei der fuenf definierten Council-Rollen.
+Der Hauptagent dokumentiert davor den exakten Scope, die beteiligten Rollen und
+das Mehrheitsvotum in den kanonischen Plan- und Entscheidungsquellen. Ein
+Blocker aus einem Sol-Review oder der Compliance-Pruefung stoppt den betroffenen
+Slice trotz Mehrheit.
+
+Diese Delegation erlaubt weder eine Rechtefreigabe noch eine unbegrenzte
+Scope-Erweiterung. Sie gilt nicht fuer neue oder geaenderte Dependencies,
+Installationen, globale `~/.codex`-Aenderungen, Hooks, CI, MCP, Graphify,
+Obsidian/Zotero, externe APIs, geschuetzte oder reale Daten, Loeschungen,
+brechende oeffentliche APIs, Commits, Pushes, Tags oder Veroeffentlichungen.
+Diese Vorgange benoetigen weiterhin eine konkrete menschliche Freigabe und,
+wo anwendbar, die erforderlichen Rechte- und Compliance-Nachweise.
+
+Eine neue Freigabe ist erforderlich, wenn der Umfang ueber den dokumentierten
+Council-Beschluss hinaus erweitert werden soll, neue Abhaengigkeiten
+hinkommen, Dateien geloescht oder irreversibel verschoben werden sollen,
+oeffentliche APIs anders als geplant geaendert werden oder externe Aktionen
+nicht bereits durch einen dokumentierten Sammelbefehl freigegeben sind.
 
 ## Council-Rollen
 

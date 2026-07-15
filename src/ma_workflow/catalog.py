@@ -154,11 +154,11 @@ _MODULE_DEFINITIONS: tuple[ModuleDefinition, ...] = (
         "project",
         "planned",
         "workflow",
-        "Projektstammdaten, Untersuchungsziele, Simulationsprogramme, neutrales Naming und Projektstatus verwalten.",
+        "Projektidentitaet, Untersuchungsrahmen, Simulationsprogramme und neutrales Naming ohne fachlichen Projektstatus verwalten.",
         inputs=("Projektangaben", "Standardvorlagen", "Simulationsprogrammprofile"),
-        outputs=("Projektkonfiguration", "aktives Simulationsprogramm", "Benennungsprofil", "Projektstatus"),
+        outputs=("ProjectContext", "aktive Simulationsprogrammreferenz", "Benennungsprofil"),
         dependencies=("ma_core",),
-        next_step="Datenmodell und minimalen Projektanlage-Workflow planen.",
+        next_step="P011-S1b als separaten Pfad- und Persistenzvertrag mit Speicherort- und Ignore-Gate abgrenzen.",
         python_package="ma_project",
     ),
     _module(
@@ -197,10 +197,14 @@ _MODULE_DEFINITIONS: tuple[ModuleDefinition, ...] = (
         "workflow",
         "Zonen, Nutzungen, Profile, Konditionierung und zonenbezogene Uebergabe verwalten.",
         inputs=("freigegebene Gebaeude-/Raumdaten", "zentrale technische Systemreferenzen", "Nutzungsanforderungen"),
-        outputs=("validierte Zonendaten fuer ma_parameters", "zonenbezogene Uebergabe- und Betriebszuordnungen"),
+        outputs=(
+            "validierte Zonendaten fuer ma_parameters",
+            "ReleasedZoneHandover als payloadfreier Referenzcheckpoint",
+            "zonenbezogene Uebergabe- und Betriebszuordnungen",
+        ),
         boundaries=("keine Gebaeudegeometrie", "keine zentralen Erzeugungsanlagen", "keine automatische Zonenbildung im MVP"),
         dependencies=("ma_building", "ma_technical"),
-        next_step="P013-S3 Raum-Zonen-Grundmodell auf Basis des konsolidierten P013-S2-Plans vorbereiten.",
+        next_step="P015-S3b-Werteherkunft und P032-W3a Technik-Zonen-Richtung jeweils als getrennten Council-Slice abgrenzen.",
         python_package="ma_zones",
     ),
     _module(
@@ -214,7 +218,7 @@ _MODULE_DEFINITIONS: tuple[ModuleDefinition, ...] = (
         outputs=("validierte LoD-1-Technikdaten fuer ma_parameters", "zentrale Systemreferenzen fuer ma_zones"),
         boundaries=("keine Variantenbildung", "keine zonenbezogene Uebergabekonfiguration", "keine Produktdatenbank"),
         dependencies=("ma_building",),
-        next_step="P014-S2: technische Optionen, Grenzen und Regelquellen fuer P015/P017 abgrenzen.",
+        next_step="P014-S4-Persistenz/YAML und eine v2-Werteherkunft nur in getrennt freigegebenen Folgeslices behandeln.",
         python_package="ma_technical",
     ),
     _module(
@@ -223,7 +227,7 @@ _MODULE_DEFINITIONS: tuple[ModuleDefinition, ...] = (
         "parameters",
         "partial",
         "workflow",
-        "Eingaben vereinheitlichen und als stabile fachliche Quelle fuer ma_variants bereitstellen.",
+        "Eingaben vereinheitlichen, Parameter-/Optionskataloge besitzen und als stabile fachliche Quelle fuer ma_variants bereitstellen.",
         inputs=("Gebaeude", "Wetter", "Zonen", "Technik", "ReferenceDimensioningResult"),
         outputs=(
             "validierter ParameterSnapshot v1",
@@ -233,7 +237,7 @@ _MODULE_DEFINITIONS: tuple[ModuleDefinition, ...] = (
         ),
         boundaries=("keine Variantenbildung",),
         dependencies=("ma_weather", "ma_building", "ma_technical", "ma_zones"),
-        next_step="P015-S3b: P013/P014-Anschluss, Quellenfingerprints und vollstaendigen Eingabecheckpoint vorbereiten.",
+        next_step="P015-S3b-Werteherkunft und den verbleibenden Vollumfang nach dem abgeschlossenen P013-/P014-Checkpoint getrennt abgrenzen.",
         python_package="ma_parameters",
     ),
     _module(

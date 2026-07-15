@@ -7,10 +7,8 @@ from pathlib import Path
 from typing import Any
 
 from ma_core import ConfigurationSaveResult, ConfigurationSource, list_configuration_files, save_yaml_configuration
-from ma_variants.importing.catalog import import_catalog
-from ma_variants.option_catalog import OptionSet, OptionValue
-from ma_variants.parameter_catalog import Parameter
 
+from .catalogs import OptionSet, OptionValue, Parameter, import_catalog
 from .models import ParameterOptionSelection
 
 DEFAULT_PARAMETER_CONFIG = Path("config/ma_variants/parameters/example_parameters.yaml")
@@ -62,15 +60,9 @@ def validate_option_selection(
     for option_set_key, selected_keys in selection.active_option_keys_by_set.items():
         unknown_options = set(selected_keys) - options_by_set[option_set_key]
         if unknown_options:
-            raise ValueError(
-                f"Unbekannte Optionswerte in '{option_set_key}': {', '.join(sorted(unknown_options))}"
-            )
+            raise ValueError(f"Unbekannte Optionswerte in '{option_set_key}': {', '.join(sorted(unknown_options))}")
 
-    relevant_sets = {
-        parameter.option_set_key
-        for parameter in parameters
-        if parameter.is_variant_relevant
-    }
+    relevant_sets = {parameter.option_set_key for parameter in parameters if parameter.is_variant_relevant}
     for option_set_key in sorted(relevant_sets):
         if option_set_key not in known_sets:
             raise ValueError(f"Variantenrelevante Optionsgruppe fehlt: {option_set_key}")
@@ -91,8 +83,7 @@ def apply_option_selection(
     return [
         replace(
             option,
-            is_active=option.option_key
-            in selection.active_option_keys_by_set.get(option.option_set_key, ()),
+            is_active=option.option_key in selection.active_option_keys_by_set.get(option.option_set_key, ()),
         )
         for option in option_values
     ]
