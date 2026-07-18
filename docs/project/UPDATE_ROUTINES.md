@@ -164,7 +164,10 @@ noetig.
 2. Laufende projektbezogene Streamlit-Prozesse pruefen.
 3. Wenn `ma_ui` noch laeuft, Prozess und URL melden; nicht automatisch beenden.
 4. Falls Arbeiten abgeschlossen wurden, `PLAN_STATUS.md` aktualisieren.
-5. Falls Nutzerentscheidungen getroffen wurden, diese dokumentieren und passende offene Punkte schliessen.
+5. Falls Nutzerentscheidungen getroffen wurden, die Einzelroutine
+   `entscheidung festhalten` ausfuehren: Entscheidung in
+   `USER_DECISIONS_MASTERTHESIS_CODE.md` dokumentieren und passende offene
+   Punkte schliessen.
 6. Falls Code, Struktur oder Dokumentation geaendert wurden, `CHANGELOG.md` unter `Unreleased` aktualisieren.
 7. Tests nur bei Code- oder Testaenderungen ausfuehren.
 8. Vor der beabsichtigten Veroeffentlichung oder Weitergabe pruefen, ob eine

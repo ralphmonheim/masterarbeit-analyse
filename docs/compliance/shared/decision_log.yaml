@@ -82,3 +82,13 @@ decisions:
     release_scope: "origin https://github.com/ralphmonheim/masterarbeit-analyse.git; branch main; release candidate v0.30.0 based on v0.29.0 commit cf76fb6; config/ma_database/catalogs/building_*.yaml and local logs/compliance/ audit files expressly excluded"
     evidence: ["User command in Codex chat on 2026-07-18: wenn du fertig bist mit der Umsetzung, dann aktualisieren und direkt update repo.", "User confirmed rights for the locally processed workbook sections; COMPLIANCE-2026-07-18-BUILDING-CATALOGS-001 limits source processing and excludes publication of derived records.", "git check-ignore confirms config/ma_database/catalogs/building_materials.yaml, building_wall_constructions.yaml and building_surfaces.yaml are ignored.", "Release inventory contains no local catalog records, workbook content or session audit file.", "git diff --check passed; targeted Ruff and format checks passed; pytest: 604 passed in 159.41 seconds on 2026-07-18."]
     sources: [SHARED-COMPLIANCE-003, SHARED-COMPLIANCE-004, SHARED-RELEASE-003, SHARED-RELEASE-004]
+  - decision_id: SHARED-RELEASE-006
+    date: "2026-07-18"
+    status: active
+    decision: "Public GitHub patch release of the explicit end-of-day decision-recording routine"
+    rationale: "The user invoked the documented direct end-of-day routine. The candidate contains only own project command documentation, the corresponding user decision, changelog and patch-version metadata."
+    allowed_scope: [own_documentation, own_user_decision, changelog, version_metadata, compliance_decision]
+    excluded_scope: [ma_database_catalog_data, catalog_derived_record_values, spreadsheet_source_content, norm_pdfs, equa_libraries, ida_idm_files, dwd_try_data, real_project_working_data, credentials, session_audits, external_cloud_processing]
+    release_scope: "origin https://github.com/ralphmonheim/masterarbeit-analyse.git; branch main; release candidate v0.30.1 based on v0.30.0 commit c936c4d; config/ma_database/catalogs/** and logs/compliance/** expressly excluded"
+    evidence: ["User command in Codex chat on 2026-07-18: aktualisieren und tagesende direkt.", "Candidate inventory contains only own routine documentation, UD-092, CHANGELOG.md and version metadata.", "git check-ignore confirms representative local building catalog files remain ignored.", "No code or test change is part of this patch; v0.30.0 validation remains recorded separately."]
+    sources: [SHARED-COMPLIANCE-003, SHARED-COMPLIANCE-004, SHARED-RELEASE-005]

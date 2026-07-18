@@ -1698,3 +1698,19 @@ Stand: 2026-07-15
 - Status: getroffen und im lokalen V1-UI-Slice umgesetzt
 - Quelle oder Chatbezug: Nutzerentscheidung `dann lass erstmal v1 bauen aber
   v2 hat hier schonmal ne hohe Prio` am 2026-07-18
+
+## UD-092 Tagesende dokumentiert Nutzerentscheidungen explizit
+
+- Datum: 2026-07-18
+- Thema: Codex-Routine `tagesende`
+- Entscheidung: Die Tagesende-Routine soll bei getroffenen
+  Nutzerentscheidungen den Einzelschritt `entscheidung festhalten` sichtbar
+  ausfuehren, bevor der Release vorbereitet wird.
+- Begruendung: Entscheidungen sollen im Tagesabschluss nachvollziehbar und
+  nicht nur implizit als Teil der allgemeinen Dokumentationspflege bleiben.
+- Auswirkung: `UPDATE_ROUTINES.md` und der Triggerindex nennen den Schritt
+  jetzt ausdruecklich. `entscheidung festhalten` bleibt ein Einzelbefehl und
+  wird dadurch nicht selbst zu einem Sammelbefehl.
+- Status: getroffen und dokumentiert
+- Quelle oder Chatbezug: Nutzerentscheidung `dann bitte bei tagesende mit
+  einbauen` am 2026-07-18

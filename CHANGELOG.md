@@ -4,6 +4,14 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.30.1 - 2026-07-18
+
+### Changed
+- Die Tagesende-Routine ruft bei einer getroffenen Nutzerentscheidung jetzt
+  sichtbar den Einzelschritt `entscheidung festhalten` auf. Der Triggerindex
+  und UD-092 dokumentieren die Einordnung; der Befehl bleibt ein
+  Einzelbefehl, kein Sammelbefehl.
+
 ## 0.30.0 - 2026-07-18
 
 ### Changed

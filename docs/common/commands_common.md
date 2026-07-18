@@ -97,7 +97,8 @@ riskanten Abweichungen und technisch notwendigen Sicherheitsfreigaben noetig.
 - `tagesstart` oder `Guten Morgen, es ist ein neuer Tag.`: Projektstand lesen,
   offene Nutzerentscheidungen bei Bedarf pflegen und offene Aufgaben nach
   Modulen im Chat ausgeben; `ma_ui` wird nicht automatisch gestartet.
-- `tagesende` oder `Gute Nacht.`: Tagesstand dokumentieren, Planstatus und
+- `tagesende` oder `Gute Nacht.`: Tagesstand dokumentieren, bei getroffenen
+  Nutzerentscheidungen `entscheidung festhalten` ausfuehren, Planstatus und
   Changelog bei Bedarf aktualisieren, laufende Projekt-Streamlit-Prozesse nur
   melden und Terminal-Code fuer Git ausgeben.
 - `tagesende direkt` oder `Gute Nacht direkt.`: wie `tagesende`, aber Commit,
