@@ -770,3 +770,202 @@ Umsetzungsnachweis 2026-07-15:
 Die spaetere Projektakte braucht vor jeder realen Dateioperation einen eigenen
 Compliance- und Speicherortscope. Absolute `original_source_path`-Angaben
 werden nicht in portable oder versionierte Projektnutzlasten persistiert.
+
+## Entscheidung 37: Zentrale V1-Infokarten und getrennte Bedienansichten
+
+Der lokale V1-UI-Slice setzt UD-091 um, ohne einen neuen Modul- oder
+Demo-Wahrheitsstand einzufuehren.
+
+Technische Festlegung:
+
+- `ma_workflow.ModuleDefinition` bleibt die alleinige Quelle fuer den
+  zentralen V1-Rahmen. Die bestehende Infokarte erlaeutert daraus `Was`,
+  `Wie`, `Warum` und `Wann` mit Zweck, Ein-/Ausgaben, Abgrenzungen und
+  naechstem Schritt.
+- Der Katalogstatus ist kein Nachweis einer ausfuehrbaren Demo. Insbesondere
+  beschreibt `partial` nur den dokumentierten Rahmen; massgeblich bleiben die
+  sichtbar verfuegbaren Funktionen der jeweiligen Fachansicht.
+- Modulansichten bleiben von V1-Infokarten frei. Die Wetteransicht trennt
+  Auswahl und Ergebnis einschliesslich der ergebnisgebundenen Aktivierung und
+  des Projekt-Defaults in `Analyse` von Import, Scan, Pruefung und
+  Bestandsuebersicht in `Verwaltung`; die Verwaltung bleibt auch ohne aktiven
+  Datensatz erreichbar.
+- Die Technikansicht trennt `Technikmodell` von `Technik-Katalog`. Die sechs
+  bestehenden Katalogthemen und ihre Session-Schluessel bleiben erhalten.
+  Der historische Helper `technical_scope_rows()` wird weder geloescht noch
+  als kanonische Quelle oder sichtbarer `Einordnung`-Reiter verwendet.
+
+Ausgeschlossen bleiben reale Datenverarbeitung, neue Dependencies, Services,
+Persistenz, v2-Editoren, Imports oder Simulationen. Begleitende read-only
+Reviews von Mira und Vera bestaetigten diesen begrenzten Scope; die Umsetzung
+beruht auf der direkten Nutzerfreigabe aus UD-091, nicht auf einer delegierten
+Council-Freigabe.
+
+Der fokussierte UI-Lauf `tests/test_ma_ui_shell.py` endet mit `112 passed`;
+Ruff-Check und Format-Check fuer die geaenderten UI- und Testdateien sind
+gruen. Der vollstaendige Lauf endet mit `1 failed, 571 passed`; der einzige
+Fehler ist der unveraenderte P032-W3a-Guardrail fuer den Runtime-Zyklus
+`ma_technical <-> ma_zones` und liegt ausserhalb dieses UI-Slices. P014-v2
+ist als hoch priorisierter, weiterhin getrennter Folgeslice vorgemerkt.
+
+## Entscheidung 38: Delegierter P032-W3a-T0-Runtime-Stabilisierungsslice
+
+Vor dem priorisierten P014-v2-S4-Referenzfall wird der kleinste moegliche,
+lokale P032-W3a-Teilslice umgesetzt. Er beseitigt ausschliesslich die
+Runtime-Importkante `ma_technical -> ma_zones`; die fachliche Ownership der
+zonenabhaengigen Legacy-Validierung bleibt bewusst offen.
+
+Council- und Compliance-Preflight:
+
+- Mira bestaetigt, dass `ZoneModelSpecification` in
+  `ma_technical.validation` nur fuer Annotationen genutzt wird. P014-S4
+  braucht danach einen eigenen YAML- und Abnahmescope.
+- Vera bestaetigt, dass ein `TYPE_CHECKING`-Import die aktuelle Signatur,
+  das Keyword `zone_spec`, alle Diagnosecodes und die strukturelle
+  Validierungslogik unveraendert laesst. Eine SCC-Allowlist ist kein Fix.
+- Justus bewertet den auf versionierten Eigen-Code, synthetische Tests und
+  Dokumentation begrenzten Umfang als `green`; Belegreferenz:
+  `docs/compliance/shared/decision_log.yaml`,
+  `SHARED-COMPLIANCE-003` und `SHARED-COMPLIANCE-004`.
+- Damit liegt gemaess UD-089 eine einstimmige 3/5-Mehrheit fuer genau T0 vor.
+
+Exakter Scope:
+
+- In `ma_technical.validation` den Import von `ZoneModelSpecification` nur
+  unter `TYPE_CHECKING` vorhalten.
+- Den Architekturguardrail auf keine verbleibende Runtimekante dieses Paares
+  einstellen und die vorhandenen synthetischen P013-/P014-Verhaltens- und
+  Importtests ausfuehren.
+- Keine Funktion verschieben, duplizieren oder loeschen; die oeffentliche
+  Funktion `validate_technical_spec(..., zone_spec=...)`, ihre Diagnosen und
+  ihr Laufzeitverhalten bleiben erhalten.
+
+Ausgeschlossen sind der vollstaendige Ownership-Transfer nach
+`ma_zones.validation`, die Entfernung oder Aenderung von `zone_spec`,
+P014-S4-Referenz-YAML, v2-Werteherkunft, UI, Kataloge, reale Daten,
+Dependencies, externe Tools, Commits, Pushes und Veroeffentlichungen.
+Der T0-Slice beansprucht deshalb keinen Abschluss von P032-W3a.
+
+Umsetzungsnachweis: Der Import steht nun nur unter `TYPE_CHECKING`; die
+P013-/P014-/P015-Fokusgruppe besteht mit `58 passed`, die vollstaendige lokale
+Suite mit `572 passed`. Ruff- und Format-Check der betroffenen Dateien sowie
+`git diff --check` sind gruen. Die volle W3a-Ownership-Migration bleibt offen.
+
+## Entscheidung 39: Delegierter P014-S4-V2-Referenz- und Loader-Slice
+
+Nach dem abgeschlossenen P032-W3a-T0 wird der priorisierte, lokale und
+reversible P014-S4-Slice gemaess UD-089 umgesetzt. Er liefert keinen neuen
+fachlichen Werteherkunftsvertrag, sondern einen nachvollziehbaren,
+synthetischen V2-Eingabe- und Abnahmenachweis auf den bereits vorhandenen
+V2-Modellen, Revisionen und Handovern.
+
+Council- und Compliance-Preflight:
+
+- Mira bestaetigt einen allgemeinen, nicht beispielspezifischen Parser fuer
+  `TechnicalModelSpecification`: fruehe V2-Schemapruefung, Pflichtfelder,
+  unbekannte Felder, verschachtelte Dataclasses, Enums, Referenzen, optionale
+  Bereiche und Tupelregister muessen strukturell behandelt werden.
+- Vera stimmt zu, wenn der additive Loader den Legacy-V1-Loader nicht aendert,
+  keine erzeugten Revisionen versioniert und die echte P013-/P015-Kette nur in
+  Contracttests durchlaeuft.
+- Justus bewertet ausschliesslich selbst erstellte synthetische YAML, Tests
+  und Dokumentation als `green`; die Synthetic-Kennzeichnung und die
+  Ausschlussgrenzen folgen `SHARED-COMPLIANCE-003` und
+  `SHARED-COMPLIANCE-004` in `docs/compliance/shared/decision_log.yaml`.
+- Damit liegt eine einstimmige 3/5-Mehrheit fuer genau diesen Scope vor.
+
+Exakter Scope:
+
+- Eine sichtbare, projektseitig erstellte und nicht normative V2-Referenz-YAML
+  unter `config/ma_technical/examples/` mit ausschliesslich synthetischen IDs,
+  Namen und konstruierten Werten anlegen.
+- Einen additiven allgemeinen YAML-zu-`TechnicalModelSpecification`-Parser
+  und Loader mit strikter Strukturpruefung ergaenzen. Die anschliessende
+  fachliche Freigabe bleibt bei `validate_technical_model()`.
+- Die geladene Spezifikation ausschliesslich in `tmp_path` freigeben,
+  hashgesichert erneut laden und aus der Revision den bestehenden
+  `ReleasedTechnicalHandover`, die P013-Referenz und den P015-Checkpoint
+  pruefen.
+- Negative Parserfaelle, Serviceinterface-Zonenfreiheit, Legacy-V1-
+  Kompatibilitaet, Architekturguardrail sowie Format-, Lint-, Diff- und
+  vollstaendige Suite pruefen und die bestehenden Plan-/Moduldokumente
+  aktualisieren.
+
+Ausgeschlossen bleiben Änderungen am V1-Loader oder am Revisionsvertrag,
+V1-zu-V2-Migration, Werteherkunft, automatische Revisionen, UI/Editor,
+Katalog-, Produkt-, Normen- und reale Projektdaten, IDA-Dateien, neue
+Dependencies, externe Verarbeitung, Hooks, Commits, Pushes und
+Veroeffentlichungen. Eine naechste Entscheidung ist erforderlich, sobald
+dieser Scope erweitert werden soll.
+
+Umsetzungs- und Abschlussnachweis:
+
+- Der additive `v2_loader` ist als Paket-API verfuegbar und rekonstruiert die
+  bekannten V2-Dataclasses strikt. Leere Pflichttexte, unbekannte Felder,
+  ungueltige Enums und fehlerhafte YAML-Strukturen blockieren vor der
+  fachlichen V2-Validierung.
+- Das Sol-Abschlussreview fand eine notwendige Luecke fuer das vorhandene
+  Feld `InputSource.source_path`. Mira, Vera und Justus bestaetigten daraufhin
+  einstimmig die kleinste Scope-Ergaenzung: `_to_payload` normalisiert nur
+  `Path` als `as_posix()`; keine API, kein Revisionsschema, kein bisheriger
+  Hash und keine externe Verarbeitung aendern sich. Der Test verwendet
+  ausschliesslich einen relativen synthetischen Demo-Pfad. Absolute oder reale
+  Arbeits-, Netzwerk-, Nutzer- oder Projektpfade bleiben ausgeschlossen.
+- Der allgemeine Aggregate-Payload-Roundtrip, verschachtelte Negativfaelle,
+  UTC-Provenienzdefaults, `InputSource`-Pfad, Revision/Hash, Handover,
+  P013-/P015-Checkpoint und Legacy-V1 sind abgedeckt. Der abschliessende
+  relevante P014-Fokuslauf besteht mit `45 passed in 10.61s`, die
+  vollstaendige lokale Suite mit `591 passed in 193.30s`; Ruff-Check und
+  `git diff --check`
+  sind gruen.
+
+### P014-S4-Nachtrag: reproduzierbarer YAML-Provenienzvertrag
+
+Das Abschlussreview fand zwei lokale Luecken im bereits freigegebenen
+V2-YAML-Nachweis: Ein fehlendes persistiertes `InputSource.source_id` erzeugte
+einen zufaelligen Laufzeitwert und unquotierte YAML-Zeitstempel wurden nicht
+als YAML-Datetime verarbeitet. Vera, Mira und Professor Sophia stimmen am
+2026-07-18 einstimmig gemaess UD-089 fuer den kleinsten lokalen und
+reversiblen Nachtrag.
+
+- Nur der persistierbare V2-Loader verlangt nun eine nichtleere
+  `source_id`; der allgemeine `InputSource`-Default und der V1-Vertrag bleiben
+  unveraendert.
+- Zeitzonenbehaftete YAML-Datetime-Skalare werden wie ISO-8601-Text geladen;
+  naive Zeitpunkte bleiben unzulaessig.
+- Ein ausschliesslich synthetischer Vollfixture-Test prueft den oeffentlichen
+  YAML-Pfad, Revision/Reload und den identischen Content-Hash zweier Laeufe.
+
+Nicht Teil sind Werteherkunft, Revisionsschema, neue Persistenzorte,
+Abhaengigkeiten, reale Daten, externe Verarbeitung oder Git-Aktionen.
+
+## Entscheidung 40: Lokale Gebaeude-Referenzkataloge bleiben vom DemoCatalog getrennt
+
+Am 2026-07-18 wird gemaess UD-089 ein eng abgegrenzter, lokaler und
+reversibler P012/P027-V1-Slice umgesetzt. Er verarbeitet nach dokumentierter
+Gruen-Entscheidung ausschliesslich die vom Nutzer freigegebenen Arbeitsmappe-
+Abschnitte `Materials`, `Wall constructions` und `Surfaces` und erzeugt daraus
+drei ignorierte lokale Dateien: `building_materials.yaml`,
+`building_wall_constructions.yaml` und `building_surfaces.yaml`.
+
+- Die Kataloge werden ausschliesslich durch ein neues, lesendes
+  `ma_building`-Modul geladen. `ma_database.DemoCatalog`, dessen Manifest,
+  Bundle- und Simulationslogik bleiben unveraendert.
+- Jede Datei erhaelt einen kleinen Schemaheader und dauerhaft gespeicherte,
+  innerhalb der Datei eindeutige IDs. Die UI setzt die sichtbare Reihenfolge
+  explizit auf Name, ID und weitere Eigenschaften; die YAML-Reihenfolge ist
+  kein UI-Vertrag.
+- Wandkonstruktionen duerfen eingebettete Schichten fuer eine breite
+  Nur-Lese-Tabelle enthalten. Es findet weder eine fachliche U-Wert- noch
+  Simulationsvalidierung oder automatische Modellzuordnung statt.
+- Fehlende Dateien werden je Katalog getrennt angezeigt; fehlerhafte
+  vorhandene Dateien erzeugen eine lokale Diagnose und werden nicht als
+  fehlend verborgen.
+
+Mira (Bestandsaufnahme), Vera (Qualitaet) und Justus (Compliance) haben den
+genauen Scope einstimmig freigegeben. Der Compliance-Nachweis
+`COMPLIANCE-2026-07-18-BUILDING-CATALOGS-001` begrenzt die Verarbeitung auf
+die drei genannten Abschnitte und schliesst Originaldatei, weitere
+Arbeitsmappeninhalte, Abhaengigkeiten, externe Verarbeitung und die
+Veroeffentlichung abgeleiteter Katalogdaten aus. Die ignorierten Daten bleiben
+auch bei einem spaeteren Repository-Update ausgeschlossen.

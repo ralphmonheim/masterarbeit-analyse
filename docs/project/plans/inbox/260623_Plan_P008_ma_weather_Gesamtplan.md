@@ -5,6 +5,15 @@ Status: Aktiv
 Plannummer: P008
 Bezug: P007, P010, P015, P018, P021, P027, archivierter P002
 
+## V1-Status 2026-07-18
+
+Der lokal getestete Wetter-V1-Umfang ist im zentralen Workflow-Katalog als
+`available` registriert. Die Startkarte zeigt daneben den amberfarbenen
+Hinweis `Diagramme – Teilweise`: Diagramme sind im Wettermodul vorhanden,
+ihre weitere Ausbaustufe bleibt jedoch getrennt markiert. Reale
+Wetterdaten, Rechte und die offenen P008-Fachpunkte bleiben weiterhin an die
+bestehenden Compliance-Gates gebunden.
+
 ## Aenderungsvermerk Compliance
 
 Datum: 2026-07-13

@@ -91,7 +91,9 @@ def _revision_payload(revision: TechnicalModelRevision) -> dict[str, object]:
 
 def _content_hash(payload: dict[str, object]) -> str:
     canonical_payload = _without_timestamps(payload)
-    return hashlib.sha256(json.dumps(canonical_payload, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()
+    return hashlib.sha256(
+        json.dumps(canonical_payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
 
 
 def _to_payload(value: Any) -> Any:
@@ -99,6 +101,8 @@ def _to_payload(value: Any) -> Any:
         return value.value
     if isinstance(value, datetime):
         return value.isoformat()
+    if isinstance(value, Path):
+        return value.as_posix()
     if is_dataclass(value):
         return {field.name: _to_payload(getattr(value, field.name)) for field in fields(value)}
     if isinstance(value, tuple):
@@ -110,11 +114,7 @@ def _to_payload(value: Any) -> Any:
 
 def _without_timestamps(value: Any) -> Any:
     if isinstance(value, dict):
-        return {
-            key: _without_timestamps(item)
-            for key, item in value.items()
-            if not key.endswith("_at")
-        }
+        return {key: _without_timestamps(item) for key, item in value.items() if not key.endswith("_at")}
     if isinstance(value, list):
         return [_without_timestamps(item) for item in value]
     return value

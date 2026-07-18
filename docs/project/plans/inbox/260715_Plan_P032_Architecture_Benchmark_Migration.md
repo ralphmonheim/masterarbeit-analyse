@@ -1,7 +1,7 @@
 # P032 Architecture Benchmark und Migrationsplanung
 
-Stand: 2026-07-15  
-Status: Audit und Planung abgeschlossen; ADR angenommen; P032-W0, P032-W1a und P032-W2a abgeschlossen; weitere Wellen nur nach exaktem Council-Mehrheitsbeschluss gemaess UD-089  
+Stand: 2026-07-18
+Status: Audit und Planung abgeschlossen; ADR angenommen; P032-W0, P032-W1a, P032-W2a und P032-W3a-T0 abgeschlossen; volle W3a-Ownership weiter offen
 Prioritaet: Hoch fuer Architekturqualitaet, Umsetzung nur MVP-gekoppelt
 
 ## Zweck
@@ -161,7 +161,7 @@ Council-Mehrheit; Sondergates bleiben davon unberuehrt.
 | P032-W1a | additive Pfad-, Ignore- und Importguardrails | abgeschlossen | einstimmige Mehrheit Mira, Vera und Justus; keine Dependencies, Hooks, CI oder externen Tools |
 | P032-W1b | Dependency-Bestandsklaerung und WorkspacePaths-Entwurf | nicht gestartet | keine Dependency- oder Runtimeaenderung; exakter Council-Scope erforderlich |
 | P032-W2 | Parameter-/Optionsownership und Zyklusabbau | teilweise umgesetzt: W2a abgeschlossen | W2a: Code-Owner-Transfer/Reexports ohne Config-Move abgeschlossen; W2b und Vollumfang bleiben getrennt freigabepflichtig |
-| P032-W3a | Technik-Zonen-Richtung | nicht freigegeben | P013/P014-Vertrag |
+| P032-W3a | Technik-Zonen-Richtung | T0 abgeschlossen; voller Ownership-Slice weiter offen | P013/P014-Vertrag |
 | P032-W3b | begrenzter WorkspacePaths-Slice | nicht freigegeben | beschlossenes Betriebsmodell |
 | P032-W4 | Economics, Reporting und UI aus `ma_variants` | nicht freigegeben | je Zielplan und Teilwelle |
 | P032-W5a | neutraler Run-Vertrag | nicht freigegeben | P018 |
@@ -212,6 +212,37 @@ Parameter-/Baseline-/Checkpoint-Semantik, P017, Dependencies, Hooks, CI,
 externe Tools und Git-Aktionen. Neue Tests verwenden ausschliesslich
 synthetische Objekte oder `tmp_path`-YAML. Der Nachweis folgt nach Umsetzung;
 W2b und der restliche W2-Umfang bleiben eigene menschliche Freigaben.
+
+### P032-W3a-T0 vom 2026-07-18 - abgeschlossen
+
+Mira, Vera und Justus stimmen einstimmig fuer einen rein vorbereitenden
+Runtime-Stabilisierungsslice vor P014-v2-S4. `ma_technical.validation` darf
+`ZoneModelSpecification` nur fuer Typinformationen unter `TYPE_CHECKING`
+importieren. Signatur, Keyword `zone_spec`, Diagnosen und Laufzeitlogik
+bleiben unveraendert; die Architekturtests muessen danach keine Runtimekante
+`ma_technical -> ma_zones` mehr finden.
+
+Nicht Teil sind die fachlich korrekte spaetere Ownership-Verlagerung nach
+`ma_zones.validation`, jede API-Aenderung, P014-S4-Referenz-YAML,
+v2-Werteherkunft, Katalog- oder reale Daten, externe Tools, Dependencies,
+Hooks, CI, Commit, Push oder Veroeffentlichung. Die anwendbare
+`compliance_decision` ist `green` fuer versionierten Eigen-Code,
+synthetische Tests und Dokumentation; Belegreferenz:
+`SHARED-COMPLIANCE-003` und `SHARED-COMPLIANCE-004` im gemeinsamen
+Compliance-Entscheidungsregister.
+
+Umsetzungsnachweis:
+
+- `ma_technical.validation` importiert `ZoneModelSpecification` nur noch
+  unter `TYPE_CHECKING`; Signatur, Keyword `zone_spec`, Diagnosen und die
+  strukturelle Legacy-Validierung blieben unveraendert.
+- Der Architekturguardrail erwartet fuer das Paar keine Runtimeimporte mehr;
+  seine Paarliste bleibt als Rueckfallschutz bestehen.
+- Der fachuebergreifende Fokuslauf umfasst `58 passed`; die vollstaendige
+  lokale Suite umfasst `572 passed`. Zielgerichtete Ruff- und Format-Checks
+  sowie `git diff --check` sind gruen.
+- Der volle W3a-Ownership-Slice bleibt offen: Die zonenabhaengige
+  Legacy-Validierung wurde nicht nach `ma_zones.validation` verschoben.
 
 ### Immer konkret und objektbezogen freizugeben
 

@@ -12,11 +12,7 @@ SOURCE_ROOT = REPO_ROOT / "src"
 TEMPORARY_DEBT_PAIRS = {
     ("ma_technical", "ma_zones"),
 }
-EXPECTED_TEMPORARY_DEBT_IMPORTS = Counter(
-    {
-        ("ma_technical/validation.py", "ma_zones"): 1,
-    }
-)
+EXPECTED_TEMPORARY_DEBT_IMPORTS = Counter()
 EXPECTED_RUNTIME_CYCLES: set[frozenset[str]] = set()
 PROTECTED_CATALOG_SENTINELS = (
     "data/catalogs/materials/future-material-catalog.yaml",

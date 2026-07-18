@@ -18,6 +18,16 @@ from ma_validation import DiagnosticMessage, DiagnosticSeverity
 from ma_workflow import get_module_definition
 from ma_zones import load_business_integration_lod1_zone_spec
 
+TECHNICAL_WORKSPACE_TAB_LABELS = ("Technikmodell", "Übersicht", "Auswahl")
+TECHNICAL_SELECTION_TAB_LABELS = (
+    "Heizung",
+    "Kuehlung",
+    "Lueftung",
+    "Speicher",
+    "Trinkwarmwasser",
+    "Elektrik",
+)
+
 
 def technical_scope_rows() -> list[dict[str, object]]:
     """Liefert den aktuellen geplanten Umfang von ma_technical."""
@@ -75,43 +85,54 @@ def render() -> None:
         return
 
     validation_result = validate_technical_spec(technical_spec, zone_spec=zone_spec)
-    st.metric("Freigabestatus", validation_result.release_status.value)
-    st.dataframe(normalize_table_for_streamlit(technical_summary_rows(technical_spec)), hide_index=True, width="stretch")
-
-    overview_tab, heating_tab, cooling_tab, ventilation_tab, storage_tab, dhw_tab, electrical_tab, scope_tab = st.tabs(
-        ["Uebersicht", "Heizung", "Kuehlung", "Lueftung", "Speicher", "Trinkwarmwasser", "Elektrik", "Einordnung"]
-    )
-    with overview_tab:
-        st.dataframe(normalize_table_for_streamlit(technical_system_rows(technical_spec)), hide_index=True, width="stretch")
-        _render_technical_selection_overview()
-    with heating_tab:
-        _render_technical_topic("heating", "Heizung", "heating_generators")
-    with cooling_tab:
-        _render_technical_topic("cooling", "Kuehlung", "cooling_generators")
-    with ventilation_tab:
-        _render_technical_topic("ventilation", "Lueftung")
-    with storage_tab:
-        _render_technical_topic("storage", "Speicher", "thermal_storages")
-    with dhw_tab:
-        _render_technical_topic("domestic_hot_water", "Trinkwarmwasser")
-    with electrical_tab:
-        _render_technical_topic("electrical", "Elektrik")
-    with scope_tab:
-        st.dataframe(normalize_table_for_streamlit(technical_scope_rows()), hide_index=True, width="stretch")
-        st.info(module.next_step)
-
-    if technical_spec.assumptions:
+    model_tab, overview_tab, selection_tab = st.tabs(TECHNICAL_WORKSPACE_TAB_LABELS)
+    with model_tab:
+        st.metric("Freigabestatus", validation_result.release_status.value)
         st.dataframe(
-            normalize_table_for_streamlit(
-                [
-                    {"ID": assumption.assumption_id, "Fundstelle": assumption.location or "", "Annahme": assumption.text}
-                    for assumption in technical_spec.assumptions
-                ]
-            ),
-            hide_index=True,
-            width="stretch",
+            normalize_table_for_streamlit(technical_summary_rows(technical_spec)), hide_index=True, width="stretch"
         )
-    _render_messages(validation_result.messages)
+        st.dataframe(
+            normalize_table_for_streamlit(technical_system_rows(technical_spec)), hide_index=True, width="stretch"
+        )
+        if technical_spec.assumptions:
+            st.dataframe(
+                normalize_table_for_streamlit(
+                    [
+                        {
+                            "ID": assumption.assumption_id,
+                            "Fundstelle": assumption.location or "",
+                            "Annahme": assumption.text,
+                        }
+                        for assumption in technical_spec.assumptions
+                    ]
+                ),
+                hide_index=True,
+                width="stretch",
+            )
+        _render_messages(validation_result.messages)
+
+    with overview_tab:
+        _render_technical_selection_overview()
+    with selection_tab:
+        st.caption("Die Auswahl bleibt ein synthetischer Sitzungsentwurf und wird erst mit Speichern uebernommen.")
+        heating_tab, cooling_tab, ventilation_tab, storage_tab, dhw_tab, electrical_tab = st.tabs(
+            TECHNICAL_SELECTION_TAB_LABELS
+        )
+        with heating_tab:
+            _render_technical_topic("heating", "Heizung", "heating_generators")
+        with cooling_tab:
+            _render_technical_topic("cooling", "Kuehlung", "cooling_generators")
+        with ventilation_tab:
+            _render_technical_topic("ventilation", "Lueftung")
+        with storage_tab:
+            _render_technical_topic("storage", "Speicher", "thermal_storages")
+        with dhw_tab:
+            _render_technical_topic("domestic_hot_water", "Trinkwarmwasser")
+        with electrical_tab:
+            _render_technical_topic("electrical", "Elektrik")
+        if st.button("Technikauswahl speichern", type="primary", key="technical_selection_save"):
+            _save_technical_selection()
+            st.success("Technikauswahl wurde fuer diese Sitzung uebernommen.")
 
 
 def _render_technical_topic(topic_key: str, label: str, catalog_category: str | None = None) -> None:
@@ -136,12 +157,15 @@ def _render_technical_topic(topic_key: str, label: str, catalog_category: str | 
         format_func=lambda option_id, available_records=records: _technical_option_label(available_records, option_id),
         key=f"technical_topic_{topic_key}",
     )
-    selection_key = f"technical_topic_selection_{topic_key}"
+    selection_key = f"technical_topic_draft_selection_{topic_key}"
     if selected_id == "not_installed":
         st.session_state[selection_key] = {"availability": "not_installed", "topic": topic_key}
         st.dataframe(
             normalize_table_for_streamlit(
-                [{"Merkmal": "Status", "Wert": "Nicht vorhanden"}, {"Merkmal": "Verfuegbarkeit", "Wert": "not_installed"}]
+                [
+                    {"Merkmal": "Status", "Wert": "Nicht vorhanden"},
+                    {"Merkmal": "Verfuegbarkeit", "Wert": "not_installed"},
+                ]
             ),
             hide_index=True,
             width="stretch",
@@ -151,7 +175,10 @@ def _render_technical_topic(topic_key: str, label: str, catalog_category: str | 
         st.session_state[selection_key] = {"availability": "planned", "topic": topic_key}
         st.dataframe(
             normalize_table_for_streamlit(
-                [{"Merkmal": "Status", "Wert": "Vorhanden, noch ohne Demo-Datensatz"}, {"Merkmal": "Verfuegbarkeit", "Wert": "planned"}]
+                [
+                    {"Merkmal": "Status", "Wert": "Vorhanden, noch ohne Demo-Datensatz"},
+                    {"Merkmal": "Verfuegbarkeit", "Wert": "planned"},
+                ]
             ),
             hide_index=True,
             width="stretch",
@@ -188,13 +215,32 @@ def _render_technical_selection_overview() -> None:
             value = selection.label
             status = selection.selection_status
         elif isinstance(selection, dict):
-            value = "Nicht vorhanden" if selection.get("availability") == "not_installed" else "Vorhanden ohne Demo-Datensatz"
+            value = (
+                "Nicht vorhanden"
+                if selection.get("availability") == "not_installed"
+                else "Vorhanden ohne Demo-Datensatz"
+            )
             status = str(selection.get("availability"))
         else:
             value = "Noch nicht ausgewaehlt"
             status = "unknown"
         rows.append({"Thema": label, "Auswahl": value, "Status": status})
     st.dataframe(normalize_table_for_streamlit(rows), hide_index=True, width="stretch")
+
+
+def _save_technical_selection() -> None:
+    """Uebernimmt nur den sichtbaren Sitzungsentwurf, ohne die Ansicht zu verlassen."""
+    for topic_key in (
+        "heating",
+        "cooling",
+        "ventilation",
+        "storage",
+        "domestic_hot_water",
+        "electrical",
+    ):
+        draft_key = f"technical_topic_draft_selection_{topic_key}"
+        if draft_key in st.session_state:
+            st.session_state[f"technical_topic_selection_{topic_key}"] = st.session_state[draft_key]
 
 
 def _technical_option_label(records: tuple[DemoCatalogRecord, ...], option_id: str) -> str:

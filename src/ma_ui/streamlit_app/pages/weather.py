@@ -97,6 +97,7 @@ WEATHER_SELECTION_MODE_CITY = "Stadt"
 WEATHER_SELECTION_MODE_REGION = "Klimaregion"
 WEATHER_SELECTION_MODE_OPTIONS = (WEATHER_SELECTION_MODE_CITY, WEATHER_SELECTION_MODE_REGION)
 WEATHER_DATASET_TYPE_FILTER_OPTIONS = ("Jahr", "Sommer", "Winter")
+WEATHER_WORKSPACE_TAB_LABELS = ("Analyse", "Verwaltung")
 GENERATED_DISCOVERY_FIELDS = {
     "dataset_role",
     "display_name",
@@ -206,8 +207,7 @@ def weather_dataset_rows(
                 "Aktiv": dataset.is_active,
                 "Aktiviert": bool(selection_state and selection_state.is_activated(dataset.weather_key)),
                 "Projekt-Default": bool(
-                    selection_state
-                    and selection_state.project_default_weather_key == dataset.weather_key
+                    selection_state and selection_state.project_default_weather_key == dataset.weather_key
                 ),
                 "Datensatzstatus": status.status_label if status else "Nicht geprueft",
                 "Freigabestatus": status.release_status.value if status and status.release_status else "",
@@ -272,11 +272,7 @@ def _datasets_for_weather_dataset_type(
     dataset_type: str,
 ) -> list[WeatherDataset]:
     """Filtert Datensaetze fuer die kompakte Auswahl nach Jahr, Sommer oder Winter."""
-    return [
-        dataset
-        for dataset in datasets
-        if weather_dataset_type_label(dataset) == dataset_type
-    ]
+    return [dataset for dataset in datasets if weather_dataset_type_label(dataset) == dataset_type]
 
 
 def weather_dataset_label(
@@ -669,9 +665,7 @@ def _apply_location_suggestion_to_discovery(
 
 def _replace_stored_weather_discovery(updated_discovery: WeatherFileDiscovery) -> None:
     discoveries = [
-        discovery
-        for discovery in _stored_weather_discoveries()
-        if discovery.file_path != updated_discovery.file_path
+        discovery for discovery in _stored_weather_discoveries() if discovery.file_path != updated_discovery.file_path
     ]
     discoveries.append(updated_discovery)
     discoveries.sort(key=lambda discovery: discovery.file_path.as_posix())
@@ -806,7 +800,9 @@ def _render_weather_import_panel() -> None:
 
     st.markdown("**Import**")
     st.link_button("TRY-Daten beim DWD oeffnen", DWD_TRY_URL)
-    st.caption("Der Import legt die Datei nur lokal ab. Metadaten werden anschliessend ueber Scannen und Pruefen erzeugt.")
+    st.caption(
+        "Der Import legt die Datei nur lokal ab. Metadaten werden anschliessend ueber Scannen und Pruefen erzeugt."
+    )
     with st.form("ma_ui_weather_stage_form"):
         uploaded_file = st.file_uploader("TRY-Datei (.dat)", type=("dat",), key="ma_ui_weather_import_file")
         submitted = st.form_submit_button("Datei lokal ablegen", type="primary", width="stretch")
@@ -877,10 +873,7 @@ def _render_weather_discoveries(*, show_validation_hint: bool = False) -> None:
     st.markdown("**Gefundene lokale TRY-Dateien**")
     ready_discoveries = [discovery for discovery in discoveries if discovery.is_complete]
     open_discoveries = [discovery for discovery in discoveries if not discovery.is_complete]
-    st.caption(
-        f"{len(ready_discoveries)} vollstaendige Entwuerfe, "
-        f"{len(open_discoveries)} offene Entwuerfe."
-    )
+    st.caption(f"{len(ready_discoveries)} vollstaendige Entwuerfe, {len(open_discoveries)} offene Entwuerfe.")
     st.dataframe(
         normalize_table_for_streamlit(_weather_discovery_overview_rows(discoveries)),
         hide_index=True,
@@ -1293,8 +1286,7 @@ def _render_weather_selection(
         start_analysis = st.button("Wetteranalyse starten", type="primary", disabled=not file_exists)
         if not file_exists:
             st.warning(
-                "Die lokale TRY-Datei wurde nicht gefunden. "
-                "Die Analyse kann erst nach dem Ablegen der Datei starten."
+                "Die lokale TRY-Datei wurde nicht gefunden. Die Analyse kann erst nach dem Ablegen der Datei starten."
             )
         return selected_dataset, start_analysis
 
@@ -1477,11 +1469,7 @@ def _effective_release_status(result: WeatherAnalysisResult) -> ReleaseStatus:
 def _render_release_status(result: WeatherAnalysisResult) -> None:
     validation_result = result.validation_report.validation_result
     stored_decision = st.session_state.get(WEATHER_RELEASE_DECISION_SESSION_KEY)
-    decision = (
-        stored_decision
-        if release_decision_matches_result(stored_decision, result)
-        else result.release_decision
-    )
+    decision = stored_decision if release_decision_matches_result(stored_decision, result) else result.release_decision
 
     st.markdown("**Freigabe**")
     if isinstance(decision, ReleaseDecision):
@@ -1683,7 +1671,9 @@ def _render_critical_weather_events(result: WeatherAnalysisResult) -> None:
     selected_event_id = st.selectbox(
         "Ereignis fuer spaetere P021-Nutzung vormerken",
         options=tuple(events_by_id),
-        format_func=lambda event_id: f"{events_by_id[event_id].event_type} ({events_by_id[event_id].start_time:%Y-%m-%d})",
+        format_func=lambda event_id: (
+            f"{events_by_id[event_id].event_type} ({events_by_id[event_id].start_time:%Y-%m-%d})"
+        ),
         key=f"weather_event_selection_{result.run_id}",
     )
     selected_event = events_by_id[selected_event_id]
@@ -1744,42 +1734,29 @@ def _render_weather_analysis_result(
         hide_index=True,
         width="stretch",
     )
-    st.dataframe(normalize_table_for_streamlit(weather_plot_rows(result.plot_results)), hide_index=True, width="stretch")
+    st.dataframe(
+        normalize_table_for_streamlit(weather_plot_rows(result.plot_results)), hide_index=True, width="stretch"
+    )
     st.caption(f"Sitzungslog: {result.session_log_path}")
 
 
-def render() -> None:
-    """Zeigt Wetterkatalog, Auswahl und lokale Wetteranalyse."""
-    st.title("Wetterdaten")
-    st.caption("Lokale TRY-Datensaetze analysieren und Diagramme anzeigen")
-
-    try:
-        catalog = import_weather_catalog()
-    except Exception as exc:  # noqa: BLE001 - UI zeigt Servicefehler als Status an.
-        st.error(f"Wetterkatalog konnte nicht geladen werden: {exc}")
-        return
-
-    try:
-        location_catalog: WeatherLocationCatalog | None = import_weather_location_catalog()
-    except Exception as exc:  # noqa: BLE001 - UI zeigt Servicefehler als Status an.
-        location_catalog = None
-        st.warning(f"Standortkatalog konnte nicht geladen werden: {exc}")
-
-    active_datasets = catalog.active_datasets()
-    selection_state = get_weather_selection_state(st.session_state)
-    result = st.session_state.get(WEATHER_RESULT_SESSION_KEY)
-    status_by_key = _current_status_map(catalog, result)
-
+def _render_weather_analysis_workspace(
+    catalog: object,
+    location_catalog: WeatherLocationCatalog | None,
+    selection_state: WeatherSelectionState,
+    status_by_key: dict[str, WeatherDatasetStatus],
+) -> None:
+    """Rendert ausschliesslich Auswahl und Analyse, nie die Datenverwaltung."""
     st.subheader("Standort und Wetterauswahl")
 
-    if not active_datasets:
+    if not catalog.active_datasets():
         st.info("Im Wetterkatalog ist aktuell kein aktiver Wetterdatensatz vorhanden.")
-        _render_weather_dataset_section(catalog, status_by_key, selection_state, location_catalog)
         return
 
-    selected_dataset, start_analysis = _render_weather_selection(catalog, location_catalog, status_by_key, selection_state)
+    selected_dataset, start_analysis = _render_weather_selection(
+        catalog, location_catalog, status_by_key, selection_state
+    )
     if selected_dataset is None:
-        _render_weather_dataset_section(catalog, status_by_key, selection_state, location_catalog)
         return
 
     selected_start_year = weather_start_year(selected_dataset)
@@ -1808,16 +1785,44 @@ def render() -> None:
     if isinstance(result, WeatherAnalysisResult):
         if result.dataset.weather_key == selected_dataset.weather_key:
             _render_weather_analysis_result(result, selection_state)
-            status_by_key = _current_status_map(catalog, result)
         else:
             st.info(
                 "Es liegt ein Analyseergebnis fuer einen anderen Wetterdatensatz vor. "
                 "Starte die Analyse fuer die aktuelle Auswahl neu."
             )
 
-    _render_weather_dataset_section(
-        catalog,
-        status_by_key,
-        get_weather_selection_state(st.session_state),
-        location_catalog,
-    )
+
+def render() -> None:
+    """Zeigt Wetterkatalog getrennt nach Analyse und lokaler Verwaltung."""
+    st.title("Wetterdaten")
+    st.caption("Lokale TRY-Datensaetze analysieren und Diagramme anzeigen")
+
+    try:
+        catalog = import_weather_catalog()
+    except Exception as exc:  # noqa: BLE001 - UI zeigt Servicefehler als Status an.
+        st.error(f"Wetterkatalog konnte nicht geladen werden: {exc}")
+        return
+
+    try:
+        location_catalog: WeatherLocationCatalog | None = import_weather_location_catalog()
+    except Exception as exc:  # noqa: BLE001 - UI zeigt Servicefehler als Status an.
+        location_catalog = None
+        st.warning(f"Standortkatalog konnte nicht geladen werden: {exc}")
+
+    analysis_tab, management_tab = st.tabs(WEATHER_WORKSPACE_TAB_LABELS)
+    with analysis_tab:
+        result = st.session_state.get(WEATHER_RESULT_SESSION_KEY)
+        _render_weather_analysis_workspace(
+            catalog,
+            location_catalog,
+            get_weather_selection_state(st.session_state),
+            _current_status_map(catalog, result),
+        )
+    with management_tab:
+        result = st.session_state.get(WEATHER_RESULT_SESSION_KEY)
+        _render_weather_dataset_section(
+            catalog,
+            _current_status_map(catalog, result),
+            get_weather_selection_state(st.session_state),
+            location_catalog,
+        )

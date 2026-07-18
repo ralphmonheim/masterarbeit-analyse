@@ -362,6 +362,22 @@ Zu pruefen sind mindestens:
 - Tests: Demo-Lader, Fachmodelle, Validierung und Diagnose sind automatisiert
   abgedeckt.
 
+### V1-Nachtrag: lokale Katalogtabellen und Gebaeude-Reiter
+
+Der nach UD-089 freigegebene lokale Katalogslice erzeugt drei ignorierte
+Referenzdateien fuer Materialien, Wandkonstruktionen und `Surfaces`. Ein
+separater, nur lesender `ma_building`-Loader validiert deren minimale Struktur
+und bleibt vollstaendig von `ma_database.DemoCatalog` sowie dessen
+Manifest-/Bundle-Logik getrennt. Die Daten sind keine simulationsfaehige
+Katalogbasis und werden weder automatisch zugeordnet noch veroeffentlicht.
+
+Die V1-Ansicht gruppiert die Gebaeudedaten in `Uebersicht`, `Bauteile` und
+`Konstruktionen`: Bauteile erhalten eine Uebersicht sowie Typ-Reiter;
+Fenster und Tueren liegen darunter. Konstruktionen zeigen die vorhandenen
+Konstruktionen und `Surfaces` gemeinsam, Materialien und Produkte jeweils in
+passenden Unterreitern. `Modellquellen` ist bewusst nicht Teil von V1 und
+bleibt nur als spaetere Produktentscheidung offen.
+
 ## Preprocess V1-Mindestumfang
 
 Fuer P013-S3 wird ein kleiner manueller Raumregister-Slice benoetigt. Er
@@ -419,3 +435,5 @@ additive Erweiterung fuer den V1-Referenzfall.
   fuer Raumregister, Oeffnungen und Bauteilzuweisung?
 - Welche Analyseziele benoetigen in der Masterarbeit BIL-4 und welche duerfen
   mit frueheren Reifegraden arbeiten?
+- Soll der ausgeblendete UI-Reiter `Modellquellen` nach V1 aus dem Projekt
+  entfernt werden, oder bleibt er als spaetere Diagnoseansicht erhalten?

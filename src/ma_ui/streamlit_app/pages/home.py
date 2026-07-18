@@ -20,6 +20,7 @@ from ma_ui.streamlit_app.workflow_graph import (
     WorkflowCard,
     cross_cutting_card_rows,
     feedback_path_rows,
+    status_style,
     workflow_card_rows,
     workflow_cards_by_phase,
 )
@@ -32,6 +33,7 @@ STATUS_LABELS = {
     "manual": "Manuell",
 }
 CARDS_PER_ROW = 4
+_SECONDARY_STATUS_PILLS = {"weather": ("Diagramme", "partial")}
 
 
 def workflow_status_counts(rows: list[dict[str, object]] | None = None) -> dict[str, int]:
@@ -130,11 +132,20 @@ def _render_dashboard_styles() -> None:
 
 
 def _workflow_card_html(card: WorkflowCard) -> str:
+    secondary_status = _SECONDARY_STATUS_PILLS.get(card.step_key)
+    secondary_pill = ""
+    if secondary_status:
+        label, status = secondary_status
+        style = status_style(status)
+        secondary_pill = f"""
+      <div class="workflow-status-pill" style="background:{style["background"]}; color:{style["color"]};">
+        {escape(label)} – {escape(style["label"])}
+      </div>"""
     return f"""
     <div class="workflow-card">
       <div class="workflow-status-pill" style="background:{card.status_background}; color:{card.status_color};">
         {escape(card.status_label)}
-      </div>
+      </div>{secondary_pill}
       <div class="workflow-card-title">{escape(card.label)}</div>
       <div class="workflow-card-module">{escape(card.module_key)}</div>
       <div class="workflow-card-description">{escape(card.description)}</div>

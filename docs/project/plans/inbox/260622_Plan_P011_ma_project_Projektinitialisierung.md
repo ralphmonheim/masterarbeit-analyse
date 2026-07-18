@@ -119,8 +119,7 @@ nicht zulaessig.
 - Projektordner, ID-Zaehler, `data/projects/`, WorkspacePaths oder
   `project.yaml`-Speichern;
 - Datei-/Assetkopien, PDFs, Bilder, Screenshots und reale Quellen;
-- UI-Erweiterung, Standortuebergabe an `ma_weather` und
-  Fachmodulreferenzen;
+- Standortuebergabe an `ma_weather` und Fachmodulreferenzen;
 - Naming-Umbenennung oder Move von `config/ma_variants/naming/` nach
   `config/ma_project/naming/`;
 - Aenderungen bestehender Building-IDs, InputSource-/Release- oder
@@ -147,6 +146,14 @@ nicht zulaessig.
   60 Tests; `ruff check` und Formatcheck sind gruen.
 
 ## Nachfolgende, getrennt zu entscheidende Slices
+
+### P011-S3-V1: lesende Projektuebersicht
+
+Die freigegebene V1-Ansicht ergaenzt die bestehende P028-Konfiguration um
+`Projektübersicht`. Sie zeigt einen klar synthetischen `Project`-Referenzfall
+sowie aktives Simulationsprogramm und Benennungsprofil aus dem bestehenden
+Sitzungszustand. Es gibt weder einen Editor noch eine Speicherung von
+Projektstammdaten, keine Standortuebergabe und keine Fachmodulreferenz.
 
 | Slice | Inhalt | Gate |
 | --- | --- | --- |

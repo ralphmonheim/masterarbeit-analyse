@@ -46,6 +46,7 @@ from .revisions import TechnicalModelRevision, load_technical_model_revision, re
 from .schedules import TechnicalSchedule, TechnicalScheduleRegistry
 from .specification import TechnicalModelSchemaVersion, TechnicalModelSpecification
 from .topology import TechnicalConnection, TechnicalPort, TechnicalServiceInterface, TechnicalTopology
+from .v2_loader import load_technical_model_specification, technical_model_specification_from_dict
 from .validation import validate_technical_model, validate_technical_spec
 
 __all__ = [
@@ -100,12 +101,14 @@ __all__ = [
     "TechnicalInputDetailLevel",
     "TechnicalSystemSpecification",
     "load_business_integration_lod1_technical_spec",
+    "load_technical_model_specification",
     "build_released_technical_handover",
     "load_technical_model_revision",
     "release_technical_model",
     "load_technical_spec",
     "technical_specification_from_any",
     "technical_specification_from_dict",
+    "technical_model_specification_from_dict",
     "validate_technical_spec",
     "validate_technical_model",
 ]

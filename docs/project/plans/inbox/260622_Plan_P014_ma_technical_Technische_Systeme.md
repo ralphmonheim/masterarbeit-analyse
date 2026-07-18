@@ -1,7 +1,7 @@
 # P014 ma_technical Technische Systeme
 
-Stand: 2026-07-15
-Status: Fachlich konsolidiert, P014-S1 Legacy-v1 kompatibel, v2-Kerntypen sowie P014-S1.1/S1.2, P014-S2 und P014-S3a umgesetzt; optionale lokale Katalogauswahl vorhanden; P013/P015-Releasecheckpoint angebunden, v2-Werteherkunft und Restumfang von P015-S3b offen
+Stand: 2026-07-18
+Status: Fachlich konsolidiert, P014-S1 Legacy-v1 kompatibel, v2-Kerntypen sowie P014-S1.1/S1.2, P014-S2, P014-S3a und P014-S4 umgesetzt; optionale lokale Katalogauswahl vorhanden; P013/P015-Releasecheckpoint angebunden, v2-Werteherkunft und Restumfang von P015-S3b offen
 Prioritaet: Hoch
 Abhaengigkeiten: P010, P012, P013, P015, P017, P027
 
@@ -262,13 +262,70 @@ lokale Suite mit `513 passed`; `ruff check` und `git diff --check` sind gruen.
 
 ### P014-S4 V2-Referenzfall und Abnahme
 
-- Eine kleine v2-Referenztechnik wird als manuell gepflegte YAML-Datei
-  hinterlegt; sie benoetigt nicht alle optionalen Primaerbereiche.
-- Tests decken Roundtrip, Hash-Stabilitaet, doppelte IDs, unbekannte
-  Referenzen, optionale Primaerbereiche, Serviceinterface-Regeln und die
-  unveraenderte v1-Kompatibilitaet ab.
-- Der Abnahmenachweis zeigt: Eine freigegebene P014-v2-Revision ist durch P013
-  referenzierbar und durch P015 als Eingabequelle uebernehmbar.
+Council-Beschluss vom 2026-07-18: Mira, Vera und Justus bilden gemaess
+UD-089 eine einstimmige 3/5-Mehrheit fuer diesen lokalen, reversiblen
+Abnahmeslice. Justus bewertet ihn mit Verweis auf
+`SHARED-COMPLIANCE-003` und `SHARED-COMPLIANCE-004` in
+`docs/compliance/shared/decision_log.yaml` als `green`.
+
+- Eine kleine, ausschliesslich projektseitig erstellte V2-Spezifikation wird
+  als versionierte YAML-Eingabe unter `config/ma_technical/examples/`
+  hinterlegt. Sie traegt einen sichtbaren Synthetic-Header; alle IDs, Namen
+  und Zahlenwerte sind konstruiert, nicht normativ und nicht fuer Entwurf
+  oder Simulation bestimmt.
+- Ein additiver allgemeiner V2-Parser/Loader bildet YAML-Mappings auf
+  `TechnicalModelSpecification` ab. Er erzwingt `schema_version: "2.0"`,
+  Pflichtfelder und bekannte Modellstrukturen einschliesslich verschachtelter
+  Dataclasses, Enums, `ObjectReference`, optionaler Bereiche und
+  Tupelregister. Unbekannte oder strukturell fehlerhafte Eingaben werden
+  abgewiesen; anschliessend bleibt `validate_technical_model()` die fachliche
+  Freigabepruefung.
+- Der Legacy-V1-Loader `load_technical_spec()` und die bestehende
+  Revisionsladefunktion bleiben unveraendert. Es wird keine erzeugte Revision
+  mit Laufzeitstempel versioniert: Freigabe, Reload und Hash-Pruefung laufen
+  ausschliesslich in `tmp_path`.
+- Tests decken den allgemeinen Parser, Minimal- und verschachtelte Referenzen,
+  optionale Bereiche, Schema-/Pflichtfeld-/Unbekanntfeldfehler, Revision und
+  Hash-Stabilitaet, Serviceinterface-Regeln, den unveraenderten V1-Vertrag
+  sowie die bestehende P013- und P015-Referenzkette ab.
+- Der Abnahmenachweis zeigt: Eine aus der geladenen V2-Spezifikation
+  freigegebene P014-Revision ist durch P013 referenzierbar und durch P015 als
+  Eingabequelle uebernehmbar.
+
+Ausgeschlossen bleiben V2-Werteherkunft, automatische Revisionen, UI/Editor,
+V1-zu-V2-Migration, Katalog-, Produkt-, Normen- und reale Projektdaten,
+IDA-Dateien, neue Dependencies, externe Verarbeitung, Hooks, Commits, Pushes
+und Veroeffentlichungen.
+
+Umgesetzt am 2026-07-18: `v2_loader.py` liefert einen strikt typisierten,
+oeffentlichen V2-Einstieg fuer YAML oder Mapping-Daten. Er lehnt falsche
+Schema-Versionen, fehlende oder leere Pflichttexte, unbekannte Felder,
+ungueltige Enums und fehlerhafte verschachtelte Strukturen ab. Die
+projektseitige Referenzdatei
+`config/ma_technical/examples/technical_v2_reference_spec.yaml` bleibt
+sichtbar als synthetischer, nicht normativer Testeingang. Ihre Freigabe,
+Reload und der P013-/P015-Checkpoint laufen ausschliesslich lokal in
+`tmp_path`.
+
+Der Council hat im Abschlussreview einstimmig die zwingende Minimalergänzung
+`Path.as_posix()` in der bestehenden Payload-Serialisierung bestaetigt: Damit
+wird ein vorhandener relativer `InputSource.source_path` plattformstabil
+hash- und YAML-faehig. Sie aendert weder den V1- noch den Revisionsvertrag;
+absolute oder reale Pfade bleiben ausgeschlossen. Der abschliessende
+relevante P014-Fokuslauf besteht mit `45 passed in 10.61s`, die vollstaendige
+lokale Suite mit `591 passed in 193.30s`. Ruff-Check der betroffenen Dateien
+sowie `git diff --check` sind gruen.
+
+Nachtrag zum Abschlussreview am 2026-07-18: Vera, Mira und Professor Sophia
+stimmen gemaess UD-089 einstimmig fuer eine minimale Vertragshaertung ohne
+Architektur- oder Persistenzausbau. Persistierte V2-`input_source`-Objekte
+benoetigen eine nichtleere `source_id`, damit der bestehende Content-Hash nicht
+durch einen zufaelligen Laufzeitdefault variiert. Der Loader akzeptiert zudem
+zeitzonenbehaftete YAML-Datetime-Skalare; naive Zeitpunkte bleiben gesperrt.
+Der All-fields-Nachweis durchlaeuft den oeffentlichen YAML-Pfad sowie
+Revision, Reload und wiederholte Hash-Gleichheit ausschliesslich mit
+synthetischen Daten. Die Testzahlen werden nach dem abschliessenden Volltest
+aktualisiert.
 
 ## Naechste Slices nach Preprocess V1
 

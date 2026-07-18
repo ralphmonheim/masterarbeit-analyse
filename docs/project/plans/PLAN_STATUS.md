@@ -1,6 +1,6 @@
 # Plan Status
 
-Stand: 2026-07-15
+Stand: 2026-07-18
 
 Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt und nach jeder Planumsetzung aktualisiert. Vollstaendige alte Planstaende liegen unter `docs/project/archive/plans/`.
 
@@ -118,6 +118,21 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   sind am TRY-Wetterimport erprobt.
 - P027 begleitet alle Fachslices mit UI-, Workflow-, Validierungs- und
   Feedbackregeln.
+- `ma_weather` ist fuer den lokal getesteten V1-Umfang zentral als
+  `available` registriert. Die Startkarte markiert `Diagramme – Teilweise`
+  amberfarben als getrennten Ausbaustand; reale Wetterdaten und deren
+  Compliance-Gates werden dadurch nicht erweitert.
+- Der lokale P027-V1-UI-Slice ist umgesetzt: Die zentrale Infokarte
+  erlaeutert den dokumentierten V1-Rahmen fuer alle Module; die praktischen
+  Modulansichten bleiben frei von doppelten V1-Hinweisen. `ma_weather` nutzt
+  `Analyse | Verwaltung`, `ma_technical` `Technikmodell | Übersicht | Auswahl`
+  und `ma_zones` `Übersicht | Nutzungsprofile zuweisen`.
+- P012 ergaenzt die Gebaeudeansicht lokal um `Uebersicht | Bauteile |
+  Konstruktionen`: Bauteile enthalten auch Fenster und Tueren in Typ-Reitern;
+  die Uebersicht zeigt die abgestimmten Stammdaten sowie Flaechen-/Volumenwerte.
+  Drei ignorierte Referenzkataloge fuer Materialien, Wandkonstruktionen und
+  `Surfaces` werden nur durch `ma_building` gelesen, nicht zugeordnet oder
+  veroeffentlicht. `Modellquellen` ist bewusst aus V1 ausgeblendet.
 - P027 ergaenzt die Vereinheitlichung von Template-Befehlen fuer Ausgabemodule
   wie `ma_analyse` und `ma_weather`; in der Tkinter-Analyse soll der erste
   Befehlsschritt `plot-template-analyse` als Default gesetzt werden.
@@ -137,6 +152,9 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   P011-S1a stellt immutable Projektmodelle und reine Serialisierung ohne
   Persistenz, Assets, UI oder Naming-Pfadmigration bereit. P011-S1b bleibt
   ein eigener Pfad-, Speicherort- und Ignore-Gate-Scope.
+- Die Projektansicht ergaenzt P028 lokal um `Projektübersicht`: synthetische
+  P011-Stammdaten und bestehender Sitzungszustand werden lesend gezeigt;
+  Projektpersistenz, Standortuebergabe und Fachmodulreferenzen bleiben offen.
 - P009 bleibt bis zum validierten `RunManifest` aus P018 zurueckgestellt. Der
   vorhandene Basisexport in `ma_variants.ida_export` wird spaeter
   wiederverwendet, nicht dupliziert.
@@ -228,9 +246,32 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   P014-S3a liefert einen referenz-only Handover aus einer freigegebenen,
   hashkonsistenten v2-Revision an nachgelagerte Module. Zusammen mit P013-S3c
   ist daraus ein separat validierter P013-/P014-Checkpoint fuer P015 entstanden.
-  Offen bleiben die v2-Werteherkunft und der Vollumfang von P015-S3b; v1-Demo,
-  IDA-Adapter, Export, Templates und automatische Dimensionierung bleiben
-  ausserhalb dieses Umfangs.
+  P014-S4 ist gemaess der dokumentierten Council-Mehrheit abgeschlossen:
+  Ein allgemeiner, strikter V2-YAML-Loader und eine sichtbar synthetische
+  Referenz pruefen die bestehende Freigabe-/Reload-/Handoverkette bis zum
+  P013-/P015-Checkpoint. Persistierte V2-Provenienz verlangt eine feste
+  `source_id`; zeitzonenbehaftete YAML-Zeitstempel werden reproduzierbar
+  geladen. V1 und die Revisions-API bleiben kompatibel;
+  erzeugte Revisionen bleiben in `tmp_path`. Die notwendige kanonische
+  `Path.as_posix()`-Payloaddarstellung ist auf relative synthetische
+  Herkunftspfade begrenzt. Der abschliessende P014-Fokuslauf endet mit
+  `45 passed`, die vollstaendige lokale Suite mit `591 passed`. Offen bleiben die v2-Werteherkunft und der
+  Vollumfang von P015-S3b; v1-Demo, IDA-Adapter, Export, Templates und
+  automatische Dimensionierung bleiben ausserhalb dieses Umfangs.
+- Der V1-UI-Slice bestaetigt die registrierte P028-Projektansicht ohne
+  Router- oder Cachefehler. `ma_technical` trennt Technikmodell, Übersicht
+  und Auswahl; `ma_zones` trennt Übersicht und Profilzuordnung. Beide
+  Auswahlbereiche uebernehmen ausschliesslich explizit gespeicherte,
+  sitzungsgebundene und synthetische Demo-Entwuerfe. Der fokussierte
+  UI-Vertrag endet mit `114 passed`, die abschliessende lokale Suite mit
+  `593 passed`.
+- Fuer `ma_building` ist der abgestimmte erste Reiter `Übersicht` umgesetzt:
+  Stammdaten mit LoD und Reifegrad stehen getrennt von Flaechen- und
+  Volumenkennwerten; Bauteile, Oeffnungen, Konstruktionen und Modellquellen
+  bleiben fuer die naechste Einzelabstimmung unveraendert.
+- Jede V1-Infokarte erklaert jetzt allgemeine Begriffe sowie passende
+  modulbezogene Fachbegriffe zentral. Fuer `ma_building` sind alle BIL- und
+  LoD-Stufen erfasst; die Arbeitsansichten enthalten keine Doppelungen.
 - Preprocess V1 ist als verbindlicher erster Durchstich festgelegt:
   Projekt- und Eingabequellen, freigegebene Baseline, Referenzdimensionierung,
   kleine Variantenstudie und ein neutrales, validiertes Run-Paket bilden den
@@ -320,7 +361,10 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   Legacy-Reexports sind nachgewiesen. Die Katalog-Defaultpfade bleiben
   unveraendert unter `config/ma_variants/`; W2b und alle weiteren Wellen
   brauchen einen exakten Council-Mehrheitsbeschluss nach UD-089. Externe Tools
-  und Sondergates bleiben weiterhin getrennt.
+  und Sondergates bleiben weiterhin getrennt. P032-W3a-T0 entfernt die
+  Runtimekante `ma_technical -> ma_zones` ohne API- oder Fachlogikaenderung;
+  die vollstaendige fachliche Ownership-Verlagerung der Legacy-Zonenpruefung
+  bleibt ein getrennter, offener W3a-Slice.
 - Masterarbeits-MVP V1 ist der uebergeordnete erste Nutzennachweis: von
   Projekt- und Eingabeaufnahme ueber Baseline, Varianten und neutrales
   Run-Paket bis zu manueller Simulation, neutraler Ergebnisaufnahme, drei

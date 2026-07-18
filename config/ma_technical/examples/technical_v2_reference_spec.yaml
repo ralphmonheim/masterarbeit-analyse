@@ -1,0 +1,33 @@
+# SYNTHETIC TEST/REFERENCE DATA – no real project, manufacturer, catalog or standard values; not for design/simulation
+# Project-authored synthetic fixture. All identifiers and values are constructed
+# solely to exercise the P014 v2 YAML loader and release-handover contract.
+schema_version: "2.0"
+technical_model_id: "SYNTHETIC-TECHNICAL-MODEL-0001"
+project_id: "SYNTHETIC-PROJECT-0001"
+building_reference:
+  object_id: "SYNTHETIC-BUILDING-0001"
+  revision_id: "SYNTHETIC-BUILDING-REV-0001"
+  object_type: "BuildingModelSpecification"
+declared_detail_level: "LOD-1"
+equipment_register:
+  - equipment_id: "SYNTHETIC-EQUIPMENT-0001"
+    equipment_type: "synthetic_heat_source"
+    availability: "planned"
+    representation_mode: "assumed"
+    input_detail_level: "LOD-1"
+    supported_services:
+      - "heating"
+service_interfaces:
+  - interface_id: "SYNTHETIC-SERVICE-HEATING-0001"
+    service_type: "heating"
+    source_system_reference:
+      object_id: "SYNTHETIC-EQUIPMENT-0001"
+      object_type: "PhysicalEquipment"
+    medium: "water"
+    capacity_mode: "ideal_unlimited"
+    compatible_terminal_types:
+      - "synthetic_terminal"
+assumptions:
+  - assumption_id: "SYNTHETIC-ASSUMPTION-0001"
+    text: "Constructed reference value; no real technical system is represented."
+    location: "P014-S4"

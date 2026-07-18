@@ -7,6 +7,12 @@ from .diagnostics import (
     scan_building_input_directory,
     scan_default_building_input_files,
 )
+from .local_catalogs import (
+    DEFAULT_BUILDING_CATALOG_DIRECTORY,
+    LocalCatalog,
+    LocalCatalogValidationError,
+    load_local_building_catalog,
+)
 from .models import (
     VALID_CONSTRUCTION_CODES,
     Assumption,
@@ -78,4 +84,8 @@ __all__ = [
     "scan_building_input_directory",
     "scan_default_building_input_files",
     "validate_building_spec",
+    "DEFAULT_BUILDING_CATALOG_DIRECTORY",
+    "LocalCatalog",
+    "LocalCatalogValidationError",
+    "load_local_building_catalog",
 ]

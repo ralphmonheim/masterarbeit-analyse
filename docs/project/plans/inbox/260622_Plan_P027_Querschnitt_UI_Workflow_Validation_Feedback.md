@@ -1,7 +1,7 @@
 # P027 Querschnitt UI, Workflow, Validation und Feedback
 
-Stand: 2026-07-12
-Status: Aktiv, begleitend
+Stand: 2026-07-18
+Status: Aktiv, begleitend; V1-Infokarten- und Bedienansichtsslice umgesetzt
 Prioritaet: Hoch
 Abhaengigkeiten: alle P007-Teilplaene
 
@@ -30,6 +30,59 @@ Serviceaufrufe ueber alle Fachslices konsistent darstellen und steuern.
 - Compliance-Warnungen aus `ma_core.compliance` einheitlich anzeigen:
   `green` ausfuehren, `yellow` bis zur dokumentierten Bestaetigung und allen
   erforderlichen Belegen blockieren, `red` und `unknown` stoppen.
+
+## V1-Infokarten- und Bedienansichtsslice 2026-07-18
+
+Die vorhandene zentrale Infokarte zeigt fuer jedes katalogisierte Modul den
+V1-Rahmen `Was`, `Wie`, `Warum` und `Wann` ausschliesslich aus
+`ma_workflow.ModuleDefinition`. Die praktischen Modulansichten erhalten keine
+zweite V1-Infooberflaeche. Der Katalogstatus beschreibt keinen Nachweis einer
+ausfuehrbaren Demo.
+
+Als verbindlicher V1-Punkt erklaert jede Infokarte zudem allgemeine Begriffe
+wie V1-Rahmen, Freigabestatus, Annahme und Demo-/Uebergangsstand. Fachliche
+Begriffe werden zentral nach Modul ergaenzt; `ma_building` erklaert vollstaendig
+die BIL-Reifegrade und LoD-Eingabestufen. Die Arbeitsansichten bleiben frei von
+duplizierten Erklaerungen.
+
+- `ma_weather` trennt die Bedienung in `Analyse | Verwaltung`; Import, Scan,
+  Pruefung und Bestandsuebersicht bleiben in `Verwaltung` auch ohne aktiven
+  Wetterdatensatz erreichbar. Die ergebnisgebundene Aktivierung und der
+  Projekt-Default verbleiben unveraendert in `Analyse`.
+- Der zentral registrierte Wetter-V1-Umfang ist `available`. Die Startkarte
+  kennzeichnet den separaten Diagrammausbau mit `Diagramme – Teilweise` in
+  der vorhandenen amberfarbenen Statusdarstellung, ohne einen zweiten
+  Fachmodulstatus zu erzeugen.
+- Die Projektseite ist korrekt auf die vorhandene P028-Fachansicht fuer
+  Simulationsprogramme und Varianten-Benennung registriert; Router,
+  Seitenregistrierung und Sitzungsmodus verwenden keine zweite Projektansicht.
+- `ma_technical` trennt `Technikmodell | Übersicht | Auswahl`. Die Auswahl
+  bleibt bis zum expliziten Speichern ein Sitzungsentwurf und aktualisiert
+  danach nur die sichtbare technische Auswahluebersicht.
+- `ma_zones` trennt `Übersicht | Nutzungsprofile zuweisen`. Zugeordnete
+  Referenzprofile zeigen zentrale Profilwerte; zusaetzliche Profile sind
+  sichtbar synthetische Demo-Annahmen und werden ebenfalls nur sitzungsweit
+  nach explizitem Speichern uebernommen.
+- Der erste abgestimmte `ma_building`-Reiter `Übersicht` trennt die
+  Gebaeudestammdaten einschliesslich LoD und Reifegrad von den zentralen
+  Flaechen- und Volumenkennwerten. Die vorhandene Fachspezifikation und die
+  Validierungslogik bleiben read-only.
+- `ma_building` erweitert V1 um `Bauteile` mit Übersicht und Typ-Reitern;
+  Fenster und Tueren werden dort als Bauteile gezeigt. `Konstruktionen` fasst
+  Wandkonstruktionen und `Surfaces` zusammen, Materialien und Produkte liegen
+  in eigenen Unterreitern. Die drei lokalen Katalogdateien sind ignoriert,
+  werden separat und nur lesend validiert und bleiben von `DemoCatalog`,
+  Simulationen und automatischen Zuordnungen getrennt. `Modellquellen` ist
+  nicht Teil der V1-UI.
+- Nicht Teil sind neue Fachservices, reale Importe, persistente
+  Modellzuordnungen, ein v2-Editor, Simulationen, Dependencies oder externe
+  Verarbeitung.
+
+Der abschliessende fokussierte Gebaeude-/UI-Testlauf umfasst `124 passed in
+6.93s`; die abschliessende vollstaendige lokale Suite umfasst `604 passed in
+159.41s`.
+Statische Ruff- und Format-Checks der geaenderten UI- und Testdateien sind
+gruen.
 
 ## P018- und P030-Integration
 

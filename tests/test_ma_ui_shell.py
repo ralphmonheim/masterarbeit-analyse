@@ -57,7 +57,7 @@ from ma_analyse.analysis_wizard import (
     visible_analysis_steps,
 )
 from ma_analyse.models import AnalysisConfig, AnalysisResult
-from ma_building import load_business_integration_lod1_building_spec
+from ma_building import load_business_integration_lod1_building_spec, load_demo_building_spec
 from ma_database import DemoCatalog, DemoCatalogRecord
 from ma_technical import load_business_integration_lod1_technical_spec
 from ma_ui import app as ma_ui_app
@@ -81,6 +81,7 @@ from ma_ui.module_views import (
     import_ida_view,
     module_info_view,
     parameters_view,
+    project_view,
     simulation_setup_view,
     technical_view,
     variants_view,
@@ -114,6 +115,7 @@ from ma_ui.pre_process_view import pre_process_step_rows
 from ma_ui.resource_status import ResourceSpec, resource_status, resource_status_rows, resource_statuses_for_step
 from ma_ui.shared import normalize_table_for_streamlit
 from ma_ui.state import ProjectState
+from ma_ui.streamlit_app.state.configuration_state import load_default_configuration_state
 from ma_ui.tkinter_app.module_views.analyse import app as tkinter_analyse_app
 from ma_ui.tkinter_app.module_views.analyse.cli import parse_tkinter_analyse_args
 from ma_ui.tkinter_app.module_views.analyse.pipeline_config import build_tkinter_analysis_config
@@ -148,7 +150,7 @@ from ma_weather import (
     WeatherPlotResult,
     import_weather_location_catalog,
 )
-from ma_workflow import get_step
+from ma_workflow import get_step, list_module_definitions
 from ma_zones import load_business_integration_lod1_zone_spec
 
 
@@ -209,7 +211,7 @@ def test_ui_navigation_page_metadata():
     assert analyse_page.module_key == "ma_analyse.stage_2_optimization"
     assert analyse_page.status == "partial"
     assert weather_page.module_key == "ma_weather"
-    assert weather_page.status == "partial"
+    assert weather_page.status == "available"
     assert variants_page.status == "planned"
     assert import_page.status == "planned"
     assert get_navigation_page("import_ida") == import_page
@@ -250,10 +252,13 @@ def test_navigation_normalizes_unknown_session_page_key():
     assert VIEW_MODE_SESSION_KEY == "ma_ui_view_mode"
     assert SCROLL_TO_TOP_SESSION_KEY == "ma_ui_scroll_to_top"
     assert normalize_page_key("analyse", ("home", "analyse")) == "analyse"
-    assert normalize_page_key(
-        "export_ida",
-        ("home", "export_simulation"),
-    ) == "export_simulation"
+    assert (
+        normalize_page_key(
+            "export_ida",
+            ("home", "export_simulation"),
+        )
+        == "export_simulation"
+    )
     assert normalize_page_key("missing", ("home", "analyse")) == "home"
     assert normalize_page_key(None, ("home", "analyse")) == "home"
     assert normalize_view_mode(WORKFLOW_VIEW_MODE) == WORKFLOW_VIEW_MODE
@@ -448,6 +453,28 @@ def test_building_view_exposes_business_integration_lod1_spec():
     assert summary_by_key["Eingabe-LoD"] == "LOD-1"
     assert summary_by_key["U-Wert Aussenwand [W/m2K]"] == 0.24
     assert summary_by_key["Fensteranteil [%]"] == 25.0
+    assert {row["Kennwert"] for row in building_view.building_master_data_rows(spec)} >= {
+        "Gebaeude",
+        "Gebaeude-ID",
+        "Eingabe-LoD",
+        "Reifegrad",
+    }
+    assert {row["Kennwert"] for row in building_view.building_area_volume_rows(spec)} >= {
+        "Nutzflaeche Raeume [m2]",
+        "Raumvolumen [m3]",
+    }
+
+
+def test_project_overview_combines_synthetic_master_data_and_session_configuration():
+    state = load_default_configuration_state()
+
+    rows = project_view.project_overview_rows(project_view._PROJECT_OVERVIEW_DEMO, state)
+    values_by_label = {row["Merkmal"]: row["Wert"] for row in rows}
+
+    assert values_by_label["Projekt-ID"] == "PRJ-000001"
+    assert values_by_label["Standort"] == "Synthetischer Referenzstandort"
+    assert values_by_label["Aktives Simulationsprogramm"]
+    assert values_by_label["Benennungsprofil"] == state.naming_profile.prefix
 
 
 def test_building_construction_rows_resolve_demo_material_layers():
@@ -487,9 +514,101 @@ def test_building_construction_rows_resolve_demo_material_layers():
     assert rows[0]["Material"] == "Neutrales Testmaterial"
 
 
+def test_building_element_tables_use_id_type_code_and_construction_order():
+    spec = load_demo_building_spec()
+
+    element_row = building_view.building_element_rows(spec)[0]
+    opening_row = building_view.building_opening_rows(spec)[0]
+
+    assert list(element_row)[:4] == ["ID", "Typ", "Code", "Konstruktion"]
+    assert list(opening_row)[:4] == ["ID", "Typ", "Code", "Konstruktion"]
+
+
 def test_technical_topic_options_include_not_installed():
     assert technical_view._technical_option_label((), "not_installed") == "Nicht vorhanden"
-    assert technical_view._technical_option_label((), "present_without_demo_record") == "Vorhanden, noch ohne Demo-Datensatz"
+    assert (
+        technical_view._technical_option_label((), "present_without_demo_record")
+        == "Vorhanden, noch ohne Demo-Datensatz"
+    )
+
+
+def test_technical_view_separates_model_overview_and_unsaved_selection():
+    technical_source = Path("src/ma_ui/streamlit_app/module_views/technical_view.py").read_text(encoding="utf-8")
+    render_source = technical_source.split("def render()", maxsplit=1)[1].split(
+        "def _render_technical_topic",
+        maxsplit=1,
+    )[0]
+
+    assert technical_view.TECHNICAL_WORKSPACE_TAB_LABELS == ("Technikmodell", "Übersicht", "Auswahl")
+    assert technical_view.TECHNICAL_SELECTION_TAB_LABELS == (
+        "Heizung",
+        "Kuehlung",
+        "Lueftung",
+        "Speicher",
+        "Trinkwarmwasser",
+        "Elektrik",
+    )
+    assert "st.tabs(TECHNICAL_WORKSPACE_TAB_LABELS)" in render_source
+    assert "TECHNICAL_SELECTION_TAB_LABELS" in render_source
+    assert "Technikauswahl speichern" in render_source
+    assert "Einordnung" not in render_source
+    assert "technical_scope_rows()" not in render_source
+
+
+def test_module_info_v1_status_messages_cover_every_catalog_status():
+    catalog_statuses = {module.status for module in list_module_definitions()}
+
+    assert catalog_statuses <= set(module_info_view.V1_STATUS_MESSAGES)
+    assert "sichtbar verfuegbaren Funktionen" in module_info_view.v1_status_message("partial")
+    assert "fachlich noch nicht freigegeben" in module_info_view.v1_status_message("planned")
+    assert "Demonstrations- oder Uebergangsstand" in module_info_view.v1_status_message("planned")
+    assert module_info_view.v1_status_message("unknown") == "Der aktuelle V1-Umfang ist im Modulkatalog dokumentiert."
+
+
+def test_building_info_card_explains_bil_and_lod_levels_centrally():
+    terms = dict(module_info_view.info_terms("ma_building"))
+
+    assert "BIL-4" in terms
+    assert "analysefaehiges gebaeudemodell" in terms["BIL-4"].lower()
+    assert "LoD-2" in terms
+    assert "strukturierter gebaeudeinput" in terms["LoD-2"].lower()
+    assert "V1-Rahmen" in dict(module_info_view.info_terms("unknown_module"))
+
+
+def test_technical_topic_session_keys_remain_stable(monkeypatch):
+    widget_keys: list[str] = []
+
+    class FakeStreamlit:
+        session_state: dict[str, object] = {}
+
+        @staticmethod
+        def selectbox(_label, _options, *, format_func, key):
+            del format_func
+            widget_keys.append(key)
+            return "not_installed"
+
+        @staticmethod
+        def dataframe(*_args, **_kwargs):
+            return None
+
+    fake_streamlit = FakeStreamlit()
+    monkeypatch.setattr(technical_view, "st", fake_streamlit)
+
+    topic_keys = (
+        "heating",
+        "cooling",
+        "ventilation",
+        "storage",
+        "domestic_hot_water",
+        "electrical",
+    )
+    for topic_key in topic_keys:
+        technical_view._render_technical_topic(topic_key, topic_key.title())
+
+    assert widget_keys == [f"technical_topic_{topic_key}" for topic_key in topic_keys]
+    assert set(fake_streamlit.session_state) == {
+        f"technical_topic_draft_selection_{topic_key}" for topic_key in topic_keys
+    }
 
 
 def test_building_zones_and_technical_views_are_registered():
@@ -517,16 +636,23 @@ def test_zones_and_technical_views_show_lod1_demo_data():
     assert technical_summary["Systeme"] == 3
 
 
+def test_zone_overview_uses_saved_synthetic_profile_assignments():
+    zone_spec = load_business_integration_lod1_zone_spec()
+
+    rows = zones_view.zone_overview_rows(zone_spec, {zone_spec.zones[0].zone_id: "synthetic_office"})
+
+    assert zones_view.ZONE_WORKSPACE_TAB_LABELS == ("Übersicht", "Nutzungsprofile zuweisen")
+    assert rows[0]["Nutzungsprofil"] == "Demo-Buero (synthetisch)"
+    assert rows[0]["Betrieb [h]"] == "Demo-Annahme"
+
+
 def test_dimensioning_view_is_registered_and_uses_lod1_result():
     from ma_analyse.stage_1_dimensioning import run_business_integration_lod1_reference_dimensioning
 
     assert ma_ui_app._PAGE_RENDERERS["dimensioning"] is dimensioning_view.render
 
     result = run_business_integration_lod1_reference_dimensioning()
-    summary_rows = {
-        row["Kennwert"]: row["Wert"]
-        for row in dimensioning_view.dimensioning_summary_rows(result)
-    }
+    summary_rows = {row["Kennwert"]: row["Wert"] for row in dimensioning_view.dimensioning_summary_rows(result)}
 
     assert summary_rows["Status"] == "evaluated"
     assert summary_rows["Heizlast gesamt"] == 1701.6
@@ -656,8 +782,11 @@ def test_ui_uses_top_navigation_instead_of_sidebar_radio():
 
 def test_weather_dataset_actions_are_in_dataset_section():
     weather_source = Path("src/ma_ui/streamlit_app/pages/weather.py").read_text(encoding="utf-8")
+    analysis_workspace_source = weather_source.split("def _render_weather_analysis_workspace", maxsplit=1)[1].split(
+        "def render()",
+        maxsplit=1,
+    )[0]
     render_source = weather_source.split("def render()", maxsplit=1)[1]
-    top_selection_source = render_source.split("if not active_datasets:", maxsplit=1)[0]
     actions_source = weather_source.split("def _render_weather_dataset_actions", maxsplit=1)[1].split(
         "def _render_weather_import_panel",
         maxsplit=1,
@@ -679,7 +808,11 @@ def test_weather_dataset_actions_are_in_dataset_section():
         maxsplit=1,
     )[0]
 
-    assert "Bestand und Validierung pruefen" not in top_selection_source
+    assert weather_page.WEATHER_WORKSPACE_TAB_LABELS == ("Analyse", "Verwaltung")
+    assert "st.tabs(WEATHER_WORKSPACE_TAB_LABELS)" in render_source
+    assert "if not catalog.active_datasets():" in analysis_workspace_source
+    assert "_render_weather_dataset_section" not in analysis_workspace_source
+    assert render_source.count("_render_weather_dataset_section(") == 1
     assert "WEATHER_DATASET_ACTION_IMPORT" in actions_source
     assert "WEATHER_DATASET_ACTION_SCAN" in actions_source
     assert "WEATHER_DATASET_ACTION_VALIDATE" in actions_source
@@ -712,6 +845,63 @@ def test_weather_dataset_actions_are_in_dataset_section():
     assert "Gefundene lokale TRY-Dateien" in weather_source
     assert "Ort / Vorschlag" in weather_source
     assert "active_column, open_column = st.columns(2)" in dataset_section_source
+
+
+def test_weather_management_renders_without_active_dataset(monkeypatch):
+    management_calls: list[object] = []
+
+    class FakeTab:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, _exc_type, _exc_value, _traceback):
+            return False
+
+    class FakeStreamlit:
+        session_state: dict[str, object] = {}
+
+        @staticmethod
+        def title(_value):
+            return None
+
+        @staticmethod
+        def caption(_value):
+            return None
+
+        @staticmethod
+        def subheader(_value):
+            return None
+
+        @staticmethod
+        def info(_value):
+            return None
+
+        @staticmethod
+        def tabs(labels):
+            assert labels == weather_page.WEATHER_WORKSPACE_TAB_LABELS
+            return FakeTab(), FakeTab()
+
+    class EmptyWeatherCatalog:
+        @staticmethod
+        def active_datasets():
+            return []
+
+    catalog = EmptyWeatherCatalog()
+    fake_streamlit = FakeStreamlit()
+    monkeypatch.setattr(weather_page, "st", fake_streamlit)
+    monkeypatch.setattr(weather_page, "import_weather_catalog", lambda: catalog)
+    monkeypatch.setattr(weather_page, "import_weather_location_catalog", lambda: None)
+    monkeypatch.setattr(weather_page, "get_weather_selection_state", lambda _state: object())
+    monkeypatch.setattr(weather_page, "_current_status_map", lambda _catalog, _result: {})
+    monkeypatch.setattr(
+        weather_page,
+        "_render_weather_dataset_section",
+        lambda current_catalog, *_args: management_calls.append(current_catalog),
+    )
+
+    weather_page.render()
+
+    assert management_calls == [catalog]
 
 
 def test_weather_dataset_default_columns_only_affect_active_table():
@@ -1703,10 +1893,7 @@ def test_analyse_view_builds_plot_template_options():
 
 def test_analyse_view_parses_overlay_lines_text():
     overlay_lines = parse_overlay_lines_text(
-        "csv,zone_energy_q_heat,Heizung,heat\n"
-        "aux,tair,Aussenluft,temperature\n"
-        "invalid,line\n"
-        "csv,,Leer,heat"
+        "csv,zone_energy_q_heat,Heizung,heat\naux,tair,Aussenluft,temperature\ninvalid,line\ncsv,,Leer,heat"
     )
 
     assert overlay_lines == [

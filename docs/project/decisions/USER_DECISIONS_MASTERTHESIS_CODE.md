@@ -1673,3 +1673,28 @@ Stand: 2026-07-15
   und jede Naming-Pfadmigration bleiben von dieser Dokumentfreigabe getrennt.
 - Status: getroffen
 - Quelle oder Chatbezug: Nutzerfreigabe `p011 ist freigewgeben` am 2026-07-15
+
+## UD-091 V1-Infokarten und priorisierte P014-v2-Folgearbeit
+
+- Datum: 2026-07-18
+- Thema: Streamlit-V1, Modulinfokarten, Wetter- und Technikansicht sowie
+  Priorisierung des technischen v2-Modells
+- Entscheidung: Zuerst wird der abgestimmte lokale V1-UI-Slice umgesetzt.
+  Die V1-Erklaerungen stehen ausschliesslich in der vorhandenen zentralen
+  `Infokarte`, nicht nochmals als Karte oder Reiter in den praktischen
+  Modulansichten. Die Wetteransicht wird in `Analyse | Verwaltung`, die
+  Technikansicht in `Technikmodell | Technik-Katalog` gegliedert. Das
+  P014-v2-Modell bleibt danach ein hoch priorisierter, aber fachlich und
+  technisch getrennter Folgeslice.
+- Begruendung: Die erste Demonstration soll die vorhandenen, sichtbaren
+  Funktionen einfach pruefbar machen. Erklaerungen zu Was, Wie, Warum und
+  Wann muessen fuer alle Module einheitlich erreichbar sein, ohne die
+  Arbeitsansichten mit funktionslosen V1-Hinweisen zu ueberladen.
+- Auswirkung: Die Infokarte nutzt weiter ausschliesslich den kanonischen
+  `ma_workflow`-Modulkatalog. Die V1-UI fuegt keine reale Import-,
+  Persistenz-, Katalog-, v2-Editor- oder Simulationsfunktion hinzu.
+  P014-v2 wird erst im naechsten separat abgegrenzten Fachslice weitergebaut;
+  bestehende Vertrags-, Architektur- und Compliance-Gates bleiben wirksam.
+- Status: getroffen und im lokalen V1-UI-Slice umgesetzt
+- Quelle oder Chatbezug: Nutzerentscheidung `dann lass erstmal v1 bauen aber
+  v2 hat hier schonmal ne hohe Prio` am 2026-07-18

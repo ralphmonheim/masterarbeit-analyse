@@ -17,6 +17,12 @@ from ma_zones import (
     validate_zone_spec,
 )
 
+ZONE_WORKSPACE_TAB_LABELS = ("Übersicht", "Nutzungsprofile zuweisen")
+SYNTHETIC_USAGE_PROFILE_OPTIONS = (
+    ("synthetic_office", "Demo-Buero (synthetisch)"),
+    ("synthetic_education", "Demo-Lernen (synthetisch)"),
+)
+
 
 def zones_scope_rows() -> list[dict[str, object]]:
     """Liefert den aktuellen geplanten Umfang von ma_zones."""
@@ -80,6 +86,37 @@ def usage_profile_rows(spec: ZoneModelSpecification) -> list[dict[str, object]]:
     ]
 
 
+def zone_overview_rows(spec: ZoneModelSpecification, assignments: dict[str, str]) -> list[dict[str, object]]:
+    """Zeigt Zonen mit der in dieser Sitzung gespeicherten Profilzuordnung."""
+    profiles = {profile.profile_id: profile for profile in spec.usage_profiles}
+    profile_labels = {profile_id: profile.name for profile_id, profile in profiles.items()}
+    profile_labels.update(dict(SYNTHETIC_USAGE_PROFILE_OPTIONS))
+    rows: list[dict[str, object]] = []
+    for zone in spec.zones:
+        profile_id = assignments.get(zone.zone_id, zone.usage_profile_id)
+        row = {
+            "Zone": zone.zone_id,
+            "Name": zone.name,
+            "Nutzungsprofil": profile_labels.get(profile_id, profile_id),
+            "Profil-ID": profile_id,
+            "Flaeche [m2]": zone.floor_area_m2,
+            "Volumen [m3]": zone.volume_m3,
+        }
+        if profile_id in profiles:
+            profile = profiles[profile_id]
+            row.update(
+                {
+                    "Betrieb [h]": f"{profile.operation_start_hour:g}-{profile.operation_end_hour:g}",
+                    "Heizen [Grad C]": zone.heating_setpoint_c,
+                    "Kuehlen [Grad C]": zone.cooling_setpoint_c,
+                }
+            )
+        else:
+            row.update({"Betrieb [h]": "Demo-Annahme", "Heizen [Grad C]": "", "Kuehlen [Grad C]": ""})
+        rows.append(row)
+    return rows
+
+
 def render() -> None:
     """Zeigt die LoD-1-Zonenspezifikation und ihre Validierung."""
     module = get_module_definition("ma_zones")
@@ -95,20 +132,29 @@ def render() -> None:
     st.metric("Freigabestatus", validation_result.release_status.value)
     st.dataframe(normalize_table_for_streamlit(zone_summary_rows(zone_spec)), hide_index=True, width="stretch")
 
-    zone_tab, profile_tab, scope_tab = st.tabs(["Zonen", "Nutzungsprofile", "Einordnung"])
-    with zone_tab:
-        st.dataframe(normalize_table_for_streamlit(thermal_zone_rows(zone_spec)), hide_index=True, width="stretch")
-    with profile_tab:
+    overview_tab, assignment_tab = st.tabs(ZONE_WORKSPACE_TAB_LABELS)
+    with overview_tab:
+        st.dataframe(
+            normalize_table_for_streamlit(zone_overview_rows(zone_spec, _saved_zone_assignments())),
+            hide_index=True,
+            width="stretch",
+        )
+        st.caption(
+            "Zentrale Profilwerte werden fuer vorhandene Referenzprofile angezeigt. Demo-Profile bleiben Annahmen."
+        )
         st.dataframe(normalize_table_for_streamlit(usage_profile_rows(zone_spec)), hide_index=True, width="stretch")
-    with scope_tab:
-        st.dataframe(normalize_table_for_streamlit(zones_scope_rows()), hide_index=True, width="stretch")
-        st.info(module.next_step)
+    with assignment_tab:
+        _render_usage_profile_assignment(zone_spec)
 
     if zone_spec.assumptions:
         st.dataframe(
             normalize_table_for_streamlit(
                 [
-                    {"ID": assumption.assumption_id, "Fundstelle": assumption.location or "", "Annahme": assumption.text}
+                    {
+                        "ID": assumption.assumption_id,
+                        "Fundstelle": assumption.location or "",
+                        "Annahme": assumption.text,
+                    }
                     for assumption in zone_spec.assumptions
                 ]
             ),
@@ -116,6 +162,35 @@ def render() -> None:
             width="stretch",
         )
     _render_messages(validation_result.messages)
+
+
+def _saved_zone_assignments() -> dict[str, str]:
+    value = st.session_state.get("zone_usage_profile_assignments")
+    return value if isinstance(value, dict) else {}
+
+
+def _render_usage_profile_assignment(spec: ZoneModelSpecification) -> None:
+    """Bearbeitet Zuordnungen als Entwurf und uebernimmt sie nur explizit."""
+    profile_labels = {profile.profile_id: profile.name for profile in spec.usage_profiles}
+    profile_labels.update(dict(SYNTHETIC_USAGE_PROFILE_OPTIONS))
+    options = tuple(profile_labels)
+    saved_assignments = _saved_zone_assignments()
+    for zone in spec.zones:
+        draft_key = f"zone_usage_profile_draft_{zone.zone_id}"
+        if draft_key not in st.session_state:
+            st.session_state[draft_key] = saved_assignments.get(zone.zone_id, zone.usage_profile_id)
+        st.selectbox(
+            f"{zone.name} ({zone.zone_id})",
+            options,
+            format_func=lambda profile_id: profile_labels[profile_id],
+            key=draft_key,
+        )
+    st.caption("Demo-Profile sind synthetische Darstellungsoptionen, keine normativen Nutzungsprofile.")
+    if st.button("Nutzungsprofile speichern", type="primary", key="zone_usage_profile_save"):
+        st.session_state["zone_usage_profile_assignments"] = {
+            zone.zone_id: str(st.session_state[f"zone_usage_profile_draft_{zone.zone_id}"]) for zone in spec.zones
+        }
+        st.success("Nutzungsprofil-Zuordnungen wurden fuer diese Sitzung uebernommen.")
 
 
 def _display_value(value) -> str:

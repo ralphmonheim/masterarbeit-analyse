@@ -12,13 +12,14 @@ from ma_building import (
     BUILDING_RHINO_INPUT_DIR,
     BUSINESS_INTEGRATION_REFERENCE_RHINO_FILENAME,
     FACHLICHER_TEIL_REFERENCE_IFC_FILENAME,
+    LocalCatalogValidationError,
     diagnose_building_source,
     load_business_integration_lod1_building_spec,
     load_demo_building_spec,
+    load_local_building_catalog,
     scan_default_building_input_files,
-    validate_building_spec,
 )
-from ma_database import DemoCatalog, DemoCatalogRecord, load_demo_catalog
+from ma_database import DemoCatalog, DemoCatalogRecord
 from ma_ui.streamlit_app.shared.layout import render_page_header
 from ma_ui.streamlit_app.shared.tables import normalize_table_for_streamlit
 from ma_validation import DiagnosticMessage, DiagnosticSeverity
@@ -36,19 +37,13 @@ def render() -> None:
     if spec is None:
         return
 
-    overview_tab, elements_tab, openings_tab, constructions_tab, sources_tab = st.tabs(
-        ["Uebersicht", "Bauteile", "Oeffnungen", "Konstruktionen", "Modellquellen"]
-    )
+    overview_tab, elements_tab, constructions_tab = st.tabs(["Uebersicht", "Bauteile", "Konstruktionen"])
     with overview_tab:
         _render_building_overview(spec)
     with elements_tab:
         _render_elements(spec)
-    with openings_tab:
-        _render_openings(spec)
     with constructions_tab:
         _render_construction_catalog(spec)
-    with sources_tab:
-        _render_local_sources_section()
 
 
 def building_spec_option_rows() -> list[dict[str, str]]:
@@ -57,14 +52,28 @@ def building_spec_option_rows() -> list[dict[str, str]]:
 
 
 def building_spec_summary_rows(spec) -> list[dict[str, object]]:
-    """Liefert kompakte Kennwerte einer BuildingModelSpecification."""
-    rows: list[dict[str, object]] = [
+    """Liefert weiterhin alle Kennwerte fuer bestehende Aufrufer."""
+    return building_master_data_rows(spec) + building_area_volume_rows(spec)
+
+
+def building_master_data_rows(spec) -> list[dict[str, object]]:
+    """Liefert kompakte Stammdaten einschliesslich LoD und Reifegrad."""
+    return [
         {"Kennwert": "Gebaeude", "Wert": spec.building.name},
+        {"Kennwert": "Gebaeude-ID", "Wert": spec.building.building_id},
         {"Kennwert": "Eingabe-LoD", "Wert": _display_value(spec.input_detail_level)},
         {"Kennwert": "Reifegrad", "Wert": _display_value(spec.model_version.current_maturity_level)},
+    ]
+
+
+def building_area_volume_rows(spec) -> list[dict[str, object]]:
+    """Liefert die zentralen Geometrie-, Flaechen- und Volumenkennwerte."""
+    rows: list[dict[str, object]] = [
         {"Kennwert": "Laenge [m]", "Wert": spec.building.length_m},
         {"Kennwert": "Breite [m]", "Wert": spec.building.width_m},
         {"Kennwert": "Hoehe [m]", "Wert": spec.building.height_m},
+        {"Kennwert": "Nutzflaeche Raeume [m2]", "Wert": sum(space.floor_area_m2 for space in spec.spaces)},
+        {"Kennwert": "Raumvolumen [m3]", "Wert": sum(space.volume_m3 for space in spec.spaces)},
         {"Kennwert": "Geschosse", "Wert": len(spec.storeys)},
         {"Kennwert": "Raeume", "Wert": len(spec.spaces)},
         {"Kennwert": "Bauteile", "Wert": len(spec.elements)},
@@ -91,30 +100,31 @@ def building_element_rows(spec) -> list[dict[str, object]]:
     external_codes = {"AW", "DA", "BP", "FA", "TA"}
     return [
         {
-            "Bauteil": element.element_id,
+            "ID": element.element_id,
             "Typ": element.element_type,
-            "Bauartcode": element.construction_code,
+            "Code": element.construction_code,
+            "Konstruktion": element.construction_code,
             "Huellbauteil": "ja" if element.construction_code in external_codes else "nein",
             "Flaeche [m2]": element.area_m2,
             "Orientierung [Grad]": element.orientation_deg,
             "Geschoss": element.storey_id,
-            "Angrenzende Raeume": ", ".join(element.adjacent_space_ids),
-            "Datenherkunft": "Spezifikation / manuell gepflegt",
         }
         for element in spec.elements
     ]
 
 
 def building_opening_rows(spec) -> list[dict[str, object]]:
-    """Prepares explicitly present openings for inspection in the UI."""
+    """Prepares openings as building elements, including their host relation."""
     return [
         {
-            "Oeffnung": opening.opening_id,
+            "ID": opening.opening_id,
             "Typ": opening.opening_type,
-            "Bauartcode": opening.construction_code,
+            "Code": opening.construction_code,
+            "Konstruktion": opening.construction_code,
             "Flaeche [m2]": opening.area_m2,
-            "Host-Bauteil": opening.host_element_id,
-            "Datenherkunft": "Spezifikation / manuell gepflegt",
+            "Huellbauteil": "ja",
+            "Orientierung [Grad]": None,
+            "Geschoss": "",
         }
         for opening in spec.openings
     ]
@@ -133,73 +143,168 @@ def _select_building_specification():
 
 
 def _render_building_overview(spec) -> None:
-    validation_result = validate_building_spec(spec)
-    st.metric("Freigabestatus", validation_result.release_status.value)
-    st.dataframe(normalize_table_for_streamlit(building_spec_summary_rows(spec)), hide_index=True, width="stretch")
-    if spec.assumptions:
-        st.dataframe(
-            normalize_table_for_streamlit(
-                [
-                    {"ID": assumption.assumption_id, "Fundstelle": assumption.location or "", "Annahme": assumption.text}
-                    for assumption in spec.assumptions
-                ]
-            ),
-            hide_index=True,
-            width="stretch",
-        )
-    _render_messages(validation_result.messages)
+    st.subheader("Gebaeudestammdaten und Modellstand")
+    st.dataframe(normalize_table_for_streamlit(building_master_data_rows(spec)), hide_index=True, width="stretch")
+    st.subheader("Flaechen- und Volumenkennwerte")
+    st.dataframe(normalize_table_for_streamlit(building_area_volume_rows(spec)), hide_index=True, width="stretch")
 
 
 def _render_elements(spec) -> None:
-    rows = building_element_rows(spec)
+    element_rows = building_element_rows(spec)
+    opening_rows = building_opening_rows(spec)
+    rows = [*element_rows, *opening_rows]
     if not rows:
         st.info("Die gewaehlte Spezifikation enthaelt keine einzeln erfassten Bauteile.")
         return
-    st.dataframe(normalize_table_for_streamlit(rows), hide_index=True, width="stretch")
-
-
-def _render_openings(spec) -> None:
-    rows = building_opening_rows(spec)
-    if not rows:
-        st.info("Die gewaehlte Spezifikation enthaelt keine einzeln erfassten Oeffnungen.")
-        return
-    st.dataframe(normalize_table_for_streamlit(rows), hide_index=True, width="stretch")
+    kinds = list(dict.fromkeys(row["Typ"] for row in rows))
+    tabs = st.tabs(["Uebersicht", *kinds])
+    with tabs[0]:
+        st.dataframe(normalize_table_for_streamlit(rows), hide_index=True, width="stretch")
+    for tab, kind in zip(tabs[1:], kinds, strict=True):
+        with tab:
+            st.dataframe(
+                normalize_table_for_streamlit([row for row in rows if row["Typ"] == kind]),
+                hide_index=True,
+                width="stretch",
+            )
 
 
 def _render_construction_catalog(spec) -> None:
-    """Selects local constructions without changing the building specification."""
-    try:
-        catalog = load_demo_catalog()
-    except FileNotFoundError:
-        st.info("Lokale Katalogdaten sind nicht Bestandteil des Repositorys und wurden hier nicht gefunden.")
-        return
-    except (OSError, ValueError) as exc:
-        st.error(f"Lokaler Demo-Katalog konnte nicht geladen werden: {exc}")
-        return
-
-    construction_tab, material_tab = st.tabs(["Konstruktionen", "Materialien"])
+    """Displays local reference data without assigning it to the model."""
+    construction_tab, material_tab, product_tab = st.tabs(["Konstruktionen", "Materialien", "Produkte"])
     with construction_tab:
-        _render_construction_assignment(spec, catalog)
+        _render_wall_construction_catalog()
+        _render_surface_catalog()
     with material_tab:
-        _render_material_browser(catalog)
+        _render_local_catalog_table(
+            "materials",
+            [
+                "name",
+                "material_id",
+                "heat_conductivity_w_mk",
+                "density_kg_m3",
+                "specific_heat_j_kgk",
+                "total_area_m2",
+                "total_volume_m3",
+                "total_mass_kg",
+            ],
+            {
+                "name": "Name",
+                "material_id": "ID",
+                "heat_conductivity_w_mk": "Waermeleitfaehigkeit [W/(m K)]",
+                "density_kg_m3": "Dichte [kg/m3]",
+                "specific_heat_j_kgk": "Spezifische Waermekapazitaet [J/(kg K)]",
+                "total_area_m2": "Flaeche im Gebaeude [m2]",
+                "total_volume_m3": "Volumen im Gebaeude [m3]",
+                "total_mass_kg": "Masse im Gebaeude [kg]",
+            },
+        )
+    with product_tab:
+        _render_products(spec)
+
+
+def _render_wall_construction_catalog() -> None:
+    st.subheader("Konstruktionen")
+    catalog = _load_catalog_for_ui("wall_constructions")
+    if catalog is None:
+        return
+    max_layers = max((len(record.get("layers", [])) for record in catalog.records), default=0)
+    rows = []
+    for record in catalog.records:
+        row = {
+            "Name": record["name"],
+            "ID": record["wall_construction_id"],
+            "U-Wert [W/(m2 K)]": record.get("u_value_w_m2k"),
+            "Dicke [m]": record.get("thickness_m"),
+        }
+        for layer_number in range(1, max_layers + 1):
+            layers = record.get("layers", [])
+            layer = layers[layer_number - 1] if layer_number <= len(layers) else {}
+            row[f"Schicht {layer_number}"] = layer.get("material_name", "")
+        rows.append(row)
+    st.dataframe(normalize_table_for_streamlit(rows), hide_index=True, width="stretch")
+
+
+def _render_surface_catalog() -> None:
+    st.subheader("Surfaces")
+    _render_local_catalog_table(
+        "surfaces",
+        [
+            "name",
+            "surface_id",
+            "group",
+            "surface_type",
+            "wetted_area_m2",
+            "connected_to",
+            "construction_name",
+            "u_value_w_m2k",
+            "thickness_m",
+        ],
+        {
+            "name": "Name",
+            "surface_id": "ID",
+            "group": "Gruppe",
+            "surface_type": "Typ",
+            "wetted_area_m2": "Flaeche [m2]",
+            "connected_to": "Angrenzend",
+            "construction_name": "Konstruktion",
+            "u_value_w_m2k": "U-Wert [W/(m2 K)]",
+            "thickness_m": "Dicke [m]",
+        },
+    )
+
+
+def _render_products(spec) -> None:
+    rows = [
+        {
+            "Name": opening.opening_type,
+            "ID": opening.opening_id,
+            "Code": opening.construction_code,
+            "Flaeche [m2]": opening.area_m2,
+            "Host-Bauteil": opening.host_element_id,
+        }
+        for opening in spec.openings
+    ]
+    if rows:
+        st.dataframe(normalize_table_for_streamlit(rows), hide_index=True, width="stretch")
+    else:
+        st.info("Keine Fenster oder Tueren in der gewaehlten Spezifikation vorhanden.")
+
+
+def _render_local_catalog_table(catalog_key: str, fields: list[str], labels: dict[str, str]) -> None:
+    catalog = _load_catalog_for_ui(catalog_key)
+    if catalog is None:
+        return
+    rows = [{labels[field]: record.get(field, "") for field in fields} for record in catalog.records]
+    st.dataframe(normalize_table_for_streamlit(rows), hide_index=True, width="stretch")
+
+
+def _load_catalog_for_ui(catalog_key: str):
+    try:
+        return load_local_building_catalog(catalog_key)
+    except FileNotFoundError:
+        st.info("Dieser lokale Referenzkatalog ist auf diesem Rechner nicht vorhanden.")
+    except (OSError, LocalCatalogValidationError, ValueError) as exc:
+        st.error(f"Lokaler Referenzkatalog ist vorhanden, aber fehlerhaft: {exc}")
+    return None
 
 
 def _render_construction_assignment(spec, catalog: DemoCatalog) -> None:
-    targets = [
-        (element.element_id, element.construction_code, element.element_type)
-        for element in spec.elements
-    ] + [
-        (opening.opening_id, opening.construction_code, opening.opening_type)
-        for opening in spec.openings
+    targets = [(element.element_id, element.construction_code, element.element_type) for element in spec.elements] + [
+        (opening.opening_id, opening.construction_code, opening.opening_type) for opening in spec.openings
     ]
     if not targets:
         st.info("Fuer diese Spezifikation sind keine Bauteile oder Oeffnungen fuer eine Konstruktion vorhanden.")
         return
 
-    target_id = st.selectbox("Bauteil oder Oeffnung", [target[0] for target in targets], key="building_construction_target")
+    target_id = st.selectbox(
+        "Bauteil oder Oeffnung", [target[0] for target in targets], key="building_construction_target"
+    )
     _target_id, construction_code, target_type = next(target for target in targets if target[0] == target_id)
     candidates = tuple(
-        record for record in catalog.records_for("constructions") if record.data["construction_code"] == construction_code
+        record
+        for record in catalog.records_for("constructions")
+        if record.data["construction_code"] == construction_code
     )
     option_ids = ["not_assigned", *[record.record_id for record in candidates]]
     selected_id = st.selectbox(
@@ -212,7 +317,10 @@ def _render_construction_assignment(spec, catalog: DemoCatalog) -> None:
     if selected_id == "not_assigned":
         st.dataframe(
             normalize_table_for_streamlit(
-                [{"Merkmal": "Zuordnung", "Wert": "Keine Konstruktion zugeordnet"}, {"Merkmal": "Bauartcode", "Wert": construction_code}]
+                [
+                    {"Merkmal": "Zuordnung", "Wert": "Keine Konstruktion zugeordnet"},
+                    {"Merkmal": "Bauartcode", "Wert": construction_code},
+                ]
             ),
             hide_index=True,
             width="stretch",

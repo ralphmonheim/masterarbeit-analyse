@@ -82,7 +82,13 @@ Workflow-Service-Aufrufe getrennt anbinden.
   herstellen. Auf den beiden Startansichten nutzt dieselbe rechte
   Aktionsspalte den Wechsel `Workflow` bzw. `Bearbeitung`. Ein Seitenwechsel
   beendet den Infokartenmodus und springt beim neuen Rendern wieder an den
-  Seitenanfang.
+  Seitenanfang. Die zentrale Infokarte erlaeutert den V1-Rahmen mit `Was`,
+  `Wie`, `Warum` und `Wann` aus dem kanonischen `ma_workflow`-Modulkatalog;
+  der Status ist kein Nachweis einer ausfuehrbaren Demo.
+- Jede V1-Infokarte erlaeutert zentrale Begriffe. Allgemeine Begriffe wie
+  V1-Rahmen, Freigabestatus, Annahme und Demo-/Uebergangsstand gelten fuer
+  alle Module; fachliche Begriffe werden zentral je Modul ergaenzt. Fuer
+  Gebaeude sind dies insbesondere alle BIL-Reifegrade und LoD-Eingabestufen.
 - Die Modul-Uebersicht gehoert ausschliesslich auf die Startseite. Modulviews
   zeigen nur eigene Inhalte oder bei geplantem Stand eine blaue Hinweisbox.
 - Analyse-Seite ruft die UI-neutrale `ma_analyse`-Service-Fassade ueber
@@ -91,6 +97,9 @@ Workflow-Service-Aufrufe getrennt anbinden.
   Streamlit-Modulansichten registriert. `ma_zones` und `ma_technical` zeigen
   die BusinessIntegration-LoD-1-Demos mit Freigabestatus statt nur
   Infokarten; P013-S2 ordnet `ma_technical` fachlich vor `ma_zones` ein.
+  `ma_technical` trennt `Technikmodell | Technik-Katalog`; die sechs
+  Katalogthemen bleiben unter dem Katalogreiter, waehrend Einordnung und
+  V1-Rahmen nur in der zentralen Infokarte stehen.
 - `ma_parameters` zeigt den BusinessIntegration-LoD-1-`ParameterSnapshot` v1,
   das P015-S3a-`ParameterInputPackage` mit Wetter-Default-Status und den
   daraus beziehungsweise aus v1 abgeleiteten `BaselineParameterSnapshot` v2
@@ -145,9 +154,36 @@ Workflow-Service-Aufrufe getrennt anbinden.
 - Eigene Programmlisten, Naming-Profile und Optionsauswahlen werden nur nach
   Nutzeraktion lokal gespeichert; Vorlagen und kollidierende neue Dateinamen
   sind technisch geschuetzt.
-- Wetter-Seite zeigt zuerst die Analysebedienung fuer einen aktiven
-  Wetterdatensatz und darunter die lokalen TRY-Datensaetze aus dem
-  `ma_weather`-Katalog inklusive Dateistatus.
+- Wetter-Seite trennt `Analyse | Verwaltung`: Analyse zeigt Standort- und
+  Wetterauswahl sowie Ergebnisse; Verwaltung zeigt die lokalen
+  TRY-Datensaetze aus dem `ma_weather`-Katalog inklusive Dateistatus,
+  Import, Scan und Pruefung.
+- Die Wetterkarte auf der Startseite zeigt den Modulstatus `Verfuegbar` und
+  zusaetzlich `Diagramme – Teilweise` in der bestehenden amberfarbenen
+  Statusdarstellung.
+- Projekt bleibt auf der registrierten P028-Fachansicht fuer
+  Simulationsprogramme und Varianten-Benennung; ein Cache oder Routerwechsel
+  ist nicht die Ursache einer vermeintlich alten Projektansicht.
+- Projekt ergaenzt diese Konfigurationsreiter um die lesende
+  `Projektübersicht`. Sie verbindet synthetische P011-Stammdaten mit dem
+  aktuellen Sitzungsstand, ohne Projektstammdaten zu speichern.
+- Technik trennt `Technikmodell | Übersicht | Auswahl`. Katalog- und
+  `Nicht vorhanden`-Angaben bleiben ein synthetischer Sitzungsentwurf und
+  werden nur mit `Technikauswahl speichern` uebernommen.
+- Zonen trennt `Übersicht | Nutzungsprofile zuweisen`. Die Übersicht zeigt
+  gespeicherte Zuordnungen; erweiterte Demo-Profile sind ausschliesslich
+  synthetische Annahmen und werden nur nach explizitem Speichern uebernommen.
+- Gebaeude zeigt im Reiter `Übersicht` getrennte Tabellen fuer
+  Gebaeudestammdaten einschliesslich LoD und Reifegrad sowie fuer zentrale
+  Flaechen- und Volumenkennwerte. Die Ansicht bleibt pruefend und veraendert
+  keine Gebaeudespezifikation.
+- Gebaeude gliedert die weiteren Ansichten in `Bauteile` und
+  `Konstruktionen`: Die Bauteilübersicht und die Typ-Reiter zeigen erkannte
+  Bauteile einschliesslich Fenster und Tueren mit ID, Typ, Code und
+  Konstruktion. Konstruktionen und `Surfaces` werden zusammen dargestellt;
+  Materialien und Produkte besitzen eigene Unterreiter. Die lokalen
+  Referenzkataloge bleiben read-only, ignoriert und ohne automatische
+  Modellzuordnung. `Modellquellen` ist in V1 ausgeblendet.
 - Wetter-Seite rendert die informative Klimaregionenkarte aus
   `src/ma_ui/assets/weather/klimaregionen_deutschland.png`; alternativ werden
   `.jpg` und `.jpeg` mit demselben Basisnamen erkannt.

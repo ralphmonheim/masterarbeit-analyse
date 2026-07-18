@@ -30,9 +30,10 @@ from ma_technical import (
     load_business_integration_lod1_technical_spec,
     load_technical_model_revision,
     release_technical_model,
+    technical_model_specification_from_dict,
     validate_technical_model,
 )
-from ma_technical.revisions import _content_hash
+from ma_technical.revisions import _content_hash, _to_payload
 from ma_validation import ReleaseStatus
 
 
@@ -113,6 +114,15 @@ def test_schema_v2_validation_accepts_complete_minimal_aggregate():
     result = validate_technical_model(_minimal_v2_spec())
 
     assert result.release_status is ReleaseStatus.RELEASED
+
+
+def test_v2_loader_roundtrips_the_complete_existing_aggregate_payload():
+    specification = _minimal_v2_spec()
+    payload = _to_payload(specification)
+
+    reloaded = technical_model_specification_from_dict(payload)
+
+    assert _to_payload(reloaded) == payload
 
 
 def test_schema_v2_validation_blocks_duplicate_object_ids():

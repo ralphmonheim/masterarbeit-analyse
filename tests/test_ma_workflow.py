@@ -34,6 +34,7 @@ def test_workflow_contains_analysis_step():
 
 
 def test_workflow_statuses_reflect_current_module_implementation():
+    assert get_workflow_step("weather").status == "available"
     assert get_workflow_step("building").status == "partial"
     assert get_workflow_step("zones").status == "partial"
     assert get_workflow_step("technical").status == "partial"
@@ -58,20 +59,11 @@ def test_phase_2_input_steps_follow_p013_s2_order():
 
 
 def test_partial_modules_reflect_current_module_implementation():
-    partial_modules = {
-        module.module_key
-        for module in list_module_definitions()
-        if module.status == "partial"
-    }
-    available_modules = {
-        module.module_key
-        for module in list_module_definitions()
-        if module.status == "available"
-    }
+    partial_modules = {module.module_key for module in list_module_definitions() if module.status == "partial"}
+    available_modules = {module.module_key for module in list_module_definitions() if module.status == "available"}
 
     assert partial_modules == {
         "ma_building",
-        "ma_weather",
         "ma_analyse",
         "ma_analyse.data_preparation",
         "ma_analyse.stage_1_dimensioning",
@@ -80,7 +72,7 @@ def test_partial_modules_reflect_current_module_implementation():
         "ma_technical",
         "ma_parameters",
     }
-    assert available_modules == {"project_documentation"}
+    assert available_modules == {"ma_weather", "project_documentation"}
 
 
 def test_workflow_catalog_documents_parameter_variant_and_run_contracts():
@@ -188,8 +180,7 @@ def test_historical_ida_keys_resolve_to_general_interfaces():
 def test_historical_stage_3_name_resolves_to_standards_compliance():
     assert get_workflow_step("stage_3_verification").step_key == "standards_compliance"
     assert (
-        get_module_definition("ma_analyse.stage_3_verification").module_key
-        == "ma_analyse.stage_3_standards_compliance"
+        get_module_definition("ma_analyse.stage_3_verification").module_key == "ma_analyse.stage_3_standards_compliance"
     )
 
 

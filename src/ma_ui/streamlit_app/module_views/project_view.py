@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pandas as pd
@@ -10,6 +11,10 @@ import streamlit as st
 from ma_project import (
     DEFAULT_NAMING_CONFIG,
     DEFAULT_SIMULATION_PROGRAM_CONFIG,
+    Project,
+    ProjectIdentity,
+    ProjectInvestigation,
+    ProjectLocation,
     SimulationProgramProfile,
     VariantNamingPart,
     VariantNamingProfile,
@@ -27,6 +32,22 @@ from ma_ui.streamlit_app.shared import (
 )
 from ma_ui.streamlit_app.state import build_current_variant_ui_data, get_configuration_state
 from ma_variants.ui import apply_naming_profile_to_ui_data, variant_rows
+
+_PROJECT_OVERVIEW_DEMO = Project(
+    identity=ProjectIdentity(
+        project_id="PRJ-000001",
+        title="V1-Demoprojekt",
+        short_name="V1-Demo",
+        project_type="Synthetischer Referenzfall",
+    ),
+    created_at=datetime(2026, 7, 18, tzinfo=UTC),
+    updated_at=datetime(2026, 7, 18, tzinfo=UTC),
+    location=ProjectLocation(country_code="DE", display_name="Synthetischer Referenzstandort"),
+    investigation=ProjectInvestigation(
+        objective="Nachvollziehbare V1-Konfiguration des Referenzfalls",
+        scope="Lesende Projektübersicht, Simulationsprogramme und Varianten-Benennung",
+    ),
+)
 
 
 def _source_label(path: Path, *, is_template: bool) -> str:
@@ -121,6 +142,43 @@ def naming_profile_from_rows(
         separator=separator,
         include_index=include_index,
         parts=parts,
+    )
+
+
+def project_overview_rows(project: Project, state: object) -> list[dict[str, str]]:
+    """Provides a compact, read-only V1 project overview for the session."""
+    identity = project.identity
+    location = project.location
+    investigation = project.investigation
+    active_program = next(
+        (program for program in state.simulation_programs if program.program_key == state.active_program_key),
+        None,
+    )
+    return [
+        {"Bereich": "Projekt", "Merkmal": "Projekt-ID", "Wert": identity.project_id},
+        {"Bereich": "Projekt", "Merkmal": "Name", "Wert": identity.title},
+        {"Bereich": "Projekt", "Merkmal": "Kurzname", "Wert": identity.short_name},
+        {"Bereich": "Projekt", "Merkmal": "Projektart", "Wert": identity.project_type},
+        {"Bereich": "Standort", "Merkmal": "Standort", "Wert": location.display_name if location else ""},
+        {"Bereich": "Untersuchung", "Merkmal": "Ziel", "Wert": investigation.objective if investigation else ""},
+        {
+            "Bereich": "Sitzung",
+            "Merkmal": "Aktives Simulationsprogramm",
+            "Wert": active_program.display_name if active_program else "",
+        },
+        {"Bereich": "Sitzung", "Merkmal": "Benennungsprofil", "Wert": state.naming_profile.prefix},
+    ]
+
+
+def _render_project_overview(state: object) -> None:
+    st.subheader("Projektstammdaten")
+    st.dataframe(
+        normalize_table_for_streamlit(project_overview_rows(_PROJECT_OVERVIEW_DEMO, state)),
+        hide_index=True,
+        width="stretch",
+    )
+    st.caption(
+        "Die Übersicht zeigt einen synthetischen Referenzfall und den aktuellen Sitzungsstand. Änderungen werden hier nicht gespeichert."
     )
 
 
@@ -278,7 +336,10 @@ def render() -> None:
         st.error(f"Demokonfiguration konnte nicht initialisiert werden: {exc}")
         return
 
-    program_tab, naming_tab = st.tabs(["Simulationsprogramme", "Varianten-Benennung"])
+    overview_tab, program_tab, naming_tab = st.tabs(["Projektübersicht", "Simulationsprogramme", "Varianten-Benennung"])
+
+    with overview_tab:
+        _render_project_overview(state)
 
     with program_tab:
         st.caption(
@@ -299,9 +360,7 @@ def render() -> None:
             programs = _programs_from_editor(edited_programs)
             program_keys = [program.program_key for program in programs]
             active_index = (
-                program_keys.index(state.active_program_key)
-                if state.active_program_key in program_keys
-                else 0
+                program_keys.index(state.active_program_key) if state.active_program_key in program_keys else 0
             )
             active_program_key = st.selectbox(
                 "Aktives Simulationsprogramm",

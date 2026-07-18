@@ -4,6 +4,57 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.30.0 - 2026-07-18
+
+### Changed
+- P014-S4 ergaenzt einen additiven, strikten V2-YAML-Loader fuer
+  `TechnicalModelSpecification` sowie eine ausschliesslich synthetische
+  Referenzdatei. Der Nachweis prueft YAML, Revision, Hash, Handover und die
+  bestehende P013-/P015-Checkpointkette; V1 bleibt unveraendert. Vorhandene
+  `Path`-Metadaten werden in Revisionen kanonisch als POSIX-Zeichenfolge
+  serialisiert; reale oder absolute Pfade bleiben ausgeschlossen. Persistierte
+  V2-Provenienz verlangt eine feste `source_id`, und zeitzonenbehaftete
+  YAML-Zeitstempel laden reproduzierbar. Der abschliessende Fokuslauf
+  endet mit `45 passed`, die vollstaendige Suite mit `591 passed`.
+- P032-W3a-T0 entfernt die reine Runtimekante `ma_technical -> ma_zones`:
+  `ZoneModelSpecification` dient in der Legacy-Validierung nur noch als
+  Typinformation. Signatur, Diagnosen und fachliche Validierungslogik bleiben
+  unveraendert; die spaetere Ownership-Verlagerung nach `ma_zones` bleibt
+  getrennte Folgearbeit.
+- Die zentrale Streamlit-`Infokarte` erklaert jetzt fuer jedes katalogisierte
+  Modul den dokumentierten V1-Rahmen mit Was, Wie, Warum und Wann, ohne aus
+  einem Teilstatus eine ausfuehrbare Demo abzuleiten. Die praktischen
+  Modulansichten erhalten keine doppelten V1-Infokarten. Jede Infokarte
+  erklaert ausserdem allgemeine und passende modulbezogene Fachbegriffe;
+  BIL-Reifegrade und LoD-Eingabestufen sind fuer Gebaeude vollstaendig
+  beschrieben.
+- Die Wetteransicht ist in `Analyse | Verwaltung`, die Technikansicht in
+  `Technikmodell | Übersicht | Auswahl` und die Zonenansicht in
+  `Übersicht | Nutzungsprofile zuweisen` gegliedert. Technik- und
+  Profilzuordnungen bleiben bis zum expliziten Speichern synthetische
+  Sitzungsentwuerfe; weder Navigation noch Fachspezifikationen werden dabei
+  geaendert. Die P028-Projektansicht ist weiterhin der registrierte
+  Bearbeitungsbereich. Der abschliessende UI-Vertrag endet mit `114 passed`,
+  die vollstaendige lokale Suite mit `593 passed`. Die Gebaeude-Übersicht
+  trennt Stammdaten mit LoD und Reifegrad von Flaechen- und Volumenkennwerten.
+- P012 ergaenzt die V1-Gebaeudeansicht um `Uebersicht | Bauteile |
+  Konstruktionen`. Bauteile gruppieren auch Fenster und Tueren nach Typ;
+  Konstruktionen zeigen Wandkonstruktionen und `Surfaces`, Materialien und
+  Produkte jeweils in eigenen Unterreitern. Drei vom Repository ignorierte
+  lokale Referenzkataloge werden durch einen separaten `ma_building`-Loader
+  nur lesend validiert. `DemoCatalog`, Simulationen und automatische
+  Modellzuordnungen bleiben unveraendert; `Modellquellen` ist nicht Teil von
+  V1. Der abschliessende Gebaeude-/UI-Fokuslauf endet mit `124 passed in
+  6.93s`, die vollstaendige Suite mit `604 passed in 159.41s`.
+- Die Projektansicht ergaenzt die bestehenden P028-Reiter um die lesende
+  `Projektübersicht`. Sie zeigt nur synthetische P011-Stammdaten zusammen mit
+  aktivem Simulationsprogramm und Benennungsprofil aus der Sitzung; es gibt
+  keine Projektstammdaten-Persistenz oder Standortuebergabe.
+- `ma_weather` ist im zentralen Workflow fuer den lokal getesteten Umfang
+  `Verfuegbar`. Die Startkarte zeigt zusaetzlich den amberfarbenen
+  Ausbaustand `Diagramme – Teilweise`, ohne einen zweiten Fachmodulstatus zu
+  erzeugen.
+
 ## 0.29.0 - 2026-07-15
 
 ### Added

@@ -4,16 +4,18 @@ from __future__ import annotations
 
 from collections import defaultdict
 from dataclasses import fields, is_dataclass
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from ma_validation import DiagnosticMessage, DiagnosticSeverity, ValidationResult, build_validation_result
-from ma_zones import ZoneModelSpecification
 
 from .metadata import ObjectReference
 from .models import VALID_SYSTEM_TYPES, TechnicalInputDetailLevel, TechnicalSystemSpecification
 from .plant import CapacityDefinition
 from .specification import TechnicalModelSchemaVersion, TechnicalModelSpecification
 from .topology import TechnicalServiceInterface
+
+if TYPE_CHECKING:
+    from ma_zones import ZoneModelSpecification
 
 
 def validate_technical_spec(
@@ -149,10 +151,20 @@ def _validate_v2_references(spec: TechnicalModelSpecification) -> list[Diagnosti
     interface_ids = {interface.interface_id for interface in spec.service_interfaces}
     for index, distribution in enumerate(spec.heating_distribution_register):
         if distribution.service_interface_reference and distribution.service_interface_reference not in interface_ids:
-            messages.append(_unknown_service_interface_message(distribution.service_interface_reference, f"heating_distribution_register.{index}.service_interface_reference"))
+            messages.append(
+                _unknown_service_interface_message(
+                    distribution.service_interface_reference,
+                    f"heating_distribution_register.{index}.service_interface_reference",
+                )
+            )
     for index, distribution in enumerate(spec.cooling_distribution_register):
         if distribution.service_interface_reference and distribution.service_interface_reference not in interface_ids:
-            messages.append(_unknown_service_interface_message(distribution.service_interface_reference, f"cooling_distribution_register.{index}.service_interface_reference"))
+            messages.append(
+                _unknown_service_interface_message(
+                    distribution.service_interface_reference,
+                    f"cooling_distribution_register.{index}.service_interface_reference",
+                )
+            )
     for index, interface in enumerate(spec.service_interfaces):
         messages.extend(_validate_service_interface(interface, index))
     return messages
@@ -402,7 +414,10 @@ def _validate_systems(spec: TechnicalSystemSpecification) -> list[DiagnosticMess
                     f"{location}.performance_factor",
                 )
             )
-        if system.heat_recovery_efficiency_percent is not None and not 0 <= system.heat_recovery_efficiency_percent <= 100:
+        if (
+            system.heat_recovery_efficiency_percent is not None
+            and not 0 <= system.heat_recovery_efficiency_percent <= 100
+        ):
             messages.append(
                 _message(
                     DiagnosticSeverity.ERROR,
