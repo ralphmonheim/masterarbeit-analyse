@@ -30,6 +30,7 @@ from ma_ui.streamlit_app.navigation import (
     consume_scroll_to_top,
     get_navigation_page,
     get_navigation_pages,
+    get_process_navigation_pages,
     next_page_key,
     normalize_page_key,
     normalize_view_mode,
@@ -137,15 +138,17 @@ def _toggle_module_info(current_page_key: str, *, show_module_info: bool) -> Non
 def _render_top_navigation(
     current_page_key: str,
     available_pages: list[NavigationPage],
+    process_pages: list[NavigationPage],
     *,
     show_module_info: bool,
     view_mode: str,
 ) -> None:
     """Zeigt die fachliche Navigation als Kopfzeile."""
-    available_page_keys = tuple(page.page_key for page in available_pages)
+    process_page_keys = tuple(page.page_key for page in process_pages)
     labels_by_key = {page.page_key: page.label for page in available_pages}
-    previous_key = previous_page_key(current_page_key, available_page_keys)
-    next_key = next_page_key(current_page_key, available_page_keys)
+    is_process_page = current_page_key in process_page_keys
+    previous_key = previous_page_key(current_page_key, process_page_keys) if is_process_page else current_page_key
+    next_key = next_page_key(current_page_key, process_page_keys) if is_process_page else current_page_key
 
     start_column, previous_column, next_column, label_column, info_column = st.columns([1, 1, 1, 5, 1.35])
     with start_column:
@@ -180,6 +183,7 @@ def main() -> None:
 
     pages = get_navigation_pages()
     available_pages = list(pages)
+    process_pages = list(get_process_navigation_pages())
     available_page_keys = tuple(page.page_key for page in available_pages)
     current_page_key = normalize_page_key(st.session_state.get(CURRENT_PAGE_SESSION_KEY), available_page_keys)
     st.session_state[CURRENT_PAGE_SESSION_KEY] = current_page_key
@@ -198,6 +202,7 @@ def main() -> None:
     _render_top_navigation(
         current_page_key,
         available_pages,
+        process_pages,
         show_module_info=show_module_info,
         view_mode=view_mode,
     )

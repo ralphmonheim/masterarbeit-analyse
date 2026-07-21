@@ -194,6 +194,13 @@ Legacy-Konfigurationspfad unter `config/ma_variants/naming/` bleibt
 unveraendert, bis eine Migration inklusive Lesekompatibilitaet, lokaler
 Arbeitsdateien und Tests beschlossen ist.
 
+Der versionierte Referenzkatalog zeigt ausschliesslich die abgestimmten
+Beispiele fuer Gebaeudeenergieanwendungen: `IDA ICE`, `Hottgenroth
+Energieberater`, `EnergyPlus` und `TRNSYS`. Die Liste dokumentiert nur eine
+Programmwahl; sie verspricht weder Adapter noch automatischen Export,
+Simulation oder Import. `OpenStudio` und `DesignBuilder` sind nicht Teil des
+Referenzkatalogs.
+
 ## Dokumentation und Nachweis
 
 Jeder umgesetzte Slice aktualisiert diesen Plan, `PLAN_INDEX.md`,

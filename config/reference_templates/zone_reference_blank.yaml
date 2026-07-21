@@ -1,0 +1,52 @@
+# Neutrale Arbeitsvorlage: Raumzuordnung, Nutzung und technische Übergabe.
+schema_version: "TODO"
+zone_model_id: "TODO"
+revision: "TODO"
+name: "Referenz-Zonenmodell"
+status: "draft"
+building_reference:
+  building_id: "TODO"
+  building_revision: "TODO"
+technical_reference:
+  technical_model_id: "TODO"
+  technical_revision: "TODO"
+room_assignments:
+  - room_id: "TODO"
+    zone_id: "TODO"
+    assignment_status: "assigned"
+usage_profiles:
+  - profile_id: "TODO"
+    name: "TODO"
+    occupancy_density_person_m2: null
+    lighting_load_w_m2: null
+    equipment_load_w_m2: null
+    outside_air_rate_m3_h_person: null
+time_schedules:
+  - schedule_id: "TODO"
+    schedule_type: "occupancy"
+    weekday_profile: "TODO"
+    saturday_profile: "TODO"
+    sunday_holiday_profile: "TODO"
+zones:
+  - zone_id: "TODO"
+    name: "TODO"
+    usage_profile_id: "TODO"
+    room_ids: []
+    setpoints:
+      heating_setpoint_degC: null
+      cooling_setpoint_degC: null
+    internal_loads:
+      occupancy_density_person_m2: null
+      lighting_load_w_m2: null
+      equipment_load_w_m2: null
+    conditioning:
+      heating_service_interface_id: "TODO"
+      cooling_service_interface_id: "TODO"
+      ventilation_service_interface_id: "TODO"
+    variation_policy:
+      zone_parameters_may_vary: true
+      building_parameters_locked: true
+      technical_parameters_locked: true
+rules_and_constraints: []
+assumptions: []
+open_points: []

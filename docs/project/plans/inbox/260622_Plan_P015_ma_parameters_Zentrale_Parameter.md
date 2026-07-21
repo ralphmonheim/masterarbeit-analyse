@@ -1,7 +1,7 @@
 # P015 ma_parameters Zentrale Parameter
 
 Stand: 2026-07-15
-Status: Fachlich konsolidiert; P015-S1, P015-S2, P015-S3a, P015-S3b-prep und P013-S3c/P015-S3b-T2-Releasecheckpoint umgesetzt; v2-Werteherkunft und Restumfang von P015-S3b offen
+Status: Fachlich konsolidiert; P015-S1, P015-S2, P015-S3a, P015-S3b-prep, P013-S3c/P015-S3b-T2-Releasecheckpoint und erster zonaler Variationsvertrag umgesetzt; v2-Werteherkunft und Restumfang von P015-S3b offen
 Prioritaet: Hoch
 Abhaengigkeiten: P008, P010, P012, P013, P014, P016, P017, P027
 
@@ -520,3 +520,21 @@ konkretisieren den aktiven P015-Vertrag:
 
 Die P015-Quelle vom 2026-07-09 bleibt eine historische Referenz und ersetzt
 nicht die in diesem Plan dokumentierten, juengeren Checkpoint-Entscheidungen.
+
+## Umsetzungsstand 2026-07-21: Thesis-Referenzvariation
+
+Die erste versionierte Referenzkonfiguration liegt unter
+`config/ma_parameters/reference_variations/business_integration_lod1_zone_only.yaml`.
+Sie bindet sich per `snapshot_id` und `content_hash` an die aktuelle Baseline:
+
+- Wetter, Gebaeude und der definierte Techniksatz sind hart gesperrt.
+- Nur `zones` ist als Variantenbereich freigegeben.
+- Der Buerzonen-Heiz- und Kuehlsollwert wird durch eine einzige
+  `coupled_option` mit identischem Faktor gefuehrt.
+- Die Parameteransicht zeigt Modulbereiche, Sperrgruende und die erlaubte
+  Variationsdimension getrennt von der unveraenderten Baseline.
+
+Der Slice ist absichtlich nur eine klein gehaltene Referenz fuer die Thesis.
+Persistenz eigener VariationSpecifications, Range-Editoren, weitere
+Zonengruppen und die Einbindung eines `ReferenceDimensioningResult` bleiben
+offen.

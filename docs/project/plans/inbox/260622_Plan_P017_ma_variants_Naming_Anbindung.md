@@ -1,7 +1,7 @@
 # P017 ma_variants und Naming-Anbindung
 
-Stand: 2026-07-14
-Status: Fachlich konsolidiert, Umsetzung geplant
+Stand: 2026-07-21
+Status: P017-Referenzslice umgesetzt; Ausbau fuer weitere StudyCases offen
 Prioritaet: Hoch
 Abhaengigkeiten: P015, P016, P018, P027
 
@@ -27,6 +27,28 @@ Noch offen ist die verbindliche Umstellung auf:
 - Stage-1-Referenzdimensionierung aus P016.
 - getrennte Schritte `VSP`, `VVER`, `VCAT`, `VSEL` und `VGEN`.
 - direkte Uebergabe vollstaendiger Varianten an P018.
+
+## Umsetzungsstand 2026-07-21: erster vorfuehrbarer Referenzslice
+
+`ma_variants.workflow` bildet fuer die freigegebene Zonenreferenz die Kette
+`VSP -> VVER -> VCAT -> VSEL -> VGEN` ab:
+
+- VSP erzeugt Kandidaten ausschliesslich aus nicht gesperrten P015-Dimensionen.
+- VVER prueft die aus dem Zonenmodul gesammelte Kopplungsregel und dokumentiert
+  Ablehnungen.
+- VCAT enthaelt nur verifizierte Kandidaten und erzwingt die Grenze von 500.
+- VSEL speichert nur `VAR-ID`s aus genau diesem Katalog.
+- VGEN materialisiert nur die ausgewaehlten Varianten als `PreprocessVariant`
+  mit Baselinebezug und Fingerprint.
+
+Die Streamlit-Ansicht zeigt Variationsraum, aufklappbare Regeln, Katalog,
+Auswahl und Generierung. Die fruehere P028-Optionsdemo bleibt als
+kompatibler Altbestand erhalten, ist aber nicht mehr die fachliche Quelle des
+Thesis-Variantenraums.
+
+Weiter offen bleiben mehrere StudyCases, allgemeine Regeltypen,
+persistierte VSP/VVER/VCAT/VSEL-Artefakte, Namensgebung auf P017-`VAR-ID`s
+und die direkte P018-Handover-Integration.
 
 ## Verbindliche Hierarchie
 

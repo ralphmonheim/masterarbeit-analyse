@@ -39,6 +39,19 @@ def test_p028_default_files_produce_expected_demo_scope():
     assert named_data.generated_variants[0][0].variant_name == "V001_CL24_VCO2_H100"
 
 
+def test_default_program_list_contains_only_the_agreed_building_energy_examples():
+    programs, active_program_key, source = load_simulation_program_profiles()
+
+    assert active_program_key == "ida_ice"
+    assert source.is_template is True
+    assert [program.program_key for program in programs] == [
+        "ida_ice",
+        "hottgenroth_energieberater",
+        "energyplus",
+        "trnsys",
+    ]
+
+
 def test_option_selection_changes_variant_count_reproducibly():
     parameters, option_sets, option_values, default_selection = load_parameter_catalog()
     selection = ParameterOptionSelection(

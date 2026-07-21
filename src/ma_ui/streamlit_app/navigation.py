@@ -150,6 +150,22 @@ def get_navigation_pages() -> tuple[NavigationPage, ...]:
     return _NAVIGATION_PAGES
 
 
+def get_process_navigation_pages() -> tuple[NavigationPage, ...]:
+    """Gibt nur die linearen Fachmodule fuer Zurueck und Weiter zurueck.
+
+    Querschnitts- und Infrastrukturmodule bleiben gezielt ueber ihre Karten
+    erreichbar, duerfen aber keinen Seitensprung innerhalb des fachlichen
+    Pre-/Main-/Post-Process ausloesen.
+    """
+
+    pages_by_module_key = {page.module_key: page for page in _NAVIGATION_PAGES}
+    return tuple(
+        pages_by_module_key[step.module_key]
+        for step in list_workflow_steps()
+        if step.phase_key != "cross_cutting" and step.module_key in pages_by_module_key
+    )
+
+
 def get_navigation_page(page_key: str) -> NavigationPage:
     """Findet eine UI-Seite einschliesslich historischer Seitenaliase."""
     canonical_key = PAGE_KEY_ALIASES.get(page_key, page_key)

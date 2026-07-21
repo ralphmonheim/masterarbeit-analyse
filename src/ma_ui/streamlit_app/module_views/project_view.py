@@ -27,7 +27,6 @@ from ma_project import (
 )
 from ma_ui.streamlit_app.shared import (
     normalize_table_for_streamlit,
-    render_configuration_links,
     render_configuration_return,
 )
 from ma_ui.streamlit_app.state import build_current_variant_ui_data, get_configuration_state
@@ -322,13 +321,6 @@ def render() -> None:
     st.title("Projekt")
     st.caption("Simulationsprogramme und neutrale Varianten-Benennungsprofile")
     render_configuration_return()
-    render_configuration_links(
-        "project",
-        (
-            ("Parameter konfigurieren", "parameters"),
-            ("Varianten pruefen", "variants"),
-        ),
-    )
 
     try:
         state = get_configuration_state(st.session_state)

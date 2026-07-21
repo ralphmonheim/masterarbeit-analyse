@@ -1,0 +1,48 @@
+# Neutrale Arbeitsvorlage: Fester Techniksatz der Masterarbeit.
+schema_version: "TODO"
+technical_model_id: "TODO"
+revision: "TODO"
+name: "Referenz-Techniksatz"
+status: "draft"
+building_reference:
+  building_id: "TODO"
+  building_revision: "TODO"
+system_boundary:
+  heating_in_ventilation: false
+  cooling_in_ventilation: false
+  central_heating: true
+  central_cooling: true
+  central_ventilation_with_heat_recovery: true
+heating:
+  system_id: "TODO"
+  generation_type: "TODO"
+  distribution_type: "TODO"
+  emission_type: "TODO"
+  nominal_capacity_kw: null
+  variation_locked: true
+cooling:
+  system_id: "TODO"
+  generation_type: "TODO"
+  distribution_type: "TODO"
+  emission_type: "TODO"
+  nominal_capacity_kw: null
+  variation_locked: true
+ventilation:
+  system_id: "TODO"
+  system_type: "central_mechanical"
+  heat_recovery_present: true
+  heat_recovery_efficiency: null
+  nominal_airflow_m3_h: null
+  heating_function_present: false
+  cooling_function_present: false
+  variation_locked: true
+domestic_hot_water:
+  present: null
+  generation_type: "TODO"
+service_interfaces: []
+reference_dimensioning:
+  status: "not_calculated"
+  heating_design_load_kw: null
+  cooling_design_load_kw: null
+assumptions: []
+open_points: []

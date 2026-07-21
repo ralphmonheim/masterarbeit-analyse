@@ -28,6 +28,7 @@ _BUILDING_SPEC_OPTIONS = (
     ("demo", "Demo-Gebaeudespezifikation", load_demo_building_spec),
     ("business_integration_lod1", "BusinessIntegration LoD-1", load_business_integration_lod1_building_spec),
 )
+BUILDING_WORKSPACE_TAB_LABELS = ("Import", "Uebersicht", "Bauteile", "Konstruktionen")
 
 
 def render() -> None:
@@ -37,7 +38,9 @@ def render() -> None:
     if spec is None:
         return
 
-    overview_tab, elements_tab, constructions_tab = st.tabs(["Uebersicht", "Bauteile", "Konstruktionen"])
+    import_tab, overview_tab, elements_tab, constructions_tab = st.tabs(BUILDING_WORKSPACE_TAB_LABELS)
+    with import_tab:
+        _render_building_import()
     with overview_tab:
         _render_building_overview(spec)
     with elements_tab:
@@ -140,6 +143,40 @@ def _select_building_specification():
     except (OSError, ValueError) as exc:
         st.error(f"Gebaeudespezifikation konnte nicht geladen werden: {exc}")
         return None
+
+
+def _render_building_import() -> None:
+    """Zeigt die vereinbarten Eingabewege, ohne Modellquellen zu verarbeiten."""
+
+    st.subheader("Gebaeudemodell vorbereiten")
+    st.caption(
+        "Die drei Wege erfassen nur die beabsichtigte Eingabe. Eine IFC-, Rhino- oder KI-Verarbeitung wird hier nicht gestartet."
+    )
+    model_tab, ai_tab, text_tab = st.tabs(["3D-Datei", "KI-Modell", "Textliche Eingabe"])
+    with model_tab:
+        uploaded_file = st.file_uploader(
+            "3D-Datei fuer die spaetere Pruefung vormerken",
+            type=["ifc", "3dm", "dwg", "dxf", "skp", "obj", "stl"],
+            key="building_import_3d_file",
+        )
+        if uploaded_file is None:
+            st.info("Noch keine Datei vorgemerkt. Bestehende lokale Referenzmodelle lassen sich in der Gebaeudeuebersicht auswaehlen.")
+        else:
+            st.info(f"{uploaded_file.name} ist nur in dieser Sitzung vorgemerkt und wurde nicht verarbeitet oder gespeichert.")
+    with ai_tab:
+        st.text_area(
+            "Prompt und Modellannahmen dokumentieren",
+            placeholder="Zum Beispiel: Kleines Buerogebaeude mit zwei Geschossen und zentraler Technik ...",
+            key="building_import_ai_prompt",
+        )
+        st.caption("Die Eingabe bleibt lokal in der Sitzung. Es wird kein externes KI-Modell aufgerufen.")
+    with text_tab:
+        st.text_area(
+            "Gebaeudebeschreibung erfassen",
+            placeholder="Zum Beispiel: Grundflaeche, Geschosse, Raeume, Huelle und bekannte Annahmen ...",
+            key="building_import_text_description",
+        )
+        st.caption("Die Beschreibung ist eine Vorbereitung fuer eine spätere strukturierte BuildingModelSpecification.")
 
 
 def _render_building_overview(spec) -> None:

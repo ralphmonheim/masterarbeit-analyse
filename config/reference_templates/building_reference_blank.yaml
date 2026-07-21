@@ -1,0 +1,48 @@
+# Neutrale Arbeitsvorlage: Unbekannte Werte bleiben null oder TODO.
+schema_version: "TODO"
+building_id: "TODO"
+revision: "TODO"
+name: "TODO"
+source_type: "manual" # manual | ifc_lite | demo
+source_reference: "TODO"
+input_lod: "TODO"
+status: "draft"
+building:
+  north_angle_deg: null
+  conditioned_floor_area_m2: null
+  conditioned_volume_m3: null
+storeys:
+  - storey_id: "TODO"
+    name: "TODO"
+    elevation_m: null
+    height_m: null
+rooms:
+  - room_id: "TODO"
+    name: "TODO"
+    storey_id: "TODO"
+    floor_area_m2: null
+    volume_m3: null
+    intended_zone_id: "TODO"
+constructions:
+  - construction_id: "TODO"
+    construction_type: "external_wall"
+    u_value_w_m2k: null
+elements:
+  - element_id: "TODO"
+    element_type: "external_wall"
+    adjacent_room_id: "TODO"
+    adjacent_space: "outside"
+    construction_id: "TODO"
+    area_m2: null
+    orientation_deg: null
+    tilt_deg: null
+openings:
+  - opening_id: "TODO"
+    host_element_id: "TODO"
+    opening_type: "window"
+    area_m2: null
+    u_value_w_m2k: null
+    g_value: null
+shading: []
+assumptions: []
+open_points: []

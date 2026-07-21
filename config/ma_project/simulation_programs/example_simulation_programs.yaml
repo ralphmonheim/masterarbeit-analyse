@@ -4,3 +4,15 @@ simulation_programs:
     display_name: IDA ICE
     version: ""
     note: Manuell verwendetes Simulationsprogramm der Masterarbeit.
+  - program_key: hottgenroth_energieberater
+    display_name: Hottgenroth Energieberater
+    version: ""
+    note: Beispielprofil fuer energetische Gebaeudebilanzierung; keine angebundene Schnittstelle.
+  - program_key: energyplus
+    display_name: EnergyPlus
+    version: ""
+    note: Beispielprofil fuer dynamische Gebaeudeenergiesimulation; keine angebundene Schnittstelle.
+  - program_key: trnsys
+    display_name: TRNSYS
+    version: ""
+    note: Beispielprofil fuer thermische System- und Gebaeudesimulation; keine angebundene Schnittstelle.

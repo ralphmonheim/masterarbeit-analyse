@@ -1,0 +1,47 @@
+specification_id: "PVS-BI-LOD1-ZONE-ONLY-0001"
+study_mode: "variant_study"
+description: "Masterarbeits-Referenz: Das definierte Techniksystem bleibt unveraendert. Nur zonale Sollwertfaktoren duerfen variiert werden."
+
+areas:
+  - module_key: "weather"
+    label: "Wetter"
+    is_locked: true
+    lock_reason: "Der aktivierte Wetterdatensatz ist Referenzrandbedingung der Studie."
+  - module_key: "building"
+    label: "Gebaeude"
+    is_locked: true
+    lock_reason: "Das ausgewaehlte Gebaeudemodell ist die Referenz."
+  - module_key: "technical"
+    label: "Technik"
+    is_locked: true
+    lock_reason: "Der definierte Techniksatz bleibt in der Masterarbeit fest."
+  - module_key: "zones"
+    label: "Zonen"
+    is_locked: false
+    lock_reason: "Zonale Nutzungs- und Komfortvariationen sind Untersuchungsgegenstand."
+
+dimensions:
+  - dimension_key: "office_setpoint_factor"
+    module_key: "zones"
+    label: "Bueroraum: gemeinsamer Heiz- und Kuehlsollwertfaktor"
+    scope_id: "ZONE-BI-LOD1-0001"
+    target_parameter_keys:
+      - "ZONE-BI-LOD1-0001.heating_setpoint_c"
+      - "ZONE-BI-LOD1-0001.cooling_setpoint_c"
+    value_mode: "coupled_option"
+    coupling_key: "office_heating_cooling_setpoint_factor"
+    is_dimensioning_relevant: true
+    description: "Der Faktor wird identisch auf Heiz- und Kuehlsollwert der Buerzone angewendet; getrennte Kombinationen sind nicht zulaessig."
+    options:
+      - option_key: "setpoint_factor_095"
+        label: "95 Prozent"
+        value: 0.95
+        unit: "-"
+      - option_key: "setpoint_factor_100"
+        label: "100 Prozent (Referenz)"
+        value: 1.0
+        unit: "-"
+      - option_key: "setpoint_factor_105"
+        label: "105 Prozent"
+        value: 1.05
+        unit: "-"

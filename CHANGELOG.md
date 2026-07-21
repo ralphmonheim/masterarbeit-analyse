@@ -4,6 +4,27 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.32.0 - 2026-07-21
+
+### Added
+- Die Referenzvariationen sind als nachvollziehbarer, zonenbezogener
+  Parameter-Workflow mit Konfiguration, Validierung, Katalog, Auswahl und
+  Generierung vorbereitet. Gebäude, Wetter und der feste Techniksatz bleiben
+  dabei gesperrt.
+- Drei neutrale YAML-Vorlagen für Gebäude-, Technik- und Zonenreferenzen
+  liegen unter `config/reference_templates/` bereit; sie enthalten keine
+  realen Gebäude- oder Produktdaten.
+- Der lokale IFC-Lite-Importer erfordert vor dem Öffnen einer IFC-Datei eine
+  explizite Compliance-Entscheidung. Für nutzereigene Modelle steht ein
+  lokal auditierter Freigabeweg bereit; abgeleitete Dateien bleiben ignoriert.
+
+### Changed
+- Projekt-, Gebäude-, Technik-, Parameter- und Variantenansichten folgen dem
+  abgestimmten Referenzablauf. Die Gebäudeeingabe erfasst die drei vorgesehenen
+  Wege nur informativ; der feste Techniksatz ist sichtbar, aber nicht editierbar.
+- Die Prozessnavigation verwendet ausschließlich die fachlichen Prozessseiten;
+  technische Grundlagen bleiben außerhalb der Vor-/Zurück-Navigation.
+
 ## 0.31.0 - 2026-07-21
 
 ### Changed

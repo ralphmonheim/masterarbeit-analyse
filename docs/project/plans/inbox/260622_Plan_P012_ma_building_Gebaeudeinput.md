@@ -391,8 +391,11 @@ und bleibt vollstaendig von `ma_database.DemoCatalog` sowie dessen
 Manifest-/Bundle-Logik getrennt. Die Daten sind keine simulationsfaehige
 Katalogbasis und werden weder automatisch zugeordnet noch veroeffentlicht.
 
-Die V1-Ansicht gruppiert die Gebaeudedaten in `Uebersicht`, `Bauteile` und
-`Konstruktionen`: Bauteile erhalten eine Uebersicht sowie Typ-Reiter;
+Die V1-Ansicht beginnt mit dem rein informativen Reiter `Import` und gruppiert
+die Gebaeudedaten danach in `Uebersicht`, `Bauteile` und `Konstruktionen`.
+`Import` bildet die drei vereinbarten Wege 3D-Datei, KI-Modell mit Prompt und
+textliche Eingabe ab, startet aber weder Datei- noch externe KI-Verarbeitung.
+Bauteile erhalten eine Uebersicht sowie Typ-Reiter;
 Fenster und Tueren liegen darunter. Konstruktionen zeigen die vorhandenen
 Konstruktionen und `Surfaces` gemeinsam, Materialien und Produkte jeweils in
 passenden Unterreitern. `Modellquellen` ist bewusst nicht Teil von V1 und

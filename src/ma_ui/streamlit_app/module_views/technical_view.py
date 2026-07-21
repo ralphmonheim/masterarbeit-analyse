@@ -16,7 +16,6 @@ from ma_ui.streamlit_app.shared.layout import render_page_header
 from ma_ui.streamlit_app.shared.tables import normalize_table_for_streamlit
 from ma_validation import DiagnosticMessage, DiagnosticSeverity
 from ma_workflow import get_module_definition
-from ma_zones import load_business_integration_lod1_zone_spec
 
 TECHNICAL_WORKSPACE_TAB_LABELS = ("Technikmodell", "Übersicht", "Auswahl")
 TECHNICAL_SELECTION_TAB_LABELS = (
@@ -78,13 +77,12 @@ def render() -> None:
     module = get_module_definition("ma_technical")
     render_page_header(module.label, module.purpose)
     try:
-        zone_spec = load_business_integration_lod1_zone_spec()
         technical_spec = load_business_integration_lod1_technical_spec()
     except (OSError, ValueError) as exc:
         st.error(f"Technikspezifikation konnte nicht geladen werden: {exc}")
         return
 
-    validation_result = validate_technical_spec(technical_spec, zone_spec=zone_spec)
+    validation_result = validate_technical_spec(technical_spec)
     model_tab, overview_tab, selection_tab = st.tabs(TECHNICAL_WORKSPACE_TAB_LABELS)
     with model_tab:
         st.metric("Freigabestatus", validation_result.release_status.value)
@@ -112,27 +110,44 @@ def render() -> None:
         _render_messages(validation_result.messages)
 
     with overview_tab:
-        _render_technical_selection_overview()
+        _render_fixed_technical_reference(technical_spec)
     with selection_tab:
-        st.caption("Die Auswahl bleibt ein synthetischer Sitzungsentwurf und wird erst mit Speichern uebernommen.")
-        heating_tab, cooling_tab, ventilation_tab, storage_tab, dhw_tab, electrical_tab = st.tabs(
-            TECHNICAL_SELECTION_TAB_LABELS
-        )
-        with heating_tab:
-            _render_technical_topic("heating", "Heizung", "heating_generators")
-        with cooling_tab:
-            _render_technical_topic("cooling", "Kuehlung", "cooling_generators")
-        with ventilation_tab:
-            _render_technical_topic("ventilation", "Lueftung")
-        with storage_tab:
-            _render_technical_topic("storage", "Speicher", "thermal_storages")
-        with dhw_tab:
-            _render_technical_topic("domestic_hot_water", "Trinkwarmwasser")
-        with electrical_tab:
-            _render_technical_topic("electrical", "Elektrik")
-        if st.button("Technikauswahl speichern", type="primary", key="technical_selection_save"):
-            _save_technical_selection()
-            st.success("Technikauswahl wurde fuer diese Sitzung uebernommen.")
+        _render_fixed_technical_selection(technical_spec)
+
+
+def _render_fixed_technical_reference(spec: TechnicalSystemSpecification) -> None:
+    """Zeigt die für die Arbeit verbindliche Referenz ohne Auswahlentwurf."""
+
+    st.subheader("Referenz-Techniksatz")
+    st.caption("Der Techniksatz ist für die Masterarbeit fest. Varianten ändern nur freigegebene Zonenparameter.")
+    st.dataframe(normalize_table_for_streamlit(technical_system_rows(spec)), hide_index=True, width="stretch")
+
+
+def _render_fixed_technical_selection(spec: TechnicalSystemSpecification) -> None:
+    """Macht die enthaltenen Systeme als Auswahlresultat sichtbar, nicht editierbar."""
+
+    st.caption("Ausgewählte Technik aus der freigegebenen Referenzkonfiguration; keine Katalog- oder Parameteränderung.")
+    systems_by_type = {system.system_type: system for system in spec.systems}
+    for tab, topic_key, label in zip(
+        st.tabs(TECHNICAL_SELECTION_TAB_LABELS),
+        ("heating", "cooling", "ventilation", "storage", "domestic_hot_water", "electrical"),
+        TECHNICAL_SELECTION_TAB_LABELS,
+        strict=True,
+    ):
+        with tab:
+            system = systems_by_type.get(topic_key)
+            if system is None:
+                st.info(f"{label}: Nicht Bestandteil des festen Techniksatzes.")
+            else:
+                st.dataframe(normalize_table_for_streamlit(technical_system_rows(TechnicalSystemSpecification(
+                    technical_model_id=spec.technical_model_id,
+                    project_id=spec.project_id,
+                    building_id=spec.building_id,
+                    source_zone_model_id=spec.source_zone_model_id,
+                    input_detail_level=spec.input_detail_level,
+                    systems=(system,),
+                    assumptions=(),
+                ))), hide_index=True, width="stretch")
 
 
 def _render_technical_topic(topic_key: str, label: str, catalog_category: str | None = None) -> None:

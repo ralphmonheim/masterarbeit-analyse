@@ -7,6 +7,11 @@ from .diagnostics import (
     scan_building_input_directory,
     scan_default_building_input_files,
 )
+from .ifc_lite_import import (
+    IfcLiteImportSummary,
+    authorize_user_owned_ifc_lite_derivation,
+    derive_ifc_lite_building_candidate,
+)
 from .local_catalogs import (
     DEFAULT_BUILDING_CATALOG_DIRECTORY,
     LocalCatalog,
@@ -69,6 +74,7 @@ __all__ = [
     "BuildingModelSpecification",
     "BuildingModelVersion",
     "BuildingSourceDiagnostic",
+    "IfcLiteImportSummary",
     "Opening",
     "PhysicalElement",
     "ProjectInfo",
@@ -78,6 +84,8 @@ __all__ = [
     "Storey",
     "building_specification_from_dict",
     "diagnose_building_source",
+    "authorize_user_owned_ifc_lite_derivation",
+    "derive_ifc_lite_building_candidate",
     "load_business_integration_lod1_building_spec",
     "load_building_spec",
     "load_demo_building_spec",

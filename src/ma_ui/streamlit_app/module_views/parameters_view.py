@@ -19,6 +19,7 @@ from ma_parameters import (
     build_business_integration_lod1_parameter_snapshot,
     list_local_option_files,
     load_parameter_catalog,
+    load_reference_variation_specification,
     parameter_input_package_source_rows,
     parameter_input_package_summary_rows,
     parameter_input_package_value_rows,
@@ -30,6 +31,8 @@ from ma_parameters import (
     validate_option_selection,
     validate_parameter_input_package,
     validate_parameter_snapshot,
+    variation_area_rows,
+    variation_dimension_rows,
 )
 from ma_ui.streamlit_app.shared import (
     normalize_table_for_streamlit,
@@ -144,9 +147,67 @@ def render() -> None:
     )
     _render_option_file_controls(state)
 
-    definition_tab, option_tab, snapshot_tab, input_package_tab, baseline_tab = st.tabs(
-        ["Parameterdefinitionen", "Optionsauswahl", "LoD-1-Snapshot", "Eingangspaket", "Baseline v2"]
+    (
+        reference_dimensioning_tab,
+        variations_tab,
+        definition_tab,
+        option_tab,
+        snapshot_tab,
+        input_package_tab,
+        baseline_tab,
+    ) = st.tabs(
+        [
+            "Referenzdimensionierung",
+            "Variationen",
+            "Parameterdefinitionen",
+            "Optionsauswahl (Altbestand)",
+            "LoD-1-Snapshot",
+            "Eingangspaket",
+            "Baseline v2",
+        ]
     )
+    try:
+        reference_baseline = build_business_integration_lod1_baseline_parameter_snapshot()
+        reference_specification = load_reference_variation_specification(reference_baseline)
+    except (OSError, ValueError, KeyError) as exc:
+        reference_baseline = None
+        reference_specification = None
+        st.error(f"Referenzkonfiguration konnte nicht geladen werden: {exc}")
+
+    with reference_dimensioning_tab:
+        st.caption("Freigegebene Referenzwerte je Eingabemodul. Der Sperrstatus steuert den Variantenraum.")
+        if reference_specification is not None and reference_baseline is not None:
+            st.dataframe(
+                normalize_table_for_streamlit(variation_area_rows(reference_specification)),
+                hide_index=True,
+                width="stretch",
+            )
+            source_rows = baseline_parameter_snapshot_value_rows(reference_baseline)
+            area_tabs = st.tabs([area.label for area in reference_specification.areas])
+            module_by_area = {
+                "weather": "ma_weather",
+                "building": "ma_building",
+                "technical": "ma_technical",
+                "zones": "ma_zones",
+            }
+            for area, area_tab in zip(reference_specification.areas, area_tabs, strict=True):
+                with area_tab:
+                    st.dataframe(
+                        normalize_table_for_streamlit(
+                            [row for row in source_rows if row["Modul"] == module_by_area[area.module_key]]
+                        ),
+                        hide_index=True,
+                        width="stretch",
+                    )
+
+    with variations_tab:
+        st.caption("Nur nicht gesperrte Bereiche erzeugen Varianten. Gekoppelte Werte werden gemeinsam gefuehrt.")
+        if reference_specification is not None:
+            st.dataframe(
+                normalize_table_for_streamlit(variation_dimension_rows(reference_specification)),
+                hide_index=True,
+                width="stretch",
+            )
     with definition_tab:
         st.info("Parameterdefinitionen sind in diesem Umsetzungsschritt nicht bearbeitbar.")
         st.dataframe(

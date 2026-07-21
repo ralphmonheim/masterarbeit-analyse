@@ -74,6 +74,16 @@ from .validation import (
     validate_parameter_input_package,
     validate_parameter_snapshot,
 )
+from .variations import (
+    DEFAULT_REFERENCE_VARIATION_CONFIG,
+    ParameterVariationSpecification,
+    VariationArea,
+    VariationDimension,
+    VariationOption,
+    load_reference_variation_specification,
+    variation_area_rows,
+    variation_dimension_rows,
+)
 
 __all__ = [
     "BASELINE_SNAPSHOT_SCHEMA_VERSION",
@@ -85,6 +95,7 @@ __all__ = [
     "BUSINESS_INTEGRATION_LOD1_SNAPSHOT_VERSION",
     "DEFAULT_OPTION_CONFIG",
     "DEFAULT_PARAMETER_CONFIG",
+    "DEFAULT_REFERENCE_VARIATION_CONFIG",
     "LOCAL_OPTION_DIR",
     "BaselineParameterSnapshot",
     "BaselineParameterValue",
@@ -102,9 +113,13 @@ __all__ = [
     "ParameterSourceReference",
     "ParameterValue",
     "ParameterVariability",
+    "ParameterVariationSpecification",
     "REQUIRED_LOD1_PARAMETER_KEYS",
     "REQUIRED_WEATHER_PARAMETER_KEYS",
     "SNAPSHOT_SCHEMA_VERSION",
+    "VariationArea",
+    "VariationDimension",
+    "VariationOption",
     "apply_option_selection",
     "attach_released_checkpoints_to_parameter_input_package",
     "baseline_parameter_snapshot_reference_rows",
@@ -122,6 +137,7 @@ __all__ = [
     "build_lod1_parameter_snapshot",
     "build_lod1_parameter_preview_rows",
     "list_local_option_files",
+    "load_reference_variation_specification",
     "load_parameter_catalog",
     "option_configuration_payload",
     "parameter_input_package_source_rows",
@@ -140,4 +156,6 @@ __all__ = [
     "validate_parameter_input_package",
     "validate_released_checkpoint_handover_pair",
     "validate_parameter_snapshot",
+    "variation_area_rows",
+    "variation_dimension_rows",
 ]

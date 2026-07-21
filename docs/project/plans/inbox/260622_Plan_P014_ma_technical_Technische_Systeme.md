@@ -48,6 +48,10 @@ P014-S1 ist umgesetzt und bleibt als Legacy-v1-Vertrag erhalten:
 - Versionierte BusinessIntegration-LoD-1/Lite-Demo:
   `config/ma_technical/examples/business_integration_lod1_technical_spec.yaml`.
 - Demo mit einfachen Referenzannahmen fuer Heizung, Kuehlung und Lueftung.
+- Fuer die Masterarbeit ist dieser Satz der feste Referenzweg: eine generische
+  Heizung, eine generische Kuehlung und eine zentrale Lueftung mit WRG. Die
+  Lueftung stellt keine Heiz- oder Kuehlfunktion bereit. Varianten veraendern
+  den Techniksatz nicht, sondern ausschliesslich freigegebene Zonenparameter.
 - Validierung von Pflichtfeldern, eindeutigen IDs, Systemtypen,
   bedienten Zonen, positiven Leistungs-/Luftwechselwerten,
   Waermerueckgewinnung und Zonenmodellbezug.

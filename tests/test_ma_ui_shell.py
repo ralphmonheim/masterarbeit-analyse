@@ -100,6 +100,7 @@ from ma_ui.navigation import (
     consume_scroll_to_top,
     get_navigation_page,
     get_navigation_pages,
+    get_process_navigation_pages,
     next_page_key,
     normalize_page_key,
     normalize_view_mode,
@@ -203,6 +204,26 @@ def test_ui_navigation_follows_the_canonical_phase_2_input_order():
 
     assert page_keys.index("weather") < page_keys.index("building") < page_keys.index("technical")
     assert page_keys.index("technical") < page_keys.index("zones") < page_keys.index("parameters")
+
+
+def test_process_navigation_excludes_cross_cutting_and_infrastructure_pages():
+    page_keys = [page.page_key for page in get_process_navigation_pages()]
+
+    assert page_keys[:9] == [
+        "project",
+        "weather",
+        "building",
+        "technical",
+        "zones",
+        "parameters",
+        "dimensioning",
+        "variants",
+        "simulation_setup",
+    ]
+    assert "core" not in page_keys
+    assert "workflow" not in page_keys
+    assert "validation" not in page_keys
+    assert "feedback" not in page_keys
 
 
 def test_ui_navigation_page_metadata():
@@ -468,6 +489,18 @@ def test_building_view_exposes_business_integration_lod1_spec():
     }
 
 
+def test_building_view_places_the_informative_import_before_the_overview():
+    assert building_view.BUILDING_WORKSPACE_TAB_LABELS == (
+        "Import",
+        "Uebersicht",
+        "Bauteile",
+        "Konstruktionen",
+    )
+    source = Path("src/ma_ui/streamlit_app/module_views/building_view.py").read_text(encoding="utf-8")
+    assert 'st.tabs(["3D-Datei", "KI-Modell", "Textliche Eingabe"])' in source
+    assert "wird hier nicht gestartet" in source
+
+
 def test_project_overview_combines_synthetic_master_data_and_session_configuration():
     state = load_default_configuration_state()
 
@@ -478,6 +511,15 @@ def test_project_overview_combines_synthetic_master_data_and_session_configurati
     assert values_by_label["Standort"] == "Synthetischer Referenzstandort"
     assert values_by_label["Aktives Simulationsprogramm"]
     assert values_by_label["Benennungsprofil"] == state.naming_profile.prefix
+
+
+def test_technical_view_uses_the_fixed_reference_instead_of_a_selection_save_action():
+    source = Path("src/ma_ui/streamlit_app/module_views/technical_view.py").read_text(encoding="utf-8")
+
+    assert "validate_technical_spec(technical_spec)" in source
+    assert "zone_spec=zone_spec" not in source
+    assert "Referenz-Techniksatz" in source
+    assert '"Technikauswahl speichern"' not in source
 
 
 def test_building_construction_rows_resolve_demo_material_layers():
@@ -535,7 +577,7 @@ def test_technical_topic_options_include_not_installed():
     )
 
 
-def test_technical_view_separates_model_overview_and_unsaved_selection():
+def test_technical_view_separates_model_overview_and_fixed_reference_selection():
     technical_source = Path("src/ma_ui/streamlit_app/module_views/technical_view.py").read_text(encoding="utf-8")
     render_source = technical_source.split("def render()", maxsplit=1)[1].split(
         "def _render_technical_topic",
@@ -553,7 +595,9 @@ def test_technical_view_separates_model_overview_and_unsaved_selection():
     )
     assert "st.tabs(TECHNICAL_WORKSPACE_TAB_LABELS)" in render_source
     assert "TECHNICAL_SELECTION_TAB_LABELS" in render_source
-    assert "Technikauswahl speichern" in render_source
+    assert "_render_fixed_technical_reference(technical_spec)" in render_source
+    assert "_render_fixed_technical_selection(technical_spec)" in render_source
+    assert "Technikauswahl speichern" not in render_source
     assert "Einordnung" not in render_source
     assert "technical_scope_rows()" not in render_source
 
