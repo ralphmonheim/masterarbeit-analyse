@@ -1,7 +1,7 @@
 # Masterarbeit Leitfaden
 
-Leitfaden-Version: 0.5.11
-Stand: 2026-07-14
+Leitfaden-Version: 0.5.14
+Stand: 2026-07-21
 
 Diese Datei ist der zentrale Orientierungsleitfaden fuer die Masterarbeit und
 die begleitende Software. Sie ersetzt keine aktive Steuerdatei. Der operative
@@ -45,8 +45,37 @@ Der Leitfaden fuehrt zwei Quellen zusammen:
 | 0.5.11 | 2026-07-14 | Preprocess V1 bis zum compliance-geprueften RunManifest als verbindlichen ersten Durchstich festgelegt |
 | 0.5.12 | 2026-07-14 | P018 als neutrales Run-Paket und P030 als getrennte Prozessmessung fuer den Masterarbeits-MVP aufgenommen |
 | 0.5.13 | 2026-07-14 | Masterarbeits-MVP V1 bis erste Diagramme und Prozessvergleich sowie P013/P016-Handover-Vertraege festgelegt |
+| 0.5.14 | 2026-07-21 | Gesamtarbeit in manuellen Fachteil und softwaregestuetzten Prozessinnovationsteil gegliedert; ergebniswirksame Prioritaet und externe Arbeitsablage festgelegt |
 
 ## 1. Zweck der Software
+
+### Einordnung der Gesamtarbeit
+
+**Arbeitstitel:** *Analyse der Differenz zwischen TGA-Dimensionierung und
+simulationsgestuetzter Optimierung - Fachliche Simulationen und
+Prozessinnovation am Beispiel eines Referenzgebaeudes*
+
+Die Masterarbeit besteht aus zwei verbundenen, aber getrennt auswertbaren
+Teilen:
+
+1. **Fachkompetenz:** Der bestehende manuelle Ablauf mit statischer
+   Dimensionierung, Excel-Vorbereitung, IDA-ICE-Modellierung und dynamischer
+   Simulation liefert die fachliche Referenz.
+2. **Business-Integration:** Die Projektsoftware unterstuetzt gezielt
+   Preprocessing, Ergebnisaufbereitung und Prozessmessung. Sie untersucht,
+   ob diese Unterstützung Aufwand und Kosten gegenüber dem manuellen Ablauf
+   reduziert, ohne die manuelle IDA-ICE-Simulation zu ersetzen.
+
+Bis zum Abschluss haben ergebniswirksame Arbeiten Vorrang. Eine Erweiterung
+ist nur prioritär, wenn sie mindestens eine nachvollziehbare Baseline oder
+Variante, wiederholbare Auswertungen, Prozessdaten oder direkt verwendbare
+Tabellen und Abbildungen für die Kapitel 3 bis 5 ermöglicht. Andere
+Erweiterungen bleiben erhalten, werden aber zurückgestellt.
+
+Geschützte Volltexte und eigene Arbeitsunterlagen liegen außerhalb des
+Repositorys im Schwesterordner `260524_Masterarbeit_Arbeitsablage`. Dieser
+ist die Ablage für Quellen und Schreibarbeit; technische Rohdaten, Logs und
+reguläre Programmausgaben bleiben an ihren bestehenden lokalen Projektpfaden.
 
 Die Software ist ein methodisches Hilfsmittel fuer die Masterarbeit im Bereich
 simulationsgestuetzte TGA-Planung mit IDA ICE. Sie ersetzt keine

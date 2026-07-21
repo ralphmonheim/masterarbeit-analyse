@@ -1,6 +1,6 @@
 ---
 name: project-governance-workflow
-description: Gleiche die kanonische Projektplanung, Entscheidungen und dokumentierten Projektzustaende ab. Verwende diesen Skill bei `aktualisieren`, `tagesstart`, `Guten Morgen, es ist ein neuer Tag.`, `projektlage`, `update planung`, `plan aufnehmen`, `projektinput aufnehmen`, `entscheidung festhalten`, `council analyse`, `council review`, `council compliance`, `council umsetzen`, `ohne council`, `nur Tera`, `mit Sol-Review` und bei Fragen nach der fuehrenden Projektwahrheit oder nach Dokumentduplikaten.
+description: Gleiche die kanonische Projektplanung, Entscheidungen und dokumentierten Projektzustaende ab. Verwende diesen Skill bei `aktualisieren`, `tagesstart`, `Guten Morgen, es ist ein neuer Tag.`, `projektlage`, `chat-stats`, `chat-handover`, `update planung`, `plan aufnehmen`, `projektinput aufnehmen`, `entscheidung festhalten`, `council analyse`, `council review`, `council compliance`, `council umsetzen`, `ohne council`, `nur Tera`, `mit Sol-Review` und bei Fragen nach der fuehrenden Projektwahrheit oder nach Dokumentduplikaten.
 ---
 
 # Projektsteuerungs-Workflow

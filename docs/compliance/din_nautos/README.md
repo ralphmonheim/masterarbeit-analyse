@@ -71,6 +71,26 @@ Die lokalen Arbeitsdaten unter `data/common/normen/` und
 Pruefbestaende. Sie sind keine freigegebene produktive Normlogik und duerfen
 nicht ungeprueft versioniert, mit KI verarbeitet oder implementiert werden.
 
+## Schlanker Arbeitsmodus fuer die Entwicklung
+
+Die Compliance-Pruefung wird nicht fuer jeden normalen Entwicklungsschritt
+wiederholt. Frei bleiben eigener Quellcode, neutrale Datenvertraege,
+synthetische Tests, bibliografische Metadaten sowie eigene begrenzte
+Paraphrasen und fachliche Interpretationen.
+
+Eine einzelne, paket- oder quellenbezogene Pruefung ist nur erforderlich,
+bevor ein geschuetztes Dokument maschinell geoeffnet oder verarbeitet wird,
+eine Tabelle oder Formel automatisch extrahiert beziehungsweise konvertiert
+wird, Inhalte an externe Dienste oder KI uebergeben werden, reale oder
+abgeleitete geschuetzte Daten in das Repository gelangen oder Inhalte
+veroeffentlicht beziehungsweise weitergegeben werden.
+
+Eine autorisierte Person darf die Quelle lokal manuell lesen und erforderliche
+Werte gezielt in einen als `local_only` markierten Reviewbestand eintragen.
+Dieser Arbeitsmodus erlaubt weder eine automatische Uebernahme noch eine
+vollstaendige Rekonstruktion der Norm und ersetzt keine Pruefung vor einer
+produktiven oder veroeffentlichten Nutzung.
+
 ## Gesetzliche Ausnahmen
 
 Die Paragraphen 44b und 60d UrhG enthalten Regelungen zu Text und Data Mining.

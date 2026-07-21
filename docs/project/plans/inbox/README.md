@@ -12,6 +12,16 @@ Vorgehen:
 
 Umgesetzte oder alte Plaene liegen unter `../../archive/plans/`.
 
+Abgrenzung zur Masterarbeitsablage:
+
+- Alle hier gefuehrten Plaene bleiben versionierte technische
+  Projektentscheidungen und -nachweise.
+- Sie werden weder in die externe Arbeitsablage verschoben noch dort als
+  Arbeitskopie doppelt gefuehrt.
+- Quellen, eigene Schreibunterlagen, Prozessmessungen und bewusst ausgewaehlte
+  Ergebnisartefakte liegen ausschliesslich im Schwesterordner
+  `../../../../260524_Masterarbeit_Arbeitsablage/`.
+
 Aktuelle Besonderheit:
 
 - P007 bleibt als verbindlicher Rahmenplan bewusst in der Inbox.

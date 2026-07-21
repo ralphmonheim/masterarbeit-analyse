@@ -1714,3 +1714,142 @@ Stand: 2026-07-15
 - Status: getroffen und dokumentiert
 - Quelle oder Chatbezug: Nutzerentscheidung `dann bitte bei tagesende mit
   einbauen` am 2026-07-18
+
+## UD-093 Manuelle Chat-Statistik und Chat-Uebergabe
+
+- Datum: 2026-07-19
+- Thema: Kontextwechsel und effiziente Codex-Arbeit
+- Entscheidung: Das Projekt erhaelt die manuellen, rein auswertenden
+  Ausloesephrasen `chat-stats` und `chat-handover`. Es wird kein automatischer
+  oder dauerhaft persistierter Kontextzaehler eingefuehrt. `chat-stats`
+  bewertet nur sichtbare Komprimierungshinweise und die Arbeitslage;
+  `chat-handover` erzeugt daraus eine kopierfertige Chat-Uebergabe.
+- Begruendung: Eine exakte Kontext- oder Tokenmessung ist nicht verlaesslich
+  verfuegbar. Manuelle, nachvollziehbare Empfehlungen vermeiden eine falsche
+  Praezision und halten die bestehende P031-Struktur ohne neue
+  Dokumentationswahrheit schlank.
+- Auswirkung: `UPDATE_ROUTINES.md` bleibt alleinige Ablaufwahrheit,
+  `commands_common.md` bleibt Triggerindex. Beide Routinen sind standardmaessig
+  read-only, schreiben keine Handover-Datei und loesen keine Git- oder
+  externen Aktionen aus. Aenderungen am Governance-Skill werden erst in einem
+  neuen Chat oder nach Projekt-Reload aktiv erkannt.
+- Status: getroffen und dokumentiert
+- Quelle oder Chatbezug: Nutzerfreigabe `frei` am 2026-07-19
+
+## UD-094 Schlanker lokaler Normenarbeitsmodus
+
+- Datum: 2026-07-19
+- Thema: Compliance-Routinen fuer die lokale Entwicklung mit Normquellen
+- Entscheidung: Normale Entwicklungsarbeit mit eigenem Code, neutralen
+  Datenvertraegen, synthetischen Tests, bibliografischen Metadaten und
+  eigenen begrenzten Paraphrasen soll keinen wiederholten Einzelfall-Dialog
+  ausloesen. Autorisierte lokale manuelle Lektuere und ein als `local_only`
+  gekennzeichneter Reviewbestand sind als Arbeitsmodus vorgesehen.
+- Begruendung: Der Fokus der wiederkehrenden Pruefungen soll auf den
+  tatsaechlich kritischen Uebergaengen liegen, insbesondere Repository,
+  externe oder KI-Verarbeitung, automatische Extraktion und
+  Veroeffentlichung.
+- Auswirkung: Vor dem maschinellen Oeffnen oder Verarbeiten geschuetzter
+  Quellen, automatischer Tabellen-/Formelextraktion, externer Uebergabe,
+  Repository-Uebernahme realer oder abgeleiteter geschuetzter Daten sowie
+  Weitergabe bleibt der volle Preflight verbindlich. Die Entscheidung gibt
+  keine Rechte fuer solche Operationen und keine Freigabe fuer Normvolltexte.
+- Status: getroffen und in der Routineabgrenzung dokumentiert
+- Quelle oder Chatbezug: Nutzerfreigabe `Frei, amch das` am 2026-07-19
+
+## UD-095 Gesamtarbeitsrahmen, Ergebnisprioritaet und externe Arbeitsablage
+
+- Datum: 2026-07-21
+- Thema: Masterarbeitsstruktur, Projektprioritaet und Dokumentenablage
+- Entscheidung: Die Masterarbeit wird in einen manuellen Fachteil und einen
+  softwaregestuetzten Prozessinnovationsteil gegliedert. Teil 1 nutzt den
+  bestehenden Ablauf aus statischer Dimensionierung, Excel-Vorbereitung,
+  IDA-ICE-Modellierung und dynamischer Simulation. Teil 2 nutzt dieses
+  Projekt, um Preprocessing, Ergebnisaufbereitung und Prozessaufwand
+  vergleichbar zu untersuchen. Bis zum Abschluss haben nur Funktionen
+  Prioritaet, die fachliche Ergebnisse, Prozessdaten oder verwendbare
+  Tabellen und Abbildungen erzeugen. Originalquellen und eigene
+  Arbeitsunterlagen liegen im Schwesterordner
+  `../260524_Masterarbeit_Arbeitsablage/`, nicht im Repository.
+- Begruendung: Die vorhandene Zeit soll auf belastbare Ergebnisse für die
+  Masterarbeit konzentriert werden; geschützte Quellen und Schreibunterlagen
+  sollen von Produktivsoftware und Git getrennt bleiben.
+- Auswirkung: Der Schwesterordner trennt Quellen, eigene Arbeitsunterlagen,
+  Teil 1, Teil 2 und ausgewählte Ergebnisartefakte. Programm-Rohdaten,
+  technische Logs und reguläre Ausgaben bleiben in ihren bestehenden lokalen
+  Projektpfaden. Eine Übernahme aus der externen Ablage in das Repository oder
+  eine Veröffentlichung wird vorher gesondert geprüft.
+- Status: getroffen und Struktur freigegeben
+- Quelle oder Chatbezug: Nutzerfreigabe `Perfekt, Freigabe` am 2026-07-21
+
+## UD-096 Trennung der technischen Plan-Inbox von der Masterarbeitsablage
+
+- Datum: 2026-07-21
+- Thema: Planlebenszyklus und Dokumentablage
+- Entscheidung: Die Plan-Inbox bleibt vollständig im Repository. Aktive
+  Plaene bleiben dort; umgesetzte oder historische Plaene werden weiterhin
+  ausschliesslich nach `docs/project/archive/plans/` verschoben. Es werden
+  keine Arbeitskopien von P007 bis P032 in der externen Masterarbeitsablage
+  gefuehrt.
+- Begruendung: Planindex, Planstatus und Planquellen behalten damit eine
+  eindeutige technische Wahrheit. Die externe Ablage bleibt auf Quellen,
+  Schreibunterlagen, Prozessmessungen und gezielt exportierte
+  Ergebnisartefakte beschraenkt.
+- Auswirkung: Inhaltlich relevante Schreibbausteine werden bei Bedarf als
+  eigenstaendige Arbeitsunterlage ausgearbeitet; der technische Ursprungsplan
+  bleibt unveraendert im Repository.
+- Status: getroffen
+- Quelle oder Chatbezug: Nutzerfreigabe `Frei für deine Empfehlung` am
+  2026-07-21
+
+## UD-097 Kontrollierter Eingang für die externe Masterarbeitsablage
+
+- Datum: 2026-07-21
+- Thema: Wiederkehrende Ablage von Masterarbeitsunterlagen
+- Entscheidung: `masterarbeitsablage einsortieren` ist die feste Phrase für
+  den Eingang `../260524_Masterarbeit_Arbeitsablage/00_Eingang/`. Die Routine
+  inventarisiert und schlägt Zuordnungen vor; erst eine anschliessende,
+  konkrete Freigabe verschiebt den Batch ohne Umbenennung oder Überschreiben.
+- Begruendung: Neue Quellen und Arbeitsunterlagen sollen schnell einsortiert
+  werden, ohne die technische Projekt-Inbox oder das Repository zu vermischen.
+- Auswirkung: Unklare Dateien bleiben im Eingang unter `Unklar/`. Technische
+  Pläne, Code, Konfiguration, Rohdaten, Logs und reguläre Programmausgaben
+  verbleiben an ihren bestehenden Projektpfaden.
+- Status: getroffen und eingerichtet
+- Quelle oder Chatbezug: Nutzerauftrag `Richte das ein bitte` am 2026-07-21
+
+## UD-098 Lokaler Arbeitsmodus für Originalquellen
+
+- Datum: 2026-07-21
+- Thema: Verarbeitung von Quellen für die Masterarbeit
+- Entscheidung: Der Nutzer arbeitet mit Originalquellen lokal und
+  vervielfältigt sie nicht systematisch. Codex verarbeitet nur eigene
+  Notizen, eigene Paraphrasen sowie vom Nutzer manuell übertragene Werte.
+- Begruendung: Die verfügbare Zeit soll in fachliche Ergebnisse der
+  Masterarbeit fliessen.
+- Auswirkung: Der Arbeitsmodus ist keine allgemeine Lizenz- oder
+  Rechtsfreigabe. Abweichende Lizenzhinweise sowie externe, automatische oder
+  systematische Verarbeitung bleiben Einzelfälle.
+- Status: getroffen
+- Quelle oder Chatbezug: Nutzerbestätigung `ja` am 2026-07-21
+
+## UD-099 Dreiphasiger fachlicher Ablauf und Modulreihenfolge
+
+- Datum: 2026-07-21
+- Thema: Sichtbare Workflow-Phasen und Preprocess-Reihenfolge
+- Entscheidung: Die Oberfläche und der Workflow verwenden verbindlich die
+  drei Phasen `Pre-Process | Main-Process | Post-Process`. Die
+  Preprocess-Reihenfolge lautet `Projekt -> Wetter -> Gebäude -> Technik ->
+  Zonen -> Parameter -> Referenzdimensionierung -> Varianten ->
+  Simulation-Setup`. Export, manuelle Simulation und Ergebnisimport bilden
+  den Main-Process. Ab Datenvorbereitung beginnt der Post-Process;
+  Validierung und Feedback bleiben Querschnittsmodule ausserhalb der Phasen.
+- Begruendung: Die Reihenfolge soll die tatsächliche Bearbeitung ohne den
+  bisherigen Vorgriff der Zonen vor Technik abbilden und Navigation,
+  Übergaben sowie die UI eindeutig ausrichten.
+- Auswirkung: Die Phasenkennzeichnung einzelner Querschnittsmodule entfällt.
+  Bestehende fachliche Verträge und die spätere Dimensionierungsentscheidung
+  werden nicht verändert.
+- Status: getroffen und im Workflow-Katalog umgesetzt
+- Quelle oder Chatbezug: Nutzerentscheidung im UI-/Preprocess-Abgleich am
+  2026-07-21

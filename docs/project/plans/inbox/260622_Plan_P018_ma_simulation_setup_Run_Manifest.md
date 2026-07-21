@@ -207,3 +207,19 @@ P013-/P014-Revisionspersistenz bleibt ein getrennter Anschluss.
 
 - Begrenzter Vergleich von Referenz- und lokaler Ressourcenmaterialisierung.
 - Technische Kennzahlen fuer P030, ohne wissenschaftliche Messlogik in P018.
+
+## Handover-Ergaenzung 2026-07-21
+
+Das Handover konkretisiert den bestehenden neutralen Run-Vertrag:
+
+- Ein `RUN` referenziert genau eine `VSEL`, ein aufgeloestes gemeinsames Setup
+  und die daraus erzeugten `VAR` direkt; `RUN + VAR-ID` bleibt die eindeutige
+  Zuordnung.
+- Das Setup ergaenzt ausschliesslich simulationsbezogene Angaben wie Programm,
+  Version, Zeitraum, Zeitschritt, Warm-up, Solver und Output-Konfiguration.
+  Es berechnet oder veraendert keine fachlichen Variantenwerte.
+- Leere `simulation/`- und `results/`-Bereiche sind im MVP zulaessig.
+  IDA-Mapping, Dateierzeugung, Programmausfuehrung und Ergebnisimport bleiben
+  ausserhalb dieses Plans und folgen erst in P009.
+- Der Run dokumentiert Varianten-, Katalog-, Selection-, Quellenrevisions- und
+  Hashbezug; eine `CASE-ID` wird nicht eingefuehrt.

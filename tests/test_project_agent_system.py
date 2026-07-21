@@ -29,6 +29,8 @@ EXPECTED_SKILL_TRIGGERS = {
         "tagesstart",
         "Guten Morgen, es ist ein neuer Tag.",
         "projektlage",
+        "chat-stats",
+        "chat-handover",
         "update planung",
         "plan aufnehmen",
         "projektinput aufnehmen",

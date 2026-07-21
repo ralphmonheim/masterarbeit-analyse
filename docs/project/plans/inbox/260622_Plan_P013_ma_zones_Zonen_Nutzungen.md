@@ -2353,3 +2353,20 @@ Der erste Referenzfall ist am 2026-07-14 als Einraum-Einzonenmodell
 konkretisiert: `SPACE-BI-OFFICE-0001` wird vollstaendig der bestehenden Zone
 `ZONE-BI-LOD1-0001` zugeordnet. Flaeche, Volumen und Buero-Nutzungsprofil
 bleiben mit dem Building-LoD-1-Stand konsistent.
+
+## Handover-Ergaenzung 2026-07-21
+
+Die v2-Zielrichtung wird durch das technische Handover praezisiert:
+
+- `ma_zones` besitzt die konkrete Zuordnung von Zonen zu
+  `Heating`-, `Cooling`-, Luft- und DHW-Serviceinterfaces sowie lokale
+  Uebergabesysteme und Regelung.
+- `ma_technical` besitzt zentrale Erzeugung, Verteilung, AHU und
+  DHW-Erzeugung; direkte `served_zone_ids` bleiben nur ein
+  Migrationshinweis und werden nicht in einem v2-Technikmodell persistiert.
+- Ein spaeterer Cross-Module-Checkpoint prueft Interfaceexistenz,
+  Medien-/Terminalkompatibilitaet und die Zusammenfuehrung von DHW-Bedarf
+  und Erzeugung.
+
+Der bestehende MVP-Referenzfall und die additive Legacy-Kompatibilitaet
+bleiben unveraendert.

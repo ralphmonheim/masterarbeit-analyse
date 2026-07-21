@@ -969,3 +969,97 @@ die drei genannten Abschnitte und schliesst Originaldatei, weitere
 Arbeitsmappeninhalte, Abhaengigkeiten, externe Verarbeitung und die
 Veroeffentlichung abgeleiteter Katalogdaten aus. Die ignorierten Daten bleiben
 auch bei einem spaeteren Repository-Update ausgeschlossen.
+
+## Entscheidung 41: Zielreihenfolge fuer Technik, Zonen und Profile
+
+Der Nutzer legt am 2026-07-19 die fachliche und bedienseitige Reihenfolge
+`ma_building -> ma_technical -> ma_zones -> ma_parameters` fest. Diese
+Entscheidung konkretisiert die angenommene ADR-P032-Richtung; sie ist keine
+Freigabe zur Umsetzung der noch offenen P032-W3a-Legacy-Migration.
+
+- `ma_technical` besitzt zentrale technische Systeme, Grenzen und
+  Serviceinterface-Referenzen und muss seinen eigenen Vertrag ohne
+  Zonen-Runtimeimport validieren koennen.
+- `ma_zones` besitzt Zonen, Nutzungs-, Zeit- und Belegungsprofile sowie die
+  Zuordnung dieser fachlichen Anforderungen zu freigegebenen technischen
+  Referenzen. Zonenabhaengige Integritaetspruefungen gehoeren damit in den
+  zonenseitigen Integrationsvertrag.
+- `ma_ui` fuehrt durch dieselbe Reihenfolge, orchestriert jedoch nur. Ebenso
+  konsumiert `ma_parameters` freigegebene Fachvertraege, ohne Cross-Domain-
+  Fachregeln zu duplizieren.
+- Die bestehende oeffentliche Legacy-Fassade
+  `validate_technical_spec(..., zone_spec=...)` bleibt unveraendert, bis ein
+  eigener W3a-Slice ihren getesteten Adapter, Paritaet aller vier
+  Legacy-Diagnosen und den Rueckfallvertrag beschlossen hat.
+
+Die bestehenden Zeit- und Belegungsprofile sind bis zu einer eigenen
+P013-/P020-Werteherkunftsentscheidung synthetische oder manuell bestaetigte
+Annahmen. Eine Verarbeitung oder Uebernahme von Norminhalten setzt vorher
+dokumentierte Nutzungsrechte sowie eine Quellen-, Methoden- und
+Provenienzmatrix voraus.
+
+Ausgeschlossen bleiben P032-W2b, Config-Moves, Paketumbenennungen,
+Dependencies, v2-Werteherkunft, reale oder geschuetzte Daten, externe
+Verarbeitung, Hooks, CI und Git-Aktionen. Vor jeder Codeaenderung verlangt
+UD-089 weiterhin einen exakten Scope, mindestens drei Council-Voten, Tests und
+Rueckfallvertrag.
+
+## Entscheidung 42: Geplanter P032-W3a-T1-Legacy-Kompatibilitaetsslice
+
+Mira, Vera und Professor Sophia stimmen am 2026-07-19 gemaess UD-089 bedingt
+fuer den folgenden lokalen und reversiblen Vorbereitungsslice. Die Bedingungen
+dieser Entscheidung sind Bestandteil des Scopes. Der Slice ist geplant, aber
+noch nicht umgesetzt; er schliesst P032-W3a nicht als vollstaendigen
+Ownership-Transfer ab.
+
+Exakter Scope:
+
+- In `ma_zones.validation` wird additiv eine klar benannte API wie
+  `validate_technical_zone_integration(...)` vorbereitet. Sie prueft die vier
+  bestehenden Legacy-Beziehungen zwischen `TechnicalSystemSpecification` und
+  `ZoneModelSpecification`.
+- Die oeffentliche Legacy-Fassade
+  `ma_technical.validate_technical_spec(..., zone_spec=...)` sowie ihre
+  interne Legacy-Pruefung bleiben unveraendert. Sie importiert die neue
+  Zonen-API nicht und erzeugt damit keine Runtimekante
+  `ma_technical -> ma_zones`.
+- Die voruebergehende fachliche Doppelung ist ausschliesslich ein
+  Kompatibilitaets- und Paritaetsnachweis. Der zonenseitige Vertrag ist die
+  dokumentierte Zieloberflaeche; eine produktive Aufruferumstellung oder die
+  Entfernung der Legacy-Logik ist ein eigener Folgeslice.
+- Betroffen sind ausschliesslich zonenseitige Validierung/Exports,
+  synthetische Tests, der vorhandene Architekturguardrail und die kanonischen
+  P032-Entscheidungsdokumente. `ma_ui`, `ma_parameters`, Configs, Daten,
+  V1-/V2-Schemas, Handover-Payloads und Dependencies bleiben unveraendert.
+
+Abnahme und Tests:
+
+- Der neue zonenseitige Validator und der Legacy-Anteil liefern fuer gueltige
+  Referenzen, jede der drei ID-Abweichungen, unbekannte bediente Zonen,
+  mehrere Systeme sowie einen kombinierten Fehlerfall dieselbe stabile
+  Diagnoseprojektion `(severity, code, message, location)` und denselben
+  `release_status`.
+- Die erwartete Reihenfolge bleibt: Projekt, Gebaeude, Zonenmodell, danach
+  unbekannte bediente Zonen in Systemeingabereihenfolge; Zonen-IDs innerhalb
+  einer Meldung bleiben sortiert. Zufalls-ID und Zeitstempel einer Diagnose
+  sind kein Paritaetskriterium.
+- Die technische Eigenvalidierung ohne `zone_spec` bleibt unveraendert. Der
+  Architekturguardrail verlangt weiterhin keine Runtimekante
+  `ma_technical -> ma_zones`; getrennte Prozess-Smokes pruefen beide
+  Importreihenfolgen `ma_technical; ma_zones` und
+  `ma_zones; ma_technical`.
+
+Rueckfallvertrag:
+
+- Die neue zonenseitige API, ihr Export und ihre neuen Tests koennen als
+  additive Einheit zurueckgenommen werden. Die unveraenderte Legacy-Fassade
+  bleibt dabei sofort betriebsfaehig.
+- Falls ein spaeterer Folgeslice Aufrufer migriert, werden sie bei einer
+  Abweichung zuerst auf `validate_technical_spec(..., zone_spec=...)`
+  zurueckgestellt. Danach muessen Legacy-Fokuslauf, beide Importreihenfolgen
+  und der Architekturguardrail wieder gruen sein.
+
+Ausgeschlossen bleiben Lazy-Imports, Monkeypatch-/Registry-Mechanismen,
+unbelegte Importreihenfolgen, dauerhafte unmarkierte Doppelownership,
+Norminhalte und Normwerte, Config-Moves, P032-W2b, externe Verarbeitung und
+Git-Aktionen.

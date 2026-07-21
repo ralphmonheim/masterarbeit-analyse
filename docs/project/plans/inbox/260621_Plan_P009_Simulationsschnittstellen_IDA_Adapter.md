@@ -59,6 +59,10 @@ Diese Logik wird in P009 nicht kopiert oder ungeprueft verschoben.
 4. `RunManifest` aus P018 als verbindliche Eingabegrenze verwenden.
 5. Export und Import ueber `RUN-ID + VAR-ID` zuordnen; keine `CASE-ID`
    einfuehren.
+6. Quellmodell, neutrales thermisches Analysemodell und IDA-ICE-Modell als
+   drei getrennte Modellrollen fuehren. Jede kuenftige Transformation erzeugt
+   einen nachvollziehbaren Mapping- und Gap-Report; ein IFC-Modell ist weder
+   automatisch das thermische Modell noch eine IDA-ICE-Datei.
 
 ## Entwicklungsstufe 2: Kontrollierter IDA-ICE-Exportadapter
 
@@ -75,6 +79,9 @@ Diese Logik wird in P009 nicht kopiert oder ungeprueft verschoben.
    sobald der Schnittstellenvertrag und der konkrete Exportweg verifiziert
    sind.
 7. Exportindex fuer Projekt, Run und Varianten erzeugen.
+8. Bekannte Importverluste, insbesondere nicht uebernommene feste
+   Sonnenschutzeinrichtungen, als fachliche Luecke erfassen statt sie im
+   Adapter stillschweigend zu ersetzen.
 
 Eingang fuer den Export:
 
@@ -133,3 +140,20 @@ run-internen Status je `VAR-ID`.
 
 Der urspruengliche IDA-spezifische Entwurf liegt unveraendert unter
 `docs/project/archive/plans/260618_Plan_ma_export_ida_IDM_Exportentwurf.md`.
+
+## Handover-Ergaenzung 2026-07-21
+
+Die freigegebenen Varianten-Handover konkretisieren den spaeteren
+Adaptervertrag, ohne den zurueckgestellten MVP-Status aufzuheben:
+
+- Export und Import ordnen Ergebnisse ausschliesslich ueber `RUN-ID + VAR-ID`
+  zu; eine neue `CASE-ID` oder ein `SimulationCase` wird nicht eingefuehrt.
+- `ma_export_simulation` uebernimmt nur vorbereitete Programmdateien oder
+  Spezifikationen und veraendert keine fachlichen Variantenwerte.
+- `ma_import_simulation` prueft Run-, Varianten-, Setup- und Adapterbezug,
+  Vollstaendigkeit, Duplikate sowie Zeitreihen und Einheiten.
+- Export- und Importprovenienz enthalten mindestens Run, Variante, Setup,
+  Adapterversion, Dateihashes und Status. Ergebnisse aendern keine Variante.
+
+Diese Anforderungen werden erst mit einem spaeteren, separat freigegebenen
+Adapter-Slice umgesetzt. Sie erlauben keine automatische IDA-ICE-Integration.

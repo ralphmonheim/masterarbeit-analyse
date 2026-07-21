@@ -25,8 +25,10 @@
   payloadfreien `ReleasedZoneHandover`. Sein kanonischer Fingerprint bindet
   Zonenstand, Raum-Zonen-Zuordnung, Building-ID/-Revision und das technische
   Modell-/Revisions-/Hash-Triple; der DTO gibt keine Fachnutzlast weiter.
-- **Streamlit:** Die Modulansicht zeigt Demo, Nutzungsprofil, Freigabestatus
-  und Annahmen.
+- **Streamlit:** Die Modulansicht trennt Übersicht, tabellarische
+  Nutzungsprofilzuweisung als Sitzungsentwurf, Konditionierung sowie Zeit und
+  Belegung. Trinkwarmwasser-Erzeugung, Speicher und Verteilung bleiben in
+  `ma_technical`.
 - **Naechster Schritt:** Den abgeschlossenen Referenzcheckpoint nicht um
   Persistenz oder UI erweitern. Die verbleibende P015-S3b-Werteherkunft und
   ein P032-W2-Ownership-Scope brauchen jeweils einen getrennten Council-Slice.

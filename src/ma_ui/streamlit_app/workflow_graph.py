@@ -14,6 +14,7 @@ from ma_workflow import (
 from ma_workflow.models import WorkflowStep
 
 VISUAL_PHASES = tuple(phase.label for phase in list_workflow_phases())
+TECHNICAL_PLATFORM_LABEL = "Technische Plattform"
 CROSS_CUTTING_LABEL = "Phasenuebergreifend"
 
 STATUS_STYLES = {
@@ -67,7 +68,7 @@ def workflow_card_rows(
 ) -> list[WorkflowCard]:
     """Bereitet Workflow-Schritte als Karten fuer das grafische Dashboard auf."""
     workflow_steps = steps if steps is not None else tuple(
-        step for step in list_workflow_steps() if not step.is_cross_cutting
+        step for step in list_workflow_steps() if step.phase_key != "cross_cutting"
     )
     cards: list[WorkflowCard] = []
     for step in workflow_steps:
@@ -102,6 +103,19 @@ def cross_cutting_card_rows(*, available_page_keys: tuple[str, ...] = ()) -> lis
     """Bereitet Validierung und Feedback als eigenen Dashboard-Bereich auf."""
     return workflow_card_rows(
         steps=list_cross_cutting_steps(),
+        available_page_keys=available_page_keys,
+    )
+
+
+def technical_platform_card_rows(*, available_page_keys: tuple[str, ...] = ()) -> list[WorkflowCard]:
+    """Bereitet die technischen Grundlagen als eigenen Dashboard-Bereich auf."""
+    platform_steps = tuple(
+        step
+        for step in list_workflow_steps()
+        if step.phase_key == "cross_cutting" and not step.is_cross_cutting
+    )
+    return workflow_card_rows(
+        steps=platform_steps,
         available_page_keys=available_page_keys,
     )
 

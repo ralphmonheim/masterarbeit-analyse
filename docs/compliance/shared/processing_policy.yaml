@@ -18,6 +18,32 @@ principles:
   local_processing_preferred: true
   human_review_required_for_material_decisions: true
   full_protected_texts_must_not_be_versioned: true
+routine_scope:
+  # Normale Entwicklungsarbeit soll nicht fuer jeden einzelnen Schritt einen
+  # Compliance-Dialog ausloesen. Die folgenden unkritischen Gegenstaende
+  # bleiben frei, solange sie keinen geschuetzten Volltext oder reale
+  # Arbeitsdaten enthalten.
+  no_individual_gate_required_for:
+    - own_source_code
+    - synthetic_test_data
+    - neutral_data_schemas
+    - bibliographic_metadata
+    - own_limited_paraphrases
+    - own_engineering_interpretations
+  gate_required_before:
+    - protected_content_open_or_parse
+    - automated_norm_extraction_or_conversion
+    - external_or_ai_processing
+    - repository_storage_of_real_or_derived_protected_data
+    - publication_or_redistribution
+  local_manual_review:
+    allowed: true
+    conditions:
+      - authorized_user_reads_source_manually
+      - no_automated_extraction_or_conversion
+      - no_external_or_ai_content_transfer
+      - no_repository_storage_of_protected_content
+      - local_review_data_is_marked_local_only
 decision_gate:
   required_for:
     - idm

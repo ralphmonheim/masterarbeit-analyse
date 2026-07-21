@@ -11,7 +11,7 @@ from pathlib import Path
 import yaml
 from openpyxl import load_workbook
 
-SOURCE_PATH = Path("data/project_inbox/new/unknown/Gebäude-Zonenansicht.xlsx")
+SOURCE_PATH = Path("data/project_inbox/new/Gebäude-Zonenansicht.xlsx")
 OUTPUT_DIRECTORY = Path("config/ma_database/catalogs/v0.1.0")
 SHEET_NAME = "DIM - Räume"
 

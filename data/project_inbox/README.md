@@ -10,27 +10,18 @@ lokaler Einstieg fuer den Arbeitsordner.
 
 ## Nutzung
 
-1. Neue Dateien in den passendsten Unterordner unter `new/` legen.
+1. Alle neuen Dateien direkt unter `new/` ablegen.
 2. Codex mit `projektinput aufnehmen` den Ordner scannen lassen.
 3. Eindeutige Dateien werden in bestehende Zielordner verteilt.
 4. Verarbeitete Originale kommen nach `processed/`.
 5. Unklare Dateien bleiben in `needs_review/` und werden erst nach Rueckfrage
    verschoben.
 
-## Eingangsordner
+## Eingang
 
-Die Unterordner unter `new/` entsprechen den Kategorien aus
-`docs/project/PROJECT_INPUT_WORKFLOW.md`:
-
-- `docs/`
-- `weather/`
-- `building/`
-- `analyse/`
-- `variants/`
-- `catalogs/`
-- `parameters/`
-- `zones_technical/`
-- `unknown/`
+`new/` ist der einzige, unvorsortierte Eingang. Die fachliche Zuordnung
+erfolgt erst beim Scan anhand von Dateiname, Erweiterung und zulaessigen
+Metadaten nach `docs/project/PROJECT_INPUT_WORKFLOW.md`.
 
 ## Grenzen
 

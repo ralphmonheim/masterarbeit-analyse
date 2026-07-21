@@ -12,6 +12,7 @@ from .catalog import (
 )
 from .dashboard_actions import get_dashboard_action, list_dashboard_actions
 from .feedback_router import list_feedback_targets
+from .main_process_runner import list_main_process_steps
 from .models import ModuleDefinition, WorkflowAction, WorkflowPhase, WorkflowStep
 from .post_process_runner import list_post_process_steps
 from .pre_process_runner import list_pre_process_steps
@@ -31,6 +32,7 @@ __all__ = [
     "list_cross_cutting_steps",
     "list_feedback_targets",
     "list_module_definitions",
+    "list_main_process_steps",
     "list_post_process_steps",
     "list_pre_process_steps",
     "list_steps",

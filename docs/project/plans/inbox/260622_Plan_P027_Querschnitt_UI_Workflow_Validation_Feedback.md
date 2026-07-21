@@ -59,10 +59,10 @@ duplizierten Erklaerungen.
 - `ma_technical` trennt `Technikmodell | Übersicht | Auswahl`. Die Auswahl
   bleibt bis zum expliziten Speichern ein Sitzungsentwurf und aktualisiert
   danach nur die sichtbare technische Auswahluebersicht.
-- `ma_zones` trennt `Übersicht | Nutzungsprofile zuweisen`. Zugeordnete
-  Referenzprofile zeigen zentrale Profilwerte; zusaetzliche Profile sind
-  sichtbar synthetische Demo-Annahmen und werden ebenfalls nur sitzungsweit
-  nach explizitem Speichern uebernommen.
+- `ma_zones` zeigt die sechs fachlichen Bereiche `Übersicht | Zone zuweisen |
+  Nutzung & interne Lasten | Zeitpläne | Konditionierung & Übergabe |
+  Zusammenfassung & Prüfung`. Die vollständige Raum-Zonen-Übersicht ist
+  sichtbar; ihre Zuweisung bleibt bis zum Revisionsservice read-only.
 - Der erste abgestimmte `ma_building`-Reiter `Übersicht` trennt die
   Gebaeudestammdaten einschliesslich LoD und Reifegrad von den zentralen
   Flaechen- und Volumenkennwerten. Die vorhandene Fachspezifikation und die
@@ -178,3 +178,27 @@ append-only JSONL-Audit bereit. Der DWD-TRY-2011-Konverter ist der erste
 angebundene Fachadapter. Eine spaetere UI darf rote oder unbekannte
 Entscheidungen nicht uebersteuern und bei gelben Entscheidungen nur die vom
 Service verlangten Referenzen erfassen.
+
+## Handover-Ergaenzung 2026-07-21
+
+Die Querschnitts-Handover konkretisieren die Verantwortungsgrenzen:
+
+- `ma_core` stellt nur neutrale IDs, Referenzen, Revisionen, Hashes,
+  `InputSource`/`InputChange`, Konfigurations-I/O sowie Pfad- und
+  Loggingkonventionen bereit; keine TGA-Fachlogik.
+- `ma_rules` bewertet versionierte Fachregeln in den Phasen von
+  Vor-Kombination bis Generation. Harte technische Grenzen blockieren,
+  Empfehlungen warnen; eine Regel entscheidet in V1 keine Selection.
+- `ma_validation` prueft die VSP-, VVER-, VCAT-, VSEL- und VGEN-Checkpoints.
+  Kandidatenfehler koennen lokal ausgeschlossen werden; strukturelle
+  Katalog-, Selection- oder Generationsfehler blockieren den jeweiligen
+  Uebergang.
+- `ma_workflow` orchestriert die lineare Prozesskette und eine technisch
+  wiederaufnehmbare Dimensionierungsschleife innerhalb von VVER. Es erzeugt
+  keine Fachwerte und keine automatische Study-Iteration.
+- `ma_feedback` uebersetzt Pruef- und Statusbefunde in nachvollziehbare
+  Meldungen, ohne Regeln oder Selections zu veraendern. `ma_ui` bleibt fuer
+  spaetere Draft-, Validierungs- und Revisionsansichten zustaendig.
+
+Die genannten UI-Editoren, Datenbankmigrationen und automatischen Iterationen
+sind keine Umsetzungfreigabe und bleiben getrennte Folgeentscheidungen.

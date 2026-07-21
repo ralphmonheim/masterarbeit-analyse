@@ -23,6 +23,12 @@ Zeitreihen zu einem dokumentierten Optimierungsablauf buendeln.
 - Variantenvergleich und Optimierungshinweise als neutrales Ergebnisobjekt
   planen.
 - Fehlende CO2-/PMV-/PPD-Daten sichtbar behandeln.
+- Kalibrierung gegen Messdaten und Variantenoptimierung als getrennte
+  Arbeitsablaeufe modellieren. Eine Kalibrierung veraendert nicht automatisch
+  die Optimierungsentscheidung; beide Ergebnisse behalten eigene
+  Randbedingungen, Datenquellen und Run-Referenzen.
+- Einen leichten QA-Zyklus mit Ausgangsannahmen, Variantenhypothese,
+  Auswertung, fachlicher Pruefung und nachvollziehbarer Entscheidung planen.
 
 ## Akzeptanzkriterien
 

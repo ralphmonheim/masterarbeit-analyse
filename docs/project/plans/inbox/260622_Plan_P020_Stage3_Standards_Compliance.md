@@ -33,6 +33,11 @@ Der fruehere Name `stage_3_verification` bleibt nur als Uebergangshinweis.
 8. Regelwerk, Rechteinhaber und Bezugsweg getrennt nachweisen. Fuer DIN,
    VDE-Webshop, VDE-NormenBibliothek, VDI ueber DIN Media/Nautos und VDI-VOB
    gelten unterschiedliche Vertragsgrundlagen.
+9. Externe Standardpakete nur als lokale Recherche- und
+   Architekturreferenzen behandeln. Eine maschinenlesbare Paketstruktur ist
+   kein Nachweis fuer Aktualitaet, Vollstaendigkeit oder produktive
+   Nachweisregeln; jede spaetere Regel bleibt an Quelle, Ausgabe,
+   Anwendungsbereich und fachliche Pruefung gebunden.
 
 ## Lokaler Pruefbestand Runde 1
 

@@ -29,6 +29,13 @@ Paketexistenz allein bedeutet nicht, dass ein Modul fachlich umgesetzt ist.
 
 ## Masterarbeitsprioritaet
 
+Die Masterarbeit verbindet einen manuellen fachlichen Referenzprozess mit der
+softwaregestuetzten Prozessinnovation. Bis zum Abschluss haben daher nur
+Arbeiten Vorrang, die Baseline oder Varianten, wiederholbare Auswertungen,
+Prozessdaten oder direkt verwendbare Tabellen und Abbildungen erzeugen. Der
+manuelle IDA-ICE-Ablauf bleibt fachliche Referenz und wird nicht durch
+Automatisierung ersetzt.
+
 Der produktive Schwerpunkt reicht bis `ma_simulation_setup`:
 
 - Eingabequellen und Randbedingungen

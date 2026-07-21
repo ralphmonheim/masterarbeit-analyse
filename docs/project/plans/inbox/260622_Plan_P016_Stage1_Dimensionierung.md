@@ -121,3 +121,14 @@ Ein Profil beschreibt Kennwert, Einheit, zeitliche Aufloesung, Bezugsobjekt,
 Pflichtstatus und erwarteten Diagrammtyp. Es enthaelt keine
 programmspezifischen Ergebnisnamen und keine IDA-Exportlogik. Weitere
 Optimierungs-, Norm- oder Sensitivitaetsausgaben bleiben ausserhalb von MVP V1.
+
+## Handover-Ergaenzung 2026-07-21
+
+Bei dimensionierungsrelevanten Varianten liefert P016 einen
+`ReferenceDimensioningResult` fuer die Baseline und spaeter gruppierbare
+`VariantDimensioningResult`-Ergebnisse. `ma_variants` erzeugt dafuer nur
+Anfragen; es berechnet keine Lasten selbst. Kandidaten mit identischem
+`dimensioning_input_fingerprint` duerfen ein Ergebnis teilen. Analyseergebnisse
+bleiben fachlich bewertend und erzeugen hoechstens einen nicht-ausfuehrbaren
+`StudyDirectionProposal`; sie aendern weder Varianten noch technische
+Kapazitaeten automatisch.

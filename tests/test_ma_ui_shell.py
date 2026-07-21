@@ -70,6 +70,7 @@ from ma_ui.app import (
 from ma_ui.components import created_file_rows, is_preview_image, preview_image_paths
 from ma_ui.legacy_launchers import build_tkinter_analyse_command, launch_tkinter_analyse
 from ma_ui.main_dashboard import dashboard_action_rows
+from ma_ui.main_process_view import main_process_step_rows
 from ma_ui.module_views import (
     analyse_view,
     assessment_view,
@@ -121,11 +122,13 @@ from ma_ui.tkinter_app.module_views.analyse.cli import parse_tkinter_analyse_arg
 from ma_ui.tkinter_app.module_views.analyse.pipeline_config import build_tkinter_analysis_config
 from ma_ui.tkinter_app.module_views.analyse.restart import build_gui_restart_argv
 from ma_ui.workflow_graph import (
+    TECHNICAL_PLATFORM_LABEL,
     VISUAL_PHASES,
     cross_cutting_card_rows,
     feedback_path_rows,
     status_style,
     target_page_for_step,
+    technical_platform_card_rows,
     workflow_card_rows,
     workflow_cards_by_phase,
 )
@@ -641,9 +644,62 @@ def test_zone_overview_uses_saved_synthetic_profile_assignments():
 
     rows = zones_view.zone_overview_rows(zone_spec, {zone_spec.zones[0].zone_id: "synthetic_office"})
 
-    assert zones_view.ZONE_WORKSPACE_TAB_LABELS == ("Übersicht", "Nutzungsprofile zuweisen")
+    assert zones_view.ZONE_WORKSPACE_TAB_LABELS == (
+        "Übersicht",
+        "Zone zuweisen",
+        "Nutzung & interne Lasten",
+        "Zeitpläne",
+        "Konditionierung & Übergabe",
+        "Zusammenfassung & Prüfung",
+    )
     assert rows[0]["Nutzungsprofil"] == "Demo-Buero (synthetisch)"
     assert rows[0]["Betrieb [h]"] == "Demo-Annahme"
+
+
+def test_room_assignment_rows_show_all_released_building_spaces_and_zone_status():
+    building_spec = load_business_integration_lod1_building_spec()
+    zone_spec = load_business_integration_lod1_zone_spec()
+
+    rows = zones_view.room_assignment_rows(building_spec, zone_spec)
+
+    assert rows == [
+        {
+            "Raum": "SPACE-BI-OFFICE-0001",
+            "Name": "Bueroraum LoD-1",
+            "Flaeche [m2]": 24.0,
+            "Volumen [m3]": 96.0,
+            "Aktuelle Zone": "Bueroraum LoD-1",
+            "Zonen-ID": "ZONE-BI-LOD1-0001",
+            "Status": "zugewiesen",
+        }
+    ]
+
+
+def test_zone_profile_assignment_rows_keep_area_and_volume_in_the_overview_only():
+    zone_spec = load_business_integration_lod1_zone_spec()
+
+    rows = zones_view.usage_profile_assignment_rows(zone_spec, {})
+
+    assert rows[0]["Zone"] == "ZONE-BI-LOD1-0001"
+    assert rows[0]["Raeume"] == "SPACE-BI-OFFICE-0001"
+    assert rows[0]["Aktuelles Profil"] == zone_spec.zones[0].usage_profile_id
+    assert rows[0]["Neues Profil"] == zone_spec.zones[0].usage_profile_id
+    assert "Flaeche [m2]" not in rows[0]
+    assert "Volumen [m3]" not in rows[0]
+
+
+def test_zone_profile_assignment_reads_the_edited_table_value():
+    zone_spec = load_business_integration_lod1_zone_spec()
+    rows = zones_view.usage_profile_assignment_rows(zone_spec, {})
+    rows[0]["Neues Profil"] = "synthetic_office"
+
+    assignments = zones_view._profile_assignments_from_rows(
+        zone_spec,
+        pd.DataFrame(rows),
+        (zone_spec.zones[0].usage_profile_id, "synthetic_office"),
+    )
+
+    assert assignments == {zone_spec.zones[0].zone_id: "synthetic_office"}
 
 
 def test_dimensioning_view_is_registered_and_uses_lod1_result():
@@ -663,6 +719,7 @@ def test_dashboard_and_workflow_rows_cover_target_structure():
     workflow_rows = workflow_step_rows()
     asset_rows = workflow_reference_asset_rows()
     pre_process_rows = pre_process_step_rows()
+    main_process_rows = main_process_step_rows()
     post_process_rows = post_process_step_rows()
 
     assert any(row["Aktion"] == "open_simulation_setup" for row in dashboard_rows)
@@ -670,8 +727,13 @@ def test_dashboard_and_workflow_rows_cover_target_structure():
     assert WORKFLOW_IMAGE_PATH.name == "masterarbeit_workflow.png"
     assert WORKFLOW_PDF_PATH.name == "masterarbeit_workflow.pdf"
     assert all(row["Vorhanden"] is True for row in asset_rows)
-    assert pre_process_rows[-1]["Modul"] == "ma_export_simulation"
-    assert post_process_rows[0]["Modul"] == "ma_import_simulation"
+    assert pre_process_rows[-1]["Modul"] == "ma_simulation_setup"
+    assert [row["Modul"] for row in main_process_rows] == [
+        "ma_export_simulation",
+        "ida_ice",
+        "ma_import_simulation",
+    ]
+    assert post_process_rows[0]["Modul"] == "ma_analyse.data_preparation"
 
 
 def test_home_page_summarizes_workflow_status_and_phases():
@@ -681,7 +743,7 @@ def test_home_page_summarizes_workflow_status_and_phases():
 
     assert status_counts["available"] >= 1
     assert status_counts["planned"] >= 1
-    assert any(row["Phase"].startswith("Phase 0") for row in phase_rows)
+    assert any(row["Phase"] == "Pre-Process" for row in phase_rows)
     assert any("ma_export_simulation" in row["Module"] for row in phase_rows)
 
 
@@ -689,23 +751,36 @@ def test_workflow_graph_groups_steps_by_visual_phase():
     cards = workflow_card_rows(available_page_keys=get_renderable_page_keys())
     grouped = workflow_cards_by_phase(cards)
 
-    assert len(VISUAL_PHASES) == 7
-    assert VISUAL_PHASES[0].startswith("Phase 0")
-    assert VISUAL_PHASES[-1].startswith("Phase 6")
-    assert any(card.step_key == "parameters" for card in grouped[VISUAL_PHASES[2]])
-    assert any(card.step_key == "simulation" for card in grouped[VISUAL_PHASES[4]])
-    assert any(card.step_key == "optimization" for card in grouped[VISUAL_PHASES[4]])
-    assert any(card.step_key == "standards_compliance" for card in grouped[VISUAL_PHASES[4]])
-    assert any(card.step_key == "sensitivity" for card in grouped[VISUAL_PHASES[4]])
-    assert any(card.step_key == "economy" for card in grouped[VISUAL_PHASES[5]])
-    assert any(card.step_key == "sustainability" for card in grouped[VISUAL_PHASES[5]])
-    assert any(card.step_key == "assessment" for card in grouped[VISUAL_PHASES[5]])
+    assert VISUAL_PHASES == ("Pre-Process", "Main-Process", "Post-Process")
+    assert any(card.step_key == "parameters" for card in grouped["Pre-Process"])
+    assert any(card.step_key == "simulation" for card in grouped["Main-Process"])
+    assert any(card.step_key == "optimization" for card in grouped["Post-Process"])
+    assert any(card.step_key == "standards_compliance" for card in grouped["Post-Process"])
+    assert any(card.step_key == "sensitivity" for card in grouped["Post-Process"])
+    assert any(card.step_key == "economy" for card in grouped["Post-Process"])
+    assert any(card.step_key == "sustainability" for card in grouped["Post-Process"])
+    assert any(card.step_key == "assessment" for card in grouped["Post-Process"])
 
 
 def test_workflow_graph_exposes_cross_cutting_modules_separately():
     cards = cross_cutting_card_rows(available_page_keys=get_renderable_page_keys())
 
     assert [card.module_key for card in cards] == ["ma_validation", "ma_feedback"]
+    assert all(card.visual_phase == "Phasenuebergreifend" for card in cards)
+    assert all(card.target_page_key for card in cards)
+
+
+def test_workflow_graph_exposes_technical_platform_separately():
+    cards = technical_platform_card_rows(available_page_keys=get_renderable_page_keys())
+
+    assert TECHNICAL_PLATFORM_LABEL == "Technische Plattform"
+    assert [card.module_key for card in cards] == [
+        "ma_core",
+        "ma_database",
+        "ma_ui",
+        "ma_workflow",
+        "project_documentation",
+    ]
     assert all(card.visual_phase == "Phasenuebergreifend" for card in cards)
     assert all(card.target_page_key for card in cards)
 

@@ -7,6 +7,7 @@ from ma_workflow import (
     list_cross_cutting_steps,
     list_dashboard_actions,
     list_feedback_targets,
+    list_main_process_steps,
     list_module_definitions,
     list_post_process_steps,
     list_pre_process_steps,
@@ -21,8 +22,8 @@ from ma_workflow import (
 def test_workflow_steps_cover_main_phases():
     phases = steps_by_phase()
 
-    assert tuple(phases) == tuple(f"phase_{index}" for index in range(7))
-    assert [phase.order for phase in list_workflow_phases()] == list(range(7))
+    assert tuple(phases) == ("pre_process", "main_process", "post_process")
+    assert [phase.order for phase in list_workflow_phases()] == [0, 1, 2]
 
 
 def test_workflow_contains_analysis_step():
@@ -52,10 +53,20 @@ def test_workflow_statuses_reflect_current_module_implementation():
     assert get_workflow_step("validation").status == "planned"
 
 
-def test_phase_2_input_steps_follow_p013_s2_order():
-    phase_2_steps = [step.step_key for step in list_workflow_steps() if step.phase_key == "phase_2"]
+def test_pre_process_input_steps_follow_the_user_defined_order():
+    pre_process_steps = [step.step_key for step in list_workflow_steps() if step.phase_key == "pre_process"]
 
-    assert phase_2_steps[:5] == ["weather", "building", "technical", "zones", "parameters"]
+    assert pre_process_steps == [
+        "project",
+        "weather",
+        "building",
+        "technical",
+        "zones",
+        "parameters",
+        "dimensioning",
+        "variants",
+        "simulation_setup",
+    ]
 
 
 def test_partial_modules_reflect_current_module_implementation():
@@ -103,7 +114,8 @@ def test_workflow_catalog_documents_parameter_variant_and_run_contracts():
 def test_post_process_contains_separate_economy_sustainability_and_assessment_steps():
     step_keys = [step.step_key for step in list_post_process_steps()]
 
-    assert step_keys[-3:] == ["economy", "sustainability", "assessment"]
+    assert step_keys[:4] == ["data_preparation", "optimization", "standards_compliance", "sensitivity"]
+    assert step_keys[-3:] == ["reporting", "data_export", "documentation_archive"]
 
 
 def test_workflow_steps_have_unique_keys():
@@ -150,13 +162,15 @@ def test_dashboard_actions_cover_target_commands():
 
 def test_pre_and_post_process_runners_return_expected_phases():
     pre_process_steps = list_pre_process_steps()
+    main_process_steps = list_main_process_steps()
     post_process_steps = list_post_process_steps()
 
-    assert {step.phase_key for step in pre_process_steps} == {"phase_2", "phase_3"}
-    assert {step.phase_key for step in post_process_steps} == {"phase_4", "phase_5"}
-    assert pre_process_steps[-1].step_key == "export_simulation"
-    assert post_process_steps[0].step_key == "import_simulation"
-    assert post_process_steps[1].step_key == "data_preparation"
+    assert {step.phase_key for step in pre_process_steps} == {"pre_process"}
+    assert {step.phase_key for step in main_process_steps} == {"main_process"}
+    assert {step.phase_key for step in post_process_steps} == {"post_process"}
+    assert pre_process_steps[-1].step_key == "simulation_setup"
+    assert [step.step_key for step in main_process_steps] == ["export_simulation", "simulation", "import_simulation"]
+    assert post_process_steps[0].step_key == "data_preparation"
 
 
 def test_feedback_targets_include_pre_process_modules():

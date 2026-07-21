@@ -4,6 +4,62 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.31.0 - 2026-07-21
+
+### Changed
+- Die sichtbaren Platzhalter-Iterationspfade sind aus der Streamlit-
+  Bearbeitungsansicht entfernt. Die technischen Grundlagen stehen dort jetzt
+  nach den phasenübergreifenden Modulen; die spaetere `ma_feedback`-Logik
+  bleibt davon unberuehrt.
+- Die Streamlit-Bearbeitungsansicht zeigt die technischen Grundlagen wieder
+  als eigenen Bereich `Technische Plattform`. Validierung und Feedback bleiben
+  getrennt unter `Phasenuebergreifend`; die Pre-, Main- und Post-Process-Karten
+  enthalten keine Infrastrukturmodule mehr.
+- Der Workflow-Katalog verwendet nun die drei sichtbaren Phasen
+  `Pre-Process`, `Main-Process` und `Post-Process`. Der fachliche Ablauf ist
+  darin als Projekt, Wetter, Gebäude, Technik, Zonen, Parameter,
+  Referenzdimensionierung, Varianten und Simulation-Setup vor dem manuellen
+  Simulationsblock abgebildet; Datenvorbereitung startet den Post-Process.
+- Die Zonenansicht zeigt die sechs fachlichen Bereiche sichtbar. Die
+  Raum-Zonen-Zuordnung ist als vollständige Übersicht vorbereitet und bleibt
+  bis zum fachlichen Revisionsservice eindeutig als read-only gekennzeichnet.
+- Freigegebene lokale Handover-Pakete aus der Entwicklungs-Inbox sind im
+  zentralen Handover-Register erfasst und als datierte Ergaenzungen in die
+  bestehenden Modulplaene eingearbeitet. Originalarchive, Bilder und externe
+  Quellmaterialien bleiben lokal und unveroeffentlicht.
+- Die lokalen Feiertagsdateien fuer 2025 sind fuer Verarbeitung und Ableitung
+  freigegeben; eine allgemeine Kalender-API ist weiterhin nicht umgesetzt.
+- Die Entwicklungs-Inbox verwendet jetzt ausschliesslich den unvorsortierten
+  Eingang `data/project_inbox/new/`. `projektinput aufnehmen` ermittelt die
+  fachliche Kategorie erst beim Scan und verteilt eindeutig zuordenbare Dateien
+  danach in die bestehenden Zielordner.
+- Die Erkenntnisse aus den extern abgelegten Simulations-, IFC/LCA-,
+  Informationsbedarfstiefen-, Katalog-, ASHRAE- und Standardpaketen sind als
+  klar begrenzte Planergänzungen in P009, P012, P014, P019-P021 und P023
+  eingeordnet. Paketdaten, Standardvolltexte und unbestaetigte technische
+  Werte wurden nicht in den Produktivcode oder das Repository uebernommen.
+- Die Masterarbeit ist verbindlich in den manuellen Fachteil und die
+  softwaregestuetzte Prozessinnovation gegliedert. Ergebniswirksame
+  Funktionen haben Prioritaet; der Schwesterordner
+  `260524_Masterarbeit_Arbeitsablage` trennt Quellen und Schreibunterlagen
+  vom Repository (UD-095).
+- Die technische Plan-Inbox bleibt vollstaendig versioniert im Repository.
+  Aktive Plaene bleiben in der Inbox, historische Plaene im Repo-Archiv;
+  externe Arbeitskopien von P007 bis P032 werden nicht gefuehrt (UD-096).
+- `masterarbeitsablage einsortieren` inventarisiert den externen Eingang und
+  schlägt Zielordner vor; erst eine nachfolgende Freigabe verschiebt den
+  konkreten Batch (UD-097).
+- Die Compliance-Routinen unterscheiden jetzt klar zwischen freier normaler
+  Entwicklungsarbeit (eigener Code, neutrale Schemata, synthetische Tests und
+  Metadaten) und den weiterhin gegateten Uebergaengen geschuetzter Inhalte:
+  Maschinenverarbeitung, externe/KI-Verarbeitung, Repository und
+  Veroeffentlichung. UD-094 dokumentiert den lokalen manuellen
+  Normenarbeitsmodus; Volltexte und automatische Extraktion bleiben gesperrt.
+- Die manuellen Codex-Ausloesephrasen `chat-stats` und `chat-handover`
+  bewerten den sichtbaren Chat-Arbeitsstand beziehungsweise erzeugen eine
+  kopierfertige, nicht persistierte Uebergabe. Die Routinen behaupten keine
+  exakte Tokenmessung und fuehren keine Git- oder externen Aktionen aus.
+
 ## 0.30.1 - 2026-07-18
 
 ### Changed

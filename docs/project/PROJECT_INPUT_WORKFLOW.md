@@ -25,8 +25,7 @@ weil dort auch grosse, rohe oder noch ungepruefte Dateien liegen koennen.
 
 ## Ablauf
 
-1. Neue Dateien in den passendsten Unterordner unter
-   `data/project_inbox/new/` legen.
+1. Alle neuen Dateien direkt unter `data/project_inbox/new/` ablegen.
 2. Mit `projektinput aufnehmen` den Eingang pruefen lassen.
 3. Herkunft, Rechte, Schutzbedarf und beabsichtigte Verarbeitung zunaechst
    anhand bereinigter Metadaten durch den read-only `compliance_auditor`
@@ -85,17 +84,17 @@ seine weitere Aufnahme gestoppt.
 
 ## Eingangskategorien
 
-| Ordner | Typische Inhalte | Zielbereich |
+| Ermittelte Kategorie | Typische Inhalte | Zielbereich |
 | --- | --- | --- |
-| `new/docs/` | Plaene, Entscheidungsnotizen, Architektur- oder Moduldoku | `docs/project/`, `docs/*/` |
-| `new/weather/` | TRY-Dateien, Wetter-Handbuecher, lokale Geodaten | `data/ma_weather/input/`, `data/ma_weather/geodata/` |
-| `new/building/` | IFC, Rhino, CAD, Gebaeudeinput-Notizen | `data/ma_building/input/` |
-| `new/analyse/` | IDA-ICE-Analyse-Rohdaten | `data/ma_analyse/ida_imports/` |
-| `new/variants/` | Variantenimporte und Simulationsuebergaben | `data/ma_variants/imports/`, `data/ma_variants/ida_exports/` |
-| `new/catalogs/` | Produkt-, Material-, Quellen- und Datenblattdateien | `data/catalogs/`, `config/ma_variants/` |
-| `new/parameters/` | Parameterkonzepte, Snapshots, lokale Parameterdateien | `config/ma_parameters/`, `data/ma_parameters/config/` |
-| `new/zones_technical/` | Zonen-, Nutzungs- und Techniksystemdaten | `config/ma_zones/`, `config/ma_technical/` |
-| `new/unknown/` | nicht eindeutig zuordenbare Dateien | Original bleibt bis zur Klaerung unveraendert; nur Metadatenhinweis oder freigegebene Arbeitskopie nach `needs_review/` |
+| Dokumentation | Plaene, Entscheidungsnotizen, Architektur- oder Moduldoku | `docs/project/`, `docs/*/` |
+| Wetter | TRY-Dateien, Wetter-Handbuecher, lokale Geodaten | `data/ma_weather/input/`, `data/ma_weather/geodata/` |
+| Gebaeude | IFC, Rhino, CAD, Gebaeudeinput-Notizen | `data/ma_building/input/` |
+| Analyse | IDA-ICE-Analyse-Rohdaten | `data/ma_analyse/ida_imports/` |
+| Varianten | Variantenimporte und Simulationsuebergaben | `data/ma_variants/imports/`, `data/ma_variants/ida_exports/` |
+| Kataloge | Produkt-, Material-, Quellen- und Datenblattdateien | `data/catalogs/`, `config/ma_variants/` |
+| Parameter | Parameterkonzepte, Snapshots, lokale Parameterdateien | `config/ma_parameters/`, `data/ma_parameters/config/` |
+| Zonen und Technik | Zonen-, Nutzungs- und Techniksystemdaten | `config/ma_zones/`, `config/ma_technical/` |
+| Unklar | nicht eindeutig zuordenbare Dateien | Original bleibt bis zur Klaerung unter `new/`; nur Metadatenhinweis oder freigegebene Arbeitskopie nach `needs_review/` |
 
 ## Regeln
 
@@ -103,6 +102,8 @@ seine weitere Aufnahme gestoppt.
 - Keine Fach- oder Compliance-Freigabe automatisch setzen.
 - Nur eindeutig zuordenbare Dateien verschieben oder in bestehende Dokumente
   einarbeiten.
+- Die Zuordnung erfolgt erst beim Scan aus Dateiname, Erweiterung und
+  zulaessigen Metadaten; `new/` enthaelt keine Kategorie-Unterordner.
 - Vor Extraktion, Verschieben, Einarbeiten oder externer Verarbeitung den
   Compliance-Preflight ausfuehren.
 - Unklare, nicht ausreichend belegte oder blockierte Originale bleiben

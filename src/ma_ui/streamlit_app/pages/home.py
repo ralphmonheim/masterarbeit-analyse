@@ -16,11 +16,13 @@ from ma_ui.streamlit_app.navigation import (
 from ma_ui.streamlit_app.shared import normalize_table_for_streamlit
 from ma_ui.streamlit_app.workflow_graph import (
     CROSS_CUTTING_LABEL,
+    TECHNICAL_PLATFORM_LABEL,
     VISUAL_PHASES,
     WorkflowCard,
     cross_cutting_card_rows,
     feedback_path_rows,
     status_style,
+    technical_platform_card_rows,
     workflow_card_rows,
     workflow_cards_by_phase,
 )
@@ -217,7 +219,10 @@ def render() -> None:
         cross_cutting_card_rows(available_page_keys=_available_page_keys()),
     )
 
-    _render_feedback_paths()
+    _render_phase_cards(
+        TECHNICAL_PLATFORM_LABEL,
+        technical_platform_card_rows(available_page_keys=_available_page_keys()),
+    )
 
     with st.expander("Technische Detailtabellen", expanded=False):
         st.subheader("Workflow-Phasen")

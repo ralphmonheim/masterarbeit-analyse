@@ -19,3 +19,6 @@ data/common/kalender/
 - Kalenderdaten koennen spaeter Nutzungszeiten, Bewertungszeitraeume oder
   Randbedingungen unterstuetzen.
 - Eine allgemeine Kalender-API ist noch nicht umgesetzt.
+- Die fuer 2025 lokal abgelegten Dateien sind fuer lokale Verarbeitung und
+  Ableitungen freigegeben. Sie bleiben lokale Arbeitsdaten und werden weder
+  versioniert noch automatisch veroeffentlicht.

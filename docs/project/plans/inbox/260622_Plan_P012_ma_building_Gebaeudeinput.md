@@ -32,6 +32,22 @@ sind umgesetzt. Ein produktiver IFC-Lite- oder Rhino-Import wird erst nach
 gesonderter Analyse und Freigabe umgesetzt. LoD beschreibt in P012 den Umfang
 der Eingabe, nicht den Detailgrad einer CAD-Geometrie.
 
+## Simulationsbezogene Informationsbedarfstiefe
+
+Ergaenzend zu den vorhandenen BIL- und Eingabe-LoD-Stufen wird fuer die
+Masterarbeit eine projektspezifische simulationsbezogene
+Informationsbedarfstiefe verwendet. Sie ersetzt kein starres BIM-LOD-System
+und keine vollstaendige ISO-7817-Implementierung. Fuer jede spaetere
+Uebergabe soll sie mindestens Analysezweck, Informationsmeilenstein,
+liefernden und empfangenden Akteur, Objekttyp, geometrische und
+alphanumerische Anforderungen, erforderliche Dokumente, Datenquelle sowie
+Pruefstatus sichtbar machen.
+
+Der Begriff strukturiert damit den Eingabeumfang fuer Dimensionierung,
+Optimierung, Nachweis und Sensitivitaet. Ein detailliertes Geometriemodell
+gilt nicht als analysebereit, wenn beispielsweise thermische Kennwerte,
+Nutzungsprofile, Annahmen oder Quellen fehlen.
+
 ## Trainings- und Diagnosebasis
 
 - Die aktuelle IFC-Datei des Projekts soll lokal als reale Arbeitsdatei fuer
@@ -256,6 +272,10 @@ Eingabe fuer die geplante Analyse in der Software vollstaendig vorliegt.
   erfasst.
 - Sonnenschutz kann als unbekannt, Kennwert, Typ, Konzeptgeometrie oder
   detaillierte Geometrie vorliegen.
+- Ein Import darf bekannte Modellverluste, insbesondere feste
+  Sonnenschutzeinrichtungen, nicht verdecken. Solche Differenzen werden als
+  Import-Gap mit Quelle, betroffenem Objekt und erforderlicher manueller
+  Ergaenzung dokumentiert.
 
 ## Raumregister und Zonierungsvorschlaege
 
@@ -420,6 +440,15 @@ additive Erweiterung fuer den V1-Referenzfall.
 - direkte Aenderung des IDA-ICE-Modells
 - technische Datenbankmigration ohne stabile Fachmodelle
 
+## Architekturbezug externer Integrationspakete
+
+Die am 2026-07-21 gesichteten IFC-/LCA- und Informationsbedarfstiefen-Pakete
+dienen als Architektur- und Methodikreferenz. Original-Dictionaries, LCA-
+Previewdaten und Standardpakete werden nicht in das Repository uebernommen.
+Sie erweitern weder den V1-Import noch die lokale Katalogbasis. Ein spaeterer
+IFC-Lite-Slice prueft zuerst eine kleine, fachlich begruendete
+Property-Auswahl, das neutrale Zwischenmodell und den zugehoerigen Gap-Report.
+
 ## Offene Entscheidungen
 
 - OP-012: Welche Inhalte sind in den konkreten IFC-Arbeitsstaenden belastbar
@@ -437,3 +466,12 @@ additive Erweiterung fuer den V1-Referenzfall.
   mit frueheren Reifegraden arbeiten?
 - Soll der ausgeblendete UI-Reiter `Modellquellen` nach V1 aus dem Projekt
   entfernt werden, oder bleibt er als spaetere Diagnoseansicht erhalten?
+
+## Handover-Ergaenzung 2026-07-21
+
+Fuer spaetere technische Systeme bleibt `ma_building` alleiniger Eigentümer
+der Geometrie. Ein technisches Modell darf Flaechen und Einbauorte nur ueber
+stabile Referenzen (`building_id`, Revision, Flaechenreferenz, Orientierung,
+Neigung und Geometriehash) verwenden und keine Dach- oder
+Fassadengeometrie kopieren. Ein Folgeslice prueft referenzierte Flaechen,
+Revisionen, Hashes und dokumentierte technische Overrides.

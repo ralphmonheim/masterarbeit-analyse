@@ -6,7 +6,7 @@ from ma_workflow import list_pre_process_steps
 
 
 def pre_process_step_rows() -> list[dict[str, object]]:
-    """Bereitet die Phasen 2 und 3 fuer bestehende UI-Aufrufer auf."""
+    """Bereitet den Pre-Process fuer bestehende UI-Aufrufer auf."""
     return [
         {
             "Schritt": step.label,

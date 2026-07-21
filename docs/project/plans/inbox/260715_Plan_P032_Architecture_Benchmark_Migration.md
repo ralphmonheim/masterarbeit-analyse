@@ -161,7 +161,7 @@ Council-Mehrheit; Sondergates bleiben davon unberuehrt.
 | P032-W1a | additive Pfad-, Ignore- und Importguardrails | abgeschlossen | einstimmige Mehrheit Mira, Vera und Justus; keine Dependencies, Hooks, CI oder externen Tools |
 | P032-W1b | Dependency-Bestandsklaerung und WorkspacePaths-Entwurf | nicht gestartet | keine Dependency- oder Runtimeaenderung; exakter Council-Scope erforderlich |
 | P032-W2 | Parameter-/Optionsownership und Zyklusabbau | teilweise umgesetzt: W2a abgeschlossen | W2a: Code-Owner-Transfer/Reexports ohne Config-Move abgeschlossen; W2b und Vollumfang bleiben getrennt freigabepflichtig |
-| P032-W3a | Technik-Zonen-Richtung | T0 abgeschlossen; voller Ownership-Slice weiter offen | P013/P014-Vertrag |
+| P032-W3a | Technik-Zonen-Richtung | T0 und Zielrichtung dokumentiert; Kompatibilitaetsslice weiter offen | exakter Council-Scope, P013/P014-Vertrag |
 | P032-W3b | begrenzter WorkspacePaths-Slice | nicht freigegeben | beschlossenes Betriebsmodell |
 | P032-W4 | Economics, Reporting und UI aus `ma_variants` | nicht freigegeben | je Zielplan und Teilwelle |
 | P032-W5a | neutraler Run-Vertrag | nicht freigegeben | P018 |
@@ -362,7 +362,60 @@ P014-S3a/P015-S3b-prep-Referenzhandover und danach den
 P013-S3c/P015-S3b-T2-Releasecheckpoint vor P032-W2 umgesetzt. Der zweite
 Beschluss schloss die vergleichbare P013-Fingerprint-/P015-Checkpoint-Luecke
 lokal, ohne P032-W2 vorwegzunehmen. P032-W2a ist jetzt als Code-Owner-Transfer
-ohne Config-Move abgeschlossen. Als naechster Architekturslice ist P032-W3a
-nur mit einem eigenen Council-Scope fuer die Technik-Zonen-Richtung zu
-entscheiden; v2-Werteherkunft, W2b-Konfigurationsownership und jeder weitere
-W2-Teil bleiben getrennt.
+ohne Config-Move abgeschlossen. Die fachliche Zielrichtung fuer P032-W3a ist
+dokumentiert: `ma_building -> ma_technical -> ma_zones -> ma_parameters`.
+Der verbleibende Kompatibilitaetsslice braucht einen eigenen Council-Scope;
+v2-Werteherkunft, W2b-Konfigurationsownership und jeder weitere W2-Teil
+bleiben getrennt.
+
+### Übergabe fuer den naechsten Chat, 2026-07-19
+
+Die Read-only-Inventur fuer P032-W3a ist abgeschlossen. Die direkte
+Nutzerentscheidung vom 2026-07-19 legt die fachliche und bedienseitige
+Reihenfolge `ma_building -> ma_technical -> ma_zones -> ma_parameters` fest:
+Die Technik ist eine eigenstaendig validierbare Vorbedingung; Zonen besitzen
+Nutzungs-, Zeit- und Belegungsprofile und ordnen sie freigegebenen
+Technikreferenzen zu. UI und `ma_parameters` orchestrieren nur und enthalten
+keine duplizierte Cross-Domain-Fachlogik.
+
+P032-W3a-T0 hat nur den Runtime-Importzyklus geloest. Vor der verbleibenden
+Legacy-Kompatibilitaetsumsetzung sind exakter Scope, mindestens drei
+Council-Voten gemaess UD-089, Paritaetstests fuer alle vier Legacy-Diagnosen,
+ein API-/Adaptervertrag fuer `validate_technical_spec(..., zone_spec=...)`
+und der Rueckfallvertrag zu dokumentieren. Die bestehende Legacy-Fassade und
+ihre Diagnosen bleiben bis zu einem separat freigegebenen Umschalten erhalten.
+
+Zeit- und Belegungsprofile bleiben bis zu einer eigenen P013-/P020-
+Werteherkunftsentscheidung synthetische oder manuell bestaetigte Annahmen.
+Norminhalte duerfen erst nach dokumentierten Nutzungsrechten sowie Quellen-,
+Methoden- und Provenienzmatrix verarbeitet oder als Werte uebernommen werden.
+
+P032-W2b bleibt davon getrennt; keine Config-Moves, Paketumbenennungen,
+Dependencies oder externen Aktionen ableiten. Die fuer die V1-UI und P014-S4
+erzeugten lokalen Katalogdaten bleiben ignoriert und unpubliziert. Die lokalen
+Releases `v0.30.0` und `v0.30.1` sind vorhanden, aber noch nicht zu
+`origin/main` gepusht; eine erneute explizite Push-Bestätigung ist erforderlich.
+
+### P032-W3a-T1-Planung vom 2026-07-19
+
+Mira, Vera und Professor Sophia stimmen gemaess UD-089 bedingt fuer den
+kleinen, lokalen und reversiblen Legacy-Kompatibilitaetsslice. Vor seiner
+Umsetzung ist die Entscheidung 42 in `TECHNICAL_DECISIONS.md` verbindlich:
+eine additive zonenseitige Integritaets-API, unveraenderte Legacy-Fassade,
+keine Runtimekante `ma_technical -> ma_zones`, synthetische Paritaetstests und
+ein Rueckfall ohne Loeschung der Legacy-Fassade.
+
+Der Slice ist kein voller Ownership-Transfer und migriert weder UI noch
+`ma_parameters`-Aufrufer. Er erlaubt keine Config-, Daten-, Schema-,
+Paket-, Dependency-, W2b- oder externen Aenderungen. Die spaetere
+Aufrufermigration und die Entfernung der voruebergehenden
+Kompatibilitaetsdoppelung bleiben eigene Freigabewellen.
+
+## Handover-Ergaenzung 2026-07-21
+
+Das technische Handover bestaetigt die bestehende Architekturgrenze: Eine
+spaetere `ma_database`-Schicht darf dateibasierte Repositories fuer Drafts,
+Revisionen, ChangeSets, Branches und Abhaengigkeitsindizes ersetzen. Sie
+uebernimmt dabei weder TGA-Fachklassen noch technische Regeln; deren Ownership
+bleibt bei `ma_technical`. Eine Persistenzmigration ist kein Teil des aktuell
+freigegebenen P032-W3a-T1-Kompatibilitaetsslices.

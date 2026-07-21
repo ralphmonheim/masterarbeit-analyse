@@ -1,6 +1,6 @@
 # P030 research_tools Prozessmessung und Vergleichsauswertung
 
-Stand: 2026-07-14
+Stand: 2026-07-21
 Status: Fachlich geplant, von der Produktivsoftware getrennt
 Prioritaet: Hoch fuer die Methodik der Masterarbeit
 Abhaengigkeiten: technische Logs aus P011-P021; keine Rueckabhaengigkeit der Fachmodule
@@ -15,6 +15,12 @@ Vergleichsberichte.
 
 Die produktive Fachsoftware bleibt davon unabhaengig: Ein Run, eine Variante
 oder eine Freigabe haengen nie von einer Prozessmessung ab.
+
+Der Referenzprozess der Fachkompetenz bleibt manuell: statische
+Dimensionierung, Excel-Vorbereitung, IDA-ICE-Modellierung und dynamische
+Simulation. P030 bewertet ausschliesslich die Prozessinnovation der
+Projektsoftware gegenüber diesem Referenzprozess; sie ersetzt keine
+fachliche IDA-ICE-Bewertung.
 
 ## Grenzen und Prozessmodi
 

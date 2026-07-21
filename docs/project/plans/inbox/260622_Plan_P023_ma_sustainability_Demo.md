@@ -22,6 +22,10 @@ Erweiterungskonzept fuer Nachhaltigkeitsbewertungen dokumentieren.
 - graue Emissionen
 - Produkt- und Materialdaten
 - Lebenszyklus und Systemgrenzen
+- Eine spaetere LCA-Erweiterung benoetigt ein eigenes Datenquellen-,
+  Versions- und Freigabekonzept. Gesichtete LCA-Dictionary-Previewdaten sind
+  lediglich eine Architekturreferenz und werden weder als vollstaendige
+  Datenbank noch als freigegebene Emissionsquelle uebernommen.
 
 ## Akzeptanzkriterien
 

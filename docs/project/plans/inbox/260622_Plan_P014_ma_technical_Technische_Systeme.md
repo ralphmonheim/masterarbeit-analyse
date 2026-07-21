@@ -335,6 +335,11 @@ aktualisiert.
 4. Erweiterte Parametersicht fuer `ma_parameters`.
 5. Manuelle Streamlit-Bearbeitung.
 6. Kontrollierte Migration v1 -> v2.
+7. Einen separaten Katalog-Slice erst nach der fachlichen Bestaetigung von
+   Quellen, Einheiten und Einsatzgrenzen planen. Der gesichtete
+   `ma_database`-Seed ist ausschliesslich ein `draft_unverified`-
+   Referenzkatalog; er liefert weder Simulationswerte noch eine automatische
+   lokale Kataloginstallation.
 
 ## Abnahmekriterien fuer P014-S1.1
 
@@ -343,3 +348,21 @@ aktualisiert.
 - `CapacityMode.ideal_unlimited` benoetigt keine Leistungszahl.
 - Serviceinterfaces enthalten keine direkten `served_zone_ids`.
 - v1-Demo-Loader und vorhandene P015/UI-Vertraege bleiben gruen.
+
+## Handover-Ergaenzung 2026-07-21
+
+Das Varianten-Handover ergaenzt den bestehenden P014-Vertrag wie folgt:
+
+- Technische Grenzen, Empfehlungen, Kompatibilitaeten und Abhaengigkeiten
+  werden als versionierte Fachinformationen an `ma_rules` bereitgestellt;
+  harte Grenzen blockieren, Empfehlungen erzeugen Warnungen.
+- `ma_parameters` erhaelt eine standardisierte Parametersicht mit stabilen
+  Pfaden, Einheit, Wert, erlaubten Werten, Variierbarkeit und Quelle. Es
+  interpretiert das Technikmodell nicht neu und aendert es nicht direkt.
+- `ideal_unlimited` bleibt ein expliziter Modus und wird nicht durch einen
+  kuenstlich grossen Leistungswert ersetzt.
+- Konkrete technische Optionen gelangen ausschliesslich ueber freigegebene
+  Parameter- und Regelobjekte indirekt zu `ma_variants`.
+
+Diese Punkte konkretisieren Folgeslices; die bestehende P014-v1/v2-Grenze und
+alle freigegebenen Handover-Vertraege bleiben unveraendert.

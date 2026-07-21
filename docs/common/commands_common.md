@@ -123,18 +123,32 @@ Pruefschritte enthalten.
   Dokument-Preflight inhaltlich durch den `compliance_auditor` geprueft.
 - `projektlage`: kompakte Lage zu Git-Stand, Version, Plaenen und offenen
   Entscheidungen ausgeben.
+- `chat-stats`: den aktuellen Chat-Arbeitsstand read-only bewerten und
+  `weiterarbeiten`, `handover empfohlen`, `neuer Chat empfohlen` oder
+  `neuer Chat erforderlich` ausgeben. Die Bewertung nutzt nur sichtbare
+  Komprimierungshinweise, Arbeitsstraenge, offene Uebergaben und den lokalen
+  Git-Stand; sie behauptet keine exakte Tokenzahl.
+- `chat-handover`: zuerst `chat-stats` ausfuehren und danach eine
+  kopierfertige Uebergabe fuer einen neuen Chat aus den kanonischen
+  Projektquellen und dem aktuellen lokalen Arbeitsstand erstellen. Der Befehl
+  schreibt standardmaessig keine Datei und fuehrt keine Git-Aktion aus.
 - `plan aufnehmen`: neue Plaene aus `docs/project/plans/inbox/` in Planindex
   und Planstatus einordnen. Vor dem Inhaltszugriff wird die Zulaessigkeit des
   Plandokuments anhand bereinigter Metadaten geprueft. Erst danach wird
   getrennt bewertet, ob ein Compliance-Blocker die geplante Umsetzung sperrt.
-- `projektinput aufnehmen`: neue Dateien aus der lokalen Entwicklungs-Inbox
-  `data/project_inbox/new/` nach den Regeln in
+- `projektinput aufnehmen`: neue Dateien direkt aus dem unvorsortierten
+  Eingang `data/project_inbox/new/` nach den Regeln in
   `docs/project/PROJECT_INPUT_WORKFLOW.md` zunaechst durch den
   `compliance_auditor` pruefen und nur eindeutig zulaessige sowie zuordenbare
   Inhalte in die bestehenden Projekt-, Modul- oder lokalen Datenordner
   verteilen. Ein blockiertes Original bleibt unveraendert an seinem aktuellen
   Eingangspfad; nur Metadatenhinweise oder ausdruecklich freigegebene
   Arbeitskopien gehoeren nach `data/project_inbox/needs_review/`.
+- `masterarbeitsablage einsortieren`: Dateien aus
+  `../260524_Masterarbeit_Arbeitsablage/00_Eingang/` nur inventarisieren und
+  passende externe Zielordner vorschlagen. Erst die anschliessende
+  ausdrueckliche Freigabe verschiebt den konkret benannten Batch; technische
+  Plaene und Projektdateien bleiben im Repository.
 - `entscheidung festhalten`: echte Nutzerentscheidung dokumentieren und
   passende offene Punkte schliessen.
 - `release check`: pruefen, ob Version, Changelog, Tags und Tests fuer ein

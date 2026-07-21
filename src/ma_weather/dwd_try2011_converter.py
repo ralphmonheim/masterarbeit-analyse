@@ -21,7 +21,7 @@ from ma_core.compliance import (
     inspect_request_metadata,
 )
 
-DEFAULT_DWD_TRY2011_INPUT_DIR = Path("data/project_inbox/new/weather")
+DEFAULT_DWD_TRY2011_INPUT_DIR = Path("data/project_inbox/new")
 DEFAULT_DWD_TRY2011_IDM_NAME = "DWD TRY Daten 2011.idm"
 DEFAULT_DWD_TRY2011_OUTPUT_DIR = Path("data/ma_weather/input")
 TARGET_YEAR_HOURS = 8760

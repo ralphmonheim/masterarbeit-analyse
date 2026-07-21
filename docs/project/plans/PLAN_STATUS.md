@@ -1,6 +1,6 @@
 # Plan Status
 
-Stand: 2026-07-18
+Stand: 2026-07-21
 
 Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt und nach jeder Planumsetzung aktualisiert. Vollstaendige alte Planstaende liegen unter `docs/project/archive/plans/`.
 
@@ -8,6 +8,13 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 
 ### Abgeschlossen
 
+- UD-095 legt die Gesamtarbeit verbindlich als manuellen Fachteil und
+  softwaregestuetzten Prozessinnovationsteil fest. Bis zum Abschluss haben
+  Funktionen Vorrang, die fachliche Ergebnisse, Prozessdaten oder
+  verwendbare Tabellen und Abbildungen erzeugen. Quellen und eigene
+  Arbeitsunterlagen liegen im lokalen Schwesterordner
+  `../260524_Masterarbeit_Arbeitsablage/`; technische Projektartefakte
+  bleiben an ihren bestehenden lokalen Pfaden.
 - Projektweites Compliance-System angelegt: `docs/compliance/` trennt
   gemeinsame, IDA-/EQUA-, DIN-/Nautos-/VDE-/VDI- und DWD-Regeln.
   `ma_core.compliance`
@@ -105,6 +112,16 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   nicht von `planned` auf `partial`.
 
 ### Aktive Teilplaene
+
+- Externe Integrationspakete vom 2026-07-21 sind in ihre bestehenden
+  Planrollen eingeordnet: P009 fuehrt Quell-, thermisches Analyse- und
+  IDA-ICE-Modell mit Mapping-/Gap-Report getrennt; P012 ergaenzt die
+  simulationsbezogene Informationsbedarfstiefe und sichtbare Import-Gaps;
+  P014 haelt unbestaetigte Seed-Kataloge getrennt; P019/P021 trennen
+  Kalibrierung, Optimierung und Wetterrollen; P023 dokumentiert den
+  LCA-Datenbankvorbehalt; P020 behandelt Standardpakete nur als lokale
+  Architekturreferenzen. Es wurden keine Paketdaten, Standardvolltexte oder
+  Produktionswerte in das Repository uebernommen.
 
 - P008 fuehrt `ma_weather` als konsolidierter Gesamtplan weiter:
   Standort-/Referenzstandortlogik, eigener Dateiimport,
@@ -362,9 +379,29 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   unveraendert unter `config/ma_variants/`; W2b und alle weiteren Wellen
   brauchen einen exakten Council-Mehrheitsbeschluss nach UD-089. Externe Tools
   und Sondergates bleiben weiterhin getrennt. P032-W3a-T0 entfernt die
-  Runtimekante `ma_technical -> ma_zones` ohne API- oder Fachlogikaenderung;
-  die vollstaendige fachliche Ownership-Verlagerung der Legacy-Zonenpruefung
-  bleibt ein getrennter, offener W3a-Slice.
+  Runtimekante `ma_technical -> ma_zones` ohne API- oder Fachlogikaenderung.
+  Die Zielreihenfolge fuer den getrennten W3a-Slice ist dokumentiert:
+  `ma_building -> ma_technical -> ma_zones -> ma_parameters`; die
+  Legacy-Kompatibilitaetsumsetzung ist als P032-W3a-T1 mit bedingter
+  Council-Mehrheit, Paritaetstests und Rueckfallvertrag geplant; sie bleibt
+  getrennt vom vollen Ownership-Transfer.
+
+### Strukturplan-Übergabe fuer den naechsten Chat, 2026-07-19
+
+- Fuehrende Quellen bleiben dieser Planstatus, `PLAN_INDEX.md`, P032,
+  `TECHNICAL_DECISIONS.md` sowie die jeweiligen Fachplaene; es gibt keine
+  separate Handover-Datei.
+- P032-W3a-T1 ist als additive zonenseitige Integritaets-API bei
+  unveraenderter Legacy-Fassade geplant. Mira, Vera und Professor Sophia
+  stimmen bedingt gemaess UD-089 zu; vor Umsetzung gelten die dokumentierte
+  Paritaets-, Import- und Rueckfallabnahme aus Entscheidung 42.
+- P032-W2b (Konfigurationsownership) bleibt ein unabhaengiger Folgepunkt;
+  keine Config-Moves oder breiten Paketverschiebungen aus W3a ableiten.
+- Der lokale Arbeitsstand besitzt die Releases `v0.30.0` und `v0.30.1` auf
+  `main`, liegt aber noch zwei Commits vor `origin/main`. Die konkrete
+  Compliance-Pruefung ist gruen; der externe Push erfordert weiterhin die
+  explizite Zielbestätigung des Nutzers. `logs/compliance/decisions.jsonl`
+  bleibt lokal und untracked; die lokalen Gebaeudekataloge bleiben ignoriert.
 - Masterarbeits-MVP V1 ist der uebergeordnete erste Nutzennachweis: von
   Projekt- und Eingabeaufnahme ueber Baseline, Varianten und neutrales
   Run-Paket bis zu manueller Simulation, neutraler Ergebnisaufnahme, drei
@@ -384,7 +421,11 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 ### Teilweise umgesetzt
 
 - P005 Architektur-Slice umgesetzt: Zielarchitektur und UI-Auslagerungsreview liegen unter `docs/project/architecture/`.
-- P005 ordnet den Workflow als Pre-Process, Simulation, Post-Process und Feedback ein.
+- P005 ordnet den Workflow als `Pre-Process`, `Main-Process` und
+  `Post-Process` ein. Die fachliche Reihenfolge beginnt mit Projekt, Wetter,
+  Gebaeude, Technik, Zonen, Parameter, Referenzdimensionierung, Varianten und
+  Simulation-Setup; Export, manuelle Simulation und Import bilden den
+  Main-Process. Validierung und Feedback bleiben querschnittlich.
 - P005 bewertet bestehende Oberflaechen: Die Tkinter-Analyse liegt inzwischen
   unter `src/ma_ui/tkinter_app/module_views/analyse/` und wurde fachlich an
   den neuen Plot-Template-Ablauf angeglichen; `src/ma_variants/ui/services.py`

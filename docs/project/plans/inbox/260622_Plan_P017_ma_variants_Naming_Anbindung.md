@@ -447,3 +447,23 @@ Nicht Teil der ersten Ausbaustufe:
 
 P017-S1 planen: Grundobjekte, IDs, `VariantSpace`, Zaehlmodell und stabile
 Eingangsreferenzen auf P015/P016 ohne Bruch des bestehenden Prototyps.
+
+## Handover-Ergaenzung 2026-07-21
+
+Die Varianten-Handover praezisieren P017-S1 und seine Folgeslices:
+
+- Die lineare Kette bleibt `VSP -> VVER -> VCAT -> VSEL -> VGEN`. `VGEN`
+  erzeugt vollstaendige `VAR`; ein separates Handover- oder `SimulationCase`
+  Objekt wird nicht eingefuehrt.
+- `VVER` dokumentiert Ausschluesse, Dimensionierungsbedarf,
+  Fingerprints und Regeln. `VCAT` enthaelt nur verifizierte, rekonstruierbare
+  Varianten und bleibt auf 500 Eintraege begrenzt.
+- `VSEL` arbeitet in V1 mit `all`, `manual` oder `random`; regelbasierte
+  Selection, automatisches Sampling und automatische Iterationen bleiben
+  spaetere, nicht freigegebene Erweiterungen.
+- Bei lokalen Aenderungen sind selektive Reloads moeglich; strukturelle
+  Inkonsistenzen erfordern einen neuen oder vollstaendig neu validierten
+  Katalog. Begrenzte technische Kapazitaeten sind als Variantenwert zulaessig,
+  solange keine technische Invariante verletzt ist.
+- P018 erhaelt nach `VGEN` vollstaendige Varianten mit `VAR-ID`; Regeln,
+  Ausschlussgruende und wissenschaftliche Provenienz verbleiben in P017.

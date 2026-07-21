@@ -65,8 +65,11 @@ noetig.
 | `direkt update repo` | Repo-Update vollstaendig durch Codex ausfuehren | Codex aktualisiert Dateien und fuehrt Commit, Tag und Push aus, sofern Git-Zugriff moeglich ist und kein Compliance-Blocker besteht. |
 | `update planung` | Plan- und Entscheidungsstruktur aktualisieren | Codex prueft Plan-Inbox, Planindex, Planstatus und offene Entscheidungen; neue Plaene durchlaufen vor der Einordnung den Compliance-Preflight. |
 | `projektlage` | Kurze Projektlage lesen | Codex berichtet Git-Stand, Version, aktive Plaene, offene Entscheidungen und naechste sinnvolle Schritte. |
+| `chat-stats` | Chat-Arbeitsstand bewerten | Codex bewertet read-only sichtbare Kontextkomprimierungen, Arbeitsstraenge, offene Uebergaben und den lokalen Git-Stand. Das Ergebnis ist `weiterarbeiten`, `handover empfohlen`, `neuer Chat empfohlen` oder `neuer Chat erforderlich`; eine exakte Tokenzahl wird nicht behauptet. |
+| `chat-handover` | Uebergabe fuer einen neuen Chat erstellen | Codex fuehrt zuerst `chat-stats` aus und erstellt dann eine kopierfertige, nicht persistierte Uebergabe aus den kanonischen Quellen und dem lokalen Arbeitsstand. Es werden keine Dateien, Git- oder externen Zustaende veraendert. |
 | `plan aufnehmen` | Neuen Plan einordnen | Codex prueft zuerst anhand bereinigter Metadaten, ob das Plandokument gelesen und im Repository verarbeitet werden darf. Erst danach prueft der `compliance_auditor` den Inhalt und trennt Dokumentrisiken von Umsetzungsblockern. |
-| `projektinput aufnehmen` | Entwicklungs-Inbox aufraeumen | Codex nutzt `docs/project/PROJECT_INPUT_WORKFLOW.md`, prueft `data/project_inbox/new/` vor jeder Inhaltsverarbeitung auf Compliance und verteilt nur zulaessige sowie eindeutig zuordenbare Inhalte. Blockierte Originale bleiben unveraendert am aktuellen Eingangspfad. |
+| `projektinput aufnehmen` | Entwicklungs-Inbox aufraeumen | Codex nutzt `docs/project/PROJECT_INPUT_WORKFLOW.md`. Die Metadatenpruefung gilt fuer neue oder geschuetzte Eingaben; normale eigene Code-, Schema- und synthetische Testartefakte laufen ohne Einzelfallgate. Vor Inhaltsverarbeitung geschuetzter Dateien, automatischer Extraktion, externer Verarbeitung, Repository-Uebernahme oder Weitergabe bleibt der volle Preflight zwingend. Blockierte Originale bleiben unveraendert am aktuellen Eingangspfad. |
+| `masterarbeitsablage einsortieren` | Externe Arbeitsablage vorsortieren | Codex inventarisiert nur `../260524_Masterarbeit_Arbeitsablage/00_Eingang/`, schlägt Zielordner vor und verschiebt erst nach einer separaten Freigabe den konkret benannten Batch. |
 | `entscheidung festhalten` | Nutzerentscheidung dokumentieren | Codex dokumentiert echte Nutzerentscheidungen und bereinigt passende offene Punkte. |
 | `release check` | Release-Bereitschaft pruefen | Codex prueft Versionen, Changelog, Tags, Tests und offene Aenderungen. Bei Veroeffentlichung oder Weitergabe muessen relevante Inhalte und Abhaengigkeiten durch eine gueltige, den konkreten Stand abdeckende Compliance-Entscheidung gedeckt sein. |
 
@@ -87,7 +90,8 @@ noetig.
 | Git-Stand pruefen | Git-Arbeitsbaum | `git status --short`, `git diff --stat`, Branch, Tags | Vor Commit muessen alle gewuenschten Aenderungen sichtbar sein. |
 | Planung aktualisieren | `docs/project/plans/inbox/`, `PLAN_INDEX.md`, `PLAN_STATUS.md` | neue Plaene, Status, naechster Schritt | Jeder relevante Plan hat genau einen aktiven Eintrag. |
 | Projektinput aufnehmen | `docs/project/PROJECT_INPUT_WORKFLOW.md`, `data/project_inbox/new/`, `data/project_inbox/processed/`, `data/project_inbox/needs_review/` | neue lokale Entwicklungsdateien | Regeln liegen unter `docs/project/`; der Eingang bleibt temporaer und Zielordner bleiben die bestehenden Projekt- und Modulordner. |
-| Compliance pruefen | `docs/compliance/`, neue Plaene, Projektinputs, Abhaengigkeiten, externe Daten und Veroeffentlichungsinhalte | Herkunft, Rechte, Schutzbedarf, beabsichtigte Operation, Belege und Entscheidungsreferenz | `green` erlaubt nur den dokumentierten Umfang. `yellow` bleibt bis zur dokumentierten Bestaetigung und allen geforderten Belegen gesperrt. `red` stoppt; `unknown` ist ein gesperrter fehlender-Nachweis-Status und keine Freigabe. |
+| Masterarbeitsablage einsortieren | `../260524_Masterarbeit_Arbeitsablage/00_Eingang/` und dessen Fachordner | externe Quellen und eigene Arbeitsunterlagen | Die Routine aendert weder Repository noch Plan-Inbox; unklare Dateien bleiben unter `00_Eingang/Unklar/`. |
+| Compliance pruefen | `docs/compliance/`, neue Plaene, Projektinputs, Abhaengigkeiten, externe Daten und Veroeffentlichungsinhalte | Gate nur fuer geschuetzte Eingaben und deren Maschinen-/Externe-/Repository-/Veroeffentlichungsuebergaenge; eigener Code, neutrale Schemata und synthetische Tests bleiben frei | `green` erlaubt nur den dokumentierten Umfang. `yellow` bleibt bis zur dokumentierten Bestaetigung und allen geforderten Belegen gesperrt. `red` stoppt; `unknown` ist ein gesperrter fehlender-Nachweis-Status und keine Freigabe. |
 | Nutzerentscheidungen aktualisieren | `docs/project/decisions/USER_DECISIONS_MASTERTHESIS_CODE.md` | echte Nutzerentscheidungen | Keine technischen Empfehlungen eintragen. |
 | Offene Entscheidungen aktualisieren | `docs/project/decisions/USER_DECISIONS_OPEN_POINTS.md` | offene Nutzerentscheidungen | Offene Punkte klar von getroffenen Entscheidungen trennen. |
 | Technische Entscheidungen aktualisieren | `docs/project/decisions/TECHNICAL_DECISIONS.md` | Architektur- und Umsetzungsentscheidungen | Nicht mit Nutzerentscheidungen vermischen. |
@@ -197,6 +201,52 @@ noetig.
 5. Wochenbericht unter `docs/project/weekly_reviews/` als Markdown-Datei ablegen.
 6. Naechste Wochenprioritaeten vorschlagen.
 
+## Routine `chat-stats`
+
+1. Ausschliesslich sichtbare Hinweise auf Kontextkomprimierungen im aktuellen
+   Chat erfassen. Wenn kein belastbarer Hinweis vorliegt, `unbekannt` statt
+   einer Zahl ausgeben; interne Token- oder Kontextgrenzen werden nicht
+   geschaetzt.
+2. Lokalen Git-Stand, Anzahl und fachliche Streuung der geaenderten Dateien,
+   aktive Plaene, offene Reviews, Tests, Freigaben und den aktuellen
+   Arbeitsauftrag read-only pruefen.
+3. Die Arbeitslage als genau eine Empfehlung ausgeben:
+   - `weiterarbeiten`: hoechstens eine sichtbare Komprimierung, ein klarer
+     Arbeitsstrang und keine offene Uebergabe;
+   - `handover empfohlen`: zwei sichtbare Komprimierungen oder mehrere
+     zusammenhaengende offene Teilaufgaben;
+   - `neuer Chat empfohlen`: neuer Modul-, Plan-, Architektur-, Freigabe- oder
+     Compliance-Block, ein grosser fachlich gemischter Diff oder mehrere
+     unabhhaengige Arbeitsstraenge;
+   - `neuer Chat erforderlich`: mindestens drei sichtbare Komprimierungen
+     oder eine offene Uebergabe in einen neuen groesseren Umsetzungsblock.
+4. Das Ergebnis kompakt mit `observed_context_compactions`, Arbeitsstraengen,
+   offenen Uebergaben, lokalen Aenderungen und der Empfehlung ausgeben.
+5. Keine Datei schreiben, keine Counters ausserhalb des aktuellen Chats
+   anlegen, keine Git-Aktion ausfuehren und keine externe Verarbeitung
+   starten.
+
+## Routine `chat-handover`
+
+1. Zuerst die Routine `chat-stats` ausfuehren und ihr Ergebnis in die
+   Uebergabe aufnehmen.
+2. Fuer die aktive Arbeitslage gezielt `AGENTS.md`, `PLAN_INDEX.md`,
+   `PLAN_STATUS.md`, die betroffenen aktiven Plaene, einschlaegige
+   Entscheidungen, `CHANGELOG.md` sowie `git status --short` und
+   `git diff --stat` lesen. Allgemeine Scans bleiben auf versionierte
+   Repository-Dateien begrenzt.
+3. Eine kopierfertige Chat-Uebergabe ausgeben: Ziel, aktiver Scope,
+   uncommitted Arbeitsstand, bereits ausgefuehrte und noch ausstehende
+   Validierung, offene Entscheidungen, feste Grenzen und naechste Schritte.
+4. Sichtbare Kontextkomprimierungen nur als beobachteten Hinweis, nie als
+   technische Messung oder Garantie ausgeben.
+5. Standardmaessig keine Handover-Datei anlegen oder aktualisieren. Die
+   kanonische Projektwahrheit verbleibt in P031, `PLAN_STATUS.md`, den
+   aktiven Plaenen und den Entscheidungsquellen.
+6. Keine Datei schreiben, keine Git-Aktion ausfuehren und keine externe
+   Verarbeitung starten. Dokumentationsaenderungen erfolgen nur durch einen
+   getrennten, ausdruecklich ausgeloesten Arbeitsauftrag.
+
 ## Routine `update repo`
 
 1. Aktuellen Git-Stand pruefen.
@@ -261,7 +311,7 @@ git push origin vx.y.z
 1. Neue, noch nicht in `PLAN_INDEX.md` gefuehrte Kandidaten nur anhand von
    Dateiname, Pfad, Groesse, Herkunftsangabe und weiteren bereinigten
    Metadaten bestimmen. Externe oder unbekannte Plaene sollen vor der
-   Repository-Aufnahme unter `data/project_inbox/new/docs/` liegen.
+   Repository-Aufnahme direkt unter `data/project_inbox/new/` liegen.
 2. Fuer jeden Kandidaten zuerst den Dokument-Preflight ausfuehren: Herkunft,
    Recht zur Inhaltsverarbeitung, externen KI-Pruefung und Repository-Ablage
    anhand von Metadaten und Belegreferenzen klaeren. Den Planinhalt in dieser
@@ -290,17 +340,9 @@ git push origin vx.y.z
 
 1. `docs/project/PROJECT_INPUT_WORKFLOW.md` und `docs/compliance/README.md` als
    zentrale Regelungen lesen.
-2. `data/project_inbox/new/` mit den vorsortierten Unterordnern zunaechst auf
-   Datei- und Quellenmetadatenebene lesen:
-   - `docs/`
-   - `weather/`
-   - `building/`
-   - `analyse/`
-   - `variants/`
-   - `catalogs/`
-   - `parameters/`
-   - `zones_technical/`
-   - `unknown/`
+2. Alle Dateien direkt unter `data/project_inbox/new/` zunaechst auf Datei-
+   und Quellenmetadatenebene lesen. Die fachliche Kategorie erst aus
+   Dateiname, Erweiterung und zulaessigen Metadaten ermitteln.
 3. Fuer jedes neue Objekt bereinigte Metadaten, bekannte Herkunft,
    Lizenzangabe, beabsichtigte Operation und vorhandene Belegreferenzen
    zusammenstellen; den Dateiinhalt noch nicht lesen.
@@ -330,14 +372,38 @@ git push origin vx.y.z
 12. Wetterdateien nur in lokale Wetterordner wie `data/ma_weather/input/` oder
    `data/ma_weather/geodata/` vorbereiten. Registrierung und Freigabe bleiben
    beim bestehenden Wetter-Scan und Pruefworkflow.
-13. Gebaeude-, Analyse-, Varianten-, Katalog-, Parameter-, Zonen- und
-   Technikdateien in die bereits dokumentierten Modulordner verteilen.
+13. Nach der ermittelten Kategorie Gebaeude-, Analyse-, Varianten-, Katalog-,
+   Parameter-, Zonen- und Technikdateien in die bereits dokumentierten
+   Modulordner verteilen.
 14. Verarbeitete Originale nach `data/project_inbox/processed/` verschieben.
 15. Unabhaengige, unkritische Dateien derselben Aufnahme weiterbearbeiten.
 16. Keine Dateien loeschen und keine Fach- oder Compliance-Freigabe
     automatisch setzen.
 17. `CHANGELOG.md` nur aktualisieren, wenn versionierte Struktur,
     Dokumentation oder produktive Dateien geaendert wurden.
+
+## Routine `masterarbeitsablage einsortieren`
+
+1. Nur die Dateien direkt unter
+   `../260524_Masterarbeit_Arbeitsablage/00_Eingang/` anhand von Namen,
+   Erweiterungen und bereinigten Metadaten inventarisieren; `Unklar/` bleibt
+   unveraendert.
+2. Für jede Datei einen Zielvorschlag erstellen:
+   - Originalquelle nach `01_Quellen/` mit passender Quellkategorie,
+   - eigene Notiz oder Schreibstand nach `02_Eigene_Arbeitsunterlagen/`,
+   - manueller Facharbeitsbezug nach `03_Teil1_Fachkompetenz/`,
+   - Prozessmessung oder bewusstes Thesis-Ergebnisartefakt nach
+     `04_Teil2_Prozessinnovation/`.
+3. Technische Projektpläne, Code, Konfiguration, Rohdaten, Logs und reguläre
+   Programmausgaben nicht in die externe Ablage verschieben; sie bleiben an
+   ihren bestehenden Projektpfaden.
+4. Unklare Zuordnungen nach `00_Eingang/Unklar/` vorschlagen, aber nicht
+   verschieben.
+5. Die Zuordnung im Chat ausgeben und auf eine ausdrueckliche Freigabe für
+   den konkreten Batch warten. Erst danach Dateien ohne Umbenennung
+   verschieben; vorhandene Zielnamen nie überschreiben.
+6. Die Routine schreibt keine Repository-Dateien und führt keine Git-Aktion
+   aus.
 
 ## Kurze Einzelroutinen
 

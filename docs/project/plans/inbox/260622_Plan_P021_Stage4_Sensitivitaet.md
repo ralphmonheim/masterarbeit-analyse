@@ -19,9 +19,22 @@ verwenden.
 - Sollwerte, Profile, interne Lasten, technische Leistungen, Bauteile und
   Fenster als spaetere Sensitivitaetsparameter strukturieren.
 - Ergebnisdarstellung fuer Parametereinfluss und Robustheit planen.
+- Wetterdatensaetze nach ihrer Rolle unterscheiden: reale Wetterjahre duerfen
+  Messdatenvergleiche und Ereignisanalysen unterstuetzen, ersetzen aber nicht
+  stillschweigend TRY-, Designwetter- oder normative Nachweisdatensaetze.
 
 ## Akzeptanzkriterien
 
 - Ereignisauswahl ist aus Wetterdaten reproduzierbar.
 - Jahresdaten werden nicht als einziges Analysezeitfenster vorausgesetzt.
 - Vorhandene Zeitfensterfunktionen werden wiederverwendet.
+
+## Handover-Ergaenzung 2026-07-21
+
+Die Kapazitaets- und Robustheitsbewertung bewertet unter den untersuchten
+Klima- und Betriebsrandbedingungen unter anderem Ueber- und
+Untertemperaturstunden, operative Temperaturen, nicht gedeckte Leistung,
+Systemauslastung, Komfortverletzungen und die Abweichung zum Referenzklima.
+Sie veraendert weder technische Kapazitaeten noch Varianten automatisch.
+Ein daraus abgeleiteter `StudyDirectionProposal` bleibt bis zur
+Nutzerfreigabe ein nicht-ausfuehrbarer Vorschlag fuer `ma_parameters`.

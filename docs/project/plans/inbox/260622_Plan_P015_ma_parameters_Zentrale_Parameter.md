@@ -498,3 +498,25 @@ P015 ist fachlich abgeschlossen, wenn:
 
 Die v2-basierte Werteherkunft und den verbleibenden P015-S3b-Vollumfang nach
 dem umgesetzten P013-/P014-Releasecheckpoint getrennt abgrenzen.
+
+## Handover-Ergaenzung 2026-07-21
+
+Die Handover aus `ma_variants` und `ma_technical` bestaetigen und
+konkretisieren den aktiven P015-Vertrag:
+
+- Die zwei getrennten Artefakte `BaselineParameterSnapshot` und
+  `ParameterVariationSpecification` bleiben die einzigen Eingaben an
+  `ma_variants`; Candidate-Erzeugung, Regeln, Katalog und Selection gehoeren
+  nicht zu P015.
+- Technische Parameter werden mit stabilem Pfad, Zielobjekt, Datentyp,
+  Einheit, Wert, erlaubten Werten, Variierbarkeit, Grenzen und Quelle
+  beschrieben. Eine neue Technikrevision erzeugt einen neuen Snapshot oder
+  Zweig und ueberschreibt keinen historischen Stand.
+- Ein von `ma_analyse` abgeleiteter `StudyDirectionProposal` bleibt
+  nicht-ausfuehrbar, bis eine Nutzerfreigabe ihn in eine
+  `ParameterVariationSpecification` ueberfuehrt.
+- Kurzkennungen dienen nur der Anzeige; fachliche Identitaet bleibt durch
+  stabile Referenzen, Versionen und Content-Hashes gesichert.
+
+Die P015-Quelle vom 2026-07-09 bleibt eine historische Referenz und ersetzt
+nicht die in diesem Plan dokumentierten, juengeren Checkpoint-Entscheidungen.

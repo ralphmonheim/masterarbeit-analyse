@@ -80,9 +80,14 @@ Option 1 wird als Zielrichtung angenommen:
 2. `ma_parameters` wird kanonischer Owner von Parameter- und
    Optionskatalogen; `ma_variants` konsumiert diese Vertrage und darf nur
    befristete, getestete Kompatibilitaets-Reexports anbieten.
-3. Zonenabhaengige Pruefungen technischer Referenzen liegen unter
+3. Der fachliche Ablauf ist `ma_building -> ma_technical -> ma_zones ->
+   ma_parameters`: `ma_technical` liefert freigegebene zentrale
+   Systemreferenzen, `ma_zones` besitzt Zonen-, Nutzungs-, Zeit- und
+   Belegungsprofile sowie deren Zuordnung zu diesen Referenzen.
+   Zonenabhaengige Integritaetspruefungen liegen unter
    `ma_zones.validation`; `ma_technical` importiert zur Laufzeit nicht
-   `ma_zones`.
+   `ma_zones`. Die Legacy-v1-Fassade bleibt bis zu einem separat
+   freigegebenen, getesteten Adapter erhalten.
 4. `ma_variants` wird nur entlang der bereits vorhandenen Zielmodule
    `ma_economy`, `ma_reporting`, `ma_ui`, `ma_export_simulation`,
    `ma_import_simulation`, `ma_analyse` und `ma_data_export` verkleinert.
