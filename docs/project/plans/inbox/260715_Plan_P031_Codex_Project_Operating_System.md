@@ -1,6 +1,6 @@
 # P031 Codex Project Operating System
 
-Stand: 2026-07-15
+Stand: 2026-07-22
 Status: lokale Baseline umgesetzt und validiert; externe Integrationen gesperrt
 Profil: Full Local, repo-lokal und allowlist-basiert
 
@@ -52,6 +52,7 @@ Projektorganisation.
 | Modul- und Workflow-Laufzeitstatus | `src/ma_workflow/catalog.py` | UI- und Runtime-Anzeige |
 | Orientierung | `docs/project/MASTERARBEIT_LEITFADEN.md` | keine zweite Statusquelle |
 | Aenderungshistorie | `CHANGELOG.md` | umgesetzte, versionierbare Aenderungen |
+| historische Chat-Uebergaben | `docs/project/archive/chat_handovers/INDEX.md` | archivierte Arbeitsreferenzen, nie aktive Status- oder Entscheidungsquelle |
 
 Die Professor-Rolle besitzt zwei benoetigte Produktoberflaechen:
 `.codex/agents/professor.toml` ist fuer Codex fuehrend;

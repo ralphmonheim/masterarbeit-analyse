@@ -130,8 +130,10 @@ Pruefschritte enthalten.
   Git-Stand; sie behauptet keine exakte Tokenzahl.
 - `chat-handover`: zuerst `chat-stats` ausfuehren und danach eine
   kopierfertige Uebergabe fuer einen neuen Chat aus den kanonischen
-  Projektquellen und dem aktuellen lokalen Arbeitsstand erstellen. Der Befehl
-  schreibt standardmaessig keine Datei und fuehrt keine Git-Aktion aus.
+  Projektquellen und dem aktuellen lokalen Arbeitsstand erstellen. Die
+  Routine speichert die Uebergabe danach als datierten historischen Snapshot
+  unter `docs/project/archive/chat_handovers/` und referenziert sie in
+  `INDEX.md`; sie fuehrt keine Git-Aktion aus.
 - `plan aufnehmen`: neue Plaene aus `docs/project/plans/inbox/` in Planindex
   und Planstatus einordnen. Vor dem Inhaltszugriff wird die Zulaessigkeit des
   Plandokuments anhand bereinigter Metadaten geprueft. Erst danach wird

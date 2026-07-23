@@ -1,6 +1,6 @@
 # Nutzerentscheidungen Masterarbeit Code
 
-Stand: 2026-07-15
+Stand: 2026-07-22
 
 ## UD-001 Modulare Projektstruktur
 
@@ -1730,10 +1730,11 @@ Stand: 2026-07-15
   Dokumentationswahrheit schlank.
 - Auswirkung: `UPDATE_ROUTINES.md` bleibt alleinige Ablaufwahrheit,
   `commands_common.md` bleibt Triggerindex. Beide Routinen sind standardmaessig
-  read-only, schreiben keine Handover-Datei und loesen keine Git- oder
-  externen Aktionen aus. Aenderungen am Governance-Skill werden erst in einem
-  neuen Chat oder nach Projekt-Reload aktiv erkannt.
-- Status: getroffen und dokumentiert
+  read-only hinsichtlich Git- und externer Aktionen. Die damalige Regel,
+  keine Handover-Datei zu schreiben, wird durch UD-100 ersetzt. Aenderungen
+  am Governance-Skill werden erst in einem neuen Chat oder nach Projekt-Reload
+  aktiv erkannt.
+- Status: historisch; Persistenzregel durch UD-100 ersetzt
 - Quelle oder Chatbezug: Nutzerfreigabe `frei` am 2026-07-19
 
 ## UD-094 Schlanker lokaler Normenarbeitsmodus
@@ -1853,3 +1854,23 @@ Stand: 2026-07-15
 - Status: getroffen und im Workflow-Katalog umgesetzt
 - Quelle oder Chatbezug: Nutzerentscheidung im UI-/Preprocess-Abgleich am
   2026-07-21
+
+## UD-100 Chat-Handover als referenziertes Verlaufsarchiv
+
+- Datum: 2026-07-22
+- Thema: Projektsteuerung und Kontextwechsel
+- Entscheidung: Jede Ausfuehrung von `chat-handover` speichert die erzeugte
+  Uebergabe als datierten Snapshot unter
+  `docs/project/archive/chat_handovers/` und ergaenzt dessen `INDEX.md`.
+- Begruendung: Auch kleinere Arbeitsstaende sollen den Projektverlauf
+  nachvollziehbar abbilden und einen spaeteren Kontextwechsel erleichtern.
+- Auswirkung: Jeder Snapshot verweist auf die zum Erstellungszeitpunkt
+  fuehrenden Plaene, den Planstatus, relevante Entscheidungen, den Changelog
+  und den lokalen Git-Stand. Das Archiv erzeugt keine zweite Status-,
+  Freigabe- oder Entscheidungswahrheit.
+- Betroffene Module oder Dateien: `docs/project/archive/chat_handovers/`,
+  `docs/project/UPDATE_ROUTINES.md`, `docs/common/commands_common.md`, P031
+- Status: getroffen und umgesetzt
+- Offene Folgefragen: keine
+- Quelle oder Chatbezug: Nutzerfreigabe `Frei` und Begruendung zur
+  Projektverlauf-Nachvollziehbarkeit am 2026-07-22

@@ -92,3 +92,13 @@ decisions:
     release_scope: "origin https://github.com/ralphmonheim/masterarbeit-analyse.git; branch main; release candidate v0.30.1 based on v0.30.0 commit c936c4d; config/ma_database/catalogs/** and logs/compliance/** expressly excluded"
     evidence: ["User command in Codex chat on 2026-07-18: aktualisieren und tagesende direkt.", "Candidate inventory contains only own routine documentation, UD-092, CHANGELOG.md and version metadata.", "git check-ignore confirms representative local building catalog files remain ignored.", "No code or test change is part of this patch; v0.30.0 validation remains recorded separately."]
     sources: [SHARED-COMPLIANCE-003, SHARED-COMPLIANCE-004, SHARED-RELEASE-005]
+  - decision_id: SHARED-RELEASE-007
+    date: "2026-07-23"
+    status: active
+    decision: "Public GitHub release of the chat-handover archive and project-governance update"
+    rationale: "The user invoked the documented direct repo-update routine. The final candidate contains only own project documentation, planning, decisions, changelog and version metadata. It contains no protected working inputs, external source content, credentials, personal or confidential data, or new dependencies."
+    allowed_scope: [own_documentation, own_planning, own_decisions, changelog, version_metadata, metadata, compliance_decision]
+    excluded_scope: [source_archives, norm_pdfs, norm_tables, equa_libraries, ida_idm_files, dwd_try_data, ifc_derived_data, local_catalog_data, compliance_logs, credentials, personal_data, confidential_data, external_cloud_processing]
+    release_scope: "origin https://github.com/ralphmonheim/masterarbeit-analyse.git; branch main; release candidate v0.33.0 based on v0.32.0 commit 4b13f63f3f89f55c55beee6da23c667f851cb26d; only the final reviewed documentation, planning, decision, changelog, version and compliance-decision paths are included"
+    evidence: ["User command in Codex chat on 2026-07-23: aktualisieren und direkt update repo.", "Compliance Council preflight on 2026-07-23: the candidate contains own Markdown project records only; IDA, IFC, DIN, VDE, VDI and DWD appear solely as own status or boundary paraphrases.", "git diff --check passed before the final release metadata update.", "No code, test, dependency or protected working-data path is included in the release candidate."]
+    sources: [SHARED-COMPLIANCE-003, SHARED-COMPLIANCE-004, SHARED-RELEASE-006]

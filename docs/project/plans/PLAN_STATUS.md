@@ -1,6 +1,6 @@
 # Plan Status
 
-Stand: 2026-07-21
+Stand: 2026-07-22
 
 Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt und nach jeder Planumsetzung aktualisiert. Vollstaendige alte Planstaende liegen unter `docs/project/archive/plans/`.
 
@@ -362,7 +362,9 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   Capability-Snapshot und Backlog; `AGENTS.md`, `.codex/`,
   `UPDATE_ROUTINES.md`, Decisions und Compliance behalten getrennte
   Eigentuemerschaft. Zwei duenne Skills und ein Contract-Test bilden die
-  lokale Baseline. Graphify, neue MCPs, globale Konfiguration, Hook-
+  lokale Baseline. `chat-handover` archiviert zusaetzlich datierte,
+  referenzierte Arbeits-Snapshots, ohne die aktiven Steuerquellen zu
+  duplizieren. Graphify, neue MCPs, globale Konfiguration, Hook-
   Aenderungen, Obsidian/Zotero und geschuetzte PDF-/IDA-Verarbeitung bleiben
   gesperrt oder manuell freizugeben. UD-089 delegiert nur klar abgegrenzte,
   lokale und reversible Folgeslices nach dokumentierter Council-Mehrheit;

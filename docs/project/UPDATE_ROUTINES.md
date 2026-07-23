@@ -66,7 +66,7 @@ noetig.
 | `update planung` | Plan- und Entscheidungsstruktur aktualisieren | Codex prueft Plan-Inbox, Planindex, Planstatus und offene Entscheidungen; neue Plaene durchlaufen vor der Einordnung den Compliance-Preflight. |
 | `projektlage` | Kurze Projektlage lesen | Codex berichtet Git-Stand, Version, aktive Plaene, offene Entscheidungen und naechste sinnvolle Schritte. |
 | `chat-stats` | Chat-Arbeitsstand bewerten | Codex bewertet read-only sichtbare Kontextkomprimierungen, Arbeitsstraenge, offene Uebergaben und den lokalen Git-Stand. Das Ergebnis ist `weiterarbeiten`, `handover empfohlen`, `neuer Chat empfohlen` oder `neuer Chat erforderlich`; eine exakte Tokenzahl wird nicht behauptet. |
-| `chat-handover` | Uebergabe fuer einen neuen Chat erstellen | Codex fuehrt zuerst `chat-stats` aus und erstellt dann eine kopierfertige, nicht persistierte Uebergabe aus den kanonischen Quellen und dem lokalen Arbeitsstand. Es werden keine Dateien, Git- oder externen Zustaende veraendert. |
+| `chat-handover` | Uebergabe fuer einen neuen Chat erstellen und archivieren | Codex fuehrt zuerst `chat-stats` aus, erstellt eine kopierfertige Uebergabe und speichert sie anschliessend als datierten, referenzierten historischen Snapshot. Es werden keine Git- oder externen Zustaende veraendert. |
 | `plan aufnehmen` | Neuen Plan einordnen | Codex prueft zuerst anhand bereinigter Metadaten, ob das Plandokument gelesen und im Repository verarbeitet werden darf. Erst danach prueft der `compliance_auditor` den Inhalt und trennt Dokumentrisiken von Umsetzungsblockern. |
 | `projektinput aufnehmen` | Entwicklungs-Inbox aufraeumen | Codex nutzt `docs/project/PROJECT_INPUT_WORKFLOW.md`. Die Metadatenpruefung gilt fuer neue oder geschuetzte Eingaben; normale eigene Code-, Schema- und synthetische Testartefakte laufen ohne Einzelfallgate. Vor Inhaltsverarbeitung geschuetzter Dateien, automatischer Extraktion, externer Verarbeitung, Repository-Uebernahme oder Weitergabe bleibt der volle Preflight zwingend. Blockierte Originale bleiben unveraendert am aktuellen Eingangspfad. |
 | `masterarbeitsablage einsortieren` | Externe Arbeitsablage vorsortieren | Codex inventarisiert nur `../260524_Masterarbeit_Arbeitsablage/00_Eingang/`, schlägt Zielordner vor und verschiebt erst nach einer separaten Freigabe den konkret benannten Batch. |
@@ -96,6 +96,7 @@ noetig.
 | Offene Entscheidungen aktualisieren | `docs/project/decisions/USER_DECISIONS_OPEN_POINTS.md` | offene Nutzerentscheidungen | Offene Punkte klar von getroffenen Entscheidungen trennen. |
 | Technische Entscheidungen aktualisieren | `docs/project/decisions/TECHNICAL_DECISIONS.md` | Architektur- und Umsetzungsentscheidungen | Nicht mit Nutzerentscheidungen vermischen. |
 | Command-Dokumentation aktualisieren | `docs/common/commands_common.md`, `docs/*/commands_*.md`, `docs/project/UPDATE_ROUTINES.md` | Sammelbefehle, Einzelbefehle, Test-/Referenzbefehle | Wenn Befehle, Routinen oder Startwege geaendert wurden, muessen die passenden Command-Dateien aktualisiert werden. |
+| Chat-Handover-Archiv | `docs/project/archive/chat_handovers/`, `docs/project/archive/chat_handovers/INDEX.md` | datierter Snapshot und Registereintrag | Das Archiv ist eine historische Arbeitsreferenz. Aktive Plaene, `PLAN_STATUS.md` und Entscheidungen bleiben fuehrend. |
 | Modulstatus pruefen | `src/`, `tests/`, modulbezogene Dokumentation, `src/ma_workflow/catalog.py`, `src/ma_ui/navigation.py` | Fachpakete, Services, Views, Tests und zentrale Statuswerte | Status nur anhand vorhandener Implementierung und belastbarer Tests setzen; Streamlit bezieht Status aus dem Workflow-Katalog. |
 | Referenzen aktualisieren | `docs/examples/`, modulbezogene Beispielordner | Beispielbilder und Referenzoutputs | Nur durch `aktualisiere tests` oder expliziten Nutzerauftrag erzeugen. |
 
@@ -240,12 +241,18 @@ noetig.
    Validierung, offene Entscheidungen, feste Grenzen und naechste Schritte.
 4. Sichtbare Kontextkomprimierungen nur als beobachteten Hinweis, nie als
    technische Messung oder Garantie ausgeben.
-5. Standardmaessig keine Handover-Datei anlegen oder aktualisieren. Die
-   kanonische Projektwahrheit verbleibt in P031, `PLAN_STATUS.md`, den
-   aktiven Plaenen und den Entscheidungsquellen.
-6. Keine Datei schreiben, keine Git-Aktion ausfuehren und keine externe
-   Verarbeitung starten. Dokumentationsaenderungen erfolgen nur durch einen
-   getrennten, ausdruecklich ausgeloesten Arbeitsauftrag.
+5. Die Uebergabe anschliessend als datierte Markdown-Datei unter
+   `docs/project/archive/chat_handovers/` ablegen und deren `INDEX.md`
+   ergaenzen. Der Dateiname folgt `YYMMDD_chat-handover_kurzthema.md`.
+6. Jeder Snapshot referenziert mindestens die aktiven Plaene,
+   `PLAN_STATUS.md`, relevante Entscheidungen, `CHANGELOG.md` und den
+   Git-Stand zum Zeitpunkt der Uebergabe. Die kanonische Projektwahrheit
+   verbleibt in diesen Quellen.
+7. Archivierte Handover sind historische Arbeitsreferenzen fuer Verlauf,
+   Nachvollziehbarkeit und spaetere Kontextwechsel. Sie enthalten keine
+   eigenstaendige Status-, Freigabe- oder Entscheidungslogik und duplizieren
+   keine geschuetzten Inhalte.
+8. Keine Git-Aktion oder externe Verarbeitung starten.
 
 ## Routine `update repo`
 

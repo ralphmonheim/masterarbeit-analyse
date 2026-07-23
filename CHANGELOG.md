@@ -4,6 +4,16 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.33.0 - 2026-07-23
+
+### Added
+
+- `chat-handover` speichert nach jeder Uebergabe einen datierten,
+  referenzierten Snapshot unter `docs/project/archive/chat_handovers/`. Das
+  Archiv macht Projektverlauf und Kontextwechsel nachvollziehbar, ohne
+  `PLAN_STATUS.md`, aktive Plaene oder Entscheidungen als fuehrende Quellen
+  zu ersetzen.
+
 ## 0.32.0 - 2026-07-21
 
 ### Added
