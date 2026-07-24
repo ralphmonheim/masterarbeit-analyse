@@ -18,18 +18,6 @@ from typing import Iterable
 
 import yaml
 
-from ma_core.compliance import (
-    DEFAULT_COMPLIANCE_AUDIT_PATH,
-    ComplianceAuditLogger,
-    ComplianceDecision,
-    ComplianceOperation,
-    ComplianceService,
-    OperationRequest,
-    SourceType,
-    inspect_request_metadata,
-    safe_open,
-)
-
 _ENTITY_PATTERN = re.compile(r"^#(?P<id>\d+)\s*=\s*(?P<type>[A-Z0-9_]+)\((?P<args>.*)\)$", re.DOTALL)
 _REFERENCE_PATTERN = re.compile(r"#(\d+)")
 
@@ -55,44 +43,20 @@ class IfcLiteImportSummary:
     gap_count: int
 
 
-def authorize_user_owned_ifc_lite_derivation(
-    source_path: str | Path,
-    *,
-    confirmation_reference: str,
-    audit_log_path: str | Path = DEFAULT_COMPLIANCE_AUDIT_PATH,
-) -> ComplianceDecision:
-    """Dokumentiert die rein lokale Ableitung eines nutzereigenen IFC-Modells."""
-
-    if not confirmation_reference.strip():
-        raise ValueError("confirmation_reference darf nicht leer sein.")
-    request = OperationRequest(
-        source_type=SourceType.USER_OWNED,
-        operation=ComplianceOperation.CONVERT,
-        purpose="Lokale IFC-Lite-Ableitung eines nutzereigenen Gebaeudemodells",
-        file_path=Path(source_path),
-        source_origin=f"Nutzereigenes IFC-Modell; Bestaetigung: {confirmation_reference}",
-        user_owned=True,
-    )
-    return ComplianceService(audit_logger=ComplianceAuditLogger(audit_log_path)).evaluate(request)
-
-
 def derive_ifc_lite_building_candidate(
     source_path: str | Path,
     output_directory: str | Path,
-    *,
-    compliance_decision: ComplianceDecision | None = None,
 ) -> IfcLiteImportSummary:
     """Leitet einen lokalen Building-Entwurf und einen Lueckenbericht ab.
 
     Die Funktion erzeugt keine freigegebene ``BuildingModelSpecification``.
     Nicht sicher aus der IFC ableitbare Angaben bleiben als Luecke erhalten.
-    Die IFC-Datei wird nur nach einer ausdruecklichen lokalen Freigabe geoeffnet.
+    Die IFC-Datei wird lokal gelesen und nicht in Beispielkonfigurationen kopiert.
     """
 
     source = Path(source_path)
     target = Path(output_directory)
-    decision = _require_ifc_lite_compliance(compliance_decision, source)
-    entities, schema = _read_entities(source, compliance_decision=decision)
+    entities, schema = _read_entities(source)
     candidate, gaps = _candidate_payload(source, entities, schema)
     target.mkdir(parents=True, exist_ok=True)
     yaml_path = target / "smalloffice_ifc_lite_building_candidate.yaml"
@@ -113,35 +77,6 @@ def derive_ifc_lite_building_candidate(
         json.dump({"summary": asdict(summary), "gaps": gaps}, handle, ensure_ascii=False, indent=2)
         handle.write("\n")
     return summary
-
-
-def _require_ifc_lite_compliance(
-    decision: ComplianceDecision | None,
-    source: Path,
-) -> ComplianceDecision:
-    """Stoppt die IFC-Ableitung ohne lokale, explizit erlaubte Entscheidung."""
-
-    if decision is None:
-        request = OperationRequest(
-            source_type=SourceType.UNKNOWN,
-            operation=ComplianceOperation.CONVERT,
-            purpose="Lokale IFC-Lite-Ableitung fuer ma_building",
-            file_path=source,
-            source_origin="IFC-Herkunft und Nutzungsrechte noch nicht dokumentiert",
-        )
-        decision = ComplianceService().evaluate(request)
-    else:
-        inspect_request_metadata(
-            OperationRequest(
-                source_type=SourceType.UNKNOWN,
-                operation=ComplianceOperation.CONVERT,
-                purpose="Metadaten-Preflight innerhalb einer freigegebenen lokalen IFC-Lite-Ableitung",
-                file_path=source,
-                source_origin="Freigabedetails liegen in der übergebenen lokalen Entscheidung",
-            )
-        )
-    decision.require_allowed()
-    return decision
 
 
 def _candidate_payload(
@@ -337,12 +272,8 @@ def _ancestor_of_type(
     return None
 
 
-def _read_entities(
-    path: Path,
-    *,
-    compliance_decision: ComplianceDecision,
-) -> tuple[dict[int, _IfcEntity], str | None]:
-    with safe_open(path, "r", encoding="utf-8", errors="ignore", decision=compliance_decision) as handle:
+def _read_entities(path: Path) -> tuple[dict[int, _IfcEntity], str | None]:
+    with path.open("r", encoding="utf-8", errors="ignore") as handle:
         content = handle.read()
     schema_match = re.search(r"FILE_SCHEMA\s*\(\s*\(\s*'([^']+)'", content, re.IGNORECASE)
     entities: dict[int, _IfcEntity] = {}

@@ -1,0 +1,172 @@
+schema_version: 1
+inventory_id: local_normen_source_inventory_2026_07_24
+status: metadata_only
+collection_locator: masterarbeit_arbeitsablage/01_Quellen/Normen
+captured_at: "2026-07-24"
+capture_method:
+  - relative source locator
+  - filename
+  - file extension
+  - file size and timestamp inspected locally
+content_access:
+  pdf_content_read: false
+  ocr_performed: false
+  semantic_index_created: false
+  tables_or_formulas_extracted: false
+  repository_contains_source_pdfs: false
+purpose: >-
+  Navigable bibliographic and file-metadata index for later manual review.
+  It is not a substitute for any source document and contains no normative
+  statements, values, tables, formulas, or semantic summaries.
+use_rules:
+  - Treat every record as a source locator, not as a verified technical rule.
+  - Keep current and historical editions separate.
+  - Add manual review notes only after the responsible person has checked the source.
+  - Do not use this file as runtime input or as a compliance-report data source.
+document_groups:
+  - group_id: din_18599_current
+    relative_folder: DIN 18599
+    edition_status: current_candidate_from_filename
+    records:
+      - { document_id: DIN-TS-18599-Beiblatt-1, edition: "2026-06", file: "DIN-TS 18599 Beiblatt 1_2026-06-00_DE_3686137.pdf" }
+      - { document_id: DIN-TS-18599-Beiblatt-3, edition: "2021-09", file: "DIN-TS 18599 Beiblatt 3_2021-09-00_DE_3267634.pdf" }
+      - { document_id: DIN-TS-18599-1, edition: "2025-10", file: "DIN-TS 18599-1_2025-10-00_DE_3605938.pdf" }
+      - { document_id: DIN-TS-18599-2, edition: "2025-10", file: "DIN-TS 18599-2_2025-10-00_DE_3605935.pdf" }
+      - { document_id: DIN-TS-18599-3, edition: "2025-10", file: "DIN-TS 18599-3_2025-10-00_DE_3605939.pdf" }
+      - { document_id: DIN-TS-18599-4, edition: "2025-10", file: "DIN-TS 18599-4_2025-10-00_DE_3605943.pdf" }
+      - { document_id: DIN-TS-18599-5, edition: "2025-10", file: "DIN-TS 18599-5_2025-10-00_DE_3606000.pdf" }
+      - { document_id: DIN-TS-18599-6, edition: "2025-10", file: "DIN-TS 18599-6_2025-10-00_DE_3606002.pdf" }
+      - { document_id: DIN-TS-18599-7, edition: "2025-10", file: "DIN-TS 18599-7_2025-10-00_DE_3609707.pdf" }
+      - { document_id: DIN-TS-18599-8, edition: "2025-10", file: "DIN-TS 18599-8_2025-10-00_DE_3606014.pdf" }
+      - { document_id: DIN-TS-18599-9, edition: "2025-10", file: "DIN-TS 18599-9_2025-10-00_DE_3606005.pdf" }
+      - { document_id: DIN-TS-18599-10, edition: "2025-10", file: "DIN-TS 18599-10_2025-10-00_DE_3606006.pdf" }
+      - { document_id: DIN-TS-18599-11, edition: "2025-10", file: "DIN-TS 18599-11_2025-10-00_DE_3606007.pdf" }
+  - group_id: din_18599_historical
+    relative_folder: DIN 18599/DIN 18599 - veraltet
+    edition_status: historical_from_folder_name
+    records:
+      - { document_id: DIN-V-18599-Beiblatt-1, edition: "2010-01", file: "DIN V 18599 Beiblatt 1_2010-01-00_DE_1553315.pdf" }
+      - { document_id: DIN-V-18599-1, edition: unknown, file: "DIN V 18599-1 veraltet.pdf" }
+      - { document_id: DIN-V-18599-2, edition: unknown, file: "DIN V 18599-2 veraltet.pdf" }
+      - { document_id: DIN-V-18599-3, edition: unknown, file: "DIN V 18599-3 veraltet.pdf" }
+      - { document_id: DIN-V-18599-4, edition: unknown, file: "DIN V 18599-4 veraltet.pdf" }
+      - { document_id: DIN-V-18599-5, edition: unknown, file: "DIN V 18599-5 veraltet.pdf" }
+      - { document_id: DIN-V-18599-6, edition: unknown, file: "DIN V 18599-6 veraltet.pdf" }
+      - { document_id: DIN-V-18599-7, edition: unknown, file: "DIN V 18599-7 veraltet.pdf" }
+      - { document_id: DIN-V-18599-8, edition: unknown, file: "DIN V 18599-8 veraltet.pdf" }
+      - { document_id: DIN-V-18599-9, edition: unknown, file: "DIN V 18599-9 veraltet.pdf" }
+      - { document_id: DIN-V-18599-10, edition: unknown, file: "DIN V 18599-10 veraltet.PDF" }
+      - { document_id: DIN-V-18599-11, edition: unknown, file: "DIN V 18599-11 veraltet.pdf" }
+      - { document_id: DIN-TS-18599-Beiblatt-3, edition: "2021-09", file: "DIN-TS 18599 Beiblatt 3_2021-09-00_DE_3267634.pdf" }
+      - { document_id: DIN-TS-18599-12, edition: unknown, file: "DIN-TS 18599-12.pdf" }
+      - { document_id: DIN-TS-18599-13, edition: unknown, file: "DIN-TS 18599-13.pdf" }
+  - group_id: din_276
+    relative_folder: DIN 276
+    records:
+      - { document_id: DIN-276, edition: "2018-12", file: "DIN 276_2018-12-00_DE_2873248.pdf" }
+  - group_id: din_4108
+    relative_folder: DIN 4108
+    records:
+      - { document_id: DIN-4108-Beiblatt-2-Berichtigung-1, edition: "2025-02", file: "DIN 4108 Beiblatt 2 Berichtigung 1_2025-02-00_DE_3556193.pdf" }
+      - { document_id: DIN-4108-Beiblatt-2, edition: "2019-06", file: "DIN 4108 Beiblatt 2_2019-06-00_DE_3054799.pdf" }
+      - { document_id: DIN-4108-2, edition: "2026-05", file: "DIN 4108-2_2026-05-00_DE_3688761.pdf" }
+      - { document_id: DIN-4108-3, edition: "2024-03", file: "DIN 4108-3_2024-03-00_DE_3498131.pdf" }
+      - { document_id: DIN-4108-4, edition: "2020-11", file: "DIN 4108-4_2020-11-00_DE_3188939.pdf" }
+      - { document_id: DIN-4108-7, edition: "2026-04", file: "DIN 4108-7_2026-04-00_DE_3669379.pdf" }
+      - { document_id: DIN-4108-10, edition: "2021-11", file: "DIN 4108-10_2021-11-00_DE_3286456.pdf" }
+      - { document_id: DIN-4108-11, edition: "2018-11", file: "DIN 4108-11_2018-11-00_DE_2868600.pdf" }
+      - { document_id: DIN-4108-11, edition: "2026-02", file: "DIN 4108-11_2026-02-00_DE_3669370.pdf" }
+      - { document_id: DIN-TS-4108-8, edition: "2022-09", file: "DIN-TS 4108-8_2022-09-00_DE_3237233.pdf" }
+  - group_id: din_en_12831
+    relative_folder: DIN EN 12831
+    records:
+      - { document_id: DIN-EN-12831-1, edition: "2017-09", file: "DIN EN 12831-1_2017-09-00_DE_2571775.pdf" }
+      - { document_id: DIN-EN-12831-3, edition: "2017-09", file: "DIN EN 12831-3_2017-09-00_DE_2575031.pdf" }
+      - { document_id: DIN-TS-12831-1, edition: "2020-04", file: "DIN-TS 12831-1_2020-04-00_DE_3124717.pdf" }
+  - group_id: din_en_building_and_sustainability
+    relative_folder: root_and_named_subfolders
+    records:
+      - { document_id: DIN-EN-15643, edition: "2021-12", file: "DIN EN 15643_2021-12-00_DE_3239367.pdf" }
+      - { document_id: DIN-EN-15804, edition: "2022-03", file: "DIN EN 15804/DIN EN 15804_2022-03-00_DE_3294005.pdf" }
+      - { document_id: DIN-EN-15941, edition: "2021-07", file: "DIN EN 15941_2021-07-00_ML_3257114.pdf" }
+      - { document_id: DIN-EN-15941, edition: "2022-11", file: "DIN EN 15941_2022-11-00_ML_3383693.pdf" }
+      - { document_id: DIN-EN-15941, edition: "2024-10", file: "DIN EN 15941_2024-10-00_DE_3526023.pdf" }
+      - { document_id: DIN-EN-15978, edition: "2012-10", file: "DIN EN 15978/DIN EN 15978_2012-10-00_DE_1917049.pdf" }
+      - { document_id: DIN-EN-15978, edition: "2024-05", file: "DIN EN 15978/DIN EN 15978_2024-05-00_ML_3536984.pdf" }
+      - { document_id: DIN-EN-16627, edition: "2015-09", file: "DIN EN 16627_2015-09-00_DE_2271304.pdf" }
+  - group_id: din_en_16798
+    relative_folder: DIN EN 16798
+    records:
+      - { document_id: DIN-EN-16798-1, edition: "2022-03", file: "DIN EN 16798-1_2022-03-00_DE_3327351.pdf" }
+      - { document_id: DIN-EN-16798-3, edition: "2017-11", file: "DIN EN 16798-3_2017-11-00_DE_2596017.pdf" }
+      - { document_id: DIN-EN-16798-3, edition: "2022-12", file: "DIN EN 16798-3_2022-12-00_ML_3344998.pdf" }
+      - { document_id: DIN-EN-16798-5-1, edition: "2017-11", file: "DIN EN 16798-5-1_2017-11-00_DE_2571447.pdf" }
+      - { document_id: DIN-EN-16798-5-2, edition: "2017-11", file: "DIN EN 16798-5-2_2017-11-00_DE_2534179.pdf" }
+      - { document_id: DIN-EN-16798-7, edition: "2017-11", file: "DIN EN 16798-7_2017-11-00_DE_2557439.pdf" }
+      - { document_id: DIN-EN-16798-9, edition: "2017-11", file: "DIN EN 16798-9_2017-11-00_DE_2534178.pdf" }
+      - { document_id: DIN-EN-16798-13, edition: "2017-11", file: "DIN EN 16798-13_2017-11-00_DE_2557438.pdf" }
+      - { document_id: DIN-EN-16798-15, edition: "2017-11", file: "DIN EN 16798-15_2017-11-00_DE_2524447.pdf" }
+      - { document_id: DIN-EN-16798-17, edition: "2019-09", file: "DIN EN 16798-17_2019-09-00_DE_3061196.pdf" }
+  - group_id: din_en_iso
+    relative_folder: root_and_named_subfolders
+    records:
+      - { document_id: DIN-EN-ISO-6946, edition: "2018-03", file: "DIN EN ISO 6946_2018-03-00_DE_2518301.pdf" }
+      - { document_id: DIN-EN-ISO-6946-Berichtigung-1, edition: "2023-04", file: "DIN EN ISO 6946 Berichtigung 1_2023-04-00_DE_3354245.pdf" }
+      - { document_id: DIN-EN-ISO-7730, edition: "2023-04", file: "DIN EN ISO 7730/DIN EN ISO 7730_2023-04-00_ML_3424502.pdf" }
+      - { document_id: DIN-EN-ISO-7730, edition: "2025-12", file: "DIN EN ISO 7730/DIN EN ISO 7730_2025-12-00_DE_3650649.pdf" }
+      - { document_id: DIN-EN-ISO-10077-1, edition: "2020-10", file: "DIN EN ISO 10077-1_2020-10-00_DE_3178547.pdf" }
+      - { document_id: DIN-EN-ISO-10077-2, edition: "2025-06", file: "DIN EN ISO 10077-2_2025-06-00_DE_3599624.pdf" }
+      - { document_id: DIN-EN-ISO-10456, edition: "2010-05", file: "DIN EN ISO 10456_2010-05-00_DE_1571277.pdf" }
+      - { document_id: DIN-EN-ISO-13370, edition: "2018-03", file: "DIN EN ISO 13370_2018-03-00_DE_2560188.pdf" }
+      - { document_id: DIN-EN-ISO-13786, edition: "2018-04", file: "DIN EN ISO 13786_2018-04-00_DE_2527033.pdf" }
+      - { document_id: DIN-EN-ISO-13789, edition: "2018-04", file: "DIN EN ISO 13789_2018-04-00_DE_2560190.pdf" }
+      - { document_id: DIN-EN-ISO-14040, edition: "2021-02", file: "DIN EN ISO 14040/DIN EN ISO 14040_2021-02-00_DE_3179655.pdf" }
+      - { document_id: DIN-EN-ISO-14044, edition: "2021-02", file: "DIN EN ISO 14044_2021-02-00_DE_3179656.pdf" }
+      - { document_id: DIN-EN-ISO-52010-1, edition: "2018-03", file: "DIN EN ISO 52010/DIN EN ISO 52010-1_2018-03-00_DE_2569185.pdf" }
+      - { document_id: DIN-EN-ISO-52016-1, edition: "2018-04", file: "DIN EN ISO 52016/DIN EN ISO 52016-1_2018-04-00_DE_2577376.pdf" }
+      - { document_id: DIN-EN-ISO-52016-3, edition: "2026-05", file: "DIN EN ISO 52016/DIN EN ISO 52016-3_2026-05-00_DE_3653792.pdf" }
+      - { document_id: DIN-EN-ISO-52022-1, edition: "2018-01", file: "DIN EN ISO 52022-1_2018-01-00_DE_2563575.pdf" }
+      - { document_id: DIN-EN-ISO-52022-3, edition: "2018-01", file: "DIN EN ISO 52022-3_2018-01-00_DE_2563576.pdf" }
+      - { document_id: DIN-EN-ISO-7817-3, edition: "2026-03", file: "DIN EN ISO 7817-3_2026-03-00_ML_3674969.pdf" }
+  - group_id: vdi_2067
+    relative_folder: VDI 2067
+    records:
+      - { document_id: VDI-2067-Blatt-1, edition: "2012-09", file: "VDI 2067 Blatt 1_2012-09-00_ML_1885127.pdf" }
+      - { document_id: VDI-2067-Blatt-10, edition: "2013-09", file: "VDI 2067 Blatt 10_2013-09-00_ML_1750978.pdf" }
+      - { document_id: VDI-2067-Blatt-12, edition: "2017-04", file: "VDI 2067 Blatt 12_2017-04-00_ML_2575916.pdf" }
+      - { document_id: VDI-2067-Blatt-20, edition: "2018-04", file: "VDI 2067 Blatt 20_2018-04-00_ML_2768779.pdf" }
+      - { document_id: VDI-2067-Blatt-21, edition: "2003-05", file: "VDI 2067 Blatt 21_2003-05-00_ML_9490688.pdf" }
+      - { document_id: VDI-2067-Blatt-22, edition: "2023-05", file: "VDI 2067 Blatt 22_2023-05-00_ML_3410387.pdf" }
+      - { document_id: VDI-2067-Blatt-30, edition: "2013-06", file: "VDI 2067 Blatt 30_2013-06-00_ML_1941279.pdf" }
+      - { document_id: VDI-2067-Blatt-40, edition: "2013-12", file: "VDI 2067 Blatt 40_2013-12-00_ML_2028630.pdf" }
+      - { document_id: VDI-2067-Blatt-50, edition: "2018-10", file: "VDI 2067 Blatt 50_2018-10-00_ML_2852500.pdf" }
+  - group_id: other_vdi
+    relative_folder: named_vdi_subfolders
+    records:
+      - { document_id: VDI-2078, edition: "2015-06", file: "VDI 2078/VDI 2078_2015-06-00_ML_2082655-1.pdf" }
+      - { document_id: VDI-3807-Blatt-1, edition: "2013-06", file: "VDI 3807/VDI 3807 Blatt 1_2013-06-00_ML_1990561.pdf" }
+      - { document_id: VDI-3807-Blatt-2, edition: "2014-11", file: "VDI 3807/VDI 3807 Blatt 2_2014-11-00_ML_2201855.pdf" }
+      - { document_id: VDI-3807-Blatt-3, edition: "2015-11", file: "VDI 3807/VDI 3807 Blatt 3_2015-11-00_ML_2346467.pdf" }
+      - { document_id: VDI-3807-Blatt-4, edition: "2008-08", file: "VDI 3807/VDI 3807 Blatt 4_2008-08-00_ML_1456402.pdf" }
+      - { document_id: VDI-3807-Blatt-5, edition: "2014-11", file: "VDI 3807/VDI 3807 Blatt 5_2014-11-00_ML_2209902.pdf" }
+      - { document_id: VDI-6007-Blatt-1, edition: "2015-06", file: "VDI 6007/VDI 6007 Blatt 1_2015-06-00_ML_2074728.pdf" }
+      - { document_id: VDI-6007-Blatt-2, edition: "2012-03", file: "VDI 6007/VDI 6007 Blatt 2_2012-03-00_ML_1739666.pdf" }
+      - { document_id: VDI-6007-Blatt-3, edition: "2015-06", file: "VDI 6007/VDI 6007 Blatt 3_2015-06-00_ML_2074729.pdf" }
+      - { document_id: VDI-6020, edition: "2022-12", file: "VDI 6020/VDI 6020_2022-12-00_ML_3344780-1.pdf" }
+  - group_id: other_source_documents
+    relative_folder: root
+    records:
+      - { document_id: GEG, edition: unknown, file: "GEG.pdf" }
+      - { document_id: GEG-amendment-draft, edition: "2026-05-13", file: "20260513-entwurf-eines-gesetzes-zur-aenderung-des-gebaeudeenergiegesetzes.pdf" }
+      - { document_id: HBO-brochure, edition: "2025-10", file: "hbo_broschuere_stand_oktober_2025-baupaket_i_0.pdf" }
+      - { document_id: HOAI, edition: "2021", file: "HOAI_2021-Sonderausgabe.pdf" }
+      - { document_id: energetic-building-balance-guide, edition: unknown, file: "LEITFADEN_ENERGETISCHE_GEBAEUDEBILANZIERUNG_NACH_DIN_V_18599.pdf" }
+manual_review_template:
+  record_id: ""
+  source_group: ""
+  source_document_id: ""
+  source_edition: ""
+  reviewer: ""
+  reviewed_at: ""
+  notes: ""
+  result_status: not_reviewed

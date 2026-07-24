@@ -370,3 +370,18 @@ Das Varianten-Handover ergaenzt den bestehenden P014-Vertrag wie folgt:
 
 Diese Punkte konkretisieren Folgeslices; die bestehende P014-v1/v2-Grenze und
 alle freigegebenen Handover-Vertraege bleiben unveraendert.
+
+## Umsetzungsstand 2026-07-24: synthetische SmallOffice-LoD-1-Technik
+
+Fuer den ersten lauffaehigen SmallOffice-Durchstich wird der bestehende
+Legacy-v1-Vertrag additiv mit einer synthetischen Heizungs-, Kuehlungs- und
+Lueftungsreferenz genutzt. Systemtemperaturen und
+Waermerueckgewinnungsgrad orientieren sich als vorlaeufige Startwerte an der
+oeffentlich zugaenglichen GEG-Anlage 2. Spezifische Leistungen,
+Leistungsfaktoren, Luftwechsel und Regelstrategien bleiben eigene
+Demo-Annahmen.
+
+Die Konfiguration ist keine Anlagenauslegung und fuehrt weder Hersteller-,
+Katalog-, IFC- noch IDA-ICE-Daten. V2-Migration, Dimensionierung,
+Produktwahl, automatische Simulation und fachliche Wertevalidierung bleiben
+getrennte Folgeslices.

@@ -7,14 +7,12 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 EXPECTED_AGENTS = {
-    "compliance_auditor",
     "implementation_engineer",
     "professor",
     "project_explorer",
     "quality_auditor",
 }
 READ_ONLY_AGENTS = {
-    "compliance_auditor",
     "professor",
     "project_explorer",
     "quality_auditor",
@@ -37,7 +35,6 @@ EXPECTED_SKILL_TRIGGERS = {
         "entscheidung festhalten",
         "council analyse",
         "council review",
-        "council compliance",
         "council umsetzen",
         "ohne council",
         "nur Tera",
@@ -68,7 +65,9 @@ ALLOWED_TRACKED_PROTECTED_PATHS = {
     "data/common/normen/rounds/round1_v0_1/extracted/.gitkeep",
     "data/common/normen/rounds/round1_v0_1/incoming/.gitkeep",
     "data/common/normen/rounds/round1_v0_1/review/.gitkeep",
+    "data/common/normen/source_inventory_metadata.yaml",
     "data/common/normen/templates/.gitkeep",
+    "data/common/normen/templates/din18599_zone_profile_contract.yaml",
     "data/catalogs/documents/materials/.gitkeep",
     "data/catalogs/documents/products/.gitkeep",
     "data/catalogs/materials/.gitkeep",
@@ -195,7 +194,7 @@ def test_workflow_sources_have_unambiguous_ownership() -> None:
     assert "keine Oberflaeche automatisch starten" in implementation_notes
     assert "bei freiem Port `8501` automatisch starten" not in implementation_notes
     assert "ChatGPT-Auswertungen und automatische Extraktionen" not in norms_readme
-    assert "OCR, automatische Extraktion" in norms_readme
+    assert "Formeln, Grenzwerte und Regeln" in norms_readme
     assert "GitHub-spezifische Adapter" in github_professor
     assert ".codex/agents/professor.toml" in github_professor
 

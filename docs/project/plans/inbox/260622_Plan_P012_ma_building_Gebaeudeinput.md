@@ -478,3 +478,23 @@ stabile Referenzen (`building_id`, Revision, Flaechenreferenz, Orientierung,
 Neigung und Geometriehash) verwenden und keine Dach- oder
 Fassadengeometrie kopieren. Ein Folgeslice prueft referenzierte Flaechen,
 Revisionen, Hashes und dokumentierte technische Overrides.
+
+## Umsetzungsstand 2026-07-24: synthetischer SmallOffice-LoD-1-Lauf
+
+Das selbst erstellte SmallOffice-Konfigurationspaket wurde nach
+`COMPLIANCE-2026-07-24-SMALLOFFICE-CONFIG-INPUT-001` lokal aufgenommen. Das
+Originalarchiv und die IFC-abgeleiteten Konfigurationen bleiben ignoriert;
+ihre IDs, Raumbezeichnungen und Geometriewerte werden nicht versioniert.
+
+Fuer den technischen Durchstich wird stattdessen eine getrennte,
+projektautorisierte und vollstaendig synthetische
+`BuildingModelSpecification` verwendet. Sie bildet eine einfache
+500-m2-LoD-1-Kubatur, einen Raum, einfache Huellkennwerte und dokumentierte
+Annahmen ab. U-Werte orientieren sich als vorlaeufige Referenz an der
+oeffentlich zugaenglichen GEG-Anlage 2. Fensteranteil, Orientierung und
+Geometrie bleiben eigene Demo-Annahmen und sind vor fachlicher Nutzung zu
+validieren.
+
+Der Slice ist ausschliesslich ein Loader-, Validierungs- und
+Integrationsnachweis. Reale IFC-Geometrie, elementweise Orientierungen,
+Sonnenschutz, Standortbezug und Nachweisfaehigkeit bleiben Folgearbeit.

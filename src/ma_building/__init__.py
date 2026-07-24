@@ -1,6 +1,11 @@
 """Gebaeudemodul mit Demo-Spezifikation und lokaler Quelldiagnose."""
 
-from .demo_loader import load_building_spec, load_business_integration_lod1_building_spec, load_demo_building_spec
+from .demo_loader import (
+    load_building_spec,
+    load_business_integration_lod1_building_spec,
+    load_demo_building_spec,
+    load_small_office_lod1_building_spec,
+)
 from .diagnostics import (
     BuildingSourceDiagnostic,
     diagnose_building_source,
@@ -9,7 +14,6 @@ from .diagnostics import (
 )
 from .ifc_lite_import import (
     IfcLiteImportSummary,
-    authorize_user_owned_ifc_lite_derivation,
     derive_ifc_lite_building_candidate,
 )
 from .local_catalogs import (
@@ -49,6 +53,7 @@ from .paths import (
     FACHLICHER_TEIL_REFERENCE_IFC_PATH,
     MASTER_THESIS_REFERENCE_IFC_FILENAME,
     MASTER_THESIS_REFERENCE_IFC_PATH,
+    SMALL_OFFICE_LOD1_BUILDING_SPEC_PATH,
 )
 from .validation import validate_building_spec
 
@@ -66,6 +71,7 @@ __all__ = [
     "FACHLICHER_TEIL_REFERENCE_IFC_PATH",
     "MASTER_THESIS_REFERENCE_IFC_FILENAME",
     "MASTER_THESIS_REFERENCE_IFC_PATH",
+    "SMALL_OFFICE_LOD1_BUILDING_SPEC_PATH",
     "VALID_CONSTRUCTION_CODES",
     "Assumption",
     "BuildingInfo",
@@ -84,11 +90,11 @@ __all__ = [
     "Storey",
     "building_specification_from_dict",
     "diagnose_building_source",
-    "authorize_user_owned_ifc_lite_derivation",
     "derive_ifc_lite_building_candidate",
     "load_business_integration_lod1_building_spec",
     "load_building_spec",
     "load_demo_building_spec",
+    "load_small_office_lod1_building_spec",
     "scan_building_input_directory",
     "scan_default_building_input_files",
     "validate_building_spec",

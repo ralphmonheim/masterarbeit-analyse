@@ -1,0 +1,67 @@
+# Strikt synthetische LoD-1-Demokonfiguration ohne IFC- oder Projektdaten.
+schema_version: "1.0"
+input_detail_level: "LOD-1"
+project:
+  project_id: "PROJECT-SYNTHETIC-SMALL-OFFICE"
+  name: "Synthetischer SmallOffice-Referenzfall"
+building:
+  building_id: "BUILDING-SYNTHETIC-SMALL-OFFICE-0001"
+  name: "Synthetisches SmallOffice LoD-1"
+  unit: "m"
+  north_angle_deg: 0.0
+  length_m: 20.0
+  width_m: 25.0
+  height_m: 6.0
+model_version:
+  version_id: "BUILDING-SYNTHETIC-SMALL-OFFICE-LOD1-V1"
+  source_input_level: "BIL-1"
+  detected_input_level: "BIL-1"
+  confirmed_input_level: "BIL-1"
+  current_maturity_level: "BIL-1"
+  target_maturity_level: "BIL-1"
+simple_envelope:
+  external_wall_u_value_w_m2k: 0.28
+  window_u_value_w_m2k: 1.30
+  window_area_ratio_percent: 25.0
+  roof_u_value_w_m2k: 0.20
+  floor_u_value_w_m2k: 0.35
+  external_wall_area_m2: 270.0
+  window_area_m2: 67.5
+  roof_area_m2: 300.0
+  floor_area_m2: 500.0
+storeys:
+  - storey_id: "STOREY-SYNTHETIC-SMALL-OFFICE-0001"
+    name: "Synthetisches Geschoss"
+    elevation_m: 0.0
+    height_m: 6.0
+spaces:
+  - space_id: "SPACE-SYNTHETIC-SMALL-OFFICE-0001"
+    name: "Synthetische SmallOffice-Zone"
+    storey_id: "STOREY-SYNTHETIC-SMALL-OFFICE-0001"
+    floor_area_m2: 500.0
+    volume_m3: 1500.0
+elements: []
+openings: []
+shading_devices: []
+assumptions:
+  - assumption_id: "SMALLOFFICE-BLD-SOURCE-001"
+    location: "spaces.0"
+    text: "Strikt synthetischer SmallOffice-Referenzfall ohne IFC-IDs, reale Raumdaten oder Quellgeometrie."
+  - assumption_id: "SMALLOFFICE-BLD-GEOMETRY-001"
+    location: "building"
+    text: "Laenge, Breite und Hoehe bilden eine rechteckige LoD-1-Ersatzgeometrie. Die Grundflaeche entspricht naeherungsweise der halben Netto-Raumflaeche; die Werte sind vor Geometrieauswertungen zu validieren."
+  - assumption_id: "SMALLOFFICE-BLD-ENVELOPE-001"
+    location: "simple_envelope"
+    text: "U-Werte sind Demo-Baselinewerte der GEG-Anlage 2 fuer ein Nichtwohn-Referenzgebaeude mit Heiz-Solltemperatur >= 19 C; sie sind keine IFC-Istwerte."
+  - assumption_id: "SMALLOFFICE-BLD-GLAZING-001"
+    location: "simple_envelope.window_u_value_w_m2k"
+    text: "Fuer die Verglasung wird zusaetzlich g = 0.60 als GEG-Referenzannahme gefuehrt. Das aktuelle LoD-1-Fachmodell besitzt noch kein eigenes g-Wert-Feld."
+  - assumption_id: "SMALLOFFICE-BLD-SHADING-001"
+    location: "shading_devices"
+    text: "Fuer den lauffaehigen Referenzfall wird konzeptioneller aussenliegender Sonnenschutz angenommen; bei aktivem Sonnenschutz gilt g = 0.35 als Sensitivitaetswert. Eine bauteilscharfe Zuordnung folgt nach Geometrievalidierung."
+  - assumption_id: "SMALLOFFICE-BLD-ORIENTATION-001"
+    location: "building.north_angle_deg"
+    text: "Nordwinkel 0 Grad stammt aus dem Quellpaket. Einzelne Bauteilorientierungen bleiben unaufgeloest; fuer LoD-1 wird eine gleichmaessige Verteilung auf die vier Haupthimmelsrichtungen angenommen."
+  - assumption_id: "SMALLOFFICE-BLD-VALIDATION-001"
+    location: "model_version"
+    text: "Alle angenommenen Geometrie-, Huell-, Verglasungs- und Verschattungswerte muessen in einer spaeteren Fachphase gegen IFC, Projektunterlagen oder freigegebene Berechnungen validiert werden."

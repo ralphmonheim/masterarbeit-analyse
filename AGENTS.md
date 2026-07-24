@@ -107,8 +107,7 @@ Qualitaet oder Geschwindigkeit materiell verbessert.
 Vor einer Umsetzungsfreigabe gilt:
 
 - Der Hauptagent darf Dateien lesen, suchen und analysieren.
-- `project_explorer`, `quality_auditor`, `professor` und
-  `compliance_auditor` duerfen automatisch fuer klar begrenzte read-only
+- `project_explorer`, `quality_auditor` und `professor` duerfen automatisch fuer klar begrenzte read-only
   Aufgaben eingesetzt werden.
 - Der Hauptagent kuendigt den Council-Einsatz kurz an.
 - Kein Agent darf Code, Dokumentation oder Konfiguration veraendern.
@@ -128,8 +127,7 @@ UD-089 erlaubt fuer klar abgegrenzte, lokale und reversible Repo-Slices eine
 Umsetzungsfreigabe durch mindestens drei der fuenf definierten Council-Rollen.
 Der Hauptagent dokumentiert davor den exakten Scope, die beteiligten Rollen und
 das Mehrheitsvotum in den kanonischen Plan- und Entscheidungsquellen. Ein
-Blocker aus einem Sol-Review oder der Compliance-Pruefung stoppt den betroffenen
-Slice trotz Mehrheit.
+Blocker aus einem Sol-Review stoppt den betroffenen Slice trotz Mehrheit.
 
 Diese Delegation erlaubt weder eine Rechtefreigabe noch eine unbegrenzte
 Scope-Erweiterung. Sie gilt nicht fuer neue oder geaenderte Dependencies,
@@ -137,7 +135,7 @@ Installationen, globale `~/.codex`-Aenderungen, Hooks, CI, MCP, Graphify,
 Obsidian/Zotero, externe APIs, geschuetzte oder reale Daten, Loeschungen,
 brechende oeffentliche APIs, Commits, Pushes, Tags oder Veroeffentlichungen.
 Diese Vorgange benoetigen weiterhin eine konkrete menschliche Freigabe und,
-wo anwendbar, die erforderlichen Rechte- und Compliance-Nachweise.
+wo anwendbar, die erforderlichen technischen Nachweise.
 
 Eine neue Freigabe ist erforderlich, wenn der Umfang ueber den dokumentierten
 Council-Beschluss hinaus erweitert werden soll, neue Abhaengigkeiten
@@ -155,39 +153,12 @@ nicht bereits durch einen dokumentierten Sammelbefehl freigegeben sind.
   Regressionen, Testluecken und Kompatibilitaet.
 - **Professor Sophia** (`professor`) nutzt Sol fuer wissenschaftliche Methodik, Einheiten,
   Annahmen, Reproduzierbarkeit und Nachvollziehbarkeit in der Masterarbeit.
-- **Justus** (`compliance_auditor`) nutzt Sol fuer projektweite Rechte-, Lizenz-,
-  Datenschutz-, Vertraulichkeits-, externe Verarbeitungs- und
-  Veroeffentlichungspruefungen. Er arbeitet immer read-only und erteilt keine
-  Rechts- oder Fachfreigabe.
 - GPT-5.5 bleibt Fallback oder ausdruecklich angeforderte Vergleichsinstanz
   und ist kein regulaeres Council-Mitglied.
 
-Der `compliance_auditor` wird automatisch hinzugezogen, wenn neue Plaene oder
-Dateien aufgenommen werden oder ein Vorgang externe Software oder
-Abhaengigkeiten, Datenquellen, Lizenzen, Bilder, Norminhalte,
-Cloud-Verarbeitung, personenbezogene oder vertrauliche Daten,
-Veroeffentlichung oder Weitergabe beruehrt. Das gilt insbesondere fuer
-`plan aufnehmen`, `projektinput aufnehmen` und Routinen, die diese
-Aufnahmeschritte ausfuehren. `ohne council` und `nur Tera` deaktivieren diesen
-verpflichtenden Compliance-Preflight nicht.
-
-Bei unbekannten Plan- oder Inbox-Dateien prueft der Hauptagent zuerst nur
-bereinigte Metadaten, Herkunft und Verarbeitungsrechte. Der Dateiinhalt darf
-dem `compliance_auditor` erst uebergeben werden, wenn die Inhaltsverarbeitung
-und externe KI-Pruefung fuer diesen Umfang belegt sind. Der Hauptagent bleibt
-Eigentuemer der Prozessentscheidung, prueft die Agentenempfehlung und
-dokumentiert die anwendbare `compliance_decision` mit Belegreferenz. Materielle
-oder gelbe Entscheidungen erfordern die dokumentierte menschliche
-Bestaetigung und alle geforderten Rechtebelege.
-
 Sol-Reviews klassifizieren Ergebnisse als `Blocker`, `Wichtig` oder
 `Optional`. Ein allgemeiner Blocker stoppt den Abschluss, bis er innerhalb des
-freigegebenen Umfangs behoben oder vom Nutzer bewusst akzeptiert wurde. Ein
-Compliance-Blocker stoppt den betroffenen Vorgang, bis der erforderliche
-Rechte- oder Freigabenachweis vorliegt, der Umfang nachweislich zulaessig
-begrenzt wurde oder eine sichere Alternative verwendet wird. Eine blosse
-Risikoakzeptanz ersetzt keine Rechte oder Genehmigungen. Unabhaengige,
-unkritische Objekte derselben Routine duerfen weiterbearbeitet werden.
+freigegebenen Umfangs behoben oder vom Nutzer bewusst akzeptiert wurde.
 Council-Mitglieder erweitern den Arbeitsumfang nicht selbststaendig.
 
 ## Abschluss

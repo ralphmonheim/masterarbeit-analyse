@@ -11,6 +11,9 @@ DEFAULT_DEMO_BUILDING_SPEC_PATH = BUILDING_CONFIG_DIR / "examples" / "demo_build
 BUSINESS_INTEGRATION_LOD1_BUILDING_SPEC_PATH = (
     BUILDING_CONFIG_DIR / "examples" / "business_integration_lod1_building_spec.yaml"
 )
+SMALL_OFFICE_LOD1_BUILDING_SPEC_PATH = (
+    BUILDING_CONFIG_DIR / "examples" / "small_office_lod1_building_spec.yaml"
+)
 
 BUILDING_DATA_DIR = PROJECT_ROOT / "data" / "ma_building"
 BUILDING_IFC_INPUT_DIR = BUILDING_DATA_DIR / "input" / "ifc"

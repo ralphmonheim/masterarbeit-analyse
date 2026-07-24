@@ -10,3 +10,4 @@ ZONES_CONFIG_DIR = PROJECT_ROOT / "config" / "ma_zones"
 BUSINESS_INTEGRATION_LOD1_ZONE_SPEC_PATH = (
     ZONES_CONFIG_DIR / "examples" / "business_integration_lod1_zone_spec.yaml"
 )
+SMALL_OFFICE_LOD1_ZONE_SPEC_PATH = ZONES_CONFIG_DIR / "examples" / "small_office_lod1_zone_spec.yaml"

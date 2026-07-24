@@ -8,7 +8,7 @@ from typing import Any
 import yaml
 
 from .models import TechnicalSystemSpecification, technical_specification_from_any
-from .paths import BUSINESS_INTEGRATION_LOD1_TECHNICAL_SPEC_PATH
+from .paths import BUSINESS_INTEGRATION_LOD1_TECHNICAL_SPEC_PATH, SMALL_OFFICE_LOD1_TECHNICAL_SPEC_PATH
 
 
 def load_technical_spec(path: str | Path) -> TechnicalSystemSpecification:
@@ -22,3 +22,8 @@ def load_technical_spec(path: str | Path) -> TechnicalSystemSpecification:
 def load_business_integration_lod1_technical_spec() -> TechnicalSystemSpecification:
     """Laedt die LoD-1-Technikspezifikation des BusinessIntegration-Testgebaeudes."""
     return load_technical_spec(BUSINESS_INTEGRATION_LOD1_TECHNICAL_SPEC_PATH)
+
+
+def load_small_office_lod1_technical_spec() -> TechnicalSystemSpecification:
+    """Laedt den rein synthetischen SmallOffice-LoD-1-Referenzfall."""
+    return load_technical_spec(SMALL_OFFICE_LOD1_TECHNICAL_SPEC_PATH)

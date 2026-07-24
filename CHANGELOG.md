@@ -4,6 +4,40 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.34.0 - 2026-07-24
+
+### Changed
+
+- Die aktive Compliance-Infrastruktur wurde entfernt: Agent, Routinen,
+  `ma_core.compliance` und die Freigabeparameter der lokalen IFC- und
+  DWD-TRY-Verarbeitung entfallen. Analyse Stufe 3 bleibt als fachlicher
+  Norm-Nachweis unter `ma_analyse.stage_3_standards_verification` erhalten.
+
+### Added
+
+- P020 erhaelt einen bereinigten Metadatenindex des lokalen Normenbestands
+  sowie ein wertfreies, nicht zur Laufzeit geladenes Zonenprofil-Geruest fuer
+  die spaetere DIN-18599-Fachpruefung. Es wurden keine Norm-PDF-Inhalte,
+  Tabellen, Formeln oder Fachwerte in das Repository uebernommen.
+- Ein strikt synthetischer SmallOffice-LoD-1-Referenzfall verbindet
+  `ma_building`, `ma_zones`, `ma_technical` und `ma_parameters` ueber
+  additive YAML-Loader und einen eigenen Parametersnapshot. Vorlaeufige
+  Huell-, Profil-, Sollwert-, Luftwechsel- und Technikwerte sind als spaeter
+  zu validierende Annahmen mit oeffentlichen Quellenbezuegen gekennzeichnet.
+- Das selbst erstellte SmallOffice-Konfigurationspaket wurde lokal in die
+  Entwicklungsstruktur aufgenommen. IFC-abgeleitete Originalkonfigurationen
+  bleiben ignoriert; versioniert wird ausschliesslich die getrennte
+  synthetische Demo ohne IFC-IDs, reale Raumdaten oder Quellgeometrie.
+
+### Changed
+
+- LoD-1-Parameterquellen verwenden inhaltsabhaengige Hashes und
+  datensatzbezogene Quellenlabels. Der synthetische SmallOffice-Snapshot
+  kennzeichnet alle Werte maschinenlesbar als `provisional_assumption`.
+  Fruehere, nur zur Laufzeit erzeugte ID-basierte Hashwerte sind nicht mit
+  den neuen Hashwerten vergleichbar; persistierte P015-Snapshots bestehen
+  derzeit nicht.
+
 ## 0.33.0 - 2026-07-23
 
 ### Added

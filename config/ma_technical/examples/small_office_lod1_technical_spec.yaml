@@ -1,0 +1,48 @@
+schema_version: "1.0"
+technical_model_id: "TECH-SYNTHETIC-SMALL-OFFICE-LOD1-MODEL-0001"
+project_id: "PROJECT-SYNTHETIC-SMALL-OFFICE"
+building_id: "BUILDING-SYNTHETIC-SMALL-OFFICE-0001"
+source_zone_model_id: "ZONE-SYNTHETIC-SMALL-OFFICE-LOD1-MODEL-0001"
+input_detail_level: "LOD-1"
+systems:
+  - system_id: "TECH-HEATING-SYNTHETIC-SMALL-OFFICE-0001"
+    name: "Synthetische Heizung LoD-1"
+    system_type: "heating"
+    served_zone_ids:
+      - "ZONE-SYNTHETIC-SMALL-OFFICE-0001"
+    design_power_w_m2: 50.0
+    supply_temperature_c: 55.0
+    return_temperature_c: 45.0
+    performance_factor: 0.95
+    control_strategy: "zone_setpoint"
+  - system_id: "TECH-COOLING-SYNTHETIC-SMALL-OFFICE-0001"
+    name: "Synthetische Kuehlung LoD-1"
+    system_type: "cooling"
+    served_zone_ids:
+      - "ZONE-SYNTHETIC-SMALL-OFFICE-0001"
+    design_power_w_m2: 35.0
+    supply_temperature_c: 14.0
+    return_temperature_c: 18.0
+    performance_factor: 3.0
+    control_strategy: "zone_setpoint"
+  - system_id: "TECH-VENTILATION-SYNTHETIC-SMALL-OFFICE-0001"
+    name: "Synthetische Lueftung LoD-1"
+    system_type: "ventilation"
+    served_zone_ids:
+      - "ZONE-SYNTHETIC-SMALL-OFFICE-0001"
+    air_change_rate_1_h: 1.0
+    heat_recovery_efficiency_percent: 60.0
+    control_strategy: "schedule"
+assumptions:
+  - assumption_id: "ASSUMPTION-SYNTHETIC-TECHNICAL-0001"
+    location: "systems"
+    text: "Alle technischen Systeme sind synthetische LoD-1-Referenzannahmen, keine ausgelegte oder reale Anlage."
+  - assumption_id: "ASSUMPTION-SYNTHETIC-TECHNICAL-0002"
+    location: "systems.0"
+    text: "Systemtemperaturen 55/45 und 14/18 Grad C sowie WRG 60 % sind vorlaeufige Startwerte mit oeffentlicher Referenz GEG Anlage 2: https://www.gesetze-im-internet.de/geg/anlage_2.html; sie sind vor einer Nachweis- oder Auslegungsnutzung zu validieren."
+  - assumption_id: "ASSUMPTION-SYNTHETIC-TECHNICAL-0003"
+    location: "systems.2.air_change_rate_1_h"
+    text: "Der Luftwechsel 1,0 1/h stimmt bewusst mit der synthetischen Zonenannahme ueberein und ist keine normativ abgeleitete Auslegung."
+  - assumption_id: "ASSUMPTION-SYNTHETIC-TECHNICAL-0004"
+    location: "systems"
+    text: "Spezifische Leistungen 50/35 W/m2, Wirkungsgrad 0,95, Leistungsfaktor 3,0 und Regelstrategien sind eigene Demo-Annahmen und nicht aus der GEG-Referenztechnik abgeleitet."

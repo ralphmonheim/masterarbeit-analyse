@@ -281,9 +281,9 @@ _MODULE_DEFINITIONS: tuple[ModuleDefinition, ...] = (
         python_package="ma_analyse.stage_2_optimization",
     ),
     _module(
-        "ma_analyse.stage_3_standards_compliance",
+        "ma_analyse.stage_3_standards_verification",
         "Analyse Stufe 3 - Norm-Nachweis",
-        "standards_compliance",
+        "standards_verification",
         "planned",
         "workflow",
         "Varianten gegen nachvollziehbare deutsche und spaeter internationale Normenprofile pruefen.",
@@ -292,7 +292,7 @@ _MODULE_DEFINITIONS: tuple[ModuleDefinition, ...] = (
         boundaries=("keine ungeprueften Grenzwerte", "keine allgemeine Modellvalidierung"),
         dependencies=("ma_analyse.stage_2_optimization",),
         next_step="P020: deutsche Normen, Ausgaben, Abschnitte und Berechnungsmethoden recherchieren.",
-        python_package="ma_analyse.stage_3_standards_compliance",
+        python_package="ma_analyse.stage_3_standards_verification",
     ),
     _module(
         "ma_analyse.stage_4_sensitivity",
@@ -489,7 +489,8 @@ _MODULE_DEFINITIONS: tuple[ModuleDefinition, ...] = (
 MODULE_KEY_ALIASES = {
     "ma_export_ida": "ma_export_simulation",
     "ma_import_ida": "ma_import_simulation",
-    "ma_analyse.stage_3_verification": "ma_analyse.stage_3_standards_compliance",
+    "ma_analyse.stage_3_standards_compliance": "ma_analyse.stage_3_standards_verification",
+    "ma_analyse.stage_3_verification": "ma_analyse.stage_3_standards_verification",
 }
 
 STEP_KEY_ALIASES = {
@@ -502,8 +503,9 @@ STEP_KEY_ALIASES = {
     "import_ida": "import_simulation",
     "ida_export": "export_simulation",
     "ida_import": "import_simulation",
-    "stage_3_verification": "standards_compliance",
-    "verification": "standards_compliance",
+    "standards_compliance": "standards_verification",
+    "stage_3_verification": "standards_verification",
+    "verification": "standards_verification",
 }
 
 
@@ -648,10 +650,10 @@ _WORKFLOW_STEPS: tuple[WorkflowStep, ...] = (
         "Varianten mit vorhandenen Analysewerkzeugen vergleichen und Optimierungspotenziale bestimmen.",
     ),
     _step(
-        "standards_compliance",
+        "standards_verification",
         "Analyse Stufe 3 - Norm-Nachweis",
         "post_process",
-        "ma_analyse.stage_3_standards_compliance",
+        "ma_analyse.stage_3_standards_verification",
         "Varianten anhand versionierter Normenprofile nachvollziehbar nachweisen.",
     ),
     _step(

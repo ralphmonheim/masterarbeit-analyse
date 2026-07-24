@@ -10,3 +10,6 @@ TECHNICAL_CONFIG_DIR = PROJECT_ROOT / "config" / "ma_technical"
 BUSINESS_INTEGRATION_LOD1_TECHNICAL_SPEC_PATH = (
     TECHNICAL_CONFIG_DIR / "examples" / "business_integration_lod1_technical_spec.yaml"
 )
+SMALL_OFFICE_LOD1_TECHNICAL_SPEC_PATH = (
+    TECHNICAL_CONFIG_DIR / "examples" / "small_office_lod1_technical_spec.yaml"
+)

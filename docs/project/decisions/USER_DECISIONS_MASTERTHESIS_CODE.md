@@ -1874,3 +1874,30 @@ Stand: 2026-07-22
 - Offene Folgefragen: keine
 - Quelle oder Chatbezug: Nutzerfreigabe `Frei` und Begruendung zur
   Projektverlauf-Nachvollziehbarkeit am 2026-07-22
+
+## UD-101 Vorlaeufige Annahmen fuer einen lauffaehigen SmallOffice-Referenzfall
+
+- Datum: 2026-07-24
+- Thema: P012 bis P015, SmallOffice-Konfiguration und erster Funktionslauf
+- Entscheidung: Fehlende Huell-, Zonen-, Nutzungs-, Last-, Sollwert- und
+  Technikwerte duerfen fuer einen ersten lauffaehigen Referenzfall
+  recherchiert und als transparente Demo-Annahmen ergaenzt werden. Die Werte
+  werden in einer spaeteren Phase fachlich und projektspezifisch validiert.
+- Begruendung: Die durchgaengige Softwarekette soll frueh technisch laufen,
+  damit Loader, Validierung, Modulreferenzen und Parametersnapshot geprueft
+  werden koennen, ohne bereits einen Gebaeude- oder Anlagennachweis zu
+  behaupten.
+- Auswirkung: Der versionierte Referenzfall bleibt strikt synthetisch und
+  kennzeichnet vorlaeufige Werte samt Herkunft. IFC-abgeleitete Originaldaten
+  bleiben lokal und ignoriert. Ergebnisse duerfen bis zur spaeteren
+  Validierung nur als Funktions- und Plausibilitaetslauf verwendet werden.
+- Betroffene Module oder Dateien: `ma_building`, `ma_zones`,
+  `ma_technical`, `ma_parameters`, P012 bis P015
+- Status: getroffen und zur Umsetzung freigegeben
+- Offene Folgefragen: reale Geometrie und Orientierung, belastbare
+  Nutzungsprofile, Standort-/Wetterbezug, Solar- und Verschattungsmodell
+  sowie fachliche Anlagenbemessung spaeter getrennt validieren
+- Quelle oder Chatbezug: Nutzerhinweis `da bitte recherchieren und Werte
+  annehmen. das modul soll erstmal laufen. werte können in einer anderen
+  Phase validiert werden.` und Freigabe `Umsetzungsplan freigegeben` am
+  2026-07-24

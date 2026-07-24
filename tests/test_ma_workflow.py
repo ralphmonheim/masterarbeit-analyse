@@ -43,7 +43,7 @@ def test_workflow_statuses_reflect_current_module_implementation():
     assert get_workflow_step("dimensioning").status == "partial"
     assert get_workflow_step("data_preparation").status == "partial"
     assert get_workflow_step("optimization").status == "partial"
-    assert get_workflow_step("standards_compliance").status == "planned"
+    assert get_workflow_step("standards_verification").status == "planned"
     assert get_workflow_step("sensitivity").status == "planned"
     assert get_workflow_step("variants").status == "planned"
     assert get_workflow_step("ida_import").status == "planned"
@@ -114,7 +114,7 @@ def test_workflow_catalog_documents_parameter_variant_and_run_contracts():
 def test_post_process_contains_separate_economy_sustainability_and_assessment_steps():
     step_keys = [step.step_key for step in list_post_process_steps()]
 
-    assert step_keys[:4] == ["data_preparation", "optimization", "standards_compliance", "sensitivity"]
+    assert step_keys[:4] == ["data_preparation", "optimization", "standards_verification", "sensitivity"]
     assert step_keys[-3:] == ["reporting", "data_export", "documentation_archive"]
 
 
@@ -152,7 +152,7 @@ def test_dashboard_actions_cover_target_commands():
     assert "run_simulation_export" in action_keys
     assert "run_data_preparation" in action_keys
     assert "run_optimization" in action_keys
-    assert "run_standards_compliance" in action_keys
+    assert "run_standards_verification" in action_keys
     assert "run_sensitivity" in action_keys
     assert get_dashboard_action("run_analysis").step_key == "optimization"
     assert get_dashboard_action("run_prepare").step_key == "data_preparation"
@@ -191,10 +191,10 @@ def test_historical_ida_keys_resolve_to_general_interfaces():
     assert get_module_definition("ma_import_ida").module_key == "ma_import_simulation"
 
 
-def test_historical_stage_3_name_resolves_to_standards_compliance():
-    assert get_workflow_step("stage_3_verification").step_key == "standards_compliance"
+def test_historical_stage_3_name_resolves_to_standards_verification():
+    assert get_workflow_step("stage_3_verification").step_key == "standards_verification"
     assert (
-        get_module_definition("ma_analyse.stage_3_verification").module_key == "ma_analyse.stage_3_standards_compliance"
+        get_module_definition("ma_analyse.stage_3_verification").module_key == "ma_analyse.stage_3_standards_verification"
     )
 
 

@@ -24,7 +24,7 @@ _ACTION_TO_STEP: tuple[tuple[str, str, str], ...] = (
     ("run_simulation_import", "Simulationsergebnisimport starten", "import_simulation"),
     ("run_data_preparation", "Daten vorbereiten", "data_preparation"),
     ("run_optimization", "Optimierung analysieren", "optimization"),
-    ("run_standards_compliance", "Norm-Nachweis oeffnen", "standards_compliance"),
+    ("run_standards_verification", "Norm-Nachweis oeffnen", "standards_verification"),
     ("run_sensitivity", "Sensitivitaet analysieren", "sensitivity"),
     ("run_economy", "Wirtschaftlichkeit starten", "economy"),
     ("run_sustainability", "Nachhaltigkeit starten", "sustainability"),
@@ -42,6 +42,7 @@ ACTION_KEY_ALIASES = {
     "run_prepare_data": "run_data_preparation",
     "run_ida_export": "run_simulation_export",
     "run_ida_import": "run_simulation_import",
+    "run_standards_compliance": "run_standards_verification",
 }
 
 

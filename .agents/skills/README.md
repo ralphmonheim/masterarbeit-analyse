@@ -7,7 +7,7 @@ Projektaufgaben. Die Skills duplizieren keine Prozessbeschreibung:
 ## Verfuegbare Skills
 
 - `repo-release-workflow`: Repo-, Release-, Tagesende- und
-  Wochenabschlussroutinen mit Compliance- und Remote-Pruefung.
+  Wochenabschlussroutinen mit Diff- und Remote-Pruefung.
 - `project-governance-workflow`: Plan-, Entscheidungs-, Projektlage- und
   Duplikatabgleich entlang der kanonischen Projektdokumentation.
 
@@ -23,4 +23,3 @@ Projektaufgaben. Die Skills duplizieren keine Prozessbeschreibung:
   pruefen.
 - Neue oder geaenderte Skills werden erst nach einem neuen Codex-Chat oder
   Projekt-Reload sicher erkannt.
-

@@ -4,13 +4,9 @@ from __future__ import annotations
 
 import json
 
-import pytest
 import yaml
 
-from ma_building.ifc_lite_import import (
-    authorize_user_owned_ifc_lite_derivation,
-    derive_ifc_lite_building_candidate,
-)
+from ma_building.ifc_lite_import import derive_ifc_lite_building_candidate
 
 
 def test_derives_storey_and_space_quantities_into_local_candidate(tmp_path) -> None:
@@ -38,8 +34,7 @@ END-ISO-10303-21;
     )
     output = tmp_path / "derived"
 
-    decision = authorize_user_owned_ifc_lite_derivation(source, confirmation_reference="TEST-IFC-OWNED-001")
-    summary = derive_ifc_lite_building_candidate(source, output, compliance_decision=decision)
+    summary = derive_ifc_lite_building_candidate(source, output)
 
     candidate = yaml.safe_load((output / "smalloffice_ifc_lite_building_candidate.yaml").read_text(encoding="utf-8"))
     report = json.loads((output / "smalloffice_ifc_lite_gap_report.json").read_text(encoding="utf-8"))
@@ -59,9 +54,10 @@ END-ISO-10303-21;
     assert {gap["location"] for gap in report["gaps"]} >= {"elements", "simple_envelope", "zones", "technical"}
 
 
-def test_blocks_ifc_lite_derivation_without_a_local_decision(tmp_path) -> None:
+def test_derives_ifc_lite_candidate_without_a_local_decision(tmp_path) -> None:
     source = tmp_path / "small.ifc"
     source.write_text("ISO-10303-21;", encoding="utf-8")
 
-    with pytest.raises(PermissionError, match="Compliance-UNKNOWN"):
-        derive_ifc_lite_building_candidate(source, tmp_path / "derived")
+    summary = derive_ifc_lite_building_candidate(source, tmp_path / "derived")
+
+    assert summary.source_path == str(source)

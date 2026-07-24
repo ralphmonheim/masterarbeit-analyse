@@ -8,7 +8,7 @@ from typing import Any
 import yaml
 
 from .models import ZoneModelSpecification, zone_specification_from_any
-from .paths import BUSINESS_INTEGRATION_LOD1_ZONE_SPEC_PATH
+from .paths import BUSINESS_INTEGRATION_LOD1_ZONE_SPEC_PATH, SMALL_OFFICE_LOD1_ZONE_SPEC_PATH
 
 
 def load_zone_spec(path: str | Path) -> ZoneModelSpecification:
@@ -22,3 +22,8 @@ def load_zone_spec(path: str | Path) -> ZoneModelSpecification:
 def load_business_integration_lod1_zone_spec() -> ZoneModelSpecification:
     """Laedt die LoD-1-Zonenspezifikation des BusinessIntegration-Testgebaeudes."""
     return load_zone_spec(BUSINESS_INTEGRATION_LOD1_ZONE_SPEC_PATH)
+
+
+def load_small_office_lod1_zone_spec() -> ZoneModelSpecification:
+    """Laedt den rein synthetischen SmallOffice-LoD-1-Referenzfall."""
+    return load_zone_spec(SMALL_OFFICE_LOD1_ZONE_SPEC_PATH)

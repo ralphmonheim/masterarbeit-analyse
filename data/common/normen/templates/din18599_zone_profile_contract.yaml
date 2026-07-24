@@ -1,0 +1,105 @@
+schema_version: 1
+contract_id: din18599_zone_profile_contract
+status: planning_template_not_runtime_input
+purpose: >-
+  Neutral, value-free data contract for a future manually reviewed usage and
+  zone profile. It creates no DIN profile, normative rule, or source-derived
+  parameter set.
+runtime_compatibility:
+  canonical_runtime_module: ma_zones
+  canonical_envelope: ZoneModelSpecification
+  runtime_loader_consumes_this_file: false
+  existing_loader_or_model_change_required: false
+  existing_handover_hash_change_required: false
+  integration_rule: >-
+    A later implementation must use an explicit versioned adapter and retain
+    existing ma_zones field names, serialisation shape, validation rules and
+    handover semantics.
+excluded_content:
+  - normative_values
+  - copied_source_tables
+  - copied_source_formulas
+  - source_text_or_semantic_summary
+  - executable_compliance_rules
+  - automatic_source_extraction
+profile_record:
+  identity:
+    profile_id: { type: string, required: true }
+    name: { type: string, required: true }
+    profile_revision: { type: string, required: true }
+    lifecycle_status: { type: string, allowed_values: [draft, review_required, released, retired] }
+  provenance:
+    source_kind: { type: string, allowed_values: [synthetic, manual_review, local_only] }
+    source_reference:
+      standard_number: { type: string, value: null }
+      standard_edition: { type: string, value: null }
+      clause_reference: { type: string, value: null }
+      table_reference: { type: string, value: null }
+      reviewed_by_authorized_person: { type: boolean, value: false }
+      review_date: { type: string, value: null }
+    source_payload_present: false
+  usage_profile_mapping:
+    target_model: ma_zones.UsageProfile
+    fields:
+      profile_id: { type: string, unit: null }
+      name: { type: string, unit: null }
+      operation_start_hour: { type: number, unit: h }
+      operation_end_hour: { type: number, unit: h }
+      operation_days_per_week: { type: integer, unit: d_per_week }
+      occupancy_density_m2_per_person: { type: number, unit: m2_per_person }
+      lighting_power_w_m2: { type: number, unit: W_per_m2 }
+      equipment_power_w_m2: { type: number, unit: W_per_m2 }
+  thermal_zone_mapping:
+    target_model: ma_zones.ThermalZone
+    fields:
+      zone_id: { type: string, unit: null }
+      name: { type: string, unit: null }
+      usage_profile_id: { type: string, unit: null }
+      floor_area_m2: { type: number, unit: m2 }
+      volume_m3: { type: number, unit: m3 }
+      source_space_ids: { type: array, item_type: string }
+      heating_setpoint_c: { type: number, unit: degC }
+      cooling_setpoint_c: { type: number, unit: degC }
+      minimum_air_change_rate_1_h: { type: number, unit: 1_per_h }
+  zone_model_envelope_mapping:
+    target_model: ma_zones.ZoneModelSpecification
+    fields:
+      schema_version: { type: string }
+      zone_model_id: { type: string }
+      project_id: { type: string }
+      building_id: { type: string }
+      source_building_version_id: { type: string }
+      input_detail_level: { type: string }
+      usage_profiles: { type: array, item_type: usage_profile_mapping }
+      zones: { type: array, item_type: thermal_zone_mapping }
+      assumptions: { type: array, item_type: string }
+  future_extension_placeholders:
+    schedule_references:
+      status: planned_not_runtime_supported
+      supported_categories:
+        - occupancy
+        - lighting
+        - equipment
+        - ventilation
+        - heating_setpoint
+        - cooling_setpoint
+      required_fields:
+        - schedule_id
+        - profile_id
+        - parameter_category
+        - resolution_minutes
+        - value_series
+        - source_reference
+    conditioning_and_internal_load_extensions:
+      status: planned_not_runtime_supported
+      rule: >-
+        Any later field must be additive and mapped through an explicit adapter;
+        it must not silently change the current UsageProfile or ThermalZone API.
+review_gate:
+  required_before_any_nonempty_source_derived_value:
+    - exact_source_document_and_edition
+    - manually_recorded_source_location
+    - qualified_review_status
+    - value_unit_and_application_context
+    - project_specific_provenance_reference
+example_profile: {}

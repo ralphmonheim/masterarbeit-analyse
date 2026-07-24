@@ -193,6 +193,11 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   vorhanden. Der Frankfurt-UAS-Nautos-Zugang ist fuer manuelle Recherche und
   Lektuere belegt; produktive Normlogik sowie DIN-/VDE-/VDI-KI-Verarbeitung
   bleiben bis zur bestaetigten Rechte- und Quellenpruefung gesperrt.
+- P020 erhaelt einen reinen Metadatenindex des lokalen Quellenbestands sowie
+  ein wertfreies DIN-18599-Zonenprofil-Geruest. Beide dienen nur der
+  Orientierung und spaeteren manuellen Fachpruefung; sie enthalten keine
+  Normtexte, Tabellen, Formeln oder normativen Fachwerte und aendern keine
+  bestehende `ma_zones`-Laufzeitlogik.
 - Analyse Stufe 4 Sensitivitaet: P021 mit kritischen Wetterereignissen statt
   ausschliesslicher Jahresbetrachtung.
 - Economy und Sustainability: P022 und P023 als kleine Demos mit
@@ -336,6 +341,16 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   `ma_variants`. Der P013-/P014-Anschluss und sein Referenzcheckpoint sind
   umgesetzt. Offen bleiben die v2-basierte Werteherkunft und der verbleibende
   P015-S3b-Vollumfang; beide brauchen einen getrennten Folgeslice.
+- Der synthetische SmallOffice-LoD-1-Durchstich fuer P012 bis P015 ist
+  umgesetzt: getrennte Building-, Zonen- und Technik-YAMLs werden ueber
+  additive Convenience-Loader geladen, gemeinsam validiert und in einen
+  eigenen `ParameterSnapshot` ueberfuehrt. Die vorlaeufigen U-/g-Werte,
+  Geometrie-, Profil-, Last-, Sollwert-, Luftwechsel- und Technikannahmen
+  besitzen sichtbare Quellen- oder Annahmenhinweise und sind nach UD-101
+  spaeter fachlich zu validieren. Das urspruengliche IFC-abgeleitete
+  Konfigurationspaket bleibt nach
+  `COMPLIANCE-2026-07-24-SMALLOFFICE-CONFIG-INPUT-001` lokal und ignoriert;
+  nur die separat synthetische Rekonstruktion wird versioniert.
 - P016-S1 ist umgesetzt: `ma_analyse.stage_1_dimensioning` berechnet aus dem
   validierten `ParameterSnapshot` v1 eine LoD-1-Referenzdimensionierung mit
   Transmissions-Heizlast, Lueftungs-Heizlast, Gesamt-Heizlast, Mindest-

@@ -191,7 +191,7 @@ def test_ui_navigation_contains_home_and_analysis():
     assert "technical" in page_keys
     assert "dimensioning" in page_keys
     assert "analysis_core" in page_keys
-    assert "standards_compliance" in page_keys
+    assert "standards_verification" in page_keys
     assert "sensitivity" in page_keys
     assert "export_simulation" in page_keys
     assert "import_simulation" in page_keys
@@ -799,7 +799,7 @@ def test_workflow_graph_groups_steps_by_visual_phase():
     assert any(card.step_key == "parameters" for card in grouped["Pre-Process"])
     assert any(card.step_key == "simulation" for card in grouped["Main-Process"])
     assert any(card.step_key == "optimization" for card in grouped["Post-Process"])
-    assert any(card.step_key == "standards_compliance" for card in grouped["Post-Process"])
+    assert any(card.step_key == "standards_verification" for card in grouped["Post-Process"])
     assert any(card.step_key == "sensitivity" for card in grouped["Post-Process"])
     assert any(card.step_key == "economy" for card in grouped["Post-Process"])
     assert any(card.step_key == "sustainability" for card in grouped["Post-Process"])

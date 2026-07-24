@@ -538,3 +538,26 @@ Der Slice ist absichtlich nur eine klein gehaltene Referenz fuer die Thesis.
 Persistenz eigener VariationSpecifications, Range-Editoren, weitere
 Zonengruppen und die Einbindung eines `ReferenceDimensioningResult` bleiben
 offen.
+
+## Umsetzungsstand 2026-07-24: SmallOffice-LoD-1-Parametersnapshot
+
+Die synthetischen SmallOffice-Spezifikationen aus P012, P013 und P014 werden
+ueber die vorhandene generische LoD-1-Kette in einen eigenen
+`ParameterSnapshot` ueberfuehrt. Neue Convenience-Loader und ein eigener
+Snapshot-Builder bleiben additiv; der bestehende BusinessIntegration-
+Referenzfall und seine IDs werden nicht veraendert.
+
+Der Snapshot prueft die technische Durchgaengigkeit der drei Fachmodule.
+Sein Freigabestatus bezeichnet nur die Schema- und Referenzvalidierung.
+Vorlaeufige Huell-, Profil-, Sollwert- und Technikannahmen sind dadurch nicht
+fachlich oder normativ bestaetigt und muessen spaeter getrennt validiert
+werden.
+
+Alle Werte des synthetischen SmallOffice-Snapshots tragen deshalb
+maschinenlesbar den Status `provisional_assumption`. Quellen-Hashes werden
+aus dem vollstaendigen Fachobjektinhalt gebildet, damit eine Wert- oder
+Annahmenaenderung nicht durch eine versehentlich unveraenderte Versions-ID
+verdeckt wird. P015 besitzt noch keine persistierten
+`ParameterSnapshot`-Artefakte; vor dem 2026-07-24 nur zur Laufzeit erzeugte
+Hashwerte gelten daher als nicht vergleichbare Vorlaeufer und benoetigen
+keine Datenmigration.

@@ -1,7 +1,11 @@
 """Technische Systeme, Komponenten, Verteilung, Uebergabe und Regelung."""
 
 from .ahu import AirHandlingUnit, FanConfiguration, HeatRecoveryConfiguration
-from .demo_loader import load_business_integration_lod1_technical_spec, load_technical_spec
+from .demo_loader import (
+    load_business_integration_lod1_technical_spec,
+    load_small_office_lod1_technical_spec,
+    load_technical_spec,
+)
 from .distribution import CoolingDistribution, HeatingCurve, HeatingCurvePoint, HeatingDistribution, PumpConfiguration
 from .domestic_hot_water import DomesticHotWaterGeneration, ElectricReheater, ThermalStorage
 from .electrical import ElectricalSystem
@@ -32,7 +36,11 @@ from .models import (
     technical_specification_from_any,
     technical_specification_from_dict,
 )
-from .paths import BUSINESS_INTEGRATION_LOD1_TECHNICAL_SPEC_PATH, TECHNICAL_CONFIG_DIR
+from .paths import (
+    BUSINESS_INTEGRATION_LOD1_TECHNICAL_SPEC_PATH,
+    SMALL_OFFICE_LOD1_TECHNICAL_SPEC_PATH,
+    TECHNICAL_CONFIG_DIR,
+)
 from .plant import (
     CapacityDefinition,
     CoolingGeneration,
@@ -52,6 +60,7 @@ from .validation import validate_technical_model, validate_technical_spec
 __all__ = [
     "AirHandlingUnit",
     "BUSINESS_INTEGRATION_LOD1_TECHNICAL_SPEC_PATH",
+    "SMALL_OFFICE_LOD1_TECHNICAL_SPEC_PATH",
     "CapacityDefinition",
     "CapacityMode",
     "ComponentAvailability",
@@ -106,6 +115,7 @@ __all__ = [
     "load_technical_model_revision",
     "release_technical_model",
     "load_technical_spec",
+    "load_small_office_lod1_technical_spec",
     "technical_specification_from_any",
     "technical_specification_from_dict",
     "technical_model_specification_from_dict",

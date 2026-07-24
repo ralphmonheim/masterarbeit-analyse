@@ -1063,3 +1063,65 @@ Ausgeschlossen bleiben Lazy-Imports, Monkeypatch-/Registry-Mechanismen,
 unbelegte Importreihenfolgen, dauerhafte unmarkierte Doppelownership,
 Norminhalte und Normwerte, Config-Moves, P032-W2b, externe Verarbeitung und
 Git-Aktionen.
+
+## Entscheidung 43: Getrennte lokale Quelle und synthetischer SmallOffice-LoD-1-Durchstich
+
+Am 2026-07-24 wird der von UD-101 freigegebene SmallOffice-Funktionslauf
+innerhalb der vorhandenen P012-P015-v1-Vertraege umgesetzt.
+
+- Das selbst erstellte Eingabepaket und seine IFC-abgeleiteten
+  Konfigurationen bleiben nach
+  `COMPLIANCE-2026-07-24-SMALLOFFICE-CONFIG-INPUT-001` ausschliesslich lokal
+  und ignoriert. Versionierte Beispiele enthalten keine IFC-GUIDs,
+  Quellgeometrie, realen Raumbezeichnungen oder exakten Quelldaten.
+- Der versionierte SmallOffice-Referenzfall ist eine getrennte, vollstaendig
+  synthetische LoD-1-Rekonstruktion. Er verwendet die bestehenden
+  `BuildingModelSpecification`, `ZoneModelSpecification` und
+  `TechnicalSystemSpecification` ohne Schema- oder API-Bruch.
+- Neue Pfadkonstanten, Convenience-Loader und der
+  `build_small_office_lod1_parameter_snapshot()`-Builder sind additiv. Der
+  vorhandene BusinessIntegration-Referenzfall und seine Identitaeten bleiben
+  unveraendert.
+- `ParameterSourceReference.content_hash` wird fuer die bestehende
+  LoD-1-Snapshot-Kette aus dem vollstaendigen Fachobjektinhalt statt nur aus
+  Modul-, Datensatz- und Versions-ID gebildet. Dadurch werden Wert- oder
+  Annahmenaenderungen bei versehentlich unveraenderter Versions-ID erkannt.
+  P015 persistiert derzeit keine `ParameterSnapshot`-Artefakte; deshalb ist
+  keine Datenmigration erforderlich. Vor dieser Entscheidung nur zur
+  Laufzeit erzeugte Hashwerte sind nicht mit den neuen inhaltsbezogenen
+  Hashwerten vergleichbar.
+- Oeffentliche Primärquellen dienen nur als Plausibilitaets- und
+  Referenzbezug: GEG-Anlage 2 fuer Huell- und Referenztechnikwerte,
+  BAuA-ASR-A3.5 fuer Raumtemperaturen, BAuA-ASR-A3.6 fuer das CO2-Ziel und
+  die DOE-Prototype-Modelle fuer die methodische Einordnung typischer
+  SmallOffice-Profile.
+- Fensteranteil, Kubatur, Orientierung, Nutzungsprofil, Lasten,
+  spezifische Leistungen, Leistungsfaktoren und der aus einer eigenen
+  Volumenstromannahme hergeleitete Luftwechsel sind
+  `demo_assumption`. Der technische Freigabestatus bestaetigt nur
+  Schema-, Referenz- und Laufzeitkonsistenz, keinen Gebaeude-, Anlagen- oder
+  Normnachweis.
+
+Rueckfallvertrag:
+
+- Die drei SmallOffice-YAMLs, ihre Pfad-/Loader-Exports, der
+  SmallOffice-Snapshot-Builder und der zugehoerige Test koennen als additive
+  Einheit entfernt werden.
+- Die vorhandenen generischen Loader und der BusinessIntegration-LoD-1-Pfad
+  bleiben dabei betriebsfaehig.
+
+Ausgeschlossen bleiben die Versionierung der IFC-Ableitungen, reale
+Zonierung, automatische IFC-/IDA-Verarbeitung, neue Abhaengigkeiten,
+Produktwahl, fachliche Anlagenbemessung, V2-Migration und Git-Aktionen.
+
+Abschlussnachweis:
+
+- Der relevante Building-/Zones-/Technical-/Parameters-Fokuslauf besteht mit
+  `62 passed`.
+- Der reale Snapshot-Smoke erzeugt 24 Werte aus drei Quellen; alle Werte
+  tragen maschinenlesbar `provisional_assumption`, waehrend die gemeinsame
+  Struktur- und Referenzvalidierung `released` meldet.
+- Ruff und `git diff --check` sind gruen.
+- Das Sol-Abschlussreview meldet keine Blocker. Die drei wichtigen Befunde
+  zu Annahmestatus, Quellenlabels und inhaltsabhaengigen Hashes wurden
+  behoben; die globale Hashvertragsaenderung ist oben abgegrenzt.

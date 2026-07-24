@@ -132,14 +132,7 @@ mit Stadtname im Ordner:
 
 ```powershell
 .\.venv\Scripts\python.exe -m ma_weather.dwd_try2011_converter `
-  --compliance-confirmation "DWD-TRY-REVIEW-YYYY-MM-DD" `
-  --permission-reference "Angebot-oder-Lizenzreferenz"
 ```
-
-Beide Referenzen sind Pflicht. Sie werden zusammen mit Dateiname, Groesse,
-SHA-256 und Entscheidung unter `logs/compliance/decisions.jsonl`
-protokolliert; `.idm`-/`.PRN`-Inhalte werden nicht in das Audit geschrieben.
-Ohne belastbare Bezugsrechtsreferenz bleibt die Konvertierung gesperrt.
 
 Beispiel-Zielpfade:
 

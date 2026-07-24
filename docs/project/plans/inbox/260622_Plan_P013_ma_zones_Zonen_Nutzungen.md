@@ -2370,3 +2370,16 @@ Die v2-Zielrichtung wird durch das technische Handover praezisiert:
 
 Der bestehende MVP-Referenzfall und die additive Legacy-Kompatibilitaet
 bleiben unveraendert.
+
+## Umsetzungsstand 2026-07-24: synthetische SmallOffice-Einzonenreferenz
+
+Der neue SmallOffice-LoD-1-Funktionslauf verwendet zunaechst eine
+Gesamtgebaeudezone mit einem synthetischen Buero-Nutzungsprofil. Betriebszeit,
+Belegungsdichte, Beleuchtungs- und Geraetelasten, Sollwerte und Luftwechsel
+sind als vorlaeufige Annahmen im YAML dokumentiert.
+
+Die Sollwerte 20/26 Grad C werden mit der oeffentlichen BAuA-ASR-A3.5 als
+Plausibilitaetsbezug gefuehrt. Die BAuA-ASR-A3.6 stuetzt das CO2-Ziel; der
+konkrete Luftwechsel bleibt eine eigene, nachvollziehbar hergeleitete
+Demo-Annahme. Der Referenzfall dient dem lauffaehigen P012-P015-Durchstich,
+nicht einer realen Zonierung oder einer normativen Profilfreigabe.

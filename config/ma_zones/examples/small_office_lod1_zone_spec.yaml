@@ -1,0 +1,40 @@
+# Strikt synthetische LoD-1-Zonenkonfiguration ohne reale Raumdaten.
+schema_version: "1.0"
+zone_model_id: "ZONE-SYNTHETIC-SMALL-OFFICE-LOD1-MODEL-0001"
+project_id: "PROJECT-SYNTHETIC-SMALL-OFFICE"
+building_id: "BUILDING-SYNTHETIC-SMALL-OFFICE-0001"
+source_building_version_id: "BUILDING-SYNTHETIC-SMALL-OFFICE-LOD1-V1"
+input_detail_level: "LOD-1"
+usage_profiles:
+  - profile_id: "USE-SYNTHETIC-OFFICE-LOD1"
+    name: "Synthetisches Office-Profil LoD-1"
+    operation_start_hour: 8.0
+    operation_end_hour: 18.0
+    operation_days_per_week: 5
+    occupancy_density_m2_per_person: 12.0
+    lighting_power_w_m2: 8.0
+    equipment_power_w_m2: 10.0
+zones:
+  - zone_id: "ZONE-SYNTHETIC-SMALL-OFFICE-0001"
+    name: "Synthetische SmallOffice-Zone"
+    usage_profile_id: "USE-SYNTHETIC-OFFICE-LOD1"
+    floor_area_m2: 500.0
+    volume_m3: 1500.0
+    source_space_ids:
+      - "SPACE-SYNTHETIC-SMALL-OFFICE-0001"
+    heating_setpoint_c: 20.0
+    cooling_setpoint_c: 26.0
+    minimum_air_change_rate_1_h: 1.0
+assumptions:
+  - assumption_id: "SMALLOFFICE-ZONE-MERGE-001"
+    location: "zones.0"
+    text: "Die 29 IFC-Raeume werden nur fuer den ersten lauffaehigen LoD-1-Slice aggregiert. Die raumweise Einraum-Einzonen-Aufloesung bleibt der naechste fachliche Ausbauschritt."
+  - assumption_id: "SMALLOFFICE-ZONE-TEMPERATURE-001"
+    location: "zones.0"
+    text: "20 C Heizen und 26 C Kuehlen sind transparente Betriebsannahmen fuer leichte sitzende Bueronutzung. ASR A3.5 stuetzt 20 C als Mindesttemperatur und 26 C als sommerliche Schwelle, jedoch keinen ganzjaehrigen Komfortnachweis."
+  - assumption_id: "SMALLOFFICE-ZONE-AIR-001"
+    location: "zones.0.minimum_air_change_rate_1_h"
+    text: "0.7 1/h ist eine vorlaeufige Projektannahme fuer den Demo-Lauf. ASR A3.6 stuetzt das Ziel von maximal 1000 ppm CO2, nicht diesen pauschalen Luftwechsel; die spaetere Validierung erfolgt belegungs- und CO2-basiert."
+  - assumption_id: "SMALLOFFICE-ZONE-LOADS-001"
+    location: "usage_profiles.0"
+    text: "8-18 Uhr an 5 Tagen, 12 m2/Person, 8 W/m2 Beleuchtung und 10 W/m2 Geraete sind versionierte Projektannahmen aus dem bestehenden LoD-1-Referenzfall. Bezugsflaeche, Gleichzeitigkeitsprofile und Nutzungsgruppen werden spaeter validiert."

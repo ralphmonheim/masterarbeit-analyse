@@ -4,13 +4,19 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import replace
+from dataclasses import asdict, replace
 
-from ma_building import BuildingModelSpecification, load_business_integration_lod1_building_spec, validate_building_spec
+from ma_building import (
+    BuildingModelSpecification,
+    load_business_integration_lod1_building_spec,
+    load_small_office_lod1_building_spec,
+    validate_building_spec,
+)
 from ma_technical import (
     ReleasedTechnicalHandover,
     TechnicalSystemSpecification,
     load_business_integration_lod1_technical_spec,
+    load_small_office_lod1_technical_spec,
     validate_technical_spec,
 )
 from ma_validation import (
@@ -32,6 +38,7 @@ from ma_zones import (
     ReleasedZoneHandover,
     ZoneModelSpecification,
     load_business_integration_lod1_zone_spec,
+    load_small_office_lod1_zone_spec,
     validate_zone_spec,
 )
 
@@ -58,6 +65,8 @@ BUSINESS_INTEGRATION_LOD1_INPUT_PACKAGE_ID = "PARAM-BI-LOD1-INPUT-PACKAGE-0001"
 BUSINESS_INTEGRATION_LOD1_INPUT_PACKAGE_VERSION = "PARAM-BI-LOD1-INPUT-PACKAGE-V1"
 BUSINESS_INTEGRATION_LOD1_BASELINE_SNAPSHOT_ID = "PARAM-BI-LOD1-BASELINE-0001"
 BUSINESS_INTEGRATION_LOD1_BASELINE_SNAPSHOT_VERSION = "PARAM-BI-LOD1-BASELINE-V2"
+SMALL_OFFICE_LOD1_SNAPSHOT_ID = "PARAM-SYNTHETIC-SMALL-OFFICE-LOD1-SNAPSHOT-0001"
+SMALL_OFFICE_LOD1_SNAPSHOT_VERSION = "PARAM-SYNTHETIC-SMALL-OFFICE-LOD1-V1"
 
 
 def build_business_integration_lod1_parameter_snapshot() -> ParameterSnapshot:
@@ -71,6 +80,28 @@ def build_business_integration_lod1_parameter_snapshot() -> ParameterSnapshot:
         technical_spec,
         snapshot_id=BUSINESS_INTEGRATION_LOD1_SNAPSHOT_ID,
         snapshot_version=BUSINESS_INTEGRATION_LOD1_SNAPSHOT_VERSION,
+    )
+
+
+def build_small_office_lod1_parameter_snapshot() -> ParameterSnapshot:
+    """Baut einen Snapshot aus dem rein synthetischen SmallOffice-Referenzfall."""
+    building_spec = load_small_office_lod1_building_spec()
+    zone_spec = load_small_office_lod1_zone_spec()
+    technical_spec = load_small_office_lod1_technical_spec()
+    snapshot = build_lod1_parameter_snapshot(
+        building_spec,
+        zone_spec,
+        technical_spec,
+        snapshot_id=SMALL_OFFICE_LOD1_SNAPSHOT_ID,
+        snapshot_version=SMALL_OFFICE_LOD1_SNAPSHOT_VERSION,
+    )
+    return replace(
+        snapshot,
+        values=tuple(replace(value, status="provisional_assumption") for value in snapshot.values),
+        description=(
+            "Synthetischer SmallOffice-LoD-1 ParameterSnapshot; alle Werte sind "
+            "vorlaeufige Annahmen und spaeter fachlich zu validieren."
+        ),
     )
 
 
@@ -135,7 +166,7 @@ def build_lod1_parameter_snapshot(
         input_detail_level=str(building_spec.input_detail_level.value),
         values=values,
         source_references=source_references,
-        description="BusinessIntegration-LoD-1 ParameterSnapshot aus Building, Zones und Technical.",
+        description="LoD-1 ParameterSnapshot aus Building, Zones und Technical.",
     )
 
 
@@ -759,13 +790,7 @@ def _source_references(
             label=building_spec.building.name,
             reference_id=building_spec.building.building_id,
             reference_version=building_spec.model_version.version_id,
-            content_hash=_stable_hash(
-                {
-                    "module_key": "ma_building",
-                    "dataset_key": building_spec.building.building_id,
-                    "version_id": building_spec.model_version.version_id,
-                }
-            ),
+            content_hash=_stable_hash(asdict(building_spec)),
         ),
         ParameterSourceReference(
             source_reference_id=_source_reference_id("ma_zones", zone_spec.zone_model_id),
@@ -773,16 +798,10 @@ def _source_references(
             dataset_key=zone_spec.zone_model_id,
             version_id=zone_spec.zone_model_id,
             validation_status=zone_status,
-            label="BusinessIntegration LoD-1 Zonenmodell",
+            label=f"Zonenmodell {zone_spec.zone_model_id}",
             reference_id=zone_spec.zone_model_id,
             reference_version=zone_spec.zone_model_id,
-            content_hash=_stable_hash(
-                {
-                    "module_key": "ma_zones",
-                    "dataset_key": zone_spec.zone_model_id,
-                    "version_id": zone_spec.zone_model_id,
-                }
-            ),
+            content_hash=_stable_hash(asdict(zone_spec)),
         ),
         ParameterSourceReference(
             source_reference_id=_source_reference_id("ma_technical", technical_spec.technical_model_id),
@@ -790,16 +809,10 @@ def _source_references(
             dataset_key=technical_spec.technical_model_id,
             version_id=technical_spec.technical_model_id,
             validation_status=technical_status,
-            label="BusinessIntegration LoD-1 Technikmodell",
+            label=f"Technikmodell {technical_spec.technical_model_id}",
             reference_id=technical_spec.technical_model_id,
             reference_version=technical_spec.technical_model_id,
-            content_hash=_stable_hash(
-                {
-                    "module_key": "ma_technical",
-                    "dataset_key": technical_spec.technical_model_id,
-                    "version_id": technical_spec.technical_model_id,
-                }
-            ),
+            content_hash=_stable_hash(asdict(technical_spec)),
         ),
     )
 
