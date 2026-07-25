@@ -96,6 +96,11 @@ def run_weather_analysis(
     try:
         catalog = import_weather_catalog(catalog_path)
         dataset = catalog.get(weather_key)
+        if not dataset.analysis_supported:
+            raise ValueError(
+                dataset.analysis_note
+                or f"Wetterdatensatz {dataset.weather_key} ist katalogisiert, aber noch nicht analysierbar."
+            )
         source_path = dataset.resolved_file_path(root)
         output_paths = build_weather_output_paths(
             dataset.weather_key,

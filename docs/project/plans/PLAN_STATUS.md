@@ -1,6 +1,6 @@
 # Plan Status
 
-Stand: 2026-07-22
+Stand: 2026-07-25
 
 Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt und nach jeder Planumsetzung aktualisiert. Vollstaendige alte Planstaende liegen unter `docs/project/archive/plans/`.
 
@@ -112,6 +112,20 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   nicht von `planned` auf `partial`.
 
 ### Aktive Teilplaene
+
+- P033 hat die 90 lokalen PRN-Dateien fuer 2010/2035, Regionen 01-15 und
+  Jahr/Sommer/Winter als reine Metadateneintraege den bestehenden
+  TRY-Referenzstaedten zugeordnet. Die Eintraege sind in der Wetterauswahl
+  sichtbar, mit `analysis_supported: false` aber technisch fuer Analyse,
+  Aktivierung und Projekt-Default gesperrt. Der PRN-Adapter,
+  Zeitreihenvalidierung und Sensitivitaetsnutzung bleiben getrennte
+  Folgearbeit; die bestehenden DWD-TRY-`.dat`-Analysen bleiben aktiv.
+- P034 plant die kontrollierte Aufnahme der drei Endvarianten-XLSX und der
+  Bauteil-, Material- und Produktkataloge. Zuerst werden Arbeitsmappen,
+  Formeln, Links, Spaltensemantik, IDs, Einheiten und Zellprovenienz
+  inventarisiert. Bestehende Katalog- und Fachmodelle werden nicht
+  ueberschrieben; ein direkter Variantenvergleich setzt identische Gebaeude-,
+  Wetter-, Profil-, Simulations- und Auswertungsstaende voraus.
 
 - Externe Integrationspakete vom 2026-07-21 sind in ihre bestehenden
   Planrollen eingeordnet: P009 fuehrt Quell-, thermisches Analyse- und
@@ -744,6 +758,11 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   Importstatus, offene Wetterdatensaetze, stabile `import_id`,
   Verknuepfung mit Sitzungs-/Run-Nachweis, bewusste Aktivierung und
   bewusstes Setzen eines Projekt-Defaults sind vorbereitet.
+- P033 Katalogslice umgesetzt: 90 lokale PRN-Metadateneintraege fuer
+  2010/2035 sind den 15 TRY-Referenzstaedten zugeordnet und in Streamlit als
+  `nur katalogisiert` sichtbar. Ein additiver Analysefaehigkeitsschalter
+  verhindert eine Verarbeitung durch den bestehenden TRY-`.dat`-Importer;
+  dessen DWD-Analysepfad bleibt kompatibel.
 - P008 Datensatztyp- und Ereignis-Slice umgesetzt: Jahr-, Sommer- und
   Winter-TRY-Dateien sind als eigene Datensaetze katalogisiert; kritische
   Wetterereignisse werden aus dem bewusst ausgewaehlten Datensatz abgeleitet

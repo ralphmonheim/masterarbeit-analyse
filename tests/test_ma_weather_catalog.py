@@ -157,7 +157,9 @@ def test_weather_catalog_imports_optional_location_resolution_fields(tmp_path):
         "    detected_postal_code: '14467'\n"
         "    location_resolution_status: matched\n"
         "    location_resolution_method: point_in_polygon\n"
-        "    geodata_source_id: test_municipalities\n",
+        "    geodata_source_id: test_municipalities\n"
+        "    analysis_supported: false\n"
+        "    analysis_note: PRN-Adapter ausstehend.\n",
         encoding="utf-8",
     )
 
@@ -168,6 +170,8 @@ def test_weather_catalog_imports_optional_location_resolution_fields(tmp_path):
     assert dataset.detected_municipality_name == "Potsdam"
     assert dataset.detected_postal_code == "14467"
     assert dataset.location_resolution_status == "matched"
+    assert dataset.analysis_supported is False
+    assert dataset.analysis_note == "PRN-Adapter ausstehend."
 
 
 def test_weather_catalog_validates_required_fields(tmp_path):
@@ -1594,6 +1598,54 @@ def test_weather_dataset_status_reports_missing_and_warning(tmp_path):
     assert checked_status.release_status is ReleaseStatus.CONFIRMATION_REQUIRED
     assert checked_status.is_open is True
     assert checked_status.is_regularly_selectable is False
+
+
+def test_weather_dataset_status_does_not_parse_catalog_only_dataset(tmp_path):
+    prn_file = tmp_path / "TRY2010_04_Jahr_DAT.PRN"
+    prn_file.write_text("Time TAir\n0 1.0\n", encoding="utf-8")
+    dataset = WeatherDataset(
+        weather_key="IDA_PRN_P_2010_JAHR",
+        display_name="TRY Potsdam 2010 Jahr",
+        file_path=prn_file.relative_to(tmp_path),
+        file_format="IDA_PRN",
+        source="DWD TRY / IDA Weather Utility",
+        location="Potsdam",
+        year_type="reference_year",
+        analysis_supported=False,
+        analysis_note="PRN-Adapter ausstehend.",
+    )
+
+    status = inspect_weather_dataset_status(dataset, project_root=tmp_path, validate_file=True)
+
+    assert status.file_exists is True
+    assert status.import_status is WeatherImportCheckStatus.NOT_CHECKED
+    assert status.is_regularly_selectable is True
+    assert status.messages == ("PRN-Adapter ausstehend.",)
+
+
+def test_weather_analysis_rejects_catalog_only_dataset_before_try_import(tmp_path):
+    catalog_file = tmp_path / "weather_datasets.yaml"
+    catalog_file.write_text(
+        "weather_datasets:\n"
+        "  - weather_key: IDA_PRN_P_2010_JAHR\n"
+        "    display_name: TRY Potsdam 2010 Jahr\n"
+        "    file_path: data/project_inbox/new/Wetterdaten/TRY2010_04_Jahr_DAT.PRN\n"
+        "    file_format: IDA_PRN\n"
+        "    source: DWD TRY / IDA Weather Utility\n"
+        "    location: Potsdam\n"
+        "    year_type: reference_year\n"
+        "    analysis_supported: false\n"
+        "    analysis_note: PRN-Adapter ausstehend.\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="PRN-Adapter ausstehend"):
+        run_weather_analysis(
+            "IDA_PRN_P_2010_JAHR",
+            catalog_path=catalog_file,
+            project_root=tmp_path,
+            print_summary=False,
+        )
 
 
 def test_weather_dataset_status_marks_changed_file_as_stale(tmp_path):

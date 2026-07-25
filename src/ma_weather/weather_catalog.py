@@ -53,6 +53,8 @@ class WeatherDataset:
     reference_location_id: str = ""
     selection_priority: int = 100
     is_active: bool = True
+    analysis_supported: bool = True
+    analysis_note: str = ""
     notes: str = ""
     source_easting: float | None = None
     source_northing: float | None = None
@@ -230,6 +232,10 @@ def _validate_dataset_record(
     if not isinstance(is_active, bool):
         errors.append(f"{prefix}weather_datasets[{index}].is_active muss true oder false sein.")
 
+    analysis_supported = raw_dataset.get("analysis_supported", True)
+    if not isinstance(analysis_supported, bool):
+        errors.append(f"{prefix}weather_datasets[{index}].analysis_supported muss true oder false sein.")
+
     dataset_role = str(raw_dataset.get("dataset_role", "")).strip()
     location_id = str(raw_dataset.get("location_id", "")).strip()
     reference_location_id = str(raw_dataset.get("reference_location_id", "")).strip()
@@ -266,6 +272,8 @@ def _build_weather_dataset(raw_dataset: dict[str, Any]) -> WeatherDataset:
         reference_location_id=str(raw_dataset.get("reference_location_id", "")).strip(),
         selection_priority=int(raw_dataset.get("selection_priority", 100)),
         is_active=bool(raw_dataset.get("is_active", True)),
+        analysis_supported=bool(raw_dataset.get("analysis_supported", True)),
+        analysis_note=str(raw_dataset.get("analysis_note", "")).strip(),
         notes=str(raw_dataset.get("notes", "")).strip(),
         source_easting=_optional_float(raw_dataset.get("source_easting")),
         source_northing=_optional_float(raw_dataset.get("source_northing")),

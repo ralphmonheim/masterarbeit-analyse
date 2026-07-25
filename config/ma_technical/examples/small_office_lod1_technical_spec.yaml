@@ -1,48 +1,53 @@
+# Lauffaehige LoD-1-Technikkonfiguration. Die Systeme bilden eine transparente
+# GEG-/Projekt-Baseline und keine nachgewiesene reale SmallOffice-Anlage ab.
 schema_version: "1.0"
-technical_model_id: "TECH-SYNTHETIC-SMALL-OFFICE-LOD1-MODEL-0001"
-project_id: "PROJECT-SYNTHETIC-SMALL-OFFICE"
-building_id: "BUILDING-SYNTHETIC-SMALL-OFFICE-0001"
-source_zone_model_id: "ZONE-SYNTHETIC-SMALL-OFFICE-LOD1-MODEL-0001"
+technical_model_id: "TECH-SMALLOFFICE-LOD1-001"
+project_id: "PROJECT-SMALLOFFICE-REFERENCE-001"
+building_id: "BUILDING-IFC-000126"
+source_zone_model_id: "ZONE-SMALLOFFICE-LOD1-001"
 input_detail_level: "LOD-1"
 systems:
-  - system_id: "TECH-HEATING-SYNTHETIC-SMALL-OFFICE-0001"
-    name: "Synthetische Heizung LoD-1"
+  - system_id: "TECH-SMALLOFFICE-HEATING-001"
+    name: "GEG-Referenzheizung Erdgas-Brennwert, Demo-Baseline"
     system_type: "heating"
     served_zone_ids:
-      - "ZONE-SYNTHETIC-SMALL-OFFICE-0001"
+      - "ZONE-SMALLOFFICE-AGGREGATED-001"
     design_power_w_m2: 50.0
     supply_temperature_c: 55.0
     return_temperature_c: 45.0
     performance_factor: 0.95
-    control_strategy: "zone_setpoint"
-  - system_id: "TECH-COOLING-SYNTHETIC-SMALL-OFFICE-0001"
-    name: "Synthetische Kuehlung LoD-1"
+    control_strategy: "zone_setpoint_with_night_setback"
+  - system_id: "TECH-SMALLOFFICE-COOLING-001"
+    name: "GEG-Referenz-Raumkuehlung, Demo-Baseline"
     system_type: "cooling"
     served_zone_ids:
-      - "ZONE-SYNTHETIC-SMALL-OFFICE-0001"
+      - "ZONE-SMALLOFFICE-AGGREGATED-001"
     design_power_w_m2: 35.0
     supply_temperature_c: 14.0
     return_temperature_c: 18.0
     performance_factor: 3.0
-    control_strategy: "zone_setpoint"
-  - system_id: "TECH-VENTILATION-SYNTHETIC-SMALL-OFFICE-0001"
-    name: "Synthetische Lueftung LoD-1"
+    control_strategy: "zone_setpoint_with_weekend_shutdown"
+  - system_id: "TECH-SMALLOFFICE-VENTILATION-001"
+    name: "Zentrale Zu- und Abluft mit Platten-WRG, Demo-Baseline"
     system_type: "ventilation"
     served_zone_ids:
-      - "ZONE-SYNTHETIC-SMALL-OFFICE-0001"
-    air_change_rate_1_h: 1.0
+      - "ZONE-SMALLOFFICE-AGGREGATED-001"
+    air_change_rate_1_h: 0.7
     heat_recovery_efficiency_percent: 60.0
-    control_strategy: "schedule"
+    control_strategy: "weekday_schedule_08_18"
 assumptions:
-  - assumption_id: "ASSUMPTION-SYNTHETIC-TECHNICAL-0001"
+  - assumption_id: "SMALLOFFICE-TECH-BASELINE-001"
     location: "systems"
-    text: "Alle technischen Systeme sind synthetische LoD-1-Referenzannahmen, keine ausgelegte oder reale Anlage."
-  - assumption_id: "ASSUMPTION-SYNTHETIC-TECHNICAL-0002"
+    text: "Die Technik ist eine lauffaehige Demo-Baseline. Sie ersetzt keine Anlagenplanung und behauptet keine aus IFC oder Projektunterlagen nachgewiesenen Komponenten."
+  - assumption_id: "SMALLOFFICE-TECH-HEATING-001"
     location: "systems.0"
-    text: "Systemtemperaturen 55/45 und 14/18 Grad C sowie WRG 60 % sind vorlaeufige Startwerte mit oeffentlicher Referenz GEG Anlage 2: https://www.gesetze-im-internet.de/geg/anlage_2.html; sie sind vor einer Nachweis- oder Auslegungsnutzung zu validieren."
-  - assumption_id: "ASSUMPTION-SYNTHETIC-TECHNICAL-0003"
-    location: "systems.2.air_change_rate_1_h"
-    text: "Der Luftwechsel 1,0 1/h stimmt bewusst mit der synthetischen Zonenannahme ueberein und ist keine normativ abgeleitete Auslegung."
-  - assumption_id: "ASSUMPTION-SYNTHETIC-TECHNICAL-0004"
+    text: "Erdgas-Brennwert und 55/45 C folgen der Referenzausfuehrung in GEG Anlage 2. 50 W/m2 und Wirkungsgrad 0.95 sind vorlaeufige Projektannahmen fuer die Dimensionierung."
+  - assumption_id: "SMALLOFFICE-TECH-COOLING-001"
+    location: "systems.1"
+    text: "14/18 C folgt der GEG-Referenz-Raumkuehlung. 35 W/m2 und Leistungszahl 3.0 sind vorlaeufige Projektannahmen."
+  - assumption_id: "SMALLOFFICE-TECH-VENTILATION-001"
+    location: "systems.2"
+    text: "60 Prozent Temperatur-Aenderungsgrad folgt der GEG-Referenz fuer Zu-/Abluftanlagen. Der Luftwechsel 0.7 1/h bleibt bis zur belegungs- und CO2-basierten Auslegung eine Projektannahme."
+  - assumption_id: "SMALLOFFICE-TECH-VALIDATION-001"
     location: "systems"
-    text: "Spezifische Leistungen 50/35 W/m2, Wirkungsgrad 0,95, Leistungsfaktor 3,0 und Regelstrategien sind eigene Demo-Annahmen und nicht aus der GEG-Referenztechnik abgeleitet."
+    text: "Komponenten, Leistungen, Wirkungsgrade, Volumenstrom, Regelung, Energietraeger und Warmwassergrenze sind in einer spaeteren Phase gegen den realen Projektstand zu validieren."

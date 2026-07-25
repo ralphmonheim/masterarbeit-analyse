@@ -161,6 +161,7 @@ WEATHER_DATASET_DEFAULT_COLUMNS = (
     "Jahrtyp",
     "Datensatztyp",
     "Szenario",
+    "Analysestatus",
 )
 WEATHER_PLOT_OPTIONS = (ALL_WEATHER_PLOTS, *WEATHER_PLOT_CHOICES)
 WEATHER_PLOT_LABELS = {
@@ -200,6 +201,8 @@ def weather_dataset_rows(
                 "Jahrtyp": dataset.year_type,
                 "Datensatztyp": weather_dataset_type_label(dataset),
                 "Szenario": dataset.climate_scenario,
+                "Analysestatus": weather_analysis_status_label(dataset),
+                "Analysehinweis": dataset.analysis_note,
                 "Rolle": weather_dataset_role_label(dataset),
                 "Standort-ID": dataset.location_id,
                 "Referenzstandort-ID": dataset.reference_location_id,
@@ -282,7 +285,16 @@ def weather_dataset_label(
 ) -> str:
     """Baut eine kompakte Auswahlbeschriftung fuer Wetterdatensaetze."""
     _ = status, selection_state
+    if not dataset.analysis_supported:
+        return f"{dataset.display_name} [nur katalogisiert]"
     return dataset.display_name
+
+
+def weather_analysis_status_label(dataset: WeatherDataset) -> str:
+    """Kennzeichnet, ob der vorhandene ma_weather-Analysepfad den Datensatz unterstuetzt."""
+    if dataset.analysis_supported:
+        return "Verfuegbar"
+    return "Adapter ausstehend"
 
 
 def weather_location_label(location: WeatherLocation) -> str:
@@ -1280,11 +1292,21 @@ def _render_weather_selection(
             options=WEATHER_PLOT_OPTIONS,
             format_func=weather_plot_label,
             key=WEATHER_PLOT_WIDGET_KEY,
+            disabled=not selected_dataset.analysis_supported,
         )
         selected_path = selected_dataset.resolved_file_path()
         file_exists = selected_path.exists()
-        start_analysis = st.button("Wetteranalyse starten", type="primary", disabled=not file_exists)
-        if not file_exists:
+        start_analysis = st.button(
+            "Wetteranalyse starten",
+            type="primary",
+            disabled=not file_exists or not selected_dataset.analysis_supported,
+        )
+        if not selected_dataset.analysis_supported:
+            st.info(
+                selected_dataset.analysis_note
+                or "Dieser Datensatz ist nur katalogisiert. Der Analyseadapter wird spaeter ergaenzt."
+            )
+        elif not file_exists:
             st.warning(
                 "Die lokale TRY-Datei wurde nicht gefunden. Die Analyse kann erst nach dem Ablegen der Datei starten."
             )

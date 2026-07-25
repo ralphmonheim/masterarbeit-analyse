@@ -59,6 +59,13 @@ unter `logs/sessions/<session_id>.jsonl`.
 Reale TRY-Dateien werden vom Nutzer lokal unter `data/ma_weather/input/`
 bereitgestellt und nicht im Git-Repo versioniert.
 
+Die 90 lokalen PRN-Dateien fuer 2010 und 2035 sind zusaetzlich als reine
+Metadateneintraege den 15 TRY-Referenzstaedten zugeordnet. Sie erscheinen in
+der Stadt- und Klimaregionsauswahl als `nur katalogisiert`; Analyse und
+Diagrammauswahl bleiben fuer sie gesperrt, bis ein eigener PRN-Adapter
+freigegeben und umgesetzt wird. Die bestehenden DWD-TRY-`.dat`-Datensaetze
+bleiben davon unberuehrt analysierbar.
+
 DWD-TRY-2011-Dateien aus IDA/ICE im `.PRN`-Format koennen aus dem lokalen
 Projekt-Input in dieses Arbeitsformat uebertragen werden. Der Konverter nutzt
 die zugehoerige `.idm`-Uebersichtsdatei fuer Stadt, Jahr, TRY-Art und

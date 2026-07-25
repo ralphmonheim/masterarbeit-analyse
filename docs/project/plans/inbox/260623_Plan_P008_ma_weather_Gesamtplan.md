@@ -1,9 +1,31 @@
 # P008 ma_weather Gesamtplan
 
-Stand: 2026-07-13
+Stand: 2026-07-25
 Status: Aktiv
 Plannummer: P008
 Bezug: P007, P010, P015, P018, P021, P027, archivierter P002
+
+## Aenderungsvermerk Katalogaufnahme 2010/2035 ohne PRN-Adapter
+
+Datum: 2026-07-25
+
+Die 90 lokalen PRN-Dateien fuer 2010/2035, TRY-Regionen 01-15 und
+Jahr/Sommer/Winter sind als Metadateneintraege im lokalen, unversionierten
+Wetterkatalog aufgenommen. Die IDM-Zuordnung verbindet jede TRY-Region mit
+ihrem bestehenden Referenzstandort.
+
+Dieser Slice fuehrt keinen PRN-Analyseadapter ein. Die Eintraege sind mit
+`analysis_supported: false` als `nur katalogisiert` gekennzeichnet. Streamlit
+zeigt sie bei der zugehoerigen Stadt beziehungsweise Klimaregion, deaktiviert
+aber Analyse und Diagrammauswahl. Der Runner verweigert einen direkten
+Analyseaufruf mit einer klaren Meldung. Bestehende DWD-TRY-`.dat`-Eintraege
+behalten durch den kompatiblen Standardwert `analysis_supported: true` ihren
+bisherigen Analysepfad.
+
+Die Originaldateien bleiben unveraendert unter
+`data/project_inbox/new/Wetterdaten/` und werden weder versioniert noch
+verschoben. P033 dokumentiert diesen konkreten Aufnahmeslice; P008 bleibt die
+fuehrende fachliche Wetterplanung.
 
 ## V1-Status 2026-07-18
 
@@ -272,13 +294,17 @@ Standortaufloesung.
 Die Klimaregion kann aus dem bestaetigten Standort weiterhin abgeleitet und
 informativ angezeigt werden.
 
-### Nur aktive und validierte Datensaetze sind regulaer auswaehlbar
+### Katalogsicht und Nutzungsfreigabe bleiben getrennt
 
-Die normale Wetterauswahl zeigt nur Datensaetze, die fachlich validiert,
-freigegeben und in der Katalogsicht aktiv sind.
+Die Wetterauswahl darf lokal vorhandene, eindeutig zugeordnete
+Metadateneintraege sichtbar machen, auch wenn fuer ihr Dateiformat noch kein
+Analyseadapter existiert. `analysis_supported` trennt diese Katalogsicht von
+der technischen Analysenutzbarkeit.
 
-Offene, unvollstaendige oder fehlerhafte Datensaetze duerfen nicht an
-`ma_parameters`, Varianten oder Simulationen uebergeben werden.
+Nur technisch unterstuetzte, fachlich validierte, freigegebene und bewusst
+aktivierte Datensaetze duerfen an `ma_parameters`, Varianten oder Simulationen
+uebergeben werden. Nicht unterstuetzte, offene, unvollstaendige oder
+fehlerhafte Datensaetze bleiben fuer Analyse und Aktivierung gesperrt.
 
 ### Import, Pruefung, Katalogaktivitaet und Projekt-Default sind getrennt
 

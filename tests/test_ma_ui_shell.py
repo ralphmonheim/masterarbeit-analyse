@@ -1049,6 +1049,7 @@ def test_weather_dataset_default_columns_only_affect_active_table():
         "Jahrtyp",
         "Datensatztyp",
         "Szenario",
+        "Analysestatus",
     )
     assert "_weather_dataset_default_table(rows)" in active_source
     assert "active_metric_column, location_metric_column, open_metric_column = st.columns(3)" in dataset_section_source
@@ -2162,6 +2163,23 @@ def test_weather_dataset_label_shows_dataset_type():
     assert weather_dataset_type_label(winter_dataset) == "Winter"
     assert weather_dataset_label(summer_dataset) == "Test Sommer"
     assert weather_dataset_label(winter_dataset) == "Test Winter"
+
+
+def test_weather_dataset_label_marks_catalog_only_dataset():
+    catalog_only_dataset = WeatherDataset(
+        weather_key="IDA_PRN_P_2010_JAHR",
+        display_name="TRY Potsdam 2010 Jahr",
+        file_path=Path("data/project_inbox/new/Wetterdaten/TRY2010_04_Jahr_DAT.PRN"),
+        file_format="IDA_PRN",
+        source="DWD TRY / IDA Weather Utility",
+        location="Potsdam",
+        year_type="reference_year",
+        analysis_supported=False,
+        analysis_note="PRN-Adapter ausstehend.",
+    )
+
+    assert weather_dataset_label(catalog_only_dataset) == "TRY Potsdam 2010 Jahr [nur katalogisiert]"
+    assert weather_page.weather_analysis_status_label(catalog_only_dataset) == "Adapter ausstehend"
 
 
 def test_weather_dataset_type_filter_keeps_only_selected_type():

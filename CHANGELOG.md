@@ -4,6 +4,32 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.34.1 - 2026-07-25
+
+### Added
+
+- Die 90 lokalen PRN-Wetterdatensaetze fuer 2010/2035 sind den 15
+  TRY-Referenzstaedten zugeordnet und im unversionierten Wetterkatalog als
+  `nur katalogisiert` sichtbar.
+- `WeatherDataset` kennzeichnet mit `analysis_supported` und
+  `analysis_note`, ob ein katalogisierter Datensatz vom vorhandenen
+  Analysepfad verarbeitet werden darf.
+
+### Changed
+
+- Streamlit, Wetterstatus und Runner sperren PRN-Katalogeintraege ohne
+  Adapter explizit. Bestehende DWD-TRY-`.dat`-Analysen bleiben kompatibel und
+  analysierbar.
+
+### Known limitations
+
+- Die Release-Pruefung weist einen nicht sortierten Importblock in
+  `tests/test_small_office_lod1_reference.py` sowie zwei erwartete
+  Testfehler der SmallOffice-LoD-1-Referenzkette aus. Ursache ist ein
+  abweichendes `project_id` zwischen dem technischen Referenz-YAML und dem
+  Zonenmodell. Die Korrektur ist bewusst in einen getrennten Folgeslice
+  verschoben (UD-103).
+
 ## 0.34.0 - 2026-07-24
 
 ### Changed

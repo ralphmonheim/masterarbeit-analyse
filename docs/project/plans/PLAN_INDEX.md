@@ -1,6 +1,6 @@
 # Plan Index
 
-Stand: 2026-07-24
+Stand: 2026-07-25
 
 | Plan ID | Titel | Datei | Modul | Status | Prioritaet | Abhaengigkeiten | Naechster Schritt |
 |---|---|---|---|---|---|---|---|
@@ -36,3 +36,5 @@ Stand: 2026-07-24
 | P030 | research_tools Prozessmessung und Vergleichsauswertung | `inbox/260714_Plan_P030_research_tools_Prozessauswertung.md` | research_tools | Fachlich geplant, von Produktivsoftware getrennt | Hoch fuer Methodik | technische Logs aus P011-P021 | P030-S1 Datenmodell und manuelle Versuchserfassung umsetzen |
 | P031 | Codex Project Operating System | `inbox/260715_Plan_P031_Codex_Project_Operating_System.md` | Projektorganisation, Codex | Lokale Baseline umgesetzt; externe Integrationen gesperrt | Hoch fuer Projektsteuerung | P003, P007, P027 | Neuen Codex-Chat/Projekt-Reload fuer Skills durchfuehren |
 | P032 | Architecture Benchmark und Migrationsplanung | `inbox/260715_Plan_P032_Architecture_Benchmark_Migration.md` | Gesamtarchitektur, Packaging, Daten, Tests, Dokumentation | Audit und Planung abgeschlossen; ADR angenommen; P032-W0, P032-W1a, P032-W2a und P032-W3a-T0 abgeschlossen; W3a-Zielrichtung und T1-Plan dokumentiert | Hoch fuer Architekturqualitaet, nur MVP-gekoppelt umsetzen | P007, P009-P018, P027, P030, P031 | P032-W3a-T1 ausschliesslich im dokumentierten Kompatibilitaetsscope umsetzen oder getrennt pausieren; W2b bleibt getrennt |
+| P033 | Wetterdaten TRY 2010/2035 aufnehmen | `inbox/260724_Plan_P033_Wetterdaten_TRY_2010_2035_Aufnahme.md` | ma_weather, ma_simulation_setup, Stage 4 | Katalogaufnahme umgesetzt; PRN-Adapter und Zeitreihenpruefung zurueckgestellt | Hoch | P008, P018, P021, P027 | PRN-Importvertrag spaeter als getrennten, neu freizugebenden Slice planen |
+| P034 | Endvarianten und Kataloge aus Excel aufnehmen | `inbox/260724_Plan_P034_Endvarianten_Kataloge_Excel_Aufnahme.md` | ma_building, ma_zones, ma_parameters, ma_variants, Kataloge | Geplant; Archivinhalt inventarisiert, Schema- und Rechtepruefung offen | Hoch | P012, P013, P015, P017, P018, P027 | P034-E1 Archiv- und Arbeitsmappeninventar mit Zellprovenienz vorbereiten |

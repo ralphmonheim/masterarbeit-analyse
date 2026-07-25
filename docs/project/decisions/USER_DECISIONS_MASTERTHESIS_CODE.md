@@ -1901,3 +1901,50 @@ Stand: 2026-07-22
   annehmen. das modul soll erstmal laufen. werte können in einer anderen
   Phase validiert werden.` und Freigabe `Umsetzungsplan freigegeben` am
   2026-07-24
+
+## UD-102 Wetterdaten 2010/2035 zuerst katalogisieren, PRN-Adapter zurueckstellen
+
+- Datum: 2026-07-25
+- Thema: P008/P033, lokale PRN-Wetterdaten und bestehende DWD-Analyse
+- Entscheidung: Die 90 lokalen PRN-Datensaetze fuer 2010/2035 werden zuerst
+  den richtigen TRY-Referenzstaedten zugeordnet und in der Wetterauswahl
+  sichtbar gemacht. Ein PRN-Analyseadapter wird bewusst auf einen spaeteren
+  Slice verschoben. Die bestehenden DWD-TRY-`.dat`-Wetteranalysen muessen
+  weiterhin unveraendert nutzbar bleiben.
+- Begruendung: Die vorhandenen Wetterfaelle sollen jetzt auffindbar und
+  fachlich richtig eingeordnet sein, ohne den aktuellen Zeitrahmen durch eine
+  zweite Importstrecke zu belasten oder den funktionierenden DWD-Pfad zu
+  gefaehrden.
+- Auswirkung: PRN-Eintraege tragen `analysis_supported: false`, werden als
+  `nur katalogisiert` angezeigt und koennen nicht analysiert, aktiviert oder
+  als Projekt-Default gesetzt werden. Der Standardwert fuer bestehende
+  Datensaetze bleibt analysierbar. Originaldateien bleiben lokal,
+  unveraendert und unversioniert.
+- Betroffene Module oder Dateien: `ma_weather`, Wetter-UI, lokaler
+  Wetterkatalog, P008, P033
+- Status: getroffen und umgesetzt
+- Offene Folgefragen: PRN-Zeitachse mit 8785 Stuetzstellen, Einheiten- und
+  Kalendervertrag, spaetere Zielablage der Originale sowie Analyse- und
+  Sensitivitaetsadapter
+- Quelle oder Chatbezug: Nutzerauftrag `dann zeige die Datensätze bei den
+  richtigen Städten an. ein adapter bauen wir an anderer Stelle wenn mir mehr
+  zeit haben. Die Wetteranalysen sollen weiterhin mit den dwd daten machbar
+  sein.` und Freigabe `Katalogaufnahme ohne PRN-Adapter freigegeben.`
+
+## UD-103 SmallOffice-Referenzfehler getrennt korrigieren
+
+- Datum: 2026-07-25
+- Thema: Release 0.34.1, SmallOffice-LoD-1-Referenzkette
+- Entscheidung: Die bei der Release-Pruefung sichtbaren Befunde werden nicht
+  in diesem Release korrigiert. Der Nutzer gibt Commit und Push des aktuellen
+  Arbeitsstands trotz der bekannten Befunde frei.
+- Befunde: Ruff meldet einen unsortierten Importblock in
+  `tests/test_small_office_lod1_reference.py`. Zwei Tests der
+  SmallOffice-LoD-1-Referenzkette schlagen fehl, weil das technische
+  Referenz-YAML das `project_id` `PROJECT-SMALLOFFICE-REFERENCE-001` nutzt,
+  waehrend das verknuepfte Zonenmodell ein anderes `project_id` fuehrt.
+- Folgearbeit: Importreihenfolge und Referenz-IDs in einem getrennten,
+  fachlich abgegrenzten SmallOffice-Slice korrigieren und die gesamte
+  Test-Suite erneut ausfuehren.
+- Quelle oder Chatbezug: Nutzerentscheidung `Notier die Fehler die werden
+  dann an anderer Stelle korrogiert. freigabe fuer commit und push`.

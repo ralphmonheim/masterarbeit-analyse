@@ -155,6 +155,23 @@ def inspect_weather_dataset_status(
             modified_ns=file_stat.st_mtime_ns,
         )
 
+    if not dataset.analysis_supported:
+        return WeatherDatasetStatus(
+            weather_key=dataset.weather_key,
+            display_name=dataset.display_name,
+            file_path=dataset.file_path,
+            file_exists=True,
+            file_status=WeatherFileStatus.AVAILABLE,
+            import_id=import_id,
+            session_id=session_id,
+            run_id=run_id,
+            file_size_bytes=file_stat.st_size,
+            modified_ns=file_stat.st_mtime_ns,
+            messages=(
+                dataset.analysis_note or "Der Datensatz ist katalogisiert, besitzt aber noch keinen Analyseadapter.",
+            ),
+        )
+
     try:
         import_result = import_try_weather_file(
             resolved_path,

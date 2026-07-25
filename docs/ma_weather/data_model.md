@@ -22,6 +22,8 @@ Felder:
 | `reference_location_id` | optionale Referenzstandort-ID fuer TRY-Referenzdatensaetze |
 | `selection_priority` | Sortierung innerhalb gleicher Rolle |
 | `is_active` | steuert, ob der Datensatz aktiv verwendet werden soll |
+| `analysis_supported` | steuert getrennt davon, ob der vorhandene Analyse-Runner das Dateiformat verarbeiten darf |
+| `analysis_note` | lesbarer Hinweis bei einem nur katalogisierten, noch nicht analysierbaren Datensatz |
 | `notes` | kurze Hinweise |
 | `location_resolution_source` | Herkunft der Standortzuordnung, z. B. Datei-/Mapping-Verweis, TRY-Koordinaten oder manuelle Pruefung |
 | `location_resolution_status` | Status der Standortzuordnung, z. B. bestaetigt, Vorschlag, fehlend, Konflikt |
@@ -32,6 +34,13 @@ Registrierungen aus dem Pruefworkflow werden nach erfolgreicher technischer
 Pruefung und bewusster Uebernahme direkt mit `is_active: true` geschrieben.
 Der Projekt-Default bleibt davon getrennt und muss weiterhin bewusst gesetzt
 werden.
+
+`analysis_supported` ist ein additiver Faehigkeitsschalter. Der Standardwert
+ist `true`, damit bestehende DWD-TRY-`.dat`-Eintraege kompatibel bleiben.
+PRN-Metadateneintraege ohne freigegebenen Analyseadapter verwenden
+`analysis_supported: false`: Sie werden ihrer Referenzstadt zugeordnet und in
+der Katalogsicht angezeigt, koennen aber weder analysiert noch ueber einen
+Analyseerfolg aktiviert werden.
 
 Aktive `year_type` Werte fuer den P008-Wetterkatalog:
 
@@ -151,6 +160,7 @@ Der aktuelle Katalogimport prueft:
 - leere technische Schluessel
 - doppelte `weather_key` Werte
 - boolesches Feld `is_active`
+- boolesches Feld `analysis_supported`
 - optionale Datensatzrolle und zugehoerige Standort-IDs
 
 Die Datei selbst muss im Struktur-Slice nicht existieren. Ein spaeterer

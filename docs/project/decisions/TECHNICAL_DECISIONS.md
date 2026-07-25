@@ -1125,3 +1125,39 @@ Abschlussnachweis:
 - Das Sol-Abschlussreview meldet keine Blocker. Die drei wichtigen Befunde
   zu Annahmestatus, Quellenlabels und inhaltsabhaengigen Hashes wurden
   behoben; die globale Hashvertragsaenderung ist oben abgegrenzt.
+
+## Entscheidung 44: Katalogsicht und Analysefaehigkeit fuer Wetterdaten trennen
+
+Am 2026-07-25 wird der von UD-102 freigegebene P033-Katalogslice innerhalb
+des bestehenden `WeatherDataset`- und YAML-Katalogvertrags umgesetzt.
+
+- `analysis_supported: bool` und `analysis_note: str` erweitern
+  `WeatherDataset` additiv. Fehlende Felder werden als
+  `analysis_supported: true` geladen, damit bestehende DWD-TRY-`.dat`-
+  Konfigurationen und APIs kompatibel bleiben.
+- `is_active` bleibt die Sichtbarkeit in der Katalog- und Standortauswahl.
+  `analysis_supported` entscheidet getrennt, ob Diagrammauswahl,
+  Analysebutton, Statuspruefung und Runner das Dateiformat verarbeiten
+  duerfen.
+- Die 90 PRN-Eintraege sind `try_reference`-Datensaetze und verwenden die
+  vorhandenen Referenzstandort-IDs. Region 13 bewahrt `Muehldorf` als
+  physischen IDM-Ort, verweist fuer die bestehende TRY13-Regionsfilterung
+  aber auf den heutigen Referenzknoten `Passau`. Der 2015/2045-
+  Standortkatalog bleibt unveraendert. Die PRN-Eintraege bleiben lokal und
+  unversioniert.
+- Ein nicht unterstuetzter Datensatz wird sichtbar als `nur katalogisiert`
+  markiert. Die Statuspruefung liest nur Dateimetadaten; der Runner bricht vor
+  dem TRY-Importer mit dem dokumentierten Analysehinweis ab.
+
+Rueckfallvertrag:
+
+- Die beiden optionalen Felder und UI-/Runner-Gates koennen additiv
+  zurueckgenommen werden; bestehende DWD-Katalogeintraege benoetigen keine
+  Migration.
+- Die lokalen PRN-Metadateneintraege koennen getrennt aus dem ignorierten
+  Arbeitskatalog entfernt werden, ohne DWD-Dateien oder Beispielkatalog zu
+  veraendern.
+
+Ausgeschlossen bleiben PRN-Parsing, IDM-Adapter, Zeitreihennormalisierung,
+Dateiverschiebung, neue Abhaengigkeiten, Simulation, Veroeffentlichung und
+Git-Aktionen.
