@@ -1,9 +1,9 @@
 # P035 Projekt-Workspace und lokale Projektablage
 
-Stand: 2026-07-27
-Status: P035-S1 bis S5 als V1-Produktslices umgesetzt; generisches Sammelspeichern bleibt Folgearbeit
+Stand: 2026-07-28
+Status: P035-S1 bis S5 als V1-Produktslices mit externer Projektablage umgesetzt; generisches Sammelspeichern bleibt Folgearbeit
 Prioritaet: Hoch
-Abhaengigkeiten: P011, P027, P032, UD-104, UD-106
+Abhaengigkeiten: P011, P027, P032, UD-104, UD-106, UD-107
 
 ## Ziel
 
@@ -15,6 +15,14 @@ fachlichen Projektidentitaet in `ma_project`.
 Simulationsprogramm und Naming-Profil. P035 stellt dafuer lokale
 Projektordner, Projektdateien, bekannte Projektpfade und sichere
 Oeffnen-/Speichern-Ablaufe bereit.
+
+Aktive Projektordner sind Arbeitsdaten und liegen nicht im Repository. Der
+V1-Standardpfad ist:
+
+`../260524_Masterarbeit_Arbeitsablage/04_Teil2_Prozessinnovation/Projekt_Workspaces/`
+
+Im Repository verbleiben nur unveraenderliche Seed-Vorlagen unter
+`config/ma_project/examples/`.
 
 ## Verbindlicher V1-Ablauf
 
@@ -78,12 +86,16 @@ nach ausdruecklicher Bestaetigung aus der Registry entfernt werden.
 Die minimale Zielstruktur lautet:
 
 ```text
-<projektordner>/
-    project.yaml
-    assets/
-        gallery/
-    config/
-    output/
+260524_Masterarbeit_Arbeitsablage/
+  04_Teil2_Prozessinnovation/
+    Projekt_Workspaces/
+      workspace_registry.yaml
+      <projektordner>/
+        project.yaml
+        assets/
+          gallery/
+        config/
+        output/
 ```
 
 Fachmodule duerfen ihre projektbezogenen Dateien erst anlegen, wenn der
@@ -122,6 +134,9 @@ alternative thermische Modelle.
 - Zielpfade werden vor jeder Anlage oder Aenderung auf Existenz,
   Schreibbarkeit und erwartete Projektstruktur geprueft.
 - Projektordner werden niemals rekursiv geloescht.
+- Synthetische `tmp_path`-Testordner sind kurzlebige technische
+  Zwischenartefakte. Sie werden nach jedem Test entfernt und weder als
+  Projektworkspaces noch als wissenschaftliche Ergebnisdaten archiviert.
 
 ## Umsetzungsslices
 
@@ -181,7 +196,7 @@ P035 ist ausschliesslich fuer lokale Projektordner, Registry, Projektdatei,
 Galerie und den technischen Speicherablauf verantwortlich. P011 referenziert
 P035, uebernimmt dessen Dateisystemlogik aber nicht.
 
-## Umsetzungsstand 2026-07-27
+## Umsetzungsstand 2026-07-28
 
 - `ma_workspace` besitzt Workspace-, Registry-, Projektdatei-, Galerie- und
   Fachconfig-Persistenz; `ma_project` besitzt weiterhin die fachlichen
@@ -189,8 +204,14 @@ P035, uebernimmt dessen Dateisystemlogik aber nicht.
 - Projektanlage und -import verwenden einen lokalen, injizierbaren
   Tkinter-Ordnerdialog ohne neue Abhaengigkeit.
 - `Masterarbeit-Analyse` und `Demo-Project1` liegen als getrennte bekannte
-  Projekte vor. Das SmallOffice bleibt ein Gebaeude mit 5Z und 29Z im ersten
-  Projekt.
+  Projekte in der separaten Arbeitsablage vor. Das SmallOffice bleibt ein
+  Gebaeude mit 5Z und 29Z im ersten Projekt. Die Repository-Kopien wurden in
+  unveraenderliche Seed-Vorlagen ueberfuehrt.
+- Das fruehere lokale Testarchiv wurde bis auf 19 durch Windows-ACLs
+  gesperrte UUID-Verzeichnisse entfernt. Diese Reste sind ignorierte,
+  synthetische Zwischenartefakte und muessen einmalig mit lokalen
+  Administratorrechten geloescht werden; sie werden nicht versioniert oder
+  als Nachweis weiterverwendet.
 - Projektname und Projekt-ID werden nicht still geaendert; vorhandene
   Zielordner, doppelte Registry-IDs und abweichende Projektordnernamen
   blockieren.

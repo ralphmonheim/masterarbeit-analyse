@@ -2,9 +2,12 @@
 
 from .workspace import (
     ALLOWED_GALLERY_SUFFIXES,
+    EXTERNAL_PROJECTS_RELATIVE_PATH,
+    EXTERNAL_WORKSPACE_DIRECTORY_NAME,
     KNOWN_V1_PROJECT_NAMES,
     PROJECT_FILE_NAME,
     REGISTRY_SCHEMA_VERSION,
+    WORKSPACE_REGISTRY_FILE_NAME,
     WORKSPACE_SCHEMA_VERSION,
     FolderDialogAdapter,
     KnownProjectSuggestion,
@@ -14,6 +17,8 @@ from .workspace import (
     create_project_id,
     create_project_workspace,
     create_project_workspace_from_dialog,
+    default_project_workspaces_directory,
+    default_workspace_registry_file,
     known_v1_project_suggestions,
     list_gallery_images,
     load_project_module_config,
@@ -34,9 +39,12 @@ from .workspace import (
 
 __all__ = [
     "ALLOWED_GALLERY_SUFFIXES",
+    "EXTERNAL_PROJECTS_RELATIVE_PATH",
+    "EXTERNAL_WORKSPACE_DIRECTORY_NAME",
     "KNOWN_V1_PROJECT_NAMES",
     "PROJECT_FILE_NAME",
     "REGISTRY_SCHEMA_VERSION",
+    "WORKSPACE_REGISTRY_FILE_NAME",
     "WORKSPACE_SCHEMA_VERSION",
     "FolderDialogAdapter",
     "KnownProjectSuggestion",
@@ -46,6 +54,8 @@ __all__ = [
     "create_project_id",
     "create_project_workspace",
     "create_project_workspace_from_dialog",
+    "default_project_workspaces_directory",
+    "default_workspace_registry_file",
     "known_v1_project_suggestions",
     "load_project_workspace",
     "load_workspace_registry",

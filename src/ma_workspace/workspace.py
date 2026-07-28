@@ -19,6 +19,12 @@ PROJECT_FILE_NAME = "project.yaml"
 WORKSPACE_SCHEMA_VERSION = "1.0"
 REGISTRY_SCHEMA_VERSION = "1.0"
 KNOWN_V1_PROJECT_NAMES = ("Masterarbeit-Analyse", "Demo-Project1")
+EXTERNAL_WORKSPACE_DIRECTORY_NAME = "260524_Masterarbeit_Arbeitsablage"
+EXTERNAL_PROJECTS_RELATIVE_PATH = Path(
+    "04_Teil2_Prozessinnovation",
+    "Projekt_Workspaces",
+)
+WORKSPACE_REGISTRY_FILE_NAME = "workspace_registry.yaml"
 ALLOWED_GALLERY_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp"}
 _PROJECT_ID_PATTERN = re.compile(r"PRJ-[0-9]{6}\Z")
 _MODULE_KEY_PATTERN = re.compile(r"ma_[a-z0-9_]+\Z")
@@ -30,6 +36,29 @@ _WINDOWS_RESERVED_NAMES = {
     *(f"COM{number}" for number in range(1, 10)),
     *(f"LPT{number}" for number in range(1, 10)),
 }
+
+
+def default_project_workspaces_directory(
+    repository_root: str | Path | None = None,
+) -> Path:
+    """Liefert die externe Schwesterablage fuer aktive Projekt-Workspaces."""
+    if repository_root is None:
+        resolved_repository_root = Path(__file__).resolve().parents[2]
+    else:
+        candidate = Path(repository_root)
+        if not candidate.is_absolute():
+            raise ValueError("Repository-Root muss absolut sein.")
+        resolved_repository_root = candidate.resolve()
+    return (
+        resolved_repository_root.parent / EXTERNAL_WORKSPACE_DIRECTORY_NAME / EXTERNAL_PROJECTS_RELATIVE_PATH
+    ).resolve()
+
+
+def default_workspace_registry_file(
+    repository_root: str | Path | None = None,
+) -> Path:
+    """Haelt die lokale Registry neben den externen Projektordnern."""
+    return default_project_workspaces_directory(repository_root) / WORKSPACE_REGISTRY_FILE_NAME
 
 
 def validate_workspace_project_name(name: str) -> str:
@@ -136,11 +165,10 @@ class RegistryEntry:
         """Prueft Ordner, Projekt-ID und Projektname gemeinsam."""
         try:
             workspace = load_project_workspace(self.path)
-        except (FileNotFoundError, ValueError, OSError):
+        except FileNotFoundError, ValueError, OSError:
             return False
         return (
-            workspace.project.identity.project_id == self.project_id
-            and workspace.project.identity.title == self.name
+            workspace.project.identity.project_id == self.project_id and workspace.project.identity.title == self.name
         )
 
 
@@ -162,7 +190,7 @@ class KnownProjectSuggestion:
     def available(self) -> bool:
         try:
             workspace = load_project_workspace(self.path)
-        except (FileNotFoundError, ValueError, OSError):
+        except FileNotFoundError, ValueError, OSError:
             return False
         return workspace.project.identity.title == self.name
 

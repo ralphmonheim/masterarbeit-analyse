@@ -9,14 +9,12 @@ from .models import ThermalZone, ZoneAssumption, ZoneModelSpecification
 
 def build_small_office_29z_draft() -> ZoneModelSpecification:
     """Erzeugt genau eine thermische Zone je IFC-Raum, ohne 5Z-Wertvererbung."""
-    from ma_parameters import suggest_usage_profile_id
-
     building = load_small_office_5z_endvariant_02_building_spec()
     zones = tuple(
         ThermalZone(
             zone_id=f"ZONE-29Z-{space.space_id.removeprefix('ROOM-IFC-')}",
             name=space.name,
-            usage_profile_id=suggest_usage_profile_id(space.name) or "",
+            usage_profile_id="",
             floor_area_m2=space.floor_area_m2,
             volume_m3=space.volume_m3,
             source_space_ids=(space.space_id,),

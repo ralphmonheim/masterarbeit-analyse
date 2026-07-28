@@ -140,6 +140,7 @@ def test_29z_draft_has_one_zone_per_ifc_room_without_5z_values():
     assert all(len(zone.source_space_ids) == 1 for zone in draft.zones)
     assert len({zone.source_space_ids[0] for zone in draft.zones}) == 29
     assert draft.zones[0].name == "101 Lobby"
+    assert all(zone.usage_profile_id == "" for zone in draft.zones)
     assert all(zone.heating_setpoint_c == 0 for zone in draft.zones)
     assert all(zone.cooling_setpoint_c == 0 for zone in draft.zones)
     assert len(DIN_USAGE_PROFILE_METADATA) == 43
@@ -681,6 +682,6 @@ def test_simulation_setup_materializes_only_current_confirmed_packages(
             simulation_program_key="ida_ice",
             variant_packages=[package],
             source_fingerprint="abc",
-    )
+        )
     assert not (tmp_path / "RUN-GROUP-ROLLBACK").exists()
     assert not tuple(tmp_path.glob("RUN-GROUP-ROLLBACK-staging-*"))

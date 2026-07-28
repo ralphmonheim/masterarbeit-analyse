@@ -77,6 +77,7 @@ ALLOWED_TRACKED_PROTECTED_PATHS = {
     "data/common/normen/templates/din18599_zone_profile_contract.yaml",
     "data/catalogs/documents/materials/.gitkeep",
     "data/catalogs/documents/products/.gitkeep",
+    "data/catalogs/components/.gitkeep",
     "data/catalogs/materials/.gitkeep",
     "data/catalogs/products/.gitkeep",
     "data/catalogs/sources/.gitkeep",

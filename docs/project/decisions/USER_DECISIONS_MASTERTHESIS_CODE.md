@@ -2261,3 +2261,27 @@ Stand: 2026-07-22
   Variationsbibliothek und lernende Profilvorschlaege
 - Quelle oder Chatbezug: vollstaendiger Prompt-Intake mit modulweisen Q&A
   und ausdrueckliche `Freigabe zur Umsetzung` am 2026-07-27
+
+## UD-107 Aktive Projektworkspaces liegen in der separaten Arbeitsablage
+
+- Datum: 2026-07-28
+- Status: entschieden und umgesetzt
+- Thema: P035-Projektablage und Testzwischenartefakte
+- Entscheidung: Aktive Projektordner und die lokale Registry liegen nicht im
+  Software-Repository, sondern unter
+  `../260524_Masterarbeit_Arbeitsablage/04_Teil2_Prozessinnovation/Projekt_Workspaces/`.
+  Das Repository enthaelt nur unveraenderliche Seed-Vorlagen unter
+  `config/ma_project/examples/`.
+- Entscheidung: Synthetische `tmp_path`-Zwischenartefakte werden nach jedem
+  Test entfernt. Sie werden weder in die separate Arbeitsablage verschoben
+  noch als wissenschaftlicher Ergebnisnachweis aufbewahrt.
+- Begruendung: Projektbezogene Bearbeitungsstaende und Outputs sind
+  Arbeitsdaten. Fuer technische Nachvollziehbarkeit genuegen versionierte
+  Tests, Testzusammenfassung, Manifeste und bewusst ausgewaehlte
+  Ergebnisartefakte; zehntausende UUID-Testordner liefern keine belastbare
+  fachliche Aussage.
+- Betroffene Module oder Dateien: `ma_workspace`, Projektstart-UI,
+  `tests/conftest.py`, P011, P035, Planstatus, Projektvorlagen und externe
+  Arbeitsablage
+- Quelle oder Chatbezug: Nutzerkorrektur und ausdrueckliche
+  `Freigabe zur Umsetzung` am 2026-07-28

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from pathlib import Path
 
 import streamlit as st
 
@@ -27,6 +26,8 @@ from ma_workspace import (
     RegistryEntry,
     create_project_id,
     create_project_workspace_from_dialog,
+    default_project_workspaces_directory,
+    default_workspace_registry_file,
     known_v1_project_suggestions,
     load_project_workspace,
     load_workspace_registry,
@@ -35,8 +36,8 @@ from ma_workspace import (
     upsert_registry_entry,
 )
 
-DEFAULT_PROJECTS_DIRECTORY = Path("data/ma_project/projects").resolve()
-DEFAULT_REGISTRY_FILE = Path("data/ma_project/workspace_registry.yaml").resolve()
+DEFAULT_PROJECTS_DIRECTORY = default_project_workspaces_directory()
+DEFAULT_REGISTRY_FILE = default_workspace_registry_file()
 
 
 def _known_workspaces() -> tuple[ProjectWorkspace, ...]:
@@ -115,9 +116,7 @@ def _render_project_selection() -> None:
 
     if st.button("Projekt importieren", key="project_start_import"):
         try:
-            selected_folder = TkinterFolderDialogAdapter().choose_folder(
-                initial_directory=DEFAULT_PROJECTS_DIRECTORY
-            )
+            selected_folder = TkinterFolderDialogAdapter().choose_folder(initial_directory=DEFAULT_PROJECTS_DIRECTORY)
             if selected_folder is not None:
                 _activate_workspace(load_project_workspace(selected_folder.resolve()))
         except Exception as exc:  # noqa: BLE001 - nativer Dialogfehler wird in der UI dargestellt.
@@ -157,9 +156,7 @@ def _render_project_creation() -> None:
             "Simulationsprogramm",
             program_keys,
             index=program_keys.index(default_program_key),
-            format_func=lambda key: next(
-                program.display_name for program in programs if program.program_key == key
-            ),
+            format_func=lambda key: next(program.display_name for program in programs if program.program_key == key),
         )
         country_code = st.text_input("Land (ISO-2)", value="DE", max_chars=2)
         city = st.text_input("Stadt")

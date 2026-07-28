@@ -227,6 +227,11 @@ Der neue P035 fuehrt Projektordner, lokale Registry, Windows-Ordnerdialog,
 Workspace. P011 bleibt die fachliche Projektwahrheit und uebernimmt keine
 Dateisystemlogik aus P035.
 
+UD-107 legt aktive Projektordner und Registry ausserhalb des Repositorys unter
+`../260524_Masterarbeit_Arbeitsablage/04_Teil2_Prozessinnovation/Projekt_Workspaces/`
+ab. Versionierte Projektdateien unter `config/ma_project/examples/` sind
+ausschliesslich unveraenderliche Seed-Vorlagen.
+
 ## UD-106-Umsetzungsstand 2026-07-27
 
 Die Projektuebersicht bearbeitet Projekt-ID, Kurzname, Beschreibung,

@@ -15,12 +15,14 @@ TEMPORARY_DEBT_PAIRS = {
 EXPECTED_TEMPORARY_DEBT_IMPORTS = Counter()
 EXPECTED_RUNTIME_CYCLES: set[frozenset[str]] = set()
 PROTECTED_CATALOG_SENTINELS = (
+    "data/catalogs/components/future-component-catalog.xlsx",
     "data/catalogs/materials/future-material-catalog.yaml",
     "data/catalogs/materials/unreviewed/nested-catalog.yaml",
     "data/catalogs/products/future-product-catalog.yaml",
     "data/catalogs/sources/future-source-catalog.yaml",
 )
 CATALOG_STRUCTURE_SENTINELS = (
+    "data/catalogs/components/.gitkeep",
     "data/catalogs/materials/.gitkeep",
     "data/catalogs/products/.gitkeep",
     "data/catalogs/sources/.gitkeep",

@@ -14,6 +14,8 @@ from ma_workspace import (
     RegistryEntry,
     create_project_workspace,
     create_project_workspace_from_dialog,
+    default_project_workspaces_directory,
+    default_workspace_registry_file,
     known_v1_project_suggestions,
     list_gallery_images,
     load_project_module_config,
@@ -45,6 +47,26 @@ class _Dialog:
 
     def choose_folder(self, *, initial_directory: Path | None = None) -> Path | None:
         return self.result
+
+
+def test_default_workspace_paths_use_external_sibling_directory(tmp_path: Path):
+    repository_root = (tmp_path / "260524_Masterarbeit_Analyse").resolve()
+    repository_root.mkdir()
+
+    projects_directory = default_project_workspaces_directory(repository_root)
+    registry_file = default_workspace_registry_file(repository_root)
+
+    assert (
+        projects_directory
+        == (
+            repository_root.parent
+            / "260524_Masterarbeit_Arbeitsablage"
+            / "04_Teil2_Prozessinnovation"
+            / "Projekt_Workspaces"
+        ).resolve()
+    )
+    assert not projects_directory.is_relative_to(repository_root)
+    assert registry_file == projects_directory / "workspace_registry.yaml"
 
 
 @pytest.mark.parametrize("name", ["", " ../unsafe", "A/B", r"A\\B", "CON", "project."])

@@ -131,15 +131,19 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   `project.yaml`, bekannte Projektpfade, lokale Registry und Galerie sind
   vorhanden. Offene Fachmodulentwuerfe blockieren den Projektwechsel, bis sie
   im jeweiligen Modul gespeichert oder zurueckgesetzt sind. Ein spaeteres
-  generisches Sammelspeichern bleibt getrennte Folgearbeit. Der Workspace
+  generisches Sammelspeichern bleibt getrennte Folgearbeit. Aktive
+  Projektordner und Registry liegen nach UD-107 in der separaten
+  Arbeitsablage; das Repository enthaelt nur Seed-Vorlagen. Der Workspace
   bleibt lokal und fuehrt weder Cloud- noch Mehrbenutzerbetrieb ein.
 - UD-106 konsolidiert die neue V1-Bearbeitungsfolge `Projekt -> Wetter ->
   Gebaeude -> Zonen -> Technik -> Parameter-Referenzstand ->
   Referenzdimensionierung -> Parameter-Variationsspezifikation -> Varianten
   -> Simulation-Setup`. Die Produktslices sind bis auf dokumentierte
   Quellen- und Rechtegates umgesetzt. Die vollstaendige Suite bestaetigt
-  den Stand mit 657 bestandenen Tests. Der abschliessende Council-Recheck
-  meldet keine Blocker oder wichtigen technischen bzw. methodischen Befunde.
+  den Stand mit 658 bestandenen Tests. Der abschliessende Council-Recheck
+  identifizierte einen Runtime-Zyklus zwischen `ma_zones` und
+  `ma_parameters`; der Zyklus und der unvollstaendige
+  Katalog-Guardrail wurden vor dem Release behoben.
 
 - Externe Integrationspakete vom 2026-07-21 sind in ihre bestehenden
   Planrollen eingeordnet: P009 fuehrt Quell-, thermisches Analyse- und

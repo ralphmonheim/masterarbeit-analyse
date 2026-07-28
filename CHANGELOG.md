@@ -2,6 +2,22 @@
 
 Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentiert.
 
+## 0.35.1 - 2026-07-28
+
+### Changed
+
+- Aktive P035-Projektworkspaces und ihre Registry liegen ausserhalb des
+  Repositorys unter
+  `../260524_Masterarbeit_Arbeitsablage/04_Teil2_Prozessinnovation/Projekt_Workspaces/`.
+  Im Repository verbleiben nur unveraenderliche Seed-Vorlagen.
+- Der lokale `tmp_path`-Testadapter entfernt seine synthetischen
+  Testverzeichnisse nach jedem Test. Diese Zwischenartefakte sind kein
+  wissenschaftlicher Ergebnisnachweis und werden nicht archiviert.
+- Der 29Z-Entwurf bleibt ohne bestaetigte Nutzungsprofile und erzeugt keine
+  zyklische Runtime-Abhaengigkeit zwischen `ma_zones` und `ma_parameters`.
+- Der geschuetzte Bauteilkatalog-Pfad ist vollstaendig durch die
+  Repository-Guardrails abgedeckt.
+
 ## 0.35.0 - 2026-07-28
 
 ### Added

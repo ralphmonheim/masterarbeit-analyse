@@ -74,8 +74,11 @@ Erweiterungen bleiben erhalten, werden aber zurückgestellt.
 
 Geschützte Volltexte und eigene Arbeitsunterlagen liegen außerhalb des
 Repositorys im Schwesterordner `260524_Masterarbeit_Arbeitsablage`. Dieser
-ist die Ablage für Quellen und Schreibarbeit; technische Rohdaten, Logs und
-reguläre Programmausgaben bleiben an ihren bestehenden lokalen Projektpfaden.
+ist die Ablage für Quellen und Schreibarbeit. Aktive P035-Projektworkspaces
+liegen dort getrennt unter
+`04_Teil2_Prozessinnovation/Projekt_Workspaces/`; technische Rohdaten, Logs
+und reguläre Programmausgaben bleiben innerhalb des jeweiligen externen
+Projektordners oder an ihren bereits dokumentierten lokalen Fachpfaden.
 
 Die Software ist ein methodisches Hilfsmittel fuer die Masterarbeit im Bereich
 simulationsgestuetzte TGA-Planung mit IDA ICE. Sie ersetzt keine
