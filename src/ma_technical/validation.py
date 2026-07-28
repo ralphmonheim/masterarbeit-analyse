@@ -279,6 +279,15 @@ def _validate_header(spec: TechnicalSystemSpecification) -> list[DiagnosticMessa
                     location,
                 )
             )
+    if spec.schema_version and spec.schema_version != "1.0":
+        messages.append(
+            _message(
+                DiagnosticSeverity.ERROR,
+                "TECHNICAL_SCHEMA_VERSION_INVALID",
+                "Die Lite-Validierung erwartet Schema-Version 1.0.",
+                "schema_version",
+            )
+        )
 
     if spec.input_detail_level and not isinstance(spec.input_detail_level, TechnicalInputDetailLevel):
         messages.append(

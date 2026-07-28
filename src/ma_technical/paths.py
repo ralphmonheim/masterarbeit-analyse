@@ -13,3 +13,6 @@ BUSINESS_INTEGRATION_LOD1_TECHNICAL_SPEC_PATH = (
 SMALL_OFFICE_LOD1_TECHNICAL_SPEC_PATH = (
     TECHNICAL_CONFIG_DIR / "examples" / "small_office_lod1_technical_spec.yaml"
 )
+SMALL_OFFICE_5Z_ENDVARIANT_02_TECHNICAL_SPEC_PATH = (
+    TECHNICAL_CONFIG_DIR / "examples" / "small_office_5z_endvariant_02_technical_spec.yaml"
+)

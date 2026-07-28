@@ -42,7 +42,7 @@ sondern dient als schneller Statusabgleich.
 | `ma_weather` | kritische Wetterereignisse | ja | ja | nein | nutzbar | `src/ma_weather/weather_events.py` |
 | `ma_analyse.data_preparation` | Raumtabellen, Basisbericht, Excel-Datenuebersicht | ja | ja, Wizard | ja | nutzbar | `src/ma_analyse/`, `docs/ma_analyse/commands_analyse.md` |
 | `ma_analyse.stage_2_optimization` | Variantenvergleiche, Diagramme, Tabellen | ja | ja, Wizard | ja | nutzbar | `src/ma_analyse/analysis/`, `src/ma_ui/streamlit_app/module_views/analyse_view.py` |
-| `ma_analyse.stage_3_standards_compliance` | ComplianceReport, Pass/Fail/Warnung | nein | nur Modulinfo | nein | geplant | `src/ma_workflow/catalog.py` |
+| `ma_analyse.stage_3_standards_verification` | NormVerificationReport, Pass/Fail/Warnung | nein | nur Modulinfo | nein | geplant | `src/ma_workflow/catalog.py` |
 | `ma_analyse.stage_4_sensitivity` | Sensitivitaetsvergleiche, kritische Zeitraeume | nein | nur Modulinfo | nein | geplant | `src/ma_workflow/catalog.py` |
 | `ma_variants` | Varianten, Variantenwerte, Metadaten | teilweise | teilweise | nein | geplant/Bestandskern | `src/ma_workflow/catalog.py`, `docs/ma_variants/commands_variants.md` |
 | `ma_project` | Projektkonfiguration, Benennungsprofil | nein | Modulinfo/P028-Ansicht | nein | geplant | `src/ma_workflow/catalog.py` |

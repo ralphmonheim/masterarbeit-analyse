@@ -76,6 +76,12 @@ werden nach der Dokumentation als `UD-*` aus dieser Datei entfernt und stehen in
   Stage-1-Folgesnapshots und normative Verfahren bleiben offen.
 - Auswirkung: Wird in P010 als Formatmatrix vorbereitet und vor den jeweiligen
   Fachimplementierungen entschieden.
+- Teilklaerung 2026-07-27 durch UD-106: Materialien, Produkte, Bauteile und
+  Elemente werden aus Excel-Katalogen gelesen. Simulationsprogramme,
+  Naming-Profile, Regeln, Vorlagen und sonstige technische Metadaten duerfen
+  Config-basiert bleiben. Projektbezogene Kopien speichern Auswahl und
+  Anpassung, nicht eine zweite Katalogwahrheit. Offen bleiben insbesondere
+  IFC-Lite und weitere produktive Fremdformate.
 
 ### OP-014 ma_zones Folgeentscheidungen aus P013-S2
 
@@ -90,6 +96,11 @@ werden nach der Dokumentation als `UD-*` aus dieser Datei entfernt und stehen in
 - Auswirkung: Betrifft `ma_zones`, `ma_technical`, `ma_parameters`,
   `ma_variants`, `ma_validation`, die UI-Reiter und die spaetere
   Normprofil-/Zeitprofilabbildung.
+- Teilklaerung 2026-07-27 durch UD-106: 5Z bleibt der aktive
+  SmallOffice-V1-Stand. 29Z wird als alternatives thermisches Modell mit
+  einer Zone je IFC-Raum, langen IFC-Namen und vollstaendiger manueller
+  Bestaetigung der DIN/TS-18599-10:2025-10-Profilvorschlaege vorbereitet.
+  Sonderhohlraeume und die weiteren hier genannten Fachfragen bleiben offen.
 
 ### OP-015 ma_variants Folgeentscheidungen nach P017-Handover
 
@@ -107,6 +118,12 @@ werden nach der Dokumentation als `UD-*` aus dieser Datei entfernt und stehen in
   moeglichen spaeteren Zielbereich, `ma_validation`, `ma_feedback`,
   `ma_workflow`, `ma_simulation_setup`, Exportpfade und wissenschaftliche
   Dokumentation.
+- Teilklaerung 2026-07-27 durch UD-106: `all`, `manual` und reproduzierbares
+  `random` bleiben die V1-Auswahlmodi. Projekt-, StudyDirection- und
+  StudyCase-Regeln werden in `ma_parameters` gefuehrt und im aktiven
+  StudyCase schreibgeschuetzt angezeigt. Namensvorschau und Paketerzeugung
+  bleiben getrennte Aktionen. Monte Carlo, Latin Hypercube, allgemeine
+  Vorlagenbibliotheken und automatische Study-Iterationen bleiben offen.
 
 ### OP-016 P031 externe Project-OS-Aktivierungen
 

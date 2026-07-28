@@ -1,0 +1,4 @@
+interface:
+  display_name: "Themenstart"
+  short_description: "Neue Themen mit Fragen in klare Arbeitsauftraege ueberfuehren"
+  default_prompt: "Use $prompt-intake to start a new topic and build a clear task prompt."

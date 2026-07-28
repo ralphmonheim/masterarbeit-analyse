@@ -132,3 +132,47 @@ Anfragen; es berechnet keine Lasten selbst. Kandidaten mit identischem
 bleiben fachlich bewertend und erzeugen hoechstens einen nicht-ausfuehrbaren
 `StudyDirectionProposal`; sie aendern weder Varianten noch technische
 Kapazitaeten automatisch.
+
+## Umsetzungsstand 2026-07-27: Mehrzonen-Referenz
+
+Die bestehende LoD-1-Berechnung verarbeitet nun die fuenf Zonen mit ihren
+jeweiligen Volumen-, Luftwechsel- und internen Lastwerten. Fuer den
+SmallOffice-V1-Referenzfall ergeben sich 54.130,38 W Heizlast, 9.723,26 W
+interne Kuehllast und 3.053,88 m3/h Luftvolumenstrom.
+
+Die Methode bleibt bewusst eine transparente Naeherung. Solare Gewinne,
+dynamische Bilanz und ein normatives Heiz-/Kuehllastverfahren sind nicht
+enthalten und werden im PreProcess als Warnungen weitergegeben.
+
+## Konsolidierte V1-Referenzdimensionierungs-UI 2026-07-27
+
+Nach UD-106 zeigt die Bearbeitungsansicht ausschliesslich die Zonen des
+aktiven thermischen Modells sowie `Heizlast [W]` und `Kuehllast [W]`.
+Diese Werte werden manuell aus IDA eingetragen. Jede Zone benoetigt beide
+Werte; negative Werte sind ungueltig und `0 W` bleibt mit Pruefhinweis
+zulaessig.
+
+Die bestehende LoD-1-Berechnung bleibt technischer Referenz- und
+Plausibilitaetsnachweis, ersetzt aber nicht die abgestimmte manuelle
+IDA-Eingabeoberflaeche. Geaenderte vorgelagerte Fachwerte markieren die
+IDA-Referenzwerte als aktualisierungsbeduerftig.
+
+## UD-106-Umsetzungsstand 2026-07-27
+
+Die Bearbeitungsansicht zeigt ausschliesslich die Zonen des aktiven
+thermischen Modells sowie `Heizlast [W]` und `Kuehllast [W]`. Beide Werte
+sind verpflichtend, negative Werte blockieren und `0 W` erzeugt einen
+Pruefhinweis. Speichern erzeugt eine projektbezogene manuelle
+IDA-Referenzdatei und markiert Variantenstaende aktualisierungsbeduerftig.
+
+Die gespeicherte Referenz bindet den exakten 5Z-Zonensatz und dessen
+Inhaltshash. Sortierte oder veraenderte Zonenspalten, nichtendliche Werte,
+unvollstaendige Zonenmengen und ein aktives, noch gesperrtes 29Z-Modell
+blockieren. IDA-Version, Modell-/Run-ID, Quelldateiname und SHA-256,
+Lastdefinition, Maximumsdefinition, Auslegungsbedingungen,
+Eingabeverantwortlicher und Pruefstatus sichern die Provenienz. Erst
+`reviewed` mit Reviewer, ISO-Pruefdatum und Pruefhinweis ist fuer
+`ma_variants` weitergabefaehig. Der gespeicherte
+Referenzparameter-Fingerprint bindet die IDA-Lasten an die
+dimensionierungsrelevante Baseline; geaenderte Referenzwerte sperren alte
+Lasten vor einer neuen Kandidatenerzeugung.

@@ -202,21 +202,22 @@ def test_ui_navigation_contains_home_and_analysis():
 def test_ui_navigation_follows_the_canonical_phase_2_input_order():
     page_keys = [page.page_key for page in get_navigation_pages()]
 
-    assert page_keys.index("weather") < page_keys.index("building") < page_keys.index("technical")
-    assert page_keys.index("technical") < page_keys.index("zones") < page_keys.index("parameters")
+    assert page_keys.index("weather") < page_keys.index("building") < page_keys.index("zones")
+    assert page_keys.index("zones") < page_keys.index("technical") < page_keys.index("parameters")
 
 
 def test_process_navigation_excludes_cross_cutting_and_infrastructure_pages():
     page_keys = [page.page_key for page in get_process_navigation_pages()]
 
-    assert page_keys[:9] == [
+    assert page_keys[:10] == [
         "project",
         "weather",
         "building",
-        "technical",
         "zones",
+        "technical",
         "parameters",
         "dimensioning",
+        "parameter_variations",
         "variants",
         "simulation_setup",
     ]
@@ -494,11 +495,33 @@ def test_building_view_places_the_informative_import_before_the_overview():
         "Import",
         "Uebersicht",
         "Bauteile",
-        "Konstruktionen",
+        "Raeume",
+        "Konstruktionen/Kataloge",
     )
     source = Path("src/ma_ui/streamlit_app/module_views/building_view.py").read_text(encoding="utf-8")
-    assert 'st.tabs(["3D-Datei", "KI-Modell", "Textliche Eingabe"])' in source
+    assert 'input_modes = ("3D-Datei", "KI-Modell", "Textliche Eingabe")' in source
+    assert 'key="ma_building_import_mode"' in source
     assert "wird hier nicht gestartet" in source
+    assert "Gebaeudespezifikation uebernehmen" in source
+    assert "Prompt kopieren" in source
+
+
+def test_building_room_book_shows_released_spaces_without_zone_assignment():
+    spec = load_business_integration_lod1_building_spec()
+
+    rows = building_view.building_room_rows(spec)
+
+    assert rows == [
+        {
+            "Raum-ID": "SPACE-BI-OFFICE-0001",
+            "IFC-Raumname": "Bueroraum LoD-1",
+            "Geschoss": "STOREY-BI-LOD1-0001",
+            "Flaeche [m2]": 24.0,
+            "Volumen [m3]": 96.0,
+            "Quelle": "BuildingModelSpecification",
+            "Validierungsstatus": "erkannt",
+        }
+    ]
 
 
 def test_project_overview_combines_synthetic_master_data_and_session_configuration():
@@ -593,7 +616,8 @@ def test_technical_view_separates_model_overview_and_fixed_reference_selection()
         "Trinkwarmwasser",
         "Elektrik",
     )
-    assert "st.tabs(TECHNICAL_WORKSPACE_TAB_LABELS)" in render_source
+    assert "st.segmented_control(" in render_source
+    assert "TECHNICAL_WORKSPACE_TAB_LABELS" in render_source
     assert "TECHNICAL_SELECTION_TAB_LABELS" in render_source
     assert "_render_fixed_technical_reference(technical_spec)" in render_source
     assert "_render_fixed_technical_selection(technical_spec)" in render_source
@@ -758,6 +782,23 @@ def test_dimensioning_view_is_registered_and_uses_lod1_result():
     assert summary_rows["Heizlast gesamt"] == 1701.6
 
 
+def test_manual_reference_dimensioning_uses_active_zones_and_watts():
+    zone_spec = load_business_integration_lod1_zone_spec()
+    rows = dimensioning_view.manual_reference_load_rows(zone_spec, None)
+    rows[0]["Heizlast [W]"] = 1200.0
+    rows[0]["Kuehllast [W]"] = 0.0
+
+    values, warnings = dimensioning_view.validate_manual_reference_load_rows(
+        zone_spec,
+        pd.DataFrame(rows),
+    )
+
+    assert list(rows[0]) == ["Zone", "Heizlast [W]", "Kuehllast [W]"]
+    assert values[0]["heating_load_w"] == 1200.0
+    assert values[0]["cooling_load_w"] == 0.0
+    assert warnings
+
+
 def test_dashboard_and_workflow_rows_cover_target_structure():
     dashboard_rows = dashboard_action_rows()
     workflow_rows = workflow_step_rows()
@@ -899,17 +940,13 @@ def test_ui_uses_top_navigation_instead_of_sidebar_radio():
     assert "Modulansicht" in app_source
 
 
-def test_weather_dataset_actions_are_in_dataset_section():
+def test_weather_uses_persistent_analysis_diagram_and_management_sections():
     weather_source = Path("src/ma_ui/streamlit_app/pages/weather.py").read_text(encoding="utf-8")
     analysis_workspace_source = weather_source.split("def _render_weather_analysis_workspace", maxsplit=1)[1].split(
         "def render()",
         maxsplit=1,
     )[0]
     render_source = weather_source.split("def render()", maxsplit=1)[1]
-    actions_source = weather_source.split("def _render_weather_dataset_actions", maxsplit=1)[1].split(
-        "def _render_weather_import_panel",
-        maxsplit=1,
-    )[0]
     import_panel_source = weather_source.split("def _render_weather_import_panel", maxsplit=1)[1].split(
         "def _render_weather_discoveries",
         maxsplit=1,
@@ -922,59 +959,42 @@ def test_weather_dataset_actions_are_in_dataset_section():
         "def _render_weather_discovery_validation_result",
         maxsplit=1,
     )[0]
-    dataset_section_source = weather_source.split("def _render_weather_dataset_section", maxsplit=1)[1].split(
-        "def _render_critical_weather_events",
+    management_source = weather_source.split("def _render_weather_management", maxsplit=1)[1].split(
+        "def render()",
         maxsplit=1,
     )[0]
 
-    assert weather_page.WEATHER_WORKSPACE_TAB_LABELS == ("Analyse", "Verwaltung")
-    assert "st.tabs(WEATHER_WORKSPACE_TAB_LABELS)" in render_source
+    assert weather_page.WEATHER_WORKSPACE_TAB_LABELS == ("Analyse", "Diagramme", "Verwaltung")
+    assert weather_page.WEATHER_MANAGEMENT_TAB_LABELS == ("Import", "Scannen", "Pruefen")
+    assert "st.segmented_control(" in render_source
+    assert "WEATHER_WORKSPACE_TAB_SESSION_KEY" in render_source
+    assert "WEATHER_MANAGEMENT_TAB_SESSION_KEY" in management_source
     assert "if not catalog.active_datasets():" in analysis_workspace_source
     assert "_render_weather_dataset_section" not in analysis_workspace_source
-    assert render_source.count("_render_weather_dataset_section(") == 1
-    assert "WEATHER_DATASET_ACTION_IMPORT" in actions_source
-    assert "WEATHER_DATASET_ACTION_SCAN" in actions_source
-    assert "WEATHER_DATASET_ACTION_VALIDATE" in actions_source
+    assert "_render_weather_diagrams()" in render_source
+    assert "_render_weather_management(" in render_source
     assert '"Import"' in weather_source
     assert '"Scannen"' in weather_source
     assert '"Pruefen"' in weather_source
-    assert "st.columns(3)" in actions_source
-    assert "_toggle_weather_dataset_action" in actions_source
-    assert "_weather_dataset_action_button_type" not in weather_source
-    assert "Aktive Ansicht:" not in actions_source
-    assert "type=" not in actions_source
-    assert "_run_weather_input_discovery" not in actions_source
-    assert '"Datensatzbestand pruefen"' in actions_source
-    assert "_run_weather_catalog_validation(catalog)" in actions_source
+    assert '"Datensatzbestand pruefen"' in management_source
+    assert "_run_weather_catalog_validation(catalog)" in management_source
     assert "_run_weather_input_discovery(catalog, location_catalog)" in scan_panel_source
     assert "_run_weather_catalog_validation(catalog)" not in validation_panel_source
     assert "Parameter pruefen" in validation_panel_source
     assert '"Key-Parameter pruefen"' not in validation_panel_source
-    assert "_render_weather_dataset_actions(catalog, location_catalog)" in dataset_section_source
-    assert "active_action = _active_weather_dataset_action()" in dataset_section_source
-    assert "if active_action == WEATHER_DATASET_ACTION_IMPORT" in dataset_section_source
-    assert "if active_action == WEATHER_DATASET_ACTION_SCAN" in dataset_section_source
-    assert "if active_action == WEATHER_DATASET_ACTION_VALIDATE" in dataset_section_source
-    assert "_render_weather_import_panel()" in dataset_section_source
-    assert "_render_weather_scan_panel(catalog, location_catalog)" in dataset_section_source
-    assert "_render_weather_validation_panel(catalog, location_catalog, status_by_key)" in dataset_section_source
+    assert "_render_weather_import_panel()" in management_source
+    assert "_render_weather_scan_panel(catalog, location_catalog)" in management_source
+    assert "_render_weather_validation_panel(catalog, location_catalog, status_by_key)" in management_source
     assert "stage_weather_input_file" in import_panel_source
     assert "selected_location_id" not in import_panel_source
     assert "edited_location_id" not in import_panel_source
     assert "Gefundene lokale TRY-Dateien" in weather_source
     assert "Ort / Vorschlag" in weather_source
-    assert "active_column, open_column = st.columns(2)" in dataset_section_source
+    assert "latest_weather_plot_sets" in weather_source
 
 
 def test_weather_management_renders_without_active_dataset(monkeypatch):
     management_calls: list[object] = []
-
-    class FakeTab:
-        def __enter__(self):
-            return self
-
-        def __exit__(self, _exc_type, _exc_value, _traceback):
-            return False
 
     class FakeStreamlit:
         session_state: dict[str, object] = {}
@@ -996,9 +1016,13 @@ def test_weather_management_renders_without_active_dataset(monkeypatch):
             return None
 
         @staticmethod
-        def tabs(labels):
-            assert labels == weather_page.WEATHER_WORKSPACE_TAB_LABELS
-            return FakeTab(), FakeTab()
+        def warning(_value):
+            return None
+
+        @staticmethod
+        def segmented_control(_label, options, **_kwargs):
+            assert options == weather_page.WEATHER_WORKSPACE_TAB_LABELS
+            return "Verwaltung"
 
     class EmptyWeatherCatalog:
         @staticmethod
@@ -1014,7 +1038,7 @@ def test_weather_management_renders_without_active_dataset(monkeypatch):
     monkeypatch.setattr(weather_page, "_current_status_map", lambda _catalog, _result: {})
     monkeypatch.setattr(
         weather_page,
-        "_render_weather_dataset_section",
+        "_render_weather_management",
         lambda current_catalog, *_args: management_calls.append(current_catalog),
     )
 
@@ -1127,6 +1151,10 @@ def test_weather_selection_context_uses_short_labels():
         "def _render_unselected_weather_context",
         maxsplit=1,
     )[0]
+    region_context_source = weather_source.split("def _render_region_context", maxsplit=1)[1].split(
+        "def _render_unselected_weather_context",
+        maxsplit=1,
+    )[0]
     unselected_source = weather_source.split("def _render_unselected_weather_context", maxsplit=1)[1].split(
         "def _render_weather_selection",
         maxsplit=1,
@@ -1140,6 +1168,7 @@ def test_weather_selection_context_uses_short_labels():
     assert '"TRY-Klimaregionen Deutschland"' not in map_source
     assert '"**Klimaregion:** {_weather_region_display_code(region)}"' in context_source
     assert '"**Referenzstandort:** {reference_location.location_name}"' in context_source
+    assert "st.markdown" not in region_context_source
     assert '"TRY-Referenzstandort:"' not in context_source
     assert "st.segmented_control(" in unselected_source
     assert '"**Referenzstandort:** -"' in unselected_source

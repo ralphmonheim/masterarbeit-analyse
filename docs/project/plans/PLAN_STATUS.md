@@ -1,6 +1,6 @@
 # Plan Status
 
-Stand: 2026-07-25
+Stand: 2026-07-27
 
 Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt und nach jeder Planumsetzung aktualisiert. Vollstaendige alte Planstaende liegen unter `docs/project/archive/plans/`.
 
@@ -15,12 +15,9 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   Arbeitsunterlagen liegen im lokalen Schwesterordner
   `../260524_Masterarbeit_Arbeitsablage/`; technische Projektartefakte
   bleiben an ihren bestehenden lokalen Pfaden.
-- Projektweites Compliance-System angelegt: `docs/compliance/` trennt
-  gemeinsame, IDA-/EQUA-, DIN-/Nautos-/VDE-/VDI- und DWD-Regeln.
-  `ma_core.compliance`
-  setzt Metadaten-Preflight, Gruen-Gelb-Rot-/Unknown-Entscheidung, sichere
-  Operationswrapper, Datenbereinigung und datensparsames JSONL-Audit um. Der
-  DWD-TRY-2011-Konverter ist als erster produktiver Adapter gegatet.
+- Das fruehere rechtliche Vorpruefsystem ist vollstaendig rueckgebaut.
+  Rechte-, Quellen- und externe Sondergates verbleiben in den jeweils
+  zustaendigen Projektregeln; der fachliche Norm-Nachweis ist davon getrennt.
 - P003 Projektstruktur, Planungsbereich und Nutzerentscheidungen: modulare Dokumentationsstruktur, Planindex, Strukturreview, Cleanup-Plan, Implementierungshinweise und getrennter Bereich fuer Nutzerentscheidungen wurden vorbereitet. Betroffen: `docs/project/`, `docs/ma_analyse/`, `docs/ma_variants/`, `docs/ma_weather/`, `docs/common/`.
 - `docs/project/archive/plans/250604_Plan_Projektstruktur_Review_Planungsbereich_Nutzerentscheidungen.md` ist nach Umsetzung archiviert.
 - `docs/project/archive/plans/250603_Plan_Variantenmodul_GUI_Logikpruefung.md` ist nach Abschluss von P001 archiviert.
@@ -126,6 +123,23 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   inventarisiert. Bestehende Katalog- und Fachmodelle werden nicht
   ueberschrieben; ein direkter Variantenvergleich setzt identische Gebaeude-,
   Wetter-, Profil-, Simulations- und Auswertungsstaende voraus.
+  Fuer SmallOffice V1 ist ausschliesslich Endvariante 02 minimal und
+  quellengebunden normalisiert; der Vollimport aller Arbeitsmappen bleibt ein
+  getrennter P034-Folgeslice.
+- P035 setzt den lokalen Projekt-Workspace getrennt von der fachlichen
+  `ma_project`-Verantwortung um. Projektwahl, Windows-Ordnerdialog,
+  `project.yaml`, bekannte Projektpfade, lokale Registry und Galerie sind
+  vorhanden. Offene Fachmodulentwuerfe blockieren den Projektwechsel, bis sie
+  im jeweiligen Modul gespeichert oder zurueckgesetzt sind. Ein spaeteres
+  generisches Sammelspeichern bleibt getrennte Folgearbeit. Der Workspace
+  bleibt lokal und fuehrt weder Cloud- noch Mehrbenutzerbetrieb ein.
+- UD-106 konsolidiert die neue V1-Bearbeitungsfolge `Projekt -> Wetter ->
+  Gebaeude -> Zonen -> Technik -> Parameter-Referenzstand ->
+  Referenzdimensionierung -> Parameter-Variationsspezifikation -> Varianten
+  -> Simulation-Setup`. Die Produktslices sind bis auf dokumentierte
+  Quellen- und Rechtegates umgesetzt. Die vollstaendige Suite bestaetigt
+  den Stand mit 657 bestandenen Tests. Der abschliessende Council-Recheck
+  meldet keine Blocker oder wichtigen technischen bzw. methodischen Befunde.
 
 - Externe Integrationspakete vom 2026-07-21 sind in ihre bestehenden
   Planrollen eingeordnet: P009 fuehrt Quell-, thermisches Analyse- und
@@ -152,7 +166,7 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - `ma_weather` ist fuer den lokal getesteten V1-Umfang zentral als
   `available` registriert. Die Startkarte markiert `Diagramme – Teilweise`
   amberfarben als getrennten Ausbaustand; reale Wetterdaten und deren
-  Compliance-Gates werden dadurch nicht erweitert.
+  Rechte- und Quellenstatus werden dadurch nicht erweitert.
 - Der lokale P027-V1-UI-Slice ist umgesetzt: Die zentrale Infokarte
   erlaeutert den dokumentierten V1-Rahmen fuer alle Module; die praktischen
   Modulansichten bleiben frei von doppelten V1-Hinweisen. `ma_weather` nutzt
@@ -194,17 +208,19 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   werden nicht als neue Hauptobjekte eingefuehrt.
 - Direkte IDM-Manipulation, erfundene IDA-Befehle, automatischer
   Simulationsstart, Batch-Ausfuehrungen und Simulationsserver-Nutzung bleiben
-  bis zu einer ausdruecklichen schriftlichen EQUA-Freigabe ausgeschlossen;
-  `docs/compliance/ida_ice/` ist die verbindliche Vorpruefung.
+  ausserhalb des aktuellen P018-Umfangs. Jede spaetere Adapter- oder
+  Automatisierungsfreigabe bleibt ein eigener technischer und rechtlicher
+  Nachweis.
 
 ### Modulplanserie P011 bis P028
 
 - Eingabekette bis `ma_simulation_setup`: P011 bis P018.
 - Analyse Stufe 2 Optimierung: P019 auf Basis vorhandener Befehle.
 - Analyse Stufe 3 Norm-Nachweis: P020 unter dem kanonischen Namen
-  `ma_analyse.stage_3_standards_compliance`; deutsche Normen zuerst,
-  internationale Profile spaeter. Die technische Compliance-Vorpruefung ist
-  vorhanden. Der Frankfurt-UAS-Nautos-Zugang ist fuer manuelle Recherche und
+  `ma_analyse.stage_3_standards_verification`; deutsche Normen zuerst,
+  internationale Profile spaeter. Dieser Schritt prueft Gebaeude und Technik
+  fachlich gegen Normvorlagen und bewertet nicht, ob Handlungen rechtmaessig
+  sind. Der Frankfurt-UAS-Nautos-Zugang ist fuer manuelle Recherche und
   Lektuere belegt; produktive Normlogik sowie DIN-/VDE-/VDI-KI-Verarbeitung
   bleiben bis zur bestaetigten Rechte- und Quellenpruefung gesperrt.
 - P020 erhaelt einen reinen Metadatenindex des lokalen Quellenbestands sowie
@@ -313,7 +329,7 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   kleine Variantenstudie und ein neutrales, validiertes Run-Paket bilden den
   Umfang. P018 fuehrt getrenntes Setup, Variantenkonfigurationen,
   Simulationseingaben und technische Logs. Die Uebergabe an IDA ICE bleibt
-  manuell und folgt der P018-Compliance-Grenze; P009 folgt mit einem kleinen
+  manuell und folgt der P018-Adapter- und Rechte-Grenze; P009 folgt mit einem kleinen
   neutralen Ergebnis-Postprocess erst nach stabilem Run-Paket. P014 beginnt
   dafuer mit der Vollstaendigkeit des
   v2-Aggregats und seiner Referenzen, vor Serialisierung, Branches oder einem
@@ -363,8 +379,15 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   besitzen sichtbare Quellen- oder Annahmenhinweise und sind nach UD-101
   spaeter fachlich zu validieren. Das urspruengliche IFC-abgeleitete
   Konfigurationspaket bleibt nach
-  `COMPLIANCE-2026-07-24-SMALLOFFICE-CONFIG-INPUT-001` lokal und ignoriert;
-  nur die separat synthetische Rekonstruktion wird versioniert.
+  weiterhin lokal und ignoriert; nur die separat synthetische Rekonstruktion
+  wird versioniert.
+- SmallOffice V1 ist bis `ma_simulation_setup` umgesetzt: Endvariante 02
+  umfasst 29 Raeume, fuenf feste Zonen, 516,842 m2 und 1677,64455 m3. Die
+  Lobbyhoehe 8,0 m ist als zweigeschossige Geometrie bestaetigt. Fuenf
+  globale Temperatur-Sollwertbaender und sechs gekoppelte
+  Heiz-/Kuehlleistungsfaktoren erzeugen 30 Optimierungsfaelle. Acht getrennte
+  Sensitivitaetsfaelle verwenden den Referenz-/Dimensionierungsfall fuer vier
+  Frankfurt-Jahreswetter und vier Belegungszeitprofile.
 - P016-S1 ist umgesetzt: `ma_analyse.stage_1_dimensioning` berechnet aus dem
   validierten `ParameterSnapshot` v1 eine LoD-1-Referenzdimensionierung mit
   Transmissions-Heizlast, Lueftungs-Heizlast, Gesamt-Heizlast, Mindest-
@@ -383,13 +406,19 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   getrenntes gemeinsames Setup je Run, materialisiert neutrale
   Variantenartefakte und fuehrt direkte `RUN -> VAR`-Zuordnungen. P018 schreibt
   nur technische Logs.
+- Der manuell gestartete Kandidatenlauf
+  `SMALL-OFFICE-V1-MANUAL-20260727-002` ist bis Simulation-Setup erfolgreich:
+  38 von 38 Draft-Paketen sind vollstaendig, kein kritischer Fehler trat auf
+  und keine Simulation wurde gestartet. Dokumentierte Warnungen betreffen
+  die nur als Metadaten vorbereiteten Frankfurt-Jahre 2010/2035 sowie die
+  LoD-1-Grenzen der Referenzdimensionierung.
 - P030 ist als externe Forschungsschicht geplant: Es erfasst manuelle und
   logbasierte Pre-, Simulations- und Postprocessing-Zeiten getrennt,
   vergleicht Prozessmodi und beeinflusst keine produktiven Fachobjekte.
 - P031 ordnet das repo-lokale Codex Project Operating System ohne neue
   Parallelwahrheiten: Der Plan buendelt Audit, Konfliktregister,
   Capability-Snapshot und Backlog; `AGENTS.md`, `.codex/`,
-  `UPDATE_ROUTINES.md`, Decisions und Compliance behalten getrennte
+  `UPDATE_ROUTINES.md`, Decisions und dokumentierte Sondergates behalten getrennte
   Eigentuemerschaft. Zwei duenne Skills und ein Contract-Test bilden die
   lokale Baseline. `chat-handover` archiviert zusaetzlich datierte,
   referenzierte Arbeits-Snapshots, ohne die aktiven Steuerquellen zu
@@ -430,9 +459,8 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   keine Config-Moves oder breiten Paketverschiebungen aus W3a ableiten.
 - Der lokale Arbeitsstand besitzt die Releases `v0.30.0` und `v0.30.1` auf
   `main`, liegt aber noch zwei Commits vor `origin/main`. Die konkrete
-  Compliance-Pruefung ist gruen; der externe Push erfordert weiterhin die
-  explizite Zielbestätigung des Nutzers. `logs/compliance/decisions.jsonl`
-  bleibt lokal und untracked; die lokalen Gebaeudekataloge bleiben ignoriert.
+  Release-Pruefung ist gruen; der externe Push folgt den dokumentierten
+  Direktbefehlen. Die lokalen Gebaeudekataloge bleiben ignoriert.
 - Masterarbeits-MVP V1 ist der uebergeordnete erste Nutzennachweis: von
   Projekt- und Eingabeaufnahme ueber Baseline, Varianten und neutrales
   Run-Paket bis zu manueller Simulation, neutraler Ergebnisaufnahme, drei
@@ -812,6 +840,13 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - P031-Folgeaktivierungen getrennt entscheiden: Bedeutung von `keine Hooks`,
   effektive MCP-Grenze, Agentenlimit 3 oder 4, Graphify-Scope,
   Obsidian-/Zotero-Ziel sowie objektbezogene PDF- und IDA-Rechte.
+- Fuer die V1-Abnahme fehlen reale manuelle IDA-Heiz-/Kuehllasten, der
+  konkrete Techniksystem-Excel-Katalog und der Rechtegatenachweis fuer die
+  vollstaendigen DIN-Nutzungsprofilwerte. Generisches Sammelspeichern
+  beliebiger Modul-Drafts bleibt eine spaetere Komfortfunktion; der
+  Projektwechsel selbst ist gegen stillen Entwurfsverlust gesperrt.
+  Wiederverwendbare Variationsbibliotheken, lernende Profilvorschlaege und
+  eine spaetere 5Z/29Z-Struktursensitivitaet bleiben Folgeoptionen.
 
 ## Archiv
 

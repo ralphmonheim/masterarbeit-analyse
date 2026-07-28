@@ -9,6 +9,7 @@ from dataclasses import asdict, replace
 from ma_building import (
     BuildingModelSpecification,
     load_business_integration_lod1_building_spec,
+    load_small_office_5z_endvariant_02_building_spec,
     load_small_office_lod1_building_spec,
     validate_building_spec,
 )
@@ -16,6 +17,7 @@ from ma_technical import (
     ReleasedTechnicalHandover,
     TechnicalSystemSpecification,
     load_business_integration_lod1_technical_spec,
+    load_small_office_5z_endvariant_02_technical_spec,
     load_small_office_lod1_technical_spec,
     validate_technical_spec,
 )
@@ -38,6 +40,7 @@ from ma_zones import (
     ReleasedZoneHandover,
     ZoneModelSpecification,
     load_business_integration_lod1_zone_spec,
+    load_small_office_5z_endvariant_02_zone_spec,
     load_small_office_lod1_zone_spec,
     validate_zone_spec,
 )
@@ -67,6 +70,10 @@ BUSINESS_INTEGRATION_LOD1_BASELINE_SNAPSHOT_ID = "PARAM-BI-LOD1-BASELINE-0001"
 BUSINESS_INTEGRATION_LOD1_BASELINE_SNAPSHOT_VERSION = "PARAM-BI-LOD1-BASELINE-V2"
 SMALL_OFFICE_LOD1_SNAPSHOT_ID = "PARAM-SYNTHETIC-SMALL-OFFICE-LOD1-SNAPSHOT-0001"
 SMALL_OFFICE_LOD1_SNAPSHOT_VERSION = "PARAM-SYNTHETIC-SMALL-OFFICE-LOD1-V1"
+SMALL_OFFICE_5Z_V1_SNAPSHOT_ID = "PARAM-SMALL-OFFICE-5Z-V1-SNAPSHOT-0001"
+SMALL_OFFICE_5Z_V1_SNAPSHOT_VERSION = "PARAM-SMALL-OFFICE-5Z-V1"
+SMALL_OFFICE_5Z_V1_BASELINE_SNAPSHOT_ID = "PARAM-SMALL-OFFICE-5Z-V1-BASELINE-0001"
+SMALL_OFFICE_5Z_V1_BASELINE_SNAPSHOT_VERSION = "PARAM-SMALL-OFFICE-5Z-V1-BASELINE-V1"
 
 
 def build_business_integration_lod1_parameter_snapshot() -> ParameterSnapshot:
@@ -102,6 +109,26 @@ def build_small_office_lod1_parameter_snapshot() -> ParameterSnapshot:
             "Synthetischer SmallOffice-LoD-1 ParameterSnapshot; alle Werte sind "
             "vorlaeufige Annahmen und spaeter fachlich zu validieren."
         ),
+    )
+
+
+def build_small_office_5z_v1_parameter_snapshot() -> ParameterSnapshot:
+    """Baut den V1-Snapshot aus der normalisierten Endvariante 02."""
+    return build_lod1_parameter_snapshot(
+        load_small_office_5z_endvariant_02_building_spec(),
+        load_small_office_5z_endvariant_02_zone_spec(),
+        load_small_office_5z_endvariant_02_technical_spec(),
+        snapshot_id=SMALL_OFFICE_5Z_V1_SNAPSHOT_ID,
+        snapshot_version=SMALL_OFFICE_5Z_V1_SNAPSHOT_VERSION,
+    )
+
+
+def build_small_office_5z_v1_baseline_parameter_snapshot() -> BaselineParameterSnapshot:
+    """Hebt den validierten V1-Snapshot in den Baseline-Vertrag."""
+    return build_baseline_parameter_snapshot_from_parameter_snapshot(
+        build_small_office_5z_v1_parameter_snapshot(),
+        snapshot_id=SMALL_OFFICE_5Z_V1_BASELINE_SNAPSHOT_ID,
+        snapshot_version=SMALL_OFFICE_5Z_V1_BASELINE_SNAPSHOT_VERSION,
     )
 
 

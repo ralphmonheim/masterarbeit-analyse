@@ -125,6 +125,28 @@ def _building_rows(spec: BuildingModelSpecification) -> tuple[ParameterPreviewRo
             ),
         ]
     )
+    if envelope.external_wall_area_m2 is not None:
+        rows.append(
+            ParameterPreviewRow(
+                "ma_building",
+                "external_wall_area_m2",
+                "Aussenwandflaeche direkt",
+                envelope.external_wall_area_m2,
+                "m2",
+                source,
+            )
+        )
+    if envelope.window_area_m2 is not None:
+        rows.append(
+            ParameterPreviewRow(
+                "ma_building",
+                "window_area_m2",
+                "Fensterflaeche direkt",
+                envelope.window_area_m2,
+                "m2",
+                source,
+            )
+        )
     return tuple(rows)
 
 
@@ -138,8 +160,25 @@ def _zone_rows(spec: ZoneModelSpecification) -> tuple[ParameterPreviewRow, ...]:
         ParameterPreviewRow("ma_zones", "zone_volume_m3", "Zonenvolumen gesamt", total_volume, "m3", source),
     ]
     for zone in spec.zones:
+        profile = next(profile for profile in spec.usage_profiles if profile.profile_id == zone.usage_profile_id)
         rows.extend(
             [
+                ParameterPreviewRow(
+                    "ma_zones",
+                    f"{zone.zone_id}.floor_area_m2",
+                    f"Zonenflaeche {zone.name}",
+                    zone.floor_area_m2,
+                    "m2",
+                    source,
+                ),
+                ParameterPreviewRow(
+                    "ma_zones",
+                    f"{zone.zone_id}.volume_m3",
+                    f"Zonenvolumen {zone.name}",
+                    zone.volume_m3,
+                    "m3",
+                    source,
+                ),
                 ParameterPreviewRow(
                     "ma_zones",
                     f"{zone.zone_id}.heating_setpoint_c",
@@ -162,6 +201,46 @@ def _zone_rows(spec: ZoneModelSpecification) -> tuple[ParameterPreviewRow, ...]:
                     f"Mindestluftwechsel {zone.name}",
                     zone.minimum_air_change_rate_1_h,
                     "1/h",
+                    source,
+                ),
+                ParameterPreviewRow(
+                    "ma_zones",
+                    f"{zone.zone_id}.occupancy_density_m2_per_person",
+                    f"Belegungsdichte {zone.name}",
+                    profile.occupancy_density_m2_per_person,
+                    "m2/Person",
+                    source,
+                ),
+                ParameterPreviewRow(
+                    "ma_zones",
+                    f"{zone.zone_id}.lighting_power_w_m2",
+                    f"Beleuchtungsleistung {zone.name}",
+                    profile.lighting_power_w_m2,
+                    "W/m2",
+                    source,
+                ),
+                ParameterPreviewRow(
+                    "ma_zones",
+                    f"{zone.zone_id}.equipment_power_w_m2",
+                    f"Geraeteleistung {zone.name}",
+                    profile.equipment_power_w_m2,
+                    "W/m2",
+                    source,
+                ),
+                ParameterPreviewRow(
+                    "ma_zones",
+                    f"{zone.zone_id}.operation_start_hour",
+                    f"Nutzungsbeginn {zone.name}",
+                    profile.operation_start_hour,
+                    "h",
+                    source,
+                ),
+                ParameterPreviewRow(
+                    "ma_zones",
+                    f"{zone.zone_id}.operation_end_hour",
+                    f"Nutzungsende {zone.name}",
+                    profile.operation_end_hour,
+                    "h",
                     source,
                 ),
             ]

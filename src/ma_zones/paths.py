@@ -11,3 +11,6 @@ BUSINESS_INTEGRATION_LOD1_ZONE_SPEC_PATH = (
     ZONES_CONFIG_DIR / "examples" / "business_integration_lod1_zone_spec.yaml"
 )
 SMALL_OFFICE_LOD1_ZONE_SPEC_PATH = ZONES_CONFIG_DIR / "examples" / "small_office_lod1_zone_spec.yaml"
+SMALL_OFFICE_5Z_ENDVARIANT_02_ZONE_SPEC_PATH = (
+    ZONES_CONFIG_DIR / "examples" / "small_office_5z_endvariant_02_zone_spec.yaml"
+)

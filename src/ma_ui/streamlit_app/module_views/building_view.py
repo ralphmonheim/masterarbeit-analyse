@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import json
 from collections.abc import Sequence
+from pathlib import Path
 
 import streamlit as st
+import streamlit.components.v1 as components
 
 from ma_building import (
     BUILDING_CAD_INPUT_DIR,
@@ -14,38 +17,73 @@ from ma_building import (
     FACHLICHER_TEIL_REFERENCE_IFC_FILENAME,
     LocalCatalogValidationError,
     diagnose_building_source,
+    load_building_excel_catalog,
     load_business_integration_lod1_building_spec,
     load_demo_building_spec,
     load_local_building_catalog,
+    load_small_office_5z_endvariant_02_building_spec,
     scan_default_building_input_files,
 )
 from ma_database import DemoCatalog, DemoCatalogRecord
 from ma_ui.streamlit_app.shared.layout import render_page_header
 from ma_ui.streamlit_app.shared.tables import normalize_table_for_streamlit
+from ma_ui.streamlit_app.state import (
+    clear_workspace_draft,
+    get_active_workspace,
+    mark_workspace_draft,
+)
 from ma_validation import DiagnosticMessage, DiagnosticSeverity
+from ma_workspace import load_project_module_config, save_project_module_config
 
 _BUILDING_SPEC_OPTIONS = (
     ("demo", "Demo-Gebaeudespezifikation", load_demo_building_spec),
     ("business_integration_lod1", "BusinessIntegration LoD-1", load_business_integration_lod1_building_spec),
+    (
+        "small_office_5z_endvariant_02",
+        "SmallOffice Endvariante 02",
+        load_small_office_5z_endvariant_02_building_spec,
+    ),
 )
-BUILDING_WORKSPACE_TAB_LABELS = ("Import", "Uebersicht", "Bauteile", "Konstruktionen")
+BUILDING_WORKSPACE_TAB_LABELS = ("Import", "Uebersicht", "Bauteile", "Raeume", "Konstruktionen/Kataloge")
+BUILDING_AI_PROMPT_PATH = Path("docs/prompts/MA_BUILDING_AI_MODEL_GENERATION_PROMPT.md")
 
 
 def render() -> None:
     """Zeigt Demo-Spezifikation und lokale Quelldiagnosen."""
     render_page_header("Gebaeude", "Gebaeude- und Modellrandbedingungen")
-    spec = _select_building_specification()
+
+    section = st.segmented_control(
+        "Gebaeudebereich",
+        BUILDING_WORKSPACE_TAB_LABELS,
+        default=BUILDING_WORKSPACE_TAB_LABELS[0],
+        key="ma_building_workspace_section",
+        selection_mode="single",
+    )
+    section = section or BUILDING_WORKSPACE_TAB_LABELS[0]
+    if section == "Import":
+        spec = _render_building_import()
+    else:
+        try:
+            spec = _load_building_spec_option(
+                str(
+                    st.session_state.get(
+                        "building_specification_draft_key",
+                        _default_building_spec_key(),
+                    )
+                )
+            )
+        except (OSError, ValueError) as exc:
+            st.error(f"Gebaeudespezifikation konnte nicht geladen werden: {exc}")
+            return
     if spec is None:
         return
-
-    import_tab, overview_tab, elements_tab, constructions_tab = st.tabs(BUILDING_WORKSPACE_TAB_LABELS)
-    with import_tab:
-        _render_building_import()
-    with overview_tab:
+    if section == "Uebersicht":
         _render_building_overview(spec)
-    with elements_tab:
+    elif section == "Bauteile":
         _render_elements(spec)
-    with constructions_tab:
+    elif section == "Raeume":
+        _render_rooms(spec)
+    elif section == "Konstruktionen/Kataloge":
         _render_construction_catalog(spec)
 
 
@@ -133,50 +171,162 @@ def building_opening_rows(spec) -> list[dict[str, object]]:
     ]
 
 
+def building_room_rows(spec) -> list[dict[str, object]]:
+    """Bereitet die erkannten Raeume als erstes, ungefiltertes Raumbuch auf."""
+    return [
+        {
+            "Raum-ID": space.space_id,
+            "IFC-Raumname": space.name,
+            "Geschoss": space.storey_id,
+            "Flaeche [m2]": space.floor_area_m2,
+            "Volumen [m3]": space.volume_m3,
+            "Quelle": "BuildingModelSpecification",
+            "Validierungsstatus": "erkannt",
+        }
+        for space in spec.spaces
+    ]
+
+
 def _select_building_specification():
-    """Selects the read-only specification displayed by the building view."""
+    """Waehlt die im Import-Reiter als Entwurf angezeigte Spezifikation."""
     option_rows = building_spec_option_rows()
-    selected_label = st.selectbox("Gebaeudespezifikation", [row["Name"] for row in option_rows], index=0)
-    selected_key = next(row["Schluessel"] for row in option_rows if row["Name"] == selected_label)
+    option_keys = [row["Schluessel"] for row in option_rows]
+    selected_key = st.selectbox(
+        "Gebaeudespezifikation",
+        option_keys,
+        index=option_keys.index(_default_building_spec_key()),
+        format_func=lambda option_key: next(
+            row["Name"] for row in option_rows if row["Schluessel"] == option_key
+        ),
+        key="building_specification_draft_key",
+        on_change=_mark_building_draft,
+    )
     try:
-        return _load_building_spec_option(selected_key)
+        spec = _load_building_spec_option(selected_key)
     except (OSError, ValueError) as exc:
         st.error(f"Gebaeudespezifikation konnte nicht geladen werden: {exc}")
         return None
+    st.dataframe(
+        normalize_table_for_streamlit(building_master_data_rows(spec)),
+        hide_index=True,
+        width="stretch",
+    )
+    if st.button("Gebaeudespezifikation uebernehmen", key="building_apply_specification"):
+        workspace = get_active_workspace(st.session_state)
+        if workspace is None:
+            st.error("Bitte zuerst ein Projekt auswaehlen.")
+        else:
+            payload = _building_project_payload(workspace)
+            payload["building_specification"] = {
+                "selection_key": selected_key,
+                "building_id": spec.building.building_id,
+                "model_version": spec.model_version.version_id,
+            }
+            save_project_module_config(workspace, "ma_building", payload)
+            st.session_state["building_applied_specification_key"] = selected_key
+            clear_workspace_draft(st.session_state, "ma_building")
+            st.success("Gebaeudespezifikation wurde in die Projektkonfiguration uebernommen.")
+    elif st.session_state.get("building_applied_specification_key") != selected_key:
+        st.info("Die Auswahl ist eine Vorschau und noch nicht in die Projektkonfiguration uebernommen.")
+    return spec
 
 
-def _render_building_import() -> None:
+def _render_building_import():
     """Zeigt die vereinbarten Eingabewege, ohne Modellquellen zu verarbeiten."""
 
     st.subheader("Gebaeudemodell vorbereiten")
     st.caption(
         "Die drei Wege erfassen nur die beabsichtigte Eingabe. Eine IFC-, Rhino- oder KI-Verarbeitung wird hier nicht gestartet."
     )
-    model_tab, ai_tab, text_tab = st.tabs(["3D-Datei", "KI-Modell", "Textliche Eingabe"])
-    with model_tab:
+    input_modes = ("3D-Datei", "KI-Modell", "Textliche Eingabe")
+    input_mode = st.segmented_control(
+        "Importweg",
+        input_modes,
+        default=input_modes[0],
+        key="ma_building_import_mode",
+        selection_mode="single",
+    )
+    input_mode = input_mode or input_modes[0]
+    spec = _load_building_spec_option(
+        str(
+            st.session_state.get(
+                "building_specification_draft_key",
+                _default_building_spec_key(),
+            )
+        )
+    )
+    if input_mode == "3D-Datei":
+        spec = _select_building_specification()
         uploaded_file = st.file_uploader(
             "3D-Datei fuer die spaetere Pruefung vormerken",
             type=["ifc", "3dm", "dwg", "dxf", "skp", "obj", "stl"],
             key="building_import_3d_file",
+            on_change=_mark_building_draft,
         )
         if uploaded_file is None:
             st.info("Noch keine Datei vorgemerkt. Bestehende lokale Referenzmodelle lassen sich in der Gebaeudeuebersicht auswaehlen.")
         else:
             st.info(f"{uploaded_file.name} ist nur in dieser Sitzung vorgemerkt und wurde nicht verarbeitet oder gespeichert.")
-    with ai_tab:
+    elif input_mode == "KI-Modell":
         st.text_area(
-            "Prompt und Modellannahmen dokumentieren",
+            "Gebaeudebeschreibung",
             placeholder="Zum Beispiel: Kleines Buerogebaeude mit zwei Geschossen und zentraler Technik ...",
-            key="building_import_ai_prompt",
+            key="building_import_ai_description",
+            on_change=_mark_building_draft,
+        )
+        st.button(
+            "Beschreibung abschicken",
+            key="building_import_ai_submit",
+            disabled=True,
+            help="Die spaetere KI-Uebergabe ist in V1 noch nicht angebunden.",
         )
         st.caption("Die Eingabe bleibt lokal in der Sitzung. Es wird kein externes KI-Modell aufgerufen.")
-    with text_tab:
+        try:
+            fixed_prompt = BUILDING_AI_PROMPT_PATH.read_text(encoding="utf-8")
+        except OSError as exc:
+            st.error(f"Der feste KI-Prompt konnte nicht geladen werden: {exc}")
+        else:
+            st.text_area(
+                "Fester KI-Prompt",
+                value=fixed_prompt,
+                height=520,
+                disabled=True,
+                key="building_fixed_ai_prompt",
+            )
+            _render_prompt_copy_button(fixed_prompt)
+    else:
         st.text_area(
             "Gebaeudebeschreibung erfassen",
             placeholder="Zum Beispiel: Grundflaeche, Geschosse, Raeume, Huelle und bekannte Annahmen ...",
             key="building_import_text_description",
+            on_change=_mark_building_draft,
         )
         st.caption("Die Beschreibung ist eine Vorbereitung fuer eine spätere strukturierte BuildingModelSpecification.")
+    return spec
+
+
+def _render_prompt_copy_button(prompt: str) -> None:
+    """Zeigt einen lokalen Browser-Kopierbutton ohne externen Dienst."""
+    prompt_literal = json.dumps(prompt)
+    components.html(
+        f"""
+        <button id="copy-building-prompt" type="button">Prompt kopieren</button>
+        <span id="copy-building-prompt-status" style="margin-left:0.75rem"></span>
+        <script>
+        const button = document.getElementById("copy-building-prompt");
+        const status = document.getElementById("copy-building-prompt-status");
+        button.addEventListener("click", async () => {{
+            try {{
+                await navigator.clipboard.writeText({prompt_literal});
+                status.textContent = "Prompt kopiert.";
+            }} catch (error) {{
+                status.textContent = "Kopieren wurde vom Browser blockiert.";
+            }}
+        }});
+        </script>
+        """,
+        height=42,
+    )
 
 
 def _render_building_overview(spec) -> None:
@@ -194,50 +344,220 @@ def _render_elements(spec) -> None:
         st.info("Die gewaehlte Spezifikation enthaelt keine einzeln erfassten Bauteile.")
         return
     kinds = list(dict.fromkeys(row["Typ"] for row in rows))
-    tabs = st.tabs(["Uebersicht", *kinds])
-    with tabs[0]:
+    element_sections = ("Uebersicht", *kinds)
+    element_section = st.segmented_control(
+        "Elementgruppe",
+        element_sections,
+        default=element_sections[0],
+        key="ma_building_element_section",
+        selection_mode="single",
+    )
+    element_section = element_section or element_sections[0]
+    if element_section == "Uebersicht":
         st.dataframe(normalize_table_for_streamlit(rows), hide_index=True, width="stretch")
-    for tab, kind in zip(tabs[1:], kinds, strict=True):
-        with tab:
-            st.dataframe(
-                normalize_table_for_streamlit([row for row in rows if row["Typ"] == kind]),
-                hide_index=True,
-                width="stretch",
-            )
+    else:
+        st.dataframe(
+            normalize_table_for_streamlit([row for row in rows if row["Typ"] == element_section]),
+            hide_index=True,
+            width="stretch",
+        )
+
+
+def _render_rooms(spec) -> None:
+    rows = building_room_rows(spec)
+    if not rows:
+        st.info("Die gewaehlte Spezifikation enthaelt keine erkannten Raeume.")
+        return
+    st.subheader("Raumbuch")
+    st.dataframe(normalize_table_for_streamlit(rows), hide_index=True, width="stretch")
+    st.caption("Die Zonenzuordnung erfolgt ausschliesslich im Modul Zonen.")
 
 
 def _render_construction_catalog(spec) -> None:
-    """Displays local reference data without assigning it to the model."""
-    construction_tab, material_tab, product_tab = st.tabs(["Konstruktionen", "Materialien", "Produkte"])
-    with construction_tab:
-        _render_wall_construction_catalog()
-        _render_surface_catalog()
-    with material_tab:
-        _render_local_catalog_table(
-            "materials",
-            [
-                "name",
-                "material_id",
-                "heat_conductivity_w_mk",
-                "density_kg_m3",
-                "specific_heat_j_kgk",
-                "total_area_m2",
-                "total_volume_m3",
-                "total_mass_kg",
-            ],
-            {
-                "name": "Name",
-                "material_id": "ID",
-                "heat_conductivity_w_mk": "Waermeleitfaehigkeit [W/(m K)]",
-                "density_kg_m3": "Dichte [kg/m3]",
-                "specific_heat_j_kgk": "Spezifische Waermekapazitaet [J/(kg K)]",
-                "total_area_m2": "Flaeche im Gebaeude [m2]",
-                "total_volume_m3": "Volumen im Gebaeude [m3]",
-                "total_mass_kg": "Masse im Gebaeude [kg]",
-            },
+    """Zeigt Excel als alleinige Inhaltsquelle und schreibt nur Projektkopien."""
+    catalog_types = {
+        "Bauteile": "components",
+        "Materialien": "materials",
+        "Produkte": "products",
+    }
+    catalog_section = st.segmented_control(
+        "Katalog",
+        tuple(catalog_types),
+        default="Bauteile",
+        key="ma_building_catalog_section",
+        selection_mode="single",
+    )
+    _render_excel_catalog_selection(spec, catalog_types[catalog_section or "Bauteile"])
+
+
+def _render_excel_catalog_selection(spec, catalog_type: str) -> None:
+    workspace = get_active_workspace(st.session_state)
+    if workspace is None:
+        st.error("Bitte zuerst ein Projekt auswaehlen.")
+        return
+    try:
+        catalog = load_building_excel_catalog(catalog_type)
+    except FileNotFoundError as exc:
+        st.warning(f"Excel-Katalog fehlt: {exc}")
+        return
+    except (OSError, ValueError) as exc:
+        st.error(f"Excel-Katalog ist nicht auswertbar: {exc}")
+        return
+
+    st.caption(
+        f"Quelle: {catalog.source_path.as_posix()} | SHA-256: {catalog.source_sha256[:12]}…"
+    )
+    project_payload = _building_project_payload(workspace)
+    stored_selections = project_payload.get("catalog_selections", {})
+    stored_selection = (
+        stored_selections.get(catalog_type, {})
+        if isinstance(stored_selections, dict)
+        else {}
+    )
+    if (
+        isinstance(stored_selection, dict)
+        and stored_selection.get("source_sha256")
+        and stored_selection.get("source_sha256") != catalog.source_sha256
+    ):
+        st.warning(
+            "Der zentrale Excel-Katalog wurde seit der Projektuebernahme geaendert. "
+            "Die im Projekt gespeicherte Datensatzkopie bleibt unveraendert, bis du "
+            "eine neue Auswahl ausdruecklich uebernimmst."
         )
-    with product_tab:
-        _render_products(spec)
+    if not catalog.rows:
+        st.info(
+            "Die Arbeitsmappe ist vorhanden, enthaelt aber noch keine freigegebenen "
+            f"{_catalog_type_label(catalog_type)}-Datensaetze."
+        )
+        return
+    st.dataframe(
+        normalize_table_for_streamlit(list(catalog.rows)),
+        hide_index=True,
+        width="stretch",
+    )
+
+    record_ids = [str(next(iter(row.values()))) for row in catalog.rows]
+    selected_id = st.selectbox(
+        f"{_catalog_type_label(catalog_type)} auswaehlen",
+        record_ids,
+        key=f"building_excel_catalog_{catalog_type}_record",
+        on_change=_mark_building_draft,
+    )
+    selected_record = next(
+        row for row in catalog.rows if str(next(iter(row.values()))) == selected_id
+    )
+    targets = [
+        (element.element_id, element.element_type, element.construction_code)
+        for element in spec.elements
+    ] + [
+        (opening.opening_id, opening.opening_type, opening.construction_code)
+        for opening in spec.openings
+    ]
+    if not targets:
+        st.warning("Das aktive Gebaeudemodell enthaelt keine zuweisbaren Elemente.")
+        return
+    target_id = st.selectbox(
+        "Zielelement",
+        [target[0] for target in targets],
+        key=f"building_excel_catalog_{catalog_type}_target",
+        on_change=_mark_building_draft,
+    )
+    target = next(item for item in targets if item[0] == target_id)
+    scope = st.radio(
+        "Geltungsbereich",
+        ("Dieses Element", "Alle Elemente derselben Gruppe"),
+        horizontal=True,
+        key=f"building_excel_catalog_{catalog_type}_scope",
+        on_change=_mark_building_draft,
+    )
+    st.markdown("##### Vorschau")
+    st.dataframe(
+        normalize_table_for_streamlit(
+            [
+                {"Merkmal": "Katalogtyp", "Wert": _catalog_type_label(catalog_type)},
+                {"Merkmal": "Katalogeintrag", "Wert": selected_id},
+                {"Merkmal": "Zielelement", "Wert": target_id},
+                {"Merkmal": "Elementgruppe", "Wert": f"{target[1]} / {target[2]}"},
+                {"Merkmal": "Geltungsbereich", "Wert": scope},
+                *[
+                    {"Merkmal": key, "Wert": value}
+                    for key, value in selected_record.items()
+                ],
+            ]
+        ),
+        hide_index=True,
+        width="stretch",
+    )
+    if st.button(
+        "Aenderungen in Projektkonfiguration uebernehmen",
+        key=f"building_excel_catalog_{catalog_type}_apply",
+    ):
+        payload = project_payload
+        selections = payload.setdefault("catalog_selections", {})
+        if not isinstance(selections, dict):
+            selections = {}
+            payload["catalog_selections"] = selections
+        selections[catalog_type] = building_excel_selection_payload(
+            catalog,
+            selected_record,
+            target_id=target_id,
+            target_group={
+                "element_type": target[1],
+                "construction_code": target[2],
+            },
+            scope="element" if scope == "Dieses Element" else "element_group",
+        )
+        try:
+            save_project_module_config(workspace, "ma_building", payload)
+        except (OSError, ValueError) as exc:
+            st.error(f"Projektkonfiguration konnte nicht gespeichert werden: {exc}")
+        else:
+            clear_workspace_draft(st.session_state, "ma_building")
+            st.success("Katalogauswahl wurde als projektbezogene Kopie gespeichert.")
+
+
+def building_excel_selection_payload(
+    catalog,
+    selected_record: dict[str, object],
+    *,
+    target_id: str,
+    target_group: dict[str, object],
+    scope: str,
+) -> dict[str, object]:
+    """Erzeugt die unveraenderliche Projektkopie einer Excel-Auswahl."""
+    return {
+        "catalog_record_id": str(next(iter(selected_record.values()))),
+        "target_element_id": target_id,
+        "target_group": target_group,
+        "scope": scope,
+        "source_path": catalog.source_path.as_posix(),
+        "source_version": f"sha256:{catalog.source_sha256[:12]}",
+        "source_sha256": catalog.source_sha256,
+        "source_sheet": "Übersicht",
+        "catalog_record": dict(selected_record),
+        "overrides": {},
+    }
+
+
+def _building_project_payload(workspace) -> dict[str, object]:
+    payload = load_project_module_config(workspace, "ma_building")
+    if not isinstance(payload, dict):
+        payload = {}
+    payload.setdefault("schema_version", "1.0")
+    payload.setdefault("project_id", workspace.project.identity.project_id)
+    return payload
+
+
+def _catalog_type_label(catalog_type: str) -> str:
+    return {
+        "components": "Bauteile",
+        "materials": "Materialien",
+        "products": "Produkte",
+    }[catalog_type]
+
+
+def _mark_building_draft() -> None:
+    mark_workspace_draft(st.session_state, "ma_building")
 
 
 def _render_wall_construction_catalog() -> None:
@@ -438,6 +758,15 @@ def _load_building_spec_option(option_key: str):
         if key == option_key:
             return loader()
     raise ValueError(f"Unbekannte Gebaeudespezifikation: {option_key}")
+
+
+def _default_building_spec_key() -> str:
+    workspace = get_active_workspace(st.session_state)
+    if workspace is not None and workspace.project.identity.title == "Masterarbeit-Analyse":
+        return "small_office_5z_endvariant_02"
+    if workspace is not None and workspace.project.identity.title == "Demo-Project1":
+        return "business_integration_lod1"
+    return "demo"
 
 
 def _display_value(value) -> str:

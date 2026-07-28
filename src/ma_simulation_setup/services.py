@@ -12,7 +12,7 @@ from ma_parameters import BaselineParameterSnapshot, validate_baseline_parameter
 from ma_validation import ReleaseStatus
 from ma_variants.preprocess import PreprocessVariant
 
-from .models import RunManifest, SimulationRun, SimulationRunStatus
+from .models import RunManifest, SimulationRun, SimulationRunStatus, SimulationSetupSpecification
 
 
 def build_run_manifest(
@@ -21,6 +21,7 @@ def build_run_manifest(
     *,
     run_id: str,
     release: bool = False,
+    simulation_setup: SimulationSetupSpecification | None = None,
 ) -> RunManifest:
     """Baut ein RunManifest nur aus einem freigegebenen Baseline-Stand."""
     result = validate_baseline_parameter_snapshot(snapshot)
@@ -40,6 +41,7 @@ def build_run_manifest(
         ),
         output_requirements=default_output_requirements(),
         preparation_notes=("Manuelle Uebergabe an IDA ICE; kein Adapter oder Simulationsstart enthalten.",),
+        simulation_setup=simulation_setup,
     )
 
 
@@ -58,6 +60,11 @@ def materialize_run_package(manifest: RunManifest, variant: PreprocessVariant, o
         yaml.safe_dump({"run_id": manifest.run.run_id, "variant_id": manifest.run.variant_id, "status": manifest.run.status.value}, sort_keys=False),
         encoding="utf-8",
     )
+    if manifest.simulation_setup is not None:
+        (run_dir / "simulation_setup.yaml").write_text(
+            yaml.safe_dump(asdict(manifest.simulation_setup), sort_keys=False),
+            encoding="utf-8",
+        )
     (run_dir / "preparation_report.md").write_text(
         "# Preparation Report\n\nNeutrales Run-Paket fuer die manuelle Simulation.\n",
         encoding="utf-8",
@@ -66,7 +73,7 @@ def materialize_run_package(manifest: RunManifest, variant: PreprocessVariant, o
 
 
 def _manifest_payload(manifest: RunManifest) -> dict[str, object]:
-    return {
+    payload: dict[str, object] = {
         "run": {
             "run_id": manifest.run.run_id,
             "variant_id": manifest.run.variant_id,
@@ -78,3 +85,6 @@ def _manifest_payload(manifest: RunManifest) -> dict[str, object]:
         "output_requirements": [asdict(requirement) for requirement in manifest.output_requirements],
         "preparation_notes": list(manifest.preparation_notes),
     }
+    if manifest.simulation_setup is not None:
+        payload["simulation_setup"] = asdict(manifest.simulation_setup)
+    return payload

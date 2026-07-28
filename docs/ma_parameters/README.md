@@ -27,6 +27,10 @@
   `checkpoint_references` fuer das zusammengehoerige P013-/P014-Paar ein.
   Sie sind keine Wertquellen, werden auf Freigabe/Aktualitaet geprueft und
   werden bei Nutzung im bestehenden Baseline-Content-Hash gebunden.
+- **SmallOffice V1:** Der fuenfzonenfaehige Snapshot fuehrt Flaeche, Volumen,
+  Sollwerte, Luftwechsel, interne Lasten und Betriebszeiten je Zone. Die
+  versionierte Referenzbaseline speist die Mehrzonen-Dimensionierung und die
+  SmallOffice-Variantenstudie ohne Rueckimport aus `ma_variants`.
 - **P032-W2a-Katalogownership:** Die reinen Python-Katalogvertraege liegen
   unter `ma_parameters.catalogs`. Bestehende `ma_variants`-Importpfade sind
   identitaetsgleiche Kompatibilitaets-Reexports. Die Demo-Defaultpfade unter

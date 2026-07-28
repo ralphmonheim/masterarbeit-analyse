@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -29,8 +30,20 @@ from ma_ui.streamlit_app.shared import (
     normalize_table_for_streamlit,
     render_configuration_return,
 )
-from ma_ui.streamlit_app.state import build_current_variant_ui_data, get_configuration_state
+from ma_ui.streamlit_app.state import (
+    build_current_variant_ui_data,
+    get_active_workspace,
+    get_configuration_state,
+    set_active_workspace,
+)
 from ma_variants.ui import apply_naming_profile_to_ui_data, variant_rows
+from ma_workspace import (
+    ProjectWorkspace,
+    list_gallery_images,
+    remove_gallery_image,
+    save_gallery_image,
+    save_project_workspace,
+)
 
 _PROJECT_OVERVIEW_DEMO = Project(
     identity=ProjectIdentity(
@@ -316,112 +329,218 @@ def _render_naming_save_controls(state: object, *, profile_is_valid: bool) -> No
                 st.success("Eigenes Benennungsprofil wurde ueberschrieben.")
 
 
+def _render_workspace_overview(workspace: ProjectWorkspace) -> None:
+    project = workspace.project
+    identity = project.identity
+    location = project.location or ProjectLocation(country_code="DE", city="Unbekannt")
+    investigation = project.investigation or ProjectInvestigation()
+
+    with st.form("project_workspace_overview"):
+        st.text_input("Projekt-ID", value=identity.project_id, disabled=True)
+        st.text_input(
+            "Projektname",
+            value=identity.title,
+            disabled=True,
+            help="Der Projektname entspricht in V1 dem lokalen Projektordner.",
+        )
+        short_name = st.text_input("Kurzname", value=identity.short_name)
+        description = st.text_area("Beschreibung", value=identity.description)
+        investigation_scope = st.text_area("Untersuchungsrahmen", value=investigation.scope)
+        country_code = st.text_input("Land (ISO-2)", value=location.country_code, max_chars=2)
+        city = st.text_input("Stadt", value=location.city)
+        address = st.text_input("Adresse (optional)", value=location.street)
+        submitted = st.form_submit_button("Projektdaten speichern")
+
+    if not submitted:
+        return
+    try:
+        updated_project = replace(
+            project,
+            identity=replace(
+                identity,
+                short_name=short_name,
+                description=description,
+            ),
+            location=replace(
+                location,
+                country_code=country_code.upper(),
+                display_name=city,
+                city=city,
+                street=address,
+            ),
+            investigation=replace(investigation, scope=investigation_scope),
+            updated_at=datetime.now(UTC),
+        )
+        updated_workspace = replace(workspace, project=updated_project)
+        save_project_workspace(updated_workspace)
+    except (OSError, TypeError, ValueError) as exc:
+        st.error(f"Projektdaten konnten nicht gespeichert werden: {exc}")
+    else:
+        set_active_workspace(st.session_state, updated_workspace)
+        st.success("Projektdaten wurden gespeichert.")
+
+
+def _render_workspace_program(workspace: ProjectWorkspace) -> None:
+    programs, default_key, _source = load_simulation_program_profiles(
+        DEFAULT_SIMULATION_PROGRAM_CONFIG,
+        is_template=True,
+    )
+    program_keys = [program.program_key for program in programs]
+    current_key = workspace.settings.simulation_program_key
+    selected_key = st.selectbox(
+        "Simulationsprogramm",
+        program_keys,
+        index=program_keys.index(current_key) if current_key in program_keys else program_keys.index(default_key),
+        format_func=lambda key: next(program.display_name for program in programs if program.program_key == key),
+        key="project_workspace_program_key",
+    )
+    selected = next(program for program in programs if program.program_key == selected_key)
+    st.dataframe(
+        normalize_table_for_streamlit(_program_rows([selected])),
+        hide_index=True,
+        width="stretch",
+    )
+    if st.button("Simulationsprogramm übernehmen", key="project_workspace_apply_program"):
+        updated_workspace = replace(
+            workspace,
+            settings=replace(workspace.settings, simulation_program_key=selected_key),
+        )
+        try:
+            save_project_workspace(updated_workspace)
+        except (OSError, ValueError) as exc:
+            st.error(f"Simulationsprogramm konnte nicht gespeichert werden: {exc}")
+        else:
+            set_active_workspace(st.session_state, updated_workspace)
+            st.success("Simulationsprogramm wurde übernommen.")
+
+
+def _render_workspace_naming(workspace: ProjectWorkspace) -> None:
+    choices = [DEFAULT_NAMING_CONFIG, *list_local_naming_files()]
+    current_reference = workspace.settings.naming_profile_reference
+    current_index = next(
+        (
+            index
+            for index, path in enumerate(choices)
+            if current_reference in {str(path), path.as_posix()}
+        ),
+        0,
+    )
+    selected_path = st.selectbox(
+        "Naming-Regel",
+        choices,
+        index=current_index,
+        format_func=lambda path: path.name,
+        key="project_workspace_naming_path",
+    )
+    try:
+        profile, _source = load_variant_naming_profile(
+            selected_path,
+            is_template=Path(selected_path) == DEFAULT_NAMING_CONFIG,
+        )
+        state = get_configuration_state(st.session_state)
+        preview = apply_naming_profile_to_ui_data(build_current_variant_ui_data(state), profile)
+    except (OSError, TypeError, ValueError) as exc:
+        st.error(f"Naming-Vorschau konnte nicht erzeugt werden: {exc}")
+        return
+    st.caption("Vorschau; die Naming-Regel wird erst in ma_variants auf Varianten angewendet.")
+    st.dataframe(
+        normalize_table_for_streamlit(variant_rows(preview.generated_variants[:8])),
+        hide_index=True,
+        width="stretch",
+    )
+    if st.button("Naming-Regel übernehmen", key="project_workspace_apply_naming"):
+        updated_workspace = replace(
+            workspace,
+            settings=replace(
+                workspace.settings,
+                naming_profile_reference=Path(selected_path).as_posix(),
+            ),
+        )
+        try:
+            save_project_workspace(updated_workspace)
+        except (OSError, ValueError) as exc:
+            st.error(f"Naming-Regel konnte nicht gespeichert werden: {exc}")
+        else:
+            set_active_workspace(st.session_state, updated_workspace)
+            st.success("Naming-Regel wurde übernommen.")
+
+
+def _render_workspace_gallery(workspace: ProjectWorkspace) -> None:
+    list_column, preview_column = st.columns([1, 2])
+    images = list_gallery_images(workspace)
+    with list_column:
+        uploaded_file = st.file_uploader(
+            "Eigene Bilder",
+            type=["png", "jpg", "jpeg", "webp"],
+            key="project_gallery_upload",
+        )
+        if st.button(
+            "Bilder hochladen",
+            key="project_gallery_upload_button",
+            disabled=uploaded_file is None,
+        ):
+            try:
+                save_gallery_image(workspace, uploaded_file.name, uploaded_file.getvalue())
+            except (OSError, ValueError) as exc:
+                st.error(f"Bild konnte nicht gespeichert werden: {exc}")
+            else:
+                st.rerun()
+        if images:
+            selected_name = st.radio(
+                "Projektbilder",
+                [path.name for path in images],
+                key="project_gallery_selected_image",
+            )
+            confirmed = st.checkbox(
+                "Ausgewähltes Bild wirklich entfernen",
+                key="project_gallery_remove_confirmed",
+            )
+            if st.button(
+                "Bild entfernen",
+                key="project_gallery_remove",
+                disabled=not confirmed,
+            ):
+                try:
+                    remove_gallery_image(workspace, selected_name, confirmed=confirmed)
+                except (OSError, ValueError) as exc:
+                    st.error(f"Bild konnte nicht entfernt werden: {exc}")
+                else:
+                    st.rerun()
+        else:
+            selected_name = None
+            st.info("Noch keine eigenen Projektbilder vorhanden.")
+
+    with preview_column:
+        if selected_name is not None:
+            selected_path = next(path for path in images if path.name == selected_name)
+            st.image(str(selected_path), caption=selected_path.name, width="stretch")
+
+
 def render() -> None:
-    """Zeigt die erste Fachansicht des Projektmoduls."""
+    """Zeigt die reduzierte Projektbearbeitung des aktiven Workspaces."""
     st.title("Projekt")
-    st.caption("Simulationsprogramme und neutrale Varianten-Benennungsprofile")
+    st.caption("Projektübersicht, Galerie und projektweite Auswahlprofile")
     render_configuration_return()
 
-    try:
-        state = get_configuration_state(st.session_state)
-    except Exception as exc:  # noqa: BLE001 - UI stellt Initialisierungsfehler dar.
-        st.error(f"Demokonfiguration konnte nicht initialisiert werden: {exc}")
+    workspace = get_active_workspace(st.session_state)
+    if workspace is None:
+        st.warning("Bitte zuerst auf der Startseite ein Projekt auswählen oder erstellen.")
         return
 
-    overview_tab, program_tab, naming_tab = st.tabs(["Projektübersicht", "Simulationsprogramme", "Varianten-Benennung"])
-
-    with overview_tab:
-        _render_project_overview(state)
-
-    with program_tab:
-        st.caption(
-            _source_label(
-                state.simulation_program_source.path,
-                is_template=state.simulation_program_source.is_template,
-            )
-        )
-        _render_program_file_controls(state)
-        edited_programs = st.data_editor(
-            pd.DataFrame(_program_rows(state.simulation_programs)),
-            num_rows="dynamic",
-            hide_index=True,
-            width="stretch",
-            key="p028_program_editor",
-        )
-        try:
-            programs = _programs_from_editor(edited_programs)
-            program_keys = [program.program_key for program in programs]
-            active_index = (
-                program_keys.index(state.active_program_key) if state.active_program_key in program_keys else 0
-            )
-            active_program_key = st.selectbox(
-                "Aktives Simulationsprogramm",
-                program_keys,
-                index=active_index,
-                format_func=lambda key: next(
-                    program.display_name for program in programs if program.program_key == key
-                ),
-                key="p028_active_program_key",
-            )
-        except (TypeError, ValueError) as exc:
-            st.error(str(exc))
-        else:
-            state.simulation_programs = programs
-            state.active_program_key = active_program_key
-        st.info("Die Programmauswahl veraendert das neutrale Benennungsprofil nicht automatisch.")
-        _render_program_save_controls(state)
-
-    with naming_tab:
-        st.caption(_source_label(state.naming_source.path, is_template=state.naming_source.is_template))
-        _render_naming_file_controls(state)
-        profile = state.naming_profile
-        field_columns = st.columns(4)
-        prefix = field_columns[0].text_input("Praefix", value=profile.prefix, key="p028_naming_prefix")
-        include_index = field_columns[1].checkbox(
-            "Index verwenden",
-            value=profile.include_index,
-            key="p028_naming_include_index",
-        )
-        index_width = field_columns[2].number_input(
-            "Indexbreite",
-            min_value=1,
-            value=profile.index_width,
-            step=1,
-            key="p028_naming_index_width",
-        )
-        separator = field_columns[3].text_input(
-            "Trennzeichen",
-            value=profile.separator,
-            key="p028_naming_separator",
-        )
-        token_editor = st.data_editor(
-            pd.DataFrame(naming_token_rows(profile)),
-            num_rows="dynamic",
-            hide_index=True,
-            width="stretch",
-            key="p028_naming_token_editor",
-        )
-
-        profile_is_valid = False
-        try:
-            edited_profile = naming_profile_from_rows(
-                prefix=prefix,
-                index_width=int(index_width),
-                separator=separator,
-                include_index=include_index,
-                editor_value=token_editor,
-            )
-            ui_data = build_current_variant_ui_data(state)
-            named_ui_data = apply_naming_profile_to_ui_data(ui_data, edited_profile)
-        except (TypeError, ValueError) as exc:
-            st.error(f"Benennungsprofil ist nicht anwendbar: {exc}")
-        else:
-            state.naming_profile = edited_profile
-            profile_is_valid = True
-            st.success("Benennungsprofil ist vollstaendig und erzeugt eindeutige Namen.")
-            st.dataframe(
-                normalize_table_for_streamlit(variant_rows(named_ui_data.generated_variants[:8])),
-                hide_index=True,
-                width="stretch",
-            )
-        _render_naming_save_controls(state, profile_is_valid=profile_is_valid)
+    sections = ("Projektübersicht", "Galerie", "Simulationsprogramm", "Naming-Regeln")
+    section = st.segmented_control(
+        "Projektbereich",
+        sections,
+        default=sections[0],
+        key="ma_project_workspace_section",
+        selection_mode="single",
+    )
+    section = section or sections[0]
+    if section == "Projektübersicht":
+        _render_workspace_overview(workspace)
+    elif section == "Galerie":
+        _render_workspace_gallery(workspace)
+    elif section == "Simulationsprogramm":
+        _render_workspace_program(workspace)
+    else:
+        _render_workspace_naming(workspace)

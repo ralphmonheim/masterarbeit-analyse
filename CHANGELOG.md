@@ -2,7 +2,111 @@
 
 Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentiert.
 
-## Unreleased
+## 0.35.0 - 2026-07-28
+
+### Added
+
+- P035 stellt mit `ma_workspace` lokale Projektordner, atomare
+  `project.yaml`-/Fachconfig-Speicherung, Registry, native
+  Windows-Ordnerauswahl und Projektgalerie bereit. Die bekannten Projekte
+  `Masterarbeit-Analyse` und `Demo-Project1` sind als getrennte Workspaces
+  vorbereitet.
+- Die UD-106-Produktslices fuehren eine reduzierte, sitzungsstabile
+  Bearbeitungsfolge von Projekt und Wetter ueber Gebaeude, 5Z/29Z, Technik,
+  Parameter-Referenz, manuelle IDA-Lasten und Variationsspezifikation bis zu
+  Kandidaten, Katalog, Auswahl und Simulation-Setup.
+- Lokale Bauteil-, Material- und Produktarbeitsmappen werden als
+  Excel-Inhaltsquellen gelesen. Projektkopien binden Auswahl, Zielscope,
+  Quellpfad und SHA-256; zentrale Kataloge bleiben unveraendert.
+- Der 29Z-Entwurf erzeugt genau eine thermische Zone je SmallOffice-IFC-Raum
+  und nutzt die 43 vom Nutzer bereitgestellten DIN-Profilbezeichnungen fuer
+  bearbeitbare Namensvorschlaege, ohne geschuetzte Profilwerte zu
+  extrahieren.
+- UD-106 dokumentiert die abgestimmte V1-Neuordnung modulweise von
+  Projektstart und Wetter ueber Gebaeude, Zonen, Technik, Parameter und
+  Referenzdimensionierung bis Varianten und Simulation-Setup. P035 plant
+  lokale Projektordner, Windows-Ordnerdialog, Registry, Projektdatei,
+  Galerie und Entwurfswarnungen getrennt von `ma_project`.
+- Der projektlokale Skill `prompt-intake` fuehrt `neues thema` und
+  `themenwechsel` ueber ein festes Fragemuster zu einem eindeutigen
+  Arbeits-Prompt. Unklare relevante Angaben werden nachgefragt;
+  `Prompt abschliessen` beendet die Intake-Phase.
+- Eine versionierte SmallOffice-V1-Studie bildet Endvariante 02 mit 29
+  Raeumen, fuenf festen thermischen Zonen und bestaetigter zweigeschossiger
+  Lobby ab. Fuenf globale Temperatur-Sollwertbaender und sechs gekoppelte
+  Heiz-/Kuehlleistungsfaktoren erzeugen 30 Optimierungsfaelle.
+- Acht getrennte Sensitivitaetsfaelle bereiten vier Frankfurt-Jahreswetter
+  und vier Belegungszeitprofile auf dem festen Referenz-/Dimensionierungsfall
+  vor. Alle Zonen behalten innerhalb einer Variante dieselben Sollwerte.
+- Ein UI-neutraler PreProcess-Service und die Streamlit-Ansicht fuehren die
+  Kette bis `ma_simulation_setup` aus und schreiben Run-Bericht, strukturierte
+  Diagnosen, Moduluebergaben, Laufzeiten sowie 38 simulatorneutrale
+  Draft-Pakete.
+- `ma_simulation_setup` materialisiert ein getrenntes
+  `simulation_setup.yaml`; die zonenseitige Technik-Integritaetspruefung
+  ergaenzt die bestehende Legacy-Fassade diagnostisch kompatibel.
+- Manuelle IDA-Referenzlasten erhalten eine pruefbare Herkunft mit
+  Modell-/Run-ID, Quelldatei-Hash, Last- und Maximumsdefinition,
+  Auslegungsbedingungen, Verantwortlichem und Reviewstatus.
+- Variantenpakete binden den exakten 5Z-Zonensatz, Baseline, Studienvertrag,
+  Variationsspezifikation und IDA-Referenzstand. Gekoppelte Faktoren werden
+  je Zone als verfuegbare Heiz- und Kuehlleistung in W materialisiert.
+- Projektbezogene Simulation-Setups besitzen ein gemeinsames
+  Selection-Manifest, vollstaendige Wetter-, Belegungs-, Zeitraum-,
+  Output-, Zonen-, Parameter- und Leistungsreferenzen und werden
+  transaktional geschrieben.
+- Der V1-Studienvertrag wird erst durch den eigenen
+  Variationsspezifikations-Schritt aktiviert. Selection-IDs binden Modus,
+  Kandidatenmenge und Seed; alte Kandidaten koennen nicht unter einem neuen
+  Upstream-Fingerprint weitergereicht werden.
+- Der vierdimensionale SmallOffice-Studienvertrag akzeptiert ausschliesslich
+  die vier eindeutigen freigegebenen Dimensionen. Selection, Variantenpakete
+  und Run-Gruppe werden vor der Ausgabe typgenau ueber IDs, Kandidatenmenge,
+  StudyCase, StudyDirection und neu berechneten Fingerprint abgeglichen.
+
+### Changed
+
+- Die transaktionale Materialisierung des Simulation-Setups erzeugt ihren
+  Staging-Ordner jetzt mit geerbten Windows-ACLs. Die atomare Veroeffentlichung
+  im selben Ausgabeordner bleibt erhalten.
+- Der kanonische PreProcess fuehrt
+  `Parameter-Referenzstand -> Referenzdimensionierung ->
+  Parameter-Variationsspezifikation` als drei getrennte sichtbare Schritte.
+- Projektweite Haupt- und Unterbereiche verwenden gespeicherte
+  Auswahlzustande statt `st.tabs`, damit Aktionen und Neulaeufe nicht in
+  einen anderen Bereich springen.
+- `ma_simulation_setup` materialisiert projektbezogen nur bestaetigte,
+  gegen den aktuellen Upstream-Stand gepruefte Variantenpakete und startet
+  keine Simulation.
+- V1-Jahreslaeufe erzwingen Jahresgrenzen, 8760-TRY-Kalender,
+  `Europe/Berlin`, deaktivierte Sommerzeit, Jahresmodus und 3600-s-Schritt.
+  Als aufgeloest markierte Wetterdateien werden bei der Materialisierung
+  erneut auf Existenz und SHA-256 geprueft; ungeloeste Quellen bleiben
+  sichtbar, erhalten aber keinen simulationsbereiten Status.
+- Projektkopien aus Gebaeude- und Technikkatalogen speichern den
+  ausgewaehlten Excel-Datensatz samt Quellenhash. Aenderungen der zentralen
+  Arbeitsmappe werden sichtbar und veraendern die Projektkopie nicht.
+- Aenderungen an Code, Konfiguration, Daten und Dokumentation beginnen nur
+  nach der exakten Nutzerfreigabe `Freigabe zur Umsetzung`. Dokumentierte
+  Direktbefehle fuer Commit, Tag und Push bleiben die einzige Ausnahme ohne
+  zweite Freigabe.
+- Die Referenzdimensionierung verarbeitet die fuenf Zonen mit ihren
+  jeweiligen Volumen-, Luftwechsel- und Lastwerten. Das synthetische
+  SmallOffice-Referenzpaket verwendet konsistente Projekt- und Zonen-IDs.
+
+### Known limitations
+
+- Die V1-Abnahme benoetigt noch reale manuell aus IDA eingetragene zonale
+  Heiz- und Kuehllasten, einen Techniksystem-Excel-Katalog sowie den
+  Rechtegatenachweis fuer vollstaendige DIN-Nutzungsprofilwerte.
+- Der generische P035-Projektwechsel mit moduluebergreifendem Sammelspeichern
+  offener gueltiger Entwuerfe ist noch nicht abgeschlossen.
+- Frankfurt 2010 und 2035 sind in V1 nur als
+  Simulation-Setup-Metadaten vorbereitet; der vorhandene Analysepfad besitzt
+  keinen PRN-Adapter. Frankfurt 2015 und 2045 sind versioniert aufloesbar.
+- Die bestehende automatische LoD-1-Referenzrechnung bleibt eine
+  Plausibilitaetshilfe. Fuer die projektbezogene V1-Kette sind stattdessen
+  manuell eingetragene, gepruefte IDA-Zonenlasten erforderlich.
 
 ## 0.34.1 - 2026-07-25
 

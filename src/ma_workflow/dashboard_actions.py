@@ -42,7 +42,6 @@ ACTION_KEY_ALIASES = {
     "run_prepare_data": "run_data_preparation",
     "run_ida_export": "run_simulation_export",
     "run_ida_import": "run_simulation_import",
-    "run_standards_compliance": "run_standards_verification",
 }
 
 

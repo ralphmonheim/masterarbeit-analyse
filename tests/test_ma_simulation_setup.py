@@ -1,9 +1,16 @@
+import yaml
+
 from ma_parameters import (
     build_baseline_parameter_snapshot_from_input_package,
     build_business_integration_lod1_parameter_snapshot,
     build_lod1_parameter_input_package,
 )
-from ma_simulation_setup import SimulationRunStatus, build_run_manifest, materialize_run_package
+from ma_simulation_setup import (
+    SimulationRunStatus,
+    SimulationSetupSpecification,
+    build_run_manifest,
+    materialize_run_package,
+)
 from ma_variants.preprocess import VariationValue, build_baseline_variant, build_explicit_variant
 
 
@@ -67,3 +74,31 @@ def test_run_manifest_rejects_variant_from_other_baseline():
         assert "referenziert nicht" in str(error)
     else:
         raise AssertionError("Eine fremde Baseline muss den Run-Aufbau blockieren.")
+
+
+def test_simulation_setup_metadata_is_materialized_without_starting_simulation(tmp_path):
+    snapshot = _baseline_snapshot()
+    variant = build_baseline_variant(snapshot)
+    setup = SimulationSetupSpecification(
+        study_id="STUDY-TEST",
+        study_case_type="optimization",
+        weather_key="TRY_FFM_2015_JAHR",
+        weather_label="Frankfurt 2015 Jahr",
+        occupancy_schedule_key="OCC_REF",
+        occupancy_start_hour=7.0,
+        occupancy_end_hour=18.0,
+    )
+    manifest = build_run_manifest(
+        snapshot,
+        variant,
+        run_id="RUN-SIMULATION-SETUP-TEST",
+        simulation_setup=setup,
+    )
+
+    run_dir = materialize_run_package(manifest, variant, tmp_path)
+
+    assert manifest.run.status is SimulationRunStatus.DRAFT
+    assert (run_dir / "simulation_setup.yaml").is_file()
+    payload = yaml.safe_load((run_dir / "simulation_setup.yaml").read_text(encoding="utf-8"))
+    assert payload["weather_key"] == "TRY_FFM_2015_JAHR"
+    assert payload["preparation_only"] is True

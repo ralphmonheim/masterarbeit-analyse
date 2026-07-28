@@ -18,9 +18,14 @@
   daraus einen kleinen, referenzbasierten Handover fuer nachgelagerte Module
   bereit. P014-S4 fuegt einen strikten, typisierten V2-YAML-Einstieg und eine
   ausschliesslich synthetische Referenzdatei hinzu.
-- **Uebergangsstand:** Die aktuelle LoD-1-Demo referenziert noch
-  `source_zone_model_id` und `served_zone_ids`. Diese Kopplung bleibt
-  kompatibel, muss im naechsten P014-Slice aber an P013-S2 angepasst werden.
+- **Uebergangsstand:** Die LoD-1-Vertraege mit `source_zone_model_id` und
+  `served_zone_ids` bleiben kompatibel. Die neue zonenseitige
+  Integritaets-API prueft diese Referenzen ohne eine Runtime-Rueckabhaengigkeit
+  von `ma_technical` auf `ma_zones`; die Legacy-Fassade bleibt erhalten.
+- **SmallOffice V1:** Eine getrennte Endvariante-02-Spezifikation beschreibt
+  Heizung, Kuehlung und Lueftung fuer alle fuenf Zonen. Die verfuegbare Heiz-
+  und Kuehlleistung wird in `ma_variants` gemeinsam mit Faktoren von 1,0 bis
+  0,5 variiert und nicht im Technikmodell vervielfacht.
 - **LoD-1-Inhalt:** einfache Referenzannahmen fuer Heizung, Kuehlung und
   Lueftung mit bedienten Zonen, spezifischen Leistungen, Temperaturen,
   Leistungszahlen, Luftwechsel und Regelstrategie.

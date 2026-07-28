@@ -1,37 +1,37 @@
 # Lauffaehige LoD-1-Technikkonfiguration. Die Systeme bilden eine transparente
 # GEG-/Projekt-Baseline und keine nachgewiesene reale SmallOffice-Anlage ab.
 schema_version: "1.0"
-technical_model_id: "TECH-SMALLOFFICE-LOD1-001"
-project_id: "PROJECT-SMALLOFFICE-REFERENCE-001"
-building_id: "BUILDING-IFC-000126"
-source_zone_model_id: "ZONE-SMALLOFFICE-LOD1-001"
+technical_model_id: "TECH-SYNTHETIC-SMALL-OFFICE-LOD1-MODEL-0001"
+project_id: "PROJECT-SYNTHETIC-SMALL-OFFICE"
+building_id: "BUILDING-SYNTHETIC-SMALL-OFFICE-0001"
+source_zone_model_id: "ZONE-SYNTHETIC-SMALL-OFFICE-LOD1-MODEL-0001"
 input_detail_level: "LOD-1"
 systems:
-  - system_id: "TECH-SMALLOFFICE-HEATING-001"
+  - system_id: "TECH-HEATING-SYNTHETIC-SMALL-OFFICE-0001"
     name: "GEG-Referenzheizung Erdgas-Brennwert, Demo-Baseline"
     system_type: "heating"
     served_zone_ids:
-      - "ZONE-SMALLOFFICE-AGGREGATED-001"
+      - "ZONE-SYNTHETIC-SMALL-OFFICE-0001"
     design_power_w_m2: 50.0
     supply_temperature_c: 55.0
     return_temperature_c: 45.0
     performance_factor: 0.95
     control_strategy: "zone_setpoint_with_night_setback"
-  - system_id: "TECH-SMALLOFFICE-COOLING-001"
+  - system_id: "TECH-COOLING-SYNTHETIC-SMALL-OFFICE-0001"
     name: "GEG-Referenz-Raumkuehlung, Demo-Baseline"
     system_type: "cooling"
     served_zone_ids:
-      - "ZONE-SMALLOFFICE-AGGREGATED-001"
+      - "ZONE-SYNTHETIC-SMALL-OFFICE-0001"
     design_power_w_m2: 35.0
     supply_temperature_c: 14.0
     return_temperature_c: 18.0
     performance_factor: 3.0
     control_strategy: "zone_setpoint_with_weekend_shutdown"
-  - system_id: "TECH-SMALLOFFICE-VENTILATION-001"
+  - system_id: "TECH-VENTILATION-SYNTHETIC-SMALL-OFFICE-0001"
     name: "Zentrale Zu- und Abluft mit Platten-WRG, Demo-Baseline"
     system_type: "ventilation"
     served_zone_ids:
-      - "ZONE-SMALLOFFICE-AGGREGATED-001"
+      - "ZONE-SYNTHETIC-SMALL-OFFICE-0001"
     air_change_rate_1_h: 0.7
     heat_recovery_efficiency_percent: 60.0
     control_strategy: "weekday_schedule_08_18"

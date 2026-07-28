@@ -112,7 +112,6 @@ PAGE_KEY_ALIASES = {
     "ida_import": "import_simulation",
     "stage_2_optimization": "analyse",
     "stage_3_verification": "standards_verification",
-    "standards_compliance": "standards_verification",
 }
 
 

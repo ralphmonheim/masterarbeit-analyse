@@ -1,0 +1,108 @@
+# Feste V1-Zonierung aus Endvariante 02. Alle Zonen verwenden im
+# Referenzfall dasselbe Temperatur-Sollwertband 21/24 Grad C.
+schema_version: "1.0"
+zone_model_id: "ZONEVAR-REDUCED-5-BOUNDARIES-REMOVED-001"
+project_id: "PROJECT-SMALL-OFFICE-V1"
+building_id: "BUILDING-SMALL-OFFICE-5Z-ENDVAR-02"
+source_building_version_id: "BUILDING-SMALL-OFFICE-5Z-ENDVAR-02-V1"
+input_detail_level: "LOD-2"
+usage_profiles:
+  - profile_id: "PROFILE-NORM-SCHALTERHALLE-2025"
+    name: "Lobby und Eingang – vorlaeufiges V1-Profil"
+    operation_start_hour: 7.0
+    operation_end_hour: 18.0
+    operation_days_per_week: 5
+    occupancy_density_m2_per_person: 8.33
+    lighting_power_w_m2: 8.0
+    equipment_power_w_m2: 5.0
+  - profile_id: "PROFILE-CUSTOM-EG-WEST-001"
+    name: "Mischprofil Erdgeschoss West"
+    operation_start_hour: 7.0
+    operation_end_hour: 18.0
+    operation_days_per_week: 5
+    occupancy_density_m2_per_person: 16.67
+    lighting_power_w_m2: 8.0
+    equipment_power_w_m2: 5.0
+  - profile_id: "PROFILE-CUSTOM-EG-EAST-001"
+    name: "Mischprofil Erdgeschoss Ost"
+    operation_start_hour: 7.0
+    operation_end_hour: 18.0
+    operation_days_per_week: 5
+    occupancy_density_m2_per_person: 8.33
+    lighting_power_w_m2: 8.0
+    equipment_power_w_m2: 2.0
+  - profile_id: "PROFILE-CUSTOM-OG-WEST-001"
+    name: "Mischprofil Obergeschoss West"
+    operation_start_hour: 7.0
+    operation_end_hour: 18.0
+    operation_days_per_week: 5
+    occupancy_density_m2_per_person: 16.67
+    lighting_power_w_m2: 8.0
+    equipment_power_w_m2: 6.0
+  - profile_id: "PROFILE-CUSTOM-OG-EAST-001"
+    name: "Mischprofil Obergeschoss Ost"
+    operation_start_hour: 7.0
+    operation_end_hour: 18.0
+    operation_days_per_week: 5
+    occupancy_density_m2_per_person: 8.33
+    lighting_power_w_m2: 8.0
+    equipment_power_w_m2: 2.0
+zones:
+  - zone_id: "ZONE-5Z-LOBBY"
+    name: "Lobby und Eingang"
+    usage_profile_id: "PROFILE-NORM-SCHALTERHALLE-2025"
+    floor_area_m2: 71.681
+    volume_m3: 475.70985
+    source_space_ids: ["ROOM-IFC-024840", "ROOM-IFC-071677"]
+    heating_setpoint_c: 21.0
+    cooling_setpoint_c: 24.0
+    minimum_air_change_rate_1_h: 1.0
+  - zone_id: "ZONE-5Z-EG-WEST"
+    name: "Erdgeschoss West"
+    usage_profile_id: "PROFILE-CUSTOM-EG-WEST-001"
+    floor_area_m2: 156.12
+    volume_m3: 421.524
+    source_space_ids: ["ROOM-IFC-025341", "ROOM-IFC-069277", "ROOM-IFC-068797", "ROOM-IFC-068317", "ROOM-IFC-067837", "ROOM-IFC-026301", "ROOM-IFC-069757", "ROOM-IFC-070237", "ROOM-IFC-070717", "ROOM-IFC-071197"]
+    heating_setpoint_c: 21.0
+    cooling_setpoint_c: 24.0
+    minimum_air_change_rate_1_h: 1.4814814815
+  - zone_id: "ZONE-5Z-EG-EAST"
+    name: "Erdgeschoss Ost"
+    usage_profile_id: "PROFILE-CUSTOM-EG-EAST-001"
+    floor_area_m2: 66.2605
+    volume_m3: 178.90335
+    source_space_ids: ["ROOM-IFC-025821", "ROOM-IFC-073141", "ROOM-IFC-072157", "ROOM-IFC-072637"]
+    heating_setpoint_c: 21.0
+    cooling_setpoint_c: 24.0
+    minimum_air_change_rate_1_h: 3.7037037037
+  - zone_id: "ZONE-5Z-OG-WEST"
+    name: "Obergeschoss West"
+    usage_profile_id: "PROFILE-CUSTOM-OG-WEST-001"
+    floor_area_m2: 156.12
+    volume_m3: 421.524
+    source_space_ids: ["ROOM-IFC-320027", "ROOM-IFC-322427", "ROOM-IFC-321947", "ROOM-IFC-321467", "ROOM-IFC-320987", "ROOM-IFC-320507", "ROOM-IFC-322907", "ROOM-IFC-323387", "ROOM-IFC-319531", "ROOM-IFC-319051"]
+    heating_setpoint_c: 21.0
+    cooling_setpoint_c: 24.0
+    minimum_air_change_rate_1_h: 1.4814814815
+  - zone_id: "ZONE-5Z-OG-EAST"
+    name: "Obergeschoss Ost"
+    usage_profile_id: "PROFILE-CUSTOM-OG-EAST-001"
+    floor_area_m2: 66.6605
+    volume_m3: 179.98335
+    source_space_ids: ["ROOM-IFC-318571", "ROOM-IFC-317601", "ROOM-IFC-318083"]
+    heating_setpoint_c: 21.0
+    cooling_setpoint_c: 24.0
+    minimum_air_change_rate_1_h: 3.7037037037
+assumptions:
+  - assumption_id: "SMALLOFFICE-5Z-ZONING-001"
+    location: "zones"
+    text: "Die fuenf Zonen und alle 29 Raumzuordnungen stammen aus Endvariante 02; in V1 erfolgt kein neuer Zonenzuschnitt."
+  - assumption_id: "SMALLOFFICE-5Z-SETPOINT-001"
+    location: "zones"
+    text: "Der V1-Referenzfall setzt in allen Zonen 21 Grad C Heizen und 24 Grad C Kuehlen."
+  - assumption_id: "SMALLOFFICE-5Z-AIR-001"
+    location: "zones"
+    text: "Zonale Luftwechsel der vier Mischprofile sind aus dem flaechenbezogenen Aussenluftstrom der Projektkonfiguration abgeleitet; der Lobbywert 1,0 1/h bleibt eine vorlaeufige V1-Annahme."
+  - assumption_id: "SMALLOFFICE-5Z-LOBBY-PROFILE-001"
+    location: "usage_profiles.0"
+    text: "Konkrete geschuetzte Normprofilwerte wurden nicht uebernommen; die numerischen Lobby-Lastwerte sind transparente V1-Projektannahmen."

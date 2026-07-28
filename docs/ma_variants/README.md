@@ -35,17 +35,23 @@ auswaehlen, benennen und nachvollziehbar verwalten.
 
 ## Status
 
-Geplant und fachlich konsolidiert. Ein umfangreicher Prototyp ist vorhanden,
-aber die verbindliche Eingangsquelle `ma_parameters` und die Integration bis
-`ma_simulation_setup` fehlen. Der aktive Zielprozess lautet
-`VSP -> VVER -> VCAT -> VSEL -> VGEN -> ma_simulation_setup`. P028 bindet die
-Demo-Optionsauswahl und das neutrale Benennungsprofil bereits ueber einen
-gemeinsamen Streamlit-Sitzungsstand an.
+Teilweise umgesetzt und fachlich konsolidiert. Der aktive Zielprozess lautet
+`VSP -> VVER -> VCAT -> VSEL -> VGEN -> ma_simulation_setup`. Fuer
+SmallOffice V1 erzeugt ein versionierter Studienvertrag aus der
+`ma_parameters`-Baseline 30 Optimierungs- und acht Sensitivitaetsfaelle und
+uebergibt sie direkt an `ma_simulation_setup`. Der allgemeine P017-Vertrag und
+der bestehende Prototyp bleiben kompatibel.
+
+Die Optimierung kombiniert fuenf globale Temperatur-Sollwertbaender mit sechs
+gekoppelten Heiz-/Kuehlleistungsfaktoren. Die Sensitivitaet bleibt getrennt
+und verwendet den Referenz-/Dimensionierungsfall fuer vier Frankfurt-
+Jahreswetter beziehungsweise vier Belegungszeitprofile.
 
 ## Naechster Schritt
 
-P017-S1 planen: Grundobjekte, projektweite IDs, `VariantSpace`, Zaehlmodell und
-stabile Eingangsreferenzen auf P015/P016 ohne Bruch des bestehenden Prototyps.
+Den allgemeinen P017-Vertrag schrittweise auf die mit SmallOffice V1
+nachgewiesenen stabilen Eingangsreferenzen und Draft-Run-Uebergaben
+konsolidieren, ohne automatische Auswahl oder Simulation einzufuehren.
 
 ## Dateien
 

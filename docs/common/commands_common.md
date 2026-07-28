@@ -8,6 +8,9 @@ Diese Datei ist der Triggerindex. Die vollstaendigen Schritte stehen nur in
 Council: `council analyse`, `council review`, `council umsetzen`,
 `ohne council`, `nur Tera`, `mit Sol-Review`.
 
+Themenstart: `neues thema`, `neues thema: ...`, `themenwechsel`,
+`Prompt abschliessen`.
+
 Sammelbefehle: `aktualisieren und tagesende direkt`,
 `aktualisieren und direkt update repo`, `aktualisieren`, `tagesstart`,
 `Guten Morgen, es ist ein neuer Tag.`, `tagesende`, `Gute Nacht.`,

@@ -57,7 +57,7 @@ gesonderte Teilplaene analysiert, freigegeben und getestet.
 | Phase 1 | `ma_project` | Projekt und Untersuchungsrahmen initialisieren |
 | Phase 2 | `ma_weather`, `ma_building`, `ma_technical`, `ma_zones`, `ma_parameters` | Eingaben erfassen, validieren und vereinheitlichen |
 | Phase 3 | `ma_analyse.stage_1_dimensioning`, `ma_variants`, `ma_simulation_setup`, `ma_export_simulation` | Referenz dimensionieren, Varianten und Run vorbereiten |
-| Phase 4 | IDA ICE, `ma_import_simulation`, `ma_analyse.data_preparation`, `ma_analyse.stage_2_optimization`, `ma_analyse.stage_3_standards_compliance`, `ma_analyse.stage_4_sensitivity` | simulieren, Daten vorbereiten, optimieren, Norm-Nachweise und Sensitivitaet auswerten |
+| Phase 4 | IDA ICE, `ma_import_simulation`, `ma_analyse.data_preparation`, `ma_analyse.stage_2_optimization`, `ma_analyse.stage_3_standards_verification`, `ma_analyse.stage_4_sensitivity` | simulieren, Daten vorbereiten, optimieren, Norm-Nachweise und Sensitivitaet auswerten |
 | Phase 5 | `ma_economy`, `ma_sustainability`, `ma_assessment` | wirtschaftlich, oekologisch und gesamthaft bewerten |
 | Phase 6 | `ma_reporting`, `ma_data_export`, Projektdokumentation | Berichte, Datenpakete und Archivierung |
 
@@ -84,7 +84,7 @@ ma_zones
        -> adapters.ida_ice
     -> ma_analyse.data_preparation
     -> ma_analyse.stage_2_optimization
-    -> ma_analyse.stage_3_standards_compliance
+    -> ma_analyse.stage_3_standards_verification
     -> ma_analyse.stage_4_sensitivity
     -> ma_economy
     -> ma_sustainability
@@ -189,7 +189,7 @@ vor stabilen Fachmodellen und konkreten Abfragen.
 - Stage 1: vereinfachte Referenzdimensionierung mit Ausbaupfad.
 - Stage 2: Optimierung auf Basis vorhandener Analysebefehle.
 - Stage 3: Norm-Nachweis unter
-  `ma_analyse.stage_3_standards_compliance`; deutsche Normenprofile zuerst,
+  `ma_analyse.stage_3_standards_verification`; deutsche Normenprofile zuerst,
   internationale Profile spaeter.
 - Stage 4: Sensitivitaet und Robustheit anhand kritischer Wetter- und
   Betriebsfaelle.
@@ -254,7 +254,7 @@ P009 nutzt als Zielvertrag die von P018 vorbereitete direkte
 |---|---|
 | verfuegbar | Projektdokumentation |
 | teilweise | `ma_weather`, `ma_building`, `ma_zones`, `ma_technical`, `ma_parameters`, `ma_analyse`, `ma_analyse.data_preparation`, `ma_analyse.stage_1_dimensioning`, `ma_analyse.stage_2_optimization` |
-| geplant | `ma_core`, `ma_database`, `ma_ui`, `ma_workflow`, `ma_project`, `ma_analyse.stage_3_standards_compliance`, `ma_analyse.stage_4_sensitivity`, `ma_variants`, `ma_simulation_setup`, `ma_export_simulation`, `ma_import_simulation`, `ma_economy`, `ma_sustainability`, `ma_assessment`, `ma_reporting`, `ma_data_export`, `ma_validation`, `ma_feedback` |
+| geplant | `ma_core`, `ma_database`, `ma_ui`, `ma_workflow`, `ma_project`, `ma_analyse.stage_3_standards_verification`, `ma_analyse.stage_4_sensitivity`, `ma_variants`, `ma_simulation_setup`, `ma_export_simulation`, `ma_import_simulation`, `ma_economy`, `ma_sustainability`, `ma_assessment`, `ma_reporting`, `ma_data_export`, `ma_validation`, `ma_feedback` |
 | manuell | IDA ICE |
 
 Die Statuswerte werden zentral in `ma_workflow` gepflegt und von Navigation

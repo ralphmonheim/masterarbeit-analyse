@@ -1,5 +1,7 @@
 """Neutrale Workflow-Schicht fuer die Masterarbeitsmodule."""
 
+from importlib import import_module
+
 from .actions import get_workflow_step, list_workflow_steps, steps_by_phase
 from .analysis import run_analysis_action
 from .catalog import (
@@ -18,11 +20,35 @@ from .post_process_runner import list_post_process_steps
 from .pre_process_runner import list_pre_process_steps
 from .workflow_manager import get_step, group_steps_by_phase, list_steps
 
+_SMALL_OFFICE_V1_EXPORTS = {
+    "DEFAULT_SMALL_OFFICE_V1_OUTPUT_ROOT",
+    "PreProcessStepStatus",
+    "PreProcessStepTrace",
+    "SmallOfficeV1PreProcessResult",
+    "run_small_office_v1_preprocess",
+    "small_office_v1_summary_rows",
+}
+
+
+def __getattr__(name: str) -> object:
+    """Lade den ausfuehrbaren SmallOffice-Runner erst bei Bedarf."""
+
+    if name in _SMALL_OFFICE_V1_EXPORTS:
+        module = import_module(".small_office_v1_preprocess", __name__)
+        value = getattr(module, name)
+        globals()[name] = value
+        return value
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
 __all__ = [
     "WorkflowAction",
     "WorkflowPhase",
     "WorkflowStep",
     "ModuleDefinition",
+    "DEFAULT_SMALL_OFFICE_V1_OUTPUT_ROOT",
+    "PreProcessStepStatus",
+    "PreProcessStepTrace",
+    "SmallOfficeV1PreProcessResult",
     "get_dashboard_action",
     "get_module_definition",
     "get_step",
@@ -40,6 +66,8 @@ __all__ = [
     "list_workflow_phases",
     "resolve_module_key",
     "resolve_step_key",
+    "run_small_office_v1_preprocess",
     "run_analysis_action",
     "steps_by_phase",
+    "small_office_v1_summary_rows",
 ]

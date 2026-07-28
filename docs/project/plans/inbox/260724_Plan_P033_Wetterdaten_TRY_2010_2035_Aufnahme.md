@@ -130,3 +130,16 @@ weisen Wetterunterschiede als eigene Einflussgroesse aus.
 ## Abhaengigkeiten
 
 P008, P018, P021, P027 und bestehender DWD-Compliance-Preflight.
+
+## Konsolidierter UI- und Ablagebezug 2026-07-27
+
+UD-106 uebergibt Land und Stadt aus `ma_project` nur als Vorschlag an
+`ma_weather`; fehlt die Stadt im Katalog, bleibt die Auswahl manuell.
+Die Wetteransicht wird in `Analyse | Diagramme | Verwaltung` mit
+`Import | Scannen | Pruefen` unter Verwaltung gegliedert.
+
+Die 90 PRN-Dateien und die IDM-Datei bleiben bis zu einer getrennt
+freigegebenen Ablageumsetzung an ihren bestehenden lokalen Pfaden. Eine
+spaetere Verschiebung nach `data/ma_weather/input/prn/` beziehungsweise
+`data/ma_weather/input/idm/` muss alle P033-Katalogreferenzen atomar
+aktualisieren und aendert den weiterhin gesperrten Analyseadapter nicht.

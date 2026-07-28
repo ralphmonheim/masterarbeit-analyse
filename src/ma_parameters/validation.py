@@ -881,12 +881,12 @@ def _validate_baseline_values(snapshot: BaselineParameterSnapshot) -> list[Diagn
 
 def _validate_input_package_lod1_required_values(input_package: ParameterInputPackage) -> list[DiagnosticMessage]:
     messages: list[DiagnosticMessage] = []
-    if input_package.input_detail_level != "LOD-1":
+    if input_package.input_detail_level not in {"LOD-1", "LOD-2"}:
         messages.append(
             _message(
                 DiagnosticSeverity.WARNING,
                 "PARAMETER_INPUT_DETAIL_LEVEL_UNEXPECTED",
-                "Parameter-Eingangspaket ist fuer die BusinessIntegration-LoD-1-Kette ausgelegt.",
+                "Parameter-Eingangspaket unterstuetzt derzeit LoD-1 und LoD-2.",
                 "input_detail_level",
             )
         )
@@ -940,12 +940,12 @@ def _validate_baseline_scoped_keys(snapshot: BaselineParameterSnapshot) -> list[
 
 def _validate_lod1_required_values(snapshot: ParameterSnapshot) -> list[DiagnosticMessage]:
     messages: list[DiagnosticMessage] = []
-    if snapshot.input_detail_level != "LOD-1":
+    if snapshot.input_detail_level not in {"LOD-1", "LOD-2"}:
         messages.append(
             _message(
                 DiagnosticSeverity.WARNING,
                 "PARAMETER_INPUT_DETAIL_LEVEL_UNEXPECTED",
-                "ParameterSnapshot v1 ist fuer die BusinessIntegration-LoD-1-Kette ausgelegt.",
+                "ParameterSnapshot v1 unterstuetzt derzeit LoD-1 und LoD-2.",
                 "input_detail_level",
             )
         )

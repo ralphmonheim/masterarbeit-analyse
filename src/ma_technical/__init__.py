@@ -3,6 +3,7 @@
 from .ahu import AirHandlingUnit, FanConfiguration, HeatRecoveryConfiguration
 from .demo_loader import (
     load_business_integration_lod1_technical_spec,
+    load_small_office_5z_endvariant_02_technical_spec,
     load_small_office_lod1_technical_spec,
     load_technical_spec,
 )
@@ -22,6 +23,11 @@ from .enums import (
     TechnicalServiceType,
 )
 from .equipment import PhysicalEquipment
+from .excel_catalogs import (
+    TechnicalExcelCatalog,
+    load_technical_excel_catalog,
+    technical_catalog_record_status,
+)
 from .handover import (
     ReleasedTechnicalHandover,
     ReleasedTechnicalServiceInterfaceReference,
@@ -38,6 +44,7 @@ from .models import (
 )
 from .paths import (
     BUSINESS_INTEGRATION_LOD1_TECHNICAL_SPEC_PATH,
+    SMALL_OFFICE_5Z_ENDVARIANT_02_TECHNICAL_SPEC_PATH,
     SMALL_OFFICE_LOD1_TECHNICAL_SPEC_PATH,
     TECHNICAL_CONFIG_DIR,
 )
@@ -60,6 +67,7 @@ from .validation import validate_technical_model, validate_technical_spec
 __all__ = [
     "AirHandlingUnit",
     "BUSINESS_INTEGRATION_LOD1_TECHNICAL_SPEC_PATH",
+    "SMALL_OFFICE_5Z_ENDVARIANT_02_TECHNICAL_SPEC_PATH",
     "SMALL_OFFICE_LOD1_TECHNICAL_SPEC_PATH",
     "CapacityDefinition",
     "CapacityMode",
@@ -110,6 +118,7 @@ __all__ = [
     "TechnicalInputDetailLevel",
     "TechnicalSystemSpecification",
     "load_business_integration_lod1_technical_spec",
+    "load_small_office_5z_endvariant_02_technical_spec",
     "load_technical_model_specification",
     "build_released_technical_handover",
     "load_technical_model_revision",
@@ -120,5 +129,8 @@ __all__ = [
     "technical_specification_from_dict",
     "technical_model_specification_from_dict",
     "validate_technical_spec",
+    "TechnicalExcelCatalog",
+    "load_technical_excel_catalog",
+    "technical_catalog_record_status",
     "validate_technical_model",
 ]

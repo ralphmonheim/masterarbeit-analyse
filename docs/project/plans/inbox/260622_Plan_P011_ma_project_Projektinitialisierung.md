@@ -1,7 +1,7 @@
 # P011 ma_project Projektinitialisierung und digitale Projektakte
 
 Stand: 2026-07-15
-Status: Fachlich konsolidiert; P011-S1a als reiner Modell-/Serialisierungsslice umgesetzt
+Status: Fachlich konsolidiert; P011-S1a sowie UD-106-Projektuebersicht und Auswahlprofile umgesetzt
 Prioritaet: Hoch
 Abhaengigkeiten: P010, P028, P032, P027
 
@@ -214,3 +214,23 @@ sind nicht Teil von P011.
 P011-S1a nach dem hier dokumentierten Council-Scope umsetzen. P032-W3a bleibt
 davon getrennt und braucht wegen seiner sichtbaren Legacy-API-Aenderung eine
 eigene konkrete menschliche Freigabe.
+
+## Konsolidierter V1-UI- und Workspace-Bezug 2026-07-27
+
+UD-106 ersetzt fuer die weitere V1-Planung abweichende fruehere
+Oberflaechenannahmen. `ma_project` fuehrt Projekt-ID, Name, Kurzname,
+Beschreibung, Untersuchungsrahmen, Land, Stadt, optionale Adresse,
+Simulationsprogramm und die spaetere Naming-Profilwahl.
+
+Der neue P035 fuehrt Projektordner, lokale Registry, Windows-Ordnerdialog,
+`project.yaml`, Galerie und Speicherablauf als getrennten technischen
+Workspace. P011 bleibt die fachliche Projektwahrheit und uebernimmt keine
+Dateisystemlogik aus P035.
+
+## UD-106-Umsetzungsstand 2026-07-27
+
+Die Projektuebersicht bearbeitet Projekt-ID, Kurzname, Beschreibung,
+Untersuchungsrahmen, Land, Stadt und optionale Adresse projektbezogen.
+Simulationsprogramm und Naming-Profil werden aus vorhandenen Configs
+ausgewaehlt; die Naming-Vorschau materialisiert noch keine Varianten. Der
+Projektname bleibt wegen der P035-Ordnerbindung in V1 schreibgeschuetzt.

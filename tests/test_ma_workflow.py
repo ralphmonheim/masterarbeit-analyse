@@ -60,10 +60,11 @@ def test_pre_process_input_steps_follow_the_user_defined_order():
         "project",
         "weather",
         "building",
-        "technical",
         "zones",
+        "technical",
         "parameters",
         "dimensioning",
+        "parameter_variations",
         "variants",
         "simulation_setup",
     ]
@@ -82,6 +83,7 @@ def test_partial_modules_reflect_current_module_implementation():
         "ma_zones",
         "ma_technical",
         "ma_parameters",
+        "ma_parameters.variation_specification",
     }
     assert available_modules == {"ma_weather", "project_documentation"}
 

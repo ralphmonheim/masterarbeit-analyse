@@ -963,3 +963,24 @@ enthalten, wird aber nicht mehr als operative Reihenfolge verwendet.
   `Pruefen` gefuehrt; die Ansicht wechselt zwischen `Gefundene lokale
   TRY-Dateien` und `Parameter pruefen`; die Detailtabelle zeigt nur
   `Feld` und `Wert`.
+
+## Konsolidierter V1-UI-Bezug 2026-07-27
+
+UD-106 legt die Hauptreiter `Analyse | Diagramme | Verwaltung` fest;
+Verwaltung erhaelt `Import | Scannen | Pruefen`. Pruefaktionen erhalten
+Seite, Reiter und Auswahlzustand. Die Projektstadt wird nur als Vorschlag
+uebernommen und bei fehlendem Katalogtreffer nicht automatisch ersetzt.
+
+Der Diagrammreiter zeigt links die lokal analysierten Wetterdatensaetze und
+rechts jeweils ein mit Pfeilen durchblaetterbares Diagramm. Pro Datensatz
+wird nur der neueste Analysestand angeboten; aeltere Ausgaben bleiben
+erhalten. Ein Vergleich mehrerer Wetterdatensaetze ist kein V1-Ziel.
+
+## UD-106-Umsetzungsstand 2026-07-27
+
+Die dreiteilige Wetteransicht und die drei Verwaltungsbereiche sind als
+sitzungsgespeicherte Auswahl umgesetzt. Land und Stadt des aktiven Projekts
+werden nur bei einem echten lokalen Katalogtreffer vorgeschlagen.
+Pruefaktionen wechseln den sichtbaren Bereich nicht. Der Diagrammbereich
+zeigt links die neuesten analysierten Datensaetze und rechts genau ein lokal
+gespeichertes Diagramm mit Vor-/Zurueck-Navigation.

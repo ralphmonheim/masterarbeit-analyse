@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+from pathlib import Path
 
 import streamlit as st
 
@@ -10,12 +11,22 @@ from ma_database import CatalogSelection, DemoCatalogRecord, load_demo_catalog, 
 from ma_technical import (
     TechnicalSystemSpecification,
     load_business_integration_lod1_technical_spec,
+    load_small_office_5z_endvariant_02_technical_spec,
+    load_technical_excel_catalog,
+    technical_catalog_record_status,
     validate_technical_spec,
 )
 from ma_ui.streamlit_app.shared.layout import render_page_header
 from ma_ui.streamlit_app.shared.tables import normalize_table_for_streamlit
+from ma_ui.streamlit_app.state import (
+    clear_workspace_draft,
+    get_active_workspace,
+    mark_workspace_draft,
+    small_office_v1_uses_reference_zone_model,
+)
 from ma_validation import DiagnosticMessage, DiagnosticSeverity
 from ma_workflow import get_module_definition
+from ma_workspace import load_project_module_config, save_project_module_config
 
 TECHNICAL_WORKSPACE_TAB_LABELS = ("Technikmodell", "Übersicht", "Auswahl")
 TECHNICAL_SELECTION_TAB_LABELS = (
@@ -26,6 +37,7 @@ TECHNICAL_SELECTION_TAB_LABELS = (
     "Trinkwarmwasser",
     "Elektrik",
 )
+TECHNICAL_CATALOG_DIRECTORY = Path("data/catalogs/technical_systems")
 
 
 def technical_scope_rows() -> list[dict[str, object]]:
@@ -76,15 +88,37 @@ def render() -> None:
     """Zeigt die LoD-1-Technikspezifikation und ihre Validierung."""
     module = get_module_definition("ma_technical")
     render_page_header(module.label, module.purpose)
+    workspace = get_active_workspace(st.session_state)
+    if workspace is None:
+        st.warning("Bitte zuerst ein Projekt auswaehlen.")
+        return
     try:
-        technical_spec = load_business_integration_lod1_technical_spec()
+        zone_payload = load_project_module_config(workspace, "ma_zones") or {}
+        if not small_office_v1_uses_reference_zone_model(zone_payload):
+            st.error(
+                "Das 29Z-Modell ist noch nicht weitergabefaehig. "
+                "Bitte in Zonen den validierten 5Z-Referenzstand aktivieren."
+            )
+            return
+        technical_spec = (
+            load_small_office_5z_endvariant_02_technical_spec()
+            if workspace.project.identity.title == "Masterarbeit-Analyse"
+            else load_business_integration_lod1_technical_spec()
+        )
     except (OSError, ValueError) as exc:
         st.error(f"Technikspezifikation konnte nicht geladen werden: {exc}")
         return
 
     validation_result = validate_technical_spec(technical_spec)
-    model_tab, overview_tab, selection_tab = st.tabs(TECHNICAL_WORKSPACE_TAB_LABELS)
-    with model_tab:
+    section = st.segmented_control(
+        "Technikbereich",
+        TECHNICAL_WORKSPACE_TAB_LABELS,
+        default=TECHNICAL_WORKSPACE_TAB_LABELS[0],
+        key="ma_technical_workspace_section",
+        selection_mode="single",
+    )
+    section = section or TECHNICAL_WORKSPACE_TAB_LABELS[0]
+    if section == "Technikmodell":
         st.metric("Freigabestatus", validation_result.release_status.value)
         st.dataframe(
             normalize_table_for_streamlit(technical_summary_rows(technical_spec)), hide_index=True, width="stretch"
@@ -109,9 +143,9 @@ def render() -> None:
             )
         _render_messages(validation_result.messages)
 
-    with overview_tab:
+    elif section == "Übersicht":
         _render_fixed_technical_reference(technical_spec)
-    with selection_tab:
+    else:
         _render_fixed_technical_selection(technical_spec)
 
 
@@ -124,30 +158,150 @@ def _render_fixed_technical_reference(spec: TechnicalSystemSpecification) -> Non
 
 
 def _render_fixed_technical_selection(spec: TechnicalSystemSpecification) -> None:
-    """Macht die enthaltenen Systeme als Auswahlresultat sichtbar, nicht editierbar."""
+    """Zeigt Excel-Datensaetze und uebernimmt nur bewusst ausgewaehlte Quellen."""
 
-    st.caption("Ausgewählte Technik aus der freigegebenen Referenzkonfiguration; keine Katalog- oder Parameteränderung.")
-    systems_by_type = {system.system_type: system for system in spec.systems}
-    for tab, topic_key, label in zip(
-        st.tabs(TECHNICAL_SELECTION_TAB_LABELS),
-        ("heating", "cooling", "ventilation", "storage", "domestic_hot_water", "electrical"),
+    workspace = get_active_workspace(st.session_state)
+    if workspace is None:
+        st.error("Bitte zuerst ein Projekt auswaehlen.")
+        return
+    selected_area = st.segmented_control(
+        "Systembereich",
         TECHNICAL_SELECTION_TAB_LABELS,
-        strict=True,
+        default=TECHNICAL_SELECTION_TAB_LABELS[0],
+        key="ma_technical_excel_system_area",
+        selection_mode="single",
+    )
+    selected_area = selected_area or TECHNICAL_SELECTION_TAB_LABELS[0]
+    st.caption(
+        f"Bearbeitungsbereich: {selected_area}. Die Excel-Zeile bleibt die einzige Inhaltsquelle."
+    )
+    catalog_files = tuple(sorted(TECHNICAL_CATALOG_DIRECTORY.glob("*.xlsx")))
+    if not catalog_files:
+        st.warning(
+            "Quelle fehlt: Für technische Systempakete ist noch kein Excel-Katalog unter "
+            f"`{TECHNICAL_CATALOG_DIRECTORY.as_posix()}` vorhanden. Es werden keine Produktdaten erfunden."
+        )
+        st.caption("Die vorhandene Config bleibt nur als Referenzvorlage sichtbar.")
+        st.dataframe(
+            normalize_table_for_streamlit(technical_system_rows(spec)),
+            hide_index=True,
+            width="stretch",
+        )
+        return
+
+    selected_catalog = st.selectbox(
+        "Techniksystem-Katalog",
+        catalog_files,
+        format_func=lambda path: path.name,
+        key="technical_catalog_file",
+    )
+    try:
+        catalog = load_technical_excel_catalog(selected_catalog)
+    except (OSError, ValueError) as exc:
+        st.error(f"Techniksystem-Katalog konnte nicht gelesen werden: {exc}")
+        return
+
+    st.caption(f"Excel-Quelle: {catalog.source_path.as_posix()} · SHA-256: {catalog.source_sha256}")
+    st.dataframe(
+        normalize_table_for_streamlit(technical_excel_catalog_rows(catalog.rows, catalog.id_column)),
+        hide_index=True,
+        width="stretch",
+    )
+    selected_id = st.selectbox(
+        "Techniksystem-Entwurf",
+        [str(row[catalog.id_column]) for row in catalog.rows],
+        format_func=lambda record_id: _technical_excel_option_label(catalog.rows, catalog.id_column, record_id),
+        key="technical_excel_catalog_selection",
+        on_change=_mark_technical_draft,
+    )
+    selected_record = next(row for row in catalog.rows if str(row[catalog.id_column]) == selected_id)
+    active, validated, validation_status = technical_catalog_record_status(selected_record)
+    st.dataframe(
+        normalize_table_for_streamlit(
+            [
+                {"Merkmal": "Auswahl", "Wert": selected_id},
+                {"Merkmal": "Aktiv", "Wert": "ja" if active else "nein"},
+                {"Merkmal": "Validiert", "Wert": "ja" if validated else "nein"},
+                {"Merkmal": "Validierungsstatus", "Wert": validation_status},
+                *[{"Merkmal": key, "Wert": value} for key, value in selected_record.items()],
+            ]
+        ),
+        hide_index=True,
+        width="stretch",
+    )
+    if not active or not validated:
+        st.warning("Nur aktive und validierte Excel-Datensaetze duerfen projektbezogen uebernommen werden.")
+    if st.button(
+        "Ausgewählten Techniksystem-Entwurf projektbezogen übernehmen",
+        key="technical_apply_excel_catalog_selection",
+        disabled=not active or not validated,
     ):
-        with tab:
-            system = systems_by_type.get(topic_key)
-            if system is None:
-                st.info(f"{label}: Nicht Bestandteil des festen Techniksatzes.")
-            else:
-                st.dataframe(normalize_table_for_streamlit(technical_system_rows(TechnicalSystemSpecification(
-                    technical_model_id=spec.technical_model_id,
-                    project_id=spec.project_id,
-                    building_id=spec.building_id,
-                    source_zone_model_id=spec.source_zone_model_id,
-                    input_detail_level=spec.input_detail_level,
-                    systems=(system,),
-                    assumptions=(),
-                ))), hide_index=True, width="stretch")
+        payload = _technical_project_payload(workspace)
+        payload["excel_catalog_selection"] = {
+            **technical_excel_selection_payload(catalog, selected_record),
+            "system_area": selected_area,
+        }
+        try:
+            save_project_module_config(workspace, "ma_technical", payload)
+        except (OSError, ValueError) as exc:
+            st.error(f"Projektkonfiguration konnte nicht gespeichert werden: {exc}")
+        else:
+            clear_workspace_draft(st.session_state, "ma_technical")
+            st.success("Der validierte Techniksystem-Entwurf wurde projektbezogen gespeichert.")
+
+
+def technical_excel_catalog_rows(rows: tuple[dict[str, object], ...], id_column: str) -> list[dict[str, object]]:
+    """Add transparent source statuses without changing the Excel record content."""
+    result: list[dict[str, object]] = []
+    for row in rows:
+        active, validated, status = technical_catalog_record_status(row)
+        result.append(
+            {
+                id_column: row[id_column],
+                "Aktiv": "ja" if active else "nein",
+                "Validiert": "ja" if validated else "nein",
+                "Validierungsstatus": status,
+                **{key: value for key, value in row.items() if key != id_column},
+            }
+        )
+    return result
+
+
+def technical_excel_selection_payload(catalog, record: dict[str, object]) -> dict[str, object]:
+    """Create the small project-owned reference to a selected, unchanged Excel record."""
+    active, validated, validation_status = technical_catalog_record_status(record)
+    if not active or not validated:
+        raise ValueError("Nur aktive und validierte Techniksystem-Datensaetze duerfen uebernommen werden.")
+    return {
+        "catalog_record_id": str(record[catalog.id_column]),
+        "source_path": catalog.source_path.as_posix(),
+        "source_version": f"sha256:{catalog.source_sha256[:12]}",
+        "source_sha256": catalog.source_sha256,
+        "source_sheet": "Übersicht",
+        "active": active,
+        "validated": validated,
+        "validation_status": validation_status,
+        "record": dict(record),
+    }
+
+
+def _technical_excel_option_label(rows: tuple[dict[str, object], ...], id_column: str, record_id: str) -> str:
+    row = next(row for row in rows if str(row[id_column]) == record_id)
+    active, validated, status = technical_catalog_record_status(row)
+    return f"{record_id} · {'aktiv' if active else 'inaktiv'} · {status} · {'validiert' if validated else 'nicht validiert'}"
+
+
+def _technical_project_payload(workspace) -> dict[str, object]:
+    payload = load_project_module_config(workspace, "ma_technical")
+    if not isinstance(payload, dict):
+        payload = {}
+    payload.setdefault("schema_version", "1.0")
+    payload.setdefault("project_id", workspace.project.identity.project_id)
+    return payload
+
+
+def _mark_technical_draft() -> None:
+    mark_workspace_draft(st.session_state, "ma_technical")
 
 
 def _render_technical_topic(topic_key: str, label: str, catalog_category: str | None = None) -> None:

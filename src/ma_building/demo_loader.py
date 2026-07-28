@@ -11,6 +11,7 @@ from .models import BuildingModelSpecification, building_specification_from_dict
 from .paths import (
     BUSINESS_INTEGRATION_LOD1_BUILDING_SPEC_PATH,
     DEFAULT_DEMO_BUILDING_SPEC_PATH,
+    SMALL_OFFICE_5Z_ENDVARIANT_02_BUILDING_SPEC_PATH,
     SMALL_OFFICE_LOD1_BUILDING_SPEC_PATH,
 )
 
@@ -38,3 +39,8 @@ def load_business_integration_lod1_building_spec() -> BuildingModelSpecification
 def load_small_office_lod1_building_spec() -> BuildingModelSpecification:
     """Laedt den rein synthetischen SmallOffice-LoD-1-Referenzfall."""
     return load_building_spec(SMALL_OFFICE_LOD1_BUILDING_SPEC_PATH)
+
+
+def load_small_office_5z_endvariant_02_building_spec() -> BuildingModelSpecification:
+    """Laedt die normalisierte V1-Geometrie der SmallOffice-Endvariante 02."""
+    return load_building_spec(SMALL_OFFICE_5Z_ENDVARIANT_02_BUILDING_SPEC_PATH)

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import MutableMapping
 
@@ -9,6 +10,7 @@ import streamlit as st
 
 from ma_core import create_session_id
 from ma_ui.streamlit_app.shared import normalize_table_for_streamlit
+from ma_ui.streamlit_app.state import get_active_workspace
 from ma_validation import (
     ReleaseChoice,
     ReleaseDecision,
@@ -97,7 +99,10 @@ WEATHER_SELECTION_MODE_CITY = "Stadt"
 WEATHER_SELECTION_MODE_REGION = "Klimaregion"
 WEATHER_SELECTION_MODE_OPTIONS = (WEATHER_SELECTION_MODE_CITY, WEATHER_SELECTION_MODE_REGION)
 WEATHER_DATASET_TYPE_FILTER_OPTIONS = ("Jahr", "Sommer", "Winter")
-WEATHER_WORKSPACE_TAB_LABELS = ("Analyse", "Verwaltung")
+WEATHER_WORKSPACE_TAB_LABELS = ("Analyse", "Diagramme", "Verwaltung")
+WEATHER_MANAGEMENT_TAB_LABELS = ("Import", "Scannen", "Pruefen")
+WEATHER_WORKSPACE_TAB_SESSION_KEY = "ma_ui_weather_workspace_tab"
+WEATHER_MANAGEMENT_TAB_SESSION_KEY = "ma_ui_weather_management_tab"
 GENERATED_DISCOVERY_FIELDS = {
     "dataset_role",
     "display_name",
@@ -1126,11 +1131,8 @@ def _render_region_context(
     location_catalog: WeatherLocationCatalog,
     selected_region: WeatherRegion,
 ) -> WeatherLocation:
-    """Zeigt den Kontext einer direkt gewaehlten Klimaregion an."""
-    reference_location = location_catalog.get_location(selected_region.reference_location_id)
-    st.markdown(f"**Klimaregion:** {_weather_region_display_code(selected_region)}")
-    st.markdown(f"**Referenzstandort:** {reference_location.location_name}")
-    return reference_location
+    """Loest die Klimaregion auf, ohne die Auswahl darunter redundant zu wiederholen."""
+    return location_catalog.get_location(selected_region.reference_location_id)
 
 
 def _render_unselected_weather_context(selection_mode: str) -> tuple[None, bool]:
@@ -1228,6 +1230,23 @@ def _render_weather_selection(
                     st.info("Im Standortkatalog ist aktuell kein aktiver Standort vorhanden.")
                     return None, False
                 locations_by_id = {location.location_id: location for location in active_locations}
+                workspace = get_active_workspace(st.session_state)
+                if workspace is not None and WEATHER_LOCATION_WIDGET_KEY not in st.session_state:
+                    project_city = (
+                        workspace.project.location.city.casefold()
+                        if workspace.project.location is not None
+                        else ""
+                    )
+                    suggested_location_id = next(
+                        (
+                            location_id
+                            for location_id, location in locations_by_id.items()
+                            if location.location_name.casefold() == project_city
+                        ),
+                        None,
+                    )
+                    if suggested_location_id is not None:
+                        st.session_state[WEATHER_LOCATION_WIDGET_KEY] = suggested_location_id
                 selected_location_id = st.selectbox(
                     "Stadt",
                     options=tuple(locations_by_id),
@@ -1744,12 +1763,6 @@ def _render_weather_analysis_result(
     st.dataframe(normalize_table_for_streamlit(weather_metric_rows(result.metrics)), hide_index=True, width="stretch")
     _render_critical_weather_events(result)
 
-    image_paths = created_weather_plot_paths(result.plot_results)
-    if image_paths:
-        st.markdown("**Diagramme**")
-        for image_path in image_paths:
-            st.image(str(image_path), caption=image_path.name, width="stretch")
-
     st.markdown("**Ausgabedateien**")
     st.dataframe(
         normalize_table_for_streamlit(weather_analysis_file_rows(result)),
@@ -1814,6 +1827,107 @@ def _render_weather_analysis_workspace(
             )
 
 
+def latest_weather_plot_sets(
+    output_root: str | Path = Path("data/ma_weather/output"),
+) -> dict[str, tuple[Path, ...]]:
+    """Findet je Wetterdatensatz nur den neuesten lokal gespeicherten Analyselauf."""
+    root = Path(output_root)
+    if not root.is_dir():
+        return {}
+    latest_by_weather_key: dict[str, tuple[float, tuple[Path, ...]]] = {}
+    for manifest_path in root.glob("*/*/weather_run_manifest.json"):
+        try:
+            payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+            weather_key = str(payload["dataset"]["weather_key"])
+            raw_plots = payload["artifacts"]["plots"]
+        except (OSError, KeyError, TypeError, ValueError, json.JSONDecodeError):
+            continue
+        plot_paths: list[Path] = []
+        for raw_plot in raw_plots:
+            if not isinstance(raw_plot, dict) or raw_plot.get("status") != "created":
+                continue
+            raw_path = raw_plot.get("path")
+            if not isinstance(raw_path, str) or not raw_path:
+                continue
+            candidate = Path(raw_path)
+            candidate = candidate if candidate.is_absolute() else Path.cwd() / candidate
+            if candidate.is_file():
+                plot_paths.append(candidate.resolve())
+        modified_at = manifest_path.stat().st_mtime
+        current = latest_by_weather_key.get(weather_key)
+        if plot_paths and (current is None or modified_at > current[0]):
+            latest_by_weather_key[weather_key] = (modified_at, tuple(plot_paths))
+    return {weather_key: paths for weather_key, (_mtime, paths) in latest_by_weather_key.items()}
+
+
+def _render_weather_diagrams() -> None:
+    plot_sets = latest_weather_plot_sets()
+    if not plot_sets:
+        st.info("Noch keine lokal gespeicherten Wetterdiagramme vorhanden.")
+        return
+    list_column, diagram_column = st.columns([1, 2])
+    with list_column:
+        selected_weather_key = st.radio(
+            "Analysierte Wetterdatensaetze",
+            tuple(plot_sets),
+            key="ma_ui_weather_diagram_dataset",
+        )
+    image_paths = plot_sets[selected_weather_key]
+    index_key = f"ma_ui_weather_diagram_index_{selected_weather_key}"
+    current_index = min(int(st.session_state.get(index_key, 0)), len(image_paths) - 1)
+    with diagram_column:
+        previous_column, counter_column, next_column = st.columns([1, 2, 1])
+        with previous_column:
+            if st.button("←", key=f"weather_diagram_previous_{selected_weather_key}"):
+                current_index = (current_index - 1) % len(image_paths)
+        with next_column:
+            if st.button("→", key=f"weather_diagram_next_{selected_weather_key}"):
+                current_index = (current_index + 1) % len(image_paths)
+        st.session_state[index_key] = current_index
+        with counter_column:
+            st.caption(f"{current_index + 1}/{len(image_paths)}")
+        image_path = image_paths[current_index]
+        st.image(str(image_path), caption=image_path.name, width="stretch")
+
+
+def _render_weather_management(
+    catalog: object,
+    status_by_key: dict[str, WeatherDatasetStatus],
+    selection_state: WeatherSelectionState,
+    location_catalog: WeatherLocationCatalog | None,
+) -> None:
+    selected_tab = st.segmented_control(
+        "Verwaltungsbereich",
+        WEATHER_MANAGEMENT_TAB_LABELS,
+        default=WEATHER_MANAGEMENT_TAB_LABELS[0],
+        key=WEATHER_MANAGEMENT_TAB_SESSION_KEY,
+        width="stretch",
+    )
+    if selected_tab == "Import":
+        _set_weather_dataset_action(WEATHER_DATASET_ACTION_IMPORT)
+        _render_weather_import_panel()
+    elif selected_tab == "Scannen":
+        _set_weather_dataset_action(WEATHER_DATASET_ACTION_SCAN)
+        _render_weather_scan_panel(catalog, location_catalog)
+    else:
+        _set_weather_dataset_action(WEATHER_DATASET_ACTION_VALIDATE)
+        if st.button(
+            "Datensatzbestand pruefen",
+            key="ma_ui_weather_check_dataset_inventory",
+            width="stretch",
+        ):
+            _run_weather_catalog_validation(catalog)
+        _render_weather_import_message()
+        _render_weather_discovery_message()
+        _render_weather_validation_panel(catalog, location_catalog, status_by_key)
+        active_datasets = _regularly_selectable_datasets(catalog.active_datasets(), status_by_key)
+        _render_active_weather_datasets(
+            active_datasets,
+            status_by_key=status_by_key,
+            selection_state=selection_state,
+        )
+
+
 def render() -> None:
     """Zeigt Wetterkatalog getrennt nach Analyse und lokaler Verwaltung."""
     st.title("Wetterdaten")
@@ -1831,8 +1945,14 @@ def render() -> None:
         location_catalog = None
         st.warning(f"Standortkatalog konnte nicht geladen werden: {exc}")
 
-    analysis_tab, management_tab = st.tabs(WEATHER_WORKSPACE_TAB_LABELS)
-    with analysis_tab:
+    selected_workspace_tab = st.segmented_control(
+        "Wetterbereich",
+        WEATHER_WORKSPACE_TAB_LABELS,
+        default=WEATHER_WORKSPACE_TAB_LABELS[0],
+        key=WEATHER_WORKSPACE_TAB_SESSION_KEY,
+        width="stretch",
+    )
+    if selected_workspace_tab == "Analyse":
         result = st.session_state.get(WEATHER_RESULT_SESSION_KEY)
         _render_weather_analysis_workspace(
             catalog,
@@ -1840,9 +1960,11 @@ def render() -> None:
             get_weather_selection_state(st.session_state),
             _current_status_map(catalog, result),
         )
-    with management_tab:
+    elif selected_workspace_tab == "Diagramme":
+        _render_weather_diagrams()
+    else:
         result = st.session_state.get(WEATHER_RESULT_SESSION_KEY)
-        _render_weather_dataset_section(
+        _render_weather_management(
             catalog,
             _current_status_map(catalog, result),
             get_weather_selection_state(st.session_state),

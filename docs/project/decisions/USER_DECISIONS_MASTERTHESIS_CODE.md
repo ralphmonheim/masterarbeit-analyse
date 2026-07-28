@@ -719,7 +719,7 @@ Stand: 2026-07-22
 - Datum: 2026-06-22
 - Thema: Analyse, Bewertung und Reporting
 - Entscheidung: Stage 2 nutzt vorhandene Optimierungsbefehle. Stage 3 heisst
-  `ma_analyse.stage_3_standards_compliance` und fuehrt Norm-Nachweise fuer
+  `ma_analyse.stage_3_standards_verification` und fuehrt Norm-Nachweise fuer
   deutsche, spaeter internationale Normenprofile aus. Stage 4 verbindet
   kritische Wetterereignisse mit vorhandenen Zeitfensteranalysen. Economy und
   Sustainability erhalten kleine Demos; Assessment, Reporting und Datenexport
@@ -1852,6 +1852,11 @@ Stand: 2026-07-22
   Bestehende fachliche Verträge und die spätere Dimensionierungsentscheidung
   werden nicht verändert.
 - Status: getroffen und im Workflow-Katalog umgesetzt
+- Ersetzungsvermerk 2026-07-27: Die damalige Reihenfolge `Technik -> Zonen`
+  ist fuer die weitere V1-Planung durch UD-106 zu `Zonen -> Technik`
+  ersetzt, weil das Technikmodell den aktiven thermischen Modellstand und
+  dessen Zonen-IDs benoetigt. Die Dreiteilung in Pre-, Main- und
+  Post-Process bleibt bestehen.
 - Quelle oder Chatbezug: Nutzerentscheidung im UI-/Preprocess-Abgleich am
   2026-07-21
 
@@ -1948,3 +1953,311 @@ Stand: 2026-07-22
   Test-Suite erneut ausfuehren.
 - Quelle oder Chatbezug: Nutzerentscheidung `Notier die Fehler die werden
   dann an anderer Stelle korrogiert. freigabe fuer commit und push`.
+
+## UD-104 Explizites Umsetzungs-Gate und automatische Git-Direktbefehle
+
+- Datum: 2026-07-27
+- Thema: Codex-Routinen, Schreibfreigabe und Repository-Aktualisierung
+- Entscheidung: Jede Aenderung an Code, Konfiguration, Daten oder
+  Dokumentation beginnt ausschliesslich nach der ausdruecklichen
+  Nutzerformulierung `Freigabe zur Umsetzung`. Read-only Analyse, Planung und
+  Statuspruefungen bleiben ohne Umsetzungsfreigabe moeglich. Council-Voten
+  koennen eine Umsetzung empfehlen, ersetzen die menschliche Freigabe aber
+  nicht.
+- Git-Ausnahme: Die dokumentierten Direktbefehle `direkt update repo`,
+  `tagesende direkt` und ihre Sammelbefehle duerfen einen bereits
+  freigegebenen und vorbereiteten Stand ohne zweite Freigabe committen,
+  taggen und pushen. Ohne einen solchen Repo-Befehl erfolgen keine
+  automatischen Git-Aktionen.
+- Begruendung: Planung und Umsetzung sollen eindeutig getrennt bleiben,
+  waehrend der bewusst angestossene Repository-Abschluss ohne wiederholte
+  Freigabeschleife vollstaendig durchlaufen kann.
+- Auswirkung: UD-089 bleibt als Council-Mehrheitsvotum und Review-Nachweis
+  erhalten, erteilt aber keine eigenstaendige Umsetzungsfreigabe mehr.
+  Technische Sicherheitsabfragen, Rechtegates und Scope-Erweiterungen bleiben
+  gesondert zu behandeln.
+- Betroffene Dateien: `AGENTS.md`, `docs/project/UPDATE_ROUTINES.md`,
+  `docs/project/decisions/USER_DECISIONS_MASTERTHESIS_CODE.md`
+- Status: getroffen und umgesetzt
+- Quelle oder Chatbezug: Nutzerentscheidung `alles andere ist nur mit
+  freigabe erlaubt` und ausdrueckliche `Freigabe zur Umsetzung` am
+  2026-07-27
+
+## UD-105 SmallOffice-V1-PreProcess mit Endvariante 02
+
+- Datum: 2026-07-27
+- Thema: SmallOffice-V1, Optimierungsraum und Sensitivitaetsvorbereitung
+- Entscheidung: Endvariante 02 mit fuenf thermischen Zonen und entfernten
+  Innenwaenden ist die feste V1-Geometrie. Die 29 Raeume, Raumflaechen,
+  Raumvolumina und Raum-Zonen-Zuordnungen werden aus der bereitgestellten
+  Arbeitsmappe uebernommen. Die Lobby ist fachlich bestaetigt
+  zweigeschossig, `8,0 m` hoch und ragt etwas ueber das obere Geschoss hinaus.
+- Optimierung: Alle fuenf Zonen erhalten je Fall dieselben Sollwerte. Die
+  fuenf Baender sind `21/24`, `18/24`, `21/27`, `23/26` und `19/26 Grad C`.
+  Sie werden mit den gemeinsamen Heiz-/Kuehlleistungsfaktoren `1,0`, `0,9`,
+  `0,8`, `0,7`, `0,6` und `0,5` zu 30 Faellen kombiniert.
+- V1-Referenz: `21/24 Grad C` mit Faktor `1,0` ist Dimensionierungs-,
+  Referenz- und Sensitivitaetsfall. Eine automatische Bestvariantenauswahl
+  findet in V1 nicht statt.
+- Sensitivitaet: Die fuenf Zonen bleiben unveraendert. Belegungszeiten sind
+  `07:00-18:00` als Referenz, `06:00-17:00`, `08:00-19:00` und
+  `06:00-19:00`. Vier benannte Frankfurt-Jahreswetterfaelle werden bis
+  `simulation_setup` vorbereitet; eine Simulation oder Ergebnisbewertung ist
+  nicht Bestandteil dieses Slices.
+- Abnahme: Nach dem Aufbau entscheidet ein manueller, dokumentierter
+  PreProcess-Durchlauf bis einschliesslich `ma_simulation_setup` ueber den
+  V1-Stand. Kritische Fehler blockieren abhaengige Schritte, Warnungen werden
+  protokolliert.
+- Status: getroffen und zur Umsetzung freigegeben
+- Quelle oder Chatbezug: abgestimmte Nutzerannotationen und ausdrueckliche
+  `Freigabe zur Umsetzung` am 2026-07-27
+
+## UD-106 Modulweise V1-UI-, Projekt- und PreProcess-Neuordnung
+
+- Datum: 2026-07-27
+- Thema: Projekt-Workspace, reduzierte Streamlit-Bearbeitungsansichten,
+  Fachkataloge und kontrollierte PreProcess-Uebergaben
+- Entscheidung: Die im Prompt-Intake abgestimmte V1-Neuordnung wird
+  modulweise wie folgt festgelegt. Diese Entscheidung ist die kanonische
+  Nutzerwahrheit; die Modulplaene referenzieren sie und konkretisieren nur
+  ihren jeweiligen Verantwortungsbereich.
+
+### Querschnitt und Modulreihenfolge
+
+- Die Zielreihenfolge lautet `Projekt -> Wetter -> Gebaeude -> Zonen ->
+  Technik -> Parameter-Referenzstand -> Referenzdimensionierung ->
+  Parameter-Variationsspezifikation -> Varianten -> Simulation-Setup`.
+- Zonen stehen vor Technik, weil das Technikmodell den aktiven thermischen
+  Modellstand und dessen Zonen-IDs benoetigt.
+- Streamlit-Neulaeufe erhalten Seite, Reiter, Unterreiter, Auswahl und
+  Sitzungsentwuerfe. Navigation wechselt nur nach Nutzeraktion.
+- Aenderungen bleiben bis zu einem Uebernahmebutton Entwurf. Ein
+  Projektwechsel warnt vor offenen Entwuerfen; `Aenderungen speichern und
+  wechseln` uebernimmt alle gueltigen Entwuerfe des aktuellen Moduls.
+- Aktive validierte Eintraege sind normal auswaehlbar, aktive nicht
+  validierte Eintraege tragen eine Warnung und inaktive Eintraege bleiben
+  sichtbar, aber gesperrt.
+
+### Projekt-Workspace
+
+- Lokale Projektordner, Registry, Windows-Ordnerdialog, Galerie und
+  Speicherablauf werden in P035 getrennt von `ma_project` geplant.
+- Beim Start erscheint zuerst die Projektwahl. Das zuletzt verwendete Projekt
+  wird nur vorgeschlagen.
+- Neue Projekte fragen Projektname und einen uebergeordneten Zielordner ab
+  und erzeugen darunter einen gleichnamigen Unterordner. Namenskollisionen
+  blockieren; automatische Suffixe sind unzulaessig.
+- Die Projekt-ID wird automatisch erzeugt und bleibt unveraenderlich.
+- Bekannte Projekte sind direkt auswaehlbar; importierte Projekte werden am
+  bestehenden Ort registriert und nicht kopiert.
+- Die Registry speichert nur ID, Name und Pfad. Fehlende Projekte werden als
+  `nicht verfuegbar` markiert und koennen bestaetigt aus der Registry
+  entfernt werden.
+- Ein Projekt darf mehrere Gebaeude enthalten. `Masterarbeit-Analyse`
+  enthaelt das SmallOffice mit 5Z und 29Z; `Demo-Project1` enthaelt das
+  Einraumgebaeude.
+
+### ma_project
+
+- Die Projektuebersicht fuehrt Projekt-ID, Name, Kurzname, Beschreibung,
+  Untersuchungsrahmen, Land, Stadt und optionale Adresse.
+- Land und Stadt sind Pflichtfelder; die Adresse ist optional.
+- Das Simulationsprogramm ist bei Projektanlage verpflichtend und wird aus
+  vorhandenen Config-Profilen ausgewaehlt.
+- Naming-Profile werden in der Projektuebersicht ausgewaehlt und per
+  Vorschau geprueft, aber in V1 nicht in der UI bearbeitet. Ihre Anwendung
+  erfolgt erst in `ma_variants`.
+- Die Galerie fuehrt eine linke Bildliste und rechts genau ein grosses
+  Vorschaubild. PNG, JPG/JPEG und WEBP werden in
+  `<projekt>/assets/gallery/` kopiert; Entfernen braucht Bestaetigung.
+
+### ma_weather
+
+- Land und Stadt aus `ma_project` werden als Vorschlag uebernommen. Fehlt die
+  Stadt im lokalen Wetterkatalog, erfolgt keine automatische Ersatzwahl.
+- Die Hauptreiter lauten `Analyse | Diagramme | Verwaltung`; Verwaltung
+  fuehrt `Import | Scannen | Pruefen`.
+- `Entwurf pruefen` und `Datensatzbestand pruefen` liegen unter `Pruefen`.
+  Aktionen duerfen den sichtbaren Reiter nicht wechseln.
+- Bei Klimaregionsauswahl werden redundante Standortinformationen
+  ausgeblendet.
+- Diagramme zeigen links analysierte Wetterdatensaetze und rechts ein mit
+  Pfeilen durchblaetterbares Diagramm. Je Datensatz ist nur der neueste
+  Analysestand sichtbar; aeltere Dateien bleiben erhalten. Lokale Diagramme
+  werden nach Neustart wiederverwendet. Ein Mehrfachvergleich bleibt spaeter.
+
+### ma_building und Gebaeudekataloge
+
+- Die Reiterfolge lautet `Import | Uebersicht | Bauteile | Raeume |
+  Konstruktionen/Kataloge`.
+- Die Gebaeudespezifikation wird unter `Import` ausgewaehlt, als Vorschau
+  geprueft und erst ueber `Gebaeudespezifikation uebernehmen` als
+  Projektkopie angelegt.
+- Das erste Raumbuch zeigt Raum-ID, langen IFC-Raumnamen, Geschoss, Flaeche,
+  Volumen und Quellen-/Validierungsstatus. Filter und Zonenzuordnung gehoeren
+  nicht in diese V1-Tabelle.
+- `Import -> KI-Modell` zeigt ein bearbeitbares Beschreibungsfeld, einen
+  sichtbaren noch nicht funktionalen Uebergabebutton, den unveraenderten
+  KI-Prompt schreibgeschuetzt und scrollbar sowie einen Kopierbutton, der nur
+  den festen Prompt kopiert. Externe KI-Aufrufe sind ausgeschlossen.
+- Materialien, Produkte, Bauteile und Elemente stammen aus Excel. Die
+  vorhandenen Arbeitsmappen im Endvariantenarchiv sind die lokalen
+  Quellen. Configs enthalten nur Vorlagen, Regeln, Referenzen und
+  projektbezogene Werte.
+- Katalogauswahl kann fuer ein Element oder alle Elemente derselben Gruppe
+  gelten. Der Geltungsbereich wird ausdruecklich abgefragt. Erst
+  `Aenderungen in Projektkonfiguration uebernehmen` schreibt den
+  Projektstand.
+- Zentrale Kataloge bleiben unveraendert. Das Projekt speichert Auswahl,
+  Quellenpfad, Version, Pruefsumme und Anpassungen. Spaetere
+  Katalogaenderungen aendern bestehende Projekte nicht still.
+
+### ma_zones
+
+- 5Z ist Standard-, Referenz- und Optimierungsstand des SmallOffice.
+- 29Z ist ein alternatives thermisches Modell: Jeder der 29 IFC-Raeume wird
+  eine thermische Zone. Die langen IFC-Raumnamen bleiben erhalten.
+- 29Z uebernimmt keine Profile oder Lastwerte der 5Z-Sammelzonen.
+- Jede Zone erhaelt ein Nutzungsprofil aus DIN/TS 18599-10:2025-10. Die
+  vorhandene Excel-/CSV-Profilquelle A.1 bis A.43 bleibt unter
+  `data/ma_parameters/config/din18599_10_nutzungsprofile/`; `ma_zones`
+  ordnet nur zu.
+- Aus IFC-Namen entsteht ein bearbeitbarer projektbezogener Regelentwurf.
+  Ein eindeutiger Treffer erzeugt einen Vorschlag; kein oder mehrfacher
+  Treffer verlangt eine manuelle Entscheidung. Ein optionales
+  Begruendungsfeld ist vorgesehen.
+- Erst eine vollstaendige Zuordnung aller Raeume ist weitergabefaehig.
+  29Z wird auswaehlbar und validierbar vorbereitet, startet aber keinen
+  zweiten V1-PreProcess. 5Z gegen 29Z als spaetere strukturelle Sensitivitaet
+  bleibt offen.
+
+### ma_technical
+
+- Die UI-Ausnahme wegen fehlendem `schema_version` beim Erzeugen einer
+  `TechnicalSystemSpecification` ist zu korrigieren.
+- Ein vollstaendiges Techniksystem-Paket wird aus einem Excel-Katalog
+  ausgewaehlt und darf Produkte und Komponenten referenzieren.
+- Die Reihenfolge lautet Auswahl, Werte pruefen, `Techniksystem uebernehmen`
+  und projektbezogene Config speichern.
+- Fehlt die Excel-Quelle, zeigt die UI einen klaren Quelle-fehlt-Status und
+  erfindet keine Produktdaten.
+
+### ma_parameters
+
+- `ma_parameters` fuehrt freigegebene Fachwerte mit ihrem
+  Referenzoptionswert zusammen.
+- Die V1-Reiter lauten `Referenzparameter | Regeln/Vorgaben |
+  Variationsspannen | Uebergabe/Pruefung`. Interne Demo- und
+  Entwicklungsansichten gehoeren nicht in die normale Bearbeitungsansicht.
+- Parameter sind zunaechst fuer Variation gesperrt. Erst eine ausdrueckliche
+  Freigabe aktiviert Wertespannen oder Optionslisten.
+- Regeln definieren Kopplungen, Sperren, harte Grenzen und
+  Dimensionierungsrelevanz vor den konkreten Spannen.
+- Der Geltungsstatus ist projektweit, StudyDirection-spezifisch oder
+  StudyCase-spezifisch. Spezifischere Regeln ueberschreiben allgemeinere
+  Regeln nur ueber eine ausdrueckliche Referenz.
+- Unterstuetzte Formen sind kein Wert, Einzelwert, Min/Max/Schritt,
+  explizite Liste, gekoppelte Werte und Referenzoption.
+- `Eingaben neu pruefen` aktualisiert den aktuellen Referenzstand
+  automatisch. Abhaengige Ergebnisse werden aktualisierungsbeduerftig, aber
+  nicht geloescht.
+- Die aktuelle Variationsspezifikation wird im Projekt gespeichert; eine
+  allgemeine Vorlagenbibliothek bleibt ausserhalb V1.
+- Gueltige Aenderungen an Referenz, Regeln oder Spannen aktualisieren den
+  projektbezogenen Variationsentwurf automatisch. Erst der eigene
+  Speicherbutton bestaetigt den aktuellen V1-Studienvertrag. Ungueltige
+  Min/Max-, Schritt-, Listen-, Kopplungs- oder Referenzangaben blockieren.
+
+### Referenzdimensionierung
+
+- Die UI uebernimmt die Zonen des aktiven thermischen Modells und zeigt
+  ausschliesslich `Zone | Heizlast [W] | Kuehllast [W]`.
+- Die Werte werden manuell aus IDA eingetragen. Jede Zone benoetigt beide
+  Werte. Negative Werte sind ungueltig; `0 W` bleibt mit Pruefhinweis
+  zulaessig.
+- Geaenderte Fachwerte verlangen aktualisierte IDA-Referenzwerte. Eine
+  automatische IDA-Berechnung wird nicht vorgetaeuscht.
+- Fuer die wissenschaftliche Reproduzierbarkeit werden IDA-Version,
+  Modell-/Run-ID, Quelldateiname und SHA-256, Last- und Maximumsdefinition,
+  Auslegungsbedingungen, Verantwortlicher und Reviewstatus ausserhalb der
+  dreispaltigen Lasttabelle gespeichert. Reviewer, ISO-Pruefdatum und
+  Pruefhinweis sind fuer `reviewed` verpflichtend. Nur ein gepruefter
+  exakter 5Z-Zonensatz mit aktuellem Referenzparameter-Fingerprint ist
+  weitergabefaehig.
+
+### ma_variants
+
+- Optimierung und Sensitivitaet koennen gleichzeitig als getrennte
+  StudyDirections mit getrennten StudyCases angelegt werden.
+- Der aktive StudyCase wird ueber ein Auswahlfeld gewechselt. Seine
+  wirksamen Projekt-, StudyDirection- und StudyCase-Regeln werden
+  schreibgeschuetzt angezeigt.
+- Die drei Schritte sind:
+  `Variationsraum -> Kandidatenkombinationen erzeugen`,
+  `Pruefung und Katalog -> Gueltigen Katalog bilden` und
+  `Auswahl und Variantenpakete -> Namensvorschau erzeugen ->
+  Ausgewaehlte Variantenpakete erzeugen`.
+- Ungueltige Kandidaten bleiben mit Ausschlussgrund sichtbar, aber
+  unauswaehlbar.
+- Auswahlmodi sind manuell, zufaellig und alle. Zufall erhaelt Anzahl und
+  optionalen reproduzierbaren Startwert.
+- Ein Naming-Profil ist vor Paketerzeugung verpflichtend. Die Vorschau
+  schreibt noch keine Pakete.
+- Aenderungen an Referenzdimensionierung, Regeln oder Spannen markieren
+  Kandidatenkataloge und Variantenpakete aktualisierungsbeduerftig, ohne sie
+  zu loeschen.
+- Der feste V1-Kapazitaetsansatz verwendet die zonalen 21/24-Referenzlasten.
+  Der gekoppelte Faktor wird fuer jede Zone als verfuegbare Heiz- und
+  Kuehlleistung in W materialisiert. Wetter und Belegung bleiben getrennte
+  OFAT-Familien mit `OPT-SB01-F100` als Elternfall.
+- Eine Selection besitzt einen Fingerprint aus Case, Modus,
+  Kandidatenmenge, Seed und Upstream-Stand. Alte Kandidaten duerfen nicht
+  unter einem neuen Quellenfingerprint katalogisiert werden.
+- Der V1-Studienvertrag akzeptiert exakt vier eindeutige Dimensionen.
+  Unbekannte, fehlende oder doppelte Dimensionen duerfen nicht still
+  ignoriert werden.
+
+### ma_simulation_setup und Abgrenzung
+
+- Nur bestaetigte, gueltige Varianten erzeugen vollstaendige
+  Simulation-Setup-Pakete.
+- Eine Run-Gruppe referenziert genau eine Selection. Setup und Manifest
+  enthalten Wetter, Belegung, Zeitraum, Zeitzone, Outputs, Baseline,
+  Parameter-, Zonen-, Dimensionierungs- und Leistungsbezug. Der aktuelle
+  Upstream-Fingerprint wird unmittelbar vor der transaktionalen
+  Materialisierung erneut geprueft.
+- Die Run-Gruppe ist der wissenschaftliche Run; ihre `RUN + VAR-ID`-Ordner
+  sind Ausfuehrungsfaelle. Kalendergrenzen, 3600-s-Zeitschritt,
+  Sommerzeitstatus und Wetterquellenrevision/-hash werden explizit
+  materialisiert.
+- Selection und Pakete werden unmittelbar vor der Ausgabe typgenau ueber
+  Selection-ID, Kandidatenmenge, StudyCase, StudyDirection und neu
+  berechneten Fingerprint abgeglichen.
+- Der V1-Jahresvertrag erzwingt `annual`, `Europe/Berlin`, den
+  8760-Stunden-TRY-Kalender, deaktivierte Sommerzeit und 3600 s. Eine als
+  aufgeloest markierte Wetterdatei gilt nur bei vorhandenem Pfad und erneut
+  bestaetigtem SHA-256 als bereit; sonst bleibt die Vorbereitung
+  unvollstaendig.
+- Der V1-PreProcess endet nach `ma_simulation_setup`.
+- Automatische Simulation, Ergebnisimport, PostProcess, externe
+  KI-Anbindung, maschinelles Lernen, vollstaendige IFC-Interpretation und
+  geschuetzte Norm-/Literaturextraktion sind nicht Teil dieses Umfangs.
+
+- Begruendung: Die UI soll den realen Bearbeitungsfluss der Masterarbeit
+  abbilden, interne Entwicklungsvertraege aus der normalen Bedienansicht
+  entfernen und Aenderungen sowie Uebergaben nachvollziehbar halten.
+- Betroffene Module oder Dateien: P011 bis P018, P027, P033 bis P035,
+  `ma_project`, `ma_weather`, `ma_building`, `ma_zones`, `ma_technical`,
+  `ma_parameters`, `ma_variants`, `ma_simulation_setup`, `ma_ui`,
+  `data/catalogs/`, lokale Projektordner
+- Status: getroffen; Produktslices am 2026-07-27 freigegeben und umgesetzt.
+  Offen bleiben reale IDA-Referenzlasten, die konkrete
+  Techniksystem-Excel-Quelle, der Rechtegatenachweis fuer vollstaendige
+  Normprofilwerte und das spaetere generische Sammelspeichern beliebiger
+  Modul-Drafts. Der V1-Projektwechsel-Guard selbst ist umgesetzt und
+  verhindert stillen Entwurfsverlust.
+- Offene Folgefragen: konkreter Techniksystem-Excel-Katalog, spaetere
+  5Z/29Z-Struktursensitivitaet, spaetere wiederverwendbare
+  Variationsbibliothek und lernende Profilvorschlaege
+- Quelle oder Chatbezug: vollstaendiger Prompt-Intake mit modulweisen Q&A
+  und ausdrueckliche `Freigabe zur Umsetzung` am 2026-07-27

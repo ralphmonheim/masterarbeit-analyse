@@ -4,6 +4,7 @@ from .demo_loader import (
     load_building_spec,
     load_business_integration_lod1_building_spec,
     load_demo_building_spec,
+    load_small_office_5z_endvariant_02_building_spec,
     load_small_office_lod1_building_spec,
 )
 from .diagnostics import (
@@ -11,6 +12,11 @@ from .diagnostics import (
     diagnose_building_source,
     scan_building_input_directory,
     scan_default_building_input_files,
+)
+from .excel_catalogs import (
+    DEFAULT_BUILDING_EXCEL_CATALOGS,
+    BuildingExcelCatalog,
+    load_building_excel_catalog,
 )
 from .ifc_lite_import import (
     IfcLiteImportSummary,
@@ -53,11 +59,14 @@ from .paths import (
     FACHLICHER_TEIL_REFERENCE_IFC_PATH,
     MASTER_THESIS_REFERENCE_IFC_FILENAME,
     MASTER_THESIS_REFERENCE_IFC_PATH,
+    SMALL_OFFICE_5Z_ENDVARIANT_02_BUILDING_SPEC_PATH,
     SMALL_OFFICE_LOD1_BUILDING_SPEC_PATH,
 )
 from .validation import validate_building_spec
 
 __all__ = [
+    "DEFAULT_BUILDING_EXCEL_CATALOGS",
+    "BuildingExcelCatalog",
     "BUILDING_DATA_DIR",
     "BUILDING_DIAGNOSTICS_DIR",
     "BUILDING_CAD_INPUT_DIR",
@@ -71,6 +80,7 @@ __all__ = [
     "FACHLICHER_TEIL_REFERENCE_IFC_PATH",
     "MASTER_THESIS_REFERENCE_IFC_FILENAME",
     "MASTER_THESIS_REFERENCE_IFC_PATH",
+    "SMALL_OFFICE_5Z_ENDVARIANT_02_BUILDING_SPEC_PATH",
     "SMALL_OFFICE_LOD1_BUILDING_SPEC_PATH",
     "VALID_CONSTRUCTION_CODES",
     "Assumption",
@@ -94,6 +104,7 @@ __all__ = [
     "load_business_integration_lod1_building_spec",
     "load_building_spec",
     "load_demo_building_spec",
+    "load_small_office_5z_endvariant_02_building_spec",
     "load_small_office_lod1_building_spec",
     "scan_building_input_directory",
     "scan_default_building_input_files",
@@ -102,4 +113,5 @@ __all__ = [
     "LocalCatalog",
     "LocalCatalogValidationError",
     "load_local_building_catalog",
+    "load_building_excel_catalog",
 ]

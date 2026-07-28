@@ -9,7 +9,7 @@ _WORKFLOW_PHASES: tuple[WorkflowPhase, ...] = (
         "pre_process",
         "Pre-Process",
         0,
-        "Projekt, Wetter, Gebaeude, Technik, Zonen, Parameter, Referenzdimensionierung, Varianten und Simulation-Setup.",
+        "Projekt, Wetter, Gebaeude, Zonen, Technik, Parameter, Referenzdimensionierung, Varianten und Simulation-Setup.",
     ),
     WorkflowPhase(
         "main_process",
@@ -172,7 +172,7 @@ _MODULE_DEFINITIONS: tuple[ModuleDefinition, ...] = (
         "partial",
         "workflow",
         "Zonen, Nutzungen, Profile, Konditionierung und zonenbezogene Uebergabe verwalten.",
-        inputs=("freigegebene Gebaeude-/Raumdaten", "zentrale technische Systemreferenzen", "Nutzungsanforderungen"),
+        inputs=("freigegebene Gebaeude-/Raumdaten", "Nutzungsanforderungen"),
         outputs=(
             "validierte Zonendaten fuer ma_parameters",
             "ReleasedZoneHandover als payloadfreier Referenzcheckpoint",
@@ -183,8 +183,8 @@ _MODULE_DEFINITIONS: tuple[ModuleDefinition, ...] = (
             "keine zentralen Erzeugungsanlagen",
             "keine automatische Zonenbildung im MVP",
         ),
-        dependencies=("ma_building", "ma_technical"),
-        next_step="P015-S3b-Werteherkunft und P032-W3a Technik-Zonen-Richtung jeweils als getrennten Council-Slice abgrenzen.",
+        dependencies=("ma_building",),
+        next_step="Aktives thermisches Modell und validierte Zonen-IDs an ma_technical uebergeben.",
         python_package="ma_zones",
     ),
     _module(
@@ -194,10 +194,10 @@ _MODULE_DEFINITIONS: tuple[ModuleDefinition, ...] = (
         "partial",
         "workflow",
         "Zentrale technische Systeme, Kreise, Anlagen und generische technische Datensaetze beschreiben.",
-        inputs=("freigegebene Gebaeudedaten", "einfache Referenzsystemannahmen"),
+        inputs=("freigegebene Gebaeudedaten", "aktives thermisches Modell", "validierte Zonen-IDs"),
         outputs=("validierte LoD-1-Technikdaten fuer ma_parameters", "zentrale Systemreferenzen fuer ma_zones"),
         boundaries=("keine Variantenbildung", "keine zonenbezogene Uebergabekonfiguration", "keine Produktdatenbank"),
-        dependencies=("ma_building",),
+        dependencies=("ma_building", "ma_zones"),
         next_step="P014-S4-Persistenz/YAML und eine v2-Werteherkunft nur in getrennt freigegebenen Folgeslices behandeln.",
         python_package="ma_technical",
     ),
@@ -218,6 +218,20 @@ _MODULE_DEFINITIONS: tuple[ModuleDefinition, ...] = (
         boundaries=("keine Variantenbildung",),
         dependencies=("ma_weather", "ma_building", "ma_technical", "ma_zones"),
         next_step="P015-S3b-Werteherkunft und den verbleibenden Vollumfang nach dem abgeschlossenen P013-/P014-Checkpoint getrennt abgrenzen.",
+        python_package="ma_parameters",
+    ),
+    _module(
+        "ma_parameters.variation_specification",
+        "Parameter-Variationsspezifikation",
+        "parameter_variations",
+        "partial",
+        "workflow",
+        "Freigegebene Regeln und Wertespannen nach der Referenzdimensionierung als aktuelle Variationsspezifikation speichern.",
+        inputs=("Parameter-Referenzstand", "ReferenceDimensioningResult", "Regeln/Vorgaben"),
+        outputs=("projektbezogene ParameterVariationSpecification",),
+        boundaries=("keine Kandidatenerzeugung", "keine Variantenpakete"),
+        dependencies=("ma_parameters", "ma_analyse.stage_1_dimensioning"),
+        next_step="Variationsraum und Kandidaten in ma_variants erzeugen.",
         python_package="ma_parameters",
     ),
     _module(
@@ -288,7 +302,7 @@ _MODULE_DEFINITIONS: tuple[ModuleDefinition, ...] = (
         "workflow",
         "Varianten gegen nachvollziehbare deutsche und spaeter internationale Normenprofile pruefen.",
         inputs=("Analysekennwerte", "Normenprofil", "Projekt- und Nutzungsrandbedingungen"),
-        outputs=("ComplianceReport", "Pass/Fail/Warnung/Not-evaluable je Nachweis"),
+        outputs=("NormVerificationReport", "Pass/Fail/Warnung/Not-evaluable je Nachweis"),
         boundaries=("keine ungeprueften Grenzwerte", "keine allgemeine Modellvalidierung"),
         dependencies=("ma_analyse.stage_2_optimization",),
         next_step="P020: deutsche Normen, Ausgaben, Abschnitte und Berechnungsmethoden recherchieren.",
@@ -489,7 +503,6 @@ _MODULE_DEFINITIONS: tuple[ModuleDefinition, ...] = (
 MODULE_KEY_ALIASES = {
     "ma_export_ida": "ma_export_simulation",
     "ma_import_ida": "ma_import_simulation",
-    "ma_analyse.stage_3_standards_compliance": "ma_analyse.stage_3_standards_verification",
     "ma_analyse.stage_3_verification": "ma_analyse.stage_3_standards_verification",
 }
 
@@ -503,7 +516,6 @@ STEP_KEY_ALIASES = {
     "import_ida": "import_simulation",
     "ida_export": "export_simulation",
     "ida_import": "import_simulation",
-    "standards_compliance": "standards_verification",
     "stage_3_verification": "standards_verification",
     "verification": "standards_verification",
 }
@@ -577,14 +589,14 @@ _WORKFLOW_STEPS: tuple[WorkflowStep, ...] = (
     _step("project", "Projekt initialisieren", "pre_process", "ma_project", "Projekt und Untersuchungsrahmen anlegen."),
     _step("weather", "Wetterdaten", "pre_process", "ma_weather", "TRY- und Standortdaten aufbereiten."),
     _step("building", "Gebaeudedaten", "pre_process", "ma_building", "Gebaeudemodell und Bauteile erfassen."),
+    _step("zones", "Zonendaten", "pre_process", "ma_zones", "Zonen, Nutzungen, Profile und lokale Uebergabe festlegen."),
     _step(
         "technical",
         "Technische Systeme",
         "pre_process",
         "ma_technical",
-        "Referenzsysteme, Grenzen und Technikdaten erfassen.",
+        "Referenzsysteme, Grenzen und Technikdaten fuer das aktive Zonenmodell erfassen.",
     ),
-    _step("zones", "Zonendaten", "pre_process", "ma_zones", "Zonen, Nutzungen, Profile und lokale Uebergabe festlegen."),
     _step(
         "parameters",
         "Parameter vereinheitlichen",
@@ -598,6 +610,13 @@ _WORKFLOW_STEPS: tuple[WorkflowStep, ...] = (
         "pre_process",
         "ma_analyse.stage_1_dimensioning",
         "ReferenceDimensioningResult fuer Referenz und spaetere VariantVerification bereitstellen.",
+    ),
+    _step(
+        "parameter_variations",
+        "Parameter-Variationsspezifikation",
+        "pre_process",
+        "ma_parameters.variation_specification",
+        "Regeln, Freigaben und Wertespannen fuer die Variantenbildung festlegen.",
     ),
     _step(
         "variants",

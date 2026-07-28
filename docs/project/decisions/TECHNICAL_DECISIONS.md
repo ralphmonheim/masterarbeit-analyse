@@ -275,7 +275,7 @@ Technische Folgen:
 ## Entscheidung 20: Stage 3 verwendet versionierte Standards Profiles
 
 Der kanonische Name lautet
-`ma_analyse.stage_3_standards_compliance`. Deutsche Normen bilden die ersten
+`ma_analyse.stage_3_standards_verification`. Deutsche Normen bilden die ersten
 Profile; internationale Normen koennen spaeter dieselbe Schnittstelle nutzen.
 
 Technische Folgen:

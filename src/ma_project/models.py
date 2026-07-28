@@ -70,6 +70,19 @@ class SimulationProgramProfile:
 
 
 @dataclass(frozen=True, slots=True)
+class ProjectSettings:
+    """Projektweite Auswahlreferenzen fuer Programm und Naming-Profil."""
+
+    simulation_program_key: str
+    naming_profile_reference: str | None = None
+
+    def __post_init__(self) -> None:
+        _require_text(self.simulation_program_key, "simulation_program_key")
+        if self.naming_profile_reference is not None:
+            _require_text(self.naming_profile_reference, "naming_profile_reference")
+
+
+@dataclass(frozen=True, slots=True)
 class VariantNamingPart:
     """Ordnet den Optionswerten eines Parameters kurze Namenstokens zu."""
 

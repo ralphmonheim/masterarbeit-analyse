@@ -16,8 +16,9 @@ Freigabepruefung.
 
 `ma_analyse.stage_3_standards_verification`
 
-Die bisherigen Namen `stage_3_verification` und
-`stage_3_standards_compliance` bleiben nur Kompatibilitaetsaliase.
+Der fruehere Kurzname `stage_3_verification` bleibt als neutraler
+Kompatibilitaetsalias. Rechtliche Pruefbegriffe sind kein Bestandteil dieses
+Fachmoduls.
 
 ## Geplanter Umfang
 

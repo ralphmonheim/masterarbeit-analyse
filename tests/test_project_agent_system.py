@@ -18,10 +18,17 @@ READ_ONLY_AGENTS = {
     "quality_auditor",
 }
 EXPECTED_SKILLS = {
+    "prompt-intake",
     "project-governance-workflow",
     "repo-release-workflow",
 }
 EXPECTED_SKILL_TRIGGERS = {
+    "prompt-intake": (
+        "neues thema",
+        "neues thema: ...",
+        "themenwechsel",
+        "Prompt abschliessen",
+    ),
     "project-governance-workflow": (
         "aktualisieren",
         "tagesstart",

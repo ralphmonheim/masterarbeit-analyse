@@ -419,3 +419,16 @@ Revisionen, ChangeSets, Branches und Abhaengigkeitsindizes ersetzen. Sie
 uebernimmt dabei weder TGA-Fachklassen noch technische Regeln; deren Ownership
 bleibt bei `ma_technical`. Eine Persistenzmigration ist kein Teil des aktuell
 freigegebenen P032-W3a-T1-Kompatibilitaetsslices.
+
+## Umsetzungsstand 2026-07-27: P032-W3a-T1
+
+Die additive API `ma_zones.validate_technical_zone_integration(...)` ist
+umgesetzt. Sie besitzt die zonenseitige Integritaetspruefung fuer
+Technik-Zonen-Referenzen und liefert fuer alle vier Legacy-Fehlerfaelle
+identische Diagnosecodes und Meldungstexte. Die bestehende
+`ma_technical.validate_technical_spec(..., zone_spec=...)`-Fassade bleibt
+kompatibel; neue Runtime-Importzyklen wurden nicht eingefuehrt.
+
+Die SmallOffice-V1-Kette nutzt zuerst die technische Eigenvalidierung und
+danach die zonenseitige Integritaetspruefung. P032-W2b, V2-Werteherkunft und
+eine spaetere Aufrufermigration bleiben getrennte Slices.

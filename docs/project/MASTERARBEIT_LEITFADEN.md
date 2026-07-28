@@ -251,7 +251,7 @@ Ist-Entwurf; verbindliche Zielmodule und Modulgrenzen stehen weiterhin in
 | 1 | `ma_project` | Projekt und Untersuchungsrahmen initialisieren |
 | 2 | `ma_weather`, `ma_building`, `ma_technical`, `ma_zones`, `ma_parameters` | Eingaben erfassen und vereinheitlichen |
 | 3 | `ma_analyse.stage_1_dimensioning`, `ma_variants`, `ma_simulation_setup`, `ma_export_simulation` | Referenz dimensionieren, Varianten und Run vorbereiten |
-| 4 | IDA ICE, `ma_import_simulation`, `ma_analyse.data_preparation`, `ma_analyse.stage_2_optimization`, `ma_analyse.stage_3_standards_compliance`, `ma_analyse.stage_4_sensitivity` | simulieren, Daten vorbereiten, optimieren, Norm-Nachweise und Sensitivitaet auswerten |
+| 4 | IDA ICE, `ma_import_simulation`, `ma_analyse.data_preparation`, `ma_analyse.stage_2_optimization`, `ma_analyse.stage_3_standards_verification`, `ma_analyse.stage_4_sensitivity` | simulieren, Daten vorbereiten, optimieren, Norm-Nachweise und Sensitivitaet auswerten |
 | 5 | `ma_economy`, `ma_sustainability`, `ma_assessment` | wirtschaftlich, oekologisch und gesamthaft bewerten |
 | 6 | `ma_reporting`, `ma_data_export`, Projektdokumentation | Berichte, Datenpakete und Archivierung |
 
@@ -277,7 +277,7 @@ unveraendert im Planarchiv.
 - `ma_analyse`: technische Ergebnisse und Auffaelligkeiten
 - `ma_analyse.stage_2_optimization`: Variantenoptimierung mit vorhandenen
   Analysewerkzeugen
-- `ma_analyse.stage_3_standards_compliance`: Norm-Nachweis deutscher und
+- `ma_analyse.stage_3_standards_verification`: Norm-Nachweis deutscher und
   spaeter internationaler Normenprofile
 - `ma_analyse.stage_4_sensitivity`: kritische Wetter- und Betriebsfaelle
 - `ma_economy`: wirtschaftliche Auswirkungen
@@ -306,7 +306,7 @@ unveraendert im Planarchiv.
 | `ma_technical` | teilweise | LoD-1/Lite-Referenztechnik umgesetzt; technische Grenzen und Regelquellen fuer P015/P017 folgen |
 | `ma_analyse.stage_1_dimensioning` | teilweise | LoD-1-Referenzdimensionierung umgesetzt; spaetere `DimensioningRequest`-Antworten fuer P017 geplant |
 | `ma_analyse.stage_2_optimization` | teilweise | vorhandene Analysebefehle, gemeinsamer Stufenablauf fehlt |
-| `ma_analyse.stage_3_standards_compliance` | geplant | Norm-Nachweis, deutsche Normenprofile zuerst |
+| `ma_analyse.stage_3_standards_verification` | geplant | Norm-Nachweis, deutsche Normenprofile zuerst |
 | `ma_analyse.stage_4_sensitivity` | geplant | Vorarbeiten fuer Zeitfenster und Wetterkennwerte vorhanden, Ereignisverknuepfung fehlt |
 | `ma_simulation_setup` | geplant | P018 plant ein neutrales Run-Paket nach `VariantGeneration` mit direkter `RUN -> VAR`-Zuordnung, Setup und technischen Logs |
 | `ma_export_simulation` | geplant | Basisexport liegt noch in `ma_variants`; P009 wird nach P018 ueber `RUN-ID + VAR-ID` weitergefuehrt |
@@ -557,7 +557,7 @@ Paketgeruest, eine Infoseite oder vorhandener Prototypcode genuegt nicht fuer
   Zeitreihenanalysen vergleichen.
 - **Status:** Teilweise vorhanden; P019 buendelt die bestehenden Befehle.
 
-#### ma_analyse.stage_3_standards_compliance
+#### ma_analyse.stage_3_standards_verification
 
 - **Zweck:** Varianten anhand dokumentierter deutscher Normen und normierter
   Rechenverfahren nachweisen.

@@ -6,14 +6,26 @@ from collections.abc import Sequence
 
 import streamlit as st
 
-from ma_building import load_business_integration_lod1_building_spec
+from ma_building import (
+    load_business_integration_lod1_building_spec,
+    load_small_office_5z_endvariant_02_building_spec,
+)
+from ma_parameters import DIN_USAGE_PROFILE_METADATA, suggest_usage_profile_id
 from ma_ui.streamlit_app.shared.layout import render_page_header
 from ma_ui.streamlit_app.shared.tables import normalize_table_for_streamlit
+from ma_ui.streamlit_app.state import (
+    clear_workspace_draft,
+    get_active_workspace,
+    mark_workspace_draft,
+)
 from ma_validation import DiagnosticMessage, DiagnosticSeverity
 from ma_workflow import get_module_definition
+from ma_workspace import load_project_module_config, save_project_module_config
 from ma_zones import (
     ZoneModelSpecification,
+    build_small_office_29z_draft,
     load_business_integration_lod1_zone_spec,
+    load_small_office_5z_endvariant_02_zone_spec,
     validate_zone_spec,
 )
 
@@ -172,55 +184,108 @@ def room_assignment_rows(building_spec, zone_spec: ZoneModelSpecification) -> li
 
 
 def render() -> None:
-    """Zeigt die LoD-1-Zonenspezifikation und ihre Validierung."""
+    """Zeigt 5Z als Referenz und 29Z als getrennten, bearbeitbaren Entwurf."""
     module = get_module_definition("ma_zones")
     render_page_header(module.label, module.purpose)
+    workspace = get_active_workspace(st.session_state)
+    if workspace is None:
+        st.warning("Bitte zuerst ein Projekt auswaehlen.")
+        return
     try:
-        building_spec = load_business_integration_lod1_building_spec()
-        zone_spec = load_business_integration_lod1_zone_spec()
+        project_payload = load_project_module_config(workspace, "ma_zones") or {}
+        if workspace.project.identity.title == "Masterarbeit-Analyse":
+            building_spec = load_small_office_5z_endvariant_02_building_spec()
+            model_key = st.selectbox(
+                "Thermisches Modell",
+                ("5Z", "29Z"),
+                index=0,
+                key="ma_zones_thermal_model",
+                on_change=_mark_zones_draft,
+                help="5Z bleibt der aktive Referenz- und Optimierungsstand. 29Z ist ein alternativer Entwurf.",
+            )
+            zone_spec = (
+                load_small_office_5z_endvariant_02_zone_spec()
+                if model_key == "5Z"
+                else build_small_office_29z_draft()
+            )
+        else:
+            building_spec = load_business_integration_lod1_building_spec()
+            model_key = "1Z"
+            zone_spec = load_business_integration_lod1_zone_spec()
     except (OSError, ValueError) as exc:
         st.error(f"Zonenspezifikation konnte nicht geladen werden: {exc}")
         return
 
-    validation_result = validate_zone_spec(zone_spec, building_spec=building_spec)
-    (
-        overview_tab,
-        assignment_tab,
-        usage_tab,
-        time_profile_tab,
-        conditioning_tab,
-        review_tab,
-    ) = st.tabs(ZONE_WORKSPACE_TAB_LABELS)
-    with overview_tab:
+    section = st.segmented_control(
+        "Zonenbereich",
+        ZONE_WORKSPACE_TAB_LABELS,
+        default=ZONE_WORKSPACE_TAB_LABELS[0],
+        key="ma_zones_workspace_section",
+        selection_mode="single",
+    )
+    section = section or ZONE_WORKSPACE_TAB_LABELS[0]
+    if model_key == "29Z":
+        _render_29z_status(project_payload, zone_spec)
+    else:
+        if "zone_usage_profile_assignments" not in st.session_state:
+            st.session_state["zone_usage_profile_assignments"] = _stored_5z_assignments(
+                project_payload
+            )
+        validation_result = validate_zone_spec(zone_spec, building_spec=building_spec)
         st.metric("Freigabestatus", validation_result.release_status.value)
+
+    if st.button("Thermisches Modell in Projekt uebernehmen", key="ma_zones_apply_model"):
+        updated_payload = dict(project_payload)
+        updated_payload.update(
+            {
+                "schema_version": "1.0",
+                "project_id": workspace.project.identity.project_id,
+                "active_model": model_key,
+                "zone_model_id": zone_spec.zone_model_id,
+                "downstream_status": "current" if model_key != "29Z" else "blocked_incomplete",
+            }
+        )
+        save_project_module_config(workspace, "ma_zones", updated_payload)
+        clear_workspace_draft(st.session_state, "ma_zones")
+        st.session_state["ma_ui_variants_update_required"] = True
+        st.success("Der thermische Modellstand wurde projektbezogen gespeichert.")
+
+    if section == "Übersicht":
+        if model_key == "29Z":
+            st.metric("Freigabestatus", "Entwurf / gesperrt")
+        else:
+            st.metric("Freigabestatus", validation_result.release_status.value)
         st.dataframe(normalize_table_for_streamlit(zone_summary_rows(zone_spec)), hide_index=True, width="stretch")
         st.dataframe(
             normalize_table_for_streamlit(zone_overview_rows(zone_spec, _saved_zone_assignments())),
             hide_index=True,
             width="stretch",
         )
-    with assignment_tab:
+    elif section == "Zone zuweisen":
         st.caption(
-            "Der aktuelle freigegebene Zonenstand wird hier vollstaendig dargestellt. "
-            "Raum-Zonen-Neuzuordnungen folgen erst mit dem zugehoerigen Fachservice und einer neuen Zonenrevision."
+            "Die Zonenzuordnung erfolgt ausschliesslich hier. 29Z bildet jeden Raum genau "
+            "einmal als thermische Zone ab."
         )
         st.dataframe(
             normalize_table_for_streamlit(room_assignment_rows(building_spec, zone_spec)),
             hide_index=True,
             width="stretch",
         )
-    with usage_tab:
-        _render_usage_profile_assignment(zone_spec)
-    with conditioning_tab:
+    elif section == "Nutzung & interne Lasten":
+        if model_key == "29Z":
+            _render_29z_profile_assignment(workspace, project_payload, zone_spec)
+        else:
+            _render_usage_profile_assignment(workspace, project_payload, zone_spec)
+    elif section == "Konditionierung & Übergabe":
         st.dataframe(normalize_table_for_streamlit(thermal_zone_rows(zone_spec)), hide_index=True, width="stretch")
         st.caption(
             "Zonale Uebergabe und die Zuordnung zu technischen Serviceinterfaces werden nach der v2-Technikrevision "
             "in diesem Bereich ergaenzt. Die aktuelle LoD-1-Demo aendert keine zentrale Technik."
         )
-    with time_profile_tab:
+    elif section == "Zeitpläne":
         st.caption("Die Profile sind LoD-1-Annahmen. Wochen-, Jahres- und Feiertagsprofile folgen getrennt.")
         st.dataframe(normalize_table_for_streamlit(usage_profile_rows(zone_spec)), hide_index=True, width="stretch")
-    with review_tab:
+    else:
         if zone_spec.assumptions:
             st.dataframe(
                 normalize_table_for_streamlit(
@@ -236,7 +301,124 @@ def render() -> None:
                 hide_index=True,
                 width="stretch",
             )
-        _render_messages(validation_result.messages)
+        if model_key == "29Z":
+            st.warning(
+                "Der 29Z-Entwurf bleibt bis zu einer vollstaendigen, rechtlich freigegebenen "
+                "Profilwertquelle fuer die Weitergabe gesperrt."
+            )
+        else:
+            _render_messages(validation_result.messages)
+
+
+def _render_29z_status(payload: dict[str, object], spec: ZoneModelSpecification) -> None:
+    model_drafts = payload.get("model_drafts", {})
+    draft = model_drafts.get("29Z", {}) if isinstance(model_drafts, dict) else {}
+    assignments = draft.get("assignments", []) if isinstance(draft, dict) else []
+    assigned_count = sum(
+        bool(row.get("profile_id")) and bool(row.get("confirmed"))
+        for row in assignments
+        if isinstance(row, dict)
+    )
+    st.metric("Thermische Zonen", len(spec.zones))
+    st.metric("Manuell bestaetigte Profile", f"{assigned_count}/{len(spec.zones)}")
+    st.warning(
+        "29Z ist auswaehlbar und bearbeitbar, aber nicht der V1-Referenzlauf. "
+        "Profilwerte werden nicht aus dem 5Z-Modell geerbt."
+    )
+
+
+def _render_29z_profile_assignment(
+    workspace,
+    payload: dict[str, object],
+    spec: ZoneModelSpecification,
+) -> None:
+    profile_labels = {
+        profile.profile_id: f"{profile.table_reference} {profile.name}"
+        for profile in DIN_USAGE_PROFILE_METADATA
+    }
+    model_drafts = payload.get("model_drafts", {})
+    draft = model_drafts.get("29Z", {}) if isinstance(model_drafts, dict) else {}
+    stored_rows = draft.get("assignments", []) if isinstance(draft, dict) else []
+    stored_by_zone = {
+        str(row.get("zone_id")): row
+        for row in stored_rows
+        if isinstance(row, dict)
+    }
+    rows = []
+    for zone in spec.zones:
+        suggestion = suggest_usage_profile_id(zone.name)
+        stored = stored_by_zone.get(zone.zone_id, {})
+        rows.append(
+            {
+                "Zone-ID": zone.zone_id,
+                "Langer IFC-Raumname": zone.name,
+                "IFC-Raum-ID": zone.source_space_ids[0],
+                "Vorschlag": suggestion or "",
+                "Nutzungsprofil": stored.get("profile_id", suggestion or ""),
+                "Begruendung": stored.get("reason", ""),
+                "Manuell bestaetigt": bool(stored.get("confirmed", False)),
+                "Status": (
+                    "bestaetigt"
+                    if stored.get("confirmed")
+                    else ("Vorauswahl" if suggestion else "manuell bestimmen")
+                ),
+            }
+        )
+    edited = st.data_editor(
+        normalize_table_for_streamlit(rows),
+        hide_index=True,
+        width="stretch",
+        disabled=("Zone-ID", "Langer IFC-Raumname", "IFC-Raum-ID", "Vorschlag", "Status"),
+        column_config={
+            "Nutzungsprofil": st.column_config.SelectboxColumn(
+                "Nutzungsprofil",
+                options=("", *profile_labels),
+                format_func=lambda profile_id: profile_labels.get(profile_id, "Bitte waehlen"),
+            )
+        },
+        key="ma_zones_29z_profile_editor",
+        on_change=_mark_zones_draft,
+    )
+    st.caption(
+        "Die Vorschlaege stammen nur aus IFC-Namensregeln. Ungenaue oder fehlende "
+        "Treffer werden manuell bestimmt; die Begruendung kann spaeter als Lernbasis dienen."
+    )
+    if st.button("29Z-Zuordnungsentwurf speichern", key="ma_zones_save_29z_assignments"):
+        assignments = [
+            {
+                "zone_id": str(row["Zone-ID"]),
+                "ifc_room_name": str(row["Langer IFC-Raumname"]),
+                "profile_id": str(row["Nutzungsprofil"]),
+                "reason": str(row["Begruendung"]),
+                "confirmed": bool(row["Manuell bestaetigt"]),
+            }
+            for row in edited.to_dict("records")
+        ]
+        complete = all(
+            row["profile_id"] and row["confirmed"] for row in assignments
+        )
+        updated_payload = dict(payload)
+        drafts = dict(model_drafts) if isinstance(model_drafts, dict) else {}
+        drafts["29Z"] = {
+            "zone_model_id": spec.zone_model_id,
+            "assignments": assignments,
+            "assignment_status": "complete" if complete else "manual_review_required",
+            "profile_values_status": "rights_clearance_required",
+            "handover_status": "blocked_profile_values",
+        }
+        updated_payload.update(
+            {
+                "schema_version": "1.0",
+                "project_id": workspace.project.identity.project_id,
+                "model_drafts": drafts,
+            }
+        )
+        save_project_module_config(workspace, "ma_zones", updated_payload)
+        clear_workspace_draft(st.session_state, "ma_zones")
+        if complete:
+            st.success("Alle 29 Profilzuordnungen sind gespeichert und manuell bestaetigt.")
+        else:
+            st.warning("Der Entwurf ist gespeichert; unvollstaendige Zuordnungen bleiben gesperrt.")
 
 
 def _saved_zone_assignments() -> dict[str, str]:
@@ -244,7 +426,26 @@ def _saved_zone_assignments() -> dict[str, str]:
     return value if isinstance(value, dict) else {}
 
 
-def _render_usage_profile_assignment(spec: ZoneModelSpecification) -> None:
+def _stored_5z_assignments(payload: dict[str, object]) -> dict[str, str]:
+    drafts = payload.get("model_drafts", {})
+    draft = drafts.get("5Z", {}) if isinstance(drafts, dict) else {}
+    assignments = draft.get("profile_assignments", {}) if isinstance(draft, dict) else {}
+    return (
+        {str(zone_id): str(profile_id) for zone_id, profile_id in assignments.items()}
+        if isinstance(assignments, dict)
+        else {}
+    )
+
+
+def _mark_zones_draft() -> None:
+    mark_workspace_draft(st.session_state, "ma_zones")
+
+
+def _render_usage_profile_assignment(
+    workspace,
+    payload: dict[str, object],
+    spec: ZoneModelSpecification,
+) -> None:
     """Bearbeitet Zuordnungen als Entwurf und uebernimmt sie nur explizit."""
     profile_labels = {profile.profile_id: profile.name for profile in spec.usage_profiles}
     profile_labels.update(dict(SYNTHETIC_USAGE_PROFILE_OPTIONS))
@@ -274,13 +475,32 @@ def _render_usage_profile_assignment(spec: ZoneModelSpecification) -> None:
             )
         },
         key="zone_usage_profile_assignment_editor",
+        on_change=_mark_zones_draft,
     )
     st.caption("Demo-Profile sind synthetische Darstellungsoptionen, keine normativen Nutzungsprofile.")
     if st.button("Entwurf in dieser Sitzung uebernehmen", type="primary", key="zone_usage_profile_save"):
-        st.session_state["zone_usage_profile_assignments"] = _profile_assignments_from_rows(
+        assignments = _profile_assignments_from_rows(
             spec, edited_rows, profile_ids
         )
-        st.success("Nutzungsprofil-Zuordnungen wurden fuer diese Sitzung uebernommen.")
+        st.session_state["zone_usage_profile_assignments"] = assignments
+        updated_payload = dict(payload)
+        drafts = updated_payload.get("model_drafts", {})
+        drafts = dict(drafts) if isinstance(drafts, dict) else {}
+        drafts["5Z"] = {
+            "zone_model_id": spec.zone_model_id,
+            "profile_assignments": assignments,
+            "assignment_status": "complete",
+        }
+        updated_payload.update(
+            {
+                "schema_version": "1.0",
+                "project_id": workspace.project.identity.project_id,
+                "model_drafts": drafts,
+            }
+        )
+        save_project_module_config(workspace, "ma_zones", updated_payload)
+        clear_workspace_draft(st.session_state, "ma_zones")
+        st.success("Nutzungsprofil-Zuordnungen wurden projektbezogen uebernommen.")
 
 
 def _profile_assignments_from_rows(

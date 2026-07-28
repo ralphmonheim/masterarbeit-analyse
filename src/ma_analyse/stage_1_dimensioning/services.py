@@ -29,6 +29,7 @@ def run_lod1_reference_dimensioning(
     """Berechnet transparente LoD-1-Startwerte aus einem ParameterSnapshot."""
     parameter_values = _parameter_values(snapshot)
     messages: list[DiagnosticMessage] = []
+    zone_inputs = _zone_dimensioning_inputs(parameter_values, messages)
 
     length_m = _required_positive_number(parameter_values, "building_length_m", messages)
     width_m = _required_positive_number(parameter_values, "building_width_m", messages)
@@ -38,19 +39,26 @@ def run_lod1_reference_dimensioning(
     window_ratio_percent = _required_number(parameter_values, "window_area_ratio_percent", messages)
     zone_floor_area_m2 = _required_positive_number(parameter_values, "zone_floor_area_m2", messages)
     zone_volume_m3 = _required_positive_number(parameter_values, "zone_volume_m3", messages)
-    heating_setpoint_c = _required_number_by_suffix(parameter_values, ".heating_setpoint_c", messages)
-    minimum_air_change_rate_1_h = _required_positive_number_by_suffix(
-        parameter_values,
-        ".minimum_air_change_rate_1_h",
-        messages,
-    )
-    occupancy_density_m2_per_person = _required_positive_number_by_suffix(
-        parameter_values,
-        ".occupancy_density_m2_per_person",
-        messages,
-    )
-    lighting_power_w_m2 = _required_number_by_suffix(parameter_values, ".lighting_power_w_m2", messages)
-    equipment_power_w_m2 = _required_number_by_suffix(parameter_values, ".equipment_power_w_m2", messages)
+    if zone_inputs:
+        heating_setpoint_c = _uniform_zone_value(zone_inputs, "heating_setpoint_c", messages)
+        minimum_air_change_rate_1_h = None
+        occupancy_density_m2_per_person = None
+        lighting_power_w_m2 = None
+        equipment_power_w_m2 = None
+    else:
+        heating_setpoint_c = _required_number_by_suffix(parameter_values, ".heating_setpoint_c", messages)
+        minimum_air_change_rate_1_h = _required_positive_number_by_suffix(
+            parameter_values,
+            ".minimum_air_change_rate_1_h",
+            messages,
+        )
+        occupancy_density_m2_per_person = _required_positive_number_by_suffix(
+            parameter_values,
+            ".occupancy_density_m2_per_person",
+            messages,
+        )
+        lighting_power_w_m2 = _required_number_by_suffix(parameter_values, ".lighting_power_w_m2", messages)
+        equipment_power_w_m2 = _required_number_by_suffix(parameter_values, ".equipment_power_w_m2", messages)
 
     if window_ratio_percent is not None and not 0 <= window_ratio_percent <= 100:
         messages.append(
@@ -92,10 +100,11 @@ def run_lod1_reference_dimensioning(
     assert zone_floor_area_m2 is not None
     assert zone_volume_m3 is not None
     assert heating_setpoint_c is not None
-    assert minimum_air_change_rate_1_h is not None
-    assert occupancy_density_m2_per_person is not None
-    assert lighting_power_w_m2 is not None
-    assert equipment_power_w_m2 is not None
+    if not zone_inputs:
+        assert minimum_air_change_rate_1_h is not None
+        assert occupancy_density_m2_per_person is not None
+        assert lighting_power_w_m2 is not None
+        assert equipment_power_w_m2 is not None
 
     delta_t_k = heating_setpoint_c - heating_outdoor_temperature_c
     if delta_t_k <= 0:
@@ -109,17 +118,40 @@ def run_lod1_reference_dimensioning(
         )
         return _not_evaluable_result(snapshot, tuple(messages))
 
-    gross_wall_area_m2 = 2.0 * (length_m + width_m) * height_m
-    window_area_m2 = gross_wall_area_m2 * window_ratio_percent / 100.0
+    gross_wall_area_m2 = _optional_positive_number(parameter_values, "external_wall_area_m2", messages)
+    if gross_wall_area_m2 is None:
+        gross_wall_area_m2 = 2.0 * (length_m + width_m) * height_m
+    window_area_m2 = _optional_positive_number(parameter_values, "window_area_m2", messages)
+    if window_area_m2 is None:
+        window_area_m2 = gross_wall_area_m2 * window_ratio_percent / 100.0
     opaque_wall_area_m2 = gross_wall_area_m2 - window_area_m2
     transmission_load_w = (opaque_wall_area_m2 * wall_u_value + window_area_m2 * window_u_value) * delta_t_k
-    ventilation_load_w = AIR_HEAT_CAPACITY_WH_M3K * zone_volume_m3 * minimum_air_change_rate_1_h * delta_t_k
+    if zone_inputs:
+        ventilation_load_w = sum(
+            AIR_HEAT_CAPACITY_WH_M3K
+            * zone["volume_m3"]
+            * zone["minimum_air_change_rate_1_h"]
+            * delta_t_k
+            for zone in zone_inputs
+        )
+        ventilation_volume_flow_m3_h = sum(
+            zone["volume_m3"] * zone["minimum_air_change_rate_1_h"] for zone in zone_inputs
+        )
+        occupancy_people = sum(zone["floor_area_m2"] / zone["occupancy_density_m2_per_person"] for zone in zone_inputs)
+        lighting_load_w = sum(zone["floor_area_m2"] * zone["lighting_power_w_m2"] for zone in zone_inputs)
+        equipment_load_w = sum(zone["floor_area_m2"] * zone["equipment_power_w_m2"] for zone in zone_inputs)
+    else:
+        assert minimum_air_change_rate_1_h is not None
+        assert occupancy_density_m2_per_person is not None
+        assert lighting_power_w_m2 is not None
+        assert equipment_power_w_m2 is not None
+        ventilation_load_w = AIR_HEAT_CAPACITY_WH_M3K * zone_volume_m3 * minimum_air_change_rate_1_h * delta_t_k
+        ventilation_volume_flow_m3_h = zone_volume_m3 * minimum_air_change_rate_1_h
+        occupancy_people = zone_floor_area_m2 / occupancy_density_m2_per_person
+        lighting_load_w = zone_floor_area_m2 * lighting_power_w_m2
+        equipment_load_w = zone_floor_area_m2 * equipment_power_w_m2
     heating_total_w = transmission_load_w + ventilation_load_w
-    ventilation_volume_flow_m3_h = zone_volume_m3 * minimum_air_change_rate_1_h
 
-    occupancy_people = zone_floor_area_m2 / occupancy_density_m2_per_person
-    lighting_load_w = zone_floor_area_m2 * lighting_power_w_m2
-    equipment_load_w = zone_floor_area_m2 * equipment_power_w_m2
     people_load_w = occupancy_people * person_sensible_gain_w
     cooling_internal_load_w = lighting_load_w + equipment_load_w + people_load_w
 
@@ -307,6 +339,96 @@ def _required_number_by_suffix(
     if key is None:
         return None
     return _as_finite_number(values[key], key, messages)
+
+
+def _optional_positive_number(
+    values: Mapping[str, object],
+    key: str,
+    messages: list[DiagnosticMessage],
+) -> float | None:
+    if key not in values:
+        return None
+    value = _as_finite_number(values[key], key, messages)
+    if value is not None and value <= 0:
+        messages.append(
+            _message(
+                DiagnosticSeverity.ERROR,
+                "DIMENSIONING_PARAMETER_NOT_POSITIVE",
+                "Dieser Dimensionierungsparameter muss groesser als 0 sein.",
+                key,
+            )
+        )
+        return None
+    return value
+
+
+def _zone_dimensioning_inputs(
+    values: Mapping[str, object],
+    messages: list[DiagnosticMessage],
+) -> tuple[dict[str, float], ...]:
+    suffix = ".floor_area_m2"
+    zone_ids = sorted(key[: -len(suffix)] for key in values if key.endswith(suffix))
+    rows: list[dict[str, float]] = []
+    required_suffixes = (
+        "floor_area_m2",
+        "volume_m3",
+        "heating_setpoint_c",
+        "minimum_air_change_rate_1_h",
+        "occupancy_density_m2_per_person",
+        "lighting_power_w_m2",
+        "equipment_power_w_m2",
+    )
+    for zone_id in zone_ids:
+        row: dict[str, float] = {}
+        for parameter_suffix in required_suffixes:
+            key = f"{zone_id}.{parameter_suffix}"
+            if key not in values:
+                messages.append(_missing_parameter_message(key))
+                continue
+            value = _as_finite_number(values[key], key, messages)
+            if value is None:
+                continue
+            if parameter_suffix not in {"lighting_power_w_m2", "equipment_power_w_m2", "heating_setpoint_c"} and value <= 0:
+                messages.append(
+                    _message(
+                        DiagnosticSeverity.ERROR,
+                        "DIMENSIONING_PARAMETER_NOT_POSITIVE",
+                        "Dieser Dimensionierungsparameter muss groesser als 0 sein.",
+                        key,
+                    )
+                )
+            elif parameter_suffix in {"lighting_power_w_m2", "equipment_power_w_m2"} and value < 0:
+                messages.append(
+                    _message(
+                        DiagnosticSeverity.ERROR,
+                        "DIMENSIONING_INTERNAL_LOAD_INVALID",
+                        "Interne Lasten duerfen nicht negativ sein.",
+                        key,
+                    )
+                )
+            row[parameter_suffix] = value
+        if len(row) == len(required_suffixes):
+            rows.append(row)
+    return tuple(rows)
+
+
+def _uniform_zone_value(
+    zone_inputs: tuple[dict[str, float], ...],
+    key: str,
+    messages: list[DiagnosticMessage],
+) -> float | None:
+    values = {zone[key] for zone in zone_inputs}
+    if len(values) != 1:
+        messages.append(
+            _message(
+                DiagnosticSeverity.ERROR,
+                "DIMENSIONING_ZONE_VALUE_NOT_UNIFORM",
+                "Die V1-Referenzdimensionierung erwartet in allen Zonen denselben Heiz-Sollwert.",
+                f"zones.*.{key}",
+            )
+        )
+        return None
+    return values.pop()
 
 
 def _required_positive_number_by_suffix(

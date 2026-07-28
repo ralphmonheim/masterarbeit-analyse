@@ -1,7 +1,7 @@
 # P018 ma_simulation_setup und neutrales Run-Paket
 
-Stand: 2026-07-14
-Status: Fachlich konsolidiert, Umsetzung geplant
+Stand: 2026-07-27
+Status: Teilweise umgesetzt; SmallOffice-V1-Draftpakete nachgewiesen
 Prioritaet: Hoch
 Abhaengigkeiten: P008, P011-P017, P027; spaeter P009
 
@@ -25,8 +25,8 @@ P018 bildet den Abschluss von Preprocess V1. Ein Run erhaelt eine
 unveraenderliche `RUN-ID`, eine vollstaendige `VariantSelection`, das
 aufgeloeste Jahres-Setup, Wetter- und Modellreferenzen sowie die direkte
 `RUN -> VAR`-Zuordnung. Das freigegebene `RunManifest` dient als
-reproduzierbarer manueller Uebergabestand an IDA ICE und referenziert die
-nach der Compliance-Grenze erforderliche Entscheidung.
+reproduzierbarer manueller Uebergabestand an ein Simulationsprogramm. Rechte-
+und Adapterfreigaben bleiben ausserhalb des fachlichen Run-Manifests.
 
 Nicht Teil von V1 sind ein IDA-ICE-Adapter, das Schreiben oder Veraendern von
 IDA-Dateien, ein Simulationsstart, Ergebnisimport und ein separates
@@ -88,18 +88,17 @@ Wissenschaftliche Zeitmessung, manuelle Bearbeitungszeiten und Vergleiche von
 Prozessmodi liegen ausschliesslich in P030 `research_tools`. Ein produktiver
 Run besitzt keine Pflichtreferenz auf eine Forschungsauswertung.
 
-## Compliance-Grenze
+## Adapter- und Rechte-Grenze
 
 P018 bereitet nur neutral beschriebene Laeufe vor. Bis zu einer ausdruecklichen
 schriftlichen EQUA-Freigabe erfolgt die Uebergabe an IDA ICE manuell und der
 Simulationsstart manuell. P018 startet weder IDA ICE noch eine Simulation,
 nutzt IDA ICE nicht als Simulationsserver und verarbeitet keine vollstaendige
-`.idm`-Datei. Jede kuenftige IDA-bezogene Erweiterung dokumentiert vorher eine
-`ComplianceDecision` nach `docs/compliance/ida_ice/` und erzwingt sie ueber
-`ma_core.compliance`. `red` und `unknown` stoppen; `yellow` erfordert die
-dokumentierte Bestaetigung sowie alle vom Service geforderten Rechtebelege.
-Wetterreferenzen werden nur als bereits freigegebene `ma_weather`-Quellen
-uebernommen. P018 liest weder DWD-Rohdaten noch Norminhalte erneut.
+`.idm`-Datei. Jede kuenftige IDA-bezogene Erweiterung benoetigt einen
+getrennten technischen Scope sowie die erforderlichen Rechte- und
+Quellennachweise. Wetterreferenzen werden nur als bereits validierte
+`ma_weather`-Quellen uebernommen. P018 liest weder DWD-Rohdaten noch
+Norminhalte erneut.
 
 ## Arbeitspakete
 
@@ -112,8 +111,8 @@ uebernommen. P018 liest weder DWD-Rohdaten noch Norminhalte erneut.
 - UI-Eingabe, YAML-Import und Validierungsbericht vorsehen.
 - Uebergabegrenze zu P009 dokumentieren.
 - Direkte Zuordnung `RUN -> VAR` ohne `SimulationCase` festlegen.
-- Compliance-Entscheidungs-ID fuer geschuetzte Adapteroperationen und die
-  manuelle IDA-Uebergabe in das Run-Manifest aufnehmen.
+- Rechte- und Adaptergrenzen ausserhalb des fachlichen Run-Manifests
+  dokumentieren.
 - Run-Paket, getrennte `simulation_setup.yaml`, Variantenkonfigurationen und
   technische Logs materialisieren.
 - Analysegeleitete Pflichtausgaben als neutrale OutputRequirementProfiles
@@ -174,8 +173,8 @@ Diese Daten sind Zuordnungen innerhalb des Runs und keine eigenstaendigen
 - Kein Simulationsstart und keine Modellmanipulation erfolgen.
 - Der Run beschreibt die manuelle Uebergabegrenze nachvollziehbar; ein
   automatisierter IDA-Start ist kein gueltiger Run-Schritt.
-- Eine rote, unbekannte oder nicht vollstaendig freigegebene gelbe
-  Compliance-Entscheidung blockiert das Manifest vor jeder Adapteroperation.
+- Adapteroperationen sind kein Bestandteil der Manifestmaterialisierung und
+  benoetigen einen getrennten Freigabe- und Nachweisscope.
 
 ## Umsetzungsslices
 
@@ -223,3 +222,64 @@ Das Handover konkretisiert den bestehenden neutralen Run-Vertrag:
   ausserhalb dieses Plans und folgen erst in P009.
 - Der Run dokumentiert Varianten-, Katalog-, Selection-, Quellenrevisions- und
   Hashbezug; eine `CASE-ID` wird nicht eingefuehrt.
+
+## Umsetzungsstand 2026-07-27
+
+- `SimulationSetupSpecification` und `simulation_setup.yaml` sind umgesetzt.
+- Der gemeinsame SmallOffice-V1-Service materialisiert 30 Optimierungs- und
+  acht Sensitivitaetspakete mit Manifest, Variantenkonfiguration, neutraler
+  Simulationseingabe und Vorbereitungsbericht.
+- Der manuelle Kandidatenlauf
+  `SMALL-OFFICE-V1-MANUAL-20260727-002` bestaetigt 38 vollstaendige
+  technische Draft-Pakete des Legacy-Service ohne Simulationsstart und ohne
+  kritische Fehler. Er ersetzt nicht den noch ausstehenden entscheidenden
+  Projektlauf mit realen geprueften IDA-Lasten.
+- Frankfurt 2010/2035 bleiben reine Setup-Metadaten; ihre PRN-Zeitreihen
+  werden in diesem Scope nicht verarbeitet.
+
+## Konsolidierter V1-Uebergabebezug 2026-07-27
+
+Nach UD-106 materialisiert `ma_simulation_setup` nur bestaetigte, gueltige
+Variantenpakete. Als aktualisierungsbeduerftig markierte Kandidaten,
+Selections oder Varianten duerfen nicht still weitergereicht werden. Der
+PreProcess endet weiterhin nach dem Simulation-Setup; Simulationsstart,
+Ergebnisimport und Ergebnisbewertung bleiben ausserhalb dieses Plans.
+
+## UD-106-Umsetzungsstand 2026-07-27
+
+`ma_simulation_setup` akzeptiert nur bestaetigte Variantenpakete mit
+aktuellem Quellenfingerprint. Es schreibt je Variante ein lokales
+`run_manifest.yaml`, `variant_package.yaml` und `simulation_setup.yaml` in
+den Projekt-Output. Alle Pakete tragen `preparation_only`; eine automatische
+Simulation wird nicht gestartet.
+
+Eine Run-Gruppe referenziert genau eine Selection und fuehrt ihre Varianten
+als getrennte `RUN + VAR-ID`-Unterordner. Das gemeinsame
+`selection_manifest.yaml` sowie Run- und Setup-Dateien enthalten Baseline-,
+Parameter-, Zonenmodell-, Dimensionierungs- und Outputreferenzen. Wetter,
+Belegungszeit, Jahreszeitraum, Zeitzone, Kapazitaetsstrategie und alle
+zonalen Leistungen in W sind materialisiert. Vor dem Schreiben werden alle
+Pakete vollstaendig validiert; die Gruppe wird ueber ein temporaeres
+Verzeichnis transaktional veroeffentlicht. `ma_simulation_setup` berechnet
+den aktuellen Upstream-Fingerprint erneut und sperrt veraltete Pakete auch
+dann, wenn die Variantenseite zwischenzeitlich nicht geoeffnet wurde.
+
+Die Run-Gruppe ist der wissenschaftliche Run und referenziert genau eine
+Selection; die nummerierten `RUN + VAR-ID`-Unterordner sind dessen manuelle
+Ausfuehrungsfaelle, keine zusaetzlichen wissenschaftlichen Runs oder
+`SimulationCase`-Objekte. Das Selection-Manifest speichert StudyCase,
+StudyDirection, Auswahlmodus, Seed und Selection-Fingerprint. Der
+Jahreslauf ist mit Start, Ende, `TRY_non_leap_standard_year_8760`,
+deaktivierter Sommerzeit und 3600-s-Zeitschritt festgelegt. Wetterquellen
+tragen Pfad, Revision, Studienrecord-Fingerprint und – falls lokal
+aufgeloest – den Datei-SHA-256. Die noch nicht konkret aufgeloesten
+Frankfurt-2010/2035-Quellen bleiben als
+`source_resolution_required_before_simulation` sichtbar.
+
+Die Abschlussvalidierung erzwingt ausserdem `Europe/Berlin` und den
+Jahresmodus `annual`. Bei `resolved_local_file` muessen Quelldatei und
+gespeicherter SHA-256 zum Materialisierungszeitpunkt uebereinstimmen.
+Nicht aufgeloeste Wetterquellen erzeugen Run- und Gruppenstatus
+`preparation_incomplete_weather_source` und verlangen als naechste Aktion
+die Quellenaufloesung; sie werden nicht als bereit fuer die manuelle
+Simulation bezeichnet.

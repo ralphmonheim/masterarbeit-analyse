@@ -106,3 +106,57 @@ Randbedingung mit einer Variantenwirkung.
 
 P012, P013, P015, P017, P018, P027 und die vorhandenen
 Katalog-/Quellenvertraege.
+
+## Umsetzungsstand 2026-07-27: begrenzter SmallOffice-V1-Slice
+
+Aus dem lokalen Archiv
+`demo_masterarbeit_endvarianten_optionen_v2.zip` ist ausschliesslich
+`endvariante_02_5_zonen_innenwaende_entfernt_v2.xlsx` als V1-Ausgangsstand
+minimal normalisiert. Das versionierte Fachmodell fuehrt 29 Raeume, fuenf
+Zonen, 516,842 m2 und 1677,64455 m3 sowie den Hash des unveraenderten lokalen
+Archivs. Die Lobbyhoehe 8,0 m ist fachlich als zweigeschossig bestaetigt.
+
+Dieser Slice ist kein allgemeiner Excel-Importer und schliesst P034-E1 bis E5
+nicht ab. Vollstaendige Zellprovenienz, Formelinventar, alle drei
+Endvarianten und die Katalogarbeitsmappen bleiben getrennte Folgearbeit.
+
+## Konsolidierter Katalog- und Zielablagebezug 2026-07-27
+
+UD-106 bestaetigt Excel als Inhaltsquelle fuer Materialien, Produkte,
+Bauteile und Elemente. Die drei Katalogarbeitsmappen im lokalen Archiv sind
+die vorgesehenen Quellen fuer `ma_building`; Configs speichern nur Vorlagen,
+Regeln, Referenzen und Projektanpassungen. Ein vollstaendiges
+Techniksystem-Paket soll ebenfalls aus einem spaeter bereitzustellenden
+Excel-Katalog stammen.
+
+Fuer eine getrennt freizugebende Projektinput-Aufnahme sind folgende lokale
+Zielrollen vorgesehen:
+
+- Endvarianten-XLSX: `data/ma_building/input/endvariants/`;
+- Bauteilkatalog: `data/catalogs/components/`;
+- Materialkatalog: `data/catalogs/materials/`;
+- Produktkatalog: `data/catalogs/products/`.
+
+Die Ablageentscheidung ist keine Freigabe zum Entpacken oder Verschieben.
+Originale bleiben unveraendert, und bestehende Projekte werden bei einer
+spaeteren Katalogaenderung nur als pruefbeduerftig markiert.
+
+## Ausgefuehrte lokale Ablage 2026-07-27
+
+Mit der Produktslice-Freigabe wurden die Quellen an die oben festgelegten
+Rollen verschoben:
+
+- Quellarchiv:
+  `data/catalogs/sources/demo_masterarbeit_endvarianten_optionen_v2.zip`
+- Bauteilkatalog:
+  `data/catalogs/components/demo_masterarbeit_bauteilkatalog.xlsx`
+- Materialkatalog:
+  `data/catalogs/materials/demo_masterarbeit_materialkatalog.xlsx`
+- Produktkatalog:
+  `data/catalogs/products/demo_masterarbeit_produktkatalog.xlsx`
+- Endvarianten-Arbeitsmappen und Quellenhinweis:
+  `data/ma_building/input/endvariants/`
+
+Die lokalen Arbeitsmappen bleiben ignorierte Fachquellen. Der V1-Leser
+verwendet nur das Blatt `Uebersicht`, bindet Pfad und SHA-256 in die
+Projektkopie und veraendert die zentrale Excel-Datei nicht.

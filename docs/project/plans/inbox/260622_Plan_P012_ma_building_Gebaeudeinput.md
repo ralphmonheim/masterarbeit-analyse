@@ -1,7 +1,7 @@
 # P012 ma_building Gebaeudeinput
 
 Stand: 2026-07-14
-Status: Teilweise umgesetzt
+Status: Teilweise umgesetzt; UD-106-Import, Raumbuch, KI-Prompt und Excel-Katalogauswahl umgesetzt
 Prioritaet: Hoch
 Abhaengigkeiten: P010, P011, P013, P015, P027
 
@@ -481,10 +481,10 @@ Revisionen, Hashes und dokumentierte technische Overrides.
 
 ## Umsetzungsstand 2026-07-24: synthetischer SmallOffice-LoD-1-Lauf
 
-Das selbst erstellte SmallOffice-Konfigurationspaket wurde nach
-`COMPLIANCE-2026-07-24-SMALLOFFICE-CONFIG-INPUT-001` lokal aufgenommen. Das
-Originalarchiv und die IFC-abgeleiteten Konfigurationen bleiben ignoriert;
-ihre IDs, Raumbezeichnungen und Geometriewerte werden nicht versioniert.
+Das selbst erstellte SmallOffice-Konfigurationspaket wurde lokal aufgenommen.
+Das Originalarchiv und die IFC-abgeleiteten Konfigurationen bleiben ignoriert;
+ihre Inhalte werden nur innerhalb eines ausdruecklich freigegebenen,
+quellengebundenen Verarbeitungsslices verwendet.
 
 Fuer den technischen Durchstich wird stattdessen eine getrennte,
 projektautorisierte und vollstaendig synthetische
@@ -498,3 +498,50 @@ validieren.
 Der Slice ist ausschliesslich ein Loader-, Validierungs- und
 Integrationsnachweis. Reale IFC-Geometrie, elementweise Orientierungen,
 Sonnenschutz, Standortbezug und Nachweisfaehigkeit bleiben Folgearbeit.
+
+## Umsetzungsstand 2026-07-27: Endvariante 02 als V1-Baseline
+
+Endvariante 02 ist als versionierte `BuildingModelSpecification` mit 29
+Raeumen, 516,842 m2 und 1677,64455 m3 aufgenommen. Die fuenf Zonen werden
+nicht in `ma_building` gebildet, erhalten aber stabile Raumreferenzen. Die
+Lobbyhoehe von 8,0 m ist als zweigeschossiger, etwas ueber das zweite
+Obergeschoss hinausreichender Raum fachlich bestaetigt und keine
+Quellenwarnung.
+
+Die Arbeitsmappe liefert keine vollstaendige Bounding-Box oder belastbare
+innere Bauteilgeometrie. Deshalb werden unbekannte Innenbauteile nicht
+erfunden; aequivalente Abmessungen und aggregierte Huellflaechen bleiben
+explizit als V1-Annahmen gekennzeichnet.
+
+## Konsolidierter V1-UI- und Katalogbezug 2026-07-27
+
+UD-106 legt fuer `ma_building` die Reiterfolge `Import | Uebersicht |
+Bauteile | Raeume | Konstruktionen/Kataloge` fest. Die
+Gebaeudespezifikation wird unter `Import` vorgeschaut und erst nach
+ausdruecklicher Uebernahme zur Projektkopie. Das erste Raumbuch zeigt die 29
+erkannten Raeume mit ID, langem IFC-Namen, Geschoss, Flaeche, Volumen und
+Quellen-/Validierungsstatus; die Zonenzuordnung bleibt allein in P013.
+
+Material-, Produkt- und Bauteilinhalte stammen aus den Excel-Arbeitsmappen
+des P034-Archivs. Zentrale Kataloge bleiben unveraendert; projektbezogene
+Auswahl und Anpassung werden erst nach einem Uebernahmebutton gespeichert.
+Der feste KI-Gebaeudeprompt wird spaeter unter
+`docs/prompts/MA_BUILDING_AI_MODEL_GENERATION_PROMPT.md` gefuehrt und in
+`Gebaeude -> Import -> KI-Modell` nur angezeigt und kopiert. Ein externer
+KI-Aufruf ist nicht Teil von P012.
+
+## UD-106-Umsetzungsstand 2026-07-27
+
+Die reduzierte Bearbeitungsansicht fuehrt `Import | Uebersicht | Bauteile |
+Raeume | Konstruktionen/Kataloge`. Gebaeudespezifikationen und
+Excel-Katalogeintraege bleiben Vorschau, bis der jeweilige Uebernahmebutton
+eine projektbezogene Kopie schreibt. Das Raumbuch zeigt die 29
+SmallOffice-Raeume ohne Zonenzuordnung. Der feste KI-Prompt liegt am oben
+genannten Zielpfad; der externe Uebergabebutton bleibt sichtbar und
+deaktiviert.
+
+Excel-IDs und Tabellenkoepfe werden auf Eindeutigkeit geprueft. Eine
+Uebernahme speichert neben Pfad, Version und SHA-256 auch den unveraenderten
+ausgewaehlten Datensatz als Projektkopie. Weicht der aktuelle zentrale
+Katalog spaeter vom gespeicherten Hash ab, warnt die UI; die Projektkopie
+wird nicht still ersetzt.

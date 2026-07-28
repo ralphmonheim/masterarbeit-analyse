@@ -1,7 +1,7 @@
-"""Startansicht der zentralen Streamlit-UI."""
+"""Projektwahl als Startansicht der zentralen Streamlit-UI."""
 
 from __future__ import annotations
 
-from ma_ui.streamlit_app.pages.home import render
+from .project_start_view import render
 
 __all__ = ["render"]

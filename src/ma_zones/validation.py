@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections import defaultdict
 
 from ma_building import BuildingModelSpecification
+from ma_technical import TechnicalSystemSpecification
 from ma_validation import DiagnosticMessage, DiagnosticSeverity, ValidationResult, build_validation_result
 
 from .models import ZoneInputDetailLevel, ZoneModelSpecification
@@ -23,6 +24,55 @@ def validate_zone_spec(
     messages.extend(_validate_zones(spec))
     if building_spec is not None:
         messages.extend(_validate_building_reference(spec, building_spec))
+    return build_validation_result(tuple(messages))
+
+
+def validate_technical_zone_integration(
+    zone_spec: ZoneModelSpecification,
+    technical_spec: TechnicalSystemSpecification,
+) -> ValidationResult:
+    """Prueft den zonenseitig verantworteten Abgleich zum Technikstand."""
+    messages: list[DiagnosticMessage] = []
+    if technical_spec.project_id != zone_spec.project_id:
+        messages.append(
+            _message(
+                DiagnosticSeverity.ERROR,
+                "TECHNICAL_PROJECT_REFERENCE_MISMATCH",
+                "Technik- und Zonenmodell verwenden unterschiedliche Projekt-IDs.",
+                "project_id",
+            )
+        )
+    if technical_spec.building_id != zone_spec.building_id:
+        messages.append(
+            _message(
+                DiagnosticSeverity.ERROR,
+                "TECHNICAL_BUILDING_REFERENCE_MISMATCH",
+                "Technikmodell verweist nicht auf das Zonen-Gebaeude.",
+                "building_id",
+            )
+        )
+    if technical_spec.source_zone_model_id != zone_spec.zone_model_id:
+        messages.append(
+            _message(
+                DiagnosticSeverity.ERROR,
+                "TECHNICAL_ZONE_MODEL_REFERENCE_MISMATCH",
+                "Technikmodell verweist nicht auf die geladene Zonenmodellversion.",
+                "source_zone_model_id",
+            )
+        )
+
+    known_zone_ids = zone_spec.zone_ids
+    for index, system in enumerate(technical_spec.systems):
+        unknown_zone_ids = sorted(set(system.served_zone_ids) - known_zone_ids)
+        if unknown_zone_ids:
+            messages.append(
+                _message(
+                    DiagnosticSeverity.ERROR,
+                    "TECHNICAL_SERVED_ZONE_UNKNOWN",
+                    f"Technisches System verweist auf unbekannte Zonen: {', '.join(unknown_zone_ids)}",
+                    f"systems.{index}.served_zone_ids",
+                )
+            )
     return build_validation_result(tuple(messages))
 
 
@@ -292,14 +342,18 @@ def _validate_building_reference(
                 )
             )
 
-    expected_floor_area = building_spec.building.length_m * building_spec.building.width_m
+    expected_floor_area = (
+        sum(space.floor_area_m2 for space in building_spec.spaces)
+        if building_spec.spaces
+        else building_spec.building.length_m * building_spec.building.width_m
+    )
     total_zone_area = sum(zone.floor_area_m2 for zone in spec.zones)
     if expected_floor_area > 0 and abs(total_zone_area - expected_floor_area) > 0.01:
         messages.append(
             _message(
                 DiagnosticSeverity.WARNING,
                 "ZONE_AREA_BUILDING_FOOTPRINT_MISMATCH",
-                "Die Summe der Zonenflaechen weicht von der einfachen Gebaeudegrundflaeche ab.",
+                "Die Summe der Zonenflaechen weicht von der Gebaeude-Raumflaeche ab.",
                 "zones",
             )
         )

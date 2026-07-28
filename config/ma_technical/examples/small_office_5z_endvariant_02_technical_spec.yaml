@@ -1,0 +1,41 @@
+schema_version: "1.0"
+technical_model_id: "TECH-SMALL-OFFICE-5Z-ENDVAR-02-V1"
+project_id: "PROJECT-SMALL-OFFICE-V1"
+building_id: "BUILDING-SMALL-OFFICE-5Z-ENDVAR-02"
+source_zone_model_id: "ZONEVAR-REDUCED-5-BOUNDARIES-REMOVED-001"
+input_detail_level: "LOD-1"
+systems:
+  - system_id: "TECH-SYS-HEATING-CENTRAL-001"
+    name: "Gas-Brennwertkessel mit idealen Heizelementen"
+    system_type: "heating"
+    served_zone_ids: ["ZONE-5Z-LOBBY", "ZONE-5Z-EG-WEST", "ZONE-5Z-EG-EAST", "ZONE-5Z-OG-WEST", "ZONE-5Z-OG-EAST"]
+    design_power_w_m2: 50.0
+    supply_temperature_c: 70.0
+    return_temperature_c: 55.0
+    control_strategy: "zone_setpoint_weekday_07_18"
+  - system_id: "TECH-SYS-COOLING-CENTRAL-001"
+    name: "Luftgekuehlte Kaeltemaschine mit idealen Kuehlelementen"
+    system_type: "cooling"
+    served_zone_ids: ["ZONE-5Z-LOBBY", "ZONE-5Z-EG-WEST", "ZONE-5Z-EG-EAST", "ZONE-5Z-OG-WEST", "ZONE-5Z-OG-EAST"]
+    design_power_w_m2: 35.0
+    supply_temperature_c: 7.0
+    return_temperature_c: 12.0
+    performance_factor: 3.0
+    control_strategy: "zone_setpoint_weekday_07_18"
+  - system_id: "TECH-SYS-VENTILATION-CENTRAL-001"
+    name: "Zentrale Zu- und Abluftanlage"
+    system_type: "ventilation"
+    served_zone_ids: ["ZONE-5Z-LOBBY", "ZONE-5Z-EG-WEST", "ZONE-5Z-EG-EAST", "ZONE-5Z-OG-WEST", "ZONE-5Z-OG-EAST"]
+    air_change_rate_1_h: 1.0
+    heat_recovery_efficiency_percent: 80.0
+    control_strategy: "weekday_schedule_05_18"
+assumptions:
+  - assumption_id: "SMALLOFFICE-5Z-TECH-SOURCE-001"
+    location: "systems"
+    text: "Systemarten, Temperaturen, EER und Waermerueckgewinnung stammen aus Endvariante 02; die Quellkonfiguration beschreibt ideale Zonenuebergaben."
+  - assumption_id: "SMALLOFFICE-5Z-TECH-CAPACITY-001"
+    location: "systems.0"
+    text: "50 W/m2 Heizen und 35 W/m2 Kuehlen bleiben nur technische Startannahmen; die V1-Optimierungsfaelle verwenden die Referenzdimensionierung und gemeinsame Kapazitaetsfaktoren."
+  - assumption_id: "SMALLOFFICE-5Z-TECH-VENTILATION-001"
+    location: "systems.2"
+    text: "Der technische Modellvertrag fuehrt einen aggregierten Startluftwechsel; die Parameterschicht erhaelt zusaetzlich die zonal abgeleiteten Werte."

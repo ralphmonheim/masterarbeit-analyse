@@ -489,3 +489,70 @@ Die Varianten-Handover praezisieren P017-S1 und seine Folgeslices:
   solange keine technische Invariante verletzt ist.
 - P018 erhaelt nach `VGEN` vollstaendige Varianten mit `VAR-ID`; Regeln,
   Ausschlussgruende und wissenschaftliche Provenienz verbleiben in P017.
+
+## Umsetzungsstand 2026-07-27: SmallOffice-V1-Studie
+
+`config/ma_variants/studies/small_office_v1.yaml` beschreibt die erste
+versionierte V1-Studie. Fuenf globale Temperatur-Sollwertbaender werden mit
+sechs gekoppelten Faktoren fuer verfuegbare Heiz- und Kuehlleistung
+kombiniert. Daraus entstehen 30 Optimierungsfaelle; innerhalb jedes Falls
+gelten dieselben Sollwerte fuer alle fuenf Zonen.
+
+Acht Sensitivitaetsfaelle bleiben von der Optimierung getrennt. Sie verwenden
+den Referenz-/Dimensionierungsfall 21/24 Grad C und Faktor 1,0 als festen
+Elternfall: vier Frankfurt-Jahreswetter sowie die vier Zeitprofile
+07:00-18:00, 06:00-17:00, 08:00-19:00 und 06:00-19:00. Eine automatische
+Bestvariantenwahl findet in V1 nicht statt.
+
+## Konsolidierter V1-Auswahlablauf 2026-07-27
+
+UD-106 fuehrt Optimierung und Sensitivitaet als gleichzeitig anlegbare,
+getrennte StudyDirections. Der aktive StudyCase wird ueber ein Auswahlfeld
+gewechselt und zeigt seine wirksamen Regeln schreibgeschuetzt.
+
+Die sichtbare Reihenfolge lautet:
+
+1. `Variationsraum` mit `Kandidatenkombinationen erzeugen`;
+2. `Pruefung und Katalog` mit `Gueltigen Katalog bilden`;
+3. `Auswahl und Variantenpakete` mit manueller, zufaelliger oder
+   vollstaendiger Auswahl, `Namensvorschau erzeugen` und
+   `Ausgewaehlte Variantenpakete erzeugen`.
+
+Ungueltige Kandidaten bleiben mit Ausschlussgrund sichtbar. Zufallsauswahl
+speichert Anzahl und optionalen Startwert. Ein Naming-Profil ist vor der
+Paketerzeugung verpflichtend. Geaenderte Referenzwerte, Regeln oder Spannen
+markieren bestehende Kandidaten und Pakete aktualisierungsbeduerftig, loeschen
+sie aber nicht.
+
+## UD-106-Umsetzungsstand 2026-07-27
+
+Die UI fuehrt drei sitzungsstabile Schritte und die vereinbarten Buttons:
+Kandidatenkombinationen erzeugen, gueltigen Katalog bilden,
+Namensvorschau erzeugen und ausgewaehlte Variantenpakete erzeugen.
+Optimierung und Sensitivitaet werden gleichzeitig als drei getrennte
+StudyCases angelegt. Manuelle, reproduzierbar zufaellige und vollstaendige
+Auswahl sind umgesetzt; ungueltige Kandidaten bleiben mit Ausschlussgrund
+sichtbar.
+
+Der Quellenfingerprint umfasst nun Studienvertrag, Baseline-ID/-Hash,
+5Z-Modell/-Hash, aktuelle Regeln und Variationsspannen sowie den
+vollstaendigen IDA-Referenzdatensatz. Kandidaten entstehen nur bei aktueller
+Variationsspezifikation und geprueftem 5Z-Stand. Die Faktoren werden nach der
+Strategie `fixed_reference_21_24_zonal_capacity` fuer jede Zone auf Heiz- und
+Kuehlreferenzlast in W angewandt. Wetter- und Belegungssensitivitaet bleiben
+getrennte OFAT-Familien mit `OPT-SB01-F100` als festem Elternfall.
+Namensvorschauen sind an Projekt, StudyCase, Auswahl, Quellenfingerprint und
+Naming-Profil gebunden.
+
+Die Katalogbildung akzeptiert nur Kandidaten mit dem aktuellen
+Quellenfingerprint; ein alter Kandidatenraum kann nicht unter einem neuen
+Fachstand neu etikettiert werden. Jede `VSEL`-ID enthaelt einen eigenen
+Fingerprint aus StudyCase, Modus, sortierten Kandidaten-IDs, Zufallsseed und
+Upstream-Stand. Eine leere manuelle Auswahl erzeugt keine Pakete.
+
+Der SmallOffice-V1-Studienvertrag akzeptiert genau die vier eindeutigen
+Dimensionen Temperatur-Sollwertbaender, gekoppelte Heiz-/Kuehlfaktoren,
+Wetter-OFAT und Belegungs-OFAT. Unbekannte, fehlende oder doppelte
+Dimensionen blockieren die Kandidatenerzeugung. Vor der Setup-Uebergabe
+werden Selection-ID, Kandidatenmenge, StudyCase, StudyDirection und
+Selection-Fingerprint erneut typgenau gegen alle Variantenpakete geprueft.

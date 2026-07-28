@@ -23,10 +23,20 @@ wartbar bleiben.
    Rueckfrage.
 7. Analysiere Unsicherheiten zuerst und erklaere ihre Auswirkungen.
 
-Dokumentierte Sammelbefehle in `docs/common/commands_common.md` sind
-vorab freigegebene Ausnahmen. Sie werden ohne weitere Umsetzungsfreigabe
-ausgefuehrt, solange kein Blocker, keine riskante Abweichung und keine
-technisch notwendige Sicherheitsfreigabe auftritt.
+Read-only Analyse, Planung und Statuspruefungen benoetigen keine
+Umsetzungsfreigabe. Jede Aenderung an Code, Konfiguration, Daten oder
+Dokumentation beginnt erst nach der ausdruecklichen Nutzerformulierung
+`Freigabe zur Umsetzung`.
+
+Bei `neues thema`, `neues thema: ...` oder `themenwechsel` ist zuerst der
+projektlokale Skill `prompt-intake` anzuwenden. Er entwickelt die neue Idee
+mit Rueckfragen zu allen noch nicht klaren relevanten Angaben zu einem
+eindeutigen Arbeits-Prompt; `Prompt abschliessen` beendet diese Intake-Phase.
+
+Die dokumentierten Direktbefehle `direkt update repo`, `tagesende direkt`
+und ihre Sammelbefehle duerfen einen bereits freigegebenen und vorbereiteten
+Arbeitsstand ohne zweite Freigabe committen, taggen und pushen. Sie erteilen
+keine Freigabe fuer neue fachliche oder technische Aenderungen.
 
 ## Operative Wahrheiten und Freigabestufen
 
@@ -37,9 +47,9 @@ technisch notwendige Sicherheitsfreigabe auftritt.
   fuehrt den datierten Project-OS-Audit und Backlog, erteilt aber keine
   Freigabe.
 - Ohne neue Rueckfrage sind read-only Pruefungen versionierter eigener
-  Repo-Dateien, lokale Tests und Aenderungen innerhalb eines bereits
-  ausdruecklich freigegebenen Umfangs erlaubt. Allgemeine Scans werden
-  standardmaessig auf `git ls-files` begrenzt.
+  Repo-Dateien, lokale Tests und Aenderungen innerhalb eines bereits durch
+  `Freigabe zur Umsetzung` ausdruecklich freigegebenen Umfangs erlaubt.
+  Allgemeine Scans werden standardmaessig auf `git ls-files` begrenzt.
 - Eine frische menschliche Freigabe ist erforderlich fuer globale
   `~/.codex`-Aenderungen, Installationen und neue Abhaengigkeiten, Git- oder
   Codex-Hook-Aenderungen, MCP, Graphify, Obsidian-/Zotero-Schreibzugriffe,
@@ -123,19 +133,20 @@ Nach einer konkreten Umsetzungsfreigabe gilt:
 
 ### Delegierte Council-Mehrheitsfreigabe
 
-UD-089 erlaubt fuer klar abgegrenzte, lokale und reversible Repo-Slices eine
-Umsetzungsfreigabe durch mindestens drei der fuenf definierten Council-Rollen.
-Der Hauptagent dokumentiert davor den exakten Scope, die beteiligten Rollen und
-das Mehrheitsvotum in den kanonischen Plan- und Entscheidungsquellen. Ein
-Blocker aus einem Sol-Review stoppt den betroffenen Slice trotz Mehrheit.
+Ein Mehrheitsvotum von mindestens drei der fuenf definierten Council-Rollen
+darf fuer klar abgegrenzte, lokale und reversible Repo-Slices weiterhin eine
+Empfehlung dokumentieren. Es ersetzt seit UD-104 jedoch keine menschliche
+`Freigabe zur Umsetzung`. Ein Blocker aus einem Sol-Review stoppt den
+betroffenen Slice trotz Nutzerfreigabe, bis er behoben oder bewusst akzeptiert
+wurde.
 
-Diese Delegation erlaubt weder eine Rechtefreigabe noch eine unbegrenzte
-Scope-Erweiterung. Sie gilt nicht fuer neue oder geaenderte Dependencies,
-Installationen, globale `~/.codex`-Aenderungen, Hooks, CI, MCP, Graphify,
-Obsidian/Zotero, externe APIs, geschuetzte oder reale Daten, Loeschungen,
-brechende oeffentliche APIs, Commits, Pushes, Tags oder Veroeffentlichungen.
-Diese Vorgange benoetigen weiterhin eine konkrete menschliche Freigabe und,
-wo anwendbar, die erforderlichen technischen Nachweise.
+Ein Council-Votum erlaubt weder eine Rechtefreigabe noch eine
+Scope-Erweiterung. Neue oder geaenderte Dependencies, Installationen, globale
+`~/.codex`-Aenderungen, Hooks, CI, MCP, Graphify, Obsidian/Zotero, externe
+APIs, geschuetzte oder reale Daten, Loeschungen und brechende oeffentliche
+APIs behalten ihre zusaetzlichen Sondergates.
+Commits, Pushes, Tags oder Veroeffentlichungen sind nur ueber die
+dokumentierten Direktbefehle ohne zweite Freigabe zulaessig.
 
 Eine neue Freigabe ist erforderlich, wenn der Umfang ueber den dokumentierten
 Council-Beschluss hinaus erweitert werden soll, neue Abhaengigkeiten

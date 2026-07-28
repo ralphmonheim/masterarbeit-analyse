@@ -12,6 +12,10 @@
 - **Status:** teilweise umgesetzt. P013-S1 stellt eine LoD-1-Demo fuer das
   BusinessIntegration-Testgebaeude bereit:
   `config/ma_zones/examples/business_integration_lod1_zone_spec.yaml`.
+- **SmallOffice V1:** Endvariante 02 besitzt fuenf feste thermische Zonen und
+  eine vollstaendige Zuordnung aller 29 Raeume. Optimierung und Sensitivitaet
+  veraendern in V1 weder den Zonenzuschnitt noch zonenweise Sollwertmuster;
+  innerhalb jedes Falls gelten dieselben Sollwerte fuer alle fuenf Zonen.
 - **Planstand:** P013-S2 ist fachlich konsolidiert. Der Zielworkflow lautet
   `ma_weather -> ma_building -> ma_technical -> ma_zones -> ma_validation ->
   ma_parameters`.
@@ -20,6 +24,8 @@
 - **Validierung:** Pflichtfelder, eindeutige IDs, Profilreferenzen,
   Flaeche/Volumen, Sollwerte, Betriebszeiten und Gebaeudebezug werden geprueft.
   Fehler blockieren; Warnungen benoetigen eine bewusste Freigabeentscheidung.
+  Die additive zonenseitige Integritaetspruefung validiert technische
+  Zonenreferenzen bei unveraenderter Legacy-Diagnostik.
 - **Released-Zonencheckpoint:** P013-S3c erzeugt aus einem validierten
   Building-, Zonen-, ThermalBuilding- und P014-Stand einen immutable,
   payloadfreien `ReleasedZoneHandover`. Sein kanonischer Fingerprint bindet

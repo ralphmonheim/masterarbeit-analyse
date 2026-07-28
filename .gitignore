@@ -37,6 +37,7 @@ data/ma_variants/ida_exports/*
 data/ma_variants/database/*
 !data/ma_variants/database/.gitkeep
 data/ma_project/config/*
+data/ma_project/workspace_registry.yaml
 data/ma_parameters/config/*
 data/ma_weather/config/*
 data/ma_weather/input/*
@@ -58,9 +59,13 @@ data/ma_building/input/rhino/*
 !data/ma_building/input/rhino/.gitkeep
 data/ma_building/input/cad/*
 !data/ma_building/input/cad/.gitkeep
+data/ma_building/input/endvariants/*
+!data/ma_building/input/endvariants/.gitkeep
 data/ma_building/diagnostics/*
 !data/ma_building/diagnostics/.gitkeep
 # Reale Kataloginhalte bleiben lokal; Strukturplatzhalter duerfen versioniert sein.
+data/catalogs/components/*
+!data/catalogs/components/.gitkeep
 data/catalogs/materials/*
 !data/catalogs/materials/.gitkeep
 data/catalogs/products/*

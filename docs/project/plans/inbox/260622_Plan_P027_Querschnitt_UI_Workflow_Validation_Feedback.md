@@ -202,3 +202,23 @@ Die Querschnitts-Handover konkretisieren die Verantwortungsgrenzen:
 
 Die genannten UI-Editoren, Datenbankmigrationen und automatischen Iterationen
 sind keine Umsetzungfreigabe und bleiben getrennte Folgeentscheidungen.
+
+## Konsolidierter UI-Zustandsvertrag 2026-07-27
+
+UD-106 legt fuer die weitere V1-UI fest:
+
+- Die sichtbare Reihenfolge wird zu `Projekt -> Wetter -> Gebaeude -> Zonen
+  -> Technik -> Parameter -> Referenzdimensionierung -> Varianten ->
+  Simulation-Setup` konsolidiert.
+- Streamlit-Neulaeufe erhalten aktive Seite, Reiter, Unterreiter, Auswahl
+  und Sitzungsentwuerfe.
+- Nur eine ausdrueckliche Nutzeraktion darf Navigation oder fachliche Auswahl
+  wechseln.
+- Entwuerfe werden erst ueber modulbezogene Uebernahmebuttons gespeichert.
+- Projektwechsel mit offenen Entwuerfen warnt; alle gueltigen Entwuerfe des
+  aktuellen Moduls koennen gesammelt gespeichert werden.
+- Aktualisierte vorgelagerte Werte loeschen keine Nachfolger, sondern
+  markieren sie nachvollziehbar als aktualisierungsbeduerftig.
+
+P035 konkretisiert Projektstart, lokale Registry und Workspace-Persistenz,
+ohne diese Querschnittsregeln zu duplizieren.

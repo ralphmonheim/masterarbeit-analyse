@@ -1,0 +1,36 @@
+schema_version: '1.0'
+project:
+  identity:
+    project_id: PRJ-000002
+    title: Demo-Project1
+    short_name: Demo-1
+    description: Lokales Demo-Projekt fuer das vorhandene Einraumgebaeude.
+    project_type: Demonstration
+    author: ''
+    organization: ''
+  created_at: '2026-07-27T00:00:00+00:00'
+  updated_at: '2026-07-27T00:00:00+00:00'
+  location:
+    country_code: DE
+    display_name: Beispielstadt
+    postal_code: ''
+    city: Beispielstadt
+    street: ''
+    house_number: ''
+    latitude_deg:
+    longitude_deg:
+    elevation_m:
+    timezone: Europe/Berlin
+    notes: Synthetischer Demo-Standort.
+  investigation:
+    objective: Bearbeitungsfluss an einem Einraumgebaeude demonstrieren.
+    research_question: ''
+    reference_case_description: Synthetischer Einraum-Referenzfall.
+    scope: Lokaler V1-Demofluss.
+    exclusions:
+    - Reale Projektaussage
+    methodology_note: ''
+    notes: ''
+settings:
+  simulation_program_key: ida_ice
+  naming_profile_reference: config/ma_variants/naming/example_naming_rules.yaml

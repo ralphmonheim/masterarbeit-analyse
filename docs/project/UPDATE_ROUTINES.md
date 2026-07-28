@@ -3,6 +3,23 @@
 Diese Datei ist die einzige Ablaufwahrheit fuer dokumentierte Codex-Routinen.
 `docs/common/commands_common.md` ist ausschliesslich der Triggerindex.
 
+## Verbindliches Freigabe-Gate
+
+- Read-only Analyse, Planung und Statuspruefungen sind ohne
+  Umsetzungsfreigabe zulaessig.
+- Jede Aenderung an Code, Konfiguration, Daten oder Dokumentation beginnt erst
+  nach der ausdruecklichen Nutzerformulierung `Freigabe zur Umsetzung`.
+- Eine Council-Empfehlung oder Council-Mehrheit ersetzt diese menschliche
+  Freigabe nicht.
+- Nach einer solchen Freigabe sind lokale Tests und Aenderungen innerhalb des
+  exakt abgestimmten Umfangs ohne weitere Rueckfrage zulaessig.
+- Die Direktbefehle `direkt update repo`, `tagesende direkt` und ihre
+  Sammelbefehle committen, taggen und pushen einen bereits freigegebenen und
+  vorbereiteten Arbeitsstand ohne zweite Freigabe.
+- Ein Direktbefehl erteilt keine Freigabe fuer neue Produkt-, Config- oder
+  Dokumentationsaenderungen. Technische Sicherheitsabfragen und besondere
+  Rechtegates bleiben unberuehrt.
+
 ## Council-Routinen
 
 - `council analyse`: read-only Bestandsaufnahme.
@@ -10,6 +27,15 @@ Diese Datei ist die einzige Ablaufwahrheit fuer dokumentierte Codex-Routinen.
 - `council umsetzen`: bereits freigegebenen Umfang umsetzen.
 - `ohne council` oder `nur Tera`: optionale Council-Arbeit auslassen.
 - `mit Sol-Review`: read-only Abschlussreview vormerken.
+
+## Themenstart
+
+- `neues thema`, `neues thema: ...` oder `themenwechsel`: vorheriges Thema
+  pausieren und den neuen Auftrag mit dem projektlokalen Skill `prompt-intake`
+  schrittweise praezisieren. Der Skill fragt alle noch nicht klaren
+  relevanten Angaben nach.
+- `Prompt abschliessen`: den vollstaendigen Arbeits-Prompt ausgeben. Danach
+  gelten die normalen Regeln fuer Analyse, Planung und `Freigabe zur Umsetzung`.
 
 ## Sammelbefehle
 
@@ -60,3 +86,5 @@ Diese Datei ist die einzige Ablaufwahrheit fuer dokumentierte Codex-Routinen.
 - Plaene werden nicht automatisch geloescht.
 - Git-Push wird nur bei `direkt update repo` oder `tagesende direkt` durch
   Codex ausgefuehrt.
+- Commit, Tag und Push benoetigen innerhalb dieser Direktbefehle keine
+  zusaetzliche Bestaetigung.

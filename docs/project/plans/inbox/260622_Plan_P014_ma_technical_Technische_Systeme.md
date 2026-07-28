@@ -385,3 +385,41 @@ Die Konfiguration ist keine Anlagenauslegung und fuehrt weder Hersteller-,
 Katalog-, IFC- noch IDA-ICE-Daten. V2-Migration, Dimensionierung,
 Produktwahl, automatische Simulation und fachliche Wertevalidierung bleiben
 getrennte Folgeslices.
+
+## Umsetzungsstand 2026-07-27: SmallOffice-5Z-Technik
+
+Eine getrennte Endvariante-02-Spezifikation beschreibt Heizung, Kuehlung und
+Lueftung fuer alle fuenf Zonen. System- und Zonen-IDs sind ueber die gesamte
+V1-Kette konsistent. Die technische Eigenvalidierung bleibt vor der
+zonenseitigen Integritaetspruefung ausfuehrbar.
+
+Die Referenzdimensionierung liefert die Ausgangskapazitaeten. Die sechs
+gemeinsamen Faktoren 1,0 bis 0,5 werden erst in `ma_variants` auf verfuegbare
+Heiz- und Kuehlleistung angewendet; `ma_technical` erzeugt keine Varianten.
+
+## Konsolidierter V1-UI- und Katalogbezug 2026-07-27
+
+UD-106 ordnet den aktiven Zonenstand vor der Technikbearbeitung ein. Die
+Technikauswahl erfolgt in V1 als vollstaendiges Techniksystem-Paket aus einem
+Excel-Katalog. Auswahl und Vorschau veraendern den Projektstand nicht; erst
+`Techniksystem uebernehmen` speichert eine projektbezogene Config. Fehlt der
+Excel-Katalog, zeigt die UI einen Quelle-fehlt-Status und erfindet keine
+Produktdaten.
+
+Der bekannte Streamlit-Fehler durch das beim lokalen Bau einer
+`TechnicalSystemSpecification` fehlende Pflichtfeld `schema_version` ist im
+ersten Produkt-Slice zu korrigieren.
+
+## UD-106-Umsetzungsstand 2026-07-27
+
+Der `schema_version`-Fehler ist korrigiert. Technik liest den aktiven
+Zonenstand vor der Darstellung. Fehlt der vorgesehene Excel-Katalog unter
+`data/catalogs/technical_systems/`, zeigt die UI einen blockierenden
+Quelle-fehlt-Status und nur die vorhandene Config-Referenz; sie erzeugt keine
+Produktdaten und aktiviert keine Uebernahme.
+
+Ist eine Arbeitsmappe vorhanden, liest die UI ausschliesslich deren
+`Uebersicht`, zeigt aktive, validierte und gesperrte Datensaetze und erlaubt
+die projektbezogene Uebernahme nur fuer aktive validierte Eintraege.
+Projektkopien enthalten Originalzeile, Pfad, Version und SHA-256. Die
+Lite-Validierung akzeptiert ausschliesslich Schema-Version `1.0`.

@@ -561,3 +561,53 @@ verdeckt wird. P015 besitzt noch keine persistierten
 `ParameterSnapshot`-Artefakte; vor dem 2026-07-24 nur zur Laufzeit erzeugte
 Hashwerte gelten daher als nicht vergleichbare Vorlaeufer und benoetigen
 keine Datenmigration.
+
+## Umsetzungsstand 2026-07-27: SmallOffice-5Z-Baseline
+
+Der neue Snapshot-Builder uebernimmt zonenbezogen Flaeche, Volumen,
+Sollwerte, Luftwechsel, Beleuchtungs-/Geraetelasten sowie Betriebsbeginn und
+-ende. Die daraus erzeugte Baseline bleibt die einzige fachliche Wertquelle
+fuer die SmallOffice-V1-Variantenstudie.
+
+Der Referenzfall verwendet global 21/24 Grad C und das Zeitprofil
+07:00-18:00. Abgeleitete Variantenwerte werden nicht in die Baseline
+zurueckgeschrieben.
+
+## Konsolidierte V1-Bearbeitungsansicht 2026-07-27
+
+UD-106 legt die sichtbaren Reiter `Referenzparameter | Regeln/Vorgaben |
+Variationsspannen | Uebergabe/Pruefung` fest. Interne Snapshot-, Paket-,
+Baseline- und Altbestandsansichten bleiben technische Nachweise und gehoeren
+nicht in die normale Bearbeitungsansicht.
+
+Jeder Parameter besitzt einen Referenzoptionswert und ist zunaechst fuer
+Variation gesperrt. Regeln definieren Kopplung, Grenzen und
+Dimensionierungsrelevanz. Ihr Geltungsstatus ist projektweit,
+StudyDirection-spezifisch oder StudyCase-spezifisch. Konkrete Spannen werden
+als Einzelwert, Min/Max/Schritt, explizite Liste, Kopplung oder
+Referenzoption gespeichert.
+
+`Eingaben neu pruefen` uebernimmt aktuelle Fachwerte automatisch. Darauf
+aufbauende Dimensionierungs-, Kandidaten- und Variantenstaende werden als
+aktualisierungsbeduerftig markiert, aber nicht geloescht. Die aktuelle
+Variationsspezifikation bleibt Teil des Projekts; eine allgemeine
+Vorlagenbibliothek ist nicht V1.
+
+## UD-106-Umsetzungsstand 2026-07-27
+
+Die V1-Bearbeitung ist auf `Referenzparameter | Regeln/Vorgaben |
+Variationsspannen | Uebergabe/Pruefung` reduziert. Regeln speichern
+definierenden Status, Typ und projektweiten, StudyDirection- oder
+StudyCase-spezifischen Scope. Variationsspannen unterstuetzen die
+beschlossenen Werteformen und werden erst nach ausdruecklicher Freigabe
+aktiv. Referenzstand und Variationsspezifikation werden im Projekt
+gespeichert; abhaengige Ergebnisse erhalten `update_required`.
+
+Min/Max/Schritt, explizite Listen, Kopplungs-IDs und Referenzoptionen werden
+semantisch validiert. Jede gueltige Aenderung an Referenz, Regeln oder
+Spannen synchronisiert den projektbezogenen Variationsentwurf automatisch
+und markiert bestehende Folgeergebnisse weiterhin nur als
+aktualisierungsbeduerftig. Erst `Variationsspezifikation speichern` setzt
+den Entwurf auf `current` und bestaetigt die vier SmallOffice-V1-Dimensionen
+Sollwertbaender, gekoppelte Leistungsfaktoren, Wetter-OFAT und
+Belegungs-OFAT.

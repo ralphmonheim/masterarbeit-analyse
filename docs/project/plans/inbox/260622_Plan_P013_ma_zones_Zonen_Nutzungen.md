@@ -1,7 +1,7 @@
 # P013 - Gesamtkonzept `ma_zones`
 
 **Stand:** 15. Juli 2026
-**Status:** Fachlich konsolidiert; LoD-1-Demo, P013-S3b-Abschlussvertrag und P013-S3c-Releasecheckpoint umgesetzt
+**Status:** Fachlich konsolidiert; 5Z aktiv und 29Z-Entwurf mit Profilvorschlaegen umgesetzt, normative Profilwerte gesperrt
 **Modul:** `ma_zones`
 **UI-Bezeichnung:** Zonen
 **Prioritaet:** hoch innerhalb der Eingangsdatenkette
@@ -2383,3 +2383,47 @@ Plausibilitaetsbezug gefuehrt. Die BAuA-ASR-A3.6 stuetzt das CO2-Ziel; der
 konkrete Luftwechsel bleibt eine eigene, nachvollziehbar hergeleitete
 Demo-Annahme. Der Referenzfall dient dem lauffaehigen P012-P015-Durchstich,
 nicht einer realen Zonierung oder einer normativen Profilfreigabe.
+
+## Umsetzungsstand 2026-07-27: SmallOffice-5Z-Modell
+
+Endvariante 02 ist mit fuenf festen thermischen Zonen und einer
+vollstaendigen Zuordnung aller 29 Raeume umgesetzt. In V1 bleibt dieser
+Zonenzuschnitt fuer Optimierung und Sensitivitaet unveraendert. Innerhalb
+eines Variantenfalls gelten dieselben Temperatur-Sollwerte fuer alle Zonen.
+
+`validate_technical_zone_integration(...)` besitzt die zonenseitige
+Cross-Domain-Integritaetspruefung. Die vier bisherigen Legacy-Diagnosen
+bleiben in Code und Meldungstext kompatibel; `ma_technical` erhaelt keine
+neue Runtime-Abhaengigkeit auf `ma_zones`.
+
+## Konsolidierter 5Z-/29Z-Zielstand 2026-07-27
+
+Nach UD-106 ist 5Z der aktive SmallOffice-Standard fuer Referenz,
+Optimierung und den ersten manuellen V1-Durchlauf. 29Z ist ein alternatives
+thermisches Modell mit genau einer thermischen Zone je IFC-Raum und den
+langen IFC-Raumnamen als sichtbaren Zonenbezeichnungen. Es uebernimmt keine
+Profil- oder Lastwerte aus den 5Z-Sammelzonen.
+
+Die 29 Zonen erhalten manuell bestaetigte Vorschlaege aus dem unter
+`data/ma_parameters/config/din18599_10_nutzungsprofile/` gefuehrten
+DIN/TS-18599-10:2025-10-Katalog A.1 bis A.43. Eindeutige Namensregeln
+duerfen Vorschlaege erzeugen; fehlende oder mehrfache Treffer bleiben offen.
+Erst eine vollstaendige Zuordnung ist weitergabefaehig. 29Z wird in V1
+auswaehlbar und validierbar vorbereitet, startet aber keinen zweiten
+PreProcess-Lauf.
+
+## UD-106-Umsetzungsstand 2026-07-27
+
+5Z ist fuer `Masterarbeit-Analyse` die Standardauswahl. Der 29Z-Entwurf
+erzeugt aus jedem der 29 IFC-Raeume genau eine Zone, behaelt den langen
+IFC-Raumnamen und erbt keine 5Z-Profil- oder Lastwerte. `ma_parameters`
+besitzt die 43 vom Nutzer bereitgestellten Profilnummern und -namen als
+Metadaten; einfache IFC-Namensregeln liefern bearbeitbare Vorauswahlen.
+Vollstaendige geschuetzte Profilwerte und damit die 29Z-Weitergabe bleiben
+bis zum erforderlichen Rechte- und Quellenfreigabenachweis blockiert.
+
+Vorschlag und Nutzerentscheidung sind getrennt: Jede 29Z-Zuordnung besitzt
+einen eigenen manuellen Bestaetigungsstatus. Ein vorbelegter Namensvorschlag
+allein gilt nicht als vollstaendig. Die Profilmetadaten tragen Normname,
+Edition `2025-10`, Quellenstatus, Reviewstatus und Metadatenrevision; die
+geschuetzten Profilwerte bleiben weiterhin gesperrt.

@@ -50,7 +50,7 @@ wiederverwenden.
   validierten `ParameterSnapshot` v1.
 - `stage_2_optimization/README.md`: vorhandene Analysebefehle als spaeterer
   Optimierungsablauf.
-- `stage_3_standards_compliance/README.md`: geplanter Norm-Nachweis mit
+- `stage_3_standards_verification/README.md`: geplanter Norm-Nachweis mit
   deutschen und spaeter internationalen Normenprofilen.
 - `stage_4_sensitivity/README.md`: geplante ereignisbasierte
   Sensitivitaets- und Robustheitsanalyse.

@@ -1,0 +1,101 @@
+# Normalisierte V1-Geometrie aus Endvariante 02.
+# Die 29 Raumgeometrien sind quellgetreu; unbekannte Innenwaende werden nicht
+# erfunden. Der aktuelle v1-Vertrag fuehrt die Huellgeometrie aggregiert.
+schema_version: "1.0"
+input_detail_level: "LOD-2"
+project:
+  project_id: "PROJECT-SMALL-OFFICE-V1"
+  name: "SmallOffice V1"
+building:
+  building_id: "BUILDING-SMALL-OFFICE-5Z-ENDVAR-02"
+  name: "SmallOffice – 5 Zonen, Innenwaende entfernt"
+  unit: "m"
+  north_angle_deg: 0.0
+  # Die Arbeitsmappe enthaelt keine Bounding-Box. Die beiden Abmessungen
+  # bilden daher nur ein flaechenaequivalentes Quadrat des Erdgeschosses ab.
+  length_m: 17.1482214821
+  width_m: 17.1482214821
+  height_m: 8.0
+model_version:
+  version_id: "BUILDING-SMALL-OFFICE-5Z-ENDVAR-02-V1"
+  source_input_level: "BIL-2"
+  detected_input_level: "BIL-2"
+  confirmed_input_level: "BIL-2"
+  current_maturity_level: "BIL-2"
+  target_maturity_level: "BIL-3"
+simple_envelope:
+  # Materialbasierte LoD-1-Ableitungen aus den Projektkonstruktionen.
+  # Oberflaechenwiderstaende und Waermebruecken sind noch nicht enthalten.
+  external_wall_u_value_w_m2k: 0.5822784810
+  window_u_value_w_m2k: 1.9
+  window_area_ratio_percent: 27.6208037472
+  roof_u_value_w_m2k: 0.2292526364
+  floor_u_value_w_m2k: 0.8547008547
+  external_wall_area_m2: 748.033605
+  window_area_m2: 206.612894
+  roof_area_m2: 243.2645
+  floor_area_m2: 358.917805
+storeys:
+  - storey_id: "STOREY-IFC-000156"
+    name: "Ground Floor"
+    elevation_m: 0.0
+    height_m: 3.0
+  - storey_id: "STOREY-IFC-275499"
+    name: "1st Floor"
+    elevation_m: 3.0
+    height_m: 3.0
+spaces:
+  - {space_id: "ROOM-IFC-024840", name: "101 Lobby", storey_id: "STOREY-IFC-000156", floor_area_m2: 65.4, volume_m3: 458.12305}
+  - {space_id: "ROOM-IFC-071677", name: "102 Entrance", storey_id: "STOREY-IFC-000156", floor_area_m2: 6.281, volume_m3: 17.5868}
+  - {space_id: "ROOM-IFC-025341", name: "103 Corridor", storey_id: "STOREY-IFC-000156", floor_area_m2: 43.56, volume_m3: 117.612}
+  - {space_id: "ROOM-IFC-069277", name: "104 Office", storey_id: "STOREY-IFC-000156", floor_area_m2: 15.12, volume_m3: 40.824}
+  - {space_id: "ROOM-IFC-068797", name: "105 Office", storey_id: "STOREY-IFC-000156", floor_area_m2: 12.18, volume_m3: 32.886}
+  - {space_id: "ROOM-IFC-068317", name: "106 Copy Room", storey_id: "STOREY-IFC-000156", floor_area_m2: 12.18, volume_m3: 32.886}
+  - {space_id: "ROOM-IFC-067837", name: "107 Office", storey_id: "STOREY-IFC-000156", floor_area_m2: 12.18, volume_m3: 32.886}
+  - {space_id: "ROOM-IFC-026301", name: "108 Office", storey_id: "STOREY-IFC-000156", floor_area_m2: 12.18, volume_m3: 32.886}
+  - {space_id: "ROOM-IFC-069757", name: "109 Office", storey_id: "STOREY-IFC-000156", floor_area_m2: 12.18, volume_m3: 32.886}
+  - {space_id: "ROOM-IFC-070237", name: "110 Office", storey_id: "STOREY-IFC-000156", floor_area_m2: 12.18, volume_m3: 32.886}
+  - {space_id: "ROOM-IFC-070717", name: "111 Office", storey_id: "STOREY-IFC-000156", floor_area_m2: 12.18, volume_m3: 32.886}
+  - {space_id: "ROOM-IFC-071197", name: "112 Reception", storey_id: "STOREY-IFC-000156", floor_area_m2: 12.18, volume_m3: 32.886}
+  - {space_id: "ROOM-IFC-025821", name: "113 Meeting", storey_id: "STOREY-IFC-000156", floor_area_m2: 27.447, volume_m3: 74.1069}
+  - {space_id: "ROOM-IFC-073141", name: "114 Break Room", storey_id: "STOREY-IFC-000156", floor_area_m2: 27.1135, volume_m3: 73.20645}
+  - {space_id: "ROOM-IFC-072157", name: "115 Toilet", storey_id: "STOREY-IFC-000156", floor_area_m2: 6.0, volume_m3: 16.2}
+  - {space_id: "ROOM-IFC-072637", name: "116 Toilet", storey_id: "STOREY-IFC-000156", floor_area_m2: 5.7, volume_m3: 15.39}
+  - {space_id: "ROOM-IFC-320027", name: "202 Corridor", storey_id: "STOREY-IFC-275499", floor_area_m2: 43.56, volume_m3: 117.612}
+  - {space_id: "ROOM-IFC-322427", name: "203 Office", storey_id: "STOREY-IFC-275499", floor_area_m2: 15.12, volume_m3: 40.824}
+  - {space_id: "ROOM-IFC-321947", name: "204 Office", storey_id: "STOREY-IFC-275499", floor_area_m2: 12.18, volume_m3: 32.886}
+  - {space_id: "ROOM-IFC-321467", name: "205 Office", storey_id: "STOREY-IFC-275499", floor_area_m2: 12.18, volume_m3: 32.886}
+  - {space_id: "ROOM-IFC-320987", name: "206 Office", storey_id: "STOREY-IFC-275499", floor_area_m2: 12.18, volume_m3: 32.886}
+  - {space_id: "ROOM-IFC-320507", name: "207 Office", storey_id: "STOREY-IFC-275499", floor_area_m2: 12.18, volume_m3: 32.886}
+  - {space_id: "ROOM-IFC-322907", name: "208 Office", storey_id: "STOREY-IFC-275499", floor_area_m2: 12.18, volume_m3: 32.886}
+  - {space_id: "ROOM-IFC-323387", name: "209 Office", storey_id: "STOREY-IFC-275499", floor_area_m2: 12.18, volume_m3: 32.886}
+  - {space_id: "ROOM-IFC-319531", name: "210 Office", storey_id: "STOREY-IFC-275499", floor_area_m2: 12.18, volume_m3: 32.886}
+  - {space_id: "ROOM-IFC-319051", name: "211 Office", storey_id: "STOREY-IFC-275499", floor_area_m2: 12.18, volume_m3: 32.886}
+  - {space_id: "ROOM-IFC-318571", name: "212 Corridor", storey_id: "STOREY-IFC-275499", floor_area_m2: 13.364031, volume_m3: 36.082883}
+  - {space_id: "ROOM-IFC-317601", name: "213 Meeting", storey_id: "STOREY-IFC-275499", floor_area_m2: 27.447, volume_m3: 74.1069}
+  - {space_id: "ROOM-IFC-318083", name: "214 Meeting", storey_id: "STOREY-IFC-275499", floor_area_m2: 25.849469, volume_m3: 69.793567}
+elements:
+  - {element_id: "ELEMENT-ENDVAR02-EXTERNAL-WALLS", element_type: "external_wall", construction_code: "AW", storey_id: "STOREY-IFC-000156", area_m2: 748.033605}
+  - {element_id: "ELEMENT-ENDVAR02-GROUND-FLOOR", element_type: "ground_floor", construction_code: "BP", storey_id: "STOREY-IFC-000156", area_m2: 358.917805}
+  - {element_id: "ELEMENT-ENDVAR02-INTERMEDIATE-FLOOR", element_type: "intermediate_floor", construction_code: "GD", storey_id: "STOREY-IFC-275499", area_m2: 267.463474}
+  - {element_id: "ELEMENT-ENDVAR02-ROOF", element_type: "roof", construction_code: "DA", storey_id: "STOREY-IFC-275499", area_m2: 243.2645}
+openings:
+  - {opening_id: "OPENING-ENDVAR02-EXTERNAL-WINDOWS", opening_type: "window", host_element_id: "ELEMENT-ENDVAR02-EXTERNAL-WALLS", construction_code: "FA", area_m2: 206.612894}
+  - {opening_id: "OPENING-ENDVAR02-EXTERNAL-DOORS", opening_type: "door", host_element_id: "ELEMENT-ENDVAR02-EXTERNAL-WALLS", construction_code: "TA", area_m2: 28.255}
+shading_devices: []
+assumptions:
+  - assumption_id: "SMALLOFFICE-5Z-SOURCE-001"
+    location: "spaces"
+    text: "29 Raumflaechen und Raumvolumina stammen aus Endvariante 02; das lokale Original bleibt ausserhalb des Repository."
+  - assumption_id: "SMALLOFFICE-5Z-LOBBY-001"
+    location: "spaces.0"
+    text: "Die Lobby ist fachlich bestaetigt zweigeschossig, 8,0 m hoch und ragt etwas ueber das obere Geschoss hinaus."
+  - assumption_id: "SMALLOFFICE-5Z-BOUNDING-001"
+    location: "building"
+    text: "Laenge und Breite sind nur eine flaechenaequivalente Ersatzabmessung; Dimensionierung verwendet die direkt uebernommenen aggregierten Huellflaechen."
+  - assumption_id: "SMALLOFFICE-5Z-ELEMENTS-001"
+    location: "elements"
+    text: "94 Quellbauteile und 113 Quelloeffnungen sind fuer den aktuellen v1-Vertrag nach thermischer Rolle aggregiert; Innenwaende werden in Endvariante 02 nicht modelliert."
+  - assumption_id: "SMALLOFFICE-5Z-THERMAL-001"
+    location: "simple_envelope"
+    text: "U-Werte fuer Wand, Dach und Boden sind vorlaeufige materialbasierte Ableitungen ohne Oberflaechenwiderstaende oder Waermebruecken; Fenster-U-Wert 1,9 W/(m2K) stammt aus der Projektkonfiguration."

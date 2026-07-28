@@ -10,6 +10,8 @@ Projektaufgaben. Die Skills duplizieren keine Prozessbeschreibung:
   Wochenabschlussroutinen mit Diff- und Remote-Pruefung.
 - `project-governance-workflow`: Plan-, Entscheidungs-, Projektlage- und
   Duplikatabgleich entlang der kanonischen Projektdokumentation.
+- `prompt-intake`: Neuer Themenstart mit strukturiertem Arbeits-Prompt und
+  Rueckfragen zu noch nicht geklaerten Angaben.
 
 ## Regeln
 

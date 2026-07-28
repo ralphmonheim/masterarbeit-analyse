@@ -1,0 +1,38 @@
+schema_version: '1.0'
+project:
+  identity:
+    project_id: PRJ-000001
+    title: Masterarbeit-Analyse
+    short_name: MA-Analyse
+    description: Projekt fuer die SmallOffice-Analyse mit alternativem 5Z- und 29Z-Modell.
+    project_type: Masterarbeit
+    author: ''
+    organization: ''
+  created_at: '2026-07-27T00:00:00+00:00'
+  updated_at: '2026-07-27T22:05:56.449716+00:00'
+  location:
+    country_code: DE
+    display_name: Mannhiem
+    postal_code: ''
+    city: Mannhiem
+    street: ''
+    house_number: ''
+    latitude_deg: null
+    longitude_deg: null
+    elevation_m: null
+    timezone: Europe/Berlin
+    notes: Standortvorgabe fuer die Wetterauswahl.
+  investigation:
+    objective: Optimierungs- und Sensitivitaetsfaelle des SmallOffice vorbereiten.
+    research_question: ''
+    reference_case_description: 5Z ist der V1-Referenz- und Optimierungsstand.
+    scope: PreProcess bis einschliesslich Simulation-Setup.
+    exclusions:
+    - Automatische Simulation
+    - Ergebnisbewertung
+    methodology_note: 29Z bleibt als alternative validierbare thermische Modellkonfiguration
+      vorbereitet.
+    notes: ''
+settings:
+  simulation_program_key: ida_ice
+  naming_profile_reference: config/ma_variants/naming/example_naming_rules.yaml

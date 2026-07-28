@@ -42,6 +42,11 @@
   Streamlit-Ansicht fuer vorhandene Bauteile, Oeffnungen sowie die read-only
   lokale Konstruktions- und Materialauswahl. Die Katalogdaten selbst bleiben
   unveroeffentlicht und sind fuer die Ansicht optional.
+- **SmallOffice V1:** Die versionierte Endvariante 02 uebernimmt 29 Raeume,
+  516,842 m2 und 1677,64455 m3 aus der lokalen Arbeitsmappe. Die Lobbyhoehe
+  von 8,0 m ist als zweigeschossiger, etwas ueber das zweite Obergeschoss
+  hinausreichender Raum fachlich bestaetigt. Unbekannte Innengeometrie wird
+  nicht erfunden; Huellflaechen bleiben nachvollziehbar aggregiert.
 - **UI-Grenze:** Einzelbauteile werden nur angezeigt, wenn sie in der
   `BuildingModelSpecification` enthalten sind. Die aktuelle IFC-Diagnose
   zaehlt Entity-Typen, liest aber noch keine einzelnen IFC-Bauteile oder
