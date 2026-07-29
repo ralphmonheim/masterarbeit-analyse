@@ -16,6 +16,7 @@ from ma_building import (
     BUSINESS_INTEGRATION_REFERENCE_RHINO_FILENAME,
     FACHLICHER_TEIL_REFERENCE_IFC_FILENAME,
     LocalCatalogValidationError,
+    create_user_catalog_draft,
     diagnose_building_source,
     load_building_excel_catalog,
     load_business_integration_lod1_building_spec,
@@ -388,6 +389,7 @@ def _render_construction_catalog(spec) -> None:
         selection_mode="single",
     )
     _render_excel_catalog_selection(spec, catalog_types[catalog_section or "Bauteile"])
+    _render_user_catalog_drafts(catalog_types[catalog_section or "Bauteile"])
 
 
 def _render_excel_catalog_selection(spec, catalog_type: str) -> None:
@@ -558,6 +560,54 @@ def _catalog_type_label(catalog_type: str) -> str:
 
 def _mark_building_draft() -> None:
     mark_workspace_draft(st.session_state, "ma_building")
+
+
+def _render_user_catalog_drafts(catalog_type: str) -> None:
+    """Erfasst eigene Werte als lokale Entwuerfe, nie als Quellwert-Aenderung."""
+    workspace = get_active_workspace(st.session_state)
+    if workspace is None:
+        return
+    with st.expander("Eigenen Katalogentwurf erfassen"):
+        st.caption(
+            "Eigene Eingaben bleiben als ungepruefter lokaler Entwurf gespeichert. "
+            "Sie aendern keine Excel- oder Herstellerwerte."
+        )
+        label = st.text_input("Bezeichnung", key=f"building_user_draft_{catalog_type}_label")
+        source_reference = st.text_input(
+            "Herkunft / Begründung",
+            key=f"building_user_draft_{catalog_type}_source_reference",
+        )
+        source_url = st.text_input("Quellen-URL (optional)", key=f"building_user_draft_{catalog_type}_source_url")
+        details = st.text_area("Zusätzliche Angaben (optional)", key=f"building_user_draft_{catalog_type}_details")
+        if st.button("Lokalen Entwurf speichern", key=f"building_user_draft_{catalog_type}_save"):
+            try:
+                draft = create_user_catalog_draft(
+                    catalog_type=catalog_type,
+                    label=label,
+                    source_reference=source_reference,
+                    source_url=source_url,
+                    details=details,
+                )
+                payload = _building_project_payload(workspace)
+                drafts_by_type = payload.setdefault("user_catalog_drafts", {})
+                if not isinstance(drafts_by_type, dict):
+                    raise ValueError("Lokale Katalogentwuerfe haben ein ungueltiges Format.")
+                drafts = drafts_by_type.setdefault(catalog_type, [])
+                if not isinstance(drafts, list):
+                    raise ValueError("Lokale Katalogentwuerfe haben ein ungueltiges Format.")
+                drafts.append(draft)
+                save_project_module_config(workspace, "ma_building", payload)
+            except (OSError, ValueError) as exc:
+                st.error(f"Lokaler Katalogentwurf konnte nicht gespeichert werden: {exc}")
+            else:
+                clear_workspace_draft(st.session_state, "ma_building")
+                st.success("Lokaler Katalogentwurf wurde als user_unverified gespeichert.")
+
+    payload = _building_project_payload(workspace)
+    drafts_by_type = payload.get("user_catalog_drafts", {})
+    drafts = drafts_by_type.get(catalog_type, []) if isinstance(drafts_by_type, dict) else []
+    if isinstance(drafts, list) and drafts:
+        st.caption(f"Lokale Entwuerfe ({len(drafts)}): " + ", ".join(str(draft.get("label", "ohne Name")) for draft in drafts if isinstance(draft, dict)))
 
 
 def _render_wall_construction_catalog() -> None:

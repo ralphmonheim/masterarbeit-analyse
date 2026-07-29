@@ -1,9 +1,9 @@
 # P021 Analyse Stufe 4 Sensitivitaet
 
-Stand: 2026-06-22
+Stand: 2026-07-28
 Status: Geplant
 Prioritaet: Mittel
-Abhaengigkeiten: P008, P019
+Abhaengigkeiten: P008, P013, P015, P019
 
 ## Ziel
 
@@ -38,3 +38,17 @@ Systemauslastung, Komfortverletzungen und die Abweichung zum Referenzklima.
 Sie veraendert weder technische Kapazitaeten noch Varianten automatisch.
 Ein daraus abgeleiteter `StudyDirectionProposal` bleibt bis zur
 Nutzerfreigabe ein nicht-ausfuehrbarer Vorschlag fuer `ma_parameters`.
+
+## Offene Umnutzungs-Sensitivitaet 2026-07-28
+
+Als spaetere Sensitivitaetsrichtung bleibt eine Umnutzung des SmallOffice
+offen. Der erste Untersuchungsansatz soll ein alternatives Nutzungs- und
+Belegungsprofil auf dem bestehenden thermischen Modell verwenden. Damit kann
+zunaechst getrennt untersucht werden, wie sich eine andere Nutzung bei
+unveraenderter Geometrie und Zonierung auf Randbedingungen und Ergebnisse
+auswirkt.
+
+Ein neuer Zonenzuschnitt ist nicht Teil von V1 und waere eine eigene,
+spaeter zu entscheidende strukturelle Sensitivitaet. Nutzungsart,
+Profilquelle, betroffene Raeume oder Zonen, Vergleichsmetriken und
+Akzeptanzkriterien sind vor einer Umsetzung fachlich festzulegen.

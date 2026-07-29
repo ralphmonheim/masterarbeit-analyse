@@ -2,6 +2,45 @@
 
 Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentiert.
 
+## 0.36.0 - 2026-07-29
+
+### Added
+
+- `ma_building` fuehrt lokale Bauteil-, Material- und Produktquellen in einer
+  gemeinsamen kollisionsgeprueften Katalogsicht zusammen. Eigene Werte werden
+  projektlokal als `user_unverified`-Entwuerfe mit Herkunft und Zeitstempel
+  gespeichert, ohne die Excel- oder Herstellerquellen zu veraendern.
+
+### Documentation
+
+- UD-110 regelt kollisionssichere Chat-Handover: Neue oder abweichende
+  Snapshots erhalten bei Namensgleichheit einen fortlaufenden `-vN`-Suffix;
+  das historische Archiv wird nicht automatisch bereinigt.
+- UD-108 legt fuer versionierte Referenzvorlagen pseudonymisierte Namen und
+  Kennungen fest; IFC- und Quellkennungen bleiben lokal.
+- Eine spaetere Umnutzungs-Sensitivitaet sowie eine moegliche Lernbasis aus
+  manuell bestaetigten Profilzuordnungen sind als nicht freigegebene
+  Forschungsoptionen in UD-106, P013, P021 und dem Planstatus dokumentiert.
+- Der aktuelle Projekt-, PreProcess- und Release-Stand ist als datierter
+  Chat-Handover fuer einen verlustarmen Kontextwechsel archiviert.
+
+### Changed
+
+- Die Streamlit-Bearbeitungsansicht zeigt die katalogisierten Fach- und
+  Projektmodule ohne gefuehrte Prozessreihenfolge. Die bisherige phasenweise
+  Kartenfolge ist jetzt eindeutig der separaten Workflowansicht zugeordnet;
+  der Projektstart bleibt als vorgelagerter Einstieg erhalten.
+
+### Known limitations
+
+- Die fachliche Sichtpruefung hat fuer Bearbeitungs- und Workflowansicht noch
+  Korrekturbedarf ergeben. Die eigene Workflow-Gesamtuebersicht, ihr
+  Startverhalten und einzelne Wetter-UI-Punkte werden vor einer weiteren
+  Umsetzung noch mit dem Nutzer abgestimmt.
+- Die neuen lokalen Katalogpakete sind noch nicht fachlich importiert.
+  Quelleninventar, Feldmapping, Vollprovenienz und Freigabestatus bleiben
+  getrennte P034-Folgearbeit.
+
 ## 0.35.1 - 2026-07-28
 
 ### Changed

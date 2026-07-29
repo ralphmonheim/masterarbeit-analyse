@@ -15,7 +15,7 @@ from ma_ui.module_views.analyse_view import (
     safe_list_plot_overlay_sources,
 )
 from ma_ui.pages.assessment import economic_assumption_rows
-from ma_ui.pages.home import workflow_phase_summary_rows, workflow_status_counts
+from ma_ui.pages.home import module_overview_rows, workflow_phase_summary_rows, workflow_status_counts
 from ma_ui.pages.weather import (
     created_weather_plot_paths,
     get_weather_session_id,
@@ -179,6 +179,7 @@ def test_ui_navigation_contains_home_and_analysis():
     page_keys = {page.page_key for page in pages}
 
     assert "home" in page_keys
+    assert "workspace" in page_keys
     assert "parameters" in page_keys
     assert "analyse" in page_keys
     assert "variants" in page_keys
@@ -265,6 +266,7 @@ def test_renderable_pages_include_variants():
     page_keys = get_renderable_page_keys()
 
     assert page_keys[0] == "home"
+    assert "workspace" in page_keys
     assert "variants" in page_keys
     assert "weather" in page_keys
     assert "export_simulation" in page_keys
@@ -322,6 +324,7 @@ def test_module_info_mode_is_only_active_for_registered_module_views():
     assert has_module_view("technical") is True
     assert has_module_view("dimensioning") is True
     assert has_module_view("home") is False
+    assert has_module_view("workspace") is False
     assert is_module_info_active("weather", "weather") is True
     assert is_module_info_active("weather", "analyse") is False
     assert is_module_info_active("parameters", "parameters") is True
@@ -397,6 +400,25 @@ def test_workflow_module_page_uses_workflow_renderer(monkeypatch):
     streamlit_app._render_page(get_navigation_page("workflow"), view_mode=WORKFLOW_VIEW_MODE)
 
     assert calls == ["workflow-view", "workflow-view"]
+
+
+def test_workspace_page_uses_module_overview_renderer(monkeypatch):
+    calls: list[str] = []
+    monkeypatch.setitem(
+        ma_ui_app._PAGE_RENDERERS,
+        "workspace",
+        lambda: calls.append("module-overview"),
+    )
+
+    ma_ui_app._render_page(get_navigation_page("workspace"))
+
+    assert calls == ["module-overview"]
+
+
+def test_project_start_opens_bearbeitungsansicht_after_selection():
+    source = Path("src/ma_ui/streamlit_app/module_views/project_start_view.py").read_text(encoding="utf-8")
+
+    assert 'select_page(st.session_state, "workspace")' in source
 
 
 def test_page_navigation_and_info_toggle_update_session_state():
@@ -832,6 +854,15 @@ def test_home_page_summarizes_workflow_status_and_phases():
     assert any("ma_export_simulation" in row["Module"] for row in phase_rows)
 
 
+def test_bearbeitungsansicht_uses_module_catalog_without_workflow_phases():
+    rows = module_overview_rows()
+
+    assert any(row["Modul-Key"] == "ma_building" for row in rows)
+    assert any(row["Kategorie"] == "Fachmodule" for row in rows)
+    assert all("Phase" not in row for row in rows)
+    assert all("Schritt" not in row for row in rows)
+
+
 def test_workflow_graph_groups_steps_by_visual_phase():
     cards = workflow_card_rows(available_page_keys=get_renderable_page_keys())
     grouped = workflow_cards_by_phase(cards)
@@ -895,7 +926,7 @@ def test_workflow_graph_feedback_paths_target_existing_pages():
     assert all(row["Zielseite"] in page_keys for row in rows)
 
 
-def test_workflow_reference_is_only_on_workflow_page():
+def test_workspace_and_workflow_views_have_separate_responsibilities():
     home_source = Path("src/ma_ui/streamlit_app/pages/home.py").read_text(encoding="utf-8")
     workflow_source = Path("src/ma_ui/streamlit_app/workflow_view.py").read_text(encoding="utf-8")
     module_sources = [
@@ -904,18 +935,20 @@ def test_workflow_reference_is_only_on_workflow_page():
         if path.name != "home_view.py"
     ]
 
-    assert "Grafischer Workflow" not in home_source
-    assert "Masterarbeit Workflow" not in home_source
-    assert "Masterarbeit Modul-Ansicht" in home_source
-    assert "Modul-Ansicht" in home_source
+    assert "Masterarbeit Bearbeitungsansicht" in home_source
+    assert "Masterarbeit Workflowansicht" in home_source
+    assert "def render_workflow_overview()" in home_source
+    assert "def render()" in home_source
+    assert "module_overview_rows" in home_source
     assert "Workflow-Referenzdiagramm" not in home_source
     assert "render_workflow_reference" not in home_source
-    assert "render_workflow_reference()" in workflow_source
     assert "Workflow-Referenzdiagramm" in workflow_source
+    assert "render_workflow_overview()" in workflow_source
+    assert "render_workflow_reference()" not in workflow_source.split("def render()", maxsplit=1)[1]
     assert "Iterationspfade" in home_source
     assert "ma_ui.streamlit_app.workflow_graph" in home_source
     assert all("ma_ui.streamlit_app.workflow_graph" not in source for source in module_sources)
-    assert all("Modul-Ansicht" not in source for source in module_sources)
+    assert all("Masterarbeit Bearbeitungsansicht" not in source for source in module_sources)
     assert all("Iterationspfade" not in source for source in module_sources)
 
 
@@ -932,9 +965,10 @@ def test_ui_uses_top_navigation_instead_of_sidebar_radio():
     assert "Zurueck" in app_source
     assert "Weiter" in app_source
     assert "mode_column" not in app_source
-    assert 'current_page_key == "home"' in app_source
+    assert 'current_page_key == "workspace"' in app_source
     assert 'current_page_key == "workflow"' in app_source
     assert '"Workflow"' in app_source
+    assert '"Workflowansicht"' in app_source
     assert '"Bearbeitung"' in app_source
     assert "Infokarte" in app_source
     assert "Modulansicht" in app_source

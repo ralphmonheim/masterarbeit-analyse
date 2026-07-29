@@ -32,7 +32,7 @@ def _diagnostic_projection(result):
     )
 
 
-def test_small_office_v1_uses_exact_endvariant_02_room_and_zone_geometry():
+def test_small_office_v1_uses_pseudonymized_room_ids_and_stable_zone_geometry():
     building = load_small_office_5z_endvariant_02_building_spec()
     zones = load_small_office_5z_endvariant_02_zone_spec()
     technical = load_small_office_5z_endvariant_02_technical_spec()
@@ -46,7 +46,11 @@ def test_small_office_v1_uses_exact_endvariant_02_room_and_zone_geometry():
     assert sum(space.floor_area_m2 for space in building.spaces) == 516.842
     assert sum(space.volume_m3 for space in building.spaces) == 1677.64455
     assert sum(zone.floor_area_m2 for zone in zones.zones) == 516.842
-    assert building.spaces[0].name == "101 Lobby"
+    assert building.spaces[0].space_id == "SPACE-SYNTH-001"
+    assert building.spaces[0].name == "Space 001"
+    assert {space.space_id for space in building.spaces} == {
+        space_id for zone in zones.zones for space_id in zone.source_space_ids
+    }
     assert "zweigeschossig" in " ".join(item.text for item in building.assumptions)
 
 

@@ -2258,9 +2258,22 @@ Stand: 2026-07-22
   verhindert stillen Entwurfsverlust.
 - Offene Folgefragen: konkreter Techniksystem-Excel-Katalog, spaetere
   5Z/29Z-Struktursensitivitaet, spaetere wiederverwendbare
-  Variationsbibliothek und lernende Profilvorschlaege
+  Variationsbibliothek und lernende Profilvorschlaege. Als weitere
+  Sensitivitaetsoption bleibt eine spaetere Umnutzung des SmallOffice offen:
+  Zunaechst soll ein alternatives Nutzungs-/Belegungsprofil bei bestehendem
+  thermischem Modell untersucht werden; ein neuer Zonenzuschnitt waere eine
+  getrennt zu entscheidende Erweiterung.
+- Offene Forschungsoption: Manuell bestaetigte oder korrigierte
+  Nutzungsprofil-Zuordnungen koennten spaeter als nachvollziehbare Lernbasis
+  fuer verbesserte Profilvorschlaege bis hin zu Machine- oder Reinforcement-
+  Learning untersucht werden. Das erteilt keine Freigabe fuer Datensammlung,
+  Training, KI-Verarbeitung oder externe Uebertragung; Zweck, Datenvertrag,
+  Datenschutz, Bewertungsmethode und Rechte waeren vorher getrennt zu
+  planen und freizugeben.
 - Quelle oder Chatbezug: vollstaendiger Prompt-Intake mit modulweisen Q&A
-  und ausdrueckliche `Freigabe zur Umsetzung` am 2026-07-27
+  und ausdrueckliche `Freigabe zur Umsetzung` am 2026-07-27; die beiden
+  offenen Zukunftsideen wurden mit erneuter `Freigabe zur Umsetzung` am
+  2026-07-28 praezisiert
 
 ## UD-107 Aktive Projektworkspaces liegen in der separaten Arbeitsablage
 
@@ -2285,3 +2298,63 @@ Stand: 2026-07-22
   Arbeitsablage
 - Quelle oder Chatbezug: Nutzerkorrektur und ausdrueckliche
   `Freigabe zur Umsetzung` am 2026-07-28
+
+## UD-108 Pseudonymisierte Referenzvorlagen
+
+- Datum: 2026-07-28
+- Status: entschieden und umgesetzt
+- Entscheidung: Versionierte Referenzvorlagen verwenden ausschliesslich
+  synthetische, stabile Kennungen und sichtbare Namen. Quellnamen,
+  IFC-Kennungen und lokale Zuordnungstabellen werden nicht versioniert.
+- Geltungsbereich: Die 29-Raum- und 5Z-Referenzvorlagen behalten ihre
+  Fachwerte, Reihenfolge und Zonengruppierung, verwenden jedoch
+  `STOREY-SYNTH-*` und `SPACE-SYNTH-*` sowie neutrale Anzeigenamen.
+- Abgrenzung: Die Entscheidung ist keine Freigabe fuer IFC-Rohdaten,
+  GUIDs, Cloud-Verarbeitung oder eine Veroeffentlichung lokaler Quelldaten.
+- Quelle oder Chatbezug: Nutzerentscheidung zur Abstraktion und
+  Pseudonymisierung mit `Freigabe zur Umsetzung` am 2026-07-28.
+
+## UD-109 Katalog-V1 mit unveraenderten Quellen und lokalen Entwuerfen
+
+- Datum: 2026-07-29
+- Status: entschieden und umgesetzt
+- Thema: P012, P034 und Kataloge fuer Bauteile, Materialien und Produkte
+- Entscheidung: Bauteile, Materialien und Produkte werden in einer
+  gemeinsamen lesenden Katalogsicht gefuehrt. Die jeweiligen Excel- oder
+  Herstellerquellen bleiben unveraenderte Inhaltsquellen; neue Lieferungen
+  duerfen keine vorhandene Datensatz-ID still ueberschreiben.
+- Entscheidung: Eigene Eingaben werden projektlokal als persistente
+  `user_unverified`-Entwuerfe mit stabiler ID, Zeitstempel, Herkunft und
+  optionaler Quellen-URL gespeichert. Bestehende Katalogwerte werden in V1
+  nur gesucht, gefiltert und ausgewaehlt, nicht direkt bearbeitet.
+- Entscheidung: Eine fehlende Quellen-URL erzeugt eine Warnung. Fehlt jede
+  nachvollziehbare Herkunft, ist der Eintrag nicht fachlich freigegeben und
+  darf nicht fuer Simulation, Kosten- oder Umweltbewertung verwendet werden.
+- Abgrenzung: Wetterdaten sollen spaeter denselben Herkunfts- und
+  Release-Mechanismus nutzen, sind aber nicht Teil dieses ersten Schnitts.
+  Reale Katalog- und Herstellerdaten bleiben lokal und werden nicht
+  versioniert.
+- Betroffene Module oder Dateien: `ma_building`, `ma_ui`, `data/catalogs/`,
+  P034, projektbezogene `ma_building`-Konfigurationen
+- Offene Folgefragen: Objektbezogenes Feldmapping und Quelleninventar der
+  neuen Inbox-Pakete, Vollprovenienz je verwendeten Wert sowie ein separater
+  Adapter fuer Wetterdaten und spaetere fachliche Freigaben.
+- Quelle oder Chatbezug: Prompt-Intake, Council-Empfehlung und ausdrueckliche
+  `Freigabe zur Umsetzung` am 2026-07-28; Dokumentationsnachfuehrung am
+  2026-07-29.
+
+## UD-110 Kollisionssichere Chat-Handover-Archivierung
+
+- Datum: 2026-07-29
+- Status: entschieden und umgesetzt
+- Entscheidung: Chat-Handover bleiben als eigenstaendige historische
+  Snapshots erhalten. Bei einem vorhandenen gewuenschten Dateinamen wird kein
+  Snapshot ueberschrieben; ein neuer oder abweichender Stand erhaelt den ersten
+  freien fortlaufenden Suffix `-v2`, `-v3` usw. und einen eigenen Indexeintrag.
+  Inhaltlich identische Snapshots werden nicht erneut angelegt.
+- Abgrenzung: Das Archiv darf bewusst wachsen. Eine spaetere Bereinigung oder
+  Loeschung einzelner Handover erfordert eine gezielte Nutzerfreigabe.
+- Betroffene Dateien: `docs/project/UPDATE_ROUTINES.md`,
+  `docs/project/archive/chat_handovers/INDEX.md`
+- Quelle oder Chatbezug: Nutzerentscheidung und ausdrueckliche
+  `Freigabe zur Umsetzung` am 2026-07-29.

@@ -42,6 +42,12 @@
   Streamlit-Ansicht fuer vorhandene Bauteile, Oeffnungen sowie die read-only
   lokale Konstruktions- und Materialauswahl. Die Katalogdaten selbst bleiben
   unveroeffentlicht und sind fuer die Ansicht optional.
+- **Katalog-V1:** Die Excel-Arbeitsmappen bleiben unveraenderte lokale
+  Inhaltsquellen. Ein gemeinsames Register vereinheitlicht Bauteile,
+  Materialien und Produkte fuer die Auswahl und verhindert ID-Kollisionen.
+  Eigene Eingaben werden projektlokal als `user_unverified`-Entwuerfe mit
+  Herkunft, Zeitstempel und optionaler Quellen-URL gespeichert; sie ersetzen
+  keine Quellwerte und sind nicht simulationsfreigegeben.
 - **SmallOffice V1:** Die versionierte Endvariante 02 uebernimmt 29 Raeume,
   516,842 m2 und 1677,64455 m3 aus der lokalen Arbeitsmappe. Die Lobbyhoehe
   von 8,0 m ist als zweigeschossiger, etwas ueber das zweite Obergeschoss

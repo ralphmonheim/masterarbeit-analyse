@@ -4,11 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pandas as pd
 import streamlit as st
 
-from ma_ui.streamlit_app.shared import normalize_table_for_streamlit
-from ma_ui.streamlit_app.shared.layout import render_page_header
 from ma_workflow import list_workflow_steps
 
 WORKFLOW_ASSET_DIR = Path(__file__).resolve().parents[1] / "assets" / "workflow"
@@ -75,12 +72,7 @@ def render_workflow_reference(*, show_title: bool = True) -> None:
 
 
 def render() -> None:
-    """Zeigt die ma_workflow-Modulansicht mit Referenzdiagramm und Schritten."""
-    render_page_header("Workflow-Steuerung", "Prozessbild, Modulstatus und Workflow-Schritte")
-    render_workflow_reference()
-    st.subheader("Workflow-Schritte")
-    st.dataframe(
-        normalize_table_for_streamlit(pd.DataFrame(workflow_step_rows())),
-        hide_index=True,
-        width="stretch",
-    )
+    """Zeigt die aktuell gefuehrte Reihenfolge als Workflowansicht."""
+    from ma_ui.streamlit_app.pages.home import render_workflow_overview
+
+    render_workflow_overview()

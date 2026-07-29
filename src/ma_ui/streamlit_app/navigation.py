@@ -23,7 +23,7 @@ def normalize_view_mode(view_mode: object) -> str:
 
 
 def select_view_mode(session_state: MutableMapping[str, object], view_mode: str) -> None:
-    """Wechselt zwischen Bearbeitungs- und Praesentationsansicht."""
+    """Wechselt zwischen Bearbeitungs- und Workflowansicht."""
     session_state[VIEW_MODE_SESSION_KEY] = normalize_view_mode(view_mode)
     session_state.pop(MODULE_INFO_PAGE_SESSION_KEY, None)
 
@@ -101,9 +101,7 @@ class NavigationPage:
     status: str
 
 
-_PAGE_TO_WORKFLOW_STEP = {
-    module.page_key: module.module_key for module in list_module_definitions()
-}
+_PAGE_TO_WORKFLOW_STEP = {module.page_key: module.module_key for module in list_module_definitions()}
 
 PAGE_KEY_ALIASES = {
     "export_ida": "export_simulation",
@@ -136,6 +134,7 @@ def _navigation_module_definitions() -> tuple[tuple[str, str, str], ...]:
 
 _NAVIGATION_PAGE_DEFINITIONS: tuple[tuple[str, str, str], ...] = (
     ("home", "Start", "project"),
+    ("workspace", "Bearbeitung", "workspace"),
     *_navigation_module_definitions(),
 )
 

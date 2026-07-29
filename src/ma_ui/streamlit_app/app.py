@@ -40,9 +40,11 @@ from ma_ui.streamlit_app.navigation import (
     select_view_mode,
     set_module_info_active,
 )
+from ma_ui.streamlit_app.pages import home as workspace_overview_view
 
 _PAGE_RENDERERS = {
     "home": home_view.render,
+    "workspace": workspace_overview_view.render,
     "project": project_view.render,
     "workflow": workflow_view.render,
     "building": building_view.render,
@@ -66,7 +68,7 @@ def get_renderable_page_keys() -> tuple[str, ...]:
 
 def has_module_view(page_key: str) -> bool:
     """Prueft, ob fuer eine Seite eine eigene Fachansicht registriert ist."""
-    return page_key != "home" and page_key in _PAGE_RENDERERS
+    return page_key not in {"home", "workspace"} and page_key in _PAGE_RENDERERS
 
 
 def is_module_info_active(current_page_key: str, info_page_key: object) -> bool:
@@ -92,7 +94,7 @@ def _render_page(
 
 
 def _render_workflow_page(page: NavigationPage) -> None:
-    """Zeigt eine praesentationsorientierte Modulansicht."""
+    """Zeigt eine der beiden getrennten Einstiegsansichten."""
     if page.page_key == "home":
         home_view.render()
         return
@@ -164,15 +166,15 @@ def _render_top_navigation(
         if st.button("Weiter", width="stretch", disabled=next_key == current_page_key):
             _navigate_to(next_key)
     with label_column:
-        mode_text = "Praesentationsansicht" if view_mode == WORKFLOW_VIEW_MODE else "Bearbeitungsansicht"
+        mode_text = "Workflowansicht" if view_mode == WORKFLOW_VIEW_MODE else "Bearbeitungsansicht"
         st.caption(f"Aktueller Bereich: {labels_by_key[current_page_key]} | {mode_text}")
     with info_column:
-        if current_page_key == "home":
+        if current_page_key == "workspace":
             if st.button("Workflow", width="stretch"):
                 _switch_start_view("workflow", WORKFLOW_VIEW_MODE)
         elif current_page_key == "workflow":
             if st.button("Bearbeitung", width="stretch"):
-                _switch_start_view("home", WORKSPACE_VIEW_MODE)
+                _switch_start_view("workspace", WORKSPACE_VIEW_MODE)
         else:
             has_view = has_module_view(current_page_key) and view_mode == WORKSPACE_VIEW_MODE
             button_label = "Modulansicht" if show_module_info else "Infokarte"

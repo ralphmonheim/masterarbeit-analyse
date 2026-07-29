@@ -65,7 +65,12 @@ Diese Datei ist die einzige Ablaufwahrheit fuer dokumentierte Codex-Routinen.
 - `projektlage`: Git-Stand, Version, Plaene und offene Entscheidungen lesen.
 - `chat-stats`: den sichtbaren Arbeitsstand read-only bewerten.
 - `chat-handover`: eine Uebergabe erstellen und als historischen Snapshot
-  archivieren.
+  archivieren. Besteht der gewuenschte Dateiname bereits, wird kein Snapshot
+  ueberschrieben: Fuer einen neuen oder abweichenden Stand wird der erste freie
+  fortlaufende Suffix `-v2`, `-v3` usw. verwendet und als eigener Eintrag im
+  Handover-Index erfasst. Inhaltlich identische Snapshots werden nicht erneut
+  angelegt. Eine spaetere Bereinigung ist nur nach gezielter Nutzerfreigabe
+  zulaessig.
 - `plan aufnehmen`: neue Plan-Metadaten einordnen.
 - `projektinput aufnehmen`: neue Projektinput-Metadaten erfassen und bei
   eindeutiger Zuordnung in bestehende Strukturen einordnen.

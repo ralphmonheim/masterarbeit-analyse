@@ -1,5 +1,13 @@
 """Gebaeudemodul mit Demo-Spezifikation und lokaler Quelldiagnose."""
 
+from .catalog_registry import (
+    BUILDING_CATALOG_TYPES,
+    USER_DRAFT_STATUS,
+    BuildingCatalogRegistry,
+    CatalogRecord,
+    build_building_catalog_registry,
+    create_user_catalog_draft,
+)
 from .demo_loader import (
     load_building_spec,
     load_business_integration_lod1_building_spec,
@@ -114,4 +122,10 @@ __all__ = [
     "LocalCatalogValidationError",
     "load_local_building_catalog",
     "load_building_excel_catalog",
+    "BUILDING_CATALOG_TYPES",
+    "USER_DRAFT_STATUS",
+    "BuildingCatalogRegistry",
+    "CatalogRecord",
+    "build_building_catalog_registry",
+    "create_user_catalog_draft",
 ]

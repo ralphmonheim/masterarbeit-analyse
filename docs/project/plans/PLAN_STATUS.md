@@ -1,6 +1,6 @@
 # Plan Status
 
-Stand: 2026-07-27
+Stand: 2026-07-29
 
 Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt und nach jeder Planumsetzung aktualisiert. Vollstaendige alte Planstaende liegen unter `docs/project/archive/plans/`.
 
@@ -126,6 +126,14 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   Fuer SmallOffice V1 ist ausschliesslich Endvariante 02 minimal und
   quellengebunden normalisiert; der Vollimport aller Arbeitsmappen bleibt ein
   getrennter P034-Folgeslice.
+- P034-Katalog-V1 erweitert `ma_building` additiv um eine gemeinsame,
+  kollisionsgepruefte Lesesicht fuer Bauteile, Materialien und Produkte.
+  Die Excel-Quellen bleiben unveraendert; eigene Eingaben werden nur als
+  projektlokale `user_unverified`-Entwuerfe mit Herkunft und Zeitstempel
+  gespeichert. Fehlende Quellen-URLs sind sichtbar, aber erst fehlende
+  Herkunft sperrt eine spaetere fachliche Nutzung. Die neuen Inbox-Pakete
+  sind damit noch nicht fachlich importiert; ihr Feldmapping,
+  Quelleninventar und eine Vollprovenienz bleiben P034-Folgearbeit.
 - P035 setzt den lokalen Projekt-Workspace getrennt von der fachlichen
   `ma_project`-Verantwortung um. Projektwahl, Windows-Ordnerdialog,
   `project.yaml`, bekannte Projektpfade, lokale Registry und Galerie sind
@@ -182,6 +190,11 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   Drei ignorierte Referenzkataloge fuer Materialien, Wandkonstruktionen und
   `Surfaces` werden nur durch `ma_building` gelesen, nicht zugeordnet oder
   veroeffentlicht. `Modellquellen` ist bewusst aus V1 ausgeblendet.
+- Bearbeitungs- und Workflowansicht sind technisch als getrennte
+  Einstiegsansichten vorbereitet. Die fachliche Sichtpruefung verlangt jedoch
+  eine klarere Workflow-Gesamtuebersicht, ein ansichtsspezifisches
+  Startverhalten sowie einzelne Wetter-UI-Korrekturen. Dieser Korrekturslice
+  bleibt bis zum abgeschlossenen Q&A und einer neuen Umsetzungsfreigabe offen.
 - P027 ergaenzt die Vereinheitlichung von Template-Befehlen fuer Ausgabemodule
   wie `ma_analyse` und `ma_weather`; in der Tkinter-Analyse soll der erste
   Befehlsschritt `plot-template-analyse` als Default gesetzt werden.
@@ -851,6 +864,14 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   Projektwechsel selbst ist gegen stillen Entwurfsverlust gesperrt.
   Wiederverwendbare Variationsbibliotheken, lernende Profilvorschlaege und
   eine spaetere 5Z/29Z-Struktursensitivitaet bleiben Folgeoptionen.
+- Als weitere spaetere P021-Sensitivitaet bleibt eine Umnutzung mit
+  alternativem Nutzungs-/Belegungsprofil bei zunaechst unveraendertem
+  thermischem Modell offen. Ein neuer Zonenzuschnitt ist davon getrennt zu
+  entscheiden.
+- Manuell bestaetigte oder korrigierte P013-Profilzuordnungen koennten
+  spaeter als Forschungsdatengrundlage fuer lernende Vorschlaege untersucht
+  werden. Machine Learning oder Reinforcement Learning sind weder fuer V1
+  freigegeben noch technisch geplant.
 
 ## Archiv
 

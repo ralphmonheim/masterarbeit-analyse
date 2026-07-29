@@ -139,13 +139,14 @@ def test_29z_draft_has_one_zone_per_ifc_room_without_5z_values():
     assert len(draft.zones) == 29
     assert all(len(zone.source_space_ids) == 1 for zone in draft.zones)
     assert len({zone.source_space_ids[0] for zone in draft.zones}) == 29
-    assert draft.zones[0].name == "101 Lobby"
+    assert draft.zones[0].name == "Space 001"
+    assert draft.zones[0].zone_id == "ZONE-29Z-001"
     assert all(zone.usage_profile_id == "" for zone in draft.zones)
     assert all(zone.heating_setpoint_c == 0 for zone in draft.zones)
     assert all(zone.cooling_setpoint_c == 0 for zone in draft.zones)
     assert len(DIN_USAGE_PROFILE_METADATA) == 43
     assert DIN_USAGE_PROFILE_METADATA[0].edition == "2025-10"
-    assert suggest_usage_profile_id("104 Office") == "DIN18599-A01"
+    assert suggest_usage_profile_id("Office") == "DIN18599-A01"
     assert suggest_usage_profile_id("unbekannte Nutzung") is None
 
 

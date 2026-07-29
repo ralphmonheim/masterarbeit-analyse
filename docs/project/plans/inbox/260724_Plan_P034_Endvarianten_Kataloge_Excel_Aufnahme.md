@@ -160,3 +160,22 @@ Rollen verschoben:
 Die lokalen Arbeitsmappen bleiben ignorierte Fachquellen. Der V1-Leser
 verwendet nur das Blatt `Uebersicht`, bindet Pfad und SHA-256 in die
 Projektkopie und veraendert die zentrale Excel-Datei nicht.
+
+## Umsetzungsstand 2026-07-29: Katalog-V1 und eigene Entwuerfe
+
+Der additive Katalog-V1-Schnitt ergaenzt `ma_building` um eine gemeinsame,
+lesende Registry fuer Bauteile, Materialien und Produkte. Sie fuehrt
+Datensatz-ID, Quelle, optionalen Quellenlink, Hash und Herkunftsstatus
+zusammen und blockiert ID-Kollisionen statt still zu ueberschreiben.
+
+Die Streamlit-Gebaeudeansicht speichert eigene Eingaben ausschliesslich als
+projektlokale `user_unverified`-Entwuerfe mit stabiler ID, Zeitstempel und
+Herkunftsangabe. Sie aendern keine Excel- oder Herstellerwerte. Eine fehlende
+Quellen-URL ist eine Warnung; fehlt jede Herkunft, bleibt der Entwurf ohne
+fachliche Freigabe und darf nicht fuer Simulation, Oekonomie oder Oekobilanz
+genutzt werden.
+
+Dieser Schnitt ersetzt P034-E1 bis E5 nicht. Die neuen Inbox-Pakete bleiben
+bis zu ihrem objektbezogenen Quelleninventar, Feldmapping und der fachlichen
+Pruefung unveraendert am Eingang. Wetterdaten sind bewusst nicht Teil dieses
+ersten Katalogschnitts.

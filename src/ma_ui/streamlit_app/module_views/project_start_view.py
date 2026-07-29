@@ -78,7 +78,7 @@ def _activate_workspace(workspace: ProjectWorkspace) -> None:
         )
     upsert_registry_entry(DEFAULT_REGISTRY_FILE, registry_entry_from_workspace(workspace))
     set_active_workspace(st.session_state, workspace)
-    select_page(st.session_state, "project")
+    select_page(st.session_state, "workspace")
     st.rerun()
 
 

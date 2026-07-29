@@ -27,6 +27,7 @@ from ma_ui.streamlit_app.workflow_graph import (
     workflow_cards_by_phase,
 )
 from ma_ui.streamlit_app.workflow_view import workflow_step_rows
+from ma_workflow import ModuleDefinition, list_module_definitions
 
 STATUS_LABELS = {
     "available": "Verfuegbar",
@@ -36,6 +37,13 @@ STATUS_LABELS = {
 }
 CARDS_PER_ROW = 4
 _SECONDARY_STATUS_PILLS = {"weather": ("Diagramme", "partial")}
+CATEGORY_LABELS = {
+    "workflow": "Fachmodule",
+    "cross_cutting": "Querschnittsmodule",
+    "infrastructure": "Technische Plattform",
+    "documentation": "Dokumentation",
+    "external": "Externe Werkzeuge",
+}
 
 
 def workflow_status_counts(rows: list[dict[str, object]] | None = None) -> dict[str, int]:
@@ -71,6 +79,24 @@ def workflow_phase_summary_rows(rows: list[dict[str, object]] | None = None) -> 
             "Module": ", ".join(entry["Module"]) if isinstance(entry["Module"], list) else "",
         }
         for entry in summary.values()
+    ]
+
+
+def module_overview_rows(
+    modules: tuple[ModuleDefinition, ...] | None = None,
+) -> list[dict[str, object]]:
+    """Bereitet den Modulkatalog ohne Workflow-Reihenfolge fuer die Bearbeitungsansicht auf."""
+    module_definitions = modules if modules is not None else list_module_definitions()
+    return [
+        {
+            "Modul": module.label,
+            "Modul-Key": module.module_key,
+            "Kategorie": CATEGORY_LABELS.get(module.category, module.category),
+            "Status": module.status,
+            "Beschreibung": module.purpose,
+            "Zielseite": module.page_key,
+        }
+        for module in module_definitions
     ]
 
 
@@ -155,6 +181,43 @@ def _workflow_card_html(card: WorkflowCard) -> str:
     """
 
 
+def _module_card_html(module: ModuleDefinition) -> str:
+    style = status_style(module.status)
+    return f"""
+    <div class="workflow-card">
+      <div class="workflow-status-pill" style="background:{style["background"]}; color:{style["color"]};">
+        {escape(style["label"])}
+      </div>
+      <div class="workflow-card-title">{escape(module.label)}</div>
+      <div class="workflow-card-module">{escape(module.module_key)}</div>
+      <div class="workflow-card-description">{escape(module.purpose)}</div>
+    </div>
+    """
+
+
+def _render_module_card(module: ModuleDefinition, available_page_keys: tuple[str, ...]) -> None:
+    st.markdown(_module_card_html(module), unsafe_allow_html=True)
+    if module.page_key in available_page_keys:
+        if st.button("Oeffnen", key=f"module_card_open_{module.module_key}", width="stretch"):
+            _navigate_to(module.page_key)
+    else:
+        st.caption("Noch keine eigene Modulansicht.")
+
+
+def _render_module_category(
+    category: str,
+    modules: list[ModuleDefinition],
+    available_page_keys: tuple[str, ...],
+) -> None:
+    st.markdown(f"### {CATEGORY_LABELS.get(category, category)}")
+    for start_index in range(0, len(modules), CARDS_PER_ROW):
+        row_modules = modules[start_index : start_index + CARDS_PER_ROW]
+        columns = st.columns(len(row_modules))
+        for column, module in zip(columns, row_modules, strict=False):
+            with column:
+                _render_module_card(module, available_page_keys)
+
+
 def _render_workflow_card(card: WorkflowCard) -> None:
     st.markdown(_workflow_card_html(card), unsafe_allow_html=True)
     if card.target_page_key:
@@ -196,11 +259,11 @@ def _render_feedback_paths() -> None:
                 _navigate_to(row["Zielseite"])
 
 
-def render() -> None:
-    """Zeigt den aktuellen Gesamtworkflow als Einstiegspunkt."""
+def render_workflow_overview() -> None:
+    """Zeigt die gefuehrte Reihenfolge als eigenstaendige Workflowansicht."""
     _render_dashboard_styles()
-    st.title("Masterarbeit Modul-Ansicht")
-    st.caption("Module, Umsetzungsstand und fachliche Einstiegspunkte.")
+    st.title("Masterarbeit Workflowansicht")
+    st.caption("Gefuehrte Reihenfolge, Umsetzungsstand und fachliche Einstiegspunkte.")
 
     workflow_rows = workflow_step_rows()
     status_counts = workflow_status_counts(workflow_rows)
@@ -238,6 +301,36 @@ def render() -> None:
         st.subheader("Dashboard-Aktionen")
         st.dataframe(
             normalize_table_for_streamlit(pd.DataFrame(dashboard_action_rows())),
+            hide_index=True,
+            width="stretch",
+        )
+
+
+def render() -> None:
+    """Zeigt die Module unabhaengig von ihrer Reihenfolge im Workflow."""
+    _render_dashboard_styles()
+    st.title("Masterarbeit Bearbeitungsansicht")
+    st.caption("Fachmodule und unterstuetzende Projektmodule als direkte Bearbeitungseinstiege.")
+
+    modules = list_module_definitions()
+    status_counts = Counter(module.status for module in modules)
+    status_columns = st.columns(len(STATUS_LABELS))
+    for column, (status_key, label) in zip(status_columns, STATUS_LABELS.items(), strict=False):
+        column.metric(label, status_counts.get(status_key, 0))
+
+    available_page_keys = _available_page_keys()
+    modules_by_category: dict[str, list[ModuleDefinition]] = {}
+    for module in modules:
+        modules_by_category.setdefault(module.category, []).append(module)
+
+    for category in CATEGORY_LABELS:
+        category_modules = modules_by_category.get(category, [])
+        if category_modules:
+            _render_module_category(category, category_modules, available_page_keys)
+
+    with st.expander("Modulkatalog", expanded=False):
+        st.dataframe(
+            normalize_table_for_streamlit(pd.DataFrame(module_overview_rows(modules))),
             hide_index=True,
             width="stretch",
         )

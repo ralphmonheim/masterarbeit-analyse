@@ -1,4 +1,4 @@
-"""Bearbeitbarer 29Z-Entwurf aus den 29 IFC-Raeumen des SmallOffice."""
+"""Bearbeitbarer 29Z-Entwurf aus 29 pseudonymisierten Referenzraeumen."""
 
 from __future__ import annotations
 
@@ -8,11 +8,11 @@ from .models import ThermalZone, ZoneAssumption, ZoneModelSpecification
 
 
 def build_small_office_29z_draft() -> ZoneModelSpecification:
-    """Erzeugt genau eine thermische Zone je IFC-Raum, ohne 5Z-Wertvererbung."""
+    """Erzeugt genau eine thermische Zone je Referenzraum ohne Wertvererbung."""
     building = load_small_office_5z_endvariant_02_building_spec()
     zones = tuple(
         ThermalZone(
-            zone_id=f"ZONE-29Z-{space.space_id.removeprefix('ROOM-IFC-')}",
+            zone_id=f"ZONE-29Z-{space.space_id.removeprefix('SPACE-SYNTH-')}",
             name=space.name,
             usage_profile_id="",
             floor_area_m2=space.floor_area_m2,
@@ -38,7 +38,7 @@ def build_small_office_29z_draft() -> ZoneModelSpecification:
                 assumption_id="SMALLOFFICE-29Z-DRAFT-001",
                 location="zones",
                 text=(
-                    "Jeder der 29 IFC-Raeume bildet eine thermische Zone. "
+                    "Jeder der 29 pseudonymisierten Referenzraeume bildet eine thermische Zone. "
                     "Es werden keine Profil- oder Lastwerte aus dem 5Z-Modell geerbt."
                 ),
             ),

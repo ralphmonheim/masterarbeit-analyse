@@ -65,21 +65,24 @@ Workflow-Service-Aufrufe getrennt anbinden.
 - Die automatische Streamlit-Multipage-Navigation ist in
   `.streamlit/config.toml` ausgeblendet, damit nur die fachliche
   Projektnavigation unter `Bereich` sichtbar ist.
-- Startseite mit `Modul-Ansicht` fuer Phase 0 bis Phase 6,
-  Statuskennzahlen, Phasenkarten, Navigationsbuttons, Iterationspfaden und optionalen
-  technischen Detailtabellen ist vorbereitet. Die Workflow-Ansicht ist eine
-  eigene Startansicht unter `ma_workflow`; normale Modulansichten wechseln
-  nicht in einen globalen Workflow-Modus.
+- Der Projektstart bleibt der erste Einstieg. Nach der Projektauswahl oeffnet
+  die Bearbeitungsansicht den zentralen Modulkatalog als direkte
+  Bearbeitungseinstiege, ohne die Module als gefuehrte Prozessfolge
+  darzustellen.
+- Die Workflowansicht zeigt getrennt davon die gefuehrte Reihenfolge mit
+  Statuskennzahlen, Phasenkarten, Iterationspfaden und optionalen technischen
+  Detailtabellen.
 - Das Workflow-Referenzdiagramm liegt unter
   `src/ma_ui/assets/workflow/masterarbeit_workflow.png`; die PDF-Referenz liegt
-  daneben unter `src/ma_ui/assets/workflow/masterarbeit_workflow.pdf`. Beide
-  werden nur in der `ma_workflow`-Workflowansicht eingebunden; die Startseite
-  bleibt als leichte Modul-Uebersicht ohne Referenzdiagramm.
+  daneben unter `src/ma_ui/assets/workflow/masterarbeit_workflow.pdf`. Die
+  Referenzfunktionen und Assets bleiben fuer die spaeter geplante
+  Workflowdarstellung erhalten, werden im aktuellen gefuehrten V1-Workflow
+  aber nicht eingeblendet.
 - Workflow-Karten, Statuskennzahlen, Navigation und Detailtabellen verwenden
   die zentral gepflegten Modulumsetzungsstaende aus `ma_workflow`.
 - Die Kopfzeile kann eine vorhandene Fachansicht mit `Infokarte` durch die
   zentrale Modulbeschreibung ersetzen und mit `Modulansicht` wieder
-  herstellen. Auf den beiden Startansichten nutzt dieselbe rechte
+  herstellen. Auf Bearbeitungs- und Workflowansicht nutzt dieselbe rechte
   Aktionsspalte den Wechsel `Workflow` bzw. `Bearbeitung`. Ein Seitenwechsel
   beendet den Infokartenmodus und springt beim neuen Rendern wieder an den
   Seitenanfang. Die zentrale Infokarte erlaeutert den V1-Rahmen mit `Was`,
@@ -89,8 +92,9 @@ Workflow-Service-Aufrufe getrennt anbinden.
   V1-Rahmen, Freigabestatus, Annahme und Demo-/Uebergangsstand gelten fuer
   alle Module; fachliche Begriffe werden zentral je Modul ergaenzt. Fuer
   Gebaeude sind dies insbesondere alle BIL-Reifegrade und LoD-Eingabestufen.
-- Die Modul-Uebersicht gehoert ausschliesslich auf die Startseite. Modulviews
-  zeigen nur eigene Inhalte oder bei geplantem Stand eine blaue Hinweisbox.
+- Die Modul-Uebersicht gehoert ausschliesslich in die Bearbeitungsansicht.
+  Modulviews zeigen nur eigene Inhalte oder bei geplantem Stand eine blaue
+  Hinweisbox.
 - Analyse-Seite ruft die UI-neutrale `ma_analyse`-Service-Fassade ueber
   `ma_workflow` auf.
 - `ma_building`, `ma_technical` und `ma_zones` sind als echte
@@ -210,7 +214,7 @@ Workflow-Service-Aufrufe getrennt anbinden.
   Karten. Die vorhandene Analyseansicht bleibt Einstieg fuer Stage 2.
 - Allgemeine Workflow- und Dashboard-Tabellen werden nicht in jeder
   Modulansicht angezeigt. Sie bleiben nur als eingeklappte technische
-  Detailtabellen auf der Startseite erreichbar.
+  Detailtabellen in der Workflowansicht erreichbar.
 
 ## Start
 

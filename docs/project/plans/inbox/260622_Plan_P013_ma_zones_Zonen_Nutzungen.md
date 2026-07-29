@@ -2427,3 +2427,17 @@ einen eigenen manuellen Bestaetigungsstatus. Ein vorbelegter Namensvorschlag
 allein gilt nicht als vollstaendig. Die Profilmetadaten tragen Normname,
 Edition `2025-10`, Quellenstatus, Reviewstatus und Metadatenrevision; die
 geschuetzten Profilwerte bleiben weiterhin gesperrt.
+
+## Offene Forschungsoption 2026-07-28
+
+Manuell bestaetigte, verworfene oder korrigierte Profilvorschlaege koennten
+spaeter als Lernbasis fuer verbesserte Zuordnungsvorschlaege untersucht
+werden. Als Forschungsfrage bleibt offen, ob daraus ein klassisches
+Machine-Learning- oder Reinforcement-Learning-Verfahren sinnvoll und
+methodisch belastbar ableitbar ist.
+
+Diese Idee ist kein V1-Slice und keine Freigabe zur Datensammlung oder
+Modellentwicklung. Vorher waeren mindestens Zweck, Eingabemerkmale,
+Entscheidungs- und Begruendungsdaten, Ground Truth, Bewertungsmethode,
+Datenschutz, Rechte, lokale/externe Verarbeitung und die Trennung zwischen
+Vorschlag und Nutzerentscheidung zu planen.
