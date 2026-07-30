@@ -2358,3 +2358,40 @@ Stand: 2026-07-22
   `docs/project/archive/chat_handovers/INDEX.md`
 - Quelle oder Chatbezug: Nutzerentscheidung und ausdrueckliche
   `Freigabe zur Umsetzung` am 2026-07-29.
+
+## UD-111 Strukturelle Planhierarchie und Ziel-Ist-Abgleich
+
+- Datum: 2026-07-29
+- Status: entschieden und umgesetzt
+- Thema: Verbindliche Reihenfolge bei strukturellen Ueberlegungen und
+  Architekturkonflikten.
+- Entscheidung: Bei jeder Strukturfrage wird zuerst der fuer den betroffenen
+  Scope fuehrende Gesamtplan geprueft, danach die einschlaegigen
+  Nutzerentscheidungen und Einzelplaene. Einzelplaene konkretisieren den
+  Gesamtplan, duerfen dessen Zielarchitektur, Modulownership, Datenfluesse,
+  IDs oder oeffentliche Vertraege aber nicht stillschweigend aendern.
+- Entscheidung: Code, Konfiguration, Tests, Laufzeitkataloge sowie Modul- und
+  Ordnernamen belegen ausschliesslich den aktuellen Implementierungsstand und
+  den Migrationsbedarf. Sie definieren nicht selbststaendig die Zielarchitektur.
+- Entscheidung: Eine widerspruechliche oder abgeloeste Zielaussage bleibt
+  historisch nachvollziehbar. Ihre Ablösung erfordert eine ausdrueckliche
+  Nutzerentscheidung oder akzeptierte Architekturentscheidung mit bezeichnetem
+  Geltungsbereich, Ersetzungsvermerk und den betroffenen Folgen.
+- Begruendung: Gesamtplan, Teilplaene und bestehender Code duerfen nicht zu
+  konkurrierenden Architekturwahrheiten werden. Der Ziel-Ist-Abgleich soll
+  Umsetzungsluecken sichtbar machen, statt den Zielzustand still an den
+  Altbestand anzupassen.
+- Auswirkung: Echte Nutzerentscheidungen werden als fortlaufende `UD-*`
+  dokumentiert; offene Alternativen bleiben `OP-*`; technische Details werden
+  als akzeptierte Architektur- oder Technikentscheidung gefuehrt. Ein
+  fuehrender Gesamtplan konsolidiert einen Scope vor der Ableitung von
+  Einzelplaenen. `PLAN_STATUS.md` fasst nur den wirksamen Stand zusammen;
+  Handover bleiben historische Referenzen.
+- Betroffene Dateien: `AGENTS.md`, `docs/project/decisions/`, fuehrende
+  Gesamtplaene, abgeleitete Einzelplaene, `PLAN_INDEX.md`, `PLAN_STATUS.md`
+  und gegebenenfalls Architekturentscheidungen.
+- Abgrenzung: Diese Entscheidung aendert weder die fachliche Zielreihenfolge
+  noch Modulgrenzen oder Code. Solche Inhalte werden getrennt nach ihrer
+  fachlichen Klaerung und vor Umsetzung im passenden Gesamtplan festgelegt.
+- Quelle oder Chatbezug: Nutzerkorrektur, anschliessende Council-Analyse und
+  ausdrueckliche `Freigabe zur Umsetzung` am 2026-07-29.

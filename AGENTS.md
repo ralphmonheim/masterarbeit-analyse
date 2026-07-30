@@ -46,6 +46,14 @@ keine Freigabe fuer neue fachliche oder technische Aenderungen.
 - `docs/project/plans/inbox/260715_Plan_P031_Codex_Project_Operating_System.md`
   fuehrt den datierten Project-OS-Audit und Backlog, erteilt aber keine
   Freigabe.
+- Bei Strukturfragen ist zuerst der fuer den betroffenen Scope fuehrende
+  Gesamtplan zu pruefen, danach die einschlaegigen Nutzerentscheidungen und
+  Einzelplaene. Code, Konfiguration, Tests, Laufzeitkataloge sowie Modul- und
+  Ordnernamen belegen nur den aktuellen Bestand und Migrationsbedarf; sie
+  definieren nicht selbststaendig die Zielarchitektur. Einzelplaene duerfen
+  den Gesamtplan nicht stillschweigend aendern. Eine Abloesung benoetigt eine
+  ausdrueckliche Nutzerentscheidung oder akzeptierte Architekturentscheidung
+  mit bezeichnetem Geltungsbereich.
 - Ohne neue Rueckfrage sind read-only Pruefungen versionierter eigener
   Repo-Dateien, lokale Tests und Aenderungen innerhalb eines bereits durch
   `Freigabe zur Umsetzung` ausdruecklich freigegebenen Umfangs erlaubt.

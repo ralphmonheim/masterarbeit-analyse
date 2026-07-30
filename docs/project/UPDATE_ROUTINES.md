@@ -64,13 +64,20 @@ Diese Datei ist die einzige Ablaufwahrheit fuer dokumentierte Codex-Routinen.
   abgleichen.
 - `projektlage`: Git-Stand, Version, Plaene und offene Entscheidungen lesen.
 - `chat-stats`: den sichtbaren Arbeitsstand read-only bewerten.
-- `chat-handover`: eine Uebergabe erstellen und als historischen Snapshot
-  archivieren. Besteht der gewuenschte Dateiname bereits, wird kein Snapshot
-  ueberschrieben: Fuer einen neuen oder abweichenden Stand wird der erste freie
-  fortlaufende Suffix `-v2`, `-v3` usw. verwendet und als eigener Eintrag im
-  Handover-Index erfasst. Inhaltlich identische Snapshots werden nicht erneut
-  angelegt. Eine spaetere Bereinigung ist nur nach gezielter Nutzerfreigabe
-  zulaessig.
+- `chat-handover`: offene Inhalte vor der Archivierung in ihre fuehrende
+  Projektquelle uebertragen und erst danach eine Uebergabe als historischen
+  Snapshot archivieren. Die Zuordnung ist verpflichtend: konkrete Restarbeit
+  in den zustaendigen aktiven Plan und bei Bedarf kompakt in `PLAN_STATUS.md`,
+  echte offene Entscheidungen in `USER_DECISIONS_OPEN_POINTS.md` und noch
+  nicht zu entscheidende Ideen als klar markierte, nicht freigegebene
+  Folgeoption im zustaendigen aktiven Plan. Der Snapshot enthaelt danach nur
+  erledigten Stand, Nachweise und Verweise auf die uebertragenen offenen
+  Punkte; er fuehrt keine eigene offene Aufgabenliste. Besteht der gewuenschte
+  Dateiname bereits, wird kein Snapshot ueberschrieben: Fuer einen neuen oder
+  abweichenden Stand wird der erste freie fortlaufende Suffix `-v2`, `-v3`
+  usw. verwendet und als eigener Eintrag im Handover-Index erfasst.
+  Inhaltlich identische Snapshots werden nicht erneut angelegt. Eine spaetere
+  Bereinigung ist nur nach gezielter Nutzerfreigabe zulaessig.
 - `plan aufnehmen`: neue Plan-Metadaten einordnen.
 - `projektinput aufnehmen`: neue Projektinput-Metadaten erfassen und bei
   eindeutiger Zuordnung in bestehende Strukturen einordnen.

@@ -2,6 +2,17 @@
 
 Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentiert.
 
+## 0.36.1 - 2026-07-30
+
+### Documentation
+
+- Die Routine `chat-handover` uebertraegt offene Restarbeit, Entscheidungen
+  und nicht freigegebene Folgeideen vor der Archivierung in ihre jeweils
+  fuehrenden aktiven Quellen. Das Handover-Archiv bleibt damit reine
+  historische Referenz ohne eigene offene Aufgabenliste.
+- UD-111 verankert die Pruefreihenfolge Gesamtplan, Nutzerentscheidungen,
+  Einzelplaene und erst danach den Ziel-Ist-Abgleich mit Code und Tests.
+
 ## 0.36.0 - 2026-07-29
 
 ### Added
