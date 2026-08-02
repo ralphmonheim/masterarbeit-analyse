@@ -77,6 +77,7 @@ from ma_technical import (
     ThermalStorage,
     build_released_technical_handover,
     load_business_integration_lod1_technical_spec,
+    load_synthetic_v2_reference_technical_spec,
     load_technical_model_revision,
     load_technical_model_specification,
     release_technical_model,
@@ -110,6 +111,19 @@ def test_synthetic_v2_reference_yaml_loads_to_a_released_typed_model():
     assert specification.service_interfaces[0].interface_id == "SYNTHETIC-SERVICE-HEATING-0001"
     assert not hasattr(specification.service_interfaces[0], "served_zone_ids")
     assert validate_technical_model(specification).release_status is ReleaseStatus.RELEASED
+
+
+def test_synthetic_v2_reference_convenience_loader_is_read_only():
+    content_before = REFERENCE_SPEC_PATH.read_bytes()
+    timestamp_before = REFERENCE_SPEC_PATH.stat().st_mtime_ns
+
+    first = load_synthetic_v2_reference_technical_spec()
+    second = load_synthetic_v2_reference_technical_spec()
+
+    assert first.technical_model_id == second.technical_model_id
+    assert first.service_interfaces == second.service_interfaces
+    assert REFERENCE_SPEC_PATH.read_bytes() == content_before
+    assert REFERENCE_SPEC_PATH.stat().st_mtime_ns == timestamp_before
 
 
 @pytest.mark.parametrize(

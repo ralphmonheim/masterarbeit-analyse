@@ -77,7 +77,15 @@ Diese Datei ist die einzige Ablaufwahrheit fuer dokumentierte Codex-Routinen.
   abweichenden Stand wird der erste freie fortlaufende Suffix `-v2`, `-v3`
   usw. verwendet und als eigener Eintrag im Handover-Index erfasst.
   Inhaltlich identische Snapshots werden nicht erneut angelegt. Eine spaetere
-  Bereinigung ist nur nach gezielter Nutzerfreigabe zulaessig.
+  Bereinigung ist nur nach gezielter Nutzerfreigabe zulaessig. Vor der
+  Archivierung prueft ein separater Blind-Review-Agent den Entwurf zunaechst
+  ausschliesslich anhand des Handover-Texts und ohne Recherche im Repository.
+  Er benennt unverstaendliche Begriffe, fehlenden Kontext, mehrdeutige
+  Verweise sowie unklare offene Punkte und naechste Schritte. Bleiben Punkte
+  offen, darf der Agent gezielt den bisherigen Chatverlauf nachschlagen. Sind
+  sie danach weiterhin unklar oder widerspruechlich, stellt er dem Nutzer
+  konkrete Rueckfragen im Chat. Erst nach dieser Klaerung wird der Snapshot
+  final archiviert.
 - `plan aufnehmen`: neue Plan-Metadaten einordnen.
 - `projektinput aufnehmen`: neue Projektinput-Metadaten erfassen und bei
   eindeutiger Zuordnung in bestehende Strukturen einordnen.

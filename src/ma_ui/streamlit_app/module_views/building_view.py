@@ -13,16 +13,15 @@ from ma_building import (
     BUILDING_CAD_INPUT_DIR,
     BUILDING_IFC_INPUT_DIR,
     BUILDING_RHINO_INPUT_DIR,
+    BUILDING_SPECIFICATION_OPTIONS,
     BUSINESS_INTEGRATION_REFERENCE_RHINO_FILENAME,
     FACHLICHER_TEIL_REFERENCE_IFC_FILENAME,
     LocalCatalogValidationError,
     create_user_catalog_draft,
     diagnose_building_source,
     load_building_excel_catalog,
-    load_business_integration_lod1_building_spec,
-    load_demo_building_spec,
     load_local_building_catalog,
-    load_small_office_5z_endvariant_02_building_spec,
+    load_named_building_specification,
     scan_default_building_input_files,
 )
 from ma_database import DemoCatalog, DemoCatalogRecord
@@ -36,15 +35,6 @@ from ma_ui.streamlit_app.state import (
 from ma_validation import DiagnosticMessage, DiagnosticSeverity
 from ma_workspace import load_project_module_config, save_project_module_config
 
-_BUILDING_SPEC_OPTIONS = (
-    ("demo", "Demo-Gebaeudespezifikation", load_demo_building_spec),
-    ("business_integration_lod1", "BusinessIntegration LoD-1", load_business_integration_lod1_building_spec),
-    (
-        "small_office_5z_endvariant_02",
-        "SmallOffice Endvariante 02",
-        load_small_office_5z_endvariant_02_building_spec,
-    ),
-)
 BUILDING_WORKSPACE_TAB_LABELS = ("Import", "Uebersicht", "Bauteile", "Raeume", "Konstruktionen/Kataloge")
 BUILDING_AI_PROMPT_PATH = Path("docs/prompts/MA_BUILDING_AI_MODEL_GENERATION_PROMPT.md")
 
@@ -90,7 +80,7 @@ def render() -> None:
 
 def building_spec_option_rows() -> list[dict[str, str]]:
     """Liefert die in der UI auswaehlbaren Gebaeudespezifikationen."""
-    return [{"Schluessel": key, "Name": label} for key, label, _loader in _BUILDING_SPEC_OPTIONS]
+    return [{"Schluessel": key, "Name": label} for key, label, _source in BUILDING_SPECIFICATION_OPTIONS]
 
 
 def building_spec_summary_rows(spec) -> list[dict[str, object]]:
@@ -804,10 +794,7 @@ def _catalog_record_rows(record: DemoCatalogRecord) -> list[dict[str, object]]:
 
 
 def _load_building_spec_option(option_key: str):
-    for key, _label, loader in _BUILDING_SPEC_OPTIONS:
-        if key == option_key:
-            return loader()
-    raise ValueError(f"Unbekannte Gebaeudespezifikation: {option_key}")
+    return load_named_building_specification(option_key)
 
 
 def _default_building_spec_key() -> str:

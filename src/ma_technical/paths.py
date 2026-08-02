@@ -16,3 +16,6 @@ SMALL_OFFICE_LOD1_TECHNICAL_SPEC_PATH = (
 SMALL_OFFICE_5Z_ENDVARIANT_02_TECHNICAL_SPEC_PATH = (
     TECHNICAL_CONFIG_DIR / "examples" / "small_office_5z_endvariant_02_technical_spec.yaml"
 )
+SYNTHETIC_V2_REFERENCE_TECHNICAL_SPEC_PATH = (
+    TECHNICAL_CONFIG_DIR / "examples" / "technical_v2_reference_spec.yaml"
+)

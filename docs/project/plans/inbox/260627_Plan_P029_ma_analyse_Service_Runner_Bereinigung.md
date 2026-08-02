@@ -219,3 +219,32 @@ Slice 10:
   nur begrenzt moeglich.
 - Heating/Cooling sollten erst nach stabilem Runner-Vertrag weiter
   modularisiert werden.
+
+## Konsolidierung nach UD-112 2026-07-31
+
+`ma_analyse` ist im Ziel ausschliesslich der PostProcess-Owner. Die bisherige
+`stage_1_dimensioning` ist Migrationsbestand fuer `ma_dimensionierung`; sie
+bleibt nicht als zweite Dimensionierungswahrheit in diesem Modul. P029 plant
+die tatsaechliche Verschiebung oder einen befristeten Kompatibilitaetsadapter
+nur in einem eigenen, getesteten Migrationsslice.
+
+Nach der technischen Standardisierung durch `ma_import_simulation` bereitet
+`ma_analyse` Daten auf, berechnet Jahresenergie und weitere datenkompatible
+Kennwerte, prueft Funktionen beschreibend und erzeugt die angeforderten
+Diagramme. Energie-/Leistungsdifferenzen werden neutral gegen Baseline und
+Varianten gezeigt; eine Variante mit Unterversorgung wird nicht als
+Verbesserung gewertet. Normative Komfortaussagen und frei erfundene
+Funktionsschwellen gehoeren nicht zu V1.
+
+Jahresenergie bezieht sich auf das volle Jahr. Temperatur, Unterdeckung und
+Funktionsindikatoren werden primaer in Belegungszeiten und ausserhalb davon
+getrennt gezeigt. Der Datenvertrag entscheidet, ob Raum-/operative Temperatur,
+Sollwerte, ungedeckte Heiz-/Kuehlleistung, Kapazitaetssaettigung,
+Verletzungsstunden und Gradstunden auswertbar sind; fehlende Werte bleiben
+sichtbar `nicht auswertbar`.
+
+Vorhandene Heating-Diagramme sind die visuelle Referenz. P029 darf ihre
+Templates, Farben, Achsen, Layouts oder fachliche Bedeutung nicht ohne einen
+eigenen, vom Nutzer besprochenen Slice aendern. Das Dateninventar eines
+freigegebenen Ergebnisexports bestimmt spaeter die datenkompatiblen
+Vorlagen; fehlende Daten ergeben sichtbar `nicht auswertbar` statt Ersatzwerte.

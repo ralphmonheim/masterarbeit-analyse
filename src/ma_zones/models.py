@@ -49,6 +49,28 @@ class ThermalZone:
 
 
 @dataclass(frozen=True, slots=True)
+class ZoneTechnicalServiceAssignment:
+    """Zoneneigene Zuordnung zu einem freigegebenen P014-Serviceinterface."""
+
+    assignment_id: str
+    zone_id: str
+    service_interface_id: str
+    terminal_type: str = ""
+    assignment_origin: str = ""
+
+    def __post_init__(self) -> None:
+        for field_name in (
+            "assignment_id",
+            "zone_id",
+            "service_interface_id",
+            "terminal_type",
+            "assignment_origin",
+        ):
+            value = getattr(self, field_name)
+            object.__setattr__(self, field_name, value.strip() if isinstance(value, str) else "")
+
+
+@dataclass(frozen=True, slots=True)
 class ZoneAssumption:
     """Dokumentierte Annahme fuer das Zonenmodell."""
 
@@ -70,11 +92,13 @@ class ZoneModelSpecification:
     zones: tuple[ThermalZone, ...]
     usage_profiles: tuple[UsageProfile, ...]
     assumptions: tuple[ZoneAssumption, ...] = ()
+    technical_assignments: tuple[ZoneTechnicalServiceAssignment, ...] = ()
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "zones", tuple(self.zones))
         object.__setattr__(self, "usage_profiles", tuple(self.usage_profiles))
         object.__setattr__(self, "assumptions", tuple(self.assumptions))
+        object.__setattr__(self, "technical_assignments", tuple(self.technical_assignments))
         if not isinstance(self.input_detail_level, ZoneInputDetailLevel):
             value_text = str(self.input_detail_level).strip()
             try:
@@ -101,6 +125,10 @@ class ZoneModelSpecification:
         rows.extend(
             (assumption.assumption_id, f"assumptions.{index}.assumption_id")
             for index, assumption in enumerate(self.assumptions)
+        )
+        rows.extend(
+            (assignment.assignment_id, f"technical_assignments.{index}.assignment_id")
+            for index, assignment in enumerate(self.technical_assignments)
         )
         return tuple(rows)
 
@@ -167,12 +195,22 @@ def zone_specification_from_dict(data: Mapping[str, Any]) -> ZoneModelSpecificat
             )
             for item in _sequence(data, "assumptions")
         ),
+        technical_assignments=tuple(
+            ZoneTechnicalServiceAssignment(
+                assignment_id=str(item.get("assignment_id", "")).strip(),
+                zone_id=str(item.get("zone_id", "")).strip(),
+                service_interface_id=str(item.get("service_interface_id", "")).strip(),
+                terminal_type=str(item.get("terminal_type", "")).strip(),
+                assignment_origin=str(item.get("assignment_origin", "")).strip(),
+            )
+            for item in _sequence(data, "technical_assignments")
+        ),
     )
 
 
 def zone_specification_to_dict(spec: ZoneModelSpecification) -> dict[str, Any]:
     """Erzeugt eine einfache, UI-taugliche Mapping-Darstellung."""
-    return {
+    payload = {
         "schema_version": spec.schema_version,
         "zone_model_id": spec.zone_model_id,
         "project_id": spec.project_id,
@@ -185,6 +223,9 @@ def zone_specification_to_dict(spec: ZoneModelSpecification) -> dict[str, Any]:
         "usage_profiles": [asdict(profile) for profile in spec.usage_profiles],
         "assumptions": [asdict(assumption) for assumption in spec.assumptions],
     }
+    if spec.technical_assignments:
+        payload["technical_assignments"] = [asdict(assignment) for assignment in spec.technical_assignments]
+    return payload
 
 
 def _ensure_mapping(data: Any) -> Mapping[str, Any]:

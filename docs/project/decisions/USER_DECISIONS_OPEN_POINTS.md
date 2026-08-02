@@ -1,6 +1,6 @@
 # Offene Nutzerentscheidungen
 
-Stand: 2026-07-15
+Stand: 2026-07-31
 
 Diese Datei enthaelt nur offene Nutzerentscheidungen. Erledigte Entscheidungen
 werden nach der Dokumentation als `UD-*` aus dieser Datei entfernt und stehen in
@@ -12,8 +12,12 @@ werden nach der Dokumentation als `UD-*` aus dieser Datei entfernt und stehen in
 
 - Thema: ma_analyse Auswertungen und Diagramme
 - Status: offen
-- Frage: Welche Auswertungen sollen absolute Werte, flaechenbezogene Werte oder beides anbieten, und welche Bezugsflaeche soll dafuer verwendet werden?
+- Frage: Welche Auswertungen sollen absolute Werte, flaechenbezogene Werte oder beides anbieten, welche Bezugsflaeche soll dafuer verwendet werden und wie werden Zeitintervall, Vorzeichen und Fehlwerte festgelegt? Fuer Gebaeude-Spitzenleistung ist insbesondere zu entscheiden, ob verbindlich `max_t(Summe der zonalen Leistungen zum selben Zeitpunkt)` gilt.
 - Auswirkung: Betrifft spaeter `src/ma_analyse/analysis/`, Plot-Templates, Tkinter, Streamlit-Analyse und die Dokumentation der Diagrammeinheiten.
+- Teilklaerung 2026-07-31 durch UD-112: Jahresenergie und Leistung bleiben
+  fachlich getrennt; Spitzenleistung wird aus gleichzeitigen Zeitreihen
+  ermittelt. Welche absoluten und spezifischen Werte gemeinsam erscheinen und
+  welche Bezugsflaeche verbindlich ist, bleibt offen.
 
 ### OP-009 Methodik fuer Zeit- und Personalkostenvergleich
 
@@ -21,6 +25,48 @@ werden nach der Dokumentation als `UD-*` aus dieser Datei entfernt und stehen in
 - Status: offen
 - Frage: Welche Wissensprofile, Stundensaetze, Prozessgrenzen und Messmethoden sollen fuer den Vergleich zwischen manuellem, softwareunterstuetztem und automatisiertem Ablauf verwendet werden?
 - Auswirkung: Beeinflusst die wissenschaftliche Vergleichbarkeit, die Prozesskostenrechnung sowie spaetere Ergebnisse in `ma_economy` und `ma_assessment`.
+- Teilklaerung 2026-07-31 durch UD-112: P030 misst PreProcess mit
+  Parameter-/Variantenumfang, manuelle IDA-Arbeit je Variante,
+  Maschinen-/Simulationsdauer, Pruef-/Korrekturzeit und PostProcess getrennt.
+  Personalkosten beruhen primaer auf aktiver Arbeitszeit; Wartezeit wird
+  separat berichtet. Offen bleiben das konkrete Wissensprofil,
+  Stundensatzquelle, Bezugsjahr, Zuschlaege, Wiederholungen, Lerneffekt und
+  das verbindliche Vergleichsprotokoll. Es muss gepaarte Vergleichslaeufe mit
+  identischen Eingaben, Varianten, Pruefanforderungen und Ergebnisartefakten,
+  festgelegten Parameter-/Variantenstufen sowie eindeutigen Start-/Endpunkten
+  definieren. Gemeinsame Setup- und PostProcess-Zeiten duerfen nicht
+  unbemerkt jeder Variante voll zugerechnet werden.
+
+### OP-017 Neutraler Ergebnisvertrag und Dateninventar
+
+- Thema: gemeinsamer Importkern, PostProcess und Diagrammfaehigkeit
+- Status: offen; Rechte-/Evidenzgate
+- Frage: Welcher manuell bereitgestellte, freigegebene neutrale Ergebnisexport
+  steht fuer V1 tatsaechlich zur Verfuegung und welche Variablen, Einheiten,
+  Vorzeichen, Zeitstempel, Zeitschritte, Zonen-/Systemkennungen, Fehlwerte und
+  Hashes enthaelt er? Wie sind Zeitzone, Sommerzeit, Kalender/Schaltjahr,
+  Intervallgrenzen und Transformationsversion definiert?
+- Auswirkung: Erst das Dateninventar legt den verbindlichen Feldvertrag,
+  Datenaufbereitung und die Menge datenkompatibler Diagrammvorlagen fest.
+  Vor Ergebnissichtung werden daraus die primaeren Abbildungen der Arbeit und
+  ergaenzende/explorative Ausgaben bestimmt, ohne vorhandene Diagrammvorlagen
+  stillschweigend zu veraendern.
+  Vollstaendige IDA-/EQUA-Dateien, Bibliotheken und automatisierte IDA-Wege
+  sind keine zulaessige Zwischenloesung.
+
+### OP-018 Projektbezogene Funktionspruefung und Bewertungszeitraum
+
+- Thema: PostProcess, Funktionsstatus und Einsparungsinterpretation
+- Status: offen; fachlich-methodische Entscheidung nach Dateninventar
+- Frage: Welche projektbezogenen, nicht normativen Toleranzen,
+  Belegungszeiträume, Indikatoren (Sollwerte, Unterdeckung,
+  Kapazitaetssaettigung, Verletzungsstunden/Gradstunden) und
+  Bewertungsregeln gelten fuer eine funktional ausreichende Variante?
+- Auswirkung: Bis dahin zeigt V1 den Funktionsstatus beschreibend und
+  nachvollziehbar. Eine geringere Energie oder Leistung darf bei sichtbarer
+  Unterversorgung nicht als Verbesserung interpretiert werden; ein
+  normativer Komfortnachweis bleibt ausgeschlossen. Ein Pass/Fail-Urteil oder
+  eine Einsparungsbewertung ist bis zur Entscheidung nicht zulaessig.
 
 ### OP-012 Umfang eines IFC-Lite-Imports
 
@@ -111,9 +157,13 @@ werden nach der Dokumentation als `UD-*` aus dieser Datei entfernt und stehen in
   Variantennamen und Baumdarstellung, Exportpfadprofile, Filter-/Rule-based
   Selection, Monte-Carlo-/Latin-Hypercube-Sampling oder iterative
   StudyCase-Prozesse?
-- Ergaenzung: Die aktive erste Ausbaustufe bleibt bewusst klein:
-  `VSP -> VVER -> VCAT -> VSEL -> VGEN`, `VCAT <= 500`, Selection zuerst
-  `all`, `manual` und `random`, keine `SimulationCase`-Ebene.
+- Ergaenzung: Die aktive erste Ausbaustufe bleibt bewusst klein: Nach VSP und
+  VVER liegt die verbindliche Auswahl vor dem tatsaechlichen
+  Dimensionierungsauftrag; danach folgen Ergebniszuordnung, Nachpruefung,
+  finaler VCAT und VGEN. Die vorhandenen Objekte `VSP`, `VVER`, `VCAT`,
+  `VSEL`, `VGEN` bleiben erhalten, `VCAT <= 500` und es gibt keine
+  `SimulationCase`-Ebene. Die genaue Speicherung der fruehen Auswahl wird
+  im P017-Migrationsslice geklaert.
 - Auswirkung: Betrifft `ma_variants`, `ma_parameters`, `ma_rules` als
   moeglichen spaeteren Zielbereich, `ma_validation`, `ma_feedback`,
   `ma_workflow`, `ma_simulation_setup`, Exportpfade und wissenschaftliche

@@ -9,9 +9,11 @@ from .catalog_registry import (
     create_user_catalog_draft,
 )
 from .demo_loader import (
+    BUILDING_SPECIFICATION_OPTIONS,
     load_building_spec,
     load_business_integration_lod1_building_spec,
     load_demo_building_spec,
+    load_named_building_specification,
     load_small_office_5z_endvariant_02_building_spec,
     load_small_office_lod1_building_spec,
 )
@@ -73,6 +75,7 @@ from .paths import (
 from .validation import validate_building_spec
 
 __all__ = [
+    "BUILDING_SPECIFICATION_OPTIONS",
     "DEFAULT_BUILDING_EXCEL_CATALOGS",
     "BuildingExcelCatalog",
     "BUILDING_DATA_DIR",
@@ -112,6 +115,7 @@ __all__ = [
     "load_business_integration_lod1_building_spec",
     "load_building_spec",
     "load_demo_building_spec",
+    "load_named_building_specification",
     "load_small_office_5z_endvariant_02_building_spec",
     "load_small_office_lod1_building_spec",
     "scan_building_input_directory",

@@ -2,6 +2,84 @@
 
 Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentiert.
 
+## Unreleased
+
+## 0.37.0 - 2026-08-02
+
+### Added
+
+- Die direkte P013-Zonenansicht bindet `Konditionierung & Übergabe` an den
+  aktiven, building- und hashgebundenen P014-Handover. Zone-zu-
+  Serviceinterface-Zuordnungen starten unmarkiert, benoetigen eine manuelle
+  Bestaetigung und werden erst nach einer getrennten erfolgreichen Pruefung
+  als projektbezogener Entwurf gespeichert. Alte Handover-Bezuege werden
+  nicht vorausgewaehlt; ein Zoneninhalt-Hash entwertet den Entwurf auch bei
+  geaenderter Zonen- oder Raumzusammensetzung, und fremde Projekt-IDs werden
+  abgewiesen. Leere Entwuerfe behaupten keine Versorgung. Die UI grenzt die
+  Integritaetspruefung sichtbar von Vollstaendigkeit, technischer Eignung,
+  Lastdeckung und Dimensionierung ab; ein finaler Zonenhandover wird nicht
+  erzeugt.
+- Der projektbezogene P014-v2-Freigabeslice setzt UD-115 in der direkten
+  Technikansicht um: Ein deterministischer Legacy-Adapter bereitet einen
+  zonenfreien Sitzungsentwurf vor, die Strukturpruefung bleibt schreibfrei
+  und erst die ausdruecklich bestaetigte Freigabe erzeugt eine atomare,
+  append-only Workspace-Revision. Die gespeicherte Revision wird neu geladen,
+  hashgeprueft und als aktiver Handover fuer das ausgewaehlte Building
+  referenziert. Projekt-/Building-Bindung, Quelle, Mapping, Hashes und
+  bestaetigte Warnungen samt Fundstellen bleiben ueber einen eigenen
+  Freigabenachweis-Hash nachvollziehbar. Projekt-ID und vollstaendige
+  Building-Referenz werden an den Persistenzgrenzen gegen den tatsaechlichen
+  P035-Workspace erneut geprueft. Nur kanonische Revisionspfade und YAML-
+  Mappingwurzeln werden akzeptiert; veraltete Building-Bindungen bleiben
+  korrigierbar. Lasten, Kapazitaeten,
+  Zonenbelegung und Dimensionierung werden nicht abgeleitet.
+- Der direkte P014-UI-Teilcheckpoint S2a entfernt das bisherige
+  `ma_zones`-Gate aus der Technikansicht. Fallbezogener Legacy-Uebergang
+  und zonenfreie synthetische v2-Testreferenz werden getrennt angezeigt;
+  zentrale Objekt- und Serviceinterface-IDs sind sichtbar, ohne dass dieser
+  v2-Anzeigepfad eine Revision oder Projektfreigabe erzeugt oder den
+  Workspace veraendert.
+- P013/P014-S1 fuehrt die optionale immutable
+  `ZoneTechnicalServiceAssignment`, die Handover-basierte
+  `validate_zone_technical_assignments(...)`-Pruefung und eine durchgaengige
+  Hashbindung von Techniktriple, Projekt, Building, Serviceinterfaces und
+  nichtleeren Zonenassignments ein. Explizite manuelle Bestaetigung ist
+  Pflicht; leere Legacy-Staende behalten ihren bisherigen Fingerprint.
+
+### Documentation
+
+- Technische Entscheidung 46 sowie P013, P014, Planstatus, Planindex und die
+  Zonenmoduldokumentation halten den gerichteten P014-zu-P013-
+  Assignment-Durchstich und seine Rueckfallgrenze fest. Eine neue
+  Nutzerentscheidung war nicht erforderlich; die Workflowansicht bleibt der
+  letzte UI-Migrationsslice.
+- UD-115 legt den projektlokalen Revisionspfad, systemgenerierte TECH-/REV-
+  IDs, die strikte Building-Bindung, die Legacy-v1→v2-Provenienz und die
+  sichtbare dreistufige Freigabekette fest. P014, Planstatus, Planindex und
+  die ma_technical-Dokumentation bilden den umgesetzten Stand ab.
+- UD-113 fuehrt fuer jeden Chat-Handover eine gestufte Blind-Review ein:
+  zuerst ohne Kontext, bei Bedarf mit gezielter Chatpruefung und bei
+  verbleibender Unklarheit mit konkreter Nutzerrueckfrage vor der Archivierung.
+- UD-112 konsolidiert das verbindliche Arbeitsziel, den Pre-/Main-/Post-
+  Process, die Modulverantwortungen und den MVP-V1-Nachweis aus dem
+  Gesamtprozess-Handover. Abweichende Altziele bleiben als Migrationsbedarf
+  sichtbar.
+- Die aktiven Plaene P007, P009, P013-P018, P027, P029 und P030 sowie die
+  offenen Entscheidungen wurden auf diesen Zielvertrag abgestimmt. Der
+  zugehoerige Chat-Handover ist erst nach dieser Uebertragung als historischer
+  Snapshot abgelegt.
+- UD-112 und P027 halten nun den dreistufigen Vertrag fuer Modul- und
+  Workflowansicht fest: Gesamtuebersicht, Bereichsworkflow und Facharbeit
+  behalten Navigation, Rueckspruenge und Entwuerfe jeweils nachvollziehbar
+  getrennt.
+- UD-114 praezisiert die Prozessgrenzen: PreProcess endet nach
+  `ma_simulation_setup`, der Kernprozess umfasst Export, manuelle Simulation
+  und Ergebnisimport, und PostProcess beginnt mit der fachlichen
+  Datenverarbeitung ab `standardized_ready`. Der Workflow-UI-Slice wurde ans
+  Ende der Migration verschoben; Buttons und Sprungziele werden dort separat
+  gegen die direkte Arbeitsansicht abgestimmt.
+
+
 ## 0.36.1 - 2026-07-30
 
 ### Documentation

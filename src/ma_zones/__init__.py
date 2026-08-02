@@ -13,6 +13,7 @@ from .models import (
     ZoneAssumption,
     ZoneInputDetailLevel,
     ZoneModelSpecification,
+    ZoneTechnicalServiceAssignment,
     zone_specification_from_any,
     zone_specification_from_dict,
     zone_specification_to_dict,
@@ -25,7 +26,11 @@ from .paths import (
 )
 from .small_office_29z import build_small_office_29z_draft
 from .thermal_building import ThermalBuildingModel, build_thermal_building_model, validate_thermal_building_model
-from .validation import validate_technical_zone_integration, validate_zone_spec
+from .validation import (
+    validate_technical_zone_integration,
+    validate_zone_spec,
+    validate_zone_technical_assignments,
+)
 
 __all__ = [
     "BUSINESS_INTEGRATION_LOD1_ZONE_SPEC_PATH",
@@ -39,12 +44,14 @@ __all__ = [
     "ZoneAssumption",
     "ZoneInputDetailLevel",
     "ZoneModelSpecification",
+    "ZoneTechnicalServiceAssignment",
     "load_business_integration_lod1_zone_spec",
     "load_small_office_5z_endvariant_02_zone_spec",
     "load_zone_spec",
     "load_small_office_lod1_zone_spec",
     "validate_zone_spec",
     "validate_technical_zone_integration",
+    "validate_zone_technical_assignments",
     "build_thermal_building_model",
     "build_released_zone_handover",
     "build_small_office_29z_draft",

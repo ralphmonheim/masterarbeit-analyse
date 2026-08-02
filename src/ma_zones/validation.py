@@ -3,12 +3,22 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from typing import TYPE_CHECKING
 
 from ma_building import BuildingModelSpecification
 from ma_technical import TechnicalSystemSpecification
-from ma_validation import DiagnosticMessage, DiagnosticSeverity, ValidationResult, build_validation_result
+from ma_validation import (
+    DiagnosticMessage,
+    DiagnosticSeverity,
+    ReleaseStatus,
+    ValidationResult,
+    build_validation_result,
+)
 
 from .models import ZoneInputDetailLevel, ZoneModelSpecification
+
+if TYPE_CHECKING:
+    from ma_technical import ReleasedTechnicalHandover, ReleasedTechnicalServiceInterfaceReference
 
 
 def validate_zone_spec(
@@ -22,8 +32,185 @@ def validate_zone_spec(
     messages.extend(_validate_object_ids(spec))
     messages.extend(_validate_usage_profiles(spec))
     messages.extend(_validate_zones(spec))
+    messages.extend(_validate_technical_assignments(spec))
     if building_spec is not None:
         messages.extend(_validate_building_reference(spec, building_spec))
+    return build_validation_result(tuple(messages))
+
+
+def validate_zone_technical_assignments(
+    zone_spec: ZoneModelSpecification,
+    technical_handover: ReleasedTechnicalHandover,
+) -> ValidationResult:
+    """Prueft bestaetigte Zonen-Zuordnungen gegen den freigegebenen P014-Handover."""
+    from ma_technical import ReleasedTechnicalHandover
+
+    messages = _validate_technical_assignments(zone_spec)
+    if not isinstance(technical_handover, ReleasedTechnicalHandover):
+        messages.append(
+            _message(
+                DiagnosticSeverity.ERROR,
+                "ZONE_TECHNICAL_HANDOVER_TYPE_INVALID",
+                "Die technische Zuordnung benoetigt einen ReleasedTechnicalHandover.",
+                "technical_handover",
+            )
+        )
+        return build_validation_result(tuple(messages))
+
+    if technical_handover.release_status is not ReleaseStatus.RELEASED:
+        messages.append(
+            _message(
+                DiagnosticSeverity.ERROR,
+                "ZONE_TECHNICAL_HANDOVER_NOT_RELEASED",
+                "Der referenzierte Technikstand ist nicht freigegeben.",
+                "technical_handover.release_status",
+            )
+        )
+    if not all(
+        (
+            technical_handover.technical_model_id,
+            technical_handover.revision_id,
+            technical_handover.content_hash,
+        )
+    ):
+        messages.append(
+            _message(
+                DiagnosticSeverity.ERROR,
+                "ZONE_TECHNICAL_HANDOVER_REFERENCE_INCOMPLETE",
+                "Die Modell-, Revisions- oder Hashreferenz des Technikstands ist unvollstaendig.",
+                "technical_handover",
+            )
+        )
+
+    requires_complete_context = bool(zone_spec.technical_assignments)
+    if technical_handover.project_id:
+        if technical_handover.project_id != zone_spec.project_id:
+            messages.append(
+                _message(
+                    DiagnosticSeverity.ERROR,
+                    "ZONE_TECHNICAL_PROJECT_REFERENCE_MISMATCH",
+                    "Technik-Handover und Zonenmodell verwenden unterschiedliche Projekt-IDs.",
+                    "technical_handover.project_id",
+                )
+            )
+    elif requires_complete_context:
+        messages.append(
+            _message(
+                DiagnosticSeverity.ERROR,
+                "ZONE_TECHNICAL_PROJECT_REFERENCE_MISMATCH",
+                "Technik-Handover enthaelt keine Projekt-ID fuer die technische Zonenzuordnung.",
+                "technical_handover.project_id",
+            )
+        )
+
+    building_reference = technical_handover.building_reference
+    if building_reference is not None:
+        if building_reference.object_id != zone_spec.building_id:
+            messages.append(
+                _message(
+                    DiagnosticSeverity.ERROR,
+                    "ZONE_TECHNICAL_BUILDING_REFERENCE_MISMATCH",
+                    "Technik-Handover verweist nicht auf das Gebaeude des Zonenmodells.",
+                    "technical_handover.building_reference.object_id",
+                )
+            )
+        if building_reference.revision_id != zone_spec.source_building_version_id:
+            messages.append(
+                _message(
+                    DiagnosticSeverity.ERROR,
+                    "ZONE_TECHNICAL_BUILDING_REVISION_MISMATCH",
+                    "Technik-Handover und Zonenmodell verwenden unterschiedliche Building-Revisionen.",
+                    "technical_handover.building_reference.revision_id",
+                )
+            )
+    elif requires_complete_context:
+        messages.append(
+            _message(
+                DiagnosticSeverity.ERROR,
+                "ZONE_TECHNICAL_BUILDING_REFERENCE_MISMATCH",
+                "Technik-Handover enthaelt keine Building-Referenz fuer die technische Zonenzuordnung.",
+                "technical_handover.building_reference",
+            )
+        )
+
+    if technical_handover.service_interface_references_hash:
+        if not technical_handover.has_consistent_service_interface_references():
+            messages.append(
+                _message(
+                    DiagnosticSeverity.ERROR,
+                    "ZONE_TECHNICAL_INTERFACE_REFERENCES_HASH_MISMATCH",
+                    "Die Serviceinterface-Referenzliste stimmt nicht mit ihrem Handover-Hash ueberein.",
+                    "technical_handover.service_interface_references_hash",
+                )
+            )
+    elif requires_complete_context:
+        messages.append(
+            _message(
+                DiagnosticSeverity.ERROR,
+                "ZONE_TECHNICAL_INTERFACE_REFERENCES_HASH_MISMATCH",
+                "Technik-Handover enthaelt keinen Hash der Serviceinterface-Referenzliste.",
+                "technical_handover.service_interface_references_hash",
+            )
+            )
+
+    if technical_handover.handover_content_hash:
+        if not technical_handover.has_consistent_handover_content():
+            messages.append(
+                _message(
+                    DiagnosticSeverity.ERROR,
+                    "ZONE_TECHNICAL_HANDOVER_CONTENT_HASH_MISMATCH",
+                    "Techniktriple, Projekt, Building und Interfaceprojektion stimmen nicht mit dem Handover-Hash ueberein.",
+                    "technical_handover.handover_content_hash",
+                )
+            )
+    elif requires_complete_context:
+        messages.append(
+            _message(
+                DiagnosticSeverity.ERROR,
+                "ZONE_TECHNICAL_HANDOVER_CONTENT_HASH_MISMATCH",
+                "Technik-Handover enthaelt keinen gebundenen Handover-Content-Hash.",
+                "technical_handover.handover_content_hash",
+            )
+        )
+
+    references_by_id: dict[str, ReleasedTechnicalServiceInterfaceReference] = {}
+    duplicate_interface_ids: set[str] = set()
+    for reference in technical_handover.service_interface_references:
+        if reference.interface_id in references_by_id:
+            duplicate_interface_ids.add(reference.interface_id)
+        references_by_id[reference.interface_id] = reference
+    if duplicate_interface_ids:
+        messages.append(
+            _message(
+                DiagnosticSeverity.ERROR,
+                "ZONE_TECHNICAL_INTERFACE_REFERENCE_DUPLICATE",
+                "Serviceinterface-IDs sind im Technik-Handover mehrfach enthalten: "
+                + ", ".join(sorted(duplicate_interface_ids)),
+                "technical_handover.service_interface_references",
+            )
+        )
+
+    for index, assignment in enumerate(zone_spec.technical_assignments):
+        reference = references_by_id.get(assignment.service_interface_id)
+        if reference is None:
+            messages.append(
+                _message(
+                    DiagnosticSeverity.ERROR,
+                    "ZONE_TECHNICAL_INTERFACE_UNKNOWN",
+                    f"Zuordnung verweist auf unbekanntes Serviceinterface: {assignment.service_interface_id}",
+                    f"technical_assignments.{index}.service_interface_id",
+                )
+            )
+            continue
+        if assignment.terminal_type and assignment.terminal_type not in reference.compatible_terminal_types:
+            messages.append(
+                _message(
+                    DiagnosticSeverity.ERROR,
+                    "ZONE_TECHNICAL_TERMINAL_INCOMPATIBLE",
+                    "Der bestaetigte Terminaltyp ist nicht mit dem Serviceinterface kompatibel.",
+                    f"technical_assignments.{index}.terminal_type",
+                )
+            )
     return build_validation_result(tuple(messages))
 
 
@@ -293,6 +480,63 @@ def _validate_zones(spec: ZoneModelSpecification) -> list[DiagnosticMessage]:
                     f"zones.{index}.minimum_air_change_rate_1_h",
                 )
             )
+    return messages
+
+
+def _validate_technical_assignments(spec: ZoneModelSpecification) -> list[DiagnosticMessage]:
+    messages: list[DiagnosticMessage] = []
+    seen_assignments: set[tuple[str, str]] = set()
+    for index, assignment in enumerate(spec.technical_assignments):
+        location = f"technical_assignments.{index}"
+        required_values = {
+            "assignment_id": assignment.assignment_id,
+            "zone_id": assignment.zone_id,
+            "service_interface_id": assignment.service_interface_id,
+            "assignment_origin": assignment.assignment_origin,
+        }
+        for field_name, value in required_values.items():
+            if not value:
+                messages.append(
+                    _message(
+                        DiagnosticSeverity.ERROR,
+                        "ZONE_TECHNICAL_ASSIGNMENT_FIELD_MISSING",
+                        "Pflichtfeld der technischen Zonenzuordnung fehlt.",
+                        f"{location}.{field_name}",
+                    )
+                )
+        if assignment.zone_id and assignment.zone_id not in spec.zone_ids:
+            messages.append(
+                _message(
+                    DiagnosticSeverity.ERROR,
+                    "ZONE_TECHNICAL_ZONE_UNKNOWN",
+                    f"Technische Zuordnung verweist auf unbekannte Zone: {assignment.zone_id}",
+                    f"{location}.zone_id",
+                )
+            )
+        if assignment.assignment_origin and assignment.assignment_origin != "manual_confirmed":
+            messages.append(
+                _message(
+                    DiagnosticSeverity.ERROR,
+                    "ZONE_TECHNICAL_ASSIGNMENT_NOT_CONFIRMED",
+                    "V1 uebergibt nur ausdruecklich manuell bestaetigte technische Zuordnungen.",
+                    f"{location}.assignment_origin",
+                )
+            )
+
+        assignment_key = (
+            assignment.zone_id,
+            assignment.service_interface_id,
+        )
+        if assignment_key in seen_assignments:
+            messages.append(
+                _message(
+                    DiagnosticSeverity.ERROR,
+                    "ZONE_TECHNICAL_ASSIGNMENT_DUPLICATE",
+                    "Dieselbe Zonen- und Serviceinterface-Zuordnung ist mehrfach enthalten.",
+                    location,
+                )
+            )
+        seen_assignments.add(assignment_key)
     return messages
 
 

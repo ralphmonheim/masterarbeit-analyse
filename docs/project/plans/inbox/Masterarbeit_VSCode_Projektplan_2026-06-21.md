@@ -27,6 +27,176 @@ Die Zielmodule werden frueh als leichte importierbare Pakete, dokumentierte
 Moduldefinitionen und klickbare Dashboard-Infoseiten sichtbar gemacht.
 Paketexistenz allein bedeutet nicht, dass ein Modul fachlich umgesetzt ist.
 
+## Konsolidierter Zielzustand 2026-07-31
+
+Dieser Abschnitt ist der fuer die erste funktionsfaehige Version
+(Masterarbeits-MVP V1) massgebliche Gesamtprozess nach UD-112. Er praezisiert die aelteren Abschnitte dieses
+historisch gewachsenen Plans; bei Widerspruch hat er zusammen mit UD-112
+Vorrang. Der aktuelle Code bleibt ausschliesslich Ziel-Ist-Nachweis und wird
+nicht durch diese Dokumentation stillschweigend als Ziel uebernommen.
+
+### Arbeitsziel und durchgehender MVP-V1-Nachweis
+
+Die Arbeit untersucht (a) den Mehrwert dynamischer Simulation fuer die
+fachliche Verbesserung eines Gebaeudes und (b) den Zeit- und moeglichen
+Personalkostennutzen eines softwaregestuetzten Workflows gegenueber dem
+manuellen Referenzprozess. Der Nachweis ist eine nachvollziehbare Fallstudie,
+nicht eine statistisch generalisierbare Gebaeudeaussage.
+Er belegt den Nutzen dynamischer Simulation fuer Verbesserungsentscheidungen
+am Demonstrator, nicht die gemessene Wirkung eines realisierten Gebaeudes.
+
+Der erste vollstaendige Durchlauf lautet:
+
+```text
+Projekt anlegen
+-> Wetter, Gebaeude, Technik, Zonen und Parameter bearbeiten
+   (freie projektspezifische Eingabe oder Katalog-/Config-Auswahl)
+-> Varianten erzeugen
+-> Simulation-Setup und gewuenschte Ausgabethemen waehlen
+-> alle erzeugten Varianten manuell in IDA ICE simulieren
+-> Ergebnisse je RUN und VAR importieren
+-> Jahresenergie, weitere datenkompatible Kennwerte und Diagramme ausgeben
+-> Prozesszeiten und Kosten getrennt auswerten
+```
+
+SmallOffice mit Endvariante 02 und fuenf thermischen Zonen ist der erste
+vorfuehrbare Demonstrator mit Voreinstellungen, aber kein Sonderworkflow.
+
+### Verbindlicher Gesamtprozess und Ownership
+
+```text
+PRE-PROCESS
+ma_project -> ma_weather -> ma_building -> ma_technical -> ma_zones
+-> ma_parameters -> StudyDirection/StudyCase ->
+ParameterVariationSpecification
+
+VARIANTEN-VORBEREITUNG
+VSP -> VVER (Kandidaten und Vorpruefung) -> verbindliche Auswahl
+-> Bedarf/Gruppen der ausgewaehlten Kandidaten
+
+MAIN-PROCESS DIMENSIONIERUNG
+ma_dimensionierung -> gemeinsamer technischer Importkern
+-> Nachpruefung -> finaler VCAT -> VGEN
+
+SIMULATIONSVORBEREITUNG UND MANUELLE AUSFUEHRUNG
+ma_simulation_setup -> RUN mit mehreren VAR -> manuelle IDA-ICE-Simulation
+-> ma_import_simulation
+
+POST-PROCESS
+raw -> standardized -> prepared -> Kennwerte/Diagramme -> fachliche Einordnung
+
+REVIEW / ITERATION
+Importkorrektur | erneute Auswertung | neue Auswahl | neuer RUN;
+keine automatische Bestvariantenauswahl oder Iteration
+```
+
+Die verbindlichen Bereichsgrenzen nach UD-114 sind:
+
+- `PreProcess`: `ma_project` bis einschliesslich `ma_simulation_setup`; Ende
+  mit einem validierten und materialisierten, fuer die Simulation
+  freigegebenen Run-Paket.
+- `Kernprozess (MainProcess)`: Export/Run-Uebergabe, manuelle Simulation und
+  technischer Ergebnisimport; Ende mit `standardized_ready`.
+- `PostProcess`: Beginn am selben `standardized_ready`-Uebergang; erster
+  fachlicher Schritt ist `standardized -> prepared` in `ma_analyse`.
+
+Diese Pre-/Main-/PostProcess-Ansicht mit Review/Iteration ersetzt fuer V1 die
+bisherige P007-Prozessdarstellung mit Phase 0 und sechs Hauptphasen. Deren
+historische Planabschnitte bleiben lesbar; `ma_validation`, `ma_feedback` und
+andere Querschnittsfunktionen werden jedoch nicht als zusaetzliche Fachphase
+neben dem Gesamtprozess gefuehrt.
+
+`ma_technical` definiert vor `ma_zones` die systemweiten Systeme und stabilen
+System-IDs. `ma_zones` ordnet Zonen diesen Systemen zu. Damit ersetzt der
+Zielvertrag fuer diesen Scope die gegenteilige Reihenfolge in UD-106. Das
+loest keine Code-Migration aus; die vorhandenen Abhaengigkeiten sind als
+eigener Migrationsbedarf zu planen.
+
+`ma_project` besitzt `StudyDirection` und `StudyCase`; `ma_parameters`
+besitzt die daraus abgeleitete `ParameterVariationSpecification`.
+
+`ma_dimensionierung` ist der fachliche Owner aller Dimensionierungsarten und
+deren Ergebnisse: vereinfachte bzw. ausfuehrliche Norm-/Excel-Verfahren,
+statische und dynamische externe Berechnung sowie deren Ergebnisuebernahme.
+`ma_variants` erkennt nur Bedarf und Gruppen und berechnet keine Lasten.
+`ma_analyse` besitzt ausschliesslich den PostProcess; eine spaetere
+PostProcess-Sicht darf Dimensionierungsergebnisse vergleichen, aber nicht
+dimensionieren. Die technische Importverarbeitung liegt gemeinsam in
+`ma_import_simulation`; Ergebnisse werden danach entweder
+`ma_dimensionierung` oder `ma_analyse` zugeordnet.
+
+Die vorhandenen Begriffe `VSP`, `VVER`, `VCAT`, `VSEL` und `VGEN` bleiben
+erhalten. Die P017-Migration ordnet sie ohne neues Zwischenobjekt so, dass die
+tatsaechliche Auswahl vor einer kosten- oder zeitaufwaendigen Dimensionierung
+liegt. Die fruehe verbindliche Auswahl ist ein versionierter Bestandteil von
+VVER und referenziert Kandidaten-Fingerprints. Nach Dimensionierung und
+Nachpruefung entsteht der finale VCAT; VSEL speichert dann nur noch die
+eindeutige Abbildung dieser fruehen Auswahl auf die finalen VAR-IDs und trifft
+keine zweite fachliche Auswahl.
+
+### RUN, Setup und PostProcess
+
+Ein wissenschaftlicher `RUN` referenziert genau eine Auswahl, ein gemeinsames
+Setup und mehrere Varianten. Ein manueller Ausfuehrungs- und Ergebnisfall
+heisst `(RUN-ID, VAR-ID)`; er ist kein eigener wissenschaftlicher Run und
+keine `SimulationCase`-Ebene.
+
+`ma_simulation_setup` bleibt sichtbar zwischen VGEN und manueller
+IDA-UEbergabe. Es waehlt per einfacher Checkbox die Ausgabethemen und
+speichert daraus ein neutrales `OutputRequirementProfile` im Setup/Manifest.
+`ma_analyse` erzeugt danach alle datenkompatiblen Diagramme der angeforderten
+Themen. Nicht angeforderte Themen sind sichtbar `nicht angefordert`,
+angeforderte aber datenmaessig nicht moegliche Auswertungen `nicht auswertbar`.
+Die konkrete Diagrammvorlage, Farben, Achsen und das Layout der vorhandenen
+Heating-Referenzen werden nicht ohne eigene Abstimmung veraendert.
+
+Die Funktionspruefung geht einer Einsparungsinterpretation voraus. Geringere
+Energie oder Leistung ist keine Verbesserung, wenn Versorgung oder Funktion
+nicht erreicht wird. V1 verwendet keine normative Komfortbehauptung und noch
+keine frei erfundenen numerischen Schwellen.
+
+Energetische Jahreswerte verwenden den vollen Jahreszeitraum. Temperatur,
+Unterdeckung und Funktionsindikatoren werden fuer die Belegungszeit
+ausgewertet und ausserhalb davon getrennt gezeigt. Soweit die freigegebenen
+Ergebnisse es zulassen, umfasst der Katalog Raum-/operative Temperatur,
+Sollwerte, ungedeckte Heiz-/Kuehlleistung, Kapazitaetssaettigung,
+Verletzungsstunden und Gradstunden. Vergleiche zwischen Referenz, dynamischer
+Baseline und Varianten bleiben neutral; sie erzeugen keine automatische
+Bestvariante oder Dimensionierungsaussage.
+
+Review unterscheidet Import-/Mappingkorrektur, erneute Auswertung, neue
+Auswahl und neue Simulation. Aeltere Runs bleiben mit Herkunft erhalten;
+eine Folgeuntersuchung erhaelt Elternbezug und Begruendung.
+
+Eine tatsaechliche Folgeuntersuchung ist nicht automatische V1-Funktion. Vor
+ihrer Umsetzung werden Ausloeser, Abbruchregel und die Kennzeichnung
+nachtraeglich entwickelter Varianten als explorativ in einem eigenen
+Nutzerentscheid festgelegt.
+
+### Sichtbarkeit und Prozessmessung
+
+Jede in V1 nutzbare Fachfunktion muss in der UI sichtbar und bedienbar sein:
+Projekt, Wetter, Gebaeude, Technik, Zonen, Parameter, Dimensionierung,
+Varianten, Simulation-Setup, Run-UEbergabe, Ergebnisimport und PostProcess.
+Technische Hilfsservices brauchen keine eigene Seite, duerfen aber keine
+Nutzerfunktion unsichtbar machen.
+
+P030 misst getrennt PreProcess (einschliesslich Anzahl/Komplexitaet der
+Parameter und Varianten), manuelle IDA-Arbeit je Variante, Maschinen- bzw.
+Simulationsdauer je Variante, Pruef-/Korrekturzeit sowie PostProcess je
+Variante und insgesamt. Aktive Arbeitszeit ist die Grundlage einer spaeteren
+Personalkostenrechnung; Maschinen- und Wartezeit werden getrennt berichtet.
+Entwicklung, Einarbeitung und Lizenzkosten sind nur ein gesondert benanntes
+Adoptionsszenario.
+
+### Verbindliche Migrationsreihenfolge der Gesamtprozess-UI
+
+Die Workflowansicht wird nach UD-114 erst nach den Fach-, Uebergabe-, Import-,
+PostProcess- und zentralen `ma_workflow`-Migrationen umgesetzt. Buttons,
+Sprungziele und die Abweichung von der direkten Arbeitsansicht werden dann als
+eigener UI-Vertrag abgestimmt. Bis dahin ist weder ein UI-seitiger
+Parallelkatalog noch eine zweite Prozessreihenfolge zulaessig.
+
 ## Masterarbeitsprioritaet
 
 Die Masterarbeit verbindet einen manuellen fachlichen Referenzprozess mit der
@@ -159,7 +329,11 @@ ma_export_simulation
 
 `ma_variants` greift nicht direkt auf `ma_weather`, `ma_building`, `ma_zones` oder `ma_technical` zu.
 
-## 4. Phase 0 und sechs Hauptphasen
+## 4. Historische Phase 0 und sechs Hauptphasen
+
+Dieser Abschnitt beschreibt den bis UD-112 geltenden Planstand. Die
+massgebliche V1-Prozessansicht steht im Abschnitt
+`Konsolidierter Zielzustand 2026-07-31`.
 
 ### Phase 0 Technische Plattform
 
@@ -351,6 +525,7 @@ src
   ma_zones
   ma_technical
   ma_parameters
+  ma_dimensionierung
   ma_variants
   ma_simulation_setup
   ma_export_simulation

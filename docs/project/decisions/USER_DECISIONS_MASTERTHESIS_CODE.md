@@ -2395,3 +2395,292 @@ Stand: 2026-07-22
   fachlichen Klaerung und vor Umsetzung im passenden Gesamtplan festgelegt.
 - Quelle oder Chatbezug: Nutzerkorrektur, anschliessende Council-Analyse und
   ausdrueckliche `Freigabe zur Umsetzung` am 2026-07-29.
+
+## UD-112 Konsolidierter Masterarbeits-MVP und Gesamtprozess
+
+- Datum: 2026-07-31
+- Status: getroffen; Dokumentation und Planuebertragung umgesetzt,
+  Code-Migrationsslices noch nicht umgesetzt
+- Thema: Arbeitsziel, Gesamtprozess, Modulownership, manueller
+  Simulationsnachweis, erste funktionsfaehige Version (MVP V1), PostProcess
+  und Prozessmessung
+- Entscheidung Arbeitsziel: Die Masterarbeit untersucht den Mehrwert
+  dynamischer Simulation fuer die fachliche Verbesserung des endgueltigen
+  Gebaeudes sowie den Zeit- und moeglichen Personalkostennutzen eines
+  softwaregestuetzten Workflows gegenueber einem manuellen Referenzprozess.
+  SmallOffice ist der erste vorfuehrbare Demonstrator, kein eigener
+  Sonderworkflow. Der Simulationsnachweis belegt in V1 den Nutzen fuer
+  Verbesserungsentscheidungen im Demonstrator, nicht die gemessene Wirkung
+  eines bereits realisierten Gebaeudes und keine allgemeingueltige Aussage.
+- Entscheidung MVP: Projektanlage sowie freie projektspezifische Eingabe oder
+  Katalog-/Config-Auswahl fuer Wetter, Gebaeude, Technik und Zonen muessen
+  bis zur Variantengenerierung benutzbar sein. Danach waehlt das sichtbare
+  `ma_simulation_setup` per einfacher Checkbox Ausgabethemen. Alle durch VGEN
+  erzeugten Varianten werden manuell in IDA ICE ausgefuehrt, je `(RUN-ID,
+  VAR-ID)` importiert und fuer Jahresenergie sowie weitere datenkompatible
+  Kennwerte und Diagramme ausgewertet.
+- Entscheidung Prozessreihenfolge: Die dauerhafte PreProcess-Reihenfolge
+  lautet `ma_project -> ma_weather -> ma_building -> ma_technical ->
+  ma_zones -> ma_parameters`. `ma_technical` definiert vor `ma_zones`
+  systemweite Systeme und System-IDs; `ma_zones` ordnet Zonen diesen Systemen
+  zu. `ma_project` besitzt `StudyDirection` und `StudyCase`;
+  `ma_parameters` besitzt die daraus abgeleitete
+  `ParameterVariationSpecification`. Das ersetzt ausschliesslich fuer diesen
+  Scope die gegenteilige Reihenfolge in UD-106 und den daraus abgeleiteten
+  Plaenen. Bestehender Code ist Migrationsbestand, keine abweichende
+  Zielwahrheit.
+- Entscheidung Prozessansicht: PreProcess, MainProcess, PostProcess sowie
+  Review/Iteration sind die kanonische Benutzer- und Orchestrierungsansicht
+  des Gesamtprozesses. Die historische P007-Gliederung mit Phase 0 und sechs
+  Hauptphasen bleibt als Planhistorie erhalten, ist aber keine konkurrierende
+  V1-Prozesskette. `ma_validation`, `ma_feedback` und sonstige
+  Querschnittsfunktionen werden dadurch nicht zu einer zusaetzlichen
+  Fachphase.
+- Entscheidung Workflownavigation: Die Arbeitsoberflaeche besitzt eine
+  direkte Modulansicht und eine getrennte Workflowansicht. Die
+  Workflowansicht startet in einer Gesamtuebersicht statt an einem
+  erzwungenen Prozessstart und zeigt auf Ebene 1 die drei anklickbaren
+  Bereiche `PreProcess`, `Kernprozess (MainProcess)` und `PostProcess`.
+  Auf dieser Ebene duerfen zusammenfassende Validierungs- und
+  Reviewhinweise sichtbar sein, insbesondere Rueckschluesse aus dem
+  PostProcess auf betroffene Eingabemodule. Sie sind Orientierung und
+  Korrekturauftrag, keine automatische Aenderung oder Iteration. Ebene 2
+  zeigt die Module, Uebergaben sowie konkret benannte
+  Validierungs-/Entscheidungsknoten des gewaehlten Bereichs; insbesondere
+  sind PreProcess-Pruefschritte dort sichtbar. Ebene 3 ist die tatsaechliche
+  Fachansicht mit ihren Reitern oder gefuehrten Detailschritten. Weiter und
+  Zurueck bewegen sich ausschliesslich innerhalb der gerade offenen Ebene;
+  eine sichtbare Pfadnavigation fuehrt gezielt zurueck in die uebergeordnete
+  Ebene. Ein expliziter Korrekturpfad verweist auf sein Zielmodul und ersetzt
+  keine allgemeine Zurueck-Navigation. Aktive Seite, Unteransicht und
+  Entwuerfe bleiben bei einem solchen Navigationswechsel erhalten. Die
+  künftige Darstellung soll eine interaktive, vektorfaehige
+  Workflowvisualisierung sein; eine konkrete Grafikbibliothek wird erst nach
+  Bestandsanalyse ohne neue Abhaengigkeit entschieden.
+- Entscheidung Dimensionierung: `ma_dimensionierung` ist ein eigenes
+  Kernmodul und fachlicher Owner der Dimensionierung. Es verantwortet die
+  interne Vorbereitung, vereinfachte oder ausfuehrliche Verfahren,
+  externe/statische/dynamische Berechnung sowie fachliche Annahme, Pruefung
+  und Freigabe eines standardisierten Dimensionierungsergebnisses.
+  `ma_import_simulation` fuehrt ausschliesslich die technische Dateiaufnahme,
+  Zuordnung und Standardisierung aus. Manuell eingegebene Tabellenwerte gehen
+  ueber einen klar getrennten Manual-Entry-Adapter in `ma_dimensionierung`,
+  nicht als vorgetaeuschter Dateimport. `ma_technical` ist nicht
+  Dimensionierungsowner. `ma_analyse` bleibt auf den
+  PostProcess begrenzt; es darf importierte Dimensionierungsergebnisse spaeter
+  auswerten oder vergleichen, aber keine Dimensionierung durchfuehren.
+- Entscheidung Varianten und Dimensionierung: `ma_variants` erkennt nur
+  Dimensionierungsbedarf und identische Eingabegruppen, berechnet jedoch
+  keine Lasten. Die verbindliche Auswahl liegt vor dem tatsaechlichen
+  Dimensionierungsauftrag, damit nur wirklich verwendete,
+  dimensionierungsrelevante Kandidaten dimensioniert werden. Die vorhandenen
+  Begriffe `VSP`, `VVER`, `VCAT`, `VSEL`, `VGEN` bleiben erhalten; es werden
+  weder ein vorlaeufiger zweiter VCAT noch `CASE` oder `SimulationCase`
+  eingefuehrt. Die genaue Migrationsabbildung ist in P017 zu planen.
+  Leistungsfaktoren benoetigen nur dann vorab eine Referenzdimensionierung,
+  wenn sie in absolute Leistung ueberfuehrt werden muessen.
+- Entscheidung RUN: Ein wissenschaftlicher `RUN` enthaelt genau eine
+  Selection, ein gemeinsames Setup und mehrere Varianten. `(RUN-ID, VAR-ID)`
+  bezeichnet die manuelle Ausfuehrung und den Ergebnisbezug, nicht einen
+  eigenen wissenschaftlichen Run. Der gegenwaertige Code mit Einzelruns bzw.
+  Run-Gruppen pro Variante ist als Migrationsbedarf dokumentiert.
+- Entscheidung Datenstufen und Outputprofil: `ma_import_simulation` besitzt
+  `raw` und `standardized`. `ma_dimensionierung` besitzt die fachliche
+  Annahme und Aufbereitung standardisierter Dimensionierungsergebnisse;
+  `ma_analyse` besitzt `prepared`, Kennwerte, Diagramme und Interpretation
+  der Variantensimulation. `ma_analyse` definiert den fachlichen
+  OutputRequirementProfile-Katalog; `ma_simulation_setup` speichert nur die
+  vom Nutzer ausgewaehlte Profilinstanz im Setup/Manifest.
+- Entscheidung Import und PostProcess: `ma_import_simulation` ist der
+  gemeinsame technische Importkern: Rohdatei/Hash, externes Mapping,
+  Einheiten, Zeitachse, Scope und technische Validierung. Die Datenkette
+  lautet `raw -> standardized -> prepared -> metric/diagram ->
+  interpretation`. Anschliessend fuehren Dimensionierungsergebnisse zu
+  `ma_dimensionierung`, Simulationsergebnisse zu `ma_analyse`. Importmapping,
+  technische Validierung sowie fachliche Auswertbarkeit/Review bleiben
+  getrennte Statusachsen; erneute Zuordnung versioniert statt zu
+  ueberschreiben.
+- Entscheidung Ausgaben und Funktionspruefung: Das im Setup gespeicherte
+  `OutputRequirementProfile` waehlt Themen, nicht einzelne optische
+  Diagramme. `ma_analyse` erzeugt alle datenkompatiblen Diagramme der
+  angeforderten Themen. Nicht ausgewaehlte Themen heissen `nicht angefordert`,
+  angeforderte ohne ausreichende Daten `nicht auswertbar` mit Ursache.
+  Funktionspruefung geht einer Einsparungsinterpretation voraus; geringere
+  Energie oder Leistung ist bei Unterversorgung keine Verbesserung. V1 trifft
+  keinen normativen Komfortnachweis und verwendet keine frei erfundenen
+  numerischen Funktionsschwellen.
+- Entscheidung Auswertungszeitraum und Indikatoren: Energetische Jahreswerte
+  beziehen sich auf den vollstaendigen Jahreszeitraum. Temperatur,
+  Unterdeckung und Funktionsindikatoren werden vorrangig fuer die
+  Belegungszeit ausgewertet und ausserhalb davon getrennt dargestellt. Soweit
+  der freigegebene Ergebnisvertrag die Daten enthaelt, zeigt V1
+  Raum-/operative Temperatur, Sollwerte, ungedeckte Heiz-/Kuehlleistung,
+  Kapazitaetssaettigung, Verletzungsstunden und Gradstunden in passenden
+  datenkompatiblen Darstellungen. Referenz, dynamische Baseline und Varianten
+  werden neutral als absolute Werte, Differenzen oder Verhaeltnisse
+  verglichen; daraus folgt keine automatische Aussage wie
+  `ueberdimensioniert`.
+- Entscheidung Diagramm- und UI-Schutz: Bestehende Heating-Diagramme bleiben
+  fachliche und visuelle Referenz. Vorlagen, Farben, Achsen, Layout oder
+  Diagrammstruktur werden nur nach gesonderter Nutzerabstimmung geaendert.
+  Jede V1-Fachfunktion muss in der UI sichtbar und bedienbar sein; technische
+  Hilfsservices duerfen keine Nutzerfunktion unsichtbar machen.
+- Entscheidung Review und Iteration: Ein Review klassifiziert eine
+  Import-/Mappingkorrektur, erneute Auswertung vorhandener Daten, neue
+  Variantenauswahl oder neue Simulation. Es trifft weder automatisch eine
+  Bestvariantenauswahl noch erzeugt es automatisch eine Iteration. Aeltere
+  Runs bleiben erhalten; ein Folgeschritt verweist mit Elternbezug und
+  Begruendung auf seinen Ausgangspunkt. V1 zeigt Reviewstatus und
+  Ruecksprungziel in Workflow/PostProcess; eine eigene Review- oder
+  Iterationsbearbeitungsseite ist erst erforderlich, sobald dieser
+  Folgeschritt fachlich umgesetzt wird.
+- Entscheidung Prozessmessung und Kosten: P030 erfasst PreProcess mit
+  Parameteranzahl/-komplexitaet und Variantenanzahl, manuelle IDA-Arbeit je
+  Variante, Maschinen-/Simulationsdauer je Variante, Pruef-/Korrekturzeit
+  sowie PostProcess je Variante und insgesamt. Aktive Arbeitszeit ist die
+  Basis der spaeteren Personalkostenrechnung; Maschinen- und Wartezeit werden
+  getrennt gezeigt. Entwicklung, Einarbeitung und Lizenzkosten sind nur ein
+  separates Adoptionsszenario.
+- Entscheidung Rechtegrenze: Fuer die lokale Testversion sind synthetische
+  Daten und manuell bereitgestellte, freigegebene neutrale Ergebnisexports
+  vorgesehen. Nichtveroeffentlichung ersetzt keine Rechte. Vollstaendige
+  IDA-/EQUA-Dateien, Bibliotheken, automatischer IDA-Start und
+  IDM-Manipulation bleiben ohne belegten Rechte- und Freigabenachweis
+  gesperrt.
+- Ersetzungsvermerk: UD-105 bleibt mit Geometrie, fuenf Zonen, Baseline,
+  Optimierungs- und OFAT-Sensitivitaetsdefinition gueltig. Seine Begrenzung,
+  dass vorbereitete Faelle nicht simuliert werden, ist fuer die durch VGEN
+  erzeugten Varianten durch diese Entscheidung abgeloest. UD-106 bleibt fuer
+  Workspace-, Draft- und Katalogregeln gueltig; seine Zonen-vor-Technik-
+  Reihenfolge ist im genannten Scope abgeloest. Aeltere P007/P016/P017/P018-
+  Aussagen werden nur in den hier genannten Punkten durch die aktualisierten
+  Planabschnitte ersetzt. Zusaetzlich sind die Prozessansicht in UD-042, die
+  Modulzuordnung in UD-052 und
+  UD-071 (`ma_analyse.stage_1_dimensioning`), die Reihenfolge in UD-073
+  (`VSP -> VVER -> VCAT -> VSEL -> VGEN`), die Vorordnung der
+  Referenzdimensionierung in UD-079 sowie die Begrenzung auf drei
+  OutputRequirementProfiles und Diagrammtypen in UD-083 in ihrem jeweiligen
+  Zielscope durch diese Entscheidung abgeloest. Die historischen
+  Umsetzungsnachweise bleiben unveraendert erhalten.
+- Betroffene Dateien: P007, P009, P016-P018, P027, P029, P030,
+  `PLAN_INDEX.md`, `PLAN_STATUS.md`, offene Entscheidungen und
+  Chat-Handover-Archiv.
+- Quelle oder Chatbezug: konsolidierte Nutzerentscheidungen und Council-
+  Abgleich im Chat zum Gesamtprozess; ausdrueckliche `Freigabe zur Umsetzung`
+  am 2026-07-31.
+
+## UD-113 Gestufte Blind-Review fuer Chat-Handover
+
+- Datum: 2026-07-31
+- Status: entschieden und umgesetzt
+- Thema: Verstaendlichkeit und Vollstaendigkeit historischer Chat-Handover.
+- Entscheidung: Vor jeder finalen Handover-Archivierung prueft ein separater
+  Agent den Entwurf zunaechst ohne Chat- oder Repository-Kontext. Er bewertet,
+  ob Ausgangslage, aktueller Stand, Entscheidungen, offene Punkte, naechste
+  Schritte und Verweise allein aus dem Handover nachvollziehbar sind.
+- Eskalation: Bei Verstaendnisluecken darf der Agent gezielt den bisherigen
+  Chatverlauf nachschlagen. Bleibt ein Punkt danach unklar oder
+  widerspruechlich, stellt er dem Nutzer eine konkrete Rueckfrage im Chat.
+  Der Handover wird erst nach der erforderlichen Klaerung final archiviert.
+- Abgrenzung: Der Blind-Review ersetzt weder die Uebertragung offener Inhalte
+  in ihre fuehrenden Projektquellen noch die fachliche oder technische
+  Qualitaetspruefung. Er prueft ausschliesslich die eigenstaendige
+  Verstaendlichkeit des Handover-Entwurfs.
+- Betroffene Dateien: `docs/project/UPDATE_ROUTINES.md`,
+  `docs/project/decisions/USER_DECISIONS_MASTERTHESIS_CODE.md`,
+  `CHANGELOG.md`.
+- Quelle oder Chatbezug: Nutzerentscheidung und ausdrueckliche
+  `Freigabe zur Umsetzung` am 2026-07-31.
+
+## UD-114 Prozessbereichsgrenzen und spaete Workflow-UI
+
+- Datum: 2026-07-31
+- Status: getroffen; Planungsabgleich umgesetzt, Fachmigrationen folgen
+- Thema: Abgrenzung von PreProcess, Kernprozess und PostProcess sowie
+  Reihenfolge der Workflow-UI-Umsetzung
+- Entscheidung Prozessgrenzen: Der `PreProcess` reicht von `ma_project` bis
+  einschliesslich `ma_simulation_setup`. Sein reproduzierbarer Abschluss ist
+  ein validiertes und materialisiertes Run-Paket mit dem Status
+  `released_for_simulation` oder einem fachlich gleichwertigen spaeteren
+  Freigabestatus.
+- Entscheidung Kernprozess: Der `Kernprozess (MainProcess)` beginnt mit der
+  Export-/Uebergabehandlung des freigegebenen Run-Pakets und umfasst
+  `ma_export_simulation`, die manuelle Simulation aller VAR eines RUN sowie
+  `ma_import_simulation`. Er endet mit dem technisch validierten
+  Importabschluss `standardized_ready`.
+- Entscheidung PostProcess: Der `PostProcess` beginnt am selben
+  `standardized_ready`-Uebergang. Die Erzeugung von `prepared` aus
+  `standardized` ist sein erster fachlicher Datenverarbeitungsschritt;
+  danach folgen Kennwerte, Diagramme und Interpretation in `ma_analyse`.
+- Entscheidung Umsetzungsreihenfolge: Die neue Workflowansicht wird erst als
+  letzter Migrationsslice umgesetzt, nachdem Fachmodule, Uebergaben,
+  Bereichsgrenzen, zentraler `ma_workflow`-Katalog, Runner und Statusvertraege
+  stabil sind. Der zuvor begonnene, vom Council blockierte UI-Entwurf wird
+  nicht weitergefuehrt und nicht als Zwischenwahrheit verwendet.
+- Entscheidung Bedienkonzept: Die spaetere Workflowansicht erhaelt eine
+  gesondert abgestimmte Button- und Sprungzielmatrix. Ihre Navigation darf
+  von der direkten Arbeits-/Modulansicht abweichen, sofern sie nur navigiert,
+  Ziele eindeutig benennt, Entwuerfe und Sitzungszustand erhaelt und keine
+  Fachaktion, Auswahl, Iteration oder Datenveraenderung automatisch ausloest.
+- Einordnung: Die Bereichsgrenzen bestaetigen die bereits in UD-079, UD-099
+  und UD-106 dokumentierte Abgrenzung. UD-112 bleibt fuer Reihenfolge,
+  Ownership und MVP-Ziel gueltig; seine nicht explizite Bereichszuordnung wird
+  durch UD-114 praezisiert.
+- Betroffene Dateien: P007, P018, P027, P030, `PLAN_INDEX.md`,
+  `PLAN_STATUS.md`, `CHANGELOG.md` sowie der spaetere zentrale
+  `ma_workflow`-Migrationsslice.
+- Quelle oder Chatbezug: Nutzerpraezisierung, vollstaendiger Council-Abgleich
+  und ausdrueckliche `Freigabe zur Umsetzung` am 2026-07-31.
+
+## UD-115 Projektlokale v2-Technikrevision und sichtbare Freigabekette
+
+- Datum: 2026-08-01
+- Status: entschieden und im P014-Direktansicht-Slice umgesetzt
+- Thema: P014-v2-Revisionsspeicher, Kennungen, Building-Bindung,
+  Legacy-Provenienz und direkte Freigabebedienung
+- Entscheidung Revisionsspeicher: Unveraenderliche Technikrevisionen liegen
+  append-only im Projekt-Workspace unter
+  `config/ma_technical/revisions/<building_id>/<technical_model_id>/<revision_id>.yaml`.
+  Der veraenderliche Modulstand in `config/ma_technical.yaml` referenziert die
+  aktuell fuer ein Building bereitgestellte Revision; Revisionen werden nicht
+  in `output/` oder einer Sammeldatei abgelegt.
+- Entscheidung Kennungen: Modell- und Revisions-IDs werden projektlokal und
+  systemseitig als lesbare Sequenzen erzeugt, beispielsweise `TECH-000001`
+  und `TECH-000001-REV-000001`. Freitext, Zeitstempel, UUID und Content-Hash
+  sind keine primaeren Kennungen. Jede ausdrueckliche Freigabe erzeugt ein
+  neues Freigabeereignis und damit eine neue Revision, auch wenn der
+  fachliche Content-Hash mit einer frueheren Revision uebereinstimmt.
+- Entscheidung Projekt-/Building-Bindung: Ein v2-Technikstand wird strikt an
+  die aktive Workspace-Projekt-ID und den in `ma_building` ausdruecklich
+  uebernommenen Building-Stand gebunden. Building-ID und `model_version`
+  bilden die aktuelle Referenz; ein noch nicht vorhandener Building-
+  Content-Hash bleibt sichtbar leer und wird nicht erfunden. Fehlende oder
+  widerspruechliche Projekt-/Building-Referenzen blockieren die Freigabe.
+- Entscheidung Legacy-Provenienz: Ein deterministischer, versionierter
+  Einwegadapter darf den Legacy-v1-Technikstand in einen projektgebundenen
+  v2-Sitzungsentwurf ueberfuehren. Er dokumentiert Legacy-Modell-ID,
+  repo-relative Quelle, SHA-256 und Mappingversion. Direkte
+  `served_zone_ids` werden verworfen. W/m2-, Luftwechsel- und andere nicht
+  eindeutig als v2-Kapazitaet darstellbare Werte bleiben ausschliesslich als
+  Herkunft/Annahme sichtbar und werden weder in absolute Leistung
+  umgerechnet noch als Dimensionierung ausgegeben.
+- Entscheidung UI-Ablauf: Die direkte Technikansicht trennt sichtbar
+  `v2-Entwurf vorbereiten`, `Struktur pruefen` und `Revision freigeben`.
+  Erst die explizite Freigabe darf append-only schreiben. Danach wird die
+  gespeicherte Revision erneut geladen und hashgeprueft, der Handover daraus
+  abgeleitet, angezeigt und als aktueller Technikstand fuer das ausgewaehlte
+  Building referenziert. Rendern, Entwurfsvorbereitung und Strukturpruefung
+  erzeugen keine Revision.
+- Technische Schutzgrenzen: Pfadbestandteile werden eng validiert,
+  Revisionsdateien atomar und kollisionssicher neu angelegt und nie
+  ueberschrieben. Dateiname und gespeicherte Revisions-ID muessen
+  uebereinstimmen. Keine Zonenbelegung, Terminalzuordnung, Dimensionierung,
+  automatische Nachbarmodulaenderung, Workflow-UI oder Verarbeitung realer
+  beziehungsweise geschuetzter Technikquellen ist Teil dieses Slices.
+- Einordnung: Die Entscheidung schliesst fuer diesen V1-Scope die in UD-074
+  offene lokale Revisionsstruktur, ID-Vergabe, Legacy-v2-Uebergabe und
+  Freigabe-UI. UD-112 bleibt fuer Reihenfolge und Ownership fuehrend; P035
+  bleibt Owner des Projekt-Workspace-Vertrags.
+- Quelle oder Chatbezug: vollstaendiger Council aus Mira, Ada, Vera,
+  Professor Sophia und Tera; Nutzerzustimmung zu den Empfehlungen 1A bis 5A
+  sowie `Freigabe zur Umsetzung fuer den naechsten slice` am 2026-08-01.

@@ -1,6 +1,6 @@
 # Entscheidungen
 
-Stand: 2026-07-15
+Stand: 2026-08-01
 
 Dieses Dokument sammelt technische und architektonische Entscheidungen. Echte Nutzerentscheidungen stehen getrennt in `USER_DECISIONS_MASTERTHESIS_CODE.md`.
 
@@ -1161,3 +1161,135 @@ Rueckfallvertrag:
 Ausgeschlossen bleiben PRN-Parsing, IDM-Adapter, Zeitreihennormalisierung,
 Dateiverschiebung, neue Abhaengigkeiten, Simulation, Veroeffentlichung und
 Git-Aktionen.
+
+## Entscheidung 45: Projektbezogene P014-v2-Revision nach UD-115
+
+Am 2026-08-01 wird der lokale und reversible P014-Direktansicht-Slice nach
+UD-115 umgesetzt. Der Council aus Mira, Ada, Vera, Professor Sophia und Tera
+hat Speicherort, ID-Vergabe, Projekt-/Building-Bindung, Legacy-Provenienz und
+die sichtbare Freigabekette vor der Umsetzung geprueft.
+
+- `workspace_revisions.py` kapselt den P035-Pfad
+  `config/ma_technical/revisions/<building_id>/<technical_model_id>/`, die
+  projektlokalen Sequenzen `TECH-000001` und `TECH-000001-REV-000001` sowie
+  den append-only Release-Service.
+- `revisions.py` validiert Dateinamenbestandteile und schreibt neue YAML-
+  Revisionen ueber eine temporaere Datei mit exklusiver Hardlink-Anlage.
+  Bestehende Revisionen werden nicht ueberschrieben. Beim Laden muessen
+  Dateiname, Revisions-ID und Content-Hash uebereinstimmen.
+- Warnungen blockieren die Freigabe ohne ausdrueckliche Bestaetigung. Eine
+  bestaetigte Warnfreigabe speichert Code und Fundstelle, prueft sie beim
+  Reload gegen die Spezifikation und bindet den Nachweis ueber einen eigenen
+  Hash bis in Handover und aktiven Workspace-Verweis; Fehler bleiben immer
+  blockierend.
+- `legacy_v2_adapter.py` erzeugt aus einer ausdruecklich ausgewaehlten
+  versionierten Legacy-v1-Quelle deterministisch einen projektgebundenen
+  v2-Sitzungsentwurf. Repo-relative Quelle, SHA-256 und Mappingversion gehen
+  in die Provenienz ein. Direkte Zonenbelegungen werden nicht uebernommen;
+  spezifische Leistungen, Luftwechsel und weitere nicht eindeutige Werte
+  bleiben nur Annahmen und werden nicht zu Kapazitaeten oder einer
+  Dimensionierung umgedeutet.
+- Die direkte Streamlit-Ansicht trennt Entwurfsvorbereitung,
+  Strukturpruefung und Freigabe. Nur die letzte Aktion schreibt. Der Handover
+  wird ausschliesslich aus der erneut geladenen und hashgeprueften Revision
+  aufgebaut und anschliessend je Building workspace-relativ als aktiv
+  referenziert.
+- Die oeffentliche Workspace-Release-Grenze verlangt die aktive Projekt-ID.
+  Sie laedt dazu den tatsaechlichen P035-Workspace samt `project.yaml` und
+  `ma_building.yaml`; reine Aufruferargumente genuegen nicht. Ein aktiver Technikstand gilt nur fuer die vollstaendig gleiche Building-
+  Referenz einschliesslich `model_version` und eines gegebenen Content-Hashs.
+  Fehlt der Building-Hash, zeigt die UI dies als `nicht vorhanden`.
+- Aktivierung und aktiver Reload akzeptieren ausschliesslich den kanonischen
+  UD-115-Pfad. Die Pfadgrenze wird vor dem Dateilesen geprueft; YAML-Wurzeln
+  muessen Mappings sein. Ein gueltiger Technikstand fuer eine fruehere
+  Building-Version wird als veraltet angezeigt und kann im gleichen
+  Dreischritt durch eine neue Revision fuer den aktuellen Stand abgeloest
+  werden.
+- Die aktuelle Legacy-Lueftungsabbildung projiziert eine Zu-/Abluftanlage nur
+  als `supply_air`. Diese fachliche Mappinggrenze ist als Annahme sichtbar;
+  ein `extract_air`-Interface wird nicht stillschweigend behauptet.
+
+Rueckfallvertrag:
+
+- Adapter, Workspace-Revisionsservice, UI-Orchestrierung und ihre Tests sind
+  additive Einheiten. Die bestehenden Legacy-v1-Loader, die synthetische
+  v2-Referenz, allgemeine v2-Revisions- und Handover-Vertraege bleiben bei
+  einer Ruecknahme betriebsfaehig.
+- Bereits erzeugte append-only Projektdateien werden bei einer Code-
+  Ruecknahme nicht automatisch geloescht oder ueberschrieben.
+
+Ausgeschlossen bleiben Zonen-/Terminalzuordnung, Lastberechnung,
+Dimensionierung, automatische Nachbarmodulaenderungen, Workflow-UI, neue
+Abhaengigkeiten, reale beziehungsweise geschuetzte Technikdaten und
+Git-Aktionen.
+
+Abschlussnachweis:
+
+- Nach der ersten integrierten Fassung bestand die vollstaendige lokale Suite
+  mit `712 passed`; Ruff und `git diff --check` waren gruen.
+- Nach den Council-Haertungen fuer reale Workspace-Bindung, veraltete
+  Building-Versionen, Freigabenachweis, kanonische Pfade und YAML-Wurzel
+  bestand der erweiterte Fokus- und Architekturguardrail-Lauf mit
+  `226 passed`; Ruff und `git diff --check` blieben gruen.
+
+## Entscheidung 46: Direkte P013-Zuordnung zum aktiven P014-Handover
+
+Am 2026-08-01 wird der lokale und reversible P013-Direktansicht-Slice auf
+Grundlage von UD-112 und dem P013/P014-S1-Vertrag umgesetzt. Es entsteht
+keine neue Nutzerentscheidung.
+
+- Die Zonenansicht laedt den explizit uebernommenen P012-Building-Stand und
+  genau dessen aktive P014-Revision. Fehlende, veraltete, projektfremde oder
+  hashinkonsistente Handovers sperren die Zuordnung sichtbar.
+- Versionierte Zonenquellen werden nicht veraendert. Fuer den
+  Projektentwurf wird nur ihre Projekt-ID an den Workspace gebunden;
+  Building-ID und Building-Revision muessen unveraendert exakt passen.
+- Jede Zone-Interface-Kombination startet unmarkiert. Nur eine ausdruecklich
+  markierte und manuell bestaetigte Zeile erzeugt eine
+  `ZoneTechnicalServiceAssignment`. Ein optionaler Terminaltyp muss dem
+  freigegebenen Interface entsprechen.
+- Pruefen und Speichern sind getrennte UI-Aktionen. Der gespeicherte Entwurf
+  muss exakt dem zuvor erfolgreich geprueften Token aus Zoneninhalt-,
+  Assignment- und Handoverstand entsprechen. Ein deterministischer
+  Zoneninhalt-Hash umfasst die kanonische Zonenspezifikation ohne den gerade
+  bearbeiteten Assignment-Entwurf und entwertet alte Bestaetigungen auch bei
+  geaenderter Zone-Raum-Zusammensetzung.
+- `ma_zones.yaml` wird additiv unter dem vorhandenen Modelldraft ergaenzt.
+  Der gespeicherte Bezug enthaelt Technikmodell, Revision, Content-,
+  Interface-, Freigabenachweis- und Handover-Hash sowie Building-ID und
+  -Revision. Entwuerfe eines anderen Handovers werden nicht vorausgewaehlt.
+- Eine bereits vorhandene, abweichende, leere oder typfremde Projekt-ID und
+  beschaedigte Draft-Strukturen werden bereits vor einer Vorauswahl und vor
+  jeder Uebernahme abgewiesen. Sie werden nicht durch die aktuelle
+  Workspace-ID oder leere Ersatzstrukturen ueberschrieben.
+- Ein leerer gepruefter Entwurf bleibt ohne Assignment-Nutzlast moeglich und
+  behauptet keine Vollversorgung. Es wird kein `ReleasedZoneHandover`
+  erzeugt. Die UI bezeichnet die Pruefung ausdruecklich nur als
+  Integritaetspruefung, nicht als Nachweis von Vollstaendigkeit, technischer
+  Eignung, Lastdeckung oder Dimensionierung. Nicht deklarierte Terminaltypen
+  werden sichtbar als solche bezeichnet.
+
+Rueckfallvertrag:
+
+- `zones_assignment_support.py`, die additive UI-Sektion und ihre Tests
+  koennen gemeinsam entfernt werden. Die bestehenden P013-Fachmodelle,
+  P014-Revisionen, Beispiel-YAMLs und Legacy-Validatoren bleiben dabei
+  unveraendert.
+- Projektentwuerfe werden bei einer Code-Ruecknahme nicht automatisch
+  geloescht oder umgeschrieben.
+
+Ausgeschlossen bleiben automatische Zonenbelegung, Last- und
+Kapazitaetsberechnung, Dimensionierung, Aenderungen an P014, Erzeugung eines
+finalen Zonenhandovers, Workflow-UI, neue Abhaengigkeiten, reale oder
+geschuetzte Quellen und Git-Aktionen.
+
+Abschlussnachweis vom 2026-08-02:
+
+- Der fokussierte Zonen-/Technik-/UI-Lauf bestand nach allen Haertungen mit
+  `179 passed`.
+- Die vollstaendige lokale Suite bestand mit `736 passed`; Ruff fuer `src`
+  und `tests` sowie `git diff --check` waren gruen.
+- Vera und Professor Sophia meldeten im Abschlussreview keine verbleibenden
+  Blocker oder wichtigen Befunde. Ihre Befunde zu Projekt- und
+  Zoneninhaltsbindung, Terminalsemantik, Aussagegrenzen, beschaedigten
+  Drafts und rendernahen Tests sind umgesetzt.

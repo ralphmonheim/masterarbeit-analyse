@@ -15,6 +15,11 @@ Variantenerzeugung.
 Der aktive erste Ausbau endet mit vollstaendig erzeugten ausgewaehlten
 Varianten und deren Uebergabe an `ma_simulation_setup`.
 
+Alle Ketten-, VCAT- und VSEL-Aussagen vor dem Abschnitt
+`Konsolidierung nach UD-112 2026-07-31` beschreiben den damaligen
+Implementierungs- oder Planstand. Bei einem Widerspruch gilt ausschliesslich
+der dort dokumentierte Zielvertrag.
+
 ## Ausgangslage
 
 Ein produktiver Prototyp fuer Varianten, Auswahl, Naming und IDA-Export ist
@@ -28,7 +33,11 @@ Noch offen ist die verbindliche Umstellung auf:
 - getrennte Schritte `VSP`, `VVER`, `VCAT`, `VSEL` und `VGEN`.
 - direkte Uebergabe vollstaendiger Varianten an P018.
 
-## Umsetzungsstand 2026-07-21: erster vorfuehrbarer Referenzslice
+## Historischer Umsetzungsstand 2026-07-21: erster vorfuehrbarer Referenzslice
+
+Der folgende Referenzslice beschreibt den implementierten Altbestand. Seine
+Ketten- und VSEL-Aussagen werden durch die Konsolidierung nach UD-112 am Ende
+dieses Plans als Zielvertrag abgeloest.
 
 `ma_variants.workflow` bildet fuer die freigegebene Zonenreferenz die Kette
 `VSP -> VVER -> VCAT -> VSEL -> VGEN` ab:
@@ -353,6 +362,33 @@ Projektbezogen:
 - Varianten, Regel- und Dimensionierungsprotokolle.
 - wissenschaftliche Reports.
 - Runs und Ergebnisverweise.
+
+## Konsolidierung nach UD-112 2026-07-31
+
+`ma_variants` bleibt Owner von VariantSpace, Kandidaten, Vorpruefung,
+Regelprotokollen, Auswahl und Generation. Es besitzt keine
+Dimensionierungsberechnung. Nach der Vorpruefung wird die tatsaechlich zu
+untersuchende Menge verbindlich ausgewaehlt; nur darin werden
+dimensionierungsrelevante Kandidaten nach Fingerprint gruppiert und an
+`ma_dimensionierung` uebergeben. Nach Ergebnisimport und Nachpruefung wird
+der finale VCAT gebildet und VGEN erzeugt die ausgewaehlten Varianten.
+
+Die bestehende Objektmenge `VSP`, `VVER`, `VCAT`, `VSEL`, `VGEN` bleibt
+massgeblich. Der bislang beschriebene Ablauf `VSP -> VVER -> VCAT -> VSEL ->
+VGEN` ist deshalb als abgeloeste Reihenfolge markiert: Ein eigener
+Vorab-VCAT, `CASE`, `SimulationCase` oder sonstiges Parallelobjekt wird nicht
+eingefuehrt. Die fruehe verbindliche Auswahl wird als versionierter
+VVER-Bestandteil mit Kandidaten-Fingerprints, Auswahlbegruendung und
+gegebenenfalls Seed gespeichert. Nach Dimensionierung und Nachpruefung bildet
+der finale VCAT die finalen VAR-IDs. VSEL referenziert anschliessend exakt
+diese aus VVER hergeleitete Menge und dokumentiert ihre Abbildung auf VAR-IDs;
+es trifft keine zweite fachliche Auswahl. Die bisherigen VSEL-Invarianten
+gelten damit nur fuer den Altbestand und sind im Migrationsslice mit Tests und
+Rueckwaertskompatibilitaetspruefung anzupassen.
+
+Alle per VGEN erzeugten Varianten werden im V1 anschliessend manuell in IDA
+ICE ausgefuehrt. Das ist Teil der Zeitmessung; es gibt keine unbestimmte
+spaetere Kapazitaetsauswahl mehr.
 
 Temporaer:
 

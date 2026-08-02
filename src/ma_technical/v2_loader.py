@@ -34,6 +34,7 @@ from .enums import (
 )
 from .equipment import PhysicalEquipment
 from .metadata import ObjectReference, SourceMetadata, TechnicalAssumption, TechnicalValueMetadata
+from .paths import SYNTHETIC_V2_REFERENCE_TECHNICAL_SPEC_PATH
 from .plant import (
     CapacityDefinition,
     CoolingGeneration,
@@ -58,6 +59,11 @@ def load_technical_model_specification(path: str | Path) -> TechnicalModelSpecif
     except yaml.YAMLError as error:
         raise ValueError(f"Technikmodell-YAML ist ungueltig: {source_path}") from error
     return technical_model_specification_from_dict(data)
+
+
+def load_synthetic_v2_reference_technical_spec() -> TechnicalModelSpecification:
+    """Laedt die klar gekennzeichnete, projektunabhaengige v2-Testreferenz."""
+    return load_technical_model_specification(SYNTHETIC_V2_REFERENCE_TECHNICAL_SPEC_PATH)
 
 
 def technical_model_specification_from_dict(data: Mapping[str, Any]) -> TechnicalModelSpecification:

@@ -36,9 +36,10 @@ IDA-Dateien, ein Simulationsstart, Ergebnisimport und ein separates
 
 P018 beendet nur den Preprocess-Teil des Masterarbeits-MVP. Der gesamte
 MVP-V1-Durchlauf setzt danach die manuelle Simulation, den P009-MVP-
-Ergebnispostprocess, die drei OutputRequirementProfiles aus P016 und die
-getrennte P030-Prozessauswertung fort. P018 verwendet dabei die freigegebene
-Revision des `ThermalBuildingModel` aus P013 als Gebaeude-/Zonenabschluss.
+Ergebnispostprocess, das ausgewaehlte OutputRequirementProfile aus dem von
+`ma_analyse` definierten Katalog und die getrennte P030-Prozessauswertung
+fort. P018 verwendet dabei die freigegebene Revision des
+`ThermalBuildingModel` aus P013 als Gebaeude-/Zonenabschluss.
 
 ## Neutrales Run-Paket
 
@@ -283,3 +284,35 @@ Nicht aufgeloeste Wetterquellen erzeugen Run- und Gruppenstatus
 `preparation_incomplete_weather_source` und verlangen als naechste Aktion
 die Quellenaufloesung; sie werden nicht als bereit fuer die manuelle
 Simulation bezeichnet.
+
+## Konsolidierung nach UD-112 2026-07-31
+
+`ma_simulation_setup` bleibt der sichtbare Abschluss des PreProcess nach
+VGEN. Die UI stellt die moeglichen Ausgabethemen mit einfachen Checkboxen
+bereit, zum Beispiel Jahresenergie, Heiz-/Kuehlspitzen,
+Temperatur/Funktionspruefung und Baseline-/Variantenvergleich. Das
+ausgewaehlte `OutputRequirementProfile` beschreibt erwartete Kennwerte und
+Daten, erzeugt aber selbst keine Diagramme und besitzt keine
+Dimensionierungsfachlogik. Der fachliche Profilkatalog und seine
+Datenanforderungen gehoeren zu `ma_analyse`; P018 persistiert ausschliesslich
+die vom Nutzer ausgewaehlte Profilinstanz im Setup/Manifest.
+
+UD-114 bestaetigt diese Bereichsgrenze: Der PreProcess endet erst mit einem
+validierten, materialisierten und `released_for_simulation` freigegebenen
+Run-Paket. Export/Run-Uebergabe gehoeren bereits zum anschliessenden
+Kernprozess. Die Workflow-UI wird erst nach der fachlichen und zentralen
+Workflowmigration aus diesem Vertrag abgeleitet.
+
+Ein `RUN` ist die wissenschaftliche Einheit: genau eine Selection,
+ein gemeinsames Setup und mehrere `VAR`. Jede manuelle IDA-Ausfuehrung und
+ihr Ergebnis werden ausschliesslich durch `(RUN-ID, VAR-ID)` adressiert.
+Der gegenwaertige Altbestand mit einzelnen Run-Dateien je Variante bzw. einer
+`Run-Gruppe` ist daher als Migrationsbedarf markiert; die Gruppe wird zum
+kanonischen RUN, nicht zu einer weiteren Objektebene.
+
+Nach dem Import erzeugt `ma_analyse` alle datenkompatiblen Diagramme der
+angeforderten Themen. Ungewaehlte Themen bleiben `nicht angefordert`,
+ausgewaehlte ohne ausreichende Daten `nicht auswertbar` mit Ursache. Die
+alte Beschraenkung auf genau drei Diagrammprofile ist damit abgeloest; die
+endgueltige Zuordnung von Datenfeldern zu Vorlagen wartet auf einen
+freigegebenen neutralen Ergebnisexport und dessen Dateninventar.

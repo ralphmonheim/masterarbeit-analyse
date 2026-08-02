@@ -1,6 +1,7 @@
 import importlib
 import queue
 from argparse import Namespace
+from datetime import UTC, datetime
 from pathlib import Path
 from types import MappingProxyType
 
@@ -59,7 +60,11 @@ from ma_analyse.analysis_wizard import (
 from ma_analyse.models import AnalysisConfig, AnalysisResult
 from ma_building import load_business_integration_lod1_building_spec, load_demo_building_spec
 from ma_database import DemoCatalog, DemoCatalogRecord
-from ma_technical import load_business_integration_lod1_technical_spec
+from ma_project import Project, ProjectIdentity, ProjectLocation
+from ma_technical import (
+    load_business_integration_lod1_technical_spec,
+    load_synthetic_v2_reference_technical_spec,
+)
 from ma_ui import app as ma_ui_app
 from ma_ui import workflow_view
 from ma_ui.app import (
@@ -118,6 +123,7 @@ from ma_ui.resource_status import ResourceSpec, resource_status, resource_status
 from ma_ui.shared import normalize_table_for_streamlit
 from ma_ui.state import ProjectState
 from ma_ui.streamlit_app.state.configuration_state import load_default_configuration_state
+from ma_ui.streamlit_app.state.workspace_state import set_active_workspace
 from ma_ui.tkinter_app.module_views.analyse import app as tkinter_analyse_app
 from ma_ui.tkinter_app.module_views.analyse.cli import parse_tkinter_analyse_args
 from ma_ui.tkinter_app.module_views.analyse.pipeline_config import build_tkinter_analysis_config
@@ -155,6 +161,7 @@ from ma_weather import (
     import_weather_location_catalog,
 )
 from ma_workflow import get_step, list_module_definitions
+from ma_workspace import create_project_workspace
 from ma_zones import load_business_integration_lod1_zone_spec
 
 
@@ -561,9 +568,11 @@ def test_project_overview_combines_synthetic_master_data_and_session_configurati
 def test_technical_view_uses_the_fixed_reference_instead_of_a_selection_save_action():
     source = Path("src/ma_ui/streamlit_app/module_views/technical_view.py").read_text(encoding="utf-8")
 
-    assert "validate_technical_spec(technical_spec)" in source
+    assert "validate_technical_spec(legacy_spec)" in source
+    assert "validate_technical_model(v2_reference_spec)" in source
     assert "zone_spec=zone_spec" not in source
-    assert "Referenz-Techniksatz" in source
+    assert "Legacy-Referenzsatz fuer den bekannten Demo-Fall" in source
+    assert "Synthetische v2-Testreferenz" in source
     assert '"Technikauswahl speichern"' not in source
 
 
@@ -641,8 +650,19 @@ def test_technical_view_separates_model_overview_and_fixed_reference_selection()
     assert "st.segmented_control(" in render_source
     assert "TECHNICAL_WORKSPACE_TAB_LABELS" in render_source
     assert "TECHNICAL_SELECTION_TAB_LABELS" in render_source
-    assert "_render_fixed_technical_reference(technical_spec)" in render_source
-    assert "_render_fixed_technical_selection(technical_spec)" in render_source
+    assert "_render_fixed_technical_reference(legacy_spec, v2_reference_spec)" in render_source
+    assert "_render_fixed_technical_selection(legacy_spec)" in render_source
+    assert "load_synthetic_v2_reference_technical_spec()" in render_source
+    assert "validate_technical_model(v2_reference_spec)" in render_source
+    assert 'load_project_module_config(workspace, "ma_zones")' not in render_source
+    assert "small_office_v1_uses_reference_zone_model" not in technical_source
+    assert "release_technical_model" not in technical_source
+    assert 'st.button("v2-Entwurf vorbereiten"' in technical_source
+    assert 'st.button("Struktur prüfen"' in technical_source
+    assert '"Revision freigeben"' in technical_source
+    assert "Ich habe die angezeigten Warnungen geprueft und akzeptiere sie" in technical_source
+    assert "_render_project_technical_release(workspace)" in render_source
+    assert "kein aktiver Projektstand" in render_source
     assert "Technikauswahl speichern" not in render_source
     assert "Einordnung" not in render_source
     assert "technical_scope_rows()" not in render_source
@@ -713,20 +733,105 @@ def test_building_zones_and_technical_views_are_registered():
     technical_rows = technical_view.technical_scope_rows()
 
     assert any(row["Stand"] == "Raumdaten" for row in zone_rows)
-    assert any(row["Stand"] == "Zonenanforderungen" for row in technical_rows)
+    assert any(row["Stand"] == "Gebaeudedaten" for row in technical_rows)
+    assert any(row["Stand"] == "Systeme und Serviceinterface-IDs" for row in technical_rows)
 
 
 def test_zones_and_technical_views_show_lod1_demo_data():
     zone_spec = load_business_integration_lod1_zone_spec()
-    technical_spec = load_business_integration_lod1_technical_spec()
+    legacy_technical_spec = load_business_integration_lod1_technical_spec()
+    technical_spec = load_synthetic_v2_reference_technical_spec()
 
     zone_summary = {row["Kennwert"]: row["Wert"] for row in zones_view.zone_summary_rows(zone_spec)}
     technical_summary = {row["Kennwert"]: row["Wert"] for row in technical_view.technical_summary_rows(technical_spec)}
+    legacy_summary = {
+        row["Kennwert"]: row["Wert"]
+        for row in technical_view.legacy_technical_summary_rows(legacy_technical_spec)
+    }
 
     assert zone_summary["Eingabe-LoD"] == "LOD-1"
     assert zone_summary["Zonen"] == 1
     assert technical_summary["Eingabe-LoD"] == "LOD-1"
-    assert technical_summary["Systeme"] == 3
+    assert technical_summary["Serviceinterfaces"] == 1
+    assert legacy_summary["Systeme"] == 3
+
+
+def test_technical_v2_rows_publish_system_and_interface_ids_without_zones():
+    technical_spec = load_synthetic_v2_reference_technical_spec()
+
+    object_row = technical_view.technical_object_rows(technical_spec)[0]
+    interface_row = technical_view.technical_service_interface_rows(technical_spec)[0]
+
+    assert object_row["Objekt-ID"] == "SYNTHETIC-EQUIPMENT-0001"
+    assert interface_row["Serviceinterface-ID"] == "SYNTHETIC-SERVICE-HEATING-0001"
+    assert interface_row["Quellobjekt-ID"] == object_row["Objekt-ID"]
+    assert all("Zone" not in column for column in interface_row)
+
+
+def test_technical_standard_render_does_not_write_to_workspace(tmp_path, monkeypatch):
+    timestamp = datetime(2026, 8, 1, 10, 0, tzinfo=UTC)
+    project = Project(
+        identity=ProjectIdentity("PRJ-000001", "Masterarbeit-Analyse", "MA"),
+        created_at=timestamp,
+        updated_at=timestamp,
+        location=ProjectLocation(country_code="DE", city="Teststadt"),
+    )
+    workspace = create_project_workspace(project, tmp_path.resolve(), simulation_program_key="ida_ice")
+
+    class FakeStreamlit:
+        session_state: dict[str, object] = {}
+
+        @staticmethod
+        def segmented_control(_label, _options, *, default, **_kwargs):
+            return default
+
+        @staticmethod
+        def dataframe(*_args, **_kwargs):
+            return None
+
+        @staticmethod
+        def subheader(*_args, **_kwargs):
+            return None
+
+        @staticmethod
+        def caption(*_args, **_kwargs):
+            return None
+
+        @staticmethod
+        def metric(*_args, **_kwargs):
+            return None
+
+        @staticmethod
+        def warning(*_args, **_kwargs):
+            return None
+
+        @staticmethod
+        def success(*_args, **_kwargs):
+            return None
+
+        @staticmethod
+        def error(*_args, **_kwargs):
+            return None
+
+    fake_streamlit = FakeStreamlit()
+    set_active_workspace(fake_streamlit.session_state, workspace)
+    monkeypatch.setattr(technical_view, "st", fake_streamlit)
+    monkeypatch.setattr(technical_view, "render_page_header", lambda *_args, **_kwargs: None)
+    before = {
+        path.relative_to(workspace.paths.root): path.read_bytes()
+        for path in workspace.paths.root.rglob("*")
+        if path.is_file()
+    }
+
+    technical_view.render()
+
+    after = {
+        path.relative_to(workspace.paths.root): path.read_bytes()
+        for path in workspace.paths.root.rglob("*")
+        if path.is_file()
+    }
+    assert after == before
+    assert technical_view._structural_validation_label(()) == "fehlerfrei"
 
 
 def test_zone_overview_uses_saved_synthetic_profile_assignments():

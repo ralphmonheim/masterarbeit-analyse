@@ -1,7 +1,7 @@
-# P016 Analyse Stufe 1 Dimensionierung
+# P016 Dimensionierung (historischer Dateititel: Analyse Stufe 1)
 
-Stand: 2026-07-14
-Status: Teilweise umgesetzt, P016-S1 LoD-1-Referenzdimensionierung; VariantDimensioningResult fuer P017 geplant
+Stand: 2026-07-31
+Status: Teilweise umgesetzt im Altbestand; Ziel-Ownership nach UD-112 ist `ma_dimensionierung`, Migrationsplanung ausstehend
 Prioritaet: Hoch
 Abhaengigkeiten: P015, P017, P027
 
@@ -103,6 +103,10 @@ variantenspezifische Dimensionierungsgruppen sind keine V1-Voraussetzung.
 
 ## Handover-Abgleich: OutputRequirementProfiles fuer MVP V1
 
+Dieser Abschnitt beschreibt den historischen Profilvertrag. Sein Owner und
+die Begrenzung auf drei Profile sind durch UD-112 abgeloest; der aktuelle
+Zielvertrag steht im Konsolidierungsabschnitt am Ende dieses Plans.
+
 P016 und die bestehende Analyse definieren gemeinsam einen kleinen,
 programmunabhaengigen Vertrag `OutputRequirementProfile`. P018 uebernimmt ihn
 nur als Pflichtausgabeanforderung; P009 und `ma_analyse` verwenden ihn bei
@@ -176,3 +180,33 @@ Eingabeverantwortlicher und Pruefstatus sichern die Provenienz. Erst
 Referenzparameter-Fingerprint bindet die IDA-Lasten an die
 dimensionierungsrelevante Baseline; geaenderte Referenzwerte sperren alte
 Lasten vor einer neuen Kandidatenerzeugung.
+
+## Konsolidierung nach UD-112 2026-07-31
+
+Der Fachowner ist kuenftig das eigene Kernmodul `ma_dimensionierung`, nicht
+`ma_analyse.stage_1_dimensioning`. P016 bewahrt den bisherigen LoD-1-Stand
+als nachvollziehbaren Ausgangspunkt, ist aber zugleich der Migrationsplan:
+Modelle, Services, manuelle externe IDA-Referenzwerte, Rechenwege und
+Provenienz werden ohne parallele zweite Fachwahrheit in den neuen Owner
+ueberfuehrt. Ein allenfalls befristeter Kompatibilitaetsadapter muss klar
+markiert sein und darf keine dauerhafte doppelte Dimensionierungslogik
+schaffen.
+
+Die Dimensionierung bleibt in der UI als Unterablauf der Variantenbearbeitung
+erreichbar, wird fachlich aber durch `ma_dimensionierung` ausgefuehrt. Sie
+unterstuetzt je nach Studienbedarf vereinfachte und ausfuehrliche
+Norm-/Excel-Verfahren sowie statische oder dynamische externe Berechnung;
+deren Verfahren, Quellen und Ergebnisarten bleiben sichtbar getrennt.
+
+`ma_import_simulation` uebernimmt nur technisch eine externe Ergebnisdatei
+bis `standardized`. Die fachliche Annahme und Freigabe liegen danach in
+`ma_dimensionierung`. Die bisherige direkte Eingabe zonaler IDA-Werte wird
+als eigener Manual-Entry-Adapter dieses Fachmoduls gefuehrt und nicht mit
+einem Dateimport vermischt.
+
+Die verbindliche Auswahl erfolgt vor dem tatsaechlichen
+Dimensionierungsauftrag. Nur ausgewaehlte, dimensionierungsrelevante
+Kandidaten werden gruppiert und dimensioniert. Leistungsfaktoren erfordern
+vorher nur die Referenzdimensionierung, sofern sie in absolute Leistung
+ueberfuehrt werden muessen; sie begruenden fuer sich allein keine
+Neudimensionierung.

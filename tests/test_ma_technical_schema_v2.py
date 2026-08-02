@@ -33,6 +33,7 @@ from ma_technical import (
     technical_model_specification_from_dict,
     validate_technical_model,
 )
+from ma_technical.handover import _service_interface_references_hash
 from ma_technical.revisions import _content_hash, _to_payload
 from ma_validation import ReleaseStatus
 
@@ -190,6 +191,14 @@ def test_released_technical_handover_contains_only_stable_reference_metadata(tmp
     assert handover.revision_id == "TECH-V2-REV-0001"
     assert handover.content_hash == revision.content_hash
     assert handover.release_status is ReleaseStatus.RELEASED
+    assert handover.project_id == "PROJECT-BI-TEST-BUILDING"
+    assert handover.building_reference == ObjectReference(
+        object_id="BUILDING-BI-LOD1-0001",
+        revision_id="BUILDING-REV-0001",
+        object_type="BuildingModelSpecification",
+    )
+    assert handover.has_consistent_service_interface_references()
+    assert handover.has_consistent_handover_content()
     assert not hasattr(handover, "specification_payload")
     assert tuple(reference.interface_id for reference in handover.service_interface_references) == ("SI-HEAT-0001",)
     assert handover.service_interface_references[0].source_object_reference == ObjectReference(
@@ -222,6 +231,34 @@ def test_released_technical_handover_rejects_inconsistent_payload_model_id(tmp_p
         build_released_technical_handover(replace(revision, technical_model_id="TECH-V2-OTHER-0001"))
 
 
+def test_released_technical_handover_requires_project_and_building_revision_context(tmp_path):
+    revision = release_technical_model(_minimal_v2_spec(), revision_id="TECH-V2-REV-0001", target_dir=tmp_path)
+    payload_without_project = {**revision.specification_payload, "project_id": ""}
+    building_reference = dict(revision.specification_payload["building_reference"])
+    building_reference["revision_id"] = ""
+    payload_without_building_revision = {
+        **revision.specification_payload,
+        "building_reference": building_reference,
+    }
+
+    with pytest.raises(ValueError, match="project_id"):
+        build_released_technical_handover(
+            replace(
+                revision,
+                specification_payload=payload_without_project,
+                content_hash=_content_hash(payload_without_project),
+            )
+        )
+    with pytest.raises(ValueError, match="building_reference.revision_id"):
+        build_released_technical_handover(
+            replace(
+                revision,
+                specification_payload=payload_without_building_revision,
+                content_hash=_content_hash(payload_without_building_revision),
+            )
+        )
+
+
 def test_released_technical_handover_rejects_non_v2_payload(tmp_path):
     revision = release_technical_model(_minimal_v2_spec(), revision_id="TECH-V2-REV-0001", target_dir=tmp_path)
     legacy_payload = {**revision.specification_payload, "schema_version": "1.0"}
@@ -251,6 +288,34 @@ def test_released_technical_handover_sorts_service_interfaces_deterministically(
         "SI-AIR-0001",
         "SI-HEAT-0001",
     )
+
+
+def test_released_technical_handover_detects_changed_interface_references(tmp_path):
+    revision = release_technical_model(_minimal_v2_spec(), revision_id="TECH-V2-REV-0001", target_dir=tmp_path)
+    handover = build_released_technical_handover(revision)
+    changed_reference = replace(
+        handover.service_interface_references[0],
+        compatible_terminal_types=("changed_terminal",),
+    )
+
+    changed_references = (changed_reference,)
+    changed_handover = replace(
+        handover,
+        service_interface_references=changed_references,
+        service_interface_references_hash=_service_interface_references_hash(changed_references),
+    )
+
+    assert changed_handover.has_consistent_service_interface_references()
+    assert not changed_handover.has_consistent_handover_content()
+
+
+def test_released_technical_handover_detects_changed_project_context(tmp_path):
+    revision = release_technical_model(_minimal_v2_spec(), revision_id="TECH-V2-REV-0001", target_dir=tmp_path)
+    handover = build_released_technical_handover(revision)
+
+    changed_handover = replace(handover, project_id="PROJECT-OTHER")
+
+    assert not changed_handover.has_consistent_handover_content()
 
 
 def test_schema_v2_parallel_types_do_not_break_legacy_v1_loader():

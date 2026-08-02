@@ -184,6 +184,13 @@ def test_zone_handover_hash_is_stable_for_tuple_and_list_order_only():
     assert reordered.zone_handover_id == first.zone_handover_id
 
 
+def test_empty_assignments_keep_the_legacy_zone_handover_golden_hash():
+    handover = _handover()
+
+    assert handover.content_hash == "43526e29599f8de2e3d32412f1157b1e7ede2cdca8c0964d96041b121fec5b54"
+    assert handover.technical_handover_content_hash == ""
+
+
 def test_zone_handover_hash_changes_for_semantic_zone_mutation():
     zone_spec = _zone_spec()
     changed_zone = replace(zone_spec.zones[0], heating_setpoint_c=21.0)

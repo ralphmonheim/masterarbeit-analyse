@@ -1,6 +1,6 @@
 # Plan Status
 
-Stand: 2026-07-29
+Stand: 2026-08-02
 
 Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt und nach jeder Planumsetzung aktualisiert. Vollstaendige alte Planstaende liegen unter `docs/project/archive/plans/`.
 
@@ -77,9 +77,11 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - P002, P005 und P006 wurden unveraendert archiviert. P007 ist die
   verbindliche strukturelle Grundlage; P008 bis P028 konkretisieren
   fachliche, Demo-, Konzept-, Research- und Querschnittsarbeiten.
-- Phase 0 und die sechs P007-Hauptphasen sind im zentralen Workflow-Katalog
-  abgebildet. `ma_validation` und `ma_feedback` werden phasenuebergreifend
-  gefuehrt.
+- Der zentrale Workflow-Katalog bildet im aktuellen Altbestand noch Phase 0
+  und sechs P007-Hauptphasen ab. Nach UD-112 ist dies Migrationsbestand;
+  Zielansicht sind PreProcess, MainProcess, PostProcess und
+  Review/Iteration. `ma_validation` und `ma_feedback` bleiben dabei
+  phasenuebergreifend.
 - Fehlende Zielmodule sind als leichte importierbare Pakete und dokumentierte
   Infoseiten vorbereitet. Paketexistenz aendert den fachlichen Status nicht.
 - Alle 28 katalogisierten Komponenten besitzen einen dokumentierten
@@ -100,8 +102,9 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - `ma_export_simulation` und `ma_import_simulation` sind die kanonischen
   allgemeinen Schnittstellenmodule. IDA ICE wird ueber Adapter angebunden;
   historische IDA-spezifische Schluessel bleiben nur als Uebergangsaliase.
-- Phase 0 und die sechs P007-Hauptphasen ersetzen die bisherige aktive
-  Vierer-Gliederung im Workflow und Dashboard.
+- Die fruehere Phase-0-/Sechs-Phasen-Gliederung ersetzte damals die
+  Vierer-Gliederung. UD-112 ersetzt sie fuer die weitere V1-Workflowansicht
+  durch PreProcess, MainProcess, PostProcess und Review/Iteration.
 - Paketexistenz allein aendert keinen Modulstatus von `planned` oder `partial`
   auf `available`.
 - Der Katalogstatus beschreibt den fachlichen Reifegrad im
@@ -191,10 +194,13 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   `Surfaces` werden nur durch `ma_building` gelesen, nicht zugeordnet oder
   veroeffentlicht. `Modellquellen` ist bewusst aus V1 ausgeblendet.
 - Bearbeitungs- und Workflowansicht sind technisch als getrennte
-  Einstiegsansichten vorbereitet. Die fachliche Sichtpruefung verlangt jedoch
-  eine klarere Workflow-Gesamtuebersicht, ein ansichtsspezifisches
-  Startverhalten sowie einzelne Wetter-UI-Korrekturen. Dieser Korrekturslice
-  bleibt bis zum abgeschlossenen Q&A und einer neuen Umsetzungsfreigabe offen.
+  Einstiegsansichten vorbereitet. UD-112 und P027 praezisieren jetzt die
+  Workflowansicht als dreistufige Gesamtuebersicht: PreProcess,
+  Kernprozess und PostProcess auf Ebene 1; Bereichsmodule mit Validierungs-
+  und Entscheidungsknoten auf Ebene 2; Facharbeit auf Ebene 3. Weiter und
+  Zurueck bleiben auf der aktuellen Ebene, waehrend Pfadnavigation und
+  explizite Korrekturpfade gezielt zurueckfuehren. Die konkrete Umsetzung und
+  die verbleibenden Wetter-UI-Korrekturen sind getrennte Folgeslices.
 - P027 ergaenzt die Vereinheitlichung von Template-Befehlen fuer Ausgabemodule
   wie `ma_analyse` und `ma_weather`; in der Tkinter-Analyse soll der erste
   Befehlsschritt `plot-template-analyse` als Default gesetzt werden.
@@ -294,6 +300,24 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   aufbauende payloadfreie `ReleasedZoneHandover` bindet kanonisch den
   vollstaendigen Zonenstand, Zuordnungen, Building-ID/-Revision und das
   P014-Modell-/Revisions-/Hash-Triple; er gibt keine Fachnutzlast weiter.
+- P013/P014-S1 ergaenzt den Checkpoint additiv um explizit manuell
+  bestaetigte `ZoneTechnicalServiceAssignment`-Eintraege. Sie werden gegen
+  den freigegebenen P014-Serviceinterface-, Projekt- und Buildingstand
+  validiert und bei nichtleerer Zuordnung deterministisch in den
+  `ReleasedZoneHandover` gehasht. Leere Legacy-Staende behalten ihren
+  bisherigen Fingerprint und behaupten keine Vollversorgung.
+- P013/P014-S2 ist in der direkten Zonenansicht umgesetzt: Der Bereich
+  `Konditionierung & Übergabe` zeigt den aktiven buildinggebundenen P014-
+  Handover und erlaubt ausschliesslich manuell markierte und bestaetigte
+  Zone-zu-Serviceinterface-Zuordnungen. Pruefen bleibt schreibfrei;
+  Speichern verlangt denselben erfolgreich geprueften Entwurf und bindet ihn
+  additiv in `ma_zones.yaml` an das vollstaendige Handover- und Hashtriple
+  sowie einen deterministischen Zoneninhalt-Hash. Fremde Projekt-IDs werden
+  nicht ueberschrieben. Fehlende, veraltete oder unpassende Zonen- oder
+  Technikstaende sperren die Bedienung.
+  Der Entwurf ist noch kein `ReleasedZoneHandover` und umfasst keine Lasten,
+  Kapazitaeten oder Dimensionierung; sein Pruefstatus ist kein Nachweis
+  vollstaendiger Versorgung oder technischer Eignung.
 - P014-S1 ist umgesetzt und bleibt als Legacy-v1-Vertrag kompatibel:
   `ma_technical` enthaelt eine versionierte BusinessIntegration-LoD-1/Lite-
   Technikspezifikation mit einfachen Referenzannahmen fuer Heizung, Kuehlung
@@ -315,6 +339,9 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   P014-S3a liefert einen referenz-only Handover aus einer freigegebenen,
   hashkonsistenten v2-Revision an nachgelagerte Module. Zusammen mit P013-S3c
   ist daraus ein separat validierter P013-/P014-Checkpoint fuer P015 entstanden.
+  Der Handover bindet nun zusaetzlich Projekt, Building-Revision und die
+  Serviceinterfaceprojektion in einem gemeinsamen Content-Hash; zentrale
+  Technik bleibt weiterhin frei von Zonenbelegungen.
   P014-S4 ist gemaess der dokumentierten Council-Mehrheit abgeschlossen:
   Ein allgemeiner, strikter V2-YAML-Loader und eine sichtbar synthetische
   Referenz pruefen die bestehende Freigabe-/Reload-/Handoverkette bis zum
@@ -327,6 +354,33 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   `45 passed`, die vollstaendige lokale Suite mit `591 passed`. Offen bleiben die v2-Werteherkunft und der
   Vollumfang von P015-S3b; v1-Demo, IDA-Adapter, Export, Templates und
   automatische Dimensionierung bleiben ausserhalb dieses Umfangs.
+- Der direkte P014-UI-Teilcheckpoint S2a entfernt die fachlich falsche
+  Voraussetzung eines aktiven `ma_zones`-Stands. Die Ansicht trennt den
+  fallbezogenen Legacy-Uebergang sichtbar von der bestehenden zonenfreien,
+  synthetischen und nur lesend geladenen v2-Testreferenz. Objekt- und
+  Serviceinterface-IDs sind damit vor der Zonenbearbeitung sichtbar;
+  Strukturpruefung wird nicht als Projektfreigabe ausgegeben. Revision,
+  Workspace-Persistenz, projektkompatibler Handover und die explizite
+  Assignment-Bedienung bleiben Folgeslices. Die Workflow-Ansicht wird davon
+  nicht beruehrt und bleibt der letzte UI-Migrationsslice.
+- Der projektbezogene P014-v2-Freigabeslice setzt UD-115 um. Die direkte
+  Technikansicht bindet einen deterministisch aus einer explizit gewaehlten,
+  versionierten Legacy-Quelle vorbereiteten v2-Sitzungsentwurf an aktive
+  Workspace-Projekt-ID und den uebernommenen Building-Stand. Entwurf und
+  Strukturpruefung schreiben nichts. Erst `Revision freigeben` legt unter
+  `config/ma_technical/revisions/<building_id>/<technical_model_id>/` eine
+  atomare append-only Revision mit systemgenerierter TECH-/REV-ID an. Die UI
+  laedt sie erneut, prueft Content- und Handover-Hash und referenziert sie in
+  `ma_technical.yaml` als aktiven Building-Stand. Aktive Projekt-ID und die
+  vollstaendige Building-Referenz einschliesslich Version werden an den
+  Persistenzgrenzen gegen `project.yaml` und `ma_building.yaml` erneut
+  geprueft. Ein Stand fuer eine fruehere Building-Version wird als veraltet
+  behandelt, ohne die neue Freigabekette zu sperren. Bestaetigungspflichtige Warnungen werden
+  mit Code und Fundstelle revalidiert und in einem Freigabenachweis-Hash bis
+  zum Handover gebunden. Legacy-Zonen- und
+  Leistungswerte bleiben ausschliesslich Provenienz/Annahmen; keine
+  Zonenbelegung, Lastberechnung oder Dimensionierung entsteht. Die
+  Workflow-Ansicht bleibt unveraendert.
 - Der V1-UI-Slice bestaetigt die registrierte P028-Projektansicht ohne
   Router- oder Cachefehler. `ma_technical` trennt Technikmodell, Übersicht
   und Auswahl; `ma_zones` trennt Übersicht und Profilzuordnung. Beide
@@ -405,19 +459,20 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   Heiz-/Kuehlleistungsfaktoren erzeugen 30 Optimierungsfaelle. Acht getrennte
   Sensitivitaetsfaelle verwenden den Referenz-/Dimensionierungsfall fuer vier
   Frankfurt-Jahreswetter und vier Belegungszeitprofile.
-- P016-S1 ist umgesetzt: `ma_analyse.stage_1_dimensioning` berechnet aus dem
+- P016-S1 ist im Altbestand umgesetzt: `ma_analyse.stage_1_dimensioning` berechnet aus dem
   validierten `ParameterSnapshot` v1 eine LoD-1-Referenzdimensionierung mit
   Transmissions-Heizlast, Lueftungs-Heizlast, Gesamt-Heizlast, Mindest-
   Luftvolumenstrom, interner Kuehllastannahme, Rechenweg und Hinweisen.
   Normverfahren, IDA-Plausibilisierung und Folgesnapshot bleiben Folgearbeit.
-- P016 ist auf P017 vorbereitet: Stage 1 bleibt frei von Variantenbildung,
-  soll aber spaeter `DimensioningRequest`-Gruppen aus `VariantVerification`
-  ueber `ma_workflow` beantworten koennen.
-- P017 ist fachlich konsolidiert: aktive erste Ausbaustufe ist
-  `VariantSpace -> VariantVerification -> VariantCatalog ->
-  VariantSelection -> VariantGeneration -> ma_simulation_setup`.
-  `VCAT` ist auf 500 Eintraege begrenzt, `VSEL` nutzt zuerst `all`,
-  `manual` und `random`, `SimulationCase` und `CASE` entfallen.
+- Der bisherige P016-Anschluss an P017 ist Altbestand. Ziel ist
+  `ma_dimensionierung` als eigener Owner; `ma_variants` bleibt frei von
+  Lastberechnung und sendet nur die aus der fruehen Auswahl resultierenden
+  Gruppen.
+- Die bisherige P017-Kette `VSP -> VVER -> VCAT -> VSEL -> VGEN` ist
+  Altbestand. Ziel nach UD-112: VVER dokumentiert die fruehe Auswahl;
+  Dimensionierung und Nachpruefung folgen, erst dann finaler VCAT und ein
+  abbildender VSEL. `VCAT <= 500`, keine `SimulationCase`-Ebene und keine
+  zweite Auswahl bleiben erhalten.
 - P018 ist als neutrales Run-Paket konsolidiert: `ma_simulation_setup`
   uebernimmt vollstaendig erzeugte Varianten nach `VGEN`, ergaenzt ein
   getrenntes gemeinsames Setup je Run, materialisiert neutrale
@@ -479,17 +534,19 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   Release-Pruefung ist gruen; der externe Push folgt den dokumentierten
   Direktbefehlen. Die lokalen Gebaeudekataloge bleiben ignoriert.
 - Masterarbeits-MVP V1 ist der uebergeordnete erste Nutzennachweis: von
-  Projekt- und Eingabeaufnahme ueber Baseline, Varianten und neutrales
-  Run-Paket bis zu manueller Simulation, neutraler Ergebnisaufnahme, drei
-  Diagrammtypen und P030-Prozessvergleich. Preprocess V1 bleibt darin der
-  erste Teilmeilenstein bis zum freigegebenen Run-Paket.
-- Der Handover-Abgleich liefert jetzt `ThermalBuildingModel` und den
-  payloadfreien `ReleasedZoneHandover`; P016/`ma_analyse` definieren drei
-  `OutputRequirementProfiles`. P018 referenziert die Vertraege, ohne ihre
-  Fachlogik zu duplizieren.
-- P027 begleitet P017 mit Checkpoints fuer `VSP`, `VVER`, `VCAT`, `VSEL`
-  und `VGEN`, Reload-/Abort-Logik und der technischen
-  Dimensionierungsunterbrechung innerhalb von `VVER`.
+  Projekt- und Eingabeaufnahme ueber Varianten und neutrales Run-Paket bis zu
+  manueller Simulation aller VGEN-Varianten, neutraler Ergebnisaufnahme,
+  Jahreswerten sowie allen angeforderten datenkompatiblen Diagrammen und
+  P030-Prozessvergleich. Preprocess V1 bleibt darin der erste Teilmeilenstein
+  bis zum freigegebenen Run-Paket.
+- Der Handover-Abgleich liefert `ThermalBuildingModel` und den payloadfreien
+  `ReleasedZoneHandover`. Der bisherige P016-/`ma_analyse`-Besitz von drei
+  `OutputRequirementProfiles` ist abgeloest: `ma_analyse` definiert den
+  Profilkatalog, P018 referenziert die Nutzerwahl im Setup/Manifest.
+- P027 begleitet P017 mit Checkpoints fuer VSP, VVER einschliesslich frueher
+  Auswahl, Dimensionierung, finalem VCAT/VSEL und VGEN. Der bis dahin
+  abgebildete VVER-Dimensionierungsablauf ist Altbestand und wird nur mit dem
+  P017-Migrationsvertrag angepasst.
 - Nutzerentscheidung UD-066 festgehalten: DWG bleibt im aktuellen
   Masterarbeitsumfang lokale ungepruefte CAD-Quelle; ein produktiver
   DWG-Parser oder DWG-Importadapter wird nicht aufgebaut.
@@ -542,10 +599,10 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - P005 Analyse-View gegen Tkinter-Ablauf weiter abgeglichen: `analyze-data`
   ist als eigener Excel-Auswertungsschritt mit `separate`/`combined`
   abgebildet.
-- P007-Workflow ergaenzt: `Datenvorbereitung` ist als eigener Schritt in
+- Historischer P007-Workflow: `Datenvorbereitung` war als eigener Schritt in
   Phase 4 zwischen Simulationsergebnisimport und Analyse Stufe 2 eingeordnet.
-  `prepare` und `analyze-data` bleiben in `ma_analyse`, gehoeren fachlich aber
-  zu diesem vorbereitenden Schritt.
+  Nach UD-112 ist sie PostProcess; `prepare` und `analyze-data` bleiben
+  fachlich in `ma_analyse`.
 - P005 Analyseumfang in Streamlit ergaenzt: `Eine Variante`, `Mehrere Varianten`
   und `Alle Varianten` werden erfasst; `Alle Varianten` wird als automatische
   Variantenauswahl an die Service-Fassade uebergeben.
@@ -677,6 +734,45 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   `ma_variants` verschoben oder erweitert wird.
 - Neue externe Plaene nach manueller Ablage in `docs/project/plans/inbox/` pruefen und in `PLAN_INDEX.md` sowie in diese Statusdatei uebernehmen.
 - Nach groesseren Aenderungen pruefen, ob alte Planstaende nach `docs/project/archive/plans/` ausgelagert werden sollen.
+
+## Konsolidierter Gesamtprozess nach UD-112
+
+- P007 ist fuer den Masterarbeits-MVP um den verbindlichen PreProcess,
+  MainProcess, PostProcess sowie Review/Iteration ergaenzt. Die Ziele
+  `Technik vor Zonen`, eigenes `ma_dimensionierung`, Auswahl vor der
+  tatsaechlichen Dimensionierung, RUN mit mehreren VAR und
+  `ma_analyse` ausschliesslich als PostProcess sind dokumentiert.
+- Der gegenwaertige Implementierungsstand weicht in diesen Punkten ab. Es ist
+  kein stiller Umbau erfolgt: Reihenfolge/Abhaengigkeiten, Dimensionierungs-
+  Ownership, Run-Modell und Ergebnisimport werden als getrennte
+  Migrationsslices geplant und getestet.
+- UD-114 praezisiert die Bereichsgrenzen: PreProcess endet nach dem
+  freigegebenen `ma_simulation_setup`-Run-Paket; der Kernprozess umfasst
+  Export/Run-Uebergabe, manuelle Simulation und Ergebnisimport bis
+  `standardized_ready`; PostProcess beginnt am selben Uebergang mit
+  `standardized -> prepared`.
+- Sichere Migrationsreihenfolge: Technik-zu-Zonen-Uebergabe,
+  Dimensionierungsownership, fruehe Auswahl/finaler Variantenablauf,
+  Outputprofil und RUN/Setup, Import/PostProcess, zentraler
+  `ma_workflow`-Katalog und erst danach die Workflow-UI. Ihre Button- und
+  Sprungzielmatrix wird separat abgestimmt und darf von der direkten
+  Arbeitsansicht abweichen.
+- Der erste P013/P014-Backendcheckpoint dieser Reihenfolge ist am 2026-08-01
+  Council-geprueft umgesetzt. Offen bleiben die direkte Modul-UI sowie die
+  Abloesung des zyklischen SmallOffice-Legacypfads; deshalb ist der gesamte
+  Technik-zu-Zonen-Migrationsslice noch nicht abgeschlossen.
+- Der V1-Durchlauf reicht von der manuellen IDA-ICE-Ausfuehrung aller durch
+  VGEN erzeugten Varianten ueber den neutralen Ergebnisimport bis zu
+  Jahreswerten, allen angeforderten datenkompatiblen Diagrammen und dem
+  P030-Prozessvergleich. SmallOffice bleibt Demonstrator. P030 misst
+  Parameter-/Variantenumfang, aktive Arbeit, Simulation, Korrektur und
+  PostProcess getrennt.
+- OP-017 blockiert den konkreten neutralen Feld- und
+  Standardisierungsvertrag. OP-008 blockiert spezifische Kennwerte,
+  OP-018 Funktions-Pass/Fail- und Einsparungsinterpretation und OP-009 den
+  belastbaren Zeit-/Kostenvergleich. Keiner dieser Punkte blockiert fuer sich
+  technische Aufbereitung, sichtbaren Datenstatus oder die bereits
+  dokumentierten PreProcess-Migrationsslices.
 
 ## Modul ma_analyse
 
@@ -847,6 +943,20 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   P021-Ereignisdefinition fachlich bestaetigt und die
   P007-/`ma_parameters`-Schnittstelle geklaert wurden.
 
+## UI-Slice P027: nach UD-114 ans Ende verschoben 2026-07-31
+
+- Der vom Council blockierte Streamlit-Entwurf ist technisch vollstaendig
+  zurueckgestellt und wird nicht als Zwischenwahrheit weiterverwendet.
+- Die Workflowansicht folgt erst nach den Fachmigrationen und der
+  Konsolidierung von zentralem `ma_workflow`-Katalog, Runnern, Status und
+  Navigation-API. PreProcess reicht dann bis `ma_simulation_setup`, der
+  Kernprozess von Export bis `standardized_ready`, PostProcess ab
+  `standardized -> prepared`.
+- Buttons und Sprungziele werden in diesem letzten Slice als eigene Matrix je
+  Ebene abgestimmt. Sie duerfen von der direkten Arbeitsansicht abweichen,
+  muessen jedoch Entwuerfe erhalten, Ziele eindeutig benennen und frei von
+  automatischen Fachaktionen bleiben.
+
 ## Offene Nutzerentscheidungen
 
 - Klaeren, welche `ma_analyse`-Auswertungen absolute Werte, flaechenbezogene
@@ -854,6 +964,9 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - Wissensprofile, Stundensaetze, Prozessgrenzen und Messmethoden fuer den
   Vergleich von manuellem, softwareunterstuetztem und automatisiertem Aufwand
   festlegen.
+- Den freigegebenen neutralen Ergebnisexport mit Variablen, Einheiten,
+  Zeitachse, Mapping und Hash inventarisieren sowie projektbezogene,
+  nicht normative Funktionskriterien und den Bewertungszeitraum festlegen.
 - P031-Folgeaktivierungen getrennt entscheiden: Bedeutung von `keine Hooks`,
   effektive MCP-Grenze, Agentenlimit 3 oder 4, Graphify-Scope,
   Obsidian-/Zotero-Ziel sowie objektbezogene PDF- und IDA-Rechte.

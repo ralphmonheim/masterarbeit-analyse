@@ -19,7 +19,7 @@ from ma_validation import ReleaseStatus
 
 from .models import ZoneModelSpecification
 from .thermal_building import ThermalBuildingModel, validate_thermal_building_model
-from .validation import validate_zone_spec
+from .validation import validate_zone_spec, validate_zone_technical_assignments
 
 if TYPE_CHECKING:
     from ma_technical import ReleasedTechnicalHandover
@@ -45,6 +45,7 @@ class ReleasedZoneHandover:
     technical_content_hash: str
     content_hash: str
     release_status: ReleaseStatus
+    technical_handover_content_hash: str = ""
 
     def __post_init__(self) -> None:
         if not isinstance(self.release_status, ReleaseStatus):
@@ -65,10 +66,17 @@ def build_released_zone_handover(
     uebereinstimmen.
     """
     _require_types(building_spec, zone_spec, thermal_building_model)
-    _require_released_validation_states(building_spec, zone_spec, thermal_building_model)
-
-    technical_model_id, technical_revision_id, technical_content_hash = _released_technical_reference(
-        technical_handover
+    (
+        technical_model_id,
+        technical_revision_id,
+        technical_content_hash,
+        technical_handover_content_hash,
+    ) = _released_technical_reference(technical_handover)
+    _require_released_validation_states(
+        building_spec,
+        zone_spec,
+        thermal_building_model,
+        technical_handover,
     )
     _require_matching_technical_reference(
         thermal_building_model,
@@ -85,6 +93,9 @@ def build_released_zone_handover(
             technical_model_id=technical_model_id,
             technical_revision_id=technical_revision_id,
             technical_content_hash=technical_content_hash,
+            technical_handover_content_hash=technical_handover_content_hash
+            if zone_spec.technical_assignments
+            else "",
         )
     )
     revision_id = f"ZONE-HANDOVER-{content_hash[:16]}"
@@ -100,6 +111,9 @@ def build_released_zone_handover(
         technical_content_hash=technical_content_hash,
         content_hash=content_hash,
         release_status=ReleaseStatus.RELEASED,
+        technical_handover_content_hash=technical_handover_content_hash
+        if zone_spec.technical_assignments
+        else "",
     )
 
 
@@ -120,11 +134,17 @@ def _require_released_validation_states(
     building_spec: BuildingModelSpecification,
     zone_spec: ZoneModelSpecification,
     thermal_building_model: ThermalBuildingModel,
+    technical_handover: ReleasedTechnicalHandover,
 ) -> None:
     if validate_building_spec(building_spec).release_status is not ReleaseStatus.RELEASED:
         raise ValueError("Building-Spezifikation ist nicht freigegeben.")
     if validate_zone_spec(zone_spec, building_spec=building_spec).release_status is not ReleaseStatus.RELEASED:
         raise ValueError("Zonenspezifikation ist nicht freigegeben oder nicht zum Building-Stand passend.")
+    if (
+        validate_zone_technical_assignments(zone_spec, technical_handover).release_status
+        is not ReleaseStatus.RELEASED
+    ):
+        raise ValueError("Technische Zonenzuordnungen sind nicht freigegeben oder nicht zum P014-Handover passend.")
     if (
         validate_thermal_building_model(
             thermal_building_model,
@@ -138,7 +158,7 @@ def _require_released_validation_states(
 
 def _released_technical_reference(
     technical_handover: ReleasedTechnicalHandover,
-) -> tuple[str, str, str]:
+) -> tuple[str, str, str, str]:
     """Liest nur das freigegebene P014-Referenztriple ohne Payloadzugriff."""
     # Der lokale Import vermeidet einen Importzyklus, wenn ma_zones zuerst
     # geladen wird. Beim Builder-Aufruf ist ma_technical bereits vollstaendig
@@ -166,7 +186,12 @@ def _released_technical_reference(
     )
     if release_status is not ReleaseStatus.RELEASED:
         raise ValueError("P014-Technik-Handover ist nicht freigegeben.")
-    return technical_model_id, technical_revision_id, technical_content_hash
+    return (
+        technical_model_id,
+        technical_revision_id,
+        technical_content_hash,
+        _optional_text(getattr(technical_handover, "handover_content_hash", None)),
+    )
 
 
 def _require_matching_technical_reference(
@@ -194,7 +219,15 @@ def _canonical_handover_payload(
     technical_model_id: str,
     technical_revision_id: str,
     technical_content_hash: str,
+    technical_handover_content_hash: str,
 ) -> dict[str, object]:
+    technical_reference = {
+        "technical_model_id": technical_model_id,
+        "technical_revision_id": technical_revision_id,
+        "technical_content_hash": technical_content_hash,
+    }
+    if technical_handover_content_hash:
+        technical_reference["technical_handover_content_hash"] = technical_handover_content_hash
     return {
         "building_reference": {
             "building_id": building_spec.building.building_id,
@@ -204,16 +237,12 @@ def _canonical_handover_payload(
         "room_zone_assignments": [
             [space_id, zone_id] for space_id, zone_id in sorted(thermal_building_model.room_zone_assignments)
         ],
-        "technical_reference": {
-            "technical_model_id": technical_model_id,
-            "technical_revision_id": technical_revision_id,
-            "technical_content_hash": technical_content_hash,
-        },
+        "technical_reference": technical_reference,
     }
 
 
 def _canonical_zone_specification(spec: ZoneModelSpecification) -> dict[str, object]:
-    return {
+    payload: dict[str, object] = {
         "schema_version": spec.schema_version,
         "zone_model_id": spec.zone_model_id,
         "project_id": spec.project_id,
@@ -256,6 +285,18 @@ def _canonical_zone_specification(spec: ZoneModelSpecification) -> dict[str, obj
             for assumption in spec.assumptions
         ),
     }
+    if spec.technical_assignments:
+        payload["technical_assignments"] = _sorted_payloads(
+            {
+                "assignment_id": assignment.assignment_id,
+                "zone_id": assignment.zone_id,
+                "service_interface_id": assignment.service_interface_id,
+                "terminal_type": assignment.terminal_type,
+                "assignment_origin": assignment.assignment_origin,
+            }
+            for assignment in spec.technical_assignments
+        )
+    return payload
 
 
 def _sorted_payloads(payloads: Any) -> list[dict[str, object]]:
@@ -278,6 +319,10 @@ def _required_text(value: object, location: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise ValueError(f"{location} darf nicht leer sein.")
     return value.strip()
+
+
+def _optional_text(value: object) -> str:
+    return value.strip() if isinstance(value, str) else ""
 
 
 def _release_status(value: object, location: str) -> ReleaseStatus:

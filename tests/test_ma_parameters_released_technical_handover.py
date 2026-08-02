@@ -50,6 +50,12 @@ def test_released_revision_handover_converts_to_a_compatible_parameter_source_re
     payload = {
         "schema_version": "2.0",
         "technical_model_id": "TECH-V2-0001",
+        "project_id": "PROJECT-0001",
+        "building_reference": {
+            "object_id": "BUILDING-0001",
+            "revision_id": "BUILDING-REV-0001",
+            "object_type": "BuildingModelSpecification",
+        },
         "service_interfaces": [],
     }
     content_hash = hashlib.sha256(

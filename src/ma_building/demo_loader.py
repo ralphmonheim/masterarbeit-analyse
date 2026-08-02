@@ -15,6 +15,16 @@ from .paths import (
     SMALL_OFFICE_LOD1_BUILDING_SPEC_PATH,
 )
 
+BUILDING_SPECIFICATION_OPTIONS = (
+    ("demo", "Demo-Gebaeudespezifikation", DEFAULT_DEMO_BUILDING_SPEC_PATH),
+    ("business_integration_lod1", "BusinessIntegration LoD-1", BUSINESS_INTEGRATION_LOD1_BUILDING_SPEC_PATH),
+    (
+        "small_office_5z_endvariant_02",
+        "SmallOffice Endvariante 02",
+        SMALL_OFFICE_5Z_ENDVARIANT_02_BUILDING_SPEC_PATH,
+    ),
+)
+
 
 def load_building_spec(path: str | Path) -> BuildingModelSpecification:
     """Laedt eine BuildingModelSpecification aus YAML."""
@@ -44,3 +54,11 @@ def load_small_office_lod1_building_spec() -> BuildingModelSpecification:
 def load_small_office_5z_endvariant_02_building_spec() -> BuildingModelSpecification:
     """Laedt die normalisierte V1-Geometrie der SmallOffice-Endvariante 02."""
     return load_building_spec(SMALL_OFFICE_5Z_ENDVARIANT_02_BUILDING_SPEC_PATH)
+
+
+def load_named_building_specification(selection_key: str) -> BuildingModelSpecification:
+    """Laedt einen in der direkten UI ausdruecklich auswaehlbaren Building-Stand."""
+    for key, _label, source_path in BUILDING_SPECIFICATION_OPTIONS:
+        if key == selection_key:
+            return load_building_spec(source_path)
+    raise ValueError(f"Unbekannte Gebaeudespezifikation: {selection_key}")

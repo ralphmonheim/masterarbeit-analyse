@@ -30,11 +30,28 @@
   Building-, Zonen-, ThermalBuilding- und P014-Stand einen immutable,
   payloadfreien `ReleasedZoneHandover`. Sein kanonischer Fingerprint bindet
   Zonenstand, Raum-Zonen-Zuordnung, Building-ID/-Revision und das technische
-  Modell-/Revisions-/Hash-Triple; der DTO gibt keine Fachnutzlast weiter.
+  Modell-/Revisions-/Hash-Triple. Optionale, explizit manuell bestaetigte
+  `ZoneTechnicalServiceAssignment`-Eintraege werden gegen den vollstaendigen
+  P014-Handover geprueft und nur bei Nutzung zusaetzlich in den Fingerprint
+  aufgenommen; der DTO gibt keine Fachnutzlast weiter.
 - **Streamlit:** Die Modulansicht trennt Übersicht, tabellarische
   Nutzungsprofilzuweisung als Sitzungsentwurf, Konditionierung sowie Zeit und
-  Belegung. Trinkwarmwasser-Erzeugung, Speicher und Verteilung bleiben in
+  Belegung. Im Bereich `Konditionierung & Übergabe` kann ein Nutzer Zonen
+  manuell den Serviceinterfaces des aktiven, buildinggebundenen P014-
+  Handovers zuordnen. Pruefung und Speicherung sind getrennte Aktionen;
+  geaenderte oder veraltete Handover-Bezuege werden nicht vorausgewaehlt.
+  Trinkwarmwasser-Erzeugung, Speicher und Verteilung bleiben in
   `ma_technical`.
-- **Naechster Schritt:** Den abgeschlossenen Referenzcheckpoint nicht um
-  Persistenz oder UI erweitern. Die verbleibende P015-S3b-Werteherkunft und
-  ein P032-W2-Ownership-Scope brauchen jeweils einen getrennten Council-Slice.
+- **Projektentwurf:** Die Zuordnungen werden additiv in `ma_zones.yaml`
+  gespeichert und an Technikmodell, Revision, Content-, Interface-,
+  Freigabenachweis- und Handover-Hash gebunden. Dieser Schritt erzeugt noch
+  keinen `ReleasedZoneHandover`, berechnet keine Last und nimmt keine
+  Dimensionierung vor. Ein eigener Zoneninhalt-Hash bindet den Entwurf auch
+  an die konkrete Zonenspezifikation und Raumzuordnung. Fremde Projekt-IDs
+  werden nicht ueberschrieben. Leere Zuordnungen bleiben als bewusst
+  gepruefter Entwurf moeglich und behaupten keine Vollversorgung; die
+  Pruefung bestaetigt nur Beziehungsintegritaet, keine Eignung oder Deckung.
+- **Naechster Schritt:** Den projektbezogenen P013-Entwurf in einem manuellen
+  SmallOffice-Durchstich pruefen und danach die vollstaendige Zonenfreigabe
+  gegen den bereits vorhandenen `ReleasedZoneHandover` planen. Die separate
+  Workflowansicht folgt erst am Ende der Gesamtmigration.

@@ -11,6 +11,22 @@ from ma_building import (
     load_small_office_5z_endvariant_02_building_spec,
 )
 from ma_parameters import DIN_USAGE_PROFILE_METADATA, suggest_usage_profile_id
+from ma_ui.streamlit_app.module_views.technical_release_support import (
+    StaleActiveTechnicalRevisionError,
+    load_active_technical_revision,
+    resolve_selected_building_context,
+)
+from ma_ui.streamlit_app.module_views.zones_assignment_support import (
+    bind_zone_specification_to_project,
+    stored_technical_assignment_draft,
+    technical_assignment_check_token,
+    technical_assignment_editor_rows,
+    technical_assignment_project_payload,
+    technical_assignments_from_rows,
+    technical_handover_rows,
+    validate_technical_assignment_draft,
+    zone_specification_content_hash,
+)
 from ma_ui.streamlit_app.shared.layout import render_page_header
 from ma_ui.streamlit_app.shared.tables import normalize_table_for_streamlit
 from ma_ui.streamlit_app.state import (
@@ -18,7 +34,7 @@ from ma_ui.streamlit_app.state import (
     get_active_workspace,
     mark_workspace_draft,
 )
-from ma_validation import DiagnosticMessage, DiagnosticSeverity
+from ma_validation import DiagnosticMessage, DiagnosticSeverity, ReleaseStatus
 from ma_workflow import get_module_definition
 from ma_workspace import load_project_module_config, save_project_module_config
 from ma_zones import (
@@ -278,9 +294,11 @@ def render() -> None:
             _render_usage_profile_assignment(workspace, project_payload, zone_spec)
     elif section == "Konditionierung & Übergabe":
         st.dataframe(normalize_table_for_streamlit(thermal_zone_rows(zone_spec)), hide_index=True, width="stretch")
-        st.caption(
-            "Zonale Uebergabe und die Zuordnung zu technischen Serviceinterfaces werden nach der v2-Technikrevision "
-            "in diesem Bereich ergaenzt. Die aktuelle LoD-1-Demo aendert keine zentrale Technik."
+        _render_technical_assignment(
+            workspace,
+            project_payload,
+            model_key=model_key,
+            zone_spec=zone_spec,
         )
     elif section == "Zeitpläne":
         st.caption("Die Profile sind LoD-1-Annahmen. Wochen-, Jahres- und Feiertagsprofile folgen getrennt.")
@@ -438,7 +456,166 @@ def _stored_5z_assignments(payload: dict[str, object]) -> dict[str, str]:
 
 
 def _mark_zones_draft() -> None:
+    st.session_state.pop("ma_zones_checked_technical_assignment", None)
     mark_workspace_draft(st.session_state, "ma_zones")
+
+
+def _render_technical_assignment(
+    workspace,
+    payload: dict[str, object],
+    *,
+    model_key: str,
+    zone_spec: ZoneModelSpecification,
+) -> None:
+    """Bearbeitet die P013-eigene Zuordnung zum aktiven P014-Handover."""
+    st.caption(
+        "Hier werden Zonen manuell freigegebenen technischen Serviceinterfaces zugeordnet. "
+        "Es werden weder Lasten berechnet noch Systeme oder Dimensionen veraendert."
+    )
+    try:
+        building_context = resolve_selected_building_context(workspace)
+        project_zone_spec = bind_zone_specification_to_project(
+            zone_spec,
+            project_id=workspace.project.identity.project_id,
+            building_reference=building_context.reference,
+        )
+        active_technical = load_active_technical_revision(
+            workspace,
+            building_context.reference,
+        )
+    except StaleActiveTechnicalRevisionError:
+        st.error(
+            "Die aktive Technikrevision gehoert zu einer frueheren Building-Version. "
+            "Bitte den Technikstand in Technische Systeme neu freigeben."
+        )
+        return
+    except (OSError, TypeError, ValueError) as exc:
+        st.error(f"Technische Zuordnung ist gesperrt: {exc}")
+        return
+    if active_technical is None:
+        st.warning(
+            "Fuer den uebernommenen Building-Stand ist noch kein aktiver P014-Handover vorhanden. "
+            "Bitte zuerst Technische Systeme freigeben."
+        )
+        return
+    _revision, handover, _revision_path = active_technical
+    st.markdown(
+        f"**Aktiver Technikstand:** `{handover.technical_model_id}` / `{handover.revision_id}`  "
+        f"\n**Building-Revision:** `{building_context.reference.revision_id}`  "
+        f"\n**Technik-Content-Hash:** `{handover.content_hash}`  "
+        f"\n**Handover-Hash:** `{handover.handover_content_hash}`  "
+        f"\n**Freigabenachweis-Hash:** `{handover.release_evidence_hash or 'nicht vorhanden'}`  "
+        f"\n**Zoneninhalt-Hash:** `{zone_specification_content_hash(project_zone_spec)}`"
+    )
+    interface_rows = technical_handover_rows(handover)
+    if not interface_rows:
+        st.warning("Der aktive Technikstand enthaelt keine zuordenbaren Serviceinterfaces.")
+        return
+    st.dataframe(
+        normalize_table_for_streamlit(interface_rows),
+        hide_index=True,
+        width="stretch",
+    )
+
+    try:
+        stored = stored_technical_assignment_draft(
+            payload,
+            model_key=model_key,
+            zone_spec=project_zone_spec,
+            handover=handover,
+        )
+    except ValueError as exc:
+        st.error(f"Gespeicherter Zuordnungsentwurf ist ungueltig: {exc}")
+        return
+    if stored.has_stored_draft and not stored.matches_active_handover:
+        st.warning(
+            "Der gespeicherte Zuordnungsentwurf referenziert einen anderen Zonen- oder "
+            "Technikstand und wird nicht vorausgewaehlt."
+        )
+    edited_rows = st.data_editor(
+        normalize_table_for_streamlit(
+            technical_assignment_editor_rows(
+                project_zone_spec,
+                handover,
+                stored.assignments,
+            )
+        ),
+        hide_index=True,
+        width="stretch",
+        disabled=("Zone-ID", "Zone", "Serviceinterface", "Dienst", "Medium"),
+        key=(
+            f"ma_zones_technical_assignment_editor_{model_key}_"
+            f"{handover.revision_id}_{handover.content_hash[:8]}"
+        ),
+        on_change=_mark_zones_draft,
+    )
+    st.caption(
+        "Nicht markierte Zeilen bleiben unzugeordnet. Ein Terminaltyp ist optional; wenn er "
+        "angegeben wird, muss er im aktiven Serviceinterface als kompatibel freigegeben sein."
+    )
+    st.info(
+        "Die Prüfung bestätigt nur die Integrität der gewählten Beziehungen. Sie ist kein "
+        "Nachweis vollständiger Versorgung, technischer Eignung, Lastdeckung oder Dimensionierung."
+    )
+    try:
+        assignments = technical_assignments_from_rows(
+            project_zone_spec,
+            handover,
+            edited_rows,
+        )
+        _draft_spec, validation = validate_technical_assignment_draft(
+            project_zone_spec,
+            handover,
+            assignments,
+        )
+        check_token = technical_assignment_check_token(
+            project_zone_spec,
+            handover,
+            assignments,
+        )
+    except (TypeError, ValueError) as exc:
+        st.error(f"Zuordnungsentwurf ist ungueltig: {exc}")
+        return
+
+    if st.button("Technische Zuordnungen prüfen", key=f"ma_zones_check_technical_{model_key}"):
+        _render_messages(validation.messages)
+        if validation.release_status is ReleaseStatus.RELEASED:
+            st.session_state["ma_zones_checked_technical_assignment"] = check_token
+            st.success(
+                "Der Entwurf ist gegen den aktiven Zonen- und P014-Handover-Stand geprueft. "
+                "Vollstaendigkeit oder Versorgung sind damit nicht nachgewiesen."
+            )
+        else:
+            st.session_state.pop("ma_zones_checked_technical_assignment", None)
+
+    if st.button(
+        "Geprüfte technische Zuordnungen übernehmen",
+        type="primary",
+        key=f"ma_zones_save_technical_{model_key}",
+    ):
+        if st.session_state.get("ma_zones_checked_technical_assignment") != check_token:
+            st.warning("Bitte den unveraenderten Zuordnungsentwurf zuerst erfolgreich pruefen.")
+            return
+        try:
+            updated_payload = technical_assignment_project_payload(
+                payload,
+                project_id=workspace.project.identity.project_id,
+                model_key=model_key,
+                zone_spec=project_zone_spec,
+                handover=handover,
+                assignments=assignments,
+            )
+            save_project_module_config(workspace, "ma_zones", updated_payload)
+        except (OSError, TypeError, ValueError) as exc:
+            st.error(f"Technische Zuordnungen konnten nicht gespeichert werden: {exc}")
+            return
+        clear_workspace_draft(st.session_state, "ma_zones")
+        st.session_state.pop("ma_zones_checked_technical_assignment", None)
+        st.session_state["ma_ui_variants_update_required"] = True
+        st.success(
+            "Die geprueften technischen Zuordnungen wurden als projektbezogener P013-Entwurf gespeichert. "
+            "Ein ReleasedZoneHandover und ein Versorgungs- oder Dimensionierungsnachweis wurden nicht erzeugt."
+        )
 
 
 def _render_usage_profile_assignment(

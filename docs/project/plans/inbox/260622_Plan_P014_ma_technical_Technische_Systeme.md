@@ -1,7 +1,7 @@
 # P014 ma_technical Technische Systeme
 
-Stand: 2026-07-18
-Status: Fachlich konsolidiert, P014-S1 Legacy-v1 kompatibel, v2-Kerntypen sowie P014-S1.1/S1.2, P014-S2, P014-S3a und P014-S4 umgesetzt; optionale lokale Katalogauswahl vorhanden; P013/P015-Releasecheckpoint angebunden, v2-Werteherkunft und Restumfang von P015-S3b offen
+Stand: 2026-08-02
+Status: Fachlich konsolidiert, P014-S1 Legacy-v1 kompatibel, v2-Kerntypen sowie P014-S1.1/S1.2, P014-S2, P014-S3a/P013-Assignment-Checkpoint, P014-S4, die projektbezogene UD-115-Freigabekette und die nachgelagerte P013-Assignment-UI umgesetzt; v2-Werteherkunft und Restumfang von P015-S3b offen
 Prioritaet: Hoch
 Abhaengigkeiten: P010, P012, P013, P015, P017, P027
 
@@ -423,3 +423,111 @@ Ist eine Arbeitsmappe vorhanden, liest die UI ausschliesslich deren
 die projektbezogene Uebernahme nur fuer aktive validierte Eintraege.
 Projektkopien enthalten Originalzeile, Pfad, Version und SHA-256. Die
 Lite-Validierung akzeptiert ausschliesslich Schema-Version `1.0`.
+
+## Konsolidierung nach UD-112 2026-07-31
+
+`ma_technical` liefert im Ziel vor `ma_zones` die systemweiten technischen
+Systeme und stabilen System-IDs. `ma_zones` ordnet diese anschliessend zonal
+zu. Das ist kein Dimensionierungsowner: Kapazitaeten und deren Ergebnisse
+liegen bei `ma_dimensionierung`. Die bisherige Abhaengigkeit der
+Technikbearbeitung von einem aktiven Zonenmodell ist Altbestand und wird im
+gemeinsamen P013/P014-Migrationsslice ohne zyklische Zielabhaengigkeit
+aufgeloest.
+
+## Umsetzungscheckpoint P013/P014-S1 2026-08-01
+
+Der builder-erzeugte `ReleasedTechnicalHandover` fuehrt fuer die nachgelagerte
+P013-Pruefung nun zusaetzlich Projekt-ID, Building-Referenz samt Revision,
+einen deterministischen Serviceinterface-Referenzhash und einen gemeinsamen
+`handover_content_hash`. Dieser bindet Technikmodell-/Revisions-/Content-Hash,
+Projekt, Building und die Interfaceprojektion gemeinsam. Der produktive
+Builder verlangt den vollstaendigen Kontext einer freigegebenen v2-Revision.
+
+Das v2-Technikmodell und seine Serviceinterfaces bleiben zonenlos.
+Zonenbelegung und optionale Terminalwahl liegen ausschliesslich in P013;
+Kapazitaetspruefung und Dimensionierung werden durch diesen Checkpoint nicht
+eingefuehrt. Direkte Legacy-v1-Konstruktoren und deren Diagnostik bleiben
+kompatibel.
+
+## Umsetzungscheckpoint direkte Technikansicht S2a 2026-08-01
+
+Die direkte Streamlit-Fachansicht von `ma_technical` besitzt keine
+Voraussetzung aus `ma_zones` mehr. Sie zeigt den fallbezogenen
+Legacy-Uebergangsstand mit seinen direkten Zonenreferenzen weiterhin
+additiv, kennzeichnet ihn aber ausdruecklich als Nicht-Zielmodell und nicht
+als v2-Handover.
+
+Daneben werden zentrale technische Objekt- und Serviceinterface-IDs aus der
+bestehenden zonenfreien v2-Referenz sichtbar. Diese Quelle bleibt strikt
+synthetisch, read-only, projektunabhaengig, nicht freigegeben und nicht fuer
+Dimensionierung oder Simulation bestimmt. `validate_technical_model(...)`
+wird als Strukturpruefung dargestellt; es wird weder eine Revision erzeugt
+noch ein Projektstand gespeichert. Eine projektkompatible v2-Freigabe- und
+Handover-Bedienung sowie die explizite zonale Assignment-Bedienung bleiben
+getrennte Folgeslices. Fuer diesen Checkpoint entstand keine neue
+Nutzerentscheidung; UD-112 und UD-114 bestimmen Richtung und Abgrenzung
+bereits vollstaendig. Die Workflow-Ansicht bleibt gemaess Nutzerauftrag der
+letzte UI-Migrationsslice.
+
+## Umsetzungscheckpoint projektbezogene v2-Freigabekette 2026-08-01
+
+UD-115 ist in der direkten Technikansicht umgesetzt. Ein uebernommener
+`ma_building`-Stand ist die verbindliche Building-Referenz; Projekt-ID,
+Building-ID und `model_version` muessen zum aktiven Workspace passen. Ein noch
+nicht vorhandener Building-Content-Hash bleibt leer.
+
+Der Nutzer waehlt eine versionierte Legacy-Quelle ausdruecklich aus.
+`v2-Entwurf vorbereiten` erzeugt daraus ueber den versionierten Einwegadapter
+nur einen deterministischen Sitzungsentwurf. Quelle, SHA-256, Mappingversion,
+verworfene Zonenbindungen und nicht als Kapazitaet darstellbare Legacywerte
+bleiben als Provenienz beziehungsweise Annahmen sichtbar. `Struktur pruefen`
+validiert ohne Dateischreibzugriff. Warnungen koennen nur ueber die sichtbare
+Freigabebestaetigung akzeptiert werden; Code und Fundstelle werden in der
+Revision protokolliert, beim Reload erneut abgeglichen und in einem
+Freigabenachweis-Hash gesichert.
+
+Erst `Revision freigeben` erzeugt unter
+`config/ma_technical/revisions/<building_id>/<technical_model_id>/` eine
+atomare, kollisionsgeschuetzte und append-only YAML-Revision mit
+systemgenerierter Modell- und Revisions-ID. Dateiname und gespeicherte
+Revision-ID muessen uebereinstimmen. Die UI laedt die Datei danach erneut,
+prueft Content- und Handover-Hash und speichert in `ma_technical.yaml` nur die
+workspace-relative aktive Referenz je Building.
+
+Ein aktiver Technikstand gilt nur fuer die vollstaendig gleiche Building-
+Referenz samt `model_version`; ein Wechsel der Building-Version macht den
+alten Stand sichtbar ungueltig. Die Workspace-Release-Grenze prueft die
+Projekt-ID selbst gegen `project.yaml` und die Building-Referenz gegen den
+tatsaechlichen `ma_building.yaml`-Stand. Ein veralteter Technikstand blockiert
+nicht die Vorbereitung seiner neuen Revision. Scheitert nach erfolgreichem append-only Schreiben nur die
+Aktivierung, benennt die UI die gespeicherte Revision und den getrennten
+Aktivierungsfehler. Der aktuell einseitige Mappingstand einer Legacy-Zu-/
+Abluftanlage auf `supply_air` wird als Einschraenkung dokumentiert und erzeugt
+kein behauptetes `extract_air`-Interface.
+
+Aktivierung und Reload lesen nur aus dem kanonischen UD-115-Revisionspfad;
+externe oder falsch einsortierte workspace-interne Pfade werden vor dem
+Dateizugriff abgewiesen. Die Revisionswurzel muss ein YAML-Mapping sein.
+Warnungsbehaftete v2-Revisionen ohne gueltigen Freigabenachweis werden auch
+bei einem vermeintlichen Legacy-Format nicht geladen.
+
+Nicht Teil dieses Checkpoints sind Zonen- oder Terminalzuordnung,
+Lastberechnung, Kapazitaetsausreichung, Dimensionierung, automatische
+Nachbarmodulaenderungen, reale beziehungsweise geschuetzte Technikquellen und
+die Workflow-Ansicht. Der naechste sichere P013/P014-Slice ist die explizite
+Assignment-Bedienung in `ma_zones` gegen den aktiven Technik-Handover.
+
+## Nachgelagerter P013-Assignment-Slice 2026-08-01
+
+Die direkte `ma_zones`-Ansicht konsumiert nun den aktiven, projektlokalen
+`ReleasedTechnicalHandover` ausschliesslich als hashgebundene Referenz. P014
+bleibt Owner der zentralen Systeme und Serviceinterface-IDs; die Zonen- und
+optionale Terminalzuordnung wird nur in P013 gespeichert. Ein fehlender,
+veralteter oder zum Building unpassender Technikstand sperrt die Bedienung,
+ohne P014 automatisch zu veraendern.
+
+Damit ist der fuer diesen Slice erforderliche gerichtete UI-Durchstich
+`ma_technical -> ma_zones` hergestellt. Nicht enthalten sind
+Kapazitaetsausreichung, Lastberechnung, Dimensionierung, eine automatische
+Vollversorgungsannahme oder die Workflowansicht. Die getrennte Klaerung der
+v2-Werteherkunft bleibt als P014-Folgearbeit bestehen.

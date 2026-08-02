@@ -1,7 +1,8 @@
 # P009 Allgemeine Simulationsschnittstellen mit IDA-ICE-Adapter
 
 Stand: 2026-07-12
-Status: Zurueckgestellt bis P018; RUN/VAR-Zuordnung fachlich geschaerft
+Status: Manueller neutraler Ergebnisimport ist aktiver MVP-Planungsscope;
+  automatisierter IDA-Adapter bleibt zurueckgestellt
 Bezug: P007, P018, archivierter P006
 
 ## Ziel
@@ -157,3 +158,32 @@ Adaptervertrag, ohne den zurueckgestellten MVP-Status aufzuheben:
 
 Diese Anforderungen werden erst mit einem spaeteren, separat freigegebenen
 Adapter-Slice umgesetzt. Sie erlauben keine automatische IDA-ICE-Integration.
+
+## Konsolidierung nach UD-112 2026-07-31
+
+Der MVP beginnt mit einem manuell bereitgestellten, freigegebenen neutralen
+Ergebnisexport. `ma_import_simulation` ist der gemeinsame technische Kern fuer
+beide Ergebnisarten: Es erkennt und sichert Rohdatei sowie Hash, ordnet
+externes Format zu, prueft Einheiten, Zeitachse und Scope und bildet die
+standardisierte Ergebnissicht. Danach fuehrt der fachliche Weg entweder zu
+`ma_dimensionierung` (Dimensionierungsergebnis) oder zu `ma_analyse`
+(Varianten-Simulationsergebnis).
+
+Die Importgrenze endet mit `standardized`: `ma_import_simulation` trifft keine
+fachliche Annahme oder Freigabe. `ma_dimensionierung` prueft und gibt
+standardisierte Dimensionierungsergebnisse fachlich frei; `ma_analyse` baut
+aus standardisierten Variantenergebnissen seine PostProcess-Sicht. Manuelle
+Dimensionierungstabellen laufen als klar markierter Manual-Entry-Adapter in
+`ma_dimensionierung` und werden nicht wie externe Rohdateien behandelt.
+
+Die kanonische Datenkette lautet `raw -> standardized -> prepared ->
+metric/diagram -> interpretation`. Import-Mapping, technische Validierung und
+fachliche Auswertbarkeit bleiben getrennte Statusachsen. Eine erneute
+Zuordnung versioniert ihre Entscheidung und ueberschreibt weder Rohdatei noch
+fruehere Zuordnung.
+
+Ein verbindlicher Feldvertrag wird erst aus einem freigegebenen neutralen
+Ergebnisexport abgeleitet. Zu inventarisieren sind mindestens Variablen,
+Einheiten, Vorzeichen, Zeitstempel, Zeitschritt, Zonen-/Systemmapping,
+Fehlwerte, Quelldateiname und Hash. Vollstaendige IDA-/EQUA-Dateien,
+Bibliotheken, IDA-Start und IDM-Manipulation bleiben ausserhalb von P009-V1.

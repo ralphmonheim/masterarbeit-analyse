@@ -1,7 +1,7 @@
 # P027 Querschnitt UI, Workflow, Validation und Feedback
 
-Stand: 2026-07-18
-Status: Aktiv, begleitend; V1-Infokarten- und Bedienansichtsslice umgesetzt
+Stand: 2026-07-31
+Status: Aktiv, begleitend; Workflow-UI nach UD-114 ans Ende der Migration verschoben
 Prioritaet: Hoch
 Abhaengigkeiten: alle P007-Teilplaene
 
@@ -126,8 +126,10 @@ bleiben ausserhalb dieses Workflows.
 
 Projekt, Parameter und Varianten besitzen echte Fachansichten, behalten ihre
 Infokarten und koennen mit gespeichertem Ruecksprungziel aufeinander
-verweisen. Start, Zurueck und Weiter beenden diesen Sonderkontext. Eine
-allgemeine Workflow-Orchestrierung und zentrale Validierung bleiben offen.
+verweisen. Das gespeicherte Ruecksprungziel gilt fuer einen konkreten
+Konfigurationskontext; es legt keine globale Start- oder
+Weiter-/Zurueck-Navigation fest. Die allgemeine Workflow-Orchestrierung und
+zentrale Validierung bleiben offen.
 
 ## Umsetzungsbezug P010
 
@@ -222,3 +224,96 @@ UD-106 legt fuer die weitere V1-UI fest:
 
 P035 konkretisiert Projektstart, lokale Registry und Workspace-Persistenz,
 ohne diese Querschnittsregeln zu duplizieren.
+
+## Konsolidierung nach UD-112 2026-07-31
+
+Die sichtbare Zielreihenfolge lautet dauerhaft `Projekt -> Wetter -> Gebaeude
+-> Technik -> Zonen -> Parameter -> Varianten-Vorbereitung/-Auswahl ->
+Dimensionierung -> finaler VCAT/VSEL/VGEN -> Simulation-Setup -> manuelle
+Simulation -> Ergebnisimport -> PostProcess`.
+Die verbindliche UI-Abfolge innerhalb dieser Kette lautet nach Parameter
+zunaechst `VSP/VVER und fruehe Auswahl -> Dimensionierung als sichtbarer
+Unterablauf von ma_variants -> finaler VCAT/VSEL/VGEN -> Simulation-Setup`.
+Sie ersetzt in P027 die gegenteilige Reihenfolge aus UD-106. `ma_technical`
+liefert Systeme/System-IDs; `ma_zones` zeigt und bearbeitet deren zonale
+Zuordnung. Die technische Umstellung wird als eigener, getesteter
+Migrationsslice geplant.
+
+Die Prozessbereiche sind nach UD-114 verbindlich abgegrenzt: PreProcess reicht
+bis einschliesslich `ma_simulation_setup`; der Kernprozess umfasst Export,
+Run-Uebergabe, manuelle Simulation und Ergebnisimport bis
+`standardized_ready`; PostProcess beginnt am selben Uebergang mit der
+fachlichen Datenverarbeitung `standardized -> prepared`. Review/Iteration,
+Validierung und Feedback wirken phasenuebergreifend, ohne eine vierte
+Fachphase oder zweite Workflowwahrheit zu bilden.
+
+Jede V1-Fachfunktion erhaelt eine bedienbare UI: Projektanlage, Wetter,
+Gebaeude, Technik, Zonen, Parameter, Dimensionierung,
+Varianten-Vorbereitung/-Auswahl, Simulation-Setup, Run-UEbergabe,
+Ergebnisimport und PostProcess. Die Workflow-Ansicht zeigt PreProcess,
+MainProcess und PostProcess als Orientierung; Modulansichten bleiben die
+fachliche Arbeitsflaeche und erzeugen keine zweite Persistenzwahrheit.
+
+Die UI zeigt getrennt Import-Mapping, technische Validierung,
+Fach-/Funktionsauswertbarkeit und Reviewstatus. PostProcess-Ergebnisse
+kennzeichnen `nicht angefordert` und `nicht auswertbar` mitsamt Ursache.
+Eine Diagrammvorlage wird nicht ohne gesonderte Nutzerentscheidung optisch
+oder fachlich veraendert.
+
+## Workflowansicht und ebenenabhaengige Navigation 2026-07-31
+
+Die Workflowansicht ist eine interaktive Orientierung und Navigation, keine
+zweite Daten-, Status- oder Orchestrierungswahrheit neben den Fachmodulen.
+Die bisherige globale lineare Kopfzeilenlogik mit `Start`, `Zurueck` und
+`Weiter` ist deshalb nicht die Zielbedienung fuer diese Ansicht.
+
+- **Ebene 1 – Gesamtuebersicht:** Sie ist der Einstieg in die
+  Workflowansicht und zeigt `PreProcess`, `Kernprozess (MainProcess)` und
+  `PostProcess` als drei anklickbare Bereiche. Sie darf verdichtete
+  Validierungs- und Reviewhinweise zeigen, zum Beispiel einen
+  PostProcess-Rueckschluss auf `ma_technical`, `ma_zones` oder
+  `ma_parameters`. Solche Hinweise aendern keine Eingaben automatisch.
+- **Ebene 2 – Bereichsworkflow:** Ein geoeffneter Bereich zeigt seine
+  Fachmodule in der verbindlichen Prozessreihenfolge, deren Uebergaben und
+  konkret beschriftete Validierungs-/Entscheidungsknoten. Die PreProcess-
+  Validierung wird hier am passenden Uebergang sichtbar; ein `Nein` hat ein
+  eindeutiges Zielmodul statt eines unbenannten Diagrammknotens.
+- **Ebene 3 – Facharbeit:** Ein Moduloeffnen fuehrt in die vorhandene
+  Fachansicht mit Reitern oder gefuehrten Detailschritten. Die bewährte
+  Detailschritt-Navigation aus der Analyseansicht ist das Bedienmuster:
+  Weiter bleibt bis zur erforderlichen Vollstaendigkeit gesperrt und Zurueck
+  wechselt nur zum vorherigen Detailschritt.
+- **Navigation:** Weiter und Zurueck bewegen sich immer nur innerhalb der
+  aktuell sichtbaren Ebene: zwischen Prozessbereichen auf Ebene 1, zwischen
+  Modulen eines geoeffneten Bereichs auf Ebene 2 und zwischen
+  Detailschritten/Reitern des Moduls auf Ebene 3. Eine sichtbare
+  Pfadnavigation wie `Gesamtuebersicht > PreProcess > ma_project >
+  Randbedingungen` wechselt gezielt in die uebergeordnete Ebene. Sie setzt
+  weder das Projekt noch aktive Reiter, Auswahl oder Entwuerfe zurueck.
+- **Korrekturpfade:** Validierungs- und Reviewbefunde verlinken mit einer
+  ausdruecklich benannten Aktion auf ihr Zielmodul, etwa
+  `Gebaeudemodell korrigieren -> ma_building`. Sie sind keine versteckte
+  Bedeutung der allgemeinen Zurueck-Taste und starten keine automatische
+  Iteration.
+
+Die historische Grafik unter
+`docs/project/archive/workflow/WORKFLOW_DIAGRAM_v0.1.0_2026-06-18.jpg`
+liefert die fachlichen Beziehungen, Rollen und Rueckkopplungen. Ihre lange
+statische Swimlane ist jedoch nicht das Bildschirm-Layout. Die konkrete
+interaktive, vektorfaehige Darstellung wird auf Basis des vorhandenen
+`workflow_graph.py` geplant; eine neue Grafikbibliothek wird nicht ohne
+eigenen Bedarfsnachweis und Freigabe eingefuehrt.
+
+## UI-S1 Workflownavigation: nach UD-114 zurueckgestellt 2026-07-31
+
+Der erste Streamlit-Entwurf wurde nach dem Council-Blocker technisch
+zurueckgestellt. Die dreistufige Workflowansicht wird als letzter
+Migrationsslice neu aus dem dann zentralen, UI-neutralen Prozess- und
+Statusvertrag abgeleitet. Sie darf keine Reihenfolge oder Statuslogik neben
+`ma_workflow` fuehren.
+
+Vor der spaeteren Umsetzung wird eine eigene Button- und Sprungzielmatrix fuer
+Ebene 1 bis 3 abgestimmt. Diese Navigation darf sich bewusst von der direkten
+Arbeits-/Modulansicht unterscheiden. Jeder Button benoetigt jedoch ein
+eindeutiges Ziel und darf weder Entwuerfe zuruecksetzen noch Fachwerte,
+Selections, Varianten, RUNs oder Reviewzustaende automatisch veraendern.

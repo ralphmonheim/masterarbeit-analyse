@@ -1,7 +1,7 @@
 # P013 - Gesamtkonzept `ma_zones`
 
-**Stand:** 15. Juli 2026
-**Status:** Fachlich konsolidiert; 5Z aktiv und 29Z-Entwurf mit Profilvorschlaegen umgesetzt, normative Profilwerte gesperrt
+**Stand:** 2. August 2026
+**Status:** Fachlich konsolidiert; 5Z aktiv, 29Z-Entwurf mit Profilvorschlaegen, P014-Serviceinterface-Assignment-Checkpoint und direkte manuelle Assignment-UI umgesetzt, normative Profilwerte gesperrt
 **Modul:** `ma_zones`
 **UI-Bezeichnung:** Zonen
 **Prioritaet:** hoch innerhalb der Eingangsdatenkette
@@ -2441,3 +2441,69 @@ Modellentwicklung. Vorher waeren mindestens Zweck, Eingabemerkmale,
 Entscheidungs- und Begruendungsdaten, Ground Truth, Bewertungsmethode,
 Datenschutz, Rechte, lokale/externe Verarbeitung und die Trennung zwischen
 Vorschlag und Nutzerentscheidung zu planen.
+
+## Konsolidierung nach UD-112 2026-07-31
+
+Der Zielvertrag ist `ma_technical -> ma_zones`: Technik stellt vor der
+Zonenbearbeitung die systemweiten Systeme und stabilen System-IDs bereit;
+`ma_zones` verwaltet deren zonale Zuordnung. Der bisherige zonenseitige bzw.
+UI-seitige Bedarf an einem bereits aktiven Zonenmodell ist Altbestand und
+begruendet keine Zielzyklik. Die Umstellung der Daten- und UI-Abhaengigkeiten
+ist ein gemeinsamer, getesteter Migrationsslice mit P014; es wird kein neues
+Querschnittsmodul eingefuehrt.
+
+## Umsetzungscheckpoint P013/P014-S1 2026-08-01
+
+`ZoneModelSpecification` fuehrt additiv optionale, immutable
+`ZoneTechnicalServiceAssignment`-Eintraege. Jede weitergabefaehige Zuordnung
+benennt eine Zone, ein freigegebenes P014-Serviceinterface und optional einen
+kompatiblen Terminaltyp; `manual_confirmed` muss ausdruecklich gesetzt sein.
+`validate_zone_technical_assignments(...)` prueft Zone, Interface,
+Terminalkompatibilitaet, Projekt-/Building-Revision, Freigabe und die
+P014-Hashkette. `build_released_zone_handover(...)` bindet nichtleere
+Zuordnungen und den vollstaendigen Technik-Handover-Hash kanonisch und
+reihenfolgeunabhaengig in den Zonencheckpoint ein.
+
+Leere Zuordnungen bleiben zulaessig, behaupten keine Vollversorgung und
+behalten den bisherigen Legacy-Fingerprint. Der Legacy-v1-Validator bleibt
+unveraendert. Die direkte Zonen-UI und die Abloesung des zyklischen
+SmallOffice-UI-Pfads sind noch nicht Teil dieses S1-Checkpoints.
+
+## Umsetzungscheckpoint direkte Assignment-Bedienung S2 2026-08-01
+
+Die direkte Zonenansicht bindet `Konditionierung & Übergabe` an den aktiven,
+projektlokalen `ReleasedTechnicalHandover`. Building-ID und Building-Revision
+des ausgewaehlten Zonenmodells muessen exakt dem in `ma_building`
+uebernommenen Stand entsprechen. Die Projekt-ID der versionierten
+Zonenquelle wird nur fuer den Workspace-Entwurf gebunden; die Quelldatei
+selbst bleibt unveraendert.
+
+Die UI zeigt alle freigegebenen Serviceinterfaces mit Dienst, Medium,
+Quellobjekt und kompatiblen Terminaltypen. Sie erzeugt je Zone und Interface
+eine unmarkierte Auswahlzeile. Nur explizit markierte und manuell bestaetigte
+Zeilen werden zu `ZoneTechnicalServiceAssignment`-Objekten. `Technische
+Zuordnungen prüfen` schreibt nicht. `Geprüfte technische Zuordnungen
+übernehmen` speichert nur denselben unveraenderten, erfolgreich geprueften
+Entwurf additiv in `ma_zones.yaml`.
+
+Der gespeicherte Entwurf bindet Technikmodell, Revision, Content-,
+Serviceinterface-, Freigabenachweis- und Handover-Hash sowie Building-ID und
+-Revision. Zusaetzlich bindet ein deterministischer Zoneninhalt-Hash die
+vollstaendige Zonenquelle ohne den gerade bearbeiteten Assignment-Entwurf;
+damit machen auch Aenderungen an Zone-Raum-Zusammensetzung oder Fachinhalt
+eine alte Bestaetigung ungueltig. Ein anderer oder veralteter Zonen- oder
+Technikstand wird sichtbar gesperrt und nicht vorausgewaehlt. Eine bereits
+vorhandene fremde, leere oder typfremde Projekt-ID sowie beschaedigte
+Draft-Strukturen werden bereits vor der Vorauswahl gesperrt und nicht
+ueberschrieben. Leere Zuordnungen
+bleiben speicherbar, werden ohne `technical_assignments`-Nutzlast abgelegt
+und behaupten keine Versorgung.
+
+Der Slice erzeugt keinen `ReleasedZoneHandover`, veraendert keine zentrale
+Technik, berechnet keine Lasten oder Kapazitaeten und nimmt keine
+Dimensionierung vor. Die Workflowansicht bleibt der letzte UI-
+Migrationsslice. Es entstand keine neue Nutzerentscheidung; UD-112 und der
+P013/P014-S1-Vertrag bestimmen die Umsetzung bereits vollstaendig.
+Die sichtbare Pruefung bestaetigt ausschliesslich die Integritaet der
+ausgewaehlten Beziehungen, nicht deren Vollstaendigkeit, technische Eignung
+oder Leistungsdeckung.
