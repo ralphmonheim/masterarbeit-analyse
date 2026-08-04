@@ -34,8 +34,13 @@ from ma_ui.streamlit_app.module_views.zones_assignment_support import (
     technical_handover_reference,
     technical_handover_rows,
     validate_technical_assignment_draft,
+    zone_model_draft_project_payload,
     zone_specification_content_hash,
     zone_specification_reference,
+)
+from ma_ui.streamlit_app.module_views.zones_release_preview_support import (
+    build_zone_release_preview,
+    materialize_project_zone_specification,
 )
 from ma_validation import ReleaseStatus
 from ma_zones import (
@@ -153,6 +158,34 @@ def _technical_handover(tmp_path: Path) -> ReleasedTechnicalHandover:
         target_dir=tmp_path,
     )
     return build_released_technical_handover(revision)
+
+
+def _technical_revision_and_handover(tmp_path: Path):
+    revision = release_technical_model(
+        load_technical_model_specification(REFERENCE_SPEC_PATH),
+        revision_id="SYNTHETIC-TECHNICAL-REV-0001",
+        target_dir=tmp_path,
+    )
+    return revision, build_released_technical_handover(revision)
+
+
+def _release_preview_payload(
+    zone_spec: ZoneModelSpecification,
+    handover: ReleasedTechnicalHandover,
+    *,
+    model_key: str = "5Z",
+    assignments: tuple[ZoneTechnicalServiceAssignment, ...] | None = None,
+) -> dict[str, object]:
+    payload = technical_assignment_project_payload(
+        {},
+        project_id=zone_spec.project_id,
+        model_key=model_key,
+        zone_spec=zone_spec,
+        handover=handover,
+        assignments=_assignments() if assignments is None else assignments,
+    )
+    payload.update({"active_model": model_key, "zone_model_id": zone_spec.zone_model_id})
+    return payload
 
 
 def _thermal_building_model(technical_handover: ReleasedTechnicalHandover) -> ThermalBuildingModel:
@@ -883,3 +916,311 @@ def test_zone_handover_release_gateway_blocks_invalid_assignments(tmp_path, assi
 
     with pytest.raises(ValueError, match="Technische Zonenzuordnungen"):
         _released_zone_handover(tmp_path, zone_spec=invalid_spec)
+
+
+def test_release_preview_materializes_saved_profile_and_technical_assignments(tmp_path):
+    _revision, handover = _technical_revision_and_handover(tmp_path)
+    second_profile = UsageProfile("PROFILE-0002", "Besprechung", 9.0, 17.0, 5, 15.0, 7.0, 5.0)
+    source_spec = replace(
+        _zone_spec(),
+        usage_profiles=(*_zone_spec().usage_profiles, second_profile),
+        technical_assignments=(),
+    )
+    payload = _release_preview_payload(source_spec, handover)
+    payload["model_drafts"]["5Z"]["profile_assignments"] = {
+        "ZONE-0001": "PROFILE-0002",
+        "ZONE-0002": "PROFILE-0001",
+    }
+
+    materialized = materialize_project_zone_specification(
+        payload,
+        project_id=source_spec.project_id,
+        model_key="5Z",
+        source_zone_specification=source_spec,
+        building_reference=handover.building_reference,
+        technical_handover=handover,
+    )
+
+    assert materialized.zones[0].usage_profile_id == "PROFILE-0002"
+    assert materialized.technical_assignments == _assignments()
+
+
+@pytest.mark.parametrize(
+    ("payload_mutation", "message"),
+    [
+        (lambda payload: payload.update(active_model="29Z"), "noch nicht als aktives"),
+        (
+            lambda payload: payload["model_drafts"]["5Z"].pop("technical_assignment_status"),
+            "noch nicht als gepruefter Projektentwurf",
+        ),
+        (
+            lambda payload: payload["model_drafts"]["5Z"].update(
+                profile_assignments={"ZONE-0001": "synthetic_office", "ZONE-0002": "PROFILE-0001"}
+            ),
+            "fehlen vollstaendige Profilwerte",
+        ),
+    ],
+)
+def test_release_preview_fails_closed_for_incomplete_or_foreign_drafts(
+    tmp_path,
+    payload_mutation,
+    message,
+):
+    _revision, handover = _technical_revision_and_handover(tmp_path)
+    source_spec = replace(_zone_spec(), technical_assignments=())
+    payload = _release_preview_payload(source_spec, handover)
+    payload_mutation(payload)
+
+    with pytest.raises(ValueError, match=message):
+        materialize_project_zone_specification(
+            payload,
+            project_id=source_spec.project_id,
+            model_key="5Z",
+            source_zone_specification=source_spec,
+            building_reference=handover.building_reference,
+            technical_handover=handover,
+        )
+
+
+def test_release_preview_keeps_29z_blocked_without_released_profile_values(tmp_path):
+    _revision, handover = _technical_revision_and_handover(tmp_path)
+    source_spec = replace(_zone_spec(), technical_assignments=())
+    payload = _release_preview_payload(source_spec, handover, model_key="29Z")
+    payload["model_drafts"]["29Z"]["profile_values_status"] = "rights_clearance_required"
+
+    with pytest.raises(ValueError, match="autoritativen, hashgebundenen Quellen- und Rechtenachweis"):
+        materialize_project_zone_specification(
+            payload,
+            project_id=source_spec.project_id,
+            model_key="29Z",
+            source_zone_specification=source_spec,
+            building_reference=handover.building_reference,
+            technical_handover=handover,
+        )
+
+    payload["model_drafts"]["29Z"]["profile_values_status"] = "released"
+    with pytest.raises(ValueError, match="autoritativen, hashgebundenen Quellen- und Rechtenachweis"):
+        materialize_project_zone_specification(
+            payload,
+            project_id=source_spec.project_id,
+            model_key="29Z",
+            source_zone_specification=source_spec,
+            building_reference=handover.building_reference,
+            technical_handover=handover,
+        )
+
+
+def test_profile_draft_merge_preserves_technical_fields_and_rejects_foreign_data(tmp_path):
+    handover = _technical_handover(tmp_path)
+    source_spec = replace(_zone_spec(), technical_assignments=())
+    payload = _release_preview_payload(source_spec, handover)
+    technical_reference = payload["model_drafts"]["5Z"]["technical_handover_reference"]
+
+    updated = zone_model_draft_project_payload(
+        payload,
+        project_id=source_spec.project_id,
+        model_key="5Z",
+        draft_updates={"profile_assignments": {"ZONE-0001": "PROFILE-0001"}},
+    )
+
+    assert updated["model_drafts"]["5Z"]["technical_handover_reference"] == technical_reference
+    with pytest.raises(ValueError, match="gehoert nicht zum aktiven Projekt"):
+        zone_model_draft_project_payload(
+            {**payload, "project_id": "FOREIGN-PROJECT"},
+            project_id=source_spec.project_id,
+            model_key="5Z",
+            draft_updates={},
+        )
+    with pytest.raises(ValueError, match="model_drafts haben ein ungueltiges Format"):
+        zone_model_draft_project_payload(
+            {"project_id": source_spec.project_id, "model_drafts": []},
+            project_id=source_spec.project_id,
+            model_key="5Z",
+            draft_updates={},
+        )
+
+
+def test_release_preview_builds_deterministic_in_memory_handover(tmp_path):
+    revision, handover = _technical_revision_and_handover(tmp_path)
+    source_spec = replace(_zone_spec(), technical_assignments=())
+    payload = _release_preview_payload(source_spec, handover)
+
+    first = build_zone_release_preview(
+        payload,
+        project_id=source_spec.project_id,
+        model_key="5Z",
+        building_specification=_building_spec(),
+        building_reference=handover.building_reference,
+        source_zone_specification=source_spec,
+        technical_revision=revision,
+        technical_handover=handover,
+    )
+    second = build_zone_release_preview(
+        payload,
+        project_id=source_spec.project_id,
+        model_key="5Z",
+        building_specification=_building_spec(),
+        building_reference=handover.building_reference,
+        source_zone_specification=source_spec,
+        technical_revision=revision,
+        technical_handover=handover,
+    )
+
+    assert first.validation_result.release_status is ReleaseStatus.RELEASED
+    assert first.zone_handover is not None
+    assert first.zone_handover == second.zone_handover
+    assert first.thermal_building_model.thermal_building_model_id == "P013-READINESS-PREVIEW"
+
+
+def test_release_preview_accepts_an_explicitly_checked_empty_assignment_draft(tmp_path):
+    revision, handover = _technical_revision_and_handover(tmp_path)
+    source_spec = replace(_zone_spec(), technical_assignments=())
+    payload = _release_preview_payload(source_spec, handover, assignments=())
+
+    preview = build_zone_release_preview(
+        payload,
+        project_id=source_spec.project_id,
+        model_key="5Z",
+        building_specification=_building_spec(),
+        building_reference=handover.building_reference,
+        source_zone_specification=source_spec,
+        technical_revision=revision,
+        technical_handover=handover,
+    )
+
+    assert preview.validation_result.release_status is ReleaseStatus.RELEASED
+    assert preview.zone_handover is not None
+    assert preview.zone_handover.technical_handover_content_hash == ""
+
+
+def test_release_preview_rejects_changed_zone_or_p014_reference(tmp_path):
+    _revision, handover = _technical_revision_and_handover(tmp_path)
+    source_spec = replace(_zone_spec(), technical_assignments=())
+    payload = _release_preview_payload(source_spec, handover)
+    changed_zone_spec = replace(
+        source_spec,
+        zones=(
+            replace(source_spec.zones[0], source_space_ids=("SPACE-0002",)),
+            source_spec.zones[1],
+        ),
+    )
+
+    for selected_zone_spec, selected_handover in (
+        (changed_zone_spec, handover),
+        (source_spec, replace(handover, revision_id="SYNTHETIC-TECHNICAL-REV-CHANGED")),
+    ):
+        with pytest.raises(ValueError, match="nicht zum aktiven Zonen- und P014-Stand"):
+            materialize_project_zone_specification(
+                payload,
+                project_id=source_spec.project_id,
+                model_key="5Z",
+                source_zone_specification=selected_zone_spec,
+                building_reference=handover.building_reference,
+                technical_handover=selected_handover,
+            )
+
+
+def test_release_preview_handover_changes_with_saved_profile_assignment(tmp_path):
+    revision, handover = _technical_revision_and_handover(tmp_path)
+    second_profile = UsageProfile("PROFILE-0002", "Besprechung", 9.0, 17.0, 5, 15.0, 7.0, 5.0)
+    source_spec = replace(
+        _zone_spec(),
+        usage_profiles=(*_zone_spec().usage_profiles, second_profile),
+        technical_assignments=(),
+    )
+    base_payload = _release_preview_payload(source_spec, handover)
+    changed_payload = _release_preview_payload(source_spec, handover)
+    changed_payload["model_drafts"]["5Z"]["profile_assignments"] = {
+        "ZONE-0001": "PROFILE-0002",
+        "ZONE-0002": "PROFILE-0001",
+    }
+
+    def preview(payload):
+        return build_zone_release_preview(
+            payload,
+            project_id=source_spec.project_id,
+            model_key="5Z",
+            building_specification=_building_spec(),
+            building_reference=handover.building_reference,
+            source_zone_specification=source_spec,
+            technical_revision=revision,
+            technical_handover=handover,
+        )
+
+    base = preview(base_payload)
+    changed = preview(changed_payload)
+
+    assert base.zone_handover is not None
+    assert changed.zone_handover is not None
+    assert base.zone_handover.content_hash != changed.zone_handover.content_hash
+
+
+def test_release_preview_ui_is_read_only_and_discloses_claim_limits(tmp_path, monkeypatch):
+    revision, handover = _technical_revision_and_handover(tmp_path)
+    source_spec = replace(_zone_spec(), technical_assignments=())
+    payload = _release_preview_payload(source_spec, handover)
+    workspace = SimpleNamespace(
+        project=SimpleNamespace(identity=SimpleNamespace(project_id=source_spec.project_id))
+    )
+
+    class FakeStreamlit:
+        info_messages: list[str] = []
+        markdown_messages: list[str] = []
+
+        @classmethod
+        def markdown(cls, message, **_kwargs):
+            cls.markdown_messages.append(str(message))
+
+        @staticmethod
+        def caption(*_args, **_kwargs):
+            return None
+
+        @staticmethod
+        def button(*_args, **_kwargs):
+            return True
+
+        @staticmethod
+        def warning(*_args, **_kwargs):
+            return None
+
+        @staticmethod
+        def error(*_args, **_kwargs):
+            return None
+
+        @staticmethod
+        def success(*_args, **_kwargs):
+            return None
+
+        @classmethod
+        def info(cls, message, **_kwargs):
+            cls.info_messages.append(str(message))
+
+    monkeypatch.setattr(zones_view, "st", FakeStreamlit())
+    monkeypatch.setattr(
+        zones_view,
+        "resolve_selected_building_context",
+        lambda _workspace: SimpleNamespace(
+            specification=_building_spec(),
+            reference=handover.building_reference,
+        ),
+    )
+    monkeypatch.setattr(
+        zones_view,
+        "load_active_technical_revision",
+        lambda _workspace, _reference: (revision, handover, tmp_path / "revision.yaml"),
+    )
+    monkeypatch.setattr(
+        zones_view,
+        "save_project_module_config",
+        lambda *_args, **_kwargs: pytest.fail("Die Vorschau darf nichts speichern."),
+    )
+
+    zones_view._render_zone_release_preview(
+        workspace,
+        payload,
+        model_key="5Z",
+        zone_spec=source_spec,
+    )
+
+    assert any("nicht persistiert und nicht aktiv" in message for message in FakeStreamlit.markdown_messages)
+    assert any("weder vollstaendige Versorgung" in message for message in FakeStreamlit.info_messages)

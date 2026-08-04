@@ -8,6 +8,16 @@ from .economic_analysis import (
     export_variant_cost_results_json,
     import_economic_assumptions,
 )
+from .finalization import (
+    FinalizationResult,
+    FinalVariantCatalog,
+    FinalVariantCatalogEntry,
+    VariantIdRegistry,
+    VselVverMapping,
+    finalize_vver_dimensioning,
+    generate_final_variants,
+)
+from .finalization_payload import finalization_result_to_payload, variant_id_registry_from_payload
 from .ida_export import export_ida_variant_structure, load_ida_export_settings
 from .importing.catalog import import_catalog
 from .material_catalog import Material, MaterialProperty, import_materials
@@ -79,6 +89,9 @@ from .workflow import (
 
 __all__ = [
     "DependencyRule",
+    "FinalizationResult",
+    "FinalVariantCatalog",
+    "FinalVariantCatalogEntry",
     "DEFAULT_SMALL_OFFICE_V1_STUDY_CONFIG",
     "Document",
     "Material",
@@ -97,6 +110,7 @@ __all__ = [
     "SystemTemplate",
     "SystemTemplateValue",
     "Variant",
+    "VariantIdRegistry",
     "VariantCandidate",
     "VariantCatalog",
     "VariantRule",
@@ -105,6 +119,7 @@ __all__ = [
     "VariantWorkflowResult",
     "VariantValue",
     "WeatherSensitivityCase",
+    "VselVverMapping",
     "build_small_office_candidate_rows",
     "candidate_source_is_current",
     "candidate_simulation_setup",
@@ -119,6 +134,7 @@ __all__ = [
     "source_fingerprint",
     "verify_candidate_rows",
     "variation_specification_is_current",
+    "variant_id_registry_from_payload",
     "apply_variant_names",
     "build_variant_workflow",
     "build_small_office_v1_optimization_cases",
@@ -135,6 +151,9 @@ __all__ = [
     "default_zone_rules",
     "generate_selected_variants",
     "filter_variants_by_options",
+    "finalize_vver_dimensioning",
+    "generate_final_variants",
+    "finalization_result_to_payload",
     "import_catalog",
     "import_documents",
     "import_economic_assumptions",

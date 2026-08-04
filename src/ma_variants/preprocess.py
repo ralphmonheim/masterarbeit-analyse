@@ -27,12 +27,19 @@ class PreprocessVariant:
     baseline_snapshot_id: str
     baseline_content_hash: str
     values: tuple[VariationValue, ...] = ()
+    capacity_strategy: str = "dimensioned_with_factor"
+    dimensioning_status: str = "pending"
+    reference_heating_capacity_w: float | None = None
+    reference_cooling_capacity_w: float | None = None
     fingerprint: str = ""
+    content_fingerprint: str = ""
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "values", tuple(self.values))
         if not self.fingerprint:
             object.__setattr__(self, "fingerprint", _fingerprint(self))
+        if not self.content_fingerprint:
+            object.__setattr__(self, "content_fingerprint", _content_fingerprint(self))
 
 
 def build_baseline_variant(snapshot: BaselineParameterSnapshot) -> PreprocessVariant:
@@ -51,6 +58,10 @@ def build_explicit_variant(
     variant_id: str,
     label: str,
     values: tuple[VariationValue, ...],
+    capacity_strategy: str = "dimensioned_with_factor",
+    dimensioning_status: str = "pending",
+    reference_heating_capacity_w: float | None = None,
+    reference_cooling_capacity_w: float | None = None,
 ) -> PreprocessVariant:
     """Erzeugt eine kleine, vollstaendig dokumentierte Studienvariante."""
     if not values:
@@ -63,6 +74,10 @@ def build_explicit_variant(
         baseline_snapshot_id=snapshot.snapshot_id,
         baseline_content_hash=snapshot.content_hash,
         values=values,
+        capacity_strategy=capacity_strategy,
+        dimensioning_status=dimensioning_status,
+        reference_heating_capacity_w=reference_heating_capacity_w,
+        reference_cooling_capacity_w=reference_cooling_capacity_w,
     )
 
 
@@ -71,6 +86,27 @@ def _fingerprint(variant: PreprocessVariant) -> str:
         "variant_id": variant.variant_id,
         "baseline_snapshot_id": variant.baseline_snapshot_id,
         "baseline_content_hash": variant.baseline_content_hash,
+        "capacity_strategy": variant.capacity_strategy,
+        "dimensioning_status": variant.dimensioning_status,
+        "reference_heating_capacity_w": variant.reference_heating_capacity_w,
+        "reference_cooling_capacity_w": variant.reference_cooling_capacity_w,
+        "values": [
+            {"parameter_key": value.parameter_key, "value": value.value, "unit": value.unit}
+            for value in sorted(variant.values, key=lambda item: item.parameter_key)
+        ],
+    }
+    return hashlib.sha256(json.dumps(payload, sort_keys=True, default=str).encode("utf-8")).hexdigest()
+
+
+def _content_fingerprint(variant: PreprocessVariant) -> str:
+    """ID-freier Inhaltsfingerprint als Kompatibilitaetsbruecke zu finalem VCAT."""
+    payload = {
+        "baseline_snapshot_id": variant.baseline_snapshot_id,
+        "baseline_content_hash": variant.baseline_content_hash,
+        "capacity_strategy": variant.capacity_strategy,
+        "dimensioning_status": variant.dimensioning_status,
+        "reference_heating_capacity_w": variant.reference_heating_capacity_w,
+        "reference_cooling_capacity_w": variant.reference_cooling_capacity_w,
         "values": [
             {"parameter_key": value.parameter_key, "value": value.value, "unit": value.unit}
             for value in sorted(variant.values, key=lambda item: item.parameter_key)

@@ -25,7 +25,11 @@ from ma_ui.streamlit_app.module_views.zones_assignment_support import (
     technical_assignments_from_rows,
     technical_handover_rows,
     validate_technical_assignment_draft,
+    zone_model_draft_project_payload,
     zone_specification_content_hash,
+)
+from ma_ui.streamlit_app.module_views.zones_release_preview_support import (
+    build_zone_release_preview,
 )
 from ma_ui.streamlit_app.shared.layout import render_page_header
 from ma_ui.streamlit_app.shared.tables import normalize_table_for_streamlit
@@ -326,6 +330,12 @@ def render() -> None:
             )
         else:
             _render_messages(validation_result.messages)
+        _render_zone_release_preview(
+            workspace,
+            project_payload,
+            model_key=model_key,
+            zone_spec=zone_spec,
+        )
 
 
 def _render_29z_status(payload: dict[str, object], spec: ZoneModelSpecification) -> None:
@@ -415,23 +425,23 @@ def _render_29z_profile_assignment(
         complete = all(
             row["profile_id"] and row["confirmed"] for row in assignments
         )
-        updated_payload = dict(payload)
-        drafts = dict(model_drafts) if isinstance(model_drafts, dict) else {}
-        drafts["29Z"] = {
-            "zone_model_id": spec.zone_model_id,
-            "assignments": assignments,
-            "assignment_status": "complete" if complete else "manual_review_required",
-            "profile_values_status": "rights_clearance_required",
-            "handover_status": "blocked_profile_values",
-        }
-        updated_payload.update(
-            {
-                "schema_version": "1.0",
-                "project_id": workspace.project.identity.project_id,
-                "model_drafts": drafts,
-            }
-        )
-        save_project_module_config(workspace, "ma_zones", updated_payload)
+        try:
+            updated_payload = zone_model_draft_project_payload(
+                payload,
+                project_id=workspace.project.identity.project_id,
+                model_key="29Z",
+                draft_updates={
+                    "zone_model_id": spec.zone_model_id,
+                    "assignments": assignments,
+                    "assignment_status": "complete" if complete else "manual_review_required",
+                    "profile_values_status": "rights_clearance_required",
+                    "handover_status": "blocked_profile_values",
+                },
+            )
+            save_project_module_config(workspace, "ma_zones", updated_payload)
+        except (OSError, TypeError, ValueError) as exc:
+            st.error(f"29Z-Zuordnungsentwurf konnte nicht gespeichert werden: {exc}")
+            return
         clear_workspace_draft(st.session_state, "ma_zones")
         if complete:
             st.success("Alle 29 Profilzuordnungen sind gespeichert und manuell bestaetigt.")
@@ -458,6 +468,86 @@ def _stored_5z_assignments(payload: dict[str, object]) -> dict[str, str]:
 def _mark_zones_draft() -> None:
     st.session_state.pop("ma_zones_checked_technical_assignment", None)
     mark_workspace_draft(st.session_state, "ma_zones")
+
+
+def _render_zone_release_preview(
+    workspace,
+    payload: dict[str, object],
+    *,
+    model_key: str,
+    zone_spec: ZoneModelSpecification,
+) -> None:
+    """Zeigt die vollstaendige P013-Pruefkette, ohne einen Stand zu speichern."""
+    st.markdown("### Freigabebereitschaft und Handover-Vorschau")
+    st.caption(
+        "Die Vorschau verbindet den uebernommenen Building-Stand, die versionierte Zonenquelle, "
+        "den gespeicherten P013-Projektentwurf und den aktiven P014-Handover. Sie schreibt weder "
+        "eine Zonenrevision noch einen aktiven Handover."
+    )
+    if not st.button(
+        "Freigabebereitschaft und Handover-Vorschau prüfen",
+        key=f"ma_zones_release_preview_{model_key}",
+    ):
+        return
+    try:
+        building_context = resolve_selected_building_context(workspace)
+        active_technical = load_active_technical_revision(
+            workspace,
+            building_context.reference,
+        )
+        if active_technical is None:
+            st.warning(
+                "Fuer den uebernommenen Building-Stand ist kein aktiver P014-Handover vorhanden."
+            )
+            return
+        revision, handover, _revision_path = active_technical
+        preview = build_zone_release_preview(
+            payload,
+            project_id=workspace.project.identity.project_id,
+            model_key=model_key,
+            building_specification=building_context.specification,
+            building_reference=building_context.reference,
+            source_zone_specification=zone_spec,
+            technical_revision=revision,
+            technical_handover=handover,
+        )
+    except StaleActiveTechnicalRevisionError:
+        st.error(
+            "Die aktive Technikrevision gehoert zu einer frueheren Building-Version. "
+            "Bitte den Technikstand in Technische Systeme neu freigeben."
+        )
+        return
+    except (OSError, TypeError, ValueError) as exc:
+        st.error(f"Handover-Vorschau ist gesperrt: {exc}")
+        return
+
+    _render_messages(preview.validation_result.messages)
+    if preview.zone_handover is None:
+        st.warning(
+            "Der materialisierte Projektstand ist noch nicht freigabebereit. "
+            "Es wurde kein Handover-Vorschauobjekt erzeugt."
+        )
+        return
+    handover = preview.zone_handover
+    st.success("Der aktuelle Projektentwurf ist strukturell freigabebereit.")
+    st.markdown(
+        f"**Status:** nur im Speicher, nicht persistiert und nicht aktiv  "
+        f"\n**ThermalBuildingModel:** `{preview.thermal_building_model.thermal_building_model_id}`  "
+        f"\n**Handover-ID:** `{handover.zone_handover_id}`  "
+        f"\n**Handover-Revision:** `{handover.revision_id}`  "
+        f"\n**Handover-Content-Hash:** `{handover.content_hash}`  "
+        f"\n**Projekt / Building / Zone:** `{handover.project_id}` / `{handover.building_id}` / "
+        f"`{handover.zone_model_id}`  "
+        f"\n**Building-Revision:** `{handover.building_revision_id}`  "
+        f"\n**P014-Referenz:** `{handover.technical_model_id}` / `{handover.technical_revision_id}` / "
+        f"`{handover.technical_content_hash}`  "
+        f"\n**P014-Handover-Hash:** `{handover.technical_handover_content_hash or 'ohne Zuordnungsbindung'}`"
+    )
+    st.info(
+        "Die Vorschau bestaetigt nur die fachliche Integritaet der aktuellen Ableitung. "
+        "Sie weist weder vollstaendige Versorgung noch technische Eignung, Lastdeckung, "
+        "Dimensionierung, Simulation oder eine persistierte P018-Freigabe nach."
+    )
 
 
 def _render_technical_assignment(
@@ -660,22 +750,21 @@ def _render_usage_profile_assignment(
             spec, edited_rows, profile_ids
         )
         st.session_state["zone_usage_profile_assignments"] = assignments
-        updated_payload = dict(payload)
-        drafts = updated_payload.get("model_drafts", {})
-        drafts = dict(drafts) if isinstance(drafts, dict) else {}
-        drafts["5Z"] = {
-            "zone_model_id": spec.zone_model_id,
-            "profile_assignments": assignments,
-            "assignment_status": "complete",
-        }
-        updated_payload.update(
-            {
-                "schema_version": "1.0",
-                "project_id": workspace.project.identity.project_id,
-                "model_drafts": drafts,
-            }
-        )
-        save_project_module_config(workspace, "ma_zones", updated_payload)
+        try:
+            updated_payload = zone_model_draft_project_payload(
+                payload,
+                project_id=workspace.project.identity.project_id,
+                model_key="5Z",
+                draft_updates={
+                    "zone_model_id": spec.zone_model_id,
+                    "profile_assignments": assignments,
+                    "assignment_status": "complete",
+                },
+            )
+            save_project_module_config(workspace, "ma_zones", updated_payload)
+        except (OSError, TypeError, ValueError) as exc:
+            st.error(f"Nutzungsprofil-Zuordnungen konnten nicht gespeichert werden: {exc}")
+            return
         clear_workspace_draft(st.session_state, "ma_zones")
         st.success("Nutzungsprofil-Zuordnungen wurden projektbezogen uebernommen.")
 

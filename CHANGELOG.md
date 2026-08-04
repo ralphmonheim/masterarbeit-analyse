@@ -4,6 +4,91 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.38.0 - 2026-08-04
+
+### Added
+
+- UD-118 fuehrt die vor der Dimensionierung gespeicherte
+  Kapazitaetsstrategie ein. SmallOffice V1 startet ideal unbegrenzt und zeigt
+  Referenzlasten erst nach ihrem getrennten Ergebnis als Analysebezug.
+  Begrenzte Referenz- und Faktorvarianten bleiben explizite Alternativen;
+  Varianten- und Run-Artefakte speichern Strategie, Ergebnisstatus und
+  Referenzkapazitaeten nachvollziehbar.
+
+- P017-S2 fuehrt den finalen Variantenabschluss als additive Vertragsgrenze
+  ein: Erst die Nachpruefung VVER-gebundener Owner-Ergebnisse erzeugt VCAT,
+  vergibt projektweite `VAR-000001`-IDs und bildet VVER in eine rein
+  abbildende VSEL sowie VGEN ueber. Die append-only Registry verwendet bei
+  identischem finalem Inhalt dieselbe VAR-ID; ihre Payload-Adapter erhalten
+  Historie und aktive Referenzen ohne Workspace-Kopplung.
+- P018 konsumiert OutputRequirementProfiles nun aus dem zentralen
+  `ma_analyse`-Katalog. Die UI-neutrale Auswahlvalidierung akzeptiert nur
+  bekannte, eindeutige Checkbox-IDs; der bisherige Stage-1-Import bleibt als
+  reiner Kompatibilitaetsadapter erhalten.
+- P018-Slice 8 fuegt den Mehrvarianten-RUN-Vertrag hinzu: Ein `RUN` bindet
+  genau eine finale Selection, ein gemeinsames Setup und mehrere direkte
+  `VAR`-Referenzen; Materialisierung schreibt `variants/VAR-*/` ohne CASE-
+  oder SimulationCase-Ebene. Die historische Ein-Varianten-API bleibt
+  kompatibel.
+- P016/P017 migrieren den historischen SmallOffice-Optimierungspfad auf
+  VVER-gebundene LoD-1-Dimensionierungsauftraege. `ma_dimensionierung`
+  gruppiert nur ausgewaehlte Kandidaten anhand des kanonischen
+  Eingangs-Fingerprints, berechnet Lasten und leitet absolute Kapazitaeten
+  owner-seitig ab. `ma_variants` materialisiert nur diese Ergebnisse; weder
+  VAR-IDs noch VCAT, VSEL, VGEN, CASE oder SimulationCase entstehen dabei.
+- P016 trennt berechnete LoD-1-Referenzen und manuell aus externen IDA-Laeufen
+  uebernommene Zonenlasten in eigene, versionierte Owner-Vertraege mit
+  Fingerprints und Provenienzpruefung. Bestehende Workspace-Payloads werden
+  nur additiv gelesen; keine Migration oder automatische Freigabe erfolgt.
+- `ma_dimensionierung` besitzt einen additiven, validierenden LoD-1-
+  Owner-Gateway. Er prueft den `ParameterSnapshot` v1 und kanonische
+  Einheiten vor der unveraenderten historischen Berechnung und bildet einen
+  reproduzierbaren Auftrag mit Methoden-/Annahmen-/Rundungsmetadaten sowie
+  Eingangs- und Ergebnisfingerprints. Berechnete und manuelle Ergebnisarten
+  bleiben noch getrennte Folgeslices.
+- Der neue Namespace `ma_dimensionierung` bereitet die P016-Owner-Migration
+  durch direkte, objektidentische Re-Exports der bestehenden
+  Dimensionierungsmodelle und -services vor. Direkte Verbraucher in UI,
+  SmallOffice-PreProcess und SmallOffice-Variantenhilfe verwenden diese
+  Grenze bereits, ohne Ergebnisse, Persistenz oder Workflow-Katalog zu
+  veraendern. Der Analyse-eigene `OutputRequirementProfile`-Katalog wird
+  nicht exportiert.
+- Die direkte P013-Zonenansicht bietet unter `Zusammenfassung & Prüfung`
+  eine schreibfreie Freigabebereitschaft und Handover-Vorschau. Sie
+  materialisiert den uebernommenen Building-Stand, die versionierte
+  Zonenquelle, gespeicherte Profil- und Technikzuordnungen sowie den aktiven
+  P014-Handover und erzeugt `ThermalBuildingModel` und
+  `ReleasedZoneHandover` nur transient nach bestandenen Fachvalidierungen.
+  IDs, Revisionen und Hashes bleiben sichtbar; eine persistierte oder aktive
+  Zonenfreigabe und ein P018-Eingang entstehen nicht.
+
+### Changed
+
+- Profil-Speicherpfade fuehren vorhandene Modelldraft-Felder additiv
+  zusammen und sperren projektfremde oder beschaedigte Konfigurationen,
+  statt technische Zuordnungen still zu verwerfen. 29Z bleibt auch bei einem
+  manipulierten Statusstring bis zu einem autoritativen, hashgebundenen
+  Quellen- und Rechtenachweis gesperrt.
+
+### Documentation
+
+- Das Council arbeitet nun themenbezogen: Tera, Mira und Vera bilden den
+  Kern, Professor Sophia prueft wissenschaftliche Methodik und Justus
+  Rechte-, Daten-, Lizenz- sowie Veroeffentlichungsgrenzen. Ada bleibt reine
+  Umsetzungsrolle nach Nutzerfreigabe. Empfehlungen duerfen begruendet eine
+  risikoreichere, planpassendere Option waehlen, ersetzen jedoch weder die
+  menschliche Freigabe noch Sondergates. Die dokumentierte Justus-Rolle ist
+  wieder als read-only Runtime-Agent vorhanden; `max_threads = 3` bleibt.
+- P016, Planstatus, Planindex sowie die neuen und historischen Modul-READMEs
+  kennzeichnen den Stand als vorbereiteten Namespace, nicht als
+  abgeschlossene fachliche Owner-Migration. Einheiten-/Fingerprint-Gates,
+  getrennte LoD-1-/Manual-IDA-Vertraege und UI-neutrale Manual-Entry-Regeln
+  bleiben Blocker des physischen Folgeslices.
+- P013, Planstatus, Planindex, OP-014 und die Zonenmoduldokumentation
+  unterscheiden die transiente Fachvalidierung jetzt von einer spaeteren
+  append-only P013-Freigabe. Die Workflowansicht bleibt der letzte UI-
+  Migrationsslice.
+
 ## 0.37.0 - 2026-08-02
 
 ### Added

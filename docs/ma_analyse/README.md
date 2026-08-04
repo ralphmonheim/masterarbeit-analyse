@@ -19,8 +19,11 @@ Tabellen, Diagramme und Analyseberichte bereitstellen.
 ## Abgrenzung
 
 - keine Kosten-, Nachhaltigkeits- oder Gesamtbewertung
-- Stage 1 enthaelt eine LoD-1-Referenzdimensionierung aus dem
-  `ParameterSnapshot` v1
+- `ma_analyse.stage_1_dimensioning` ist historischer Implementierungs- und
+  Kompatibilitaetspfad. Der vorbereitete Zielnamespace fuer die spaetere
+  Fachmigration ist `ma_dimensionierung`.
+- `OutputRequirementProfile` bleibt als PostProcess-/Ausgabeanforderung bei
+  `ma_analyse` und wird nicht nach `ma_dimensionierung` verschoben.
 - Stage 3 implementiert keine ungeprueften Normregeln
 
 ## Abhaengigkeiten
@@ -31,8 +34,9 @@ Tabellen, Diagramme und Analyseberichte bereitstellen.
 ## Status
 
 Die gemeinsamen Analysefunktionen, die Datenvorbereitung und Stage 2 sind
-teilweise vorhanden. Stage 1 ist als LoD-1-Dimensionierung teilweise
-umgesetzt; Stage 3 und Stage 4 sind geplant.
+teilweise vorhanden. Die historische Stage-1-Dimensionierung bleibt bis zur
+physischen P016-Owner-Migration als Implementierungs- und Legacy-Pfad
+erhalten; Stage 3 und Stage 4 sind geplant.
 
 ## Naechster Schritt
 

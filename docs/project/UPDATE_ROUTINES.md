@@ -28,6 +28,15 @@ Diese Datei ist die einzige Ablaufwahrheit fuer dokumentierte Codex-Routinen.
 - `ohne council` oder `nur Tera`: optionale Council-Arbeit auslassen.
 - `mit Sol-Review`: read-only Abschlussreview vormerken.
 
+Bei materiellem Erkenntnisgewinn wird das Council themenbezogen erweitert:
+Professor Sophia prueft Methodik und Reproduzierbarkeit, Justus prueft
+Rechte-, Daten-, Lizenz- und Veroeffentlichungsgrenzen. Die fuenf
+Review-Rollen (Tera, Mira, Vera, Professor Sophia, Justus) geben getrennte
+Erstvoten ab; Ada setzt nur nach Nutzerfreigabe um und zaehlt nicht als
+Review-Stimme. Eine risikoreichere Variante darf empfohlen werden, wenn ihre
+ueberlegene Passung zum fuehrenden Gesamtplan belegt und ihr Restrisiko,
+Rueckfallweg, Pruefstrategie sowie alle Sondergates sichtbar sind.
+
 ## Themenstart
 
 - `neues thema`, `neues thema: ...` oder `themenwechsel`: vorheriges Thema

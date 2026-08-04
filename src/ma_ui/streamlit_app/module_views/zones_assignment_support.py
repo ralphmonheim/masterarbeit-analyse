@@ -275,6 +275,36 @@ def technical_assignment_project_payload(
     return updated_payload
 
 
+def zone_model_draft_project_payload(
+    payload: dict[str, object],
+    *,
+    project_id: str,
+    model_key: str,
+    draft_updates: dict[str, object],
+) -> dict[str, object]:
+    """Fuehrt Draftfelder additiv zusammen und verwirft nie fremde Bestandsdaten."""
+    _require_payload_project_id(payload, project_id)
+    updated_payload = dict(payload)
+    model_drafts = updated_payload.get("model_drafts", {})
+    if not isinstance(model_drafts, dict):
+        raise ValueError("Gespeicherte model_drafts haben ein ungueltiges Format.")
+    model_drafts = dict(model_drafts)
+    model_draft = model_drafts.get(model_key, {})
+    if not isinstance(model_draft, dict):
+        raise ValueError("Der gespeicherte Zonenmodelldraft hat ein ungueltiges Format.")
+    model_draft = dict(model_draft)
+    model_draft.update(draft_updates)
+    model_drafts[model_key] = model_draft
+    updated_payload.update(
+        {
+            "schema_version": "1.0",
+            "project_id": project_id,
+            "model_drafts": model_drafts,
+        }
+    )
+    return updated_payload
+
+
 def technical_handover_reference(handover: ReleasedTechnicalHandover) -> dict[str, str]:
     """Liefert das vollstaendige gespeicherte Referenztriple samt Bindungshashes."""
     building_reference = handover.building_reference

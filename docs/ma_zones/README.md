@@ -42,6 +42,13 @@
   geaenderte oder veraltete Handover-Bezuege werden nicht vorausgewaehlt.
   Trinkwarmwasser-Erzeugung, Speicher und Verteilung bleiben in
   `ma_technical`.
+- **Freigabebereitschaft:** `Zusammenfassung & Prüfung` verbindet den
+  uebernommenen Building-Stand, die versionierte Zonenquelle, den
+  gespeicherten P013-Projektentwurf und den aktiven P014-Handover. Die
+  vorhandenen Fach-Builder erzeugen daraus nur im Speicher ein
+  `ThermalBuildingModel` und einen deterministischen Handover-Kandidaten.
+  `RELEASED` bedeutet hier ausschliesslich bestandene Fachvalidierung; die
+  Vorschau speichert und aktiviert keine Revision und ist kein P018-Eingang.
 - **Projektentwurf:** Die Zuordnungen werden additiv in `ma_zones.yaml`
   gespeichert und an Technikmodell, Revision, Content-, Interface-,
   Freigabenachweis- und Handover-Hash gebunden. Dieser Schritt erzeugt noch
@@ -51,7 +58,8 @@
   werden nicht ueberschrieben. Leere Zuordnungen bleiben als bewusst
   gepruefter Entwurf moeglich und behaupten keine Vollversorgung; die
   Pruefung bestaetigt nur Beziehungsintegritaet, keine Eignung oder Deckung.
-- **Naechster Schritt:** Den projektbezogenen P013-Entwurf in einem manuellen
-  SmallOffice-Durchstich pruefen und danach die vollstaendige Zonenfreigabe
-  gegen den bereits vorhandenen `ReleasedZoneHandover` planen. Die separate
-  Workflowansicht folgt erst am Ende der Gesamtmigration.
+- **Naechster Schritt:** Die schreibfreie Vorschau im manuellen SmallOffice-
+  Durchstich pruefen. Vor einer vollstaendigen Zonenfreigabe und P018-
+  Anbindung ist ein append-only P013-Release-Envelope samt Owner,
+  Persistenzpfad, ID-/Revisionsschema und Reload-Pruefung zu entscheiden.
+  Die separate Workflowansicht folgt erst am Ende der Gesamtmigration.

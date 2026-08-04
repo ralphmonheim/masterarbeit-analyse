@@ -4,23 +4,30 @@ from __future__ import annotations
 
 import hashlib
 import json
-import math
-import re
-from datetime import UTC, datetime
 
 import pandas as pd
 import streamlit as st
 
-from ma_analyse.stage_1_dimensioning import (
+from ma_dimensionierung import (
     dimensioning_message_rows,
     dimensioning_step_rows,
     dimensioning_summary_rows,
     run_business_integration_lod1_reference_dimensioning,
 )
+from ma_dimensionierung.result_contracts import (
+    build_manual_ida_legacy_payload,
+    validate_manual_ida_editor_rows,
+    validate_manual_ida_source_metadata,
+)
 from ma_parameters import (
     build_business_integration_lod1_baseline_parameter_snapshot,
     build_small_office_5z_v1_baseline_parameter_snapshot,
     reference_dimensioning_parameter_fingerprint,
+)
+from ma_ui.streamlit_app.pages.variants import (
+    VARIANTS_MODULE_KEY,
+    active_current_vver_selection,
+    pre_dimensioning_source_fingerprint,
 )
 from ma_ui.streamlit_app.shared.layout import render_page_header
 from ma_ui.streamlit_app.state import (
@@ -29,6 +36,7 @@ from ma_ui.streamlit_app.state import (
     mark_workspace_draft,
     small_office_v1_uses_reference_zone_model,
 )
+from ma_variants import load_small_office_v1_study
 from ma_workflow import get_module_definition
 from ma_workspace import load_project_module_config, save_project_module_config
 from ma_zones import (
@@ -38,7 +46,6 @@ from ma_zones import (
 )
 
 REFERENCE_DIMENSIONING_MODULE_KEY = "ma_analyse_stage_1_dimensioning"
-_SHA256_PATTERN = re.compile(r"[0-9a-fA-F]{64}\Z")
 __all__ = [
     "dimensioning_message_rows",
     "dimensioning_step_rows",
@@ -77,41 +84,10 @@ def validate_manual_reference_load_rows(
 ) -> tuple[list[dict[str, object]], tuple[str, ...]]:
     if not isinstance(editor_value, pd.DataFrame):
         raise ValueError("Lasttabelle konnte nicht ausgewertet werden.")
-    records = editor_value.to_dict("records")
-    if len(records) != len(zone_spec.zones):
-        raise ValueError("Jede Zone des aktiven Modells muss genau einmal enthalten sein.")
-    values: list[dict[str, object]] = []
-    warnings: list[str] = []
-    for zone, row in zip(zone_spec.zones, records, strict=True):
-        if str(row.get("Zone", "")).strip() != zone.name:
-            raise ValueError(
-                "Die Zonenspalte wurde sortiert oder veraendert. "
-                "Bitte die Tabelle auf den Modellstand zuruecksetzen."
-            )
-        heating = row.get("Heizlast [W]")
-        cooling = row.get("Kuehllast [W]")
-        if pd.isna(heating) or pd.isna(cooling):
-            raise ValueError(f"Für Zone '{zone.name}' fehlen Heiz- oder Kühllast.")
-        try:
-            heating_value = float(heating)
-            cooling_value = float(cooling)
-        except (TypeError, ValueError) as exc:
-            raise ValueError(f"Lastwerte der Zone '{zone.name}' müssen Zahlen sein.") from exc
-        if heating_value < 0 or cooling_value < 0:
-            raise ValueError(f"Lastwerte der Zone '{zone.name}' dürfen nicht negativ sein.")
-        if not math.isfinite(heating_value) or not math.isfinite(cooling_value):
-            raise ValueError(f"Lastwerte der Zone '{zone.name}' müssen endlich sein.")
-        if heating_value == 0 or cooling_value == 0:
-            warnings.append(f"Zone '{zone.name}' enthält 0 W und muss fachlich geprüft werden.")
-        values.append(
-            {
-                "zone_id": zone.zone_id,
-                "zone_name": zone.name,
-                "heating_load_w": heating_value,
-                "cooling_load_w": cooling_value,
-            }
-        )
-    return values, tuple(warnings)
+    return validate_manual_ida_editor_rows(
+        tuple((zone.zone_id, zone.name) for zone in zone_spec.zones),
+        editor_value.to_dict("records"),
+    )
 
 
 def _active_zone_spec(workspace):
@@ -135,9 +111,33 @@ def render() -> None:
         parameter_payload = load_project_module_config(workspace, "ma_parameters") or {}
         baseline = _active_baseline(workspace)
         stored_payload = load_project_module_config(workspace, REFERENCE_DIMENSIONING_MODULE_KEY)
+        variants_payload = load_project_module_config(workspace, VARIANTS_MODULE_KEY) or {}
     except (OSError, ValueError) as exc:
         st.error(f"Referenzdimensionierung konnte nicht vorbereitet werden: {exc}")
         return
+
+    active_vver_selection = None
+    if workspace.project.identity.title == "Masterarbeit-Analyse":
+        study = load_small_office_v1_study()
+        active_vver_selection = active_current_vver_selection(
+            variants_payload,
+            study_id=study.study_id,
+            current_pre_dimensioning_upstream_fingerprint=pre_dimensioning_source_fingerprint(
+                study,
+                baseline,
+                zone_spec,
+                parameter_payload,
+            ),
+        )
+        if active_vver_selection is None:
+            st.warning(
+                "Die Referenzdimensionierung ist erst nach einer aktuellen, aktiven VVER-Auswahl moeglich."
+            )
+        else:
+            st.caption(
+                f"Aktive VVER-Auswahl: {active_vver_selection.record_id} "
+                f"({len(active_vver_selection.selected_candidates)} Kandidaten)."
+            )
     if (
         workspace.project.identity.title == "Masterarbeit-Analyse"
         and not small_office_v1_uses_reference_zone_model(zone_payload)
@@ -163,7 +163,7 @@ def render() -> None:
     source_metadata = _render_ida_source_metadata(stored_payload)
     try:
         zone_loads, warnings = validate_manual_reference_load_rows(zone_spec, edited_rows)
-        _validate_ida_source_metadata(source_metadata)
+        validate_manual_ida_source_metadata(source_metadata)
     except ValueError as exc:
         st.error(str(exc))
         can_save = False
@@ -176,30 +176,29 @@ def render() -> None:
 
     if st.button(
         "Referenzdimensionierung speichern",
-        disabled=not can_save,
+        disabled=not can_save or (
+            workspace.project.identity.title == "Masterarbeit-Analyse" and active_vver_selection is None
+        ),
         key="save_manual_reference_dimensioning",
     ):
-        payload = {
-            "schema_version": "1.0",
-            "source_type": "manual_ida_result",
-            "project_id": workspace.project.identity.project_id,
-            "zone_model_id": zone_spec.zone_model_id,
-            "zone_model_hash": _content_hash(zone_specification_to_dict(zone_spec)),
-            "updated_at": datetime.now(UTC).isoformat(),
-            "unit": "W",
-            "zone_loads": zone_loads,
-            "parameter_fingerprint": _content_hash(
-                parameter_payload
+        payload = build_manual_ida_legacy_payload(
+            project_id=workspace.project.identity.project_id,
+            zone_model_id=zone_spec.zone_model_id,
+            zone_model_hash=_content_hash(zone_specification_to_dict(zone_spec)),
+            parameter_fingerprint=_content_hash(parameter_payload),
+            reference_parameter_fingerprint=reference_dimensioning_parameter_fingerprint(
+                baseline,
+                parameter_payload,
             ),
-            "reference_parameter_fingerprint": (
-                reference_dimensioning_parameter_fingerprint(
-                    baseline,
-                    parameter_payload,
-                )
-            ),
-            "ida_source": source_metadata,
-            "warnings": list(warnings),
-        }
+            zone_loads=zone_loads,
+            source_metadata=source_metadata,
+            warnings=warnings,
+        )
+        if active_vver_selection is not None:
+            payload["vver_selection_reference"] = {
+                "record_id": active_vver_selection.record_id,
+                "record_fingerprint": active_vver_selection.record_fingerprint,
+            }
         try:
             save_project_module_config(workspace, REFERENCE_DIMENSIONING_MODULE_KEY, payload)
         except (OSError, ValueError) as exc:
@@ -355,35 +354,6 @@ def _render_ida_source_metadata(payload: dict[str, object] | None) -> dict[str, 
         "review_note": review_note.strip(),
         "source_classification": "externally_simulated_result",
     }
-
-
-def _validate_ida_source_metadata(metadata: dict[str, str]) -> None:
-    required = (
-        "ida_version",
-        "model_id",
-        "run_id",
-        "source_file_name",
-        "cooling_load_definition",
-        "maximum_definition",
-        "design_conditions",
-        "responsible",
-    )
-    missing = [field for field in required if not metadata.get(field)]
-    if missing:
-        raise ValueError(f"IDA-Quellmetadaten fehlen: {', '.join(missing)}.")
-    if not _SHA256_PATTERN.fullmatch(metadata.get("source_file_sha256", "")):
-        raise ValueError("Die IDA-Quelldatei braucht eine gueltige SHA-256-Pruefsumme.")
-    if metadata.get("review_status") == "reviewed":
-        review_fields = ("reviewer", "reviewed_at", "review_note")
-        missing_review = [field for field in review_fields if not metadata.get(field)]
-        if missing_review:
-            raise ValueError(
-                "Gepruefte IDA-Daten brauchen Reviewer, Pruefdatum und Pruefhinweis."
-            )
-        try:
-            datetime.fromisoformat(metadata["reviewed_at"])
-        except ValueError as exc:
-            raise ValueError("Das IDA-Pruefdatum muss ISO-8601 entsprechen.") from exc
 
 
 def _content_hash(payload: object) -> str:

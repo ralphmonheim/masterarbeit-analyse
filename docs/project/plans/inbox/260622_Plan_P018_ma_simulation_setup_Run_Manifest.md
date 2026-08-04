@@ -238,6 +238,21 @@ Das Handover konkretisiert den bestehenden neutralen Run-Vertrag:
 - Frankfurt 2010/2035 bleiben reine Setup-Metadaten; ihre PRN-Zeitreihen
   werden in diesem Scope nicht verarbeitet.
 
+## MVP-Migrationsstand 2026-08-03
+
+P018 besitzt additiv den Zielvertrag `SimulationRunV1`/`RunManifestV1`: Ein
+RUN referenziert genau eine finale VSEL, ein gemeinsames
+`SimulationSetupSpecification` und mehrere direkte VAR-Referenzen. Die
+Materialisierung erzeugt `variants/VAR-*/variant_config.yaml` und
+`simulation_input.yaml`; CASE oder SimulationCase entstehen nicht. Der
+OutputRequirementProfile-Katalog liegt vollstaendig unter `ma_analyse`; P018
+uebernimmt einen validierten, nichtleeren Checkbox-Subset.
+
+Offen bleibt die Aufrufermigration: Der historische SmallOffice-Runner und
+die direkte Variantenansicht verwenden noch Ein-Varianten-/Run-Gruppen-
+Adapter. Vor ihrer Umschaltung brauchen Wetter- und Belegungs-StudyCases je
+eine eigene VVER nach UD-117 und einen finalen VCAT/VSEL/VGEN-Abschluss.
+
 ## Konsolidierter V1-Uebergabebezug 2026-07-27
 
 Nach UD-106 materialisiert `ma_simulation_setup` nur bestaetigte, gueltige
@@ -316,3 +331,12 @@ ausgewaehlte ohne ausreichende Daten `nicht auswertbar` mit Ursache. Die
 alte Beschraenkung auf genau drei Diagrammprofile ist damit abgeloest; die
 endgueltige Zuordnung von Datenfeldern zu Vorlagen wartet auf einen
 freigegebenen neutralen Ergebnisexport und dessen Dateninventar.
+
+## Kapazitaetsstatus im Run-Paket 2026-08-03
+
+P018 materialisiert die von P017 uebernommene Kapazitaetsstrategie zusammen
+mit dem Dimensionierungsstatus. Bei `ideal_unlimited` bleiben verfuegbare
+Heiz- und Kuehlleistung ungesetzt; nach einem Ergebnis enthalten die
+Variantenartefakte dessen Referenzwerte ausschliesslich fuer die spaetere
+Analyse. P018 leitet weder Kapazitaeten ab noch macht es einen ausstehenden
+Referenzwert zur Simulationsgrenze.

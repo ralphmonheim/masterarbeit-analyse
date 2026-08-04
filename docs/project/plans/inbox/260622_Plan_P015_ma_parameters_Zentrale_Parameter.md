@@ -611,3 +611,12 @@ aktualisierungsbeduerftig. Erst `Variationsspezifikation speichern` setzt
 den Entwurf auf `current` und bestaetigt die vier SmallOffice-V1-Dimensionen
 Sollwertbaender, gekoppelte Leistungsfaktoren, Wetter-OFAT und
 Belegungs-OFAT.
+
+## Kapazitaetsstrategie vor der Dimensionierung 2026-08-03
+
+Die Parameteransicht speichert die Studienentscheidung `ideal_unlimited`,
+`reference_dimensioned` oder `dimensioned_with_factor` vor dem
+Dimensionierungsschritt. Ohne Ergebnis zeigt sie keinen erfundenen
+Leistungswert, sondern den Status `Referenzdimensionierung ausstehend`. Im
+idealen Modus bleibt die wirksame Leistung unbegrenzt; ein spaeteres Ergebnis
+wird nur als Klammerwert fuer Analyse und Vergleich dargestellt.

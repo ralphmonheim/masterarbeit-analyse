@@ -44,6 +44,11 @@ SMALL_OFFICE_V1_DIMENSIONS = (
     "weather_ofat",
     "occupancy_ofat",
 )
+CAPACITY_STRATEGY_OPTIONS = {
+    "ideal_unlimited": "Ideal / unbegrenzt",
+    "reference_dimensioned": "Nach Referenzdimensionierung (100 %)",
+    "dimensioned_with_factor": "Nach Dimensionierung mit Leistungsfaktor",
+}
 
 
 def render() -> None:
@@ -200,6 +205,25 @@ def _render_reference_section(workspace, baseline, payload: dict[str, object]) -
         "Der Referenzoptionswert ist der fuer die Referenzdimensionierung wirksame Wert. "
         "Variationen bleiben zunaechst gesperrt."
     )
+    capacity_state = payload.get("capacity_strategy", {})
+    selected_strategy = (
+        str(capacity_state.get("mode"))
+        if isinstance(capacity_state, dict) and capacity_state.get("mode") in CAPACITY_STRATEGY_OPTIONS
+        else "ideal_unlimited"
+    )
+    selected_strategy = st.selectbox(
+        "Leistungsbegrenzung der Studie",
+        tuple(CAPACITY_STRATEGY_OPTIONS),
+        index=tuple(CAPACITY_STRATEGY_OPTIONS).index(selected_strategy),
+        format_func=CAPACITY_STRATEGY_OPTIONS.__getitem__,
+        key="ma_parameters_capacity_strategy",
+        on_change=_mark_parameters_draft,
+    )
+    st.dataframe(
+        normalize_table_for_streamlit(_capacity_strategy_rows(workspace, selected_strategy)),
+        hide_index=True,
+        width="stretch",
+    )
     st.dataframe(
         normalize_table_for_streamlit(parameter_reference_rows(baseline)),
         hide_index=True,
@@ -217,10 +241,15 @@ def _render_reference_section(workspace, baseline, payload: dict[str, object]) -
             "values": parameter_reference_rows(baseline),
         }
         updated_payload["dependent_results_status"] = "update_required"
+        updated_payload["capacity_strategy"] = {
+            "mode": selected_strategy,
+            "dimensioning_status": "pending",
+        }
         _synchronize_variation_specification(
             updated_payload,
             baseline,
             status="draft",
+            study_contract=_project_study_contract(workspace, updated_payload),
         )
         save_project_module_config(workspace, PARAMETER_MODULE_KEY, updated_payload)
         st.session_state["ma_ui_variants_update_required"] = True
@@ -462,7 +491,7 @@ def _render_handover_section(workspace, baseline, payload: dict[str, object]) ->
             "baseline_snapshot_id": baseline.snapshot_id,
             "rules": rules,
             "variation_spans": spans,
-            "study_contract": _project_study_contract(workspace),
+            "study_contract": _project_study_contract(workspace, payload),
         }
     preview = st.session_state.get("ma_parameters_handover_preview")
     if isinstance(preview, dict):
@@ -559,11 +588,46 @@ def _synchronize_variation_specification(
     }
 
 
-def _project_study_contract(workspace) -> dict[str, object] | None:
+def _project_study_contract(workspace, payload: dict[str, object] | None = None) -> dict[str, object] | None:
     if workspace.project.identity.title != "Masterarbeit-Analyse":
         return None
+    capacity_state = payload.get("capacity_strategy", {}) if isinstance(payload, dict) else {}
+    strategy = (
+        str(capacity_state.get("mode"))
+        if isinstance(capacity_state, dict) and capacity_state.get("mode") in CAPACITY_STRATEGY_OPTIONS
+        else "ideal_unlimited"
+    )
     return {
         "study_id": SMALL_OFFICE_V1_STUDY_ID,
         "enabled_dimensions": list(SMALL_OFFICE_V1_DIMENSIONS),
+        "capacity_strategy": strategy,
         "approval_action": "Variationsspezifikation speichern",
     }
+
+
+def _capacity_strategy_rows(workspace, strategy: str) -> list[dict[str, object]]:
+    """Zeigt Referenzlasten erst nach ihrem getrennten Dimensionierungsschritt."""
+    dimensioning = load_project_module_config(workspace, "ma_analyse_stage_1_dimensioning") or {}
+    zone_loads = dimensioning.get("zone_loads", []) if isinstance(dimensioning, dict) else []
+    valid_loads = [item for item in zone_loads if isinstance(item, dict)] if isinstance(zone_loads, list) else []
+    if not valid_loads:
+        reference = "Referenzdimensionierung ausstehend"
+        heating = cooling = reference
+    else:
+        heating_total = sum(float(item.get("heating_load_w", 0.0)) for item in valid_loads)
+        cooling_total = sum(float(item.get("cooling_load_w", 0.0)) for item in valid_loads)
+        heating = f"{heating_total:,.2f} W".replace(",", "X").replace(".", ",").replace("X", ".")
+        cooling = f"{cooling_total:,.2f} W".replace(",", "X").replace(".", ",").replace("X", ".")
+    if strategy == "ideal_unlimited":
+        return [
+            {"Parameter": "Verfuegbare Heizleistung", "Wert": f"unbegrenzt ({heating})"},
+            {"Parameter": "Verfuegbare Kuehlleistung", "Wert": f"unbegrenzt ({cooling})"},
+        ]
+    if strategy == "reference_dimensioned":
+        return [
+            {"Parameter": "Verfuegbare Heizleistung", "Wert": heating},
+            {"Parameter": "Verfuegbare Kuehlleistung", "Wert": cooling},
+        ]
+    return [
+        {"Parameter": "Leistungsbezug", "Wert": f"Referenzdimensionierung mit Leistungsfaktor ({heating}; {cooling})"}
+    ]

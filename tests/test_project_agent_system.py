@@ -7,12 +7,14 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 EXPECTED_AGENTS = {
+    "compliance_auditor",
     "implementation_engineer",
     "professor",
     "project_explorer",
     "quality_auditor",
 }
 READ_ONLY_AGENTS = {
+    "compliance_auditor",
     "professor",
     "project_explorer",
     "quality_auditor",
@@ -155,11 +157,15 @@ def test_project_agents_have_explicit_roles_and_sandboxes() -> None:
     assert "Nutzerfreigabe" in implementation_agent["developer_instructions"]
 
 
-def test_council_majority_delegation_keeps_special_gates_separate() -> None:
+def test_council_recommendations_keep_human_and_special_gates_separate() -> None:
     agent_rules = (REPO_ROOT / "AGENTS.md").read_text(encoding="utf-8")
 
-    assert "### Delegierte Council-Mehrheitsfreigabe" in agent_rules
-    assert "mindestens drei der fuenf definierten Council-Rollen" in agent_rules
+    assert "### Council-Empfehlungen und erweitertes Review" in agent_rules
+    assert "Tera, Mira, Vera, Professor Sophia und Justus" in agent_rules
+    assert "Ada ist Implementation Engineer" in agent_rules
+    assert "risikoreichere Variante" in agent_rules
+    assert "fuehrenden Gesamtplan" in agent_rules
+    assert "Erstvoten, Gegenargumente und Dissens" in agent_rules
     assert "geschuetzte oder reale Daten" in agent_rules
     assert "Commits, Pushes, Tags oder Veroeffentlichungen" in agent_rules
 

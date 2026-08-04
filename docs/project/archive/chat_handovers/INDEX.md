@@ -20,3 +20,5 @@ geltenden Quellen und den lokalen Git-Stand.
 | 2026-07-29 | `260729_chat-handover_postprocess-ideen-und-gespraech.md` | PostProcess / Konzeptdiskussion | Analyse abgeschlossen; Entscheidungen offen | P009, P019-P027, P030, UD-082, UD-083, UD-099 |
 | 2026-07-29 | `260729_chat-handover_ui-ansichten-wetter-korrekturen.md` | UI-Ansichten / Workflow und Wetter | Sichtpruefung abgeschlossen; Korrektur-Q&A und Umsetzungsfreigabe offen | P008, P027, P035, UD-100, UD-106 |
 | 2026-07-31 | `260731_chat-handover_konsolidierter-mvp-gesamtprozess.md` | Gesamtprozess / erste Funktionsversion / PostProcess | Entscheidungen und Planuebertragung abgeschlossen; Code-Migration noch nicht gestartet | P007, P009, P016-P018, P027, P029, P030, UD-112, OP-008/009/017/018 |
+| 2026-08-03 | `260803_chat-handover_mvp-v1-migration.md` | MVP V1 / P016-P017-Migration | uncommitteter Migrationsstand bis VVER-Gate | P007, P016-P018, UD-112, PLAN_STATUS, OP-008/009/017/018 |
+| 2026-08-03 | `260803_chat-handover_mvp-v1-migration-v2.md` | MVP V1 / P016-P018 | uncommitteter Stand bis Slice 8 | P007, P016-P018, UD-112, UD-117, PLAN_STATUS |

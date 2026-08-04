@@ -147,6 +147,15 @@ werden nach der Dokumentation als `UD-*` aus dieser Datei entfernt und stehen in
   einer Zone je IFC-Raum, langen IFC-Namen und vollstaendiger manueller
   Bestaetigung der DIN/TS-18599-10:2025-10-Profilvorschlaege vorbereitet.
   Sonderhohlraeume und die weiteren hier genannten Fachfragen bleiben offen.
+- Teilklaerung 2026-08-02: Die aktuelle P013-UI darf einen vollstaendig
+  validierten `ThermalBuildingModel`-/`ReleasedZoneHandover`-Kandidaten nur
+  transient anzeigen. Fuer eine historisch reproduzierbare Freigabe und
+  spaetere P018-Referenz bleibt ein append-only P013-Release-Envelope mit
+  Aggregatgrenze, Owner, Pfad, ID-/Revisionsschema, Freigabenachweis,
+  atomarem Schreiben und Reload-/Hashpruefung als echte Folgeentscheidung
+  offen. Sie blockiert nicht die schreibfreie Vorschau oder andere sichere
+  Migrationsslices. Ein positiver 29Z-Rechtenachweis darf nicht aus einem
+  frei aenderbaren Statusstring abgeleitet werden.
 
 ### OP-015 ma_variants Folgeentscheidungen nach P017-Handover
 
@@ -164,6 +173,16 @@ werden nach der Dokumentation als `UD-*` aus dieser Datei entfernt und stehen in
   `VSEL`, `VGEN` bleiben erhalten, `VCAT <= 500` und es gibt keine
   `SimulationCase`-Ebene. Die genaue Speicherung der fruehen Auswahl wird
   im P017-Migrationsslice geklaert.
+- Teilklaerung 2026-08-03: VVER ist als versionierter, fingerprintgebundener
+  Fruehauswahlrecord umgesetzt. Der historische SmallOffice-Backendpfad
+  gruppiert ausschliesslich diese Kandidaten in `ma_dimensionierung`; die
+  Kapazitaetsableitung liegt dort. Offen bleiben finaler VCAT mit VAR-IDs,
+  die rein abbildende VSEL-Persistenz, VGEN und die P018-Uebergabe.
+- Teilklaerung 2026-08-03 (UD-117): Der finale VCAT/VSEL/VGEN-Vertrag und
+  die projektweite, append-only VAR-ID-Registry sind umgesetzt. Offene
+  operative Migration: Die aktive UI muss die Registry atomar im Workspace
+  speichern; die Wetter- und Belegungs-Sensitivitaeten brauchen je StudyCase
+  ihre eigene VVER und werden erst dann in den finalen Abschluss ueberfuehrt.
 - Auswirkung: Betrifft `ma_variants`, `ma_parameters`, `ma_rules` als
   moeglichen spaeteren Zielbereich, `ma_validation`, `ma_feedback`,
   `ma_workflow`, `ma_simulation_setup`, Exportpfade und wissenschaftliche
@@ -189,3 +208,21 @@ werden nach der Dokumentation als `UD-*` aus dieser Datei entfernt und stehen in
   Installationen, Hook-/MCP-Aenderungen, Graphify, externe Schreibpfade und
   geschuetzte Inhaltsverarbeitung gesperrt. P031 dokumentiert die Gates, ist
   aber keine Freigabeinstanz.
+
+### OP-017 Erweiterung des themenbezogenen Council-Spezialistenpools
+
+- Thema: Wiederkehrende Fachreviews ausserhalb der bestehenden Rollen
+- Status: offen; der Kern aus Tera, Mira, Vera, Professor Sophia und Justus
+  ist umgesetzt
+- Frage: Entsteht fuer Daten- und Schnittstellenvertraege, UI-/Workflowfragen
+  oder Simulations-/Gebaeudemodellmethodik ein wiederkehrender, eigenstaendiger
+  Reviewauftrag, der eine zusaetzliche read-only Rolle rechtfertigt?
+- Ergaenzung: Neue Rollen werden nicht zur Erhoehung von Stimmen angelegt.
+  Vor einer Aktivierung sind Auftrag, Ausloesekriterien, Quellen- und
+  Schreibgrenzen, erwartetes Ergebnisformat, Abgrenzung zu bestehenden Rollen
+  und Runtime-Auswirkung zu dokumentieren. `max_threads = 3` und
+  `max_depth = 1` bleiben bis zu einer gesonderten Entscheidung bestehen.
+- Auswirkung: Bis zu einer solchen Entscheidung arbeitet das erweiterte
+  Council bei Bedarf in mehreren Wellen mit den vorhandenen fuenf
+  Review-Rollen. Neue Agentendateien, Abhaengigkeiten oder Schreibrechte
+  entstehen nicht automatisch.

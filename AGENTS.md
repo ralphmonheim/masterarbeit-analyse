@@ -125,8 +125,8 @@ Qualitaet oder Geschwindigkeit materiell verbessert.
 Vor einer Umsetzungsfreigabe gilt:
 
 - Der Hauptagent darf Dateien lesen, suchen und analysieren.
-- `project_explorer`, `quality_auditor` und `professor` duerfen automatisch fuer klar begrenzte read-only
-  Aufgaben eingesetzt werden.
+- `project_explorer`, `quality_auditor`, `professor` und `compliance_auditor`
+  duerfen automatisch fuer klar begrenzte read-only Aufgaben eingesetzt werden.
 - Der Hauptagent kuendigt den Council-Einsatz kurz an.
 - Kein Agent darf Code, Dokumentation oder Konfiguration veraendern.
 
@@ -139,14 +139,31 @@ Nach einer konkreten Umsetzungsfreigabe gilt:
 - Mehrere Agenten duerfen nicht gleichzeitig dieselben Dateien bearbeiten.
 - Der Hauptagent prueft und integriert alle Ergebnisse selbst.
 
-### Delegierte Council-Mehrheitsfreigabe
+### Council-Empfehlungen und erweitertes Review
 
-Ein Mehrheitsvotum von mindestens drei der fuenf definierten Council-Rollen
-darf fuer klar abgegrenzte, lokale und reversible Repo-Slices weiterhin eine
-Empfehlung dokumentieren. Es ersetzt seit UD-104 jedoch keine menschliche
-`Freigabe zur Umsetzung`. Ein Blocker aus einem Sol-Review stoppt den
+Die fuenf Review-Rollen sind Tera, Mira, Vera, Professor Sophia und Justus.
+Mindestens drei fachlich passende, unterschiedliche Rollen duerfen fuer einen
+exakt beschriebenen Scope eine Empfehlung und einen Review-Nachweis
+dokumentieren. Ada ist Implementation Engineer nach Freigabe und keine
+zusaetzliche Review-Stimme.
+
+Der Council darf neben der risikoaermsten auch eine risikoreichere Variante
+empfehlen, wenn sie dem fuehrenden Gesamtplan und den einschlaegigen
+Nutzerentscheidungen nachweislich besser entspricht. Der Nachweis benennt
+mindestens Alternative, Zusatz- und Restrisiko, Auswirkungen,
+Gegenmassnahmen, Pruefkriterien und eine moegliche Rueckfalloption.
+Die Empfehlung erweitert keinen Scope und ersetzt weder die menschliche
+`Freigabe zur Umsetzung` noch Rechte-, Sicherheits-, externe oder
+Veroeffentlichungsgates. Ein Blocker aus einem Sol-Review stoppt den
 betroffenen Slice trotz Nutzerfreigabe, bis er behoben oder bewusst akzeptiert
 wurde.
+
+Das erweiterte Council wird themenbezogen eingesetzt: Vera bei Architektur,
+APIs und Regressionen; Professor Sophia bei Methodik, Annahmen und
+Reproduzierbarkeit; Justus bei Rechten, Daten, Lizenzen, externer Verarbeitung
+oder Veroeffentlichung. Erstvoten, Gegenargumente und Dissens bleiben vor der
+Tera-Synthese sichtbar. Neue Spezialrollen, zusaetzliche Schreibrechte oder
+eine hoehere Parallelitaet entstehen dadurch nicht.
 
 Ein Council-Votum erlaubt weder eine Rechtefreigabe noch eine
 Scope-Erweiterung. Neue oder geaenderte Dependencies, Installationen, globale
@@ -172,6 +189,8 @@ nicht bereits durch einen dokumentierten Sammelbefehl freigegeben sind.
   Regressionen, Testluecken und Kompatibilitaet.
 - **Professor Sophia** (`professor`) nutzt Sol fuer wissenschaftliche Methodik, Einheiten,
   Annahmen, Reproduzierbarkeit und Nachvollziehbarkeit in der Masterarbeit.
+- **Justus** (`compliance_auditor`) nutzt Sol fuer Rechte, Daten, Lizenzen,
+  externe Verarbeitung und Veroeffentlichungsgrenzen.
 - GPT-5.5 bleibt Fallback oder ausdruecklich angeforderte Vergleichsinstanz
   und ist kein regulaeres Council-Mitglied.
 

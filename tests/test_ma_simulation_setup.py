@@ -1,5 +1,6 @@
 import yaml
 
+from ma_analyse import select_output_requirements
 from ma_parameters import (
     build_baseline_parameter_snapshot_from_input_package,
     build_business_integration_lod1_parameter_snapshot,
@@ -9,7 +10,9 @@ from ma_simulation_setup import (
     SimulationRunStatus,
     SimulationSetupSpecification,
     build_run_manifest,
+    build_run_manifest_v1,
     materialize_run_package,
+    materialize_run_package_v1,
 )
 from ma_variants.preprocess import VariationValue, build_baseline_variant, build_explicit_variant
 
@@ -102,3 +105,19 @@ def test_simulation_setup_metadata_is_materialized_without_starting_simulation(t
     payload = yaml.safe_load((run_dir / "simulation_setup.yaml").read_text(encoding="utf-8"))
     assert payload["weather_key"] == "TRY_FFM_2015_JAHR"
     assert payload["preparation_only"] is True
+
+
+def test_v1_run_materializes_one_selection_one_setup_and_multiple_variants(tmp_path):
+    snapshot = _baseline_snapshot()
+    variants = (
+        build_baseline_variant(snapshot),
+        build_explicit_variant(snapshot, variant_id="VAR-000001", label="Test", values=(VariationValue("ZONE-BI-LOD1-0001.heating_setpoint_c", 21.0, "degC"),)),
+    )
+    setup = SimulationSetupSpecification("STUDY", "optimization", "TRY_FFM_2015_JAHR", "Frankfurt", "OCC_REF", 7.0, 18.0)
+    manifest = build_run_manifest_v1(snapshot, variants, run_id="RUN-000001", selection_id="VSEL-001", selection_fingerprint="a" * 64, simulation_setup=setup, output_requirements=select_output_requirements(("OUT-LOAD",)))
+
+    run_dir = materialize_run_package_v1(manifest, variants, tmp_path)
+
+    assert [item.variant_id for item in manifest.run.variants] == ["VAR-BASELINE", "VAR-000001"]
+    assert (run_dir / "simulation_setup.yaml").is_file()
+    assert (run_dir / "variants" / "VAR-000001" / "variant_config.yaml").is_file()

@@ -1,4 +1,10 @@
-# ma_analyse.stage_1_dimensioning
+# ma_analyse.stage_1_dimensioning (historischer Kompatibilitaetspfad)
+
+Der Zielowner ist `ma_dimensionierung`. Im aktuellen Prep-Slice bleibt die
+Fachimplementierung hier unveraendert; der neue Namespace re-exportiert
+dieselben Objekte direkt. Dieser Stand ist noch keine abgeschlossene
+fachliche Owner-Migration. `OutputRequirementProfile` verbleibt als
+Analyse-/PostProcess-Vertrag bewusst unter `ma_analyse`.
 
 ## Zweck
 
@@ -36,10 +42,15 @@ LoD-1-Referenzdimensionierung vor der Variantenbildung.
 ## Status
 
 Teilweise umgesetzt. P016-S1 berechnet eine LoD-1-Referenzdimensionierung aus
-dem BusinessIntegration-`ParameterSnapshot` v1.
+dem BusinessIntegration-`ParameterSnapshot` v1. Der P016-Prep-Slice stellt
+den identitaetsgleichen Zielnamespace bereit; Implementierung,
+Persistenzschluessel und Workflow-Katalog sind noch historischer Bestand.
+P016-S2a ergaenzt im Zielnamespace einen validierenden Gateway mit
+Einheitenmatrix, Methoden- und Annahmenmetadaten sowie kanonischen
+Fingerprints. Er delegiert weiterhin an diese historische Implementierung und
+ist keine physische Owner-Migration.
 
 ## Naechster Schritt
 
-Stage-1-Ergebnis als Folgesnapshot beziehungsweise Vorschlag modellieren,
-`VariantDimensioningResult` vorbereiten und gegen IDA-/SmallOffice-Referenzen
-plausibilisieren.
+Getrennte Ergebnisvertraege fuer berechnete LoD-1-Naeherung und manuelle
+IDA-Referenzwerte modellieren; danach die physische Owner-Migration planen.

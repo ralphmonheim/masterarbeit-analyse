@@ -1293,3 +1293,181 @@ Abschlussnachweis vom 2026-08-02:
   Blocker oder wichtigen Befunde. Ihre Befunde zu Projekt- und
   Zoneninhaltsbindung, Terminalsemantik, Aussagegrenzen, beschaedigten
   Drafts und rendernahen Tests sind umgesetzt.
+
+## Entscheidung 47: Schreibfreie P013-Release-Readiness-Vorschau
+
+Am 2026-08-02 wird nach Nutzerfreigabe der naechste lokale und reversible
+P013-Slice umgesetzt. Er schliesst die Pruefkette des gespeicherten
+Projektentwurfs sichtbar, ohne einen Persistenzvertrag oder eine P018-
+Freigabe vorwegzunehmen. Es entsteht keine neue Nutzerentscheidung.
+
+- Die direkte Zonenansicht verbindet den explizit uebernommenen Building-
+  Stand, die versionierte Zonenquelle, den gespeicherten P013-Profil- und
+  Technikzuordnungsentwurf sowie die aktive P014-Revision.
+- Projekt, aktives Modell, Zonenmodell, Building-Revision und das
+  vollstaendige P014-Handover muessen exakt passen. Nicht gepruefte,
+  veraltete, fremde oder beschaedigte Drafts sperren fail-closed.
+- Gespeicherte Profilzuordnungen werden vor der Validierung auf die
+  Zonenquelle angewandt. Profil-Speicherpfade fuehren Modelldraft-Felder
+  additiv zusammen; sie ersetzen weder technische Zuordnungen noch
+  projektfremde oder typfremde Konfigurationen.
+- Die bestehenden Building-, Zonen-, Assignment- und ThermalBuilding-
+  Validatoren sowie die vorhandenen Domain-Builder bleiben die einzigen
+  Fachgates. Nur ein vollstaendig `RELEASED` validierter Stand erzeugt ein
+  `ThermalBuildingModel` und einen deterministischen
+  `ReleasedZoneHandover` als transiente Vorschauobjekte.
+- Die UI kennzeichnet diese Objekte als nur im Speicher, nicht persistiert
+  und nicht aktiv. Der DTO-Status `RELEASED` bedeutet bestandene
+  Fachvalidierung, nicht historisch auditierbare Projektfreigabe oder
+  P018-Eingang.
+- Leere, ausdruecklich gepruefte Technikzuordnungen bleiben nach dem
+  bestehenden Integritaetsvertrag zulaessig. Sie behaupten keine
+  Vollversorgung, technische Eignung, Lastdeckung, Dimensionierung oder
+  Simulationsbereitschaft.
+- 29Z bleibt unabhaengig von frei aenderbaren Statusstrings gesperrt. Eine
+  positive Oeffnung erfordert einen spaeteren autoritativen, hashgebundenen
+  Quellen- und Rechtenachweis fuer vollstaendige Profilwerte.
+
+Council-Votum:
+
+- Mira bestaetigte die exakte Materialisierung der vorhandenen P013-Draft-
+  und Handoverfelder sowie die eingehaltene Schreib- und Ownergrenze.
+- Vera meldete keinen Blocker. Ihr wichtiger Befund zum fail-closed
+  Zusammenfuehren der Profil-Drafts ist umgesetzt und getestet.
+- Professor Sophia meldete keinen Blocker. Ihre wichtigen Befunde zur
+  vollstaendigen sichtbaren Quellenbeschreibung, zum 29Z-Rechtenachweis und
+  zur Trennung von Fachvalidierung und persistierter Freigabe sind
+  umgesetzt.
+
+Rueckfallvertrag:
+
+- `zones_release_preview_support.py`, die UI-Sektion und ihre Tests koennen
+  gemeinsam entfernt werden, ohne Fachmodelle, P014-Revisionen oder
+  gespeicherte P013-Drafts umzuschreiben.
+- Die additive Haertung der Profil-Draft-Zusammenfuehrung kann unabhaengig
+  erhalten bleiben, weil sie bestehenden Datenverlust verhindert.
+
+Eine persistierte P013-Freigabe bleibt als echte Folgeentscheidung in
+OP-014. Sie benoetigt einen append-only Release-Envelope samt Owner,
+Aggregatgrenze, Pfad, ID-/Revisionsschema, Freigabenachweis, atomarem
+Schreiben und Reload-/Hashpruefung. Die Workflowansicht bleibt entsprechend
+Nutzervertrag der letzte UI-Migrationsslice.
+
+Abschlussnachweis vom 2026-08-02:
+
+- Der fokussierte Zonen-/UI-Lauf bestand nach den Council-Haertungen mit
+  `180 passed`.
+- Die vollstaendige lokale Suite bestand mit `747 passed`; Ruff fuer `src`
+  und `tests` sowie `git diff --check` waren gruen.
+- Mira, Vera und Professor Sophia meldeten im Abschlussreview keine
+  verbleibenden Blocker oder wichtigen Befunde.
+
+## Entscheidung 48: P016-Zielnamespace ohne Owner-Abschlussbehauptung
+
+Am 2026-08-02 wird nach Nutzerfreigabe ein kleiner, lokaler und reversibler
+P016-Vorbereitungsslice umgesetzt. Er bereitet die Importgrenze
+`ma_dimensionierung` vor, ohne die methodisch noch unvollstaendige
+Altimplementierung bereits als abgeschlossenen Fachowner auszugeben. Es
+entsteht keine neue Nutzerentscheidung.
+
+- `ma_dimensionierung` re-exportiert Dimensionierungsmodelle, Konstanten,
+  Tabellenprojektionen und Services direkt aus dem historischen
+  `ma_analyse.stage_1_dimensioning`-Pfad. Es gibt keine Wrapper, Kopien,
+  neuen Klassen oder zweite Rechenlogik; alle Symbole bleiben objektidentisch.
+- Dimensionierungsansicht, SmallOffice-PreProcess und SmallOffice-
+  Variantenhilfe importieren die Dimensionierungsobjekte ueber den neuen
+  Namespace. Berechnungswerte, Ergebnis-IDs, Diagnosecodes und
+  Ablaufreihenfolge bleiben unveraendert.
+- `OutputRequirementProfile` und `default_output_requirements()` werden
+  nicht ueber `ma_dimensionierung` exportiert. Dieser Katalog bleibt nach
+  UD-112 bei `ma_analyse`.
+- Der persistierte Legacy-Workspace-Schluessel
+  `ma_analyse_stage_1_dimensioning`, vorhandene Payloads und der
+  Workflow-Katalogschluessel werden nicht migriert. Es entsteht keine
+  parallele Projektwahrheit und die Workflowansicht bleibt unveraendert.
+- Identitaets-, Paritaets- und Architekturtests sichern den Prep-Vertrag.
+  Der dokumentierte Status lautet verbindlich: `Namespace vorbereitet;
+  fachliche Owner-Migration nicht abgeschlossen`.
+
+Council-Votum:
+
+- Mira empfahl die duenne Fassade als kleinsten sicheren Folgeschritt ohne
+  Persistenz- oder Workflow-Migration.
+- Vera bestaetigte den Prep-Scope unter Erhalt der Typidentitaet und des
+  einzigen Legacy-Persistenzschluessels. Die vollstaendige UD-112-
+  Owner-Migration und der Auswahl-vor-Dimensionierung-Ablauf bleiben eigene
+  Folgeslices.
+- Professor Sophia akzeptierte den Namespace-Slice ausdruecklich nur ohne
+  Owner-Abschlussbehauptung und ohne neue wissenschaftliche Aussage.
+
+Vor einer physischen Fachmigration bleiben als Blocker dokumentiert:
+
+- Snapshot- und Einheitenvalidierung am Owner-Gateway;
+- Methoden-ID/-Version, strukturierte Annahmen, Rundungsregel sowie
+  kanonische Eingangs- und Ergebnisfingerprints;
+- getrennte Ergebnisarten fuer die berechnete LoD-1-Naeherung und manuell
+  uebernommene externe IDA-Referenzwerte;
+- Verlagerung fachlicher Manual-Entry-Regeln aus der UI;
+- spaeterer P016/P017-Vertrag fuer fruehe Auswahl und ausschliessliche
+  Last-/Dimensionierungsownership ausserhalb von `ma_variants`.
+
+Rueckfallvertrag:
+
+- Das Paket `ma_dimensionierung`, die drei Importumstellungen, die neuen
+  Guardrail-Tests und die zugehoerige Dokumentation koennen gemeinsam
+  entfernt werden. Historische Implementierung, Persistenz und Ergebnisse
+  bleiben dabei unveraendert.
+- Es werden keine Projektdateien geloescht, verschoben oder automatisch
+  migriert.
+
+Abschlussnachweis vom 2026-08-02:
+
+- Der erweiterte P016-/Workflow-/Varianten-/Simulation-Setup-Fokuslauf
+  bestand nach der Council-Haertung mit `201 passed`.
+- Die vollstaendige lokale Suite bestand mit `751 passed`. Der danach nur
+  um die zwei bereits objektidentischen Defaultkonstanten erweiterte
+  Guardrail-Lauf blieb mit `201 passed` gruen.
+- Ruff fuer `src` und `tests` sowie `git diff --check` waren gruen.
+- Mira, Vera und Professor Sophia meldeten fuer den Prep-Slice keine
+  verbleibenden Blocker oder wichtigen Befunde. Die methodischen Blocker
+  gelten ausschliesslich fuer die noch nicht freigegebene physische
+  Owner-Migration.
+
+## Entscheidung 49: P016-S2a LoD-1-Owner-Gateway als additiver Uebergangsvertrag
+
+Am 2026-08-02 wird nach Nutzerfreigabe der P016-S2a-Gateway umgesetzt. Er
+schliesst die Owner-Eingangsgrenze, ohne Gleichungen, UI, Persistenz oder die
+historische Ergebnisdatenklasse vorzeitig umzuziehen.
+
+- Der Gateway akzeptiert ausschliesslich `ParameterSnapshot` v1, weil die
+  bestehende Methode diesen Vertrag direkt verarbeitet. Eine automatische
+  `BaselineParameterSnapshot`-Konvertierung waere eine eigene fachliche
+  Abbildung und bleibt daher aus diesem Slice heraus.
+- `validate_parameter_snapshot()` sowie eine versionierte, exakte
+  Soll-Einheitenmatrix sind zwingend. Unbekannte oder abweichende Einheiten
+  blockieren; es gibt keine implizite Umrechnung.
+- Jeder vorbereitete Auftrag dokumentiert Methoden-ID/-Version,
+  Vertragsversion, strukturierte LoD-1-Annahmen, die bestehende
+  Python-Rundungsregel `round(float, 2)` nach der Berechnung und einen
+  kanonischen SHA-256-Eingangsfingerprint. Der Ergebnisfingerprint umfasst
+  nur fachliche Ergebnisfelder und ignoriert zufaellige Diagnose-IDs und
+  Zeitstempel.
+- Die Gateway-Ausfuehrung delegiert unveraendert an den historischen Service.
+  `ReferenceDimensioningResult`, Workspace-Schluessel, UI und Workflowkatalog
+  bleiben kompatibel. Die getrennten Vertrage fuer berechnete LoD-1- und
+  manuelle IDA-Ergebnisse sowie die Verlagerung der Manual-Entry-Fachregeln
+  folgen erst in P016-S2b/S2c.
+
+Council-Synthese:
+
+- Mira bestaetigte den additiven Gateway als risikoarmen Einfuegepunkt und
+  die notwendige Erhaltung der bisherigen Symbolidentitaet.
+- Vera verlangte die explizite Entscheidung des Eingangstyps und die
+  Ergebnisartentrennung; der Eingangstyp ist hier auf Snapshot v1 begrenzt,
+  die Ergebnisartentrennung bleibt bewusst der folgende Slice.
+- Professor Sophia verlangte kanonische, fluechtigkeitsfreie Fingerprints,
+  eine eindeutige Rundungsbeschreibung und eine strenge Einheitengrenze.
+
+Rueckfallvertrag: `gateway.py`, seine Exporte, Tests und dieser Statusnachtrag
+koennen gemeinsam entfernt werden. Die historische Berechnung, ihre Werte und
+ihre Persistenz bleiben unveraendert.

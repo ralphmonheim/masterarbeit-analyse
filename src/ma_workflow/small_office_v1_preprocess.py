@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 import csv
 import hashlib
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime
 from enum import StrEnum
 from pathlib import Path
@@ -14,8 +14,13 @@ from typing import Any, Callable
 
 import yaml
 
-from ma_analyse.stage_1_dimensioning import ReferenceDimensioningResult, run_lod1_reference_dimensioning
 from ma_building import load_small_office_5z_endvariant_02_building_spec, validate_building_spec
+from ma_dimensionierung import (
+    ReferenceDimensioningResult,
+    build_vver_selected_lod1_requests,
+    execute_vver_selected_lod1_requests,
+    run_lod1_reference_dimensioning,
+)
 from ma_parameters import (
     BaselineParameterSnapshot,
     ParameterSnapshot,
@@ -33,8 +38,15 @@ from ma_variants import (
     SmallOfficeV1Study,
     build_small_office_v1_optimization_cases,
     build_small_office_v1_sensitivity_cases,
+    finalize_vver_dimensioning,
+    generate_final_variants,
     load_small_office_v1_study,
 )
+from ma_variants.project_studies import (
+    build_small_office_candidate_rows,
+    capacity_strategy_from_variation_specification,
+)
+from ma_variants.vver_selection import VverSelectionRecord
 from ma_weather import import_weather_catalog
 from ma_zones import (
     load_small_office_5z_endvariant_02_zone_spec,
@@ -99,6 +111,8 @@ def run_small_office_v1_preprocess(
     *,
     run_id: str,
     output_root: str | Path = DEFAULT_SMALL_OFFICE_V1_OUTPUT_ROOT,
+    vver_selection: VverSelectionRecord | None = None,
+    vver_pre_dimensioning_upstream_fingerprint: str | None = None,
 ) -> SmallOfficeV1PreProcessResult:
     """Fuehrt die freigegebene V1-Kette aus und materialisiert nur Draft-Pakete."""
     run_directory = Path(output_root) / run_id
@@ -261,7 +275,9 @@ def run_small_office_v1_preprocess(
         action=lambda: _variants_action(
             artifacts["project"],
             artifacts["parameters"][1],
-            artifacts["dimensioning"],
+            artifacts["parameters"][0],
+            vver_selection,
+            vver_pre_dimensioning_upstream_fingerprint,
         ),
     )
     execute(
@@ -445,21 +461,75 @@ def _parameter_variations_action(
 def _variants_action(
     study: SmallOfficeV1Study,
     baseline: BaselineParameterSnapshot,
-    dimensioning: ReferenceDimensioningResult,
+    snapshot: ParameterSnapshot,
+    vver_selection: VverSelectionRecord | None,
+    current_pre_dimensioning_upstream_fingerprint: str | None,
 ) -> tuple[
     tuple[tuple[OptimizationCase, ...], tuple[SensitivityCase, ...]],
     tuple[DiagnosticMessage, ...],
     tuple[str, ...],
     tuple[str, ...],
 ]:
-    optimization_cases = build_small_office_v1_optimization_cases(baseline, dimensioning, study)
+    if vver_selection is None or current_pre_dimensioning_upstream_fingerprint is None:
+        raise ValueError("Der historische SmallOffice-PreProcess braucht eine aktuelle VVER-Auswahl vor der Dimensionierung.")
+    variation_specification = _small_office_variation_specification(study)
+    capacity_strategy = capacity_strategy_from_variation_specification(variation_specification)
+    candidates = build_small_office_candidate_rows(study, variation_specification)
+    requests = build_vver_selected_lod1_requests(
+        snapshot,
+        vver_selection,
+        candidates,
+        current_pre_dimensioning_upstream_fingerprint=current_pre_dimensioning_upstream_fingerprint,
+    )
+    assignments = execute_vver_selected_lod1_requests(requests, candidates)
+    optimization_cases = build_small_office_v1_optimization_cases(
+        baseline,
+        study,
+        assignments,
+        capacity_strategy=capacity_strategy,
+    )
+    finalization = finalize_vver_dimensioning(
+        project_id="PROJECT-SMALL-OFFICE-V1",
+        vver_selection=vver_selection,
+        candidates=candidates,
+        assignments=assignments,
+    )
+    generated = generate_final_variants(
+        finalization.catalog,
+        {case.case_id: case.variant for case in optimization_cases},
+    )
+    optimization_cases = tuple(
+        replace(case, variant=generated[case.case_id]) for case in optimization_cases
+    )
     sensitivity_cases = build_small_office_v1_sensitivity_cases(baseline, study, optimization_cases)
     return (
         (optimization_cases, sensitivity_cases),
         (),
-        (f"{len(optimization_cases)} Optimierungsfaelle", f"{len(sensitivity_cases)} Sensitivitaetsfaelle"),
-        ("Verifizierte PreprocessVariant-Objekte an Simulation-Setup",),
+        (
+            f"{len(requests)} Dimensionierungsgruppen",
+            f"{len(optimization_cases)} Optimierungsfaelle",
+            f"{len(sensitivity_cases)} Sensitivitaetsfaelle",
+            f"Finaler VCAT {finalization.catalog.catalog_id}",
+        ),
+        ("VSEL-gebundene PreprocessVariant-Objekte an Simulation-Setup",),
     )
+
+
+def _small_office_variation_specification(study: SmallOfficeV1Study) -> dict[str, object]:
+    """Minimaler historischer Adapter; VVER bleibt die bindende Auswahlquelle."""
+    return {
+        "status": "current",
+        "study_contract": {
+            "study_id": study.study_id,
+            "enabled_dimensions": [
+                "temperature_setpoint_bands",
+                "coupled_heating_cooling_capacity_factors",
+                "weather_ofat",
+                "occupancy_ofat",
+            ],
+            "capacity_strategy": "ideal_unlimited",
+        },
+    }
 
 
 def _simulation_setup_action(
@@ -618,7 +688,8 @@ def _write_run_reports(result: SmallOfficeV1PreProcessResult) -> None:
         "`ma_simulation_setup`. Alle Run-Pakete sind `draft`; es wurde keine "
         "Simulation gestartet und kein Ergebnis bewertet.\n\n"
         "V1 wird erst nach der manuellen Pruefung der Moduluebergaben, "
-        "Diagnosen, 30 Optimierungsfaelle und Sensitivitaetspakete bestaetigt.\n",
+        f"Diagnosen, {len(result.optimization_cases)} Optimierungsfaelle und "
+        f"{len(result.sensitivity_cases)} Sensitivitaetspakete bestaetigt.\n",
         encoding="utf-8",
     )
 

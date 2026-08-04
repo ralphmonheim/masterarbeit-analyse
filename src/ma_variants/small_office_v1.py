@@ -6,8 +6,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from ma_analyse.stage_1_dimensioning import DimensioningStatus, ReferenceDimensioningResult
 from ma_core import load_configuration_file
+from ma_dimensionierung import VariantDimensioningAssignment
 from ma_parameters import BaselineParameterSnapshot
 
 from .preprocess import PreprocessVariant, VariationValue, build_explicit_variant
@@ -142,39 +142,48 @@ def load_small_office_v1_study(
 
 def build_small_office_v1_optimization_cases(
     baseline: BaselineParameterSnapshot,
-    dimensioning: ReferenceDimensioningResult,
     study: SmallOfficeV1Study,
+    assignments: tuple[VariantDimensioningAssignment, ...],
+    capacity_strategy: str = "dimensioned_with_factor",
 ) -> tuple[OptimizationCase, ...]:
-    """Erzeugt 5 Sollwertbaender mal 6 gemeinsame Kapazitaetsfaktoren."""
+    """Materialisiert nur Owner-berechnete, VVER-ausgewaehlte Auftraege."""
     if baseline.snapshot_id != study.baseline_snapshot_id:
         raise ValueError("Die V1-Studie referenziert nicht die angegebene Baseline.")
-    if dimensioning.status is not DimensioningStatus.EVALUATED:
-        raise ValueError("Optimierungsfaelle benoetigen eine auswertbare Referenzdimensionierung.")
-    if dimensioning.heating_total_load_w is None or dimensioning.cooling_internal_load_w is None:
-        raise ValueError("Der Referenzdimensionierung fehlen Heiz- oder Kuehlleistung.")
-
     heating_keys = _parameter_keys_with_suffix(baseline, ".heating_setpoint_c")
     cooling_keys = _parameter_keys_with_suffix(baseline, ".cooling_setpoint_c")
     if len(heating_keys) != 5 or len(cooling_keys) != 5:
         raise ValueError("Die SmallOffice-V1-Studie erwartet genau fuenf konditionierte Zonen.")
 
+    assignment_by_id = {assignment.candidate_id: assignment for assignment in assignments}
     cases: list[OptimizationCase] = []
     for band in study.setpoint_bands:
         for factor in study.capacity_factors:
             case_id = f"OPT-{band.band_key}-{factor.factor_key}"
-            heating_capacity_w = round(dimensioning.heating_total_load_w * factor.factor, 2)
-            cooling_capacity_w = round(dimensioning.cooling_internal_load_w * factor.factor, 2)
+            assignment = assignment_by_id.get(case_id)
+            if assignment is None:
+                continue
+            heating_capacity_w = assignment.heating_capacity_w
+            cooling_capacity_w = assignment.cooling_capacity_w
             values = [
                 *(VariationValue(key, band.heating_setpoint_c, "Grad C") for key in heating_keys),
                 *(VariationValue(key, band.cooling_setpoint_c, "Grad C") for key in cooling_keys),
-                VariationValue(HEATING_CAPACITY_KEY, heating_capacity_w, "W"),
-                VariationValue(COOLING_CAPACITY_KEY, cooling_capacity_w, "W"),
             ]
+            if capacity_strategy != "ideal_unlimited":
+                values.extend(
+                    (
+                        VariationValue(HEATING_CAPACITY_KEY, heating_capacity_w, "W"),
+                        VariationValue(COOLING_CAPACITY_KEY, cooling_capacity_w, "W"),
+                    )
+                )
             variant = build_explicit_variant(
                 baseline,
                 variant_id=case_id,
                 label=f"{band.label} | Heiz/Kuehl-Faktor {factor.factor:g}",
                 values=tuple(values),
+                capacity_strategy=capacity_strategy,
+                dimensioning_status="available",
+                reference_heating_capacity_w=assignment.heating_load_w,
+                reference_cooling_capacity_w=assignment.cooling_load_w,
             )
             cases.append(
                 OptimizationCase(

@@ -6,7 +6,7 @@ import hashlib
 import json
 import math
 import re
-from dataclasses import asdict
+from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -26,7 +26,6 @@ from ma_ui.streamlit_app.state import (
 from ma_variants import (
     build_small_office_candidate_rows,
     candidate_simulation_setup,
-    candidate_source_is_current,
     load_small_office_v1_study,
     materialize_zonal_capacities,
     select_candidate_ids,
@@ -36,6 +35,13 @@ from ma_variants import (
     variation_specification_is_current,
     verify_candidate_rows,
 )
+from ma_variants.vver_selection import (
+    VverSelectionRecord,
+    create_vver_selection_record,
+    validate_vver_selection_is_current,
+    vver_selection_record_from_payload,
+    vver_selection_record_to_payload,
+)
 from ma_workspace import load_project_module_config, save_project_module_config
 from ma_zones import (
     load_small_office_5z_endvariant_02_zone_spec,
@@ -44,10 +50,26 @@ from ma_zones import (
 
 VARIANTS_MODULE_KEY = "ma_variants"
 VARIANT_STEP_LABELS = (
-    "Variationsraum",
+    "Variationsraum und VVER",
     "Pruefung und Katalog",
     "Auswahl und Variantenpakete",
 )
+
+
+@dataclass(frozen=True)
+class _VverResolvedValue:
+    """Adapter, der gespeicherte Kandidatenzeilen an den VVER-Vertrag bindet."""
+
+    parameter_key: str
+    value: object
+    unit: str = ""
+
+
+@dataclass(frozen=True)
+class _VverCandidate:
+    candidate_id: str
+    selected_options: tuple[tuple[str, str], ...]
+    resolved_values: tuple[_VverResolvedValue, ...]
 
 
 def render() -> None:
@@ -90,6 +112,12 @@ def render() -> None:
         parameter_payload,
         dimensioning_payload,
     )
+    pre_dimensioning_fingerprint = pre_dimensioning_source_fingerprint(
+        study,
+        baseline,
+        zone_spec,
+        parameter_payload,
+    )
     stored_fingerprint = payload.get("source_fingerprint")
     if stored_fingerprint and stored_fingerprint != current_fingerprint:
         st.warning(
@@ -122,17 +150,15 @@ def render() -> None:
         selection_mode="single",
     )
     step = step or VARIANT_STEP_LABELS[0]
-    if step == "Variationsraum":
+    if step == "Variationsraum und VVER":
         _render_candidate_generation(
             workspace,
             study,
             study_cases,
             parameter_payload,
             baseline,
-            dimensioning_payload,
-            zone_spec,
             payload,
-            current_fingerprint,
+            pre_dimensioning_fingerprint,
             active_case,
         )
     elif step == "Pruefung und Katalog":
@@ -196,10 +222,8 @@ def _render_candidate_generation(
     study_cases: list[dict[str, object]],
     parameter_payload: dict[str, object],
     baseline,
-    dimensioning_payload: dict[str, object],
-    zone_spec,
     payload: dict[str, object],
-    current_fingerprint: str,
+    pre_dimensioning_fingerprint: str,
     active_case: str,
 ) -> None:
     st.subheader("Variationsraum festlegen")
@@ -216,14 +240,6 @@ def _render_candidate_generation(
             "Noch keine projektbezogenen Variationsspannen gespeichert. "
             "Die freigegebene SmallOffice-V1-Studienkonfiguration dient als Kandidatenquelle."
         )
-    dimensioning_complete = _dimensioning_complete(
-        dimensioning_payload,
-        zone_spec,
-        baseline,
-        parameter_payload,
-    )
-    if not dimensioning_complete:
-        st.warning("Die manuelle Referenzdimensionierung ist noch nicht vollstaendig.")
     variation_ready = variation_specification_is_current(
         parameter_payload,
         baseline,
@@ -241,7 +257,7 @@ def _render_candidate_generation(
         st.dataframe(normalize_table_for_streamlit(case_rows), hide_index=True, width="stretch")
     if st.button(
         "Kandidatenkombinationen erzeugen",
-        disabled=not dimensioning_complete or not variation_ready,
+        disabled=not variation_ready,
         key="ma_variants_generate_candidates",
     ):
         updated_payload = dict(payload)
@@ -256,14 +272,114 @@ def _render_candidate_generation(
                     parameter_payload["variation_specification"],
                 ),
                 "catalog": [],
-                "source_fingerprint": current_fingerprint,
+                "pre_dimensioning_source_fingerprint": pre_dimensioning_fingerprint,
                 "status": "candidates_current",
                 "updated_at": datetime.now(UTC).isoformat(),
             }
         )
         save_project_module_config(workspace, VARIANTS_MODULE_KEY, updated_payload)
         st.session_state["ma_ui_variants_update_required"] = True
-        st.success("Kandidatenkombinationen fuer beide StudyDirections wurden erzeugt.")
+        st.success(
+            "Kandidatenkombinationen fuer beide StudyDirections wurden erzeugt. "
+            "Bestehende VVER-Auswahlen bleiben als Historie erhalten und werden gegen den neuen Stand geprueft."
+        )
+
+    _render_vver_selection(
+        workspace,
+        study,
+        payload,
+        active_case,
+        pre_dimensioning_fingerprint,
+    )
+
+
+def _render_vver_selection(
+    workspace,
+    study,
+    payload: dict[str, object],
+    active_case: str,
+    pre_dimensioning_fingerprint: str,
+) -> None:
+    """Speichert die verbindliche Kandidatenauswahl vor der Dimensionierung."""
+    st.divider()
+    st.subheader("VVER: verbindliche Auswahl vor der Dimensionierung")
+    candidates = payload.get("candidates", [])
+    if not isinstance(candidates, list) or not candidates:
+        st.info("Nach dem Erzeugen des Variationsraums kann hier die VVER-Auswahl gespeichert werden.")
+        return
+    if not _pre_dimensioning_candidates_are_current(payload, pre_dimensioning_fingerprint):
+        st.error(
+            "Der Variationsraum hat keinen aktuellen Pre-Dimensioning-Fingerprint. "
+            "Bitte die Kandidatenkombinationen neu erzeugen; Katalog und VVER-Historie bleiben erhalten."
+        )
+        return
+    history_error = _vver_history_error(payload)
+    if history_error is not None:
+        st.error(f"Die gespeicherte VVER-Historie ist fehlerhaft und blockiert den Ablauf: {history_error}")
+        return
+    case_candidates = _case_rows(candidates, active_case)
+    candidate_ids = tuple(str(row["candidate_id"]) for row in case_candidates)
+    if not candidate_ids:
+        st.warning("Der aktive StudyCase enthaelt keine Kandidaten.")
+        return
+    mode, manual_ids, count, seed = _selection_controls(candidate_ids, key_prefix="ma_vver")
+    try:
+        selected_ids = select_candidate_ids(
+            candidate_ids,
+            mode=mode,
+            manual_ids=manual_ids,
+            count=count,
+            seed=seed,
+        )
+    except ValueError as exc:
+        st.warning(str(exc))
+        selected_ids = ()
+    reason = st.text_input(
+        "Begruendung der VVER-Auswahl",
+        value="Auswahl fuer die nachfolgende Referenzdimensionierung.",
+        key="ma_vver_selection_reason",
+    )
+    random_selection_without_seed = not _vver_selection_is_saveable(mode, seed)
+    if random_selection_without_seed:
+        st.warning("Eine zufaellige VVER-Auswahl braucht einen reproduzierbaren Startwert.")
+    st.caption(f"{len(selected_ids)} Kandidaten werden vor der Dimensionierung verbindlich ausgewaehlt.")
+    if st.button(
+        "VVER-Auswahl verbindlich speichern",
+        disabled=not selected_ids or not reason.strip() or random_selection_without_seed,
+        key="ma_vver_save_selection",
+    ):
+        selected_rows = [row for row in case_candidates if str(row["candidate_id"]) in selected_ids]
+        record = create_vver_selection_record(
+            study_id=study.study_id,
+            study_case_id=active_case,
+            study_direction_id=str(selected_rows[0]["study_direction_id"]),
+            selection_mode={"manuell": "manual", "zufaellig": "random", "alle": "all"}[mode],
+            selection_reason=reason.strip(),
+            random_seed=seed,
+            pre_dimensioning_upstream_fingerprint=pre_dimensioning_fingerprint,
+            selected_candidates=tuple(_vver_candidate_from_row(row) for row in selected_rows),
+        )
+        updated_payload = _store_vver_selection(payload, record)
+        updated_payload["updated_at"] = datetime.now(UTC).isoformat()
+        updated_payload["status"] = "vver_selection_current"
+        save_project_module_config(workspace, VARIANTS_MODULE_KEY, updated_payload)
+        st.success("Die VVER-Auswahl wurde ohne finale VAR-ID gespeichert.")
+        payload = updated_payload
+    active_record = _active_vver_selection(payload)
+    if active_record is not None:
+        try:
+            validate_vver_selection_is_current(
+                active_record,
+                current_pre_dimensioning_upstream_fingerprint=pre_dimensioning_fingerprint,
+                current_candidates=tuple(_vver_candidate_from_row(row) for row in case_candidates),
+            )
+        except ValueError as exc:
+            st.warning(f"Die aktive VVER-Auswahl ist nicht mehr aktuell: {exc}")
+        else:
+            st.success(
+                f"Aktive VVER-Auswahl: {active_record.record_id} "
+                f"({len(active_record.selected_candidates)} Kandidaten)."
+            )
 
 
 def _render_catalog_generation(
@@ -280,20 +396,53 @@ def _render_catalog_generation(
     if not isinstance(candidates, list) or not candidates:
         st.warning("Zuerst im Variationsraum Kandidatenkombinationen erzeugen.")
         return
-    candidates_stale = not candidate_source_is_current(payload, current_fingerprint)
+    pre_dimensioning_fingerprint = pre_dimensioning_source_fingerprint(
+        load_small_office_v1_study(), baseline, zone_spec, parameter_payload
+    )
+    candidates_stale = not _pre_dimensioning_candidates_are_current(
+        payload, pre_dimensioning_fingerprint
+    )
     if candidates_stale:
         st.error(
-            "Der Kandidatenraum gehoert zu einem aelteren Fachstand. "
-            "Bitte im Variationsraum neu erzeugen."
+            "Der Kandidatenraum hat keinen aktuellen Pre-Dimensioning-Fingerprint. "
+            "Bitte im Variationsraum neu erzeugen; Katalog und VVER-Historie bleiben erhalten."
         )
+    history_error = _vver_history_error(payload)
+    if history_error is not None:
+        st.error(f"Die gespeicherte VVER-Historie ist fehlerhaft und blockiert den Ablauf: {history_error}")
+    active_vver_selection = active_current_vver_selection(
+        payload,
+        study_id=load_small_office_v1_study().study_id,
+        current_pre_dimensioning_upstream_fingerprint=pre_dimensioning_fingerprint,
+    )
+    if active_vver_selection is None:
+        st.warning(
+            "Der finale Katalog braucht eine aktuelle, aktive VVER-Auswahl. "
+            "Bitte diese zuerst im Variationsraum speichern."
+        )
+    dimensioning_complete = _dimensioning_complete(
+        dimensioning_payload, zone_spec, baseline, parameter_payload
+    )
+    if not dimensioning_complete:
+        st.warning("Der finale Katalog bleibt bis zur vollstaendigen Referenzdimensionierung gesperrt.")
+    dimensioning_matches_vver = (
+        active_vver_selection is not None
+        and _dimensioning_is_bound_to_vver(dimensioning_payload, active_vver_selection)
+    )
+    if dimensioning_complete and not dimensioning_matches_vver:
+        st.warning(
+            "Die gespeicherte Referenzdimensionierung gehoert nicht zur aktuellen VVER-Auswahl. "
+            "Bitte die Referenzdimensionierung erneut speichern."
+        )
+    selected_candidate_ids = (
+        {reference.candidate_id for reference in active_vver_selection.selected_candidates}
+        if active_vver_selection is not None
+        else set()
+    )
+    selected_candidates = _selected_candidate_rows(candidates, selected_candidate_ids)
     verified = verify_candidate_rows(
-        candidates,
-        reference_dimensioning_complete=_dimensioning_complete(
-            dimensioning_payload,
-            zone_spec,
-            baseline,
-            parameter_payload,
-        ),
+        selected_candidates,
+        reference_dimensioning_complete=dimensioning_complete,
     )
     st.dataframe(
         normalize_table_for_streamlit(_case_rows(verified, active_case)),
@@ -307,7 +456,13 @@ def _render_catalog_generation(
     )
     if st.button(
         "Gueltigen Katalog bilden",
-        disabled=candidates_stale,
+        disabled=(
+            candidates_stale
+            or history_error is not None
+            or active_vver_selection is None
+            or not dimensioning_complete
+            or not dimensioning_matches_vver
+        ),
         key="ma_variants_build_catalog",
     ):
         updated_payload = dict(payload)
@@ -621,7 +776,9 @@ def _variant_package(
             "source_type": dimensioning_payload.get("source_type"),
             "ida_source": dimensioning_payload.get("ida_source"),
         },
-        "capacity_strategy": "fixed_reference_21_24_zonal_capacity",
+        "capacity_strategy": str(
+            (candidate.get("values") or {}).get("capacity_strategy", "dimensioned_with_factor")
+        ),
         "zonal_capacities": materialize_zonal_capacities(candidate, zone_loads),
         "simulation_setup": candidate_simulation_setup(study, candidate),
         "output_requirements": output_requirements,
@@ -638,6 +795,191 @@ def _case_rows(rows: object, active_case: str) -> list[dict[str, object]]:
         for row in rows
         if isinstance(row, dict) and row.get("study_case_id") == active_case
     ]
+
+
+def pre_dimensioning_source_fingerprint(study, baseline, zone_spec, parameter_payload: dict[str, object]) -> str:
+    """Bindet VSP und VVER nur an ihre fachlichen Eingaben, nicht an Referenzlasten."""
+    return source_fingerprint(
+        asdict(study),
+        {
+            "snapshot_id": baseline.snapshot_id,
+            "snapshot_version": baseline.snapshot_version,
+            "content_hash": baseline.content_hash,
+        },
+        zone_specification_to_dict(zone_spec),
+        parameter_payload.get("variation_specification"),
+        parameter_payload.get("variation_spans"),
+        parameter_payload.get("rules"),
+    )
+
+
+def _pre_dimensioning_source_fingerprint(study, baseline, zone_spec, parameter_payload: dict[str, object]) -> str:
+    """Kompatibilitaetsalias fuer bestehende Aufrufer waehrend der VVER-Migration."""
+    return pre_dimensioning_source_fingerprint(study, baseline, zone_spec, parameter_payload)
+
+
+def _pre_dimensioning_candidates_are_current(
+    payload: dict[str, object], current_fingerprint: str
+) -> bool:
+    """Akzeptiert nur Kandidaten mit dem vollstaendigen VVER-Quellenfingerprint."""
+    stored_fingerprint = payload.get("pre_dimensioning_source_fingerprint")
+    return (
+        isinstance(payload.get("candidates"), list)
+        and bool(payload["candidates"])
+        and isinstance(stored_fingerprint, str)
+        and stored_fingerprint == current_fingerprint
+    )
+
+
+def _vver_candidate_from_row(row: dict[str, object]) -> _VverCandidate:
+    values = row.get("values")
+    if not isinstance(values, dict):
+        raise ValueError("VVER-Kandidatenwerte fehlen.")
+    return _VverCandidate(
+        candidate_id=str(row["candidate_id"]),
+        selected_options=tuple(sorted((str(key), str(value)) for key, value in values.items())),
+        resolved_values=tuple(
+            _VverResolvedValue(parameter_key=str(key), value=value)
+            for key, value in sorted(values.items())
+        ),
+    )
+
+
+def _store_vver_selection(
+    payload: dict[str, object], record: VverSelectionRecord
+) -> dict[str, object]:
+    """Speichert Records append-only nach ID und setzt genau eine aktive VVER-Auswahl."""
+    history_error = _vver_history_error(payload)
+    if history_error is not None:
+        raise ValueError(f"VVER-Historie ist fehlerhaft: {history_error}")
+    existing = payload.get("vver_selections", [])
+    selections = list(existing) if isinstance(existing, list) else []
+    serialized = vver_selection_record_to_payload(record)
+    selections = [entry for entry in selections if entry.get("record_id") != record.record_id]
+    selections.append(serialized)
+    updated = dict(payload)
+    updated["vver_selections"] = selections
+    updated["active_vver_selection_id"] = record.record_id
+    return updated
+
+
+def _active_vver_selection(payload: dict[str, object]) -> VverSelectionRecord | None:
+    history_error = _vver_history_error(payload)
+    if history_error is not None:
+        raise ValueError(f"VVER-Historie ist fehlerhaft: {history_error}")
+    active_id = payload.get("active_vver_selection_id")
+    selections = payload.get("vver_selections", [])
+    if active_id is None and selections == []:
+        return None
+    for entry in selections:
+        if entry["record_id"] == active_id:
+            return vver_selection_record_from_payload(entry)
+    raise ValueError("Die aktive VVER-Auswahl ist in der Historie nicht vorhanden.")
+
+
+def _vver_history_error(payload: dict[str, object]) -> str | None:
+    """Prueft die persistierte Historie vollstaendig, bevor sie weiterverwendet wird."""
+    selections = payload.get("vver_selections", [])
+    active_id = payload.get("active_vver_selection_id")
+    if not isinstance(selections, list):
+        return "vver_selections muss eine Liste sein."
+    if not selections:
+        return None if active_id is None else "Eine aktive VVER-ID existiert ohne Historieneintrag."
+    if not isinstance(active_id, str) or not active_id:
+        return "Die aktive VVER-ID fehlt oder ist ungueltig."
+
+    record_ids: set[str] = set()
+    for index, entry in enumerate(selections, start=1):
+        if not isinstance(entry, dict):
+            return f"Historieneintrag {index} ist kein Objekt."
+        try:
+            record = vver_selection_record_from_payload(entry)
+        except ValueError as exc:
+            return f"Historieneintrag {index} ist ungueltig: {exc}"
+        if record.record_id in record_ids:
+            return f"Historieneintrag {index} dupliziert die VVER-ID {record.record_id}."
+        record_ids.add(record.record_id)
+    if active_id not in record_ids:
+        return "Die aktive VVER-ID verweist auf keinen Historieneintrag."
+    return None
+
+
+def active_current_vver_selection(
+    payload: dict[str, object],
+    *,
+    study_id: str,
+    current_pre_dimensioning_upstream_fingerprint: str,
+) -> VverSelectionRecord | None:
+    """Gibt nur eine aktive, zum aktuellen Kandidatenraum passende VVER-Auswahl frei."""
+    if _vver_history_error(payload) is not None:
+        return None
+    record = _active_vver_selection(payload)
+    candidates = payload.get("candidates", [])
+    if record is None or record.study_id != study_id or not isinstance(candidates, list):
+        return None
+    try:
+        validate_vver_selection_is_current(
+            record,
+            current_pre_dimensioning_upstream_fingerprint=current_pre_dimensioning_upstream_fingerprint,
+            current_candidates=tuple(
+                _vver_candidate_from_row(row) for row in candidates if isinstance(row, dict)
+            ),
+        )
+    except ValueError:
+        return None
+    return record
+
+
+def _dimensioning_is_bound_to_vver(
+    dimensioning_payload: dict[str, object], record: VverSelectionRecord
+) -> bool:
+    reference = dimensioning_payload.get("vver_selection_reference", {})
+    return (
+        isinstance(reference, dict)
+        and reference.get("record_id") == record.record_id
+        and reference.get("record_fingerprint") == record.record_fingerprint
+    )
+
+
+def _selected_candidate_rows(
+    candidates: object, selected_candidate_ids: set[str]
+) -> list[dict[str, object]]:
+    """Beschraenkt VCAT auf die vor der Dimensionierung verbindlich gewaehlten Kandidaten."""
+    if not isinstance(candidates, list):
+        return []
+    return [
+        row
+        for row in candidates
+        if isinstance(row, dict) and str(row.get("candidate_id")) in selected_candidate_ids
+    ]
+
+
+def _selection_controls(
+    candidate_ids: tuple[str, ...], *, key_prefix: str
+) -> tuple[str, tuple[str, ...], int, int | None]:
+    """Gemeinsame Eingaben fuer die deutsche UI und den Auswahlvertrag."""
+    mode = st.radio(
+        "Auswahlmodus", ("manuell", "zufaellig", "alle"), horizontal=True, key=f"{key_prefix}_mode"
+    )
+    manual_ids: tuple[str, ...] = ()
+    count = 1
+    seed: int | None = None
+    if mode == "manuell":
+        manual_ids = tuple(
+            st.multiselect("Kandidaten", candidate_ids, default=candidate_ids[:1], key=f"{key_prefix}_manual")
+        )
+    elif mode == "zufaellig":
+        count = int(
+            st.number_input("Anzahl", min_value=1, max_value=len(candidate_ids), value=1, step=1, key=f"{key_prefix}_count")
+        )
+        if st.checkbox("Reproduzierbaren Startwert verwenden", key=f"{key_prefix}_use_seed"):
+            seed = int(st.number_input("Startwert", value=42, step=1, key=f"{key_prefix}_seed"))
+    return mode, manual_ids, count, seed
+
+
+def _vver_selection_is_saveable(mode: str, seed: int | None) -> bool:
+    """Der VVER-Vertrag verlangt bei Zufallsauswahl immer einen Startwert."""
+    return mode != "zufaellig" or seed is not None
 
 
 def _naming_preview(profile, rows: list[dict[str, object]], selected_ids: tuple[str, ...]) -> list[dict[str, object]]:

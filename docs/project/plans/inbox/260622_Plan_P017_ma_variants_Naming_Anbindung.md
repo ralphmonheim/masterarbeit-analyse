@@ -592,3 +592,64 @@ Wetter-OFAT und Belegungs-OFAT. Unbekannte, fehlende oder doppelte
 Dimensionen blockieren die Kandidatenerzeugung. Vor der Setup-Uebergabe
 werden Selection-ID, Kandidatenmenge, StudyCase, StudyDirection und
 Selection-Fingerprint erneut typgenau gegen alle Variantenpakete geprueft.
+
+## Migrationsstand nach UD-112 2026-08-03
+
+P017-S1 und der anschliessende UI-Gate-Slice sind additiv umgesetzt:
+`VverSelectionRecord` speichert die fruehe verbindliche Auswahl vor der
+Dimensionierung mit Kandidatenfingerprints, Begruendung, Modus/Seed und einem
+eigenen Pre-Dimensioning-Upstream-Fingerprint. Die direkte Variantenansicht
+erzeugt Kandidaten und speichert VVER ohne Dimensionierungs-Gate. Eine aktive,
+aktuelle VVER-Auswahl ist dagegen vor dem Speichern der manuellen
+Referenzdimensionierung und vor dem finalen Katalog verbindlich. Der finale
+Katalog beschraenkt sich auf die VVER-Kandidaten; er vergibt in diesem
+Uebergang noch keine neue fachliche Auswahl.
+
+VVER-Historie bleibt append-only im Variantenpayload sichtbar. Beschaedigte
+Historie blockiert weitere VVER-/Katalogaktionen sichtbar; alte Kandidaten
+ohne Pre-Dimensioning-Fingerprint bleiben erhalten, muessen aber fuer eine
+neue VVER-Auswahl regeneriert werden. Es gibt weiterhin keinen CASE oder
+SimulationCase und keine Vorab-VCAT- oder VAR-ID-Erzeugung durch VVER.
+
+Offen fuer den naechsten Backend-Slice: Der historische SmallOffice-Runner
+und `ma_variants.small_office_v1` berechnen noch Kapazitaeten aus
+Referenzlast mal Faktor und laufen noch in der alten Reihenfolge. Sie muessen
+auf VVER-ausgewaehlte, fingerprintgruppierte Dimensionierungsauftraege an
+`ma_dimensionierung` umgestellt werden. Erst danach folgen finaler
+VCAT-/VAR-ID- und abbildender VSEL-Slice sowie VGEN/P018.
+
+## Migrationsstand VVER-zu-Dimensionierung 2026-08-03
+
+Der historische SmallOffice-Backendpfad akzeptiert jetzt eine aktuelle,
+explizite VVER-Auswahl und erstellt daraus keine Varianten- oder
+Katalogobjekte, sondern nur Kandidatenauftraege. Gleiche LoD-1-Eingaben werden
+per Owner-Fingerprint gruppiert; nach der Owner-Berechnung werden die
+Kapazitaeten den VVER-Kandidaten wieder zugeordnet. Fuer die aktuelle
+vereinfachte Methode ergeben die fuenf Sollwertbaender vier Gruppen, weil
+zwei Baender dieselben rechenwirksamen LoD-1-Eingaben besitzen.
+
+`ma_variants.small_office_v1` leitet keine Lasten oder Kapazitaeten mehr aus
+Referenzlasten mal Faktor ab. Finaler VCAT mit VAR-IDs, rein abbildender VSEL,
+VGEN und P018 bleiben nach diesem bewusst isolierten Backend-Slice offen.
+
+## Finaler VCAT-/VSEL-/VGEN-Vertrag 2026-08-03
+
+Der additive Abschlussvertrag erzeugt VCAT erst nach VVER-gebundener
+Owner-Dimensionierung und Nachpruefung. Eine projektweite append-only
+Registry vergibt sequenzielle VAR-IDs anhand des ID-freien finalen
+Inhaltsfingerprints; gleicher finaler Inhalt nutzt projektweit dieselbe
+VAR-ID. VSEL ist ausschliesslich die Abbildung von VVER-Kandidat auf finale
+VAR-ID, VGEN bindet diese erst danach an `PreprocessVariant`.
+
+Offen: atomare Workspace-Anbindung des Payload-Adapters sowie eigene VVER,
+Dimensionierung und Abschluss fuer Wetter-/Belegungs-StudyCases nach UD-117.
+
+## Kapazitaetsstrategie 2026-08-03
+
+Die Kapazitaetsstrategie ist Bestandteil des Studienvertrags vor VVER und
+Dimensionierung. `ideal_unlimited` reduziert den SmallOffice-Default auf die
+fuenf Sollwertbaender mit dem Referenzfaktor F100; seine Varianten enthalten
+keine wirksamen Kapazitaets-Overrides. Nach Abschluss der Owner-
+Dimensionierung tragen sie die Referenz-Heiz- und Kuehlleistung ausschliesslich
+als Analyseprovenienz. Die bisherige Faktorenreihe F100 bis F050 bleibt unter
+`dimensioned_with_factor` erhalten und wird erst nach dem Ergebnis absolut.

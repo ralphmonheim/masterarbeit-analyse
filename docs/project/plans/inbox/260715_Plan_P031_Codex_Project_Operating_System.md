@@ -213,7 +213,7 @@ objektbezogenen Entscheidung in einen begrenzten lokalen Prozess wechseln.
 | P031-S0 | katalogfreies Release `v0.28.0` | abgeschlossen | Remote-Branch und Tag zeigen auf denselben Commit; Katalogdaten bleiben ignoriert |
 | P031-S1 | Audit, Strukturkonsens und Dokumentbereinigung | abgeschlossen | Konflikte C01-C08 geschlossen; C09-C10 bleiben als manuelle Grenzen sichtbar; Planindex, Planstatus, Decisions und Changelog synchron |
 | P031-S2 | repo-lokale Skills | abgeschlossen | zwei Skills ohne TODOs; offizieller Validator gruen |
-| P031-S3 | Agent-System-Contract-Test | abgeschlossen | TOML, Rollenrechte, Skills, Trigger und Allowlist-Grenzen mit 6 Tests geprueft |
+| P031-S3 | Agent-System-Contract-Test | abgeschlossen | TOML, Rollenrechte, Skills, Trigger und Allowlist-Grenzen mit 7 Tests geprueft |
 | P031-S4 | read-only Demonstrationslauf | abgeschlossen | beide Skill-Router ohne externe oder geschuetzte Daten erfolgreich vorwaerts getestet |
 | P031-S5 | Abschlussaudit | abgeschlossen | Diff, Tests, Council-Reviews, offene Gates und nicht erzeugte externe Artefakte dokumentiert |
 | P031-M1 | Bedeutung von `keine Hooks` | manuell | Git- und Codex-Hooks getrennt entschieden |
@@ -223,7 +223,7 @@ objektbezogenen Entscheidung in einen begrenzten lokalen Prozess wechseln.
 | P031-M5 | Normen-/Literatur-PDFs | blockiert | Rechte fuer Maschine, KI, Ablage und Ausgabe objektbezogen belegt |
 | P031-M6 | IDA-/Simulationseingaben | blockiert | EQUA-/Drittrechte und erlaubter Parser-/Automatisierungsumfang belegt |
 | P031-M7 | Project-OS-Compliance-Fachprofil | spaeter | erst bei konkreter externer Komponente als eigener freigegebener Slice |
-| P031-M8 | Council-Mehrheitsfreigabe fuer interne Folgeslices | getroffen | UD-089: mindestens drei von fuenf Council-Rollen empfehlen den exakten lokalen, reversiblen Scope; Sondergates bleiben separat |
+| P031-M8 | Council-Empfehlung und erweitertes Review | umgesetzt | UD-116: Tera, Mira, Vera, Professor Sophia und Justus bilden die themenbezogene Reviewstruktur; Empfehlungen ersetzen keine menschliche Freigabe und Sondergates bleiben separat |
 
 ## Demonstrationsergebnis 2026-07-15
 

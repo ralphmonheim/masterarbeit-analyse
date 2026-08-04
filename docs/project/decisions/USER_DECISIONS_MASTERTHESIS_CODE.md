@@ -2569,6 +2569,16 @@ Stand: 2026-07-22
   Abgleich im Chat zum Gesamtprozess; ausdrueckliche `Freigabe zur Umsetzung`
   am 2026-07-31.
 
+### Umsetzungsstand 2026-08-03: VVER-gebundene SmallOffice-Dimensionierung
+
+Der historische SmallOffice-Backendpfad folgt nun dem in dieser Entscheidung
+festgelegten Ownership-Schnitt: Eine explizite aktuelle VVER-Auswahl begrenzt
+die Kandidatenmenge; `ma_dimensionierung` gruppiert sie per kanonischem
+LoD-1-Eingangsfingerprint, berechnet Lasten und absolute Kapazitaeten. Es
+entstehen dabei keine finalen VAR-IDs, kein Vorab-VCAT sowie kein CASE oder
+SimulationCase. Finaler VCAT/VSEL, VGEN und P018 bleiben eigenstaendige
+Folgeslices.
+
 ## UD-113 Gestufte Blind-Review fuer Chat-Handover
 
 - Datum: 2026-07-31
@@ -2684,3 +2694,83 @@ Stand: 2026-07-22
 - Quelle oder Chatbezug: vollstaendiger Council aus Mira, Ada, Vera,
   Professor Sophia und Tera; Nutzerzustimmung zu den Empfehlungen 1A bis 5A
   sowie `Freigabe zur Umsetzung fuer den naechsten slice` am 2026-08-01.
+
+## UD-116 Themenbezogenes erweitertes Council und risikobewusste Empfehlungen
+
+- Datum: 2026-08-02
+- Status: getroffen und Project-OS-Konsolidierung umgesetzt
+- Thema: Council-Rollen, themenbezogene Reviewtiefe und Auswahl risikoreicherer Varianten
+- Entscheidung: Das Council besteht als Reviewstruktur aus Tera, Mira, Vera,
+  Professor Sophia und Justus. Der Standardfall nutzt Tera, Mira und Vera;
+  Professor Sophia wird bei Methodik, Annahmen und Reproduzierbarkeit,
+  Justus bei Rechten, Daten, Lizenzen, externer Verarbeitung oder
+  Veroeffentlichung hinzugezogen. Ada bleibt nach konkreter menschlicher
+  Freigabe Implementation Engineer und keine weitere Review-Stimme.
+- Entscheidung Risikobewertung: Der Council darf neben der risikoaermsten
+  auch eine risikoreichere Variante empfehlen, wenn sie dem fuehrenden
+  Gesamtplan und einschlaegigen Nutzerentscheidungen besser entspricht. Der
+  Entscheidungsnachweis vergleicht die konservative Alternative und benennt
+  Zusatz- und Restrisiko, Auswirkungen, Gegenmassnahmen, Pruefkriterien,
+  Rueckfalloption, offene Punkte und notwendige Sondergates.
+- Entscheidung Verfahrensgrenzen: Erstvoten und Dissens bleiben vor der
+  Tera-Synthese sichtbar. Eine Empfehlung erweitert keinen Scope und ersetzt
+  weder `Freigabe zur Umsetzung` noch Rechte-, Sicherheits-, externe oder
+  Veroeffentlichungsgates. Neue Spezialrollen, hoehere Parallelitaet und
+  zusaetzliche Schreibrechte sind nicht Teil dieser Entscheidung.
+- Auswirkung: Der historische `compliance_auditor` wird als read-only Rolle
+  Justus wieder runtime-seitig gefuehrt. Die bestehende Begrenzung auf
+  `max_threads = 3` und `max_depth = 1` bleibt unveraendert; ein erweitertes
+  Council arbeitet bei Bedarf in mehreren Wellen.
+- Betroffene Dateien: `AGENTS.md`, `.codex/agents/compliance-auditor.toml`,
+  `docs/project/UPDATE_ROUTINES.md`, P031, `PLAN_STATUS.md` und der
+  Agent-System-Contract-Test.
+- Quelle oder Chatbezug: Nutzerentscheidung zur themenbezogenen Erweiterung
+  des Councils und ausdrueckliche `Freigabe zur Umsetzung` am 2026-08-02.
+
+## UD-117 Finaler Variantenabschluss: VVER je StudyCase und projektweite VAR-ID
+
+- Datum: 2026-08-03
+- Status: entschieden; P017-S2-Vertrag umgesetzt, operative Folgemigration offen
+- Thema: Bindung von Sensitivitaets-StudyCases und finale Variantenidentitaet
+- Entscheidung StudyCase-VVER: Jede StudyCase-Gruppe, auch Wetter- und
+  Belegungssensitivitaeten, besitzt vor ihrer Dimensionierung eine eigene
+  verbindliche VVER. So gelangt kein Kandidat ohne dokumentierte Fruehauswahl
+  in die Dimensionierung oder den finalen Katalog.
+- Entscheidung VAR-ID: Identische finale Varianteninhalte erhalten
+  projektweit dieselbe finale VAR-ID. Der StudyCase bleibt als Herkunft im
+  finalen VCAT erhalten; eine weitere VAR-ID fuer denselben Inhalt wird nicht
+  vergeben.
+- Technische Umsetzung: Der additive P017-S2-Vertrag erzeugt VCAT erst nach
+  VVER-gebundener Dimensionierung und Nachpruefung. Die append-only
+  Varianten-Registry besitzt eine fortlaufende High-Water-Mark und die
+  Content-Fingerprint-zu-VAR-ID-Zuordnung. VSEL bildet ausschliesslich die
+  VVER-Kandidaten auf finale VAR-IDs ab; VGEN bindet diese erst danach an die
+  Preprocess-Variante. Persistenz bleibt ein owner-seitiger Payload-Adapter
+  und wird von der Workspace-Schicht atomar gespeichert.
+- Abgrenzung: Keine Vorab-VCAT-, VAR-, CASE- oder SimulationCase-Objekte.
+  Die aktive Workflowansicht wird nicht in diesem Backend-Slice migriert;
+  sie bleibt der letzte UI-Migrationsslice. P018 folgt erst mit seinem
+  eigenen RUN-/Setup-Vertrag.
+- Quelle oder Chatbezug: Council-Abgleich zu Registry, Provenienz und
+  Reproduzierbarkeit; Nutzerzusage "okay fuer beide Empfehlungen" am
+  2026-08-03 innerhalb der bis Slice 8 erteilten Freigabe.
+
+## UD-118 Kapazitaetsstrategie vor der Dimensionierung
+
+- Datum: 2026-08-03
+- Status: entschieden und im SmallOffice-V1-Durchstich umgesetzt
+- Thema: Ideale Zonenuebergabe, Referenzdimensionierung und sichtbare Leistungsbegrenzung
+- Entscheidung: Die Kapazitaetsstrategie wird vor der Dimensionierung als Studienentscheidung gespeichert. Der SmallOffice-V1-Default ist `ideal_unlimited`. Vor einem Ergebnis zeigt die Parameteransicht deshalb nur `unbegrenzt (Referenzdimensionierung ausstehend)`. Erst nach der getrennten Dimensionierung wird deren Wert als Klammerwert zur Analyse ergaenzt; er wird dadurch nicht zur wirksamen Leistungsgrenze.
+- Begrenzte Modi: `reference_dimensioned` verwendet 100 Prozent der berechneten Referenzleistung. `dimensioned_with_factor` materialisiert die vorhandenen Faktoren erst nach einem Ergebnis. Die fachlichen Startannahmen der Technik bleiben Herkunftsinformationen und sind keine Variantengrenze.
+- Auswirkung: Ideale Varianten enthalten keine absoluten Heiz- oder Kuehlkapazitaets-Overrides. Sie tragen aber Strategie, Ergebnisstatus und die nachtraeglich berechneten Referenzwerte mit Fingerprintbezug in die Varianten- und Run-Artefakte. Die zonale Uebergabe bleibt von zentralen Technikbezeichnungen getrennt.
+- Betroffene Module: `ma_parameters`, `ma_dimensionierung`, `ma_variants`, `ma_simulation_setup` und die direkte Parameteransicht.
+- Quelle oder Chatbezug: Nutzerentscheidung und ausdrueckliche `Freigabe zur Umsetzung` am 2026-08-03.
+
+### Umsetzungsstand P018 2026-08-03
+
+Der P018-Zielvertrag setzt die unter UD-112 verlangte Struktur technisch um:
+ein RUN hat genau eine finale VSEL, ein gemeinsames Setup und mehrere direkte
+VAR-Referenzen. Die Materialisierung erzeugt keine CASE- oder
+SimulationCase-Ebene und startet keine Simulation. Die bisherigen
+Ein-Varianten-Funktionen bleiben nur als Kompatibilitaetsadapter bis zur
+letzten Workflow-UI-Migration bestehen.

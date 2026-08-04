@@ -1,6 +1,6 @@
 # Plan Status
 
-Stand: 2026-08-02
+Stand: 2026-08-03
 
 Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt und nach jeder Planumsetzung aktualisiert. Vollstaendige alte Planstaende liegen unter `docs/project/archive/plans/`.
 
@@ -318,6 +318,19 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   Der Entwurf ist noch kein `ReleasedZoneHandover` und umfasst keine Lasten,
   Kapazitaeten oder Dimensionierung; sein Pruefstatus ist kein Nachweis
   vollstaendiger Versorgung oder technischer Eignung.
+- P013/P014-S3 ergaenzt in `Zusammenfassung & Prüfung` eine schreibfreie
+  `Freigabebereitschaft und Handover-Vorschau`. Sie verbindet den explizit
+  uebernommenen Building-Stand, die versionierte Zonenquelle, den
+  gespeicherten Profil- und Technikzuordnungsentwurf sowie die aktive
+  P014-Revision. Erst nach Building-, Zonen-, Assignment- und
+  ThermalBuilding-Validierung werden `ThermalBuildingModel` und
+  `ReleasedZoneHandover` transient im Speicher erzeugt. Der angezeigte
+  `RELEASED`-Status bezeichnet nur bestandene Fachvalidierung; es werden
+  weder eine Revision noch ein aktiver Handover oder P018-Eingang
+  persistiert. Profil-Speicherpfade erhalten benachbarte Draftfelder und
+  sperren projektfremde oder beschaedigte Konfigurationen. 29Z bleibt bis zu
+  einem autoritativen, hashgebundenen Quellen- und Rechtenachweis
+  ausnahmslos gesperrt.
 - P014-S1 ist umgesetzt und bleibt als Legacy-v1-Vertrag kompatibel:
   `ma_technical` enthaelt eine versionierte BusinessIntegration-LoD-1/Lite-
   Technikspezifikation mit einfachen Referenzannahmen fuer Heizung, Kuehlung
@@ -442,6 +455,10 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   `ma_variants`. Der P013-/P014-Anschluss und sein Referenzcheckpoint sind
   umgesetzt. Offen bleiben die v2-basierte Werteherkunft und der verbleibende
   P015-S3b-Vollumfang; beide brauchen einen getrennten Folgeslice.
+- UD-118 ist im SmallOffice-V1-Durchstich umgesetzt: Die
+  Kapazitaetsstrategie wird vor der Dimensionierung gespeichert. Der ideale
+  Default zeigt vor dem Ergebnis nur den ausstehenden Status und danach die
+  Referenzlast als Analysebezug; er erzeugt keine wirksame Leistungsgrenze.
 - Der synthetische SmallOffice-LoD-1-Durchstich fuer P012 bis P015 ist
   umgesetzt: getrennte Building-, Zonen- und Technik-YAMLs werden ueber
   additive Convenience-Loader geladen, gemeinsam validiert und in einen
@@ -468,6 +485,40 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   `ma_dimensionierung` als eigener Owner; `ma_variants` bleibt frei von
   Lastberechnung und sendet nur die aus der fruehen Auswahl resultierenden
   Gruppen.
+- P016-Prep ist umgesetzt: Der neue Namespace `ma_dimensionierung`
+  re-exportiert die vorhandenen Dimensionierungsmodelle und -services
+  direkt und objektidentisch. Dimensionierungsansicht, SmallOffice-
+  PreProcess und SmallOffice-Variantenhilfe importieren ueber diese neue
+  Grenze. Es gibt keine Wrapper, kopierten Fachobjekte oder geaenderten
+  Ergebnisse. `OutputRequirementProfile` bleibt bei `ma_analyse`; Legacy-
+  Workspace-Schluessel und Workflow-Katalog bleiben unveraendert. Der
+  Status lautet ausdruecklich: Namespace vorbereitet; fachliche Owner-
+  Migration nicht abgeschlossen. Vor der physischen Migration sind
+  Einheitenvalidierung, Methoden-/Eingangs-/Ergebnisfingerprints, getrennte
+  LoD-1-/Manual-IDA-Ergebnisvertraege und UI-neutrale Manual-Entry-Regeln zu
+  schliessen.
+- P016-S2a ist umgesetzt: Ein additiver Gateway in `ma_dimensionierung`
+  akzeptiert ausschliesslich validierte `ParameterSnapshot` v1 mit den
+  kanonischen LoD-1-Einheiten und endlichen Annahmen. Methoden-/Vertragsdaten,
+  strukturierte Annahmen, die bestehende Python-Rundungsregel sowie
+  kanonische Eingangs- und Ergebnisfingerprints begleiten die unveraenderte
+  Legacy-Berechnung. Getrennte Ergebnisarten, Manual-Entry-Ownerregeln und
+  physische Migration bleiben Folgearbeit.
+- P016/P017-SmallOffice-Backend-Slice ist umgesetzt: Eine explizite aktuelle
+  VVER-Auswahl bindet die ausgewaehlten Kandidaten vor der Dimensionierung.
+  `ma_dimensionierung` gruppiert sie nach kanonischem LoD-1-Eingangs-
+  Fingerprint, berechnet Lasten und absolute Kapazitaeten owner-seitig.
+  `ma_variants` materialisiert nur die Zuordnung; es gibt weiterhin weder
+  Vorab-VCAT/VAR-ID noch CASE oder SimulationCase. Finaler VCAT/VSEL, VGEN
+  und die neue P018-Uebergabe bleiben Folgeslices.
+- P017-S2 ist im Backend additiv umgesetzt: Der finale VCAT entsteht erst
+  nach VVER-gebundener Owner-Dimensionierung und Nachpruefung; erst dort
+  werden projektweite sequenzielle VAR-IDs ueber die Varianten-Registry
+  vergeben. VSEL bildet ausschliesslich Kandidat auf finale VAR-ID ab und
+  VGEN bindet diese IDs an `PreprocessVariant`. Identischer finaler Inhalt
+  verwendet projektweit dieselbe VAR-ID. Die Workspace-Anbindung und die
+  getrennten Sensitivitaets-VVER bleiben nachgelagerte Migrationsschritte;
+  die Workflowansicht bleibt unveraendert letzter UI-Slice.
 - Die bisherige P017-Kette `VSP -> VVER -> VCAT -> VSEL -> VGEN` ist
   Altbestand. Ziel nach UD-112: VVER dokumentiert die fruehe Auswahl;
   Dimensionierung und Nachpruefung folgen, erst dann finaler VCAT und ein
@@ -477,6 +528,17 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   uebernimmt vollstaendig erzeugte Varianten nach `VGEN`, ergaenzt ein
   getrenntes gemeinsames Setup je Run, materialisiert neutrale
   Variantenartefakte und fuehrt direkte `RUN -> VAR`-Zuordnungen. P018 schreibt
+- P018-Outputprofil-Slice ist umgesetzt: `OutputRequirementProfile` und sein
+  MVP-Katalog sind ausschliesslich unter `ma_analyse` definiert. Der fruehere
+  Stage-1-Pfad reexportiert nur zur Kompatibilitaet; P018 nimmt einen
+  UI-neutral validierten, nichtleeren und eindeutigen Profil-Subset entgegen.
+- P018-RUN-/Setup-Slice ist additiv umgesetzt: `SimulationRunV1` und
+  `RunManifestV1` bilden genau eine finale VSEL, ein gemeinsames
+  `SimulationSetupSpecification` und mehrere direkte `RUN -> VAR`-Referenzen
+  ab. Die Paketstruktur nutzt `variants/VAR-*/`; es gibt weder CASE noch
+  SimulationCase. Bestehende Ein-Varianten-Aufrufer bleiben als
+  Kompatibilitaet erhalten und werden erst im letzten UI-Migrationsslice
+  umgestellt.
   nur technische Logs.
 - Der manuell gestartete Kandidatenlauf
   `SMALL-OFFICE-V1-MANUAL-20260727-002` ist bis Simulation-Setup erfolgreich:
@@ -496,9 +558,13 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   referenzierte Arbeits-Snapshots, ohne die aktiven Steuerquellen zu
   duplizieren. Graphify, neue MCPs, globale Konfiguration, Hook-
   Aenderungen, Obsidian/Zotero und geschuetzte PDF-/IDA-Verarbeitung bleiben
-  gesperrt oder manuell freizugeben. UD-089 delegiert nur klar abgegrenzte,
-  lokale und reversible Folgeslices nach dokumentierter Council-Mehrheit;
-  Rechte-, externe und irreversible Gates bleiben konkret freizugeben.
+  gesperrt oder manuell freizugeben. UD-116 fuehrt ein themenbezogenes
+  erweitertes Council aus Tera, Mira, Vera, Professor Sophia und Justus:
+  Auch eine risikoreichere, nach Gesamtplan besser passende Variante darf
+  empfohlen werden, sofern Restrisiko, Rueckfallweg, Pruefstrategie und
+  Sondergates sichtbar bleiben. Die Empfehlung ersetzt keine menschliche
+  Freigabe; Rechte-, externe und irreversible Gates bleiben konkret
+  freizugeben.
 - P032 dokumentiert den professionellen Architektur-Benchmark als datierten
   Snapshot unter `docs/project/architecture/reviews/2026-07-15/`. ADR-P032
   ist mit der konservativen Konsolidierung der bestehenden `ma_*`-Pakete

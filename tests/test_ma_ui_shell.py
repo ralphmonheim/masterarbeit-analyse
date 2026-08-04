@@ -898,7 +898,7 @@ def test_zone_profile_assignment_reads_the_edited_table_value():
 
 
 def test_dimensioning_view_is_registered_and_uses_lod1_result():
-    from ma_analyse.stage_1_dimensioning import run_business_integration_lod1_reference_dimensioning
+    from ma_dimensionierung import run_business_integration_lod1_reference_dimensioning
 
     assert ma_ui_app._PAGE_RENDERERS["dimensioning"] is dimensioning_view.render
 

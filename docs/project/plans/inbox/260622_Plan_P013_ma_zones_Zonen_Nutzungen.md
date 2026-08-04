@@ -2499,11 +2499,44 @@ ueberschrieben. Leere Zuordnungen
 bleiben speicherbar, werden ohne `technical_assignments`-Nutzlast abgelegt
 und behaupten keine Versorgung.
 
-Der Slice erzeugt keinen `ReleasedZoneHandover`, veraendert keine zentrale
-Technik, berechnet keine Lasten oder Kapazitaeten und nimmt keine
-Dimensionierung vor. Die Workflowansicht bleibt der letzte UI-
-Migrationsslice. Es entstand keine neue Nutzerentscheidung; UD-112 und der
-P013/P014-S1-Vertrag bestimmen die Umsetzung bereits vollstaendig.
+Der Slice erzeugt keinen persistierten oder aktiven
+`ReleasedZoneHandover`, veraendert keine zentrale Technik, berechnet keine
+Lasten oder Kapazitaeten und nimmt keine Dimensionierung vor. Die
+Workflowansicht bleibt der letzte UI-Migrationsslice. Es entstand keine neue
+Nutzerentscheidung; UD-112 und der P013/P014-S1-Vertrag bestimmen die
+Umsetzung bereits vollstaendig.
 Die sichtbare Pruefung bestaetigt ausschliesslich die Integritaet der
 ausgewaehlten Beziehungen, nicht deren Vollstaendigkeit, technische Eignung
 oder Leistungsdeckung.
+
+## Umsetzungscheckpoint P013/P014-S3 Release-Readiness-Vorschau 2026-08-02
+
+Die direkte Zonenansicht besitzt unter `Zusammenfassung & Prüfung` eine
+schreibfreie `Freigabebereitschaft und Handover-Vorschau`. Sie verwendet
+exakt den uebernommenen Building-Stand, die versionierte Zonenquelle, den
+gespeicherten P013-Profil-/Technikentwurf und die aktive P014-Revision samt
+Handover.
+
+Der Materialisierer verlangt projekt-, modell-, Building-, Zonen- und
+handoveridentische Referenzen. Ein nicht gepruefter, veralteter,
+projektfremder oder beschaedigter Draft sperrt fail-closed. Gespeicherte
+Profilzuordnungen werden auf die Zonenquelle angewandt; technische
+Zuordnungen werden nur aus dem exakt hashgebundenen Draft uebernommen.
+Profil-Speicherpfade fuehren benachbarte Draftfelder additiv zusammen und
+duerfen fremde oder typfremde Bestandskonfigurationen nicht ersetzen.
+
+Die vorhandenen Building-, Zonen-, P014-Assignment- und ThermalBuilding-
+Validatoren bleiben die einzigen Fachgates. Nur bei `RELEASED` werden mit
+den bestehenden Domain-Buildern ein `ThermalBuildingModel` und ein
+deterministischer `ReleasedZoneHandover` im Speicher erzeugt. Der sichtbare
+Status bedeutet bestandene Fachvalidierung, nicht persistierte oder aktive
+Projektfreigabe. Es entsteht keine Zonenrevision und kein P018-Eingang.
+Vollversorgung, technische Eignung, Lastdeckung, Dimensionierung und
+Simulationsbereitschaft bleiben ausdruecklich ausserhalb der Aussage.
+
+29Z bleibt unabhaengig von frei aenderbaren Statusfeldern gesperrt, bis ein
+separat freigegebener, autoritativer und hashgebundener Quellen-/
+Rechtenachweis fuer vollstaendige Profilwerte vorliegt. Eine persistierte
+P013-Freigabe benoetigt spaeter einen eigenen Nutzerentscheid zu einem
+append-only Release-Envelope. Die Workflowansicht bleibt der letzte UI-
+Migrationsslice.

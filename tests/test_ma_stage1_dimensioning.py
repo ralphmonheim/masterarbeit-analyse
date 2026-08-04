@@ -1,6 +1,6 @@
 from dataclasses import replace
 
-from ma_analyse.stage_1_dimensioning import (
+from ma_dimensionierung import (
     DimensioningStatus,
     dimensioning_message_rows,
     dimensioning_step_rows,

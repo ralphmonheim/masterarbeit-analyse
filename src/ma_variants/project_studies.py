@@ -18,7 +18,18 @@ from .small_office_v1 import SmallOfficeV1Study
 OPTIMIZATION_DIRECTION_ID = "SD-OPTIMIZATION"
 SENSITIVITY_DIRECTION_ID = "SD-SENSITIVITY"
 REFERENCE_VARIANT_ID = "OPT-SB01-F100"
-CAPACITY_STRATEGY = "fixed_reference_21_24_zonal_capacity"
+CAPACITY_STRATEGY_IDEAL_UNLIMITED = "ideal_unlimited"
+CAPACITY_STRATEGY_REFERENCE_DIMENSIONED = "reference_dimensioned"
+CAPACITY_STRATEGY_DIMENSIONED_WITH_FACTOR = "dimensioned_with_factor"
+CAPACITY_STRATEGIES = {
+    CAPACITY_STRATEGY_IDEAL_UNLIMITED,
+    CAPACITY_STRATEGY_REFERENCE_DIMENSIONED,
+    CAPACITY_STRATEGY_DIMENSIONED_WITH_FACTOR,
+}
+# Bestehende Projektentwuerfe behalten ihre bisherige faktorbegrenzte Bedeutung.
+LEGACY_CAPACITY_STRATEGY = CAPACITY_STRATEGY_DIMENSIONED_WITH_FACTOR
+# Kompatibilitaetsalias fuer bestehende UI- und Payload-Aufrufer.
+CAPACITY_STRATEGY = LEGACY_CAPACITY_STRATEGY
 REQUIRED_SMALL_OFFICE_V1_DIMENSIONS = {
     "temperature_setpoint_bands",
     "coupled_heating_cooling_capacity_factors",
@@ -57,9 +68,15 @@ def build_small_office_candidate_rows(
 ) -> list[dict[str, object]]:
     """Erzeugt die 30 Optimierungs- und 8 Sensitivitaetskandidaten."""
     _validate_small_office_variation_contract(study, variation_specification)
+    capacity_strategy = capacity_strategy_from_variation_specification(variation_specification)
+    factors = (
+        study.capacity_factors
+        if capacity_strategy == CAPACITY_STRATEGY_DIMENSIONED_WITH_FACTOR
+        else tuple(factor for factor in study.capacity_factors if factor.factor_key == study.reference_factor_key)
+    )
     rows: list[dict[str, object]] = []
     for band in study.setpoint_bands:
-        for factor in study.capacity_factors:
+        for factor in factors:
             rows.append(
                 {
                     "candidate_id": f"OPT-{band.band_key}-{factor.factor_key}",
@@ -72,7 +89,7 @@ def build_small_office_candidate_rows(
                         "cooling_setpoint_c": band.cooling_setpoint_c,
                         "heating_factor": factor.factor,
                         "cooling_factor": factor.factor,
-                        "capacity_strategy": CAPACITY_STRATEGY,
+                        "capacity_strategy": capacity_strategy,
                     },
                     "status": "candidate",
                     "exclusion_reason": "",
@@ -129,7 +146,8 @@ def verify_candidate_rows(
         row = dict(source)
         values = row.get("values", {})
         reason = ""
-        if not reference_dimensioning_complete:
+        capacity_strategy = values.get("capacity_strategy") if isinstance(values, dict) else None
+        if capacity_strategy != CAPACITY_STRATEGY_IDEAL_UNLIMITED and not reference_dimensioning_complete:
             reason = "Referenzdimensionierung ist unvollstaendig."
         elif not isinstance(values, dict):
             reason = "Kandidatenwerte fehlen."
@@ -252,6 +270,9 @@ def materialize_zonal_capacities(
     values = candidate.get("values", {})
     if not isinstance(values, dict):
         raise ValueError("Kandidatenwerte fehlen.")
+    capacity_strategy = str(values.get("capacity_strategy", LEGACY_CAPACITY_STRATEGY))
+    if capacity_strategy not in CAPACITY_STRATEGIES:
+        raise ValueError("Unbekannte Kapazitaetsstrategie.")
     factor_value = values.get("heating_factor") if candidate.get("study_direction") == "optimization" else 1.0
     if not isinstance(factor_value, int | float):
         raise ValueError("Kapazitaetsfaktor fehlt.")
@@ -270,8 +291,13 @@ def materialize_zonal_capacities(
                 "reference_cooling_load_w": cooling,
                 "heating_factor": factor,
                 "cooling_factor": factor,
-                "available_heating_capacity_w": round(heating * factor, 6),
-                "available_cooling_capacity_w": round(cooling * factor, 6),
+                "capacity_strategy": capacity_strategy,
+                "available_heating_capacity_w": (
+                    None if capacity_strategy == CAPACITY_STRATEGY_IDEAL_UNLIMITED else round(heating * factor, 6)
+                ),
+                "available_cooling_capacity_w": (
+                    None if capacity_strategy == CAPACITY_STRATEGY_IDEAL_UNLIMITED else round(cooling * factor, 6)
+                ),
             }
         )
     return rows
@@ -354,6 +380,18 @@ def _validate_small_office_variation_contract(
         raise ValueError(
             "Die V1-Variationsdimensionen muessen den vier freigegebenen Dimensionen exakt und eindeutig entsprechen."
         )
+    capacity_strategy_from_variation_specification(specification)
+
+
+def capacity_strategy_from_variation_specification(specification: dict[str, object]) -> str:
+    """Liest die vor der Dimensionierung festgelegte Kapazitaetsstrategie."""
+    contract = specification.get("study_contract")
+    if not isinstance(contract, dict):
+        raise ValueError("Die Variationsspezifikation besitzt keinen Studienvertrag.")
+    strategy = str(contract.get("capacity_strategy", LEGACY_CAPACITY_STRATEGY))
+    if strategy not in CAPACITY_STRATEGIES:
+        raise ValueError("Der Studienvertrag besitzt eine ungueltige Kapazitaetsstrategie.")
+    return strategy
 
 
 def _file_sha256(path: Path) -> str:

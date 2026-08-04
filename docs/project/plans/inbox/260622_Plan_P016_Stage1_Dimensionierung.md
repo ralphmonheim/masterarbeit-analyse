@@ -210,3 +210,96 @@ Kandidaten werden gruppiert und dimensioniert. Leistungsfaktoren erfordern
 vorher nur die Referenzdimensionierung, sofern sie in absolute Leistung
 ueberfuehrt werden muessen; sie begruenden fuer sich allein keine
 Neudimensionierung.
+
+## P016-Prep-Checkpoint: Zielnamespace 2026-08-02
+
+Der oeffentliche Namespace `ma_dimensionierung` ist als kleiner,
+reversibler Vorbereitungsslice angelegt. Er re-exportiert die bestehenden
+Modelle, Konstanten, Tabellenprojektionen und Services direkt und
+objektidentisch aus `ma_analyse.stage_1_dimensioning`. Direkte
+Dimensionierungsverbraucher in UI, SmallOffice-PreProcess und
+SmallOffice-Variantenhilfe importieren ueber die neue Grenze. Es wurden
+keine Gleichungen, Zahlenwerte, Diagnosecodes, Payloads oder
+Persistenzschluessel geaendert.
+
+Dieser Checkpoint ist keine abgeschlossene fachliche Owner-Migration. Die
+Implementierung, der Workspace-Schluessel
+`ma_analyse_stage_1_dimensioning` und der Workflow-Katalog bleiben
+vorlaeufig historischer Bestand. `OutputRequirementProfile` wird nicht ueber
+`ma_dimensionierung` exportiert und bleibt als Ausgabeanforderung bei
+`ma_analyse`.
+
+Vor einer physischen Owner-Migration gelten folgende Council-Befunde als
+Blocker:
+
+- der Gateway muss einen validierten Snapshot und erwartete Einheiten
+  verlangen;
+- Ergebnis und Eingaben brauchen Methoden-/Versionsbezug, strukturierte
+  Annahmen sowie kanonische Fingerprints und Rundungsregel;
+- berechnete LoD-1-Naeherung und manuell uebernommene externe IDA-
+  Referenzwerte brauchen getrennte Ergebnisvertraege;
+- fachliche Manual-Entry-Validierung und Payloadbildung muessen aus der UI
+  in den Owner ueberfuehrt werden;
+- `ma_variants` darf nach der spaeteren fruehen Auswahl keine Lasten selbst
+  berechnen; der P016/P017-Ablauf bleibt ein eigener Slice.
+
+Der P027-Workflow-Ansichtsslice bleibt unveraendert am Ende. Die spaetere
+Katalogmigration ist kein Bestandteil dieses Prep-Checkpoints.
+
+## P016-S2a Owner-Gateway 2026-08-02
+
+Der additive Owner-Gateway ist umgesetzt. Er akzeptiert fuer diesen
+Uebergangsslice ausschliesslich den bestehenden `ParameterSnapshot` v1; eine
+stillschweigende Konvertierung des `BaselineParameterSnapshot` v2 findet nicht
+statt. Vor der Delegation an die unveraenderte historische LoD-1-Berechnung
+prueft er `validate_parameter_snapshot()`, die kanonischen Einheiten aller
+rechenwirksamen globalen, zonalen und optionalen Parameter sowie endliche
+Auslegungsannahmen. Es gibt keine Einheitenumrechnung.
+
+Der Auftrag fuehrt Methoden-ID/-Version, Vertragsversion, strukturierte
+Annahmen, die dokumentierte Rundungsregel `python round(float, 2) nach der
+Berechnung` und einen kanonischen SHA-256-Eingangsfingerprint. Ein getrennter
+Gateway-Ausfuehrungsrahmen ergaenzt den Ergebnisfingerprint ohne zufaellige
+Diagnose-IDs oder Zeitstempel. Das bisherige `ReferenceDimensioningResult`
+bleibt unveraendert und kompatibel.
+
+Die getrennten fachlichen Ergebnisvertraege fuer berechnete LoD-1-Naeherung
+und manuelle IDA-Referenzwerte, die UI-neutrale Manual-Entry-Regel sowie die
+physische Owner-Migration bleiben ausdruecklich P016-S2b/S2c.
+
+## P016-S2b/S2c Ergebnis- und Manual-Entry-Vertraege 2026-08-03
+
+`ma_dimensionierung` besitzt nun getrennte, versionierte Vertraege fuer die
+berechnete LoD-1-Referenz und manuell aus einem externen IDA-Lauf uebernommene
+Zonenlasten. Der Gateway adaptiert die LoD-1-Ausfuehrung additiv; der
+Manual-IDA-Vertrag prueft Zonensatz, Werte, Quellenprovenienz, Review und
+Fingerprints. Die UI ist nur noch fuer Eingabe, Darstellung und Workspace-I/O
+zustaendig; sie nutzt die Owner-Validierung und erzeugt weiterhin den
+unveraenderten Legacy-Payload unter `ma_analyse_stage_1_dimensioning`.
+
+Offen bleibt die physische Migration der historischen Gleichungen,
+Persistenz- und Workflowkataloggrenze. Der naechste gekoppelte P016/P017-
+Slice muss VVER-ausgewaehlte Kandidaten als gruppierte
+Dimensionierungsauftraege an diesen Owner uebergeben und die verbleibende
+Kapazitaetsableitung aus `ma_variants` entfernen.
+
+## P016-S2b Ergebnisarten 2026-08-02
+
+`CalculatedLod1ReferenceResult` und `ManualIdaReferenceLoadSet` sind nun
+getrennte, versionierte Owner-Vertraege. Der erste adaptiert die Gateway-
+Ausfuehrung, der zweite liest den unveraenderten manuellen Legacy-Payload nur
+pruefend. Workspace-Schluessel, Payloadschema und UI bleiben bis S2c erhalten.
+
+## P016/P017 SmallOffice-VVER-Gruppen 2026-08-03
+
+Der historische SmallOffice-Optimierungspfad erzeugt nun ausschliesslich mit
+einem aktuellen `VverSelectionRecord` LoD-1-Auftraege. Der Owner
+`ma_dimensionierung` validiert die Kandidatenreferenzen, bildet Gruppen nach
+dem kanonischen LoD-1-Eingangsfingerprint, berechnet die Lasten und leitet
+erst danach die absoluten Heiz-/Kuehlkapazitaeten aus dem gekoppelten Faktor
+ab. `ma_variants` besitzt keine Last- oder Kapazitaetsgleichung mehr.
+
+Der Slice erzeugt weder finale `VAR-ID`s noch `VCAT`, `VSEL`, `VGEN`, `CASE`
+oder `SimulationCase`. Der LoD-1-Owner bleibt bis zur physischen Migration
+noch ein Gateway vor der historischen Berechnung; finaler VCAT/VSEL sowie
+die P018-Anbindung sind getrennte Folgeslices.
