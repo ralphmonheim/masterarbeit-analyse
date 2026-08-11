@@ -1,7 +1,7 @@
 # P031 Codex Project Operating System
 
-Stand: 2026-07-22
-Status: lokale Baseline umgesetzt und validiert; externe Integrationen gesperrt
+Stand: 2026-08-11
+Status: lokale Baseline und semantischer Navigationshub umgesetzt und validiert; externe Integrationen gesperrt
 Profil: Full Local, repo-lokal und allowlist-basiert
 
 ## Zweck
@@ -13,8 +13,9 @@ Capability-Snapshot und den Master-System-Backlog.
 
 Dieser Plan erteilt keine technische, fachliche, rechtliche oder
 vertragliche Freigabe. Verbindliche Arbeitsregeln bleiben in `AGENTS.md`,
-Ablaufregeln in `docs/project/UPDATE_ROUTINES.md`, Entscheidungen in
-`docs/project/decisions/` und Rechteentscheidungen in `docs/compliance/`.
+Ablaufregeln in `docs/project/UPDATE_ROUTINES.md`, dauerhafte Entscheidungen
+in `docs/project/decisions/` und objektbezogene lokale Rechteentscheidungen in
+`logs/compliance/decisions.jsonl`.
 
 Der externe Master-Prompt aus einem lokalen Download-Verzeichnis wird nicht
 in das Repository kopiert oder veroeffentlicht. P031 uebernimmt nur den vom
@@ -48,11 +49,12 @@ Projektorganisation.
 | aktiver Project-OS-Audit und Backlog | dieser P031-Plan | datierter, nicht autorisierender Arbeitsstand |
 | Aenderungsgrenzen | `docs/project/plans/CLEANUP_PLAN.md` | sicher, freigabepflichtig, nicht anfassen |
 | Nutzer- und Technikentscheidungen | `docs/project/decisions/` | Historie, Rationale und offene Entscheidungen |
-| Rechte- und Verarbeitungsgrenzen | `docs/compliance/` | alleinige Compliance-Instanz |
+| Rechte- und Verarbeitungsgrenzen | `AGENTS.md`, `docs/project/PROJECT_INPUT_WORKFLOW.md`, `docs/project/decisions/` und lokales `logs/compliance/decisions.jsonl` | Regeln, Workflow, dauerhafte Entscheidungen und objektbezogenes Audit getrennt; keine einzelne Quelle erteilt allein Rechte |
 | Modul- und Workflow-Laufzeitstatus | `src/ma_workflow/catalog.py` | UI- und Runtime-Anzeige |
 | Orientierung | `docs/project/MASTERARBEIT_LEITFADEN.md` | keine zweite Statusquelle |
 | Aenderungshistorie | `CHANGELOG.md` | umgesetzte, versionierbare Aenderungen |
 | historische Chat-Uebergaben | `docs/project/archive/chat_handovers/INDEX.md` | archivierte Arbeitsreferenzen, nie aktive Status- oder Entscheidungsquelle |
+| lokaler semantischer Navigationseinstieg | `WORK/04_Teil2_Prozessinnovation/Codex_Navigation/semantic_topics.md` | generierter Wegweiser auf Originalquellen, keine Projektwahrheit |
 
 Die Professor-Rolle besitzt zwei benoetigte Produktoberflaechen:
 `.codex/agents/professor.toml` ist fuer Codex fuehrend;
@@ -86,8 +88,9 @@ bewusst vermiedene Parallelwahrheiten oder noch gesperrte externe Artefakte.
 - `.codex/config.toml` setzt `max_threads = 3`, `max_depth = 1`,
   `sandbox_mode = "workspace-write"`, `approval_policy = "on-request"` und
   deaktiviert Projekt-Netzwerkzugriff.
-- Plan-, Entscheidungs-, Architektur- und Compliance-Strukturen sind bereits
-  kanonisch unter `docs/project/` beziehungsweise `docs/compliance/` geordnet.
+- Plan-, Entscheidungs- und Architekturstrukturen sind kanonisch unter
+  `docs/project/` geordnet. Compliance nutzt die in der Ownership-Tabelle
+  getrennten Regeln, Entscheidungen und lokalen Objektprotokolle.
 - Geschuetzte Norm-, IDA-, Katalog- und Projektdaten liegen teilweise lokal
   und ignoriert im Worktree. `.gitignore` verhindert ihre Versionierung, aber
   nicht ihren Zugriff durch einen Scanner.
@@ -120,6 +123,8 @@ bewusst vermiedene Parallelwahrheiten oder noch gesperrte externe Artefakte.
 | P031-C08 | Contract-Test fuer Runtime, Rollen, Skills und Trigger fehlte. | Allowlist-basierten Test hinzufuegen. | geschlossen |
 | P031-C09 | `keine Hooks` kollidiert mit dem bereits lokal aktiven Git-`core.hooksPath=.githooks`. | Bestand weder aktivieren noch deaktivieren; Git- und Codex-Hooks vor jeder Aenderung getrennt freigeben. | manuell offen |
 | P031-C10 | Projektconfig hat kein MCP, die aktuelle Sitzung stellt dennoch ein geerbtes OpenAI-Dokumentationswerkzeug bereit. | Projektkonfiguration, effektive Sitzung und externe Aktion getrennt dokumentieren; keine neue MCP-Konfiguration. | manuell offen |
+| P031-C11 | Der in Release 0.34.0 entfernte Pfad `docs/compliance/` blieb in Governance- und Navigationsverweisen stehen. | Aktuelle Rechte-Navigation auf `AGENTS.md`, `PROJECT_INPUT_WORKFLOW.md`, Entscheidungen und das lokale Objekt-Audit ausrichten; historische Entscheidungsverweise nicht umdeuten. | fuer P031 und Navigator geschlossen; Legacy-Verweise ausserhalb dieses Scopes bleiben sichtbar |
+| P031-C12 | Der relative Navigatorpfad `scripts/refresh_index.py` wurde faelschlich als fehlender Repositorypfad interpretiert; zugleich akzeptierte der vorhandene Validator einen durch ein Tuple-Schemafehler beschaedigten Hub. | Der Generator bleibt gemaess UD-124 skill-lokal unter `LOCAL_SKILL/masterarbeit-navigator/`. Routine und Skill kennzeichnen den Pfad eindeutig; Schema-, Root-, Schutz- und bidirektionale Stale-Pruefungen sichern alle fuenf Hub-Dateien. | geschlossen; Council-Review und Tests 2026-08-11 |
 
 ## Tool Capability Audit
 
@@ -216,6 +221,7 @@ objektbezogenen Entscheidung in einen begrenzten lokalen Prozess wechseln.
 | P031-S3 | Agent-System-Contract-Test | abgeschlossen | TOML, Rollenrechte, Skills, Trigger und Allowlist-Grenzen mit 7 Tests geprueft |
 | P031-S4 | read-only Demonstrationslauf | abgeschlossen | beide Skill-Router ohne externe oder geschuetzte Daten erfolgreich vorwaerts getestet |
 | P031-S5 | Abschlussaudit | abgeschlossen | Diff, Tests, Council-Reviews, offene Gates und nicht erzeugte externe Artefakte dokumentiert |
+| P031-S6 | zentraler semantischer Navigationshub | abgeschlossen | ein Einstieg verbindet versionierte Dokumente, Arbeitsablage und allowlist-basierte lokale Projektdaten; Routinen validieren ihn und aktualisieren nur nach Umsetzungsfreigabe |
 | P031-M1 | Bedeutung von `keine Hooks` | manuell | Git- und Codex-Hooks getrennt entschieden |
 | P031-M2 | effektive MCP-Grenze | manuell | geerbte Sitzungstools und Projektconfig bewusst abgegrenzt |
 | P031-M3 | Obsidian-/Zotero-Strategie | manuell | Vault/Collection, Backup, Richtung und Schreibumfang freigegeben |
@@ -224,6 +230,55 @@ objektbezogenen Entscheidung in einen begrenzten lokalen Prozess wechseln.
 | P031-M6 | IDA-/Simulationseingaben | blockiert | EQUA-/Drittrechte und erlaubter Parser-/Automatisierungsumfang belegt |
 | P031-M7 | Project-OS-Compliance-Fachprofil | spaeter | erst bei konkreter externer Komponente als eigener freigegebener Slice |
 | P031-M8 | Council-Empfehlung und erweitertes Review | umgesetzt | UD-116: Tera, Mira, Vera, Professor Sophia und Justus bilden die themenbezogene Reviewstruktur; Empfehlungen ersetzen keine menschliche Freigabe und Sondergates bleiben separat |
+
+## Semantischer Navigationshub 2026-08-11
+
+- `semantic_topics.md` ist der einzige lokale Navigationseinstieg. Er fuehrt
+  Themen, Synonyme, kanonische Einstiege und eine vollstaendige
+  Referenzmatrix der indexierten Bereiche zusammen.
+- `repository_catalog.md`, `workspace_catalog.md` und
+  `local_repository_catalog.md` bleiben generierte Hintergrundindizes. Sie
+  sind keine zusaetzliche Status-, Entscheidungs- oder Rechtewahrheit.
+- Versionierte Projektdokumente werden aus `git ls-files` erfasst. Die
+  Arbeitsablage wird metadatenbasiert erfasst; lokale ignorierte Projektdaten
+  nur aus der positiven Allowlist des persoenlichen Skills
+  `masterarbeit-navigator`. Lauf-, Ergebnis-, Cache- und Datenbankbereiche
+  bleiben ausserhalb dieser Allowlist.
+- Geschuetzte oder externe Dateiinhalte werden weder fuer den Hub extrahiert
+  noch in das Repository kopiert. Pfad, Typ, Groesse, Aenderungsdatum,
+  Themenzuordnung und Verifikationsbasis reichen fuer die Navigation.
+- `UPDATE_ROUTINES.md` definiert Validierung und freigabegebundene
+  Aktualisierung. Der globale lokale Skill bleibt eine persoenliche Hilfe und
+  keine vorausgesetzte Repository-, Release- oder Runtime-Abhaengigkeit.
+
+### Council-Klaerung und Validatorhaertung 2026-08-11
+
+- Tera, Mira, Vera und Justus bestaetigten getrennt die skill-lokale
+  Eigentuemerschaft. Eine Repository-Verlagerung wurde verworfen, weil sie
+  UD-124 und die in P031 dokumentierte Grenze zwischen repo-lokalen Routern
+  und persoenlicher Navigationshilfe verletzen wuerde.
+- Veras Blocker belegte einen fehlenden Tuple-Separator im `assessment`-Topic:
+  Der erzeugte Hub zerlegte eine Quellenangabe zeichenweise, waehrend der alte
+  `--validate-only`-Modus trotzdem erfolgreich endete. Der Fehler ist behoben;
+  Topic-Schema und Quellenlisten werden nun strukturell geprueft.
+- Justus' Schutzblocker sind umgesetzt: Der persoenliche Generator akzeptiert
+  nur die kanonischen REPO-/WORK-/INDEX-Wurzeln, lehnt Reparse-Punkte ab und
+  schliesst verschachtelte Lauf-, Ergebnis-, Cache- und Datenbankbereiche aus.
+  Geschuetzte Erweiterungen werden vor allen nutzerbeschriebenen Sonderfaellen
+  als `contents_not_inspected` eingestuft.
+- Alternative: Eine Repository-Kopie waere leichter gemeinsam zu versionieren,
+  erzeugte aber eine zweite Eigentuemerschaft und moegliche Drift. Restrisiko
+  der skill-lokalen Loesung bleibt die persoenliche Installation; Gegenmassnahme
+  sind eindeutiger Pfad, skill-lokale Vertragstests, P031-Nachweis und ein
+  fehlertoleranter Fallback auf die kanonischen Projektquellen.
+- Der Refresh erzeugt alle fuenf Dateien zuerst in einem temporaeren
+  Zielunterordner, validiert sie vollstaendig und ersetzt sie danach je Datei
+  atomar. `--validate-only` vergleicht fehlende, zusaetzliche, geaenderte und
+  doppelte Eintraege, gemeinsame Erzeugungsstaende, Kataloge, Suchvertrag,
+  Topic-Vertraege und kanonische Einstiege, ohne den Hub zu schreiben.
+- Pruefnachweis: sechs skill-lokale Vertragstests, Ruff-Pruefung und erneute
+  reale Hub-Validierung; kein Hook, Netzwerkdienst, OCR-, RAG-, Graph- oder
+  Cloudpfad wurde aktiviert.
 
 ## Demonstrationsergebnis 2026-07-15
 

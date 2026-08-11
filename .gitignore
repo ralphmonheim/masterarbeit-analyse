@@ -18,6 +18,9 @@ __pycache__/
 data/test_output/*
 !data/test_output/.gitkeep
 !data/test_output/README.md
+data/project_output/*
+!data/project_output/.gitkeep
+!data/project_output/README.md
 data/ma_analyse/ida_imports/*
 !data/ma_analyse/ida_imports/.gitkeep
 data/ma_analyse/database/*

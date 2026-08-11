@@ -115,6 +115,9 @@ class PipelineRuntimeArgs:
     secondary_axis_mode: str
     secondary_ymin: object | None
     secondary_ymax: object | None
+    power_display_mode: str
+    power_source_unit: str
+    reference_areas_m2: dict[str, float]
 
 
 @dataclass(frozen=True)
@@ -208,6 +211,9 @@ def run_analyze(args):
         selected_variants=args.variants,
         rooms=args.rooms,
         variant_mode=variant_mode,
+        power_display_mode=getattr(args, "power_display_mode", "both"),
+        power_source_unit=getattr(args, "power_source_unit", "unverified"),
+        reference_areas_m2=getattr(args, "reference_areas_m2", None),
     )
     if isinstance(output_files, list):
         for output_file in output_files:
@@ -794,6 +800,9 @@ def build_runtime_args(
         secondary_axis_mode=plot_template_defaults["secondary_axis_mode"],
         secondary_ymin=plot_template_defaults["secondary_ymin"],
         secondary_ymax=plot_template_defaults["secondary_ymax"],
+        power_display_mode=getattr(args, "power_display_mode", "both"),
+        power_source_unit=getattr(args, "power_source_unit", "unverified"),
+        reference_areas_m2=dict(getattr(args, "reference_areas_m2", None) or {}),
     )
 
 

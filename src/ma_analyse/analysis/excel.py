@@ -19,10 +19,19 @@ import os
 import pandas as pd
 
 from ..core.config import DATENBANK_DIR, ROOMS
+from ..stage_3_standards_verification import build_verification_readiness_rows
 from .components.rooms import get_room_data_file
 from .components.runtime import build_named_run_output_dir, get_dated_output_prefix, get_run_id
 from .components.variants import get_variant_display_name, normalize_variant_name
-from .tables.excel_report import prepare_result_dataframe, summarize_room_metrics, write_excel_report
+from .tables.excel_report import (
+    AnalysisTableBundle,
+    build_calculation_boundary_rows,
+    build_data_inventory_row,
+    prepare_legacy_result_dataframe,
+    prepare_result_dataframe,
+    summarize_room_metrics,
+    write_excel_report,
+)
 
 
 # ============================================================================
@@ -88,74 +97,140 @@ def build_excel_report(
     selected_variants=None,
     rooms=None,
     variant_mode="compare",
+    power_display_mode="both",
+    power_source_unit="unverified",
+    reference_areas_m2=None,
 ):
     """Erstellt die Excel-Auswertung fuer die gewaehlten Varianten und Raeume."""
     """Erstellt eine Excel-Zusammenfassung für alle Varianten und Räume."""
-    if rooms is None:
-        rooms = ROOMS
-
-    variants = find_variant_dirs(datenbank_dir, selected_variants=selected_variants)
-    if not variants:
-        # Wenn keine Unterordner vorhanden sind, verwende das Verzeichnis selbst als Variante.
-        if os.path.isdir(datenbank_dir):
-            variants = [(get_variant_display_name(datenbank_dir), datenbank_dir)]
-        else:
-            raise FileNotFoundError(f"Datenbank-Verzeichnis nicht gefunden: {datenbank_dir}")
-
-    rows_by_variant = {}
-    for variant_name, variant_path in variants:
-        variant_display_name = get_variant_display_name(variant_name)
-        if debug:
-            print(f"Verarbeite Variante: {variant_display_name}")
-
-        variant_rows = []
-        for room_name in rooms:
-            csv_file = get_room_data_file(variant_path, room_name)
-            if not os.path.exists(csv_file):
-                if debug:
-                    print(f"  Raumdatei fehlt: {csv_file}")
-                continue
-
-            df_room = load_room_csv(csv_file)
-            room_summary = summarize_room_metrics(df_room, variant_display_name, room_name)
-            if room_summary is not None:
-                variant_rows.append(room_summary)
-
-        if variant_rows:
-            rows_by_variant[variant_name] = variant_rows
-
-    all_rows = [row for variant_rows in rows_by_variant.values() for row in variant_rows]
-
-    if not all_rows:
-        raise ValueError("Keine Raumdaten gefunden. Bitte prüfen Sie das Datenbank-Verzeichnis.")
-
     resolved_run_id = get_run_id(command_name="excel-analysis", run_id=run_id)
     output_prefix = get_output_prefix()
 
     if variant_mode == "single":
         output_files = []
-        for variant_name, variant_rows in rows_by_variant.items():
-            result_df = prepare_result_dataframe(variant_rows)
+        variants = _resolved_variant_dirs(datenbank_dir, selected_variants)
+        for variant_name, _variant_path in variants:
+            bundle = build_analysis_table_bundle(
+                datenbank_dir,
+                selected_variants=[variant_name],
+                rooms=rooms,
+                power_display_mode=power_display_mode,
+                power_source_unit=power_source_unit,
+                reference_areas_m2=reference_areas_m2,
+                debug=debug,
+            )
             variant_display_name = get_variant_display_name(variant_name)
             run_output_dir = build_run_output_dir(variant_name, resolved_run_id, output_root=output_root)
             output_file = write_excel_report(
-                result_df,
+                bundle.summary,
                 run_output_dir,
                 f"{get_dated_output_prefix(variant_display_name)}_analysis.xlsx",
+                legacy_result_df=bundle.legacy_summary,
+                detail_tables=bundle.detail_tables(),
             )
             output_files.append(output_file)
             if debug:
                 print(f"Excel-Bericht erzeugt: {output_file}")
         return output_files
 
-    result_df = prepare_result_dataframe(all_rows)
+    bundle = build_analysis_table_bundle(
+        datenbank_dir,
+        selected_variants=selected_variants,
+        rooms=rooms,
+        power_display_mode=power_display_mode,
+        power_source_unit=power_source_unit,
+        reference_areas_m2=reference_areas_m2,
+        debug=debug,
+    )
     run_output_dir = build_run_output_dir("analyze_simulation", resolved_run_id, output_root=output_root)
-    output_file = write_excel_report(result_df, run_output_dir, f"{output_prefix}_analysis.xlsx")
+    output_file = write_excel_report(
+        bundle.summary,
+        run_output_dir,
+        f"{output_prefix}_analysis.xlsx",
+        legacy_result_df=bundle.legacy_summary,
+        detail_tables=bundle.detail_tables(),
+    )
 
     if debug:
         print(f"Excel-Bericht erzeugt: {output_file}")
 
     return output_file
+
+
+def build_analysis_table_bundle(
+    datenbank_dir,
+    *,
+    selected_variants=None,
+    rooms=None,
+    power_display_mode="both",
+    power_source_unit="unverified",
+    reference_areas_m2=None,
+    debug=False,
+) -> AnalysisTableBundle:
+    """Berechnet denselben Tabellenstand für Service, UI und Excel."""
+
+    rooms = ROOMS if rooms is None else rooms
+    reference_areas_m2 = reference_areas_m2 or {}
+    summary_rows: list[dict[str, object]] = []
+    inventory_rows: list[dict[str, object]] = []
+
+    for variant_name, variant_path in _resolved_variant_dirs(datenbank_dir, selected_variants):
+        variant_display_name = get_variant_display_name(variant_name)
+        if debug:
+            print(f"Verarbeite Variante: {variant_display_name}")
+
+        for room_name in rooms:
+            csv_file = get_room_data_file(variant_path, room_name)
+            if not os.path.exists(csv_file):
+                if debug:
+                    print(f"  Raumdatei fehlt: {csv_file}")
+                continue
+            df_room = load_room_csv(csv_file)
+            if df_room is None or df_room.empty:
+                continue
+            area_m2 = reference_areas_m2.get(room_name)
+            room_summary = summarize_room_metrics(
+                df_room,
+                variant_display_name,
+                room_name,
+                reference_area_m2=area_m2,
+                power_display_mode=power_display_mode,
+                power_source_unit=power_source_unit,
+            )
+            if room_summary is not None:
+                summary_rows.append(room_summary)
+            inventory_rows.append(
+                build_data_inventory_row(
+                    df_room,
+                    variant_name=variant_display_name,
+                    room_name=room_name,
+                    source_file=csv_file,
+                    reference_area_m2=area_m2,
+                    power_source_unit=power_source_unit,
+                )
+            )
+
+    if not summary_rows:
+        raise ValueError("Keine Raumdaten gefunden. Bitte prüfen Sie das Datenbank-Verzeichnis.")
+
+    return AnalysisTableBundle(
+        summary=prepare_result_dataframe(summary_rows, power_display_mode),
+        legacy_summary=prepare_legacy_result_dataframe(summary_rows),
+        data_inventory=pd.DataFrame(inventory_rows),
+        calculation_boundaries=pd.DataFrame(
+            build_calculation_boundary_rows(inventory_rows, power_display_mode=power_display_mode)
+        ),
+        verification_readiness=pd.DataFrame(build_verification_readiness_rows()),
+    )
+
+
+def _resolved_variant_dirs(datenbank_dir, selected_variants=None):
+    variants = find_variant_dirs(datenbank_dir, selected_variants=selected_variants)
+    if variants:
+        return variants
+    if os.path.isdir(datenbank_dir):
+        return [(get_variant_display_name(datenbank_dir), datenbank_dir)]
+    raise FileNotFoundError(f"Datenbank-Verzeichnis nicht gefunden: {datenbank_dir}")
 
 
 def main():

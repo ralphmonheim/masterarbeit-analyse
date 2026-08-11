@@ -58,7 +58,12 @@ from ma_analyse.analysis_wizard import (
     visible_analysis_steps,
 )
 from ma_analyse.models import AnalysisConfig, AnalysisResult
-from ma_building import load_business_integration_lod1_building_spec, load_demo_building_spec
+from ma_building import (
+    calculate_thermal_transmission,
+    load_business_integration_lod1_building_spec,
+    load_demo_building_spec,
+    load_small_office_5z_endvariant_02_building_spec,
+)
 from ma_database import DemoCatalog, DemoCatalogRecord
 from ma_project import Project, ProjectIdentity, ProjectLocation
 from ma_technical import (
@@ -522,17 +527,41 @@ def test_building_view_exposes_business_integration_lod1_spec():
 def test_building_view_places_the_informative_import_before_the_overview():
     assert building_view.BUILDING_WORKSPACE_TAB_LABELS == (
         "Import",
-        "Uebersicht",
+        "Übersicht",
+        "Räume",
+        "U-Werte",
+        "Ergebnisse",
         "Bauteile",
-        "Raeume",
-        "Konstruktionen/Kataloge",
     )
     source = Path("src/ma_ui/streamlit_app/module_views/building_view.py").read_text(encoding="utf-8")
     assert 'input_modes = ("3D-Datei", "KI-Modell", "Textliche Eingabe")' in source
     assert 'key="ma_building_import_mode"' in source
     assert "wird hier nicht gestartet" in source
-    assert "Gebaeudespezifikation uebernehmen" in source
+    assert "Gebaeudedokument aktivieren" in source
+    assert "Aktiven Gebaeudestand wirklich ueberschreiben" in source
     assert "Prompt kopieren" in source
+
+
+def test_building_import_document_accepts_name_and_positive_component_area():
+    spec = load_demo_building_spec()
+
+    assert building_view.building_import_minimum_ready(spec)
+    status_rows = building_view.building_import_document_status_rows(spec, "demo")
+    status = {row["Merkmal"]: row["Wert"] for row in status_rows}
+
+    assert status["V1-Mindestdaten"] == "vollstaendig"
+    assert status["Aktiver Stand"] == "demo"
+
+
+def test_building_active_specification_does_not_leak_between_workspaces():
+    resolved = building_view.resolve_active_building_spec_key(
+        workspace_present=True,
+        project_payload={},
+        session_key="small_office_5z_endvariant_02",
+        default_key="demo",
+    )
+
+    assert resolved == "demo"
 
 
 def test_building_room_book_shows_released_spaces_without_zone_assignment():
@@ -621,6 +650,30 @@ def test_building_element_tables_use_id_type_code_and_construction_order():
 
     assert list(element_row)[:4] == ["ID", "Typ", "Code", "Konstruktion"]
     assert list(opening_row)[:4] == ["ID", "Typ", "Code", "Konstruktion"]
+
+
+def test_building_u_value_rows_keep_openings_positive_and_show_their_host():
+    spec = load_small_office_5z_endvariant_02_building_spec()
+    result = calculate_thermal_transmission(spec)
+
+    rows = building_view.thermal_component_table_rows(spec, result)
+    rows_by_id = {row["Bezeichnung"]: row for row in rows}
+
+    assert rows_by_id["OPENING-SYNTH-EXTERNAL-WINDOWS"]["Flaeche [m2]"] == 206.612894
+    assert rows_by_id["OPENING-SYNTH-EXTERNAL-WINDOWS"]["Abzug von"] == "ELEMENT-SYNTH-EXTERNAL-WALLS"
+    assert rows_by_id["ELEMENT-SYNTH-EXTERNAL-WALLS"]["Abzug von"] == ""
+
+
+def test_building_result_rows_separate_u_value_summary_and_transmission_contributions():
+    result = calculate_thermal_transmission(load_small_office_5z_endvariant_02_building_spec())
+
+    categories = building_view.thermal_category_table_rows(result)
+    contributions = building_view.thermal_transmission_table_rows(result)
+
+    assert {row["Kategorie"] for row in categories} == {"Dach", "Waende", "Boden", "Fenster", "Tueren"}
+    assert all(row["Mittlerer U-Wert [W/(m2 K)]"] is not None for row in categories)
+    assert all(row["F x U x A [W/K]"] is not None for row in contributions)
+    assert result.heat_loss_coefficient_per_area_w_m2k is not None
 
 
 def test_technical_topic_options_include_not_installed():
@@ -2337,7 +2390,7 @@ def test_weather_dataset_label_marks_catalog_only_dataset():
     catalog_only_dataset = WeatherDataset(
         weather_key="IDA_PRN_P_2010_JAHR",
         display_name="TRY Potsdam 2010 Jahr",
-        file_path=Path("data/project_inbox/new/Wetterdaten/TRY2010_04_Jahr_DAT.PRN"),
+        file_path=Path("data/ma_weather/input/prn/TRY2010_04_Jahr_DAT.PRN"),
         file_format="IDA_PRN",
         source="DWD TRY / IDA Weather Utility",
         location="Potsdam",

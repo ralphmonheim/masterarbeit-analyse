@@ -1,0 +1,51 @@
+# Isolierter UI-Testraum: keine Benchmark- oder Simulationsreferenz.
+# Die 156 Kombinationen dienen ausschliesslich der nachvollziehbaren Auswahl von 50 Kandidaten.
+study_id: "STUDY-SMALL-OFFICE-5Z-V1"
+label: "SmallOffice V1 – Zufallsauswahltest mit 156 Varianten"
+test_only: true
+baseline_snapshot_id: "PARAM-SMALL-OFFICE-5Z-V1-BASELINE-0001"
+reference_band_key: "SB01"
+reference_factor_key: "F100"
+reference_weather_key: "TRY_FFM_2015_JAHR"
+reference_schedule_key: "OCC_REF"
+
+setpoint_bands:
+  - {band_key: "SB01", heating_setpoint_c: 21.0, cooling_setpoint_c: 24.0, label: "Referenz 21/24"}
+  - {band_key: "SB02", heating_setpoint_c: 18.0, cooling_setpoint_c: 24.0, label: "Sollwertband 18/24"}
+  - {band_key: "SB03", heating_setpoint_c: 18.0, cooling_setpoint_c: 25.0, label: "Sollwertband 18/25"}
+  - {band_key: "SB04", heating_setpoint_c: 19.0, cooling_setpoint_c: 25.0, label: "Sollwertband 19/25"}
+  - {band_key: "SB05", heating_setpoint_c: 19.0, cooling_setpoint_c: 26.0, label: "Sollwertband 19/26"}
+  - {band_key: "SB06", heating_setpoint_c: 20.0, cooling_setpoint_c: 24.0, label: "Sollwertband 20/24"}
+  - {band_key: "SB07", heating_setpoint_c: 20.0, cooling_setpoint_c: 25.0, label: "Sollwertband 20/25"}
+  - {band_key: "SB08", heating_setpoint_c: 20.0, cooling_setpoint_c: 26.0, label: "Sollwertband 20/26"}
+  - {band_key: "SB09", heating_setpoint_c: 21.0, cooling_setpoint_c: 25.0, label: "Sollwertband 21/25"}
+  - {band_key: "SB10", heating_setpoint_c: 21.0, cooling_setpoint_c: 26.0, label: "Sollwertband 21/26"}
+  - {band_key: "SB11", heating_setpoint_c: 22.0, cooling_setpoint_c: 26.0, label: "Sollwertband 22/26"}
+  - {band_key: "SB12", heating_setpoint_c: 22.0, cooling_setpoint_c: 27.0, label: "Sollwertband 22/27"}
+  - {band_key: "SB13", heating_setpoint_c: 23.0, cooling_setpoint_c: 27.0, label: "Sollwertband 23/27"}
+
+capacity_factors:
+  - {factor_key: "F050", factor: 0.50, label: "50 Prozent"}
+  - {factor_key: "F055", factor: 0.55, label: "55 Prozent"}
+  - {factor_key: "F060", factor: 0.60, label: "60 Prozent"}
+  - {factor_key: "F065", factor: 0.65, label: "65 Prozent"}
+  - {factor_key: "F070", factor: 0.70, label: "70 Prozent"}
+  - {factor_key: "F075", factor: 0.75, label: "75 Prozent"}
+  - {factor_key: "F080", factor: 0.80, label: "80 Prozent"}
+  - {factor_key: "F085", factor: 0.85, label: "85 Prozent"}
+  - {factor_key: "F090", factor: 0.90, label: "90 Prozent"}
+  - {factor_key: "F095", factor: 0.95, label: "95 Prozent"}
+  - {factor_key: "F100", factor: 1.00, label: "100 Prozent"}
+  - {factor_key: "F105", factor: 1.05, label: "105 Prozent"}
+
+weather_cases:
+  - {weather_key: "TRY_FFM_2010_JAHR_DRAFT", label: "Frankfurt 2010 Jahr", analysis_supported: false, source_path: "", source_revision: "unresolved_frankfurt_annual_dataset"}
+  - {weather_key: "TRY_FFM_2015_JAHR", label: "Frankfurt 2015 Jahr", analysis_supported: true, source_path: "data/ma_weather/input/TRY_501262086894/TRY2015_501262086894_Jahr.dat", source_revision: "DWD_TRY_2015"}
+  - {weather_key: "TRY_FFM_2035_JAHR_DRAFT", label: "Frankfurt 2035 Jahr", analysis_supported: false, source_path: "", source_revision: "unresolved_frankfurt_annual_dataset"}
+  - {weather_key: "TRY_FFM_2045_JAHR", label: "Frankfurt 2045 Jahr", analysis_supported: true, source_path: "data/ma_weather/input/TRY_501262086894/TRY2045_501262086894_Jahr.dat", source_revision: "DWD_TRY_2045"}
+
+occupancy_schedules:
+  - {schedule_key: "OCC_REF", label: "Referenz 07-18", start_hour: 7.0, end_hour: 18.0}
+  - {schedule_key: "OCC_EARLY", label: "Eine Stunde frueher 06-17", start_hour: 6.0, end_hour: 17.0}
+  - {schedule_key: "OCC_LATE", label: "Eine Stunde spaeter 08-19", start_hour: 8.0, end_hour: 19.0}
+  - {schedule_key: "OCC_EXTENDED", label: "Verlaengert 06-19", start_hour: 6.0, end_hour: 19.0}

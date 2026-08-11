@@ -303,3 +303,21 @@ Der Slice erzeugt weder finale `VAR-ID`s noch `VCAT`, `VSEL`, `VGEN`, `CASE`
 oder `SimulationCase`. Der LoD-1-Owner bleibt bis zur physischen Migration
 noch ein Gateway vor der historischen Berechnung; finaler VCAT/VSEL sowie
 die P018-Anbindung sind getrennte Folgeslices.
+
+## Fachliche Arbeitsnotiz 2026-08-11: SmallOffice-Huelle fuer manuelle Heizlast
+
+Der flaechengewichtete Huelle-U-Wert ist fuer eine vereinfachte manuelle
+Heizlastannahme als `sum(A_i * U_i) / sum(A_i)` zu bilden. Die lokale,
+noch zu reproduzierende SmallOffice-Gebaeudeaggregation ergab mit Wand
+`0.28`, Fenster `1.30`, Tuer `1.80`, Dach `0.20` und Boden `0.35` W/(m2 K)
+rund `0.448` W/(m2 K); der Wert `0.45` ist damit als gerundete
+Gebaeudeannahme plausibel. Mit Boden `0.28` ergab sich rund `0.430` W/(m2 K).
+
+Der Bezug in der Nutzer-Arbeitsmappe
+`Masterarbeit_Heizlastberechnung_DIN_EN_12831.xlsx` betrifft das Blatt `5Z`
+und Zelle `B7` fuer den mittleren U-Wert der Huelle. Diese Werte
+ersetzen keine zonale Bauteilbilanz. Fuer die fuenf thermischen Zonen sind
+Huelle, Oeffnungen und Boden-U-Wert vor einer fachlichen Nutzung manuell zu
+bestaetigen; die IFC-Raumgrenzen liefern dafuer derzeit keine vollstaendige
+Vertikalhuelle. Die Auslegungstemperatur `-12 Grad C` ist separat gegen den
+fuer den Standort geltenden Nationalen Anhang zu DIN EN 12831-1 zu pruefen.

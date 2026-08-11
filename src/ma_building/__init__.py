@@ -72,6 +72,15 @@ from .paths import (
     SMALL_OFFICE_5Z_ENDVARIANT_02_BUILDING_SPEC_PATH,
     SMALL_OFFICE_LOD1_BUILDING_SPEC_PATH,
 )
+from .thermal import (
+    DEFAULT_DELTA_U_WB_W_M2K,
+    ThermalCategoryResult,
+    ThermalComponentRow,
+    ThermalTransmissionResult,
+    build_thermal_component_rows,
+    calculate_thermal_transmission,
+    calculate_weighted_u_value,
+)
 from .validation import validate_building_spec
 
 __all__ = [
@@ -132,4 +141,11 @@ __all__ = [
     "CatalogRecord",
     "build_building_catalog_registry",
     "create_user_catalog_draft",
+    "DEFAULT_DELTA_U_WB_W_M2K",
+    "ThermalCategoryResult",
+    "ThermalComponentRow",
+    "ThermalTransmissionResult",
+    "build_thermal_component_rows",
+    "calculate_thermal_transmission",
+    "calculate_weighted_u_value",
 ]

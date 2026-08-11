@@ -29,6 +29,7 @@ from ma_ui.streamlit_app.module_views.dimensioning_view import (
     validate_manual_reference_load_rows,
 )
 from ma_ui.streamlit_app.module_views.parameters_view import validate_parameter_project_payload
+from ma_ui.streamlit_app.module_views.simulation_setup_view import simulation_setup_output_root
 from ma_ui.streamlit_app.pages.variants import _dimensioning_complete, naming_preview_rows_for_context
 from ma_ui.streamlit_app.state import (
     clear_workspace_draft,
@@ -190,6 +191,30 @@ def test_project_studies_create_both_directions_and_three_cases():
         seed=42,
     )
 
+
+def test_random_156_study_creates_156_candidates_and_reproducible_selection():
+    study = load_small_office_v1_study("config/ma_variants/studies/small_office_v1_random_156.yaml")
+    candidates = build_small_office_candidate_rows(study, _study_variation_specification(study))
+    optimization_ids = tuple(
+        str(row["candidate_id"])
+        for row in candidates
+        if row["study_direction"] == "optimization"
+    )
+    assert len(optimization_ids) == 156
+    assert select_candidate_ids(optimization_ids, mode="zufaellig", count=50, seed=20260806) == select_candidate_ids(
+        optimization_ids,
+        mode="zufaellig",
+        count=50,
+        seed=20260806,
+    )
+
+
+def test_simulation_setup_output_roots_keep_tests_and_projects_separate():
+    test_root = simulation_setup_output_root("PRJ-TEST-001", test_only=True)
+    project_root = simulation_setup_output_root("PRJ-REAL-001", test_only=False)
+
+    assert test_root.as_posix().endswith("data/test_output/PRJ-TEST-001/simulation_setup")
+    assert project_root.as_posix().endswith("data/project_output/PRJ-REAL-001/simulation_setup")
 
 @pytest.mark.parametrize(
     "dimensions",
@@ -521,6 +546,17 @@ def test_simulation_setup_materializes_only_current_confirmed_packages(
         simulation_program_key="ida_ice",
         variant_packages=[package],
         source_fingerprint="abc",
+        study_label="Teststudie",
+        test_only=True,
+        technical_timings=[
+            {
+                "stage": "candidate_generation",
+                "status": "success",
+                "duration_seconds": 0.125,
+                "recorded_at": "2026-08-06T10:00:00+00:00",
+                "details": "156 Kandidaten erzeugt",
+            }
+        ],
     )
 
     assert len(paths) == 1
@@ -528,6 +564,9 @@ def test_simulation_setup_materializes_only_current_confirmed_packages(
     assert (paths[0] / "variant_package.yaml").is_file()
     assert (paths[0] / "simulation_setup.yaml").is_file()
     assert (paths[0].parent / "selection_manifest.yaml").is_file()
+    assert (paths[0].parent / "run_summary.yaml").is_file()
+    assert (paths[0].parent / "timings.yaml").is_file()
+    assert (paths[0].parent / "timings.csv").is_file()
     assert not tuple(tmp_path.glob("RUN-GROUP-001-staging-*"))
     setup_payload = yaml.safe_load((paths[0] / "simulation_setup.yaml").read_text(encoding="utf-8"))
     assert setup_payload["run_group_id"] == "RUN-GROUP-001"
@@ -536,6 +575,13 @@ def test_simulation_setup_materializes_only_current_confirmed_packages(
     assert setup_payload["zonal_capacities"][0]["available_heating_capacity_w"] == 1000.0
     selection_payload = yaml.safe_load((paths[0].parent / "selection_manifest.yaml").read_text(encoding="utf-8"))
     assert selection_payload["status"] == "prepared_for_manual_simulation"
+    summary_payload = yaml.safe_load((paths[0].parent / "run_summary.yaml").read_text(encoding="utf-8"))
+    assert summary_payload["study_label"] == "Teststudie"
+    assert summary_payload["test_only"] is True
+    assert summary_payload["selected_variant_count"] == 1
+    timing_payload = yaml.safe_load((paths[0].parent / "timings.yaml").read_text(encoding="utf-8"))
+    assert timing_payload["timings"][0]["stage"] == "candidate_generation"
+    assert any(row["stage"] == "simulation_setup_materialization" for row in timing_payload["timings"])
 
     def assert_invalid_package(
         invalid_package: dict[str, object],

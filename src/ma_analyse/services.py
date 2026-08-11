@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from .analysis.excel import build_analysis_table_bundle
 from .analysis.templates import DEFAULT_OUTDOOR_COLUMN, get_plot_template_spec, list_heating_year_overlay_sources
 from .app.commands import check_required_data, execute_steps, get_comfort_output_settings, run_all
 from .core.config import ROOMS
@@ -82,6 +83,9 @@ class AnalysisRuntimeOptions:
     secondary_axis_mode: str
     secondary_ymin: object | None
     secondary_ymax: object | None
+    power_display_mode: str
+    power_source_unit: str
+    reference_areas_m2: dict[str, float]
 
 
 @dataclass(frozen=True)
@@ -218,6 +222,10 @@ def _validate_config(config: AnalysisConfig) -> list[str]:
         errors.append("export_format muss csv, excel oder both sein.")
     if "plot_template" in _normalize_steps(config.steps) and config.plot_template_mode not in {"single", "compare"}:
         errors.append("plot_template_mode muss single oder compare sein.")
+    if config.power_display_mode not in {"absolute", "specific", "both"}:
+        errors.append("power_display_mode muss absolute, specific oder both sein.")
+    if config.power_source_unit not in {"unverified", "w", "w_per_m2"}:
+        errors.append("power_source_unit muss unverified, w oder w_per_m2 sein.")
 
     return errors
 
@@ -260,6 +268,9 @@ def _build_runtime_options(config: AnalysisConfig) -> AnalysisRuntimeOptions:
         secondary_axis_mode=str(plot_options.get("secondary_axis_mode", "automatic")),
         secondary_ymin=plot_options.get("secondary_ymin"),
         secondary_ymax=plot_options.get("secondary_ymax"),
+        power_display_mode=config.power_display_mode,
+        power_source_unit=config.power_source_unit,
+        reference_areas_m2=config.reference_areas_m2.copy(),
     )
 
 
@@ -299,6 +310,9 @@ def _build_legacy_args(runtime_options: AnalysisRuntimeOptions) -> argparse.Name
         secondary_axis_mode=runtime_options.secondary_axis_mode,
         secondary_ymin=runtime_options.secondary_ymin,
         secondary_ymax=runtime_options.secondary_ymax,
+        power_display_mode=runtime_options.power_display_mode,
+        power_source_unit=runtime_options.power_source_unit,
+        reference_areas_m2=runtime_options.reference_areas_m2,
     )
 
 
@@ -389,9 +403,7 @@ def _get_required_data_steps(
     if normalized_steps == ("all",):
         return ("overview", "analysis", "heating", "cooling")
     if normalized_steps == ("comfort",):
-        comfort_settings = get_comfort_output_settings(
-            runtime_options.comfort_output_type or "plot_analysis_overview"
-        )
+        comfort_settings = get_comfort_output_settings(runtime_options.comfort_output_type or "plot_analysis_overview")
         return tuple(comfort_settings["steps"])
     return normalized_steps
 
@@ -483,17 +495,38 @@ def run_analysis(config: AnalysisConfig) -> AnalysisResult:
     execution_result = _execute_legacy_analysis(runtime_options, normalized_steps)
 
     created_files = _collect_created_files(files_before, *tracked_roots)
+    summary_table = None
+    detail_tables: dict[str, Any] = {}
+    warnings: list[str] = []
+    if execution_result.success and ("analyze" in normalized_steps or normalized_steps == ("all",)):
+        try:
+            table_bundle = build_analysis_table_bundle(
+                runtime_options.database_dir,
+                selected_variants=runtime_options.variants,
+                rooms=runtime_options.rooms,
+                power_display_mode=runtime_options.power_display_mode,
+                power_source_unit=runtime_options.power_source_unit,
+                reference_areas_m2=runtime_options.reference_areas_m2,
+            )
+            summary_table = table_bundle.summary
+            detail_tables = table_bundle.detail_tables()
+        except (OSError, ValueError) as exc:
+            warnings.append(f"Ergebnistabellen konnten nicht geladen werden: {exc}")
     return AnalysisResult(
         success=execution_result.success,
         steps=normalized_steps,
         run_id=config.run_id,
         created_files=created_files,
+        summary_table=summary_table,
+        detail_tables=detail_tables,
+        warnings=warnings,
         errors=execution_result.errors,
         log_text=execution_result.log_text,
         step_results=_build_step_results(
             normalized_steps,
             success=execution_result.success,
             created_files=created_files,
+            warnings=warnings,
             errors=execution_result.errors,
             log_text=execution_result.log_text,
         ),

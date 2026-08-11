@@ -50,6 +50,8 @@ from .simulation_results import (
 )
 from .small_office_v1 import (
     DEFAULT_SMALL_OFFICE_V1_STUDY_CONFIG,
+    RANDOM_156_SMALL_OFFICE_V1_STUDY_CONFIG,
+    SMALL_OFFICE_V1_STUDY_CONFIGS,
     CapacityFactor,
     OccupancyScheduleCase,
     OptimizationCase,
@@ -59,8 +61,10 @@ from .small_office_v1 import (
     WeatherSensitivityCase,
     build_small_office_v1_optimization_cases,
     build_small_office_v1_sensitivity_cases,
+    load_selected_small_office_v1_study,
     load_small_office_v1_study,
     optimization_case_rows,
+    small_office_v1_study_config_options,
 )
 from .source_catalog import Source, import_sources
 from .system_catalog import (
@@ -93,6 +97,8 @@ __all__ = [
     "FinalVariantCatalog",
     "FinalVariantCatalogEntry",
     "DEFAULT_SMALL_OFFICE_V1_STUDY_CONFIG",
+    "RANDOM_156_SMALL_OFFICE_V1_STUDY_CONFIG",
+    "SMALL_OFFICE_V1_STUDY_CONFIGS",
     "Document",
     "Material",
     "MaterialProperty",
@@ -164,10 +170,12 @@ __all__ = [
     "load_ida_export_settings",
     "load_naming_rules",
     "load_small_office_v1_study",
+    "load_selected_small_office_v1_study",
     "MAX_CATALOG_VARIANTS",
     "map_result_folders_to_variants",
     "random_select_variants",
     "optimization_case_rows",
+    "small_office_v1_study_config_options",
     "resolve_system_templates_for_variant",
     "rule_rows",
     "select_catalog_candidates",

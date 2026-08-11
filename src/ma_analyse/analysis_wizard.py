@@ -22,7 +22,7 @@ COMMAND_OPTIONS: tuple[str, ...] = (
     "all",
 )
 STREAMLIT_COMMAND_OPTIONS: tuple[str, ...] = tuple(
-    command for command in COMMAND_OPTIONS if command not in {"all", "plot-template", "plot-template-weather"}
+    command for command in COMMAND_OPTIONS if command not in {"plot-template", "plot-template-weather"}
 )
 
 ANALYSIS_SECTION_ORDER: tuple[str, ...] = (
@@ -180,13 +180,36 @@ def section_relevant(command_or_state: str | AnalysisWizardState, section: str) 
     if not command:
         return False
     if section == "subcommand":
-        return command in {"comfort", "heating", "cooling", "plot-template", "plot-template-analyse", "plot-template-weather"}
+        return command in {
+            "comfort",
+            "heating",
+            "cooling",
+            "plot-template",
+            "plot-template-analyse",
+            "plot-template-weather",
+        }
     if section == "export":
         return bool(command)
     if section == "template_diagram":
-        return command in {"comfort", "heating", "cooling", "plot-template", "plot-template-analyse", "plot-template-weather"}
+        return command in {
+            "comfort",
+            "heating",
+            "cooling",
+            "plot-template",
+            "plot-template-analyse",
+            "plot-template-weather",
+        }
     if section == "variants":
-        return command in {"prepare", "comfort", "analyze_data", "heating", "cooling", "plot-template", "plot-template-analyse", "all"}
+        return command in {
+            "prepare",
+            "comfort",
+            "analyze_data",
+            "heating",
+            "cooling",
+            "plot-template",
+            "plot-template-analyse",
+            "all",
+        }
     if section == "rooms":
         return command not in {"", "prepare", "plot-template-weather"}
     if section == "overlays":
@@ -325,7 +348,7 @@ def section_complete(state: AnalysisWizardState, section: str) -> bool:
     if section == "export":
         if command == "prepare":
             return state.prepare_export_format in EXPORT_FORMAT_OPTIONS
-        if command == "analyze_data":
+        if command in {"analyze_data", "all"}:
             return state.series_layout in SERIES_LAYOUT_OPTIONS
         if command in {"heating", "cooling"}:
             if state.variant_mode not in VARIANT_MODE_OPTIONS:
@@ -418,11 +441,13 @@ def section_summary(state: AnalysisWizardState, section: str) -> str:
         if state.command in {"plot-template", "plot-template-analyse"}:
             return state.plot_template or "nicht gewählt"
         if state.command == "plot-template-weather":
-            return plot_template_group_label(state.plot_template_group) if state.plot_template_group else "nicht gewählt"
+            return (
+                plot_template_group_label(state.plot_template_group) if state.plot_template_group else "nicht gewählt"
+            )
     if section == "export":
         if state.command == "prepare":
             return state.prepare_export_format or "nicht gewählt"
-        if state.command == "analyze_data":
+        if state.command in {"analyze_data", "all"}:
             return f"Excel {state.series_layout}" if state.series_layout else "nicht gewählt"
         if state.command in {"heating", "cooling"}:
             parts = []
@@ -591,11 +616,7 @@ def filter_templates_by_mode_and_view(
     remove every template for a view, the view-matching templates are returned.
     """
 
-    view_matches = [
-        template
-        for template in templates
-        if _spec_value(specs.get(template), "view") == view
-    ]
+    view_matches = [template for template in templates if _spec_value(specs.get(template), "view") == view]
     if mode not in PLOT_TEMPLATE_MODE_OPTIONS:
         return view_matches
     filtered: list[str] = []

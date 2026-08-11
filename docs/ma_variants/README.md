@@ -47,6 +47,21 @@ gekoppelten Heiz-/Kuehlleistungsfaktoren. Die Sensitivitaet bleibt getrennt
 und verwendet den Referenz-/Dimensionierungsfall fuer vier Frankfurt-
 Jahreswetter beziehungsweise vier Belegungszeitprofile.
 
+Fuer den manuellen Auswahltest steht zusaetzlich die getrennte, versionierte
+Studienconfig `small_office_v1_random_156.yaml` bereit. Sie erzeugt 156
+theoretische Optimierungsvarianten und kann in der Variantenansicht mit einem
+festen Startwert reproduzierbar auf eine Teilmenge (zum Beispiel 50) reduzieren.
+Der 30er-Referenzbenchmark bleibt davon unveraendert.
+
+Nach dem Simulation-Setup fasst `run_summary.yaml` Studienstand, Auswahl,
+generierte Varianten und Artefaktpfade zusammen. `timings.yaml` und
+`timings.csv` protokollieren Kandidaten-, Auswahl-, Referenzdimensionierungs-,
+Katalog- und Paketzeiten sowie die Simulation-Setup-Materialisierung;
+manuelle Bearbeitungs- und IDA-Simulationszeiten sind nicht enthalten.
+
+Erzeugte `test_only`-Studien liegen unter `data/test_output/<Projekt-ID>/`;
+regulaere Projektstudien liegen getrennt unter `data/project_output/<Projekt-ID>/`.
+
 ## Naechster Schritt
 
 Den allgemeinen P017-Vertrag schrittweise auf die mit SmallOffice V1

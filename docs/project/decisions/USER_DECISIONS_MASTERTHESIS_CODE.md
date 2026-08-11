@@ -1,6 +1,6 @@
 # Nutzerentscheidungen Masterarbeit Code
 
-Stand: 2026-07-22
+Stand: 2026-08-11
 
 ## UD-001 Modulare Projektstruktur
 
@@ -2766,6 +2766,135 @@ Folgeslices.
 - Betroffene Module: `ma_parameters`, `ma_dimensionierung`, `ma_variants`, `ma_simulation_setup` und die direkte Parameteransicht.
 - Quelle oder Chatbezug: Nutzerentscheidung und ausdrueckliche `Freigabe zur Umsetzung` am 2026-08-03.
 
+## UD-119 Projektlokale Galerie und Auswertungsdiagramme trennen
+
+- Datum: 2026-08-06
+- Status: getroffen; lokale Snapshot-Ablagen angepasst
+- Thema: Projektordner und Bildablage
+- Entscheidung: Jeder Projektordner verwendet `gallery/` als feste Ablage
+  für Bilder, die in `ma_project` zum Projekt hinterlegt werden. Erzeugte
+  Wetter- und Analyseabbildungen liegen davon getrennt unter `diagrams/`.
+  Ein zusätzlicher Ordner `assets/` wird nicht verwendet.
+- Begruendung: Projektbilder sind Eingaben beziehungsweise Dokumentation zum
+  Projekt; Diagramme sind fachliche Ausgaben. Die Trennung verhindert eine
+  doppelte und missverstaendliche Ablage.
+- Auswirkung: Die bestehenden lokalen Snapshot-Ordner erhalten eine leere,
+  beschriebene `gallery/`; vorhandene Beispielplots bleiben unter
+  `diagrams/`. Die allgemeine Routing-Regel fuer neue Test- und Projektlaeufe
+  bleibt unveraendert.
+- Betroffene Bereiche: `ma_project`, `data/project_output/` und zukuenftige
+  projektlokale Workspaces.
+- Quelle oder Chatbezug: Nutzerentscheidung und ausdrueckliche `Freigabe zur
+  Umsetzung` am 2026-08-06.
+
+## UD-120 Projekt-Inbox semantisch aufraeumen und Konzeptplan zurueckhalten
+
+- Datum: 2026-08-11
+- Status: entschieden und lokal umgesetzt
+- Thema: `data/project_inbox/new/`, lokale Arbeitsablage und Projektinput
+- Entscheidung: Die Projekt-Inbox wird nach fachlicher Rolle und den
+  fuehrenden Plaenen aufgeraeumt. `Finaler Codex-Konzeptplan.md` bleibt als
+  einzige fachliche Nutzdatei bewusst im Eingang. Private, sachfremde
+  Unterlagen werden ohne Inhaltspruefung in den persoenlichen Downloadordner
+  verschoben. Fachquellen und PDFs sollen nach bestandenem objektbezogenem
+  Preflight semantisch in der lokalen Arbeitsablage liegen; Projektplaene,
+  Wetterdaten, Kataloge und Fachdaten folgen ihren bestehenden Owner- und
+  Zielordnern.
+- Rechtebasis: Der Nutzer bestaetigt, dass die Dateien entweder eigene
+  Inhalte sind oder fuer die lokale Nutzung mit Kennzeichnung von Herkunft
+  und Zeitpunkt verwendet werden duerfen. Nach gesonderter Risikoaufklaerung
+  genehmigt er ausdruecklich die 161 lokalen Verschiebungen und die Aenderung
+  der 90 Wetterkatalogpfade.
+- Grenzen: Es wurde nichts geloescht, ueberschrieben oder veroeffentlicht.
+  Volltextextraktion, Entpacken, OCR, RAG, Embeddings, Graphen und externe
+  Verarbeitung geschuetzter Inhalte bleiben ausgeschlossen. Dubletten
+  bleiben nachvollziehbar erhalten.
+- Auswirkung: Sechs private Dateien wurden ohne Inhaltspruefung in den
+  persoenlichen Downloadordner verschoben. Weitere 161 Dateien wurden anhand
+  der bestaetigten Zielmatrix lokal eingeordnet; die SHA-256-Werte vor und
+  nach der Verschiebung stimmen ueberein. Genau 90 lokale Wetterkatalogpfade
+  zeigen nun auf `data/ma_weather/input/prn/`; der IDM-Metadatensatz liegt
+  unter `data/ma_weather/input/idm/`. Die Quelldateien wurden inhaltlich nicht
+  veraendert. `Finaler Codex-Konzeptplan.md` und die technische `.gitkeep`
+  bleiben im Eingang.
+- Aenderungskennzeichnung: Der lokale Routing-Nachweis unter
+  `data/project_inbox/processed/2026-08-11_project_inputs/ROUTING_MANIFEST.md`
+  dokumentiert Quellrolle, Zielgruppen, Datum, unveraenderten Transfer und
+  die drei hashidentischen Endpraesentations-Dubletten. Spaetere
+  Inhaltsaenderungen muessen als eigene Ableitung gekennzeichnet werden.
+- Quelle oder Chatbezug: Nutzerentscheidungen und ausdrueckliche `Freigabe zur
+  Umsetzung` am 2026-08-11; konkrete Risikofreigabe fuer 161 Verschiebungen
+  und 90 Wetterpfadaenderungen am selben Tag.
+
+## UD-121 Leistungsdarstellung und vorbereitete Nachweisvalidierung
+
+- Datum: 2026-08-11
+- Status: entschieden und in P029-S12 umgesetzt
+- Thema: Analyseausgabe, Bezugsflaeche, Zeitbasis und Stage-3-Readiness
+- Entscheidung: Raumkennwerttabellen koennen Leistung in `W`, `W/m2` oder
+  `Beides` zeigen; automatische Ausgaben verwenden `Beides`. Die Ableitung
+  zwischen W und W/m2 verwendet ausschliesslich eine positive, eindeutig
+  zugeordnete Netto-Raumflaeche. Ohne Flaeche bleibt nur die in der bestaetigten
+  Quelleneinheit direkt belegte Darstellung erhalten.
+- Methodische Praezisierung aus dem Council-Review: Der bestehende Import
+  fuehrt noch keinen belastbaren Quelleneinheitenvertrag. Deshalb erzeugt die
+  Software W/Wm2 nur nach bewusster Quelleneinheitenangabe fuer den Lauf;
+  andernfalls zeigt sie ausschliesslich einheitenoffene
+  Aggregationskennwerte aus den Quellreihen. Bei
+  Kuehlung werden algebraisches Minimum, algebraisches Maximum und maximaler
+  Betrag getrennt, ohne das Rohvorzeichen still umzudeuten.
+- Zeitbasis: Die stundenweise prepared-`time`-Achse liefert
+  Auswertungsstunden. Eine Zeilenanzahl darf nicht als Nutzungszeit
+  interpretiert werden; dafuer ist ein freigegebenes Belegungsprofil noetig.
+- Nachweisgrenze: Das vorhandene leere DIN-4108-2-Legacy-Feld wird nicht als
+  Kennwert ausgegeben. Stage 3 fuehrt stattdessen eine wertfreie
+  Readiness-Matrix. `ma_validation` darf Daten- und Vertragsdiagnosen sammeln;
+  fachliche Regeln und Berechnungen bleiben beim Stage-3-Owner.
+- Rechte-/Methodengrenze: Vorhandene Norm-Metadaten duerfen zur Struktur- und
+  Bereitschaftsanalyse genutzt werden. Normvolltexte, Formeln, Grenzwerte,
+  Profilwerte und PASS-/FAIL-Regeln bleiben bis zu objektbezogenem Rechte-,
+  Methoden- und Fachtestnachweis gesperrt.
+- Offene Folgefragen: Gebaeudeaggregation, weitere Bezugsflaechen und die
+  Uebertragung der Strategie auf Diagramme und andere Auswertungen.
+- Quelle oder Chatbezug: Nutzerannotationen zur automatischen Doppelausgabe,
+  zu Nutzungsstunden und zur spaeteren Validierung sowie ausdrueckliche
+  `Freigabe zur Umsetzung` am 2026-08-11.
+
+## UD-122 PostProcess zunaechst als eine Analyseebene
+
+- Datum: 2026-08-11
+- Status: getroffen; fachliche Konkretisierung in P029/P019 offen
+- Thema: fachlicher Zuschnitt des PostProcess und Umgang mit bestehendem
+  Analysebestand
+- Entscheidung: Der PostProcess wird fuer die weitere fachliche Diskussion
+  zunaechst als eine gemeinsame Analyseebene behandelt. Diese verarbeitet
+  aufbereitete Ergebnisdaten zu Kennwerten, Vergleichen, Tabellen, Diagrammen
+  und einer nachvollziehbaren technischen Interpretation. Die historischen
+  Stages bleiben bestehender technischer und dokumentierter Bestand; sie
+  begruenden keine getrennten Bedien- oder Fachschritte. Ob die vorhandene
+  Mehrtab-Ansicht spaeter zu einer einheitlichen Analyseansicht konsolidiert
+  wird, ist ein eigener, noch nicht freigegebener UI-Slice.
+- Entscheidung Datenbestand: Die vorhandenen lokalen IDA-Auswertungsdaten
+  bleiben als separater explorativer Legacy-Bestand nutzbar. Sie werden nicht
+  rueckwirkend in den neuen RUN-/VAR-Importprozess ueberfuehrt. Erst wenn
+  manuell bereitgestellte neue IDA-Ergebnisordner vorliegen, wird ein eigener
+  einfacher Import-Slice anhand ihres tatsaechlichen Dateninventars geplant.
+- Entscheidung Directions: Im PreProcess angelegte StudyDirections werden
+  spaeter als Untersuchungsrichtung oder Filter in die Analyseebene
+  uebertragen, nicht als neue Analyse-Module oder Stages.
+- Entscheidung Entscheidungsausgabe: Technische Analysewerte duerfen spaeter
+  die getrennten Module `ma_economy` und `ma_sustainability` versorgen.
+  Kleinere erforderliche Heiz-/Kuehlleistungen koennen dort transparenten
+  Investitionsannahmen zugeordnet werden; Energieverbraeuche koennen mit
+  offen gelegten Preis-, Emissions- und Systemgrenzen bewertet werden.
+- Abgrenzung: Diese Entscheidung aktiviert weder einen automatischen
+  IDA-Import noch eine Kosten-, Emissions- oder Normbewertung und aendert
+  keine bestehenden Diagramme. Die allgemeine Normierungsstrategie fuer
+  Diagramme bleibt in OP-008 offen; bis zu ihrer Entscheidung bleibt das
+  bestehende Verhalten erhalten.
+- Quelle oder Chatbezug: Nutzerentscheidung im PostProcess-Gespraech am
+  2026-08-11.
+
 ### Umsetzungsstand P018 2026-08-03
 
 Der P018-Zielvertrag setzt die unter UD-112 verlangte Struktur technisch um:
@@ -2774,3 +2903,88 @@ VAR-Referenzen. Die Materialisierung erzeugt keine CASE- oder
 SimulationCase-Ebene und startet keine Simulation. Die bisherigen
 Ein-Varianten-Funktionen bleiben nur als Kompatibilitaetsadapter bis zur
 letzten Workflow-UI-Migration bestehen.
+
+## UD-123 Gebaeude-U-Werte und informative Transmissionsauswertung
+
+- Datum: 2026-08-11
+- Status: entschieden und umgesetzt
+- Thema: Gebaeude-UI, Bauteildetails, U-Werte und thermische
+  Ergebnisdarstellung
+- Entscheidung Reiter: Die Gebaeudeansicht verwendet `Import | Uebersicht |
+  Raeume | U-Werte | Ergebnisse | Bauteile`. `Uebersicht` und `Raeume`
+  bleiben fachlich unveraendert; `Bauteile` ist die Katalogansicht. Diese
+  Reihenfolge ersetzt nur fuer diesen Scope die Reiterfolge aus UD-106.
+- Entscheidung Datenfluss: 3D-, KI- und textliche Eingaben zielen auf dieselbe
+  `BuildingModelSpecification`. V1 aktiviert vorhandene strukturierte
+  Modellstaende ab Bezeichnung und positiver Flaeche. Ein aktiver Stand wird
+  nur nach Warnung und ausdruecklicher Bestaetigung ersetzt. Produktive
+  3D-/KI-Parser sind nicht Teil dieses Slices.
+- Entscheidung U-Werte: Links bleibt eine feste Detailkarte; ihre Werte folgen
+  der rechts ausgewaehlten Bauteilzeile. Geometrie zeigt Anzahl, vorhandene
+  Laenge/Breite/Flaeche, zwei Huell-/Abzugskennzeichnungen und ein Feld der
+  verknuepften Abzugsflaechen. Oeffnungsflaechen bleiben positiv und besitzen
+  eine eindeutige Host-Referenz. Vorhandene Demo-U-Werte werden direkt
+  zugeordnet; unklare Werte bleiben sichtbar unvollstaendig.
+- Entscheidung Ergebnisse: Zwei Unterreiter zeigen erstens U-Werte und
+  Flaechen je Kategorie mit flaechengewichteten Mittelwerten und zweitens
+  eine vereinfachte Transmissionsbilanz mit `F`, `U`, wirksamer Flaeche,
+  `F*U*A`, Waermebrueckenzuschlag, `H_T` und informativem `H'_T`.
+- Methodengrenze: Host-Bruttoflaechen werden um ihre positiven Oeffnungen
+  reduziert. Fuer die Demo gelten manuell und unverifiziert `F=1,0` gegen
+  Aussenluft, `F=0,5` gegen Erdreich und `Delta U_WB=0,10 W/(m2 K)`.
+  `H'_T` ist beim SmallOffice keine GEG-Nachweisaussage fuer ein
+  Nichtwohngebaeude. Randbedingungen beider Bauteilseiten gehoeren spaeter
+  zur konkreten Bauteilinstanz; der Katalog beschreibt den wiederverwendbaren
+  Aufbau und dessen Kennwerte.
+- Abgrenzung: Keine Mengenermittlung, Nachhaltigkeitsauswertung,
+  Simulationsexporte, neuen Katalogdialoge, Normnachweise oder automatische
+  Jahresenergiebedarfsrechnung. Mengenermittlung bleibt spaetere Funktion im
+  separaten Modul `ma_sustainability`.
+- Quelle oder Chatbezug: strukturierter Prompt-Intake mit drei
+  Hottgenroth-Referenzbildern und ausdrueckliche `Freigabe zur Umsetzung` am
+  2026-08-11.
+
+## UD-124 Ein zentraler lokaler semantischer Navigationshub
+
+- Datum: 2026-08-11
+- Status: entschieden und umgesetzt
+- Thema: projektweite Dokument- und Datenauffindbarkeit
+- Entscheidung: `semantic_topics.md` in der lokalen Arbeitsablage ist der
+  einzige semantische Navigationseinstieg fuer das Gesamtprojekt. Das
+  Dokument verbindet Themen, Synonyme, kanonische Einstiege und alle
+  erfassten Referenzen. `repository_catalog.md`, `workspace_catalog.md` und
+  `local_repository_catalog.md` bleiben generierte Hintergrundindizes.
+- Umfang: Erfasst werden versionierte Projektdokumente, alle Dateien der
+  lokalen Arbeitsablage ausserhalb des Indexordners sowie Dateien aus einer
+  positiven Allowlist lokaler, Git-ignorierter Projektbereiche. Lauf-,
+  Ergebnis-, Cache- und Datenbankordner sind nicht pauschal Teil des Hubs.
+- Rechte- und Inhaltsgrenze: Geschuetzte oder externe Inhalte werden nicht
+  extrahiert, kopiert oder veroeffentlicht. Fuer diese Dateien verwendet der
+  Hub nur Metadaten und kennzeichnet die Verifikationsbasis. Kanonische
+  Aussagen, Freigaben und Rechte bleiben in den Originalquellen.
+- Routine: Projekt-, Tages-, Planungs-, Release- und Uebergaberoutinen
+  validieren den Hub. Nach einer freigegebenen Umsetzung mit geaenderten
+  Dokumenten oder indexierten Pfaden wird er aktualisiert und validiert;
+  read-only Routinen aktualisieren ihn nicht ohne Freigabe.
+- Skill: Die Aenderung des persoenlichen lokalen Skills
+  `masterarbeit-navigator` wurde fuer diesen Umfang ausdruecklich genehmigt.
+  Der Skill ist eine lokale Hilfe und keine vorausgesetzte Repository- oder
+  Runtime-Abhaengigkeit.
+- Quelle oder Chatbezug: Nutzerauftrag, alle Projektdokumente ueber ein
+  Dokument semantisch erreichbar zu machen, sowie ausdrueckliche `Freigabe
+  zur Umsetzung einschließlich Änderung des lokalen Skills
+  masterarbeit-navigator` am 2026-08-11.
+
+### Umsetzungsnachweis zur Validatorhaertung 2026-08-11
+
+- Der Nutzer erteilte erneut die ausdrueckliche `Freigabe zur Umsetzung
+  einschließlich Änderung des persönlichen Skills masterarbeit-navigator und
+  Aktualisierung des lokalen Navigationshubs` und verlangte, Konflikte im
+  Council zu klaeren.
+- Tera, Mira, Vera und Justus bestaetigten die bestehende skill-lokale
+  Eigentuemerschaft. Eine Repository-Kopie wurde wegen doppelter
+  Eigentuemerschaft und Drift verworfen.
+- Der Council deckte einen real beschaedigten `assessment`-Abschnitt sowie
+  unzureichende Stale-, Root- und Schutzpruefungen auf. Der freigegebene Scope
+  behebt diese Punkte, ohne neue Inhalte, externe Verarbeitung oder eine
+  Repository-Runtime-Abhaengigkeit einzufuehren.

@@ -55,8 +55,12 @@ Rueckfallweg, Pruefstrategie sowie alle Sondergates sichtbar sind.
 - `aktualisieren`: Git-Stand, Planung, Entscheidungen, Command-Dokumentation,
   Modulumsetzungsstand, zentrale Statusanzeigen, Changelog und Versionen
   pruefen. Neue Plaene und Projektinputs nur anhand ihrer Metadaten erfassen.
+  Den lokalen semantischen Navigationshub gemaess der unten definierten
+  Navigator-Routine validieren.
 - `tagesstart` oder `Guten Morgen, es ist ein neuer Tag.`: Projektstand und
-  offene Entscheidungen lesen; keine Oberflaeche automatisch starten.
+  offene Entscheidungen ueber den lokalen Navigationshub auffinden und aus
+  den dort genannten kanonischen Quellen frisch lesen; keine Oberflaeche
+  automatisch starten.
 - `tagesende` oder `Gute Nacht.`: Tagesstand dokumentieren und den Git-Stand
   vorbereiten.
 - `tagesende direkt` oder `Gute Nacht direkt.`: Tagesstand dokumentieren und
@@ -71,7 +75,9 @@ Rueckfallweg, Pruefstrategie sowie alle Sondergates sichtbar sind.
   sofern der Arbeitsstand eindeutig ist.
 - `update planung`: Planindex, Planstatus, Entscheidungen und Plan-Inbox
   abgleichen.
-- `projektlage`: Git-Stand, Version, Plaene und offene Entscheidungen lesen.
+- `projektlage`: Den lokalen Navigationshub als Einstieg verwenden und
+  Git-Stand, Version, Plaene und offene Entscheidungen aus ihren kanonischen
+  Quellen lesen.
 - `chat-stats`: den sichtbaren Arbeitsstand read-only bewerten.
 - `chat-handover`: offene Inhalte vor der Archivierung in ihre fuehrende
   Projektquelle uebertragen und erst danach eine Uebergabe als historischen
@@ -101,6 +107,42 @@ Rueckfallweg, Pruefstrategie sowie alle Sondergates sichtbar sind.
 - `entscheidung festhalten`: echte Nutzerentscheidungen dokumentieren.
 - `release check`: Version, Changelog, Tags, Tests und offene Aenderungen
   pruefen.
+
+## Lokaler semantischer Navigationshub
+
+- Einziger Navigationseinstieg ist
+  `WORK/04_Teil2_Prozessinnovation/Codex_Navigation/semantic_topics.md`.
+  `WORK` bezeichnet die lokale Masterarbeits-Arbeitsablage. Der Hub ist ein
+  nicht-kanonischer Wegweiser; er ersetzt weder Plaene, Entscheidungen,
+  Rechtevermerke noch Quelldokumente.
+- Die generierten Dateien `repository_catalog.md`, `workspace_catalog.md` und
+  `local_repository_catalog.md` sind Hintergrundindizes. Sie werden nur bei
+  Bedarf gezielt durchsucht und bilden keine parallele Dokumentationswahrheit.
+- `tagesstart`, `projektlage` und fachliche Analysen beginnen mit einer
+  gezielten Suche im Hub. Status, Freigaben und fachliche Aussagen werden
+  danach immer aus der dort verlinkten fuehrenden Originalquelle gelesen.
+- `aktualisieren`, `update planung`, `projektinput aufnehmen`, `release check`,
+  `update repo`, `tagesende` und `chat-handover` pruefen den Hub mit dem
+  skill-relativen Skript
+  `LOCAL_SKILL/masterarbeit-navigator/scripts/refresh_index.py --validate-only`.
+  `LOCAL_SKILL` bezeichnet den persoenlichen Skill-Ordner und ist kein Pfad
+  innerhalb des Repositorys.
+- Nach einer ausdruecklich freigegebenen Umsetzung, die Projektdokumentation
+  oder einen indexierten lokalen Pfad aendert, wird der Hub vor der Uebergabe
+  aktualisiert und anschliessend validiert. Reine Status-, Release- und
+  Uebergaberoutinen aktualisieren ihn ohne `Freigabe zur Umsetzung` nicht.
+- Ein fehlender oder veralteter Hub wird sichtbar gemeldet. Er blockiert
+  Produkt- oder Releasearbeiten nur dann, wenn seine Pflege zum freigegebenen
+  Umfang gehoert; die kanonischen Projektquellen bleiben weiterhin direkt
+  nutzbar.
+- Der Generator erfasst versionierte Projektdokumente sowie Metadaten der
+  Arbeitsablage und einer positiven Allowlist lokaler, Git-ignorierter
+  Projektpfade. Der Validator gleicht alle fuenf Hub-Dateien bidirektional
+  gegen den aktuellen Metadatenstand ab und arbeitet im Modus
+  `--validate-only` schreibfrei. Lauf-, Ergebnis-, Cache- und
+  Datenbankbereiche sowie Reparse-Punkte bleiben ausgeschlossen. Geschuetzte
+  Inhalte werden nicht extrahiert. Hooks, Watcher, Embeddings, RAG, Graphen,
+  Cloud-Dienste oder Veroeffentlichungen werden dadurch nicht aktiviert.
 
 ## Test- und Referenzbefehl
 

@@ -13,6 +13,13 @@ from ma_parameters import BaselineParameterSnapshot
 from .preprocess import PreprocessVariant, VariationValue, build_explicit_variant
 
 DEFAULT_SMALL_OFFICE_V1_STUDY_CONFIG = Path("config/ma_variants/studies/small_office_v1.yaml")
+RANDOM_156_SMALL_OFFICE_V1_STUDY_CONFIG = Path(
+    "config/ma_variants/studies/small_office_v1_random_156.yaml"
+)
+SMALL_OFFICE_V1_STUDY_CONFIGS: dict[str, tuple[str, Path]] = {
+    "standard": ("SmallOffice V1 – Referenz (30 Optimierungsvarianten)", DEFAULT_SMALL_OFFICE_V1_STUDY_CONFIG),
+    "random_156": ("SmallOffice V1 – Testraum (156 Optimierungsvarianten)", RANDOM_156_SMALL_OFFICE_V1_STUDY_CONFIG),
+}
 HEATING_CAPACITY_KEY = "TECH-SYS-HEATING-CENTRAL-001.available_capacity_w"
 COOLING_CAPACITY_KEY = "TECH-SYS-COOLING-CENTRAL-001.available_capacity_w"
 
@@ -62,6 +69,7 @@ class SmallOfficeV1Study:
     capacity_factors: tuple[CapacityFactor, ...]
     weather_cases: tuple[WeatherSensitivityCase, ...]
     occupancy_schedules: tuple[OccupancyScheduleCase, ...]
+    test_only: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -135,9 +143,32 @@ def load_small_office_v1_study(
             )
             for item in _mapping_rows(raw, "occupancy_schedules")
         ),
+        test_only=bool(raw.get("test_only", False)),
     )
     _validate_study(study)
     return study
+
+
+def small_office_v1_study_config_options() -> tuple[tuple[str, str], ...]:
+    """Liefert die bewusst kleine, versionierte Auswahl der V1-Studienconfigs."""
+    return tuple((key, label) for key, (label, _path) in SMALL_OFFICE_V1_STUDY_CONFIGS.items())
+
+
+def load_selected_small_office_v1_study(
+    variants_payload: dict[str, object] | None,
+) -> SmallOfficeV1Study:
+    """Laedt die im Variantenprojektstand gewaehlte Studienconfig.
+
+    Ohne gespeicherte Auswahl bleibt der bisherige Referenzstand aktiv.
+    """
+    config_key = "standard"
+    if isinstance(variants_payload, dict):
+        config_key = str(variants_payload.get("study_config_key", config_key))
+    try:
+        _label, config_path = SMALL_OFFICE_V1_STUDY_CONFIGS[config_key]
+    except KeyError as exc:
+        raise ValueError(f"Unbekannte SmallOffice-V1-Studienconfig: {config_key}") from exc
+    return load_small_office_v1_study(config_path)
 
 
 def build_small_office_v1_optimization_cases(
@@ -287,16 +318,36 @@ def _mapping_rows(raw: dict[str, Any], key: str) -> list[dict[str, Any]]:
 
 
 def _validate_study(study: SmallOfficeV1Study) -> None:
+    if not study.setpoint_bands:
+        raise ValueError("SmallOffice V1 benoetigt mindestens ein Sollwertband.")
+    if not study.capacity_factors:
+        raise ValueError("SmallOffice V1 benoetigt mindestens einen Kapazitaetsfaktor.")
+    if len({item.band_key for item in study.setpoint_bands}) != len(study.setpoint_bands):
+        raise ValueError("Sollwertband-Keys muessen eindeutig sein.")
+    if len({item.factor_key for item in study.capacity_factors}) != len(study.capacity_factors):
+        raise ValueError("Kapazitaetsfaktor-Keys muessen eindeutig sein.")
+    if any(item.heating_setpoint_c >= item.cooling_setpoint_c for item in study.setpoint_bands):
+        raise ValueError("Jedes Sollwertband benoetigt Heizen kleiner Kuehlen.")
+    if not study.test_only:
+        _validate_reference_study_values(study)
+    if study.reference_band_key not in {item.band_key for item in study.setpoint_bands}:
+        raise ValueError("Referenz-Sollwertband fehlt.")
+    if study.reference_factor_key not in {item.factor_key for item in study.capacity_factors}:
+        raise ValueError("Referenz-Kapazitaetsfaktor fehlt.")
+    if len(study.weather_cases) != 4:
+        raise ValueError("SmallOffice V1 benoetigt vier Frankfurt-Jahreswetterfaelle.")
+    if len(study.occupancy_schedules) != 4:
+        raise ValueError("SmallOffice V1 benoetigt vier Belegungszeitfaelle.")
+    if any(not 0 <= item.start_hour < item.end_hour <= 24 for item in study.occupancy_schedules):
+        raise ValueError("Belegungszeiten muessen innerhalb eines Tages liegen.")
+
+
+def _validate_reference_study_values(study: SmallOfficeV1Study) -> None:
+    """Haelt die fachlich freigegebene 30er-Referenzstudie strikt fest."""
     if len(study.setpoint_bands) != 5:
         raise ValueError("SmallOffice V1 benoetigt genau fuenf Sollwertbaender.")
     if len(study.capacity_factors) != 6:
         raise ValueError("SmallOffice V1 benoetigt genau sechs Kapazitaetsfaktoren.")
-    if len({item.band_key for item in study.setpoint_bands}) != 5:
-        raise ValueError("Sollwertband-Keys muessen eindeutig sein.")
-    if len({item.factor_key for item in study.capacity_factors}) != 6:
-        raise ValueError("Kapazitaetsfaktor-Keys muessen eindeutig sein.")
-    if any(item.heating_setpoint_c >= item.cooling_setpoint_c for item in study.setpoint_bands):
-        raise ValueError("Jedes Sollwertband benoetigt Heizen kleiner Kuehlen.")
     expected_bands = (
         ("SB01", 21.0, 24.0),
         ("SB02", 18.0, 24.0),
@@ -315,13 +366,3 @@ def _validate_study(study: SmallOfficeV1Study) -> None:
         )
     if [item.factor for item in study.capacity_factors] != [1.0, 0.9, 0.8, 0.7, 0.6, 0.5]:
         raise ValueError("Kapazitaetsfaktoren muessen von 1,0 bis 0,5 in 0,1-Schritten laufen.")
-    if study.reference_band_key not in {item.band_key for item in study.setpoint_bands}:
-        raise ValueError("Referenz-Sollwertband fehlt.")
-    if study.reference_factor_key not in {item.factor_key for item in study.capacity_factors}:
-        raise ValueError("Referenz-Kapazitaetsfaktor fehlt.")
-    if len(study.weather_cases) != 4:
-        raise ValueError("SmallOffice V1 benoetigt vier Frankfurt-Jahreswetterfaelle.")
-    if len(study.occupancy_schedules) != 4:
-        raise ValueError("SmallOffice V1 benoetigt vier Belegungszeitfaelle.")
-    if any(not 0 <= item.start_hour < item.end_hour <= 24 for item in study.occupancy_schedules):
-        raise ValueError("Belegungszeiten muessen innerhalb eines Tages liegen.")

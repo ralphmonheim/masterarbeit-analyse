@@ -9,6 +9,9 @@
   `ma_variants`.
 - **Abgrenzung:** keine Kandidatenerzeugung, keine Variantenauswahl und keine
   Variantenpakete.
+- **Bedienung:** Die Ansicht `Variationsspannen` zeigt alle Baseline-Parameter
+  tabellarisch. Minimum, Maximum, Schritt und Freigabe werden je Parameter
+  bearbeitet und gemeinsam gespeichert.
 - **Abhaengigkeiten:** `ma_parameters` und
   `ma_analyse.stage_1_dimensioning`.
 - **Status:** V1-Bearbeitungsansicht und projektbezogene Speicherung sind

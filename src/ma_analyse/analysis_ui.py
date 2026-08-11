@@ -164,7 +164,7 @@ def coerce_float_default(defaults: dict[str, object], key: str, fallback: float)
     """Liest einen numerischen Default robust aus Template-Defaults."""
     try:
         return float(defaults.get(key, fallback))
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         return fallback
 
 
@@ -259,6 +259,9 @@ def build_analysis_config(
     plot_template: str | None = None,
     plot_template_mode: str = "single",
     plot_template_options: dict[str, Any] | None = None,
+    power_display_mode: str = "both",
+    power_source_unit: str = "unverified",
+    reference_areas_m2: dict[str, float] | None = None,
 ) -> AnalysisConfig:
     """Baut den UI-neutralen Analyseauftrag aus Formularwerten."""
     return AnalysisConfig(
@@ -282,4 +285,7 @@ def build_analysis_config(
         plot_template=plot_template,
         plot_template_mode=plot_template_mode,
         plot_template_options=plot_template_options or {},
+        power_display_mode=power_display_mode,
+        power_source_unit=power_source_unit,
+        reference_areas_m2=reference_areas_m2 or {},
     )

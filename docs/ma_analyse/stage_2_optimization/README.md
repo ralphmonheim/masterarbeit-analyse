@@ -26,9 +26,17 @@ Zeitreihenanalysen vergleichen und Optimierungspotenziale sichtbar machen.
 
 ## Status
 
-Teilweise vorhanden. Die benoetigten Befehle existieren, ein gemeinsamer
-Stufe-2-Ablauf fehlt noch.
+Teilweise vorhanden. Die benoetigten Befehle existieren. `analyze-data`
+liefert einen gemeinsamen UI-/Excel-Tabellenvertrag mit Dateninventar,
+Berechnungsgrenzen, absoluter und spezifischer Leistung sowie sichtbaren
+`nicht auswertbar`-Gruenden. Einheitenoffene Aggregationskennwerte bleiben
+sichtbar, solange der Import
+keinen maschinenlesbaren Quelleneinheitenvertrag liefert. Algebraisches
+Minimum/Maximum der Kuehlreihe und ihr maximaler Betrag sind getrennt benannt;
+es erfolgt keine stille Vorzeichenumkehr. Eine automatische
+Optimierungsentscheidung fehlt weiterhin bewusst.
 
 ## Naechster Schritt
 
-P019 umsetzen und vorhandene Befehle ohne Duplizierung orchestrieren.
+Den neutralen Import- und Kennwertvertrag weiter an Varianten-, Raum- und
+Run-Referenzen binden.

@@ -1629,7 +1629,7 @@ def test_weather_analysis_rejects_catalog_only_dataset_before_try_import(tmp_pat
         "weather_datasets:\n"
         "  - weather_key: IDA_PRN_P_2010_JAHR\n"
         "    display_name: TRY Potsdam 2010 Jahr\n"
-        "    file_path: data/project_inbox/new/Wetterdaten/TRY2010_04_Jahr_DAT.PRN\n"
+        "    file_path: data/ma_weather/input/prn/TRY2010_04_Jahr_DAT.PRN\n"
         "    file_format: IDA_PRN\n"
         "    source: DWD TRY / IDA Weather Utility\n"
         "    location: Potsdam\n"

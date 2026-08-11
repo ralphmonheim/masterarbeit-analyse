@@ -138,8 +138,9 @@ UD-106 uebergibt Land und Stadt aus `ma_project` nur als Vorschlag an
 Die Wetteransicht wird in `Analyse | Diagramme | Verwaltung` mit
 `Import | Scannen | Pruefen` unter Verwaltung gegliedert.
 
-Die 90 PRN-Dateien und die IDM-Datei bleiben bis zu einer getrennt
-freigegebenen Ablageumsetzung an ihren bestehenden lokalen Pfaden. Eine
-spaetere Verschiebung nach `data/ma_weather/input/prn/` beziehungsweise
-`data/ma_weather/input/idm/` muss alle P033-Katalogreferenzen atomar
-aktualisieren und aendert den weiterhin gesperrten Analyseadapter nicht.
+Die getrennte Ablageumsetzung wurde am 2026-08-11 ausdruecklich freigegeben:
+90 PRN-Dateien liegen inhaltlich unveraendert unter
+`data/ma_weather/input/prn/`, die IDM-Datei unter
+`data/ma_weather/input/idm/`. Alle 90 lokalen P033-Katalogreferenzen wurden
+atomar aktualisiert und durch SHA-256-Abgleich geprueft. Der weiterhin
+gesperrte Analyseadapter wurde dadurch nicht freigegeben oder geaendert.

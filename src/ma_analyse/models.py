@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from math import isfinite
 from pathlib import Path
 from typing import Any
 
@@ -33,6 +34,9 @@ class AnalysisConfig:
     plot_template: str | None = None
     plot_template_mode: str = "single"
     plot_template_options: dict[str, Any] = field(default_factory=dict)
+    power_display_mode: str = "both"
+    power_source_unit: str = "unverified"
+    reference_areas_m2: dict[str, float] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         self.steps = tuple(self.steps)
@@ -42,6 +46,15 @@ class AnalysisConfig:
         self.rooms = list(self.rooms)
         if self.variants is not None:
             self.variants = list(self.variants)
+        valid_reference_areas: dict[str, float] = {}
+        for room_name, area_m2 in self.reference_areas_m2.items():
+            try:
+                normalized_area = float(area_m2)
+            except TypeError, ValueError:
+                continue
+            if isfinite(normalized_area) and normalized_area > 0:
+                valid_reference_areas[str(room_name)] = normalized_area
+        self.reference_areas_m2 = valid_reference_areas
 
 
 @dataclass

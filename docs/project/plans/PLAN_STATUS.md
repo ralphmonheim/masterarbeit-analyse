@@ -1,6 +1,6 @@
 # Plan Status
 
-Stand: 2026-08-03
+Stand: 2026-08-11
 
 Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt und nach jeder Planumsetzung aktualisiert. Vollstaendige alte Planstaende liegen unter `docs/project/archive/plans/`.
 
@@ -282,6 +282,11 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   `BuildingModelSpecification` vor. LoD beschreibt den Eingabeumfang; LoD-1
   enthaelt Kubatur, einfache Huellkennwerte, U-Werte, Fensteranteil und
   Annahmen, aber keine Raeume, Einzelfenster oder Host-Beziehungen.
+- P012/UD-123 ist umgesetzt: Der aktivierte Gebaeudestand speist die neue
+  U-Wert-Master-Detailansicht sowie zwei Ergebnisreiter fuer
+  flaechengewichtete U-Werte und eine klar als nicht nachweisfaehige Demo
+  markierte Transmissionsbilanz. Explizite Oeffnungen bleiben positiv und
+  reduzieren ueber ihre Host-Beziehung die wirksame opake Bruttoflaeche.
 - P013-S1 ist umgesetzt: `ma_zones` enthaelt eine versionierte
   BusinessIntegration-LoD-1-Zonenspezifikation mit einer Gesamtgebaeudezone,
   einfachem Buero-Nutzungsprofil, Sollwerten, internen Lasten,
@@ -556,7 +561,18 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   Eigentuemerschaft. Zwei duenne Skills und ein Contract-Test bilden die
   lokale Baseline. `chat-handover` archiviert zusaetzlich datierte,
   referenzierte Arbeits-Snapshots, ohne die aktiven Steuerquellen zu
-  duplizieren. Graphify, neue MCPs, globale Konfiguration, Hook-
+  duplizieren. Der lokale `masterarbeit-navigator` stellt zusaetzlich einen
+  zentralen, generierten semantischen Einstieg fuer versionierte Dokumente,
+  Arbeitsablage und allowlist-basierte lokale Projektdaten bereit. Er verweist
+  stets auf die kanonischen Originalquellen und ist keine neue
+  Projektwahrheit oder Runtime-Abhaengigkeit. Der skill-lokale Generator ist
+  nach Council-Review gehaertet: Ein fehlerhaftes `assessment`-Topic wurde
+  repariert; Schema-, Root-, Reparse-, Schutz- und bidirektionale
+  Stale-Pruefungen sichern alle fuenf Indexdateien. Der staged Refresh ersetzt
+  erst einen vollstaendig validierten Satz; sechs skill-lokale Vertragstests
+  sichern die schreibfreie Validierung und die Ausschlussregeln. Graphify,
+  neue MCPs, weitere
+  globale Konfiguration, Hook-
   Aenderungen, Obsidian/Zotero und geschuetzte PDF-/IDA-Verarbeitung bleiben
   gesperrt oder manuell freizugeben. UD-116 fuehrt ein themenbezogenes
   erweitertes Council aus Tera, Mira, Vera, Professor Sophia und Justus:
@@ -892,6 +908,31 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   `AnalysisConfig`-Erzeugung an `ma_analyse.analysis_ui.build_analysis_config`.
   Der gemeinsame Builder akzeptiert Text- und Listenwerte fuer Varianten und
   Raeume und setzt `load_kind` fuer Heating-/Cooling-Laeufe.
+- P019/P029 Analyse-Demo umgesetzt: Die bestehende Streamlit-Auswahl bleibt
+  erhalten und wird durch getrennte Tabs fuer Dimensionierung, Optimierung,
+  Nachweis und Sensitivitaet ergaenzt. Nur Stage 2 zeigt vorhandene
+  `AnalysisResult`-Diagramme und Dateien; der Tabellenrenderer ist fuer einen
+  spaeteren produktiven Producer vorbereitet. Die uebrigen Stufen zeigen ihre
+  Owner- und Fachgrenzen ohne erfundene Ergebnisse. Ein aktiver
+  Projekt-Workspace setzt `output/ma_analyse/` als Standard-Ausgabewurzel und
+  bindet das letzte UI-Ergebnis an seine Projekt-ID.
+- P029-S12 Ergebnisvertrag umgesetzt: `analyze-data`,
+  `AnalysisResult`, Streamlit und Excel verwenden gemeinsame Kennwert-,
+  Dateninventar-, Berechnungsgrenzen- und Nachweisbereitschaftstabellen.
+  Leistung kann in `W`, `W/m2` oder beiden Darstellungen ausgegeben werden;
+  automatische Ausgaben verwenden `Beides`. Der Council-Review hat den
+  fehlenden Quelleneinheitenvertrag des PRN-/CSV-Imports aufgedeckt: Ohne
+  bewusste Laufangabe bleiben W/Wm2 nicht auswertbar und aggregierte
+  Quellreihenkennwerte werden einheitenoffen gezeigt. Ableitungen zwischen W und W/m2 benoetigen
+  eine positive Netto-Raumflaeche. Kuehlkennwerte trennen algebraisches
+  Minimum/Maximum und maximalen Betrag. `metrics` bleibt Legacy-Adapter,
+  `metrics_v2` fuehrt den neuen Vertrag. Auswertungsstunden stammen aus der
+  prepared-`time`-Achse; Nutzungsstunden werden nicht aus Zeilenanzahlen
+  abgeleitet.
+- P020 Nachweisbereitschaft vorbereitet: DIN/TS-18599-10-Profilmetadaten und
+  das DIN-4108-2-Legacy-Datenfeld erscheinen als `NOT_EVALUABLE` mit
+  Methoden-, Rechte-, Teststatus und naechstem Gate. Produktive Normformeln,
+  Grenzwerte und PASS-/FAIL-Regeln bleiben unimplementiert.
 
 ### Offen
 
@@ -920,8 +961,10 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 ### Unklar
 
 - Soll aus den Internal-Loads-Templates ein eigener Befehl entstehen oder eine Integration in bestehende Auswertungen?
-- Welche `ma_analyse`-Auswertungen sollen absolute Werte, flaechenbezogene Werte
-  wie `[W/m2]` oder beides anbieten, und welche Bezugsflaeche gilt dafuer?
+- Die Raumkennwerttabellen nutzen nach UD-121 `W`, `W/m2` oder `Beides` und
+  die Netto-Raumflaeche. Offen bleiben der versionierte Quelleneinheiten- und
+  Zeitachsenvertrag, Gebaeudeaggregation, weitere Bezugsflaechen und die
+  ma_analyse-weite Uebertragung auf Diagramme.
 
 ## Modul ma_variants
 
@@ -1025,8 +1068,8 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 
 ## Offene Nutzerentscheidungen
 
-- Klaeren, welche `ma_analyse`-Auswertungen absolute Werte, flaechenbezogene
-  Werte oder beides anbieten sollen und welche Bezugsflaeche verwendet wird.
+- Gebaeudeaggregation, weitere Bezugsflaechen und die Uebertragung der mit
+  UD-121 geklaerten Raumtabellenstrategie auf weitere Diagramme festlegen.
 - Wissensprofile, Stundensaetze, Prozessgrenzen und Messmethoden fuer den
   Vergleich von manuellem, softwareunterstuetztem und automatisiertem Aufwand
   festlegen.

@@ -22,9 +22,12 @@ Analyseaufruf mit einer klaren Meldung. Bestehende DWD-TRY-`.dat`-Eintraege
 behalten durch den kompatiblen Standardwert `analysis_supported: true` ihren
 bisherigen Analysepfad.
 
-Die Originaldateien bleiben unveraendert unter
-`data/project_inbox/new/Wetterdaten/` und werden weder versioniert noch
-verschoben. P033 dokumentiert diesen konkreten Aufnahmeslice; P008 bleibt die
+Die Originaldateien wurden am 2026-08-11 nach ausdruecklicher Risiko- und
+Umsetzungsfreigabe inhaltlich unveraendert nach
+`data/ma_weather/input/prn/` beziehungsweise `data/ma_weather/input/idm/`
+verschoben. Die 90 lokalen Katalogreferenzen wurden dabei atomar angepasst;
+die Dateien bleiben unversioniert und der PRN-Analyseadapter bleibt
+gesperrt. P033 dokumentiert diesen konkreten Aufnahmeslice; P008 bleibt die
 fuehrende fachliche Wetterplanung.
 
 ## V1-Status 2026-07-18

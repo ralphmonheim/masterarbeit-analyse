@@ -1,6 +1,6 @@
 # Offene Nutzerentscheidungen
 
-Stand: 2026-07-31
+Stand: 2026-08-11
 
 Diese Datei enthaelt nur offene Nutzerentscheidungen. Erledigte Entscheidungen
 werden nach der Dokumentation als `UD-*` aus dieser Datei entfernt und stehen in
@@ -18,6 +18,14 @@ werden nach der Dokumentation als `UD-*` aus dieser Datei entfernt und stehen in
   fachlich getrennt; Spitzenleistung wird aus gleichzeitigen Zeitreihen
   ermittelt. Welche absoluten und spezifischen Werte gemeinsam erscheinen und
   welche Bezugsflaeche verbindlich ist, bleibt offen.
+- Teilklaerung 2026-08-11 durch UD-121: Raumkennwerttabellen bieten `W`,
+  `W/m2` oder `Beides`; automatische Ausgaben verwenden `Beides`.
+  Spezifische Raumwerte verwenden eine positive Netto-Raumflaeche und bleiben
+  ohne eindeutige Zuordnung nicht auswertbar. Offen bleiben die
+  maschinenlesbare Bestaetigung der IDA-Quelleneinheiten, der Zeitachsenvertrag,
+  die Gebaeudeaggregation, weitere Bezugsflaechen sowie die Uebertragung auf
+  Diagramme und andere Auswertungsarten. Bis dahin bleiben unbestaetigte
+  Leistungswerte einheitenoffene Aggregationskennwerte aus den Quellreihen.
 
 ### OP-009 Methodik fuer Zeit- und Personalkostenvergleich
 
@@ -81,6 +89,14 @@ werden nach der Dokumentation als `UD-*` aus dieser Datei entfernt und stehen in
   auslesbar sind.
 - Auswirkung: Entscheidet, ob P012 nur Demo-/YAML-Daten oder zusaetzlich einen
   begrenzten IFC-Lite-Adapter umsetzt.
+- Befund 2026-08-11: Die lokale SmallOffice-Diagnose erkennt 29 Raeume und
+  76 Raumbegrenzungsbeziehungen. Nur die Raeume 101 und 102 enthalten dabei
+  explizite Aussenwand-/Oeffnungsbeziehungen; fuer die restlichen 27 Raeume
+  sind nur Boden- oder Dachbeziehungen vorhanden. Eine raum- oder
+  5-zonenweise Huelle darf daraus daher nicht ohne manuell bestaetigtes
+  Mapping abgeleitet werden. Die Gebaeudeaggregation bleibt eine lokale
+  Diagnose; ein produktiver IFC-Lite-Import darf fehlende Beziehungen nicht
+  stillschweigend auffuellen.
 
 ### OP-012b LoD-2/LoD-3-Inhalte aus dem Rhino-Testgebaeude
 
@@ -208,6 +224,11 @@ werden nach der Dokumentation als `UD-*` aus dieser Datei entfernt und stehen in
   Installationen, Hook-/MCP-Aenderungen, Graphify, externe Schreibpfade und
   geschuetzte Inhaltsverarbeitung gesperrt. P031 dokumentiert die Gates, ist
   aber keine Freigabeinstanz.
+- Teilfreigabe 2026-08-11: Ausschliesslich fuer die lokale
+  SmallOffice-IFC-Diagnose wurde `ifcopenshell==0.8.5` in die Projekt-`.venv`
+  installiert. Diese einmalige Freigabe umfasst weder eine globale
+  Installation noch einen produktiven IFC-Lite-Adapter oder weitere
+  Abhaengigkeiten.
 
 ### OP-017 Erweiterung des themenbezogenen Council-Spezialistenpools
 

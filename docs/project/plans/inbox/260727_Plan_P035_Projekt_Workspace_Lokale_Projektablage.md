@@ -224,3 +224,15 @@ P035, uebernimmt dessen Dateisystemlogik aber nicht.
 - Ein spaeteres fachmoduluebergreifendes Sammelspeichern benoetigt
   normalisierte Draft-Vertraege je Modul und bleibt bewusst eine
   Folgearbeit; der V1-Guard behauptet keine generische Validierung.
+
+## Uebertragene Folgearbeit 2026-08-11: Galeriepfad und lokale Snapshots
+
+UD-119 legt fuer die lokalen, ignorierten Snapshot-Ordner unter
+`data/project_output/` die sichtbare Trennung `gallery/` fuer Projektbilder
+und `diagrams/` fuer Auswertungsabbildungen fest. Diese Snapshots sind keine
+aktiven P035-Workspaces. Der aktuelle P035-Workspace-Vertrag und seine
+Implementierung verwenden bis zu einer gesondert freigegebenen Migration
+weiterhin `assets/gallery/`; es gibt weder einen stillen Umzug noch einen
+Fallback auf beide Pfade. Eine Vereinheitlichung ist ein eigener P035-Slice
+mit Pfadvertrag, Migration vorhandener lokaler Projektbilder,
+Kompatibilitaetspruefung und manueller UI-Abnahme.

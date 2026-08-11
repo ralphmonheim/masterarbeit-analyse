@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+import csv
 import hashlib
 import json
 import math
 import re
 import shutil
 from pathlib import Path
+from time import perf_counter
 from uuid import uuid4
 
 import yaml
@@ -24,8 +26,12 @@ def materialize_project_setup_packages(
     simulation_program_key: str,
     variant_packages: list[dict[str, object]],
     source_fingerprint: str,
+    study_label: str = "",
+    test_only: bool = False,
+    technical_timings: list[dict[str, object]] | None = None,
 ) -> tuple[Path, ...]:
     """Schreibt nur bestaetigte, aktuelle Pakete und startet keine Simulation."""
+    materialization_started = perf_counter()
     if not _RUN_GROUP_PATTERN.fullmatch(run_group_id):
         raise ValueError("Run-Gruppen-ID enthaelt unzulaessige Zeichen oder ist zu lang.")
     if not variant_packages:
@@ -158,17 +164,112 @@ def materialize_project_setup_packages(
                 "automatic_simulation": False,
             },
         )
+        package_timing_rows: list[dict[str, object]] = []
         for run_id, package, manifest, setup in prepared_runs:
+            package_started = perf_counter()
             run_directory = temporary_directory / run_id
             run_directory.mkdir()
             _write_yaml_new(run_directory / "run_manifest.yaml", manifest)
             _write_yaml_new(run_directory / "variant_package.yaml", package)
             _write_yaml_new(run_directory / "simulation_setup.yaml", setup)
+            package_timing_rows.append(
+                {
+                    "stage": "simulation_setup_package",
+                    "status": "success",
+                    "duration_seconds": round(perf_counter() - package_started, 6),
+                    "recorded_at": "",
+                    "details": f"{run_id} / {package['variant_id']}",
+                }
+            )
+        timing_rows = [*_normalized_timing_rows(technical_timings), *package_timing_rows]
+        timing_rows.append(
+            {
+                "stage": "simulation_setup_materialization",
+                "status": "success",
+                "duration_seconds": round(perf_counter() - materialization_started, 6),
+                "recorded_at": "",
+                "details": f"{len(prepared_runs)} Run-Pakete materialisiert",
+            }
+        )
+        _write_yaml_new(
+            temporary_directory / "timings.yaml",
+            {"schema_version": "1.0", "timings": timing_rows},
+        )
+        _write_timings_csv(temporary_directory / "timings.csv", timing_rows)
+        _write_yaml_new(
+            temporary_directory / "run_summary.yaml",
+            {
+                "schema_version": "1.0",
+                "run_group_id": run_group_id,
+                "project_id": project_id,
+                "study_id": variant_packages[0]["study_id"],
+                "study_label": study_label,
+                "test_only": test_only,
+                "selection_id": selection_id,
+                "selection_mode": selection_reference["mode"],
+                "random_seed": selection_reference["random_seed"],
+                "theoretical_variant_count": _theoretical_variant_count(variant_packages),
+                "selected_variant_count": len(variant_packages),
+                "variant_ids": [package["variant_id"] for package in variant_packages],
+                "run_ids": [run_id for run_id, *_rest in prepared_runs],
+                "status": group_status,
+                "automatic_simulation": False,
+                "artifacts": {
+                    "selection_manifest": "selection_manifest.yaml",
+                    "timing_log_yaml": "timings.yaml",
+                    "timing_log_csv": "timings.csv",
+                    "run_manifests": [f"{run_id}/run_manifest.yaml" for run_id, *_rest in prepared_runs],
+                    "variant_packages": [f"{run_id}/variant_package.yaml" for run_id, *_rest in prepared_runs],
+                    "simulation_setups": [f"{run_id}/simulation_setup.yaml" for run_id, *_rest in prepared_runs],
+                },
+            },
+        )
         temporary_directory.replace(group_directory)
     except Exception:
         shutil.rmtree(temporary_directory, ignore_errors=True)
         raise
     return tuple(group_directory / run_id for run_id, *_rest in prepared_runs)
+
+
+def _normalized_timing_rows(records: list[dict[str, object]] | None) -> list[dict[str, object]]:
+    if records is None:
+        return []
+    rows: list[dict[str, object]] = []
+    for record in records:
+        if not isinstance(record, dict):
+            continue
+        duration = record.get("duration_seconds")
+        if not isinstance(duration, int | float) or duration < 0:
+            continue
+        rows.append(
+            {
+                "stage": str(record.get("stage", "unknown")),
+                "status": str(record.get("status", "success")),
+                "duration_seconds": round(float(duration), 6),
+                "recorded_at": str(record.get("recorded_at", "")),
+                "details": str(record.get("details", "")),
+            }
+        )
+    return rows
+
+
+def _write_timings_csv(path: Path, timing_rows: list[dict[str, object]]) -> None:
+    with path.open("x", encoding="utf-8", newline="") as target:
+        writer = csv.DictWriter(
+            target,
+            fieldnames=("stage", "status", "duration_seconds", "recorded_at", "details"),
+        )
+        writer.writeheader()
+        writer.writerows(timing_rows)
+
+
+def _theoretical_variant_count(variant_packages: list[dict[str, object]]) -> int | None:
+    """Leitet den Wert nur ab, wenn der UI-Test ihn als Paketmetadatum mitgibt."""
+    counts = {package.get("theoretical_variant_count") for package in variant_packages}
+    if len(counts) != 1:
+        return None
+    count = next(iter(counts))
+    return count if isinstance(count, int) and count > 0 else None
 
 
 def _validate_complete_package(package: dict[str, object]) -> None:

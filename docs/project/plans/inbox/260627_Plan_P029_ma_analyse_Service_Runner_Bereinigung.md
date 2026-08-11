@@ -1,6 +1,6 @@
 # P029 ma_analyse Service- und Runner-Bereinigung
 
-Stand: 2026-06-29
+Stand: 2026-08-11
 Status: Aktiv
 Prioritaet: Hoch
 Abhaengigkeiten: P005, P019, P027, bestehendes `ma_analyse`
@@ -210,6 +210,70 @@ Slice 10:
   Tkinter-spezifische Adapter, delegiert die eigentliche Config-Erzeugung aber
   an den gemeinsamen UI-neutralen Builder.
 - Tests sichern Listenwerte, `load_kind` und das bestehende Tkinter-Mapping ab.
+
+Slice 11:
+
+- `ma_analyse.stage_views` bildet den UI-neutralen Darstellungsstand der vier
+  Analyse-Stufen ab, ohne Stage-Fachlogik nach `ma_ui` zu kopieren.
+- Die Streamlit-Demo behaelt den vorhandenen Wizard im Tab `Auswahl & Lauf`
+  und zeigt vier getrennte Ergebnis-Tabs.
+- Der bestehende `AnalysisResult` wird als aktuelles Stage-2-Ergebnis genutzt;
+  Diagramme, Dateien, Warnungen und Fehler werden gerendert. Der Renderer fuer
+  Summary- und Detailtabellen ist vorbereitet; die produktive Befuellung
+  bleibt ein eigener PostProcess-Slice.
+- Stage 1 verweist auf den getrennten Owner `ma_dimensionierung`. Stage 3 und
+  Stage 4 bleiben ohne gepruefte Kriterien- beziehungsweise
+  Robustheitsvertraege sichtbar `nicht auswertbar`.
+- Bei aktivem P035-Workspace verwendet die Analyse standardmaessig dessen
+  `output/ma_analyse/`; ein bewusster manueller Pfad bleibt erhalten. Letzte
+  Ergebnisse sind an die aktive Projekt-ID gebunden und werden beim Wechsel
+  verworfen.
+- Tests sichern Stage-Reihenfolge, Statusgrenzen, Workspace-Output und den
+  Projektwechsel mit vorhandenem Ergebnis ab.
+
+Slice 12:
+
+- `analyze-data`, Service, Streamlit und Excel verwenden einen gemeinsamen
+  `AnalysisTableBundle` fuer Kennwerte, Dateninventar,
+  Berechnungsgrenzen und Nachweisbereitschaft.
+- Die Leistungsdarstellung ist `absolute`, `specific` oder `both`; die UI
+  zeigt `W`, `W/m2` oder `Beides`, standardmaessig `Beides`.
+- Bis der Import einen versionierten Quelleneinheitenvertrag fuehrt, muss die
+  Quelleneinheit fuer den Lauf angegeben werden. Andernfalls bleiben W/Wm2
+  `nicht auswertbar`; nur explizit einheitenoffene Aggregationskennwerte
+  erscheinen.
+- Die Ableitung zwischen absoluter und spezifischer Leistung erfolgt nur mit
+  positiver, eindeutig zugeordneter Netto-Raumflaeche. Fehlt sie, bleibt nur
+  die in der bestaetigten Quelleneinheit direkt belegte Darstellung erhalten.
+- Kuehlwerte behalten ihre Rohvorzeichen: algebraisches Minimum, algebraisches
+  Maximum und maximaler Betrag sind getrennte Kennwerte.
+- `metrics` bleibt als Legacy-Adapter bestehen; `metrics_v2` fuehrt den neuen
+  nachvollziehbaren Tabellenvertrag.
+- Die stundenweise prepared-`time`-Achse liefert Auswertungsstunden.
+  Nutzungsstunden benoetigen weiterhin ein freigegebenes Belegungsprofil.
+- Stage 3 erhaelt eine wertfreie Readiness-Matrix. Sie aktiviert keine
+  Normformel, keinen Grenzwert und kein PASS-/FAIL-Ergebnis.
+
+## Fachliche Folgeplanung nach UD-122
+
+Der naechste reine Planungsschritt definiert fuer P029 die gemeinsame
+PostProcess-Analyseebene: ihre Themen, Auswahldimensionen, Kennwerte,
+Diagramm- und Tabellenartefakte sowie die Grenze zur spaeteren technischen
+Interpretation. P019 bleibt dabei der Owner der vorhandenen Varianten- und
+Vergleichsfunktionen innerhalb dieser einen Ebene; die historischen Stages
+sind kein Benutzerworkflow.
+
+Die vorhandenen lokalen IDA-Auswertungsdaten bleiben ein getrennter
+explorativer Legacy-Bestand. Sobald erstmals ein manuell bereitgestellter
+IDA-Ergebnisordner fuer den Zielprozess vorliegt, plant P009 den separaten
+Import-Slice anhand des realen Dateninventars. Dieser inventarisiert
+Ergebnisdateien, Felder, Einheiten und Zuordnung, verarbeitet jedoch keine
+IDA-/EQUA-Quelldateien automatisch.
+
+StudyDirections werden erst in einem nachfolgenden, explizit geplanten Slice
+als Analysefilter oder Untersuchungsrichtung angebunden. Kosten- und
+Nachhaltigkeitsfolgen bleiben getrennte Folgearbeit von P022/P023 und
+verwenden technische Analysekennwerte nur als Eingang.
 
 ## Risiken
 

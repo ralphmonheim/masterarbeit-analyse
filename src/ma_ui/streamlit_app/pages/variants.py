@@ -9,6 +9,7 @@ import re
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from pathlib import Path
+from time import perf_counter
 
 import streamlit as st
 
@@ -24,6 +25,7 @@ from ma_ui.streamlit_app.state import (
     small_office_v1_uses_reference_zone_model,
 )
 from ma_variants import (
+    SMALL_OFFICE_V1_STUDY_CONFIGS,
     build_small_office_candidate_rows,
     candidate_simulation_setup,
     load_small_office_v1_study,
@@ -86,7 +88,6 @@ def render() -> None:
         st.info("Fuer dieses Demo-Projekt ist noch keine V1-Studienkonfiguration hinterlegt.")
         return
     try:
-        study = load_small_office_v1_study()
         baseline = build_small_office_5z_v1_baseline_parameter_snapshot()
         zone_spec = load_small_office_5z_endvariant_02_zone_spec()
         parameter_payload = load_project_module_config(workspace, "ma_parameters") or {}
@@ -96,6 +97,23 @@ def render() -> None:
         payload = load_project_module_config(workspace, VARIANTS_MODULE_KEY) or {}
     except (OSError, ValueError, KeyError) as exc:
         st.error(f"Variantenstand konnte nicht vorbereitet werden: {exc}")
+        return
+
+    config_options = tuple(SMALL_OFFICE_V1_STUDY_CONFIGS)
+    selected_config_key = st.selectbox(
+        "Studienkonfiguration",
+        config_options,
+        index=config_options.index(str(payload.get("study_config_key", "standard")))
+        if str(payload.get("study_config_key", "standard")) in config_options
+        else 0,
+        format_func=lambda key: SMALL_OFFICE_V1_STUDY_CONFIGS[key][0],
+        key="ma_variants_study_config",
+        help="Der Testraum ist getrennt vom 30er-Referenzbenchmark und erzeugt 156 theoretische Optimierungsvarianten.",
+    )
+    try:
+        study = load_small_office_v1_study(SMALL_OFFICE_V1_STUDY_CONFIGS[selected_config_key][1])
+    except (OSError, ValueError, KeyError) as exc:
+        st.error(f"Studienkonfiguration konnte nicht geladen werden: {exc}")
         return
 
     zone_payload = load_project_module_config(workspace, "ma_zones") or {}
@@ -160,6 +178,7 @@ def render() -> None:
             payload,
             pre_dimensioning_fingerprint,
             active_case,
+            selected_config_key,
         )
     elif step == "Pruefung und Katalog":
         _render_catalog_generation(
@@ -171,6 +190,7 @@ def render() -> None:
             payload,
             current_fingerprint,
             active_case,
+            study,
         )
     else:
         _render_selection_and_packages(
@@ -225,6 +245,7 @@ def _render_candidate_generation(
     payload: dict[str, object],
     pre_dimensioning_fingerprint: str,
     active_case: str,
+    study_config_key: str,
 ) -> None:
     st.subheader("Variationsraum festlegen")
     st.dataframe(
@@ -260,23 +281,33 @@ def _render_candidate_generation(
         disabled=not variation_ready,
         key="ma_variants_generate_candidates",
     ):
+        started = perf_counter()
+        generated_candidates = build_small_office_candidate_rows(
+            study,
+            parameter_payload["variation_specification"],
+        )
         updated_payload = dict(payload)
         updated_payload.update(
             {
                 "schema_version": "1.0",
                 "project_id": workspace.project.identity.project_id,
                 "study_id": study.study_id,
+                "study_config_key": study_config_key,
                 "study_cases": study_cases,
-                "candidates": build_small_office_candidate_rows(
-                    study,
-                    parameter_payload["variation_specification"],
-                ),
+                "candidates": generated_candidates,
                 "catalog": [],
                 "pre_dimensioning_source_fingerprint": pre_dimensioning_fingerprint,
                 "status": "candidates_current",
                 "updated_at": datetime.now(UTC).isoformat(),
             }
         )
+        updated_payload["technical_timings"] = [
+            _timing_row(
+                "candidate_generation",
+                perf_counter() - started,
+                f"{len(generated_candidates)} Kandidaten erzeugt",
+            )
+        ]
         save_project_module_config(workspace, VARIANTS_MODULE_KEY, updated_payload)
         st.session_state["ma_ui_variants_update_required"] = True
         st.success(
@@ -348,6 +379,7 @@ def _render_vver_selection(
         disabled=not selected_ids or not reason.strip() or random_selection_without_seed,
         key="ma_vver_save_selection",
     ):
+        started = perf_counter()
         selected_rows = [row for row in case_candidates if str(row["candidate_id"]) in selected_ids]
         record = create_vver_selection_record(
             study_id=study.study_id,
@@ -360,6 +392,12 @@ def _render_vver_selection(
             selected_candidates=tuple(_vver_candidate_from_row(row) for row in selected_rows),
         )
         updated_payload = _store_vver_selection(payload, record)
+        _append_timing(
+            updated_payload,
+            "vver_selection",
+            perf_counter() - started,
+            f"{len(selected_rows)} Kandidaten verbindlich ausgewaehlt",
+        )
         updated_payload["updated_at"] = datetime.now(UTC).isoformat()
         updated_payload["status"] = "vver_selection_current"
         save_project_module_config(workspace, VARIANTS_MODULE_KEY, updated_payload)
@@ -391,14 +429,13 @@ def _render_catalog_generation(
     payload: dict[str, object],
     current_fingerprint: str,
     active_case: str,
+    study,
 ) -> None:
     candidates = payload.get("candidates", [])
     if not isinstance(candidates, list) or not candidates:
         st.warning("Zuerst im Variationsraum Kandidatenkombinationen erzeugen.")
         return
-    pre_dimensioning_fingerprint = pre_dimensioning_source_fingerprint(
-        load_small_office_v1_study(), baseline, zone_spec, parameter_payload
-    )
+    pre_dimensioning_fingerprint = pre_dimensioning_source_fingerprint(study, baseline, zone_spec, parameter_payload)
     candidates_stale = not _pre_dimensioning_candidates_are_current(
         payload, pre_dimensioning_fingerprint
     )
@@ -412,7 +449,7 @@ def _render_catalog_generation(
         st.error(f"Die gespeicherte VVER-Historie ist fehlerhaft und blockiert den Ablauf: {history_error}")
     active_vver_selection = active_current_vver_selection(
         payload,
-        study_id=load_small_office_v1_study().study_id,
+        study_id=study.study_id,
         current_pre_dimensioning_upstream_fingerprint=pre_dimensioning_fingerprint,
     )
     if active_vver_selection is None:
@@ -465,6 +502,7 @@ def _render_catalog_generation(
         ),
         key="ma_variants_build_catalog",
     ):
+        started = perf_counter()
         updated_payload = dict(payload)
         updated_payload.update(
             {
@@ -473,6 +511,12 @@ def _render_catalog_generation(
                 "status": "catalog_current",
                 "updated_at": datetime.now(UTC).isoformat(),
             }
+        )
+        _append_timing(
+            updated_payload,
+            "catalog_generation",
+            perf_counter() - started,
+            f"{len(verified)} Kandidaten geprueft",
         )
         save_project_module_config(workspace, VARIANTS_MODULE_KEY, updated_payload)
         st.session_state["ma_ui_variants_update_required"] = True
@@ -569,6 +613,7 @@ def _render_selection_and_packages(
         disabled=not selected_ids,
         key="ma_variants_create_naming_preview",
     ):
+        started = perf_counter()
         st.session_state["ma_variants_naming_preview"] = {
             "context": {
                 "project_id": workspace.project.identity.project_id,
@@ -636,6 +681,11 @@ def _render_selection_and_packages(
             "random_seed": seed,
             "source_fingerprint": current_fingerprint,
         }
+        theoretical_variant_count = sum(
+            1
+            for row in payload.get("candidates", [])
+            if isinstance(row, dict) and row.get("study_direction") == "optimization"
+        )
         packages = [
             _variant_package(
                 study=study,
@@ -647,6 +697,7 @@ def _render_selection_and_packages(
                 variant_name=names_by_id[candidate_id],
                 selection_reference=selection_reference,
                 current_fingerprint=current_fingerprint,
+                theoretical_variant_count=theoretical_variant_count,
             )
             for candidate_id in selected_ids
         ]
@@ -660,6 +711,12 @@ def _render_selection_and_packages(
                 "status": "packages_current",
                 "updated_at": datetime.now(UTC).isoformat(),
             }
+        )
+        _append_timing(
+            updated_payload,
+            "variant_package_generation",
+            perf_counter() - started,
+            f"{len(packages)} Variantenpakete erzeugt",
         )
         save_project_module_config(workspace, VARIANTS_MODULE_KEY, updated_payload)
         st.session_state["ma_ui_variants_update_required"] = False
@@ -743,6 +800,7 @@ def _variant_package(
     variant_name: str,
     selection_reference: dict[str, object],
     current_fingerprint: str,
+    theoretical_variant_count: int,
 ) -> dict[str, object]:
     zone_loads = dimensioning_payload.get("zone_loads", [])
     if not isinstance(zone_loads, list):
@@ -753,6 +811,7 @@ def _variant_package(
         "variant_id": str(candidate["candidate_id"]),
         "variant_name": variant_name,
         "study_id": study.study_id,
+        "theoretical_variant_count": theoretical_variant_count,
         "study_case_id": str(candidate["study_case_id"]),
         "study_direction_id": str(candidate["study_direction_id"]),
         "selection_id": selection_reference["selection_id"],
@@ -785,6 +844,23 @@ def _variant_package(
         "source_fingerprint": current_fingerprint,
         "status": "confirmed",
     }
+
+
+def _timing_row(stage: str, duration_seconds: float, details: str) -> dict[str, object]:
+    return {
+        "stage": stage,
+        "status": "success",
+        "duration_seconds": round(duration_seconds, 6),
+        "recorded_at": datetime.now(UTC).isoformat(),
+        "details": details,
+    }
+
+
+def _append_timing(payload: dict[str, object], stage: str, duration_seconds: float, details: str) -> None:
+    existing = payload.get("technical_timings", [])
+    rows = [row for row in existing if isinstance(row, dict)] if isinstance(existing, list) else []
+    rows.append(_timing_row(stage, duration_seconds, details))
+    payload["technical_timings"] = rows
 
 
 def _case_rows(rows: object, active_case: str) -> list[dict[str, object]]:

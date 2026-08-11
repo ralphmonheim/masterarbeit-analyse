@@ -545,3 +545,68 @@ Uebernahme speichert neben Pfad, Version und SHA-256 auch den unveraenderten
 ausgewaehlten Datensatz als Projektkopie. Weicht der aktuelle zentrale
 Katalog spaeter vom gespeicherten Hash ab, warnt die UI; die Projektkopie
 wird nicht still ersetzt.
+
+## Handover-Ergaenzung 2026-08-11: SmallOffice-IFC-Huellendiagnose
+
+Die lokale Auswertung von `SmallOffice_d_IFC2x3.ifc` hat 29 Raeume und 76
+`IfcRelSpaceBoundary`-Beziehungen erkannt. Sie erlaubt eine
+Gebaeudeaggregation als Diagnose, nicht jedoch eine vollstaendige Verteilung
+der vertikalen Aussenbauteile und Oeffnungen auf alle Raeume: Nur die Raeume
+101 und 102 besitzen explizite Aussenwand-/Oeffnungsbeziehungen; fuer die
+anderen 27 Raeume liefern die Raumgrenzen nur Boden- oder Dachbeziehungen.
+
+Damit bleibt jede Raum- oder 5-Zonen-Huelle aus dieser Quelle eine lokale
+Diagnose, bis OP-012 eine nachvollziehbare Mapping- und Validierungsregel
+festlegt. Ein produktiver IFC-Lite-Import darf fehlende Beziehungen nicht
+durch Flaechenannahmen auffuellen. Die waehrend der Diagnose bearbeitete
+lokale Arbeitsmappe war beim Handover unter
+`data/project_inbox/new/SmallOffice_IFC_erkannte_Aussenflaechen.xlsx` nicht
+mehr auffindbar. Sie ist vor fachlicher Nutzung lokal wiederherzustellen oder
+reproduzierbar erneut aus dem IFC zu erzeugen; bis dahin gelten die im Chat
+ermittelten Flaechen nur als nicht erneut verifizierter Arbeitsstand.
+
+Als lokale Arbeitskonvention wurde die IFC-Y-Achse nach ausdruecklicher
+Nutzerbestaetigung in diesem Chat als Nord interpretiert. Diese Konvention
+ist vor jeder produktiven Uebernahme gegen eine vorhandene Modell-Nordreferenz
+zu pruefen.
+
+Fuer diese reine lokale Diagnose wurde nach ausdruecklicher Nutzerfreigabe
+`ifcopenshell==0.8.5` in die Projekt-`.venv` installiert. Der reproduzierbare
+Aufruf lautet `.\\.venv\\Scripts\\python.exe -m pip install ifcopenshell==0.8.5`.
+Dies ist kein produktiver IFC-Lite-Adapter und aendert keine versionierte
+Dependency-Verwaltung; eine spaetere Produktivnutzung braucht eine eigene
+Abhaengigkeits- und Freigabeentscheidung.
+
+## Umsetzungsstand 2026-08-11: U-Werte und Transmissions-Demo
+
+UD-123 ersetzt fuer die Gebaeudeansicht ausschliesslich die bisherige
+Reiterfolge aus UD-106 durch `Import | Uebersicht | Raeume | U-Werte |
+Ergebnisse | Bauteile`. Die bisherigen Workspace-, Entwurfs-, Aktivierungs-
+und Katalogregeln bleiben erhalten. Ein neuer Importstand ueberschreibt einen
+aktiven Stand nur nach sichtbarer Warnung und Bestaetigung. Die Folgereiter
+lesen den aktivierten Projektstand statt einer blossen Importvorschau.
+
+`U-Werte` zeigt links eine feste Detailkarte des ausgewaehlten Bauteils und
+rechts alle vorhandenen Huellbauteile. Laenge und Breite bleiben sichtbar als
+`nicht verfuegbar`, solange die Spezifikation nur Flaechen liefert. Oeffnungen
+bleiben positive Objekte. Ihre `host_element_id`-Beziehung wird angezeigt und
+liefert fuer die Auswertung `A_opak,netto = A_host,brutto - Summe A_Oeffnung`.
+
+`Ergebnisse` besitzt die Unterreiter `U-Wert-Uebersicht` und
+`Transmissionswaermeverlust`. Die UI-neutrale Hilfsschicht
+`ma_building.thermal` berechnet je Kategorie den flaechengewichteten U-Wert
+und fuer die Demo
+`H_T = Summe(F_i * U_i * A_i) + Delta U_WB * A_Huelle` sowie
+`H'_T = H_T / A_Huelle`. Fuer Aussenluft gilt manuell `F=1,0`, fuer Erdreich
+`F=0,5`; der pauschale Waermebrueckenzuschlag ist manuell
+`Delta U_WB=0,10 W/(m2 K)`. Tueren verwenden mangels eigenem Feld sichtbar
+den Fenster-U-Wert als Demo-Annahme.
+
+Alle Werte bleiben `Demo-Annahme` beziehungsweise `vorlaeufig` und sind nicht
+nachweisfaehig. Insbesondere ist `H'_T` beim SmallOffice als Nichtwohngebaeude
+nur ein informativer Huellkennwert und keine GEG-Nachweisaussage. Oeffentlich
+zugaengliche Methodeneinstiege sind GEG Paragraph 16 und 19, Anlage 3 sowie
+Paragraph 24 unter `gesetze-im-internet.de`; geschuetzte Normvolltexte wurden
+nicht verarbeitet. Produktive KI-/3D-Parser, belastbare Randbedingungen je
+Bauteilseite, Erdreichberechnung und neuer Katalogeintragsdialog bleiben
+Folgearbeit.

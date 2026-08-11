@@ -38,10 +38,44 @@ teilweise vorhanden. Die historische Stage-1-Dimensionierung bleibt bis zur
 physischen P016-Owner-Migration als Implementierungs- und Legacy-Pfad
 erhalten; Stage 3 und Stage 4 sind geplant.
 
+Die Streamlit-Demo zeigt die vorhandene Auswahl sowie Dimensionierung,
+Optimierung, Nachweis und Sensitivitaet in einer gemeinsamen Tab-Ansicht.
+Stage 2 rendert echte `AnalysisResult`-Inhalte. `analyze-data` befuellt jetzt
+auch die Summary-Tabelle sowie die Detailtabellen `Dateninventar`,
+`Berechnungsgrenzen` und `Nachweisbereitschaft`. Diagrammdateien, Warnungen und
+erzeugte Dateien werden weiterhin wiederverwendet. Stage 3 zeigt die
+wertfreie Readiness-Matrix sichtbar `nicht auswertbar`; sie ist kein
+Normnachweis. Die uebrigen Tabs zeigen den belegten Fachstand und ihre Grenzen
+als separates Modul beziehungsweise `nicht auswertbar`.
+
+Die Ziel-Leistungsdarstellung der Tabellen ist als `W`, `W/m2` oder `Beides`
+waehlbar; automatische Ausgaben verwenden `Beides`. Der aktuelle PRN-/CSV-
+Import belegt die Quelleneinheit jedoch noch nicht maschinenlesbar. Deshalb
+muss sie fuer den Lauf bewusst als `W` oder `W/m2` angegeben werden. Ohne
+diese Angabe werden nur einheitenoffene Aggregationskennwerte mit
+`Quelleneinheit nicht bestaetigt` ausgegeben; W und W/m2 bleiben leer.
+Umrechnungen verwenden nur eine positive,
+eindeutig zugeordnete Netto-Raumflaeche des aktiven Building-Stands oder eine
+bewusst ergaenzte raumbezogene Flaeche. Die Flaechen-Widgets sind an Projekt
+und Building-Version gebunden; mehrdeutige Raumnamen werden nicht automatisch
+zugeordnet. Ohne erforderliche Flaeche bleibt der direkt belegte Wert erhalten
+und die abgeleitete Darstellung wird als `nicht auswertbar` gekennzeichnet.
+Die Excel-Datei behaelt `metrics` als sicheren Legacy-Adapter und schreibt den
+neuen Vertrag in `metrics_v2`. `Auswertungsstunden` stammen aus der stundenweise
+aufbereiteten `time`-Achse. `Nutzungsstunden` werden erst mit einem
+freigegebenen Belegungsprofil berechnet.
+
+Bei aktivem lokalem Projekt-Workspace ist dessen `output/ma_analyse/` die
+Standard-Ausgabewurzel. Ohne aktiven Workspace bleibt
+`data/ma_analyse/output/` der bestehende Default; eine bewusst manuell
+gesetzte Ausgabewurzel wird nicht ueberschrieben. Das letzte UI-Ergebnis ist
+an die aktive Projekt-ID gebunden und wird bei einem Projektwechsel verworfen.
+
 ## Naechster Schritt
 
-P016 sowie P019 bis P021 getrennt umsetzen und gemeinsame Services
-wiederverwenden.
+Den neutralen Ergebnisimport und die Raum-/Zonenreferenzen weiter
+standardisieren. Produktive Normkriterien und ein formaler Robustheitsvertrag
+benoetigen weiterhin eigene fachlich freigegebene Aktivierungen.
 
 ## Dateien
 

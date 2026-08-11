@@ -4,6 +4,101 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.39.0 - 2026-08-11
+
+### Added
+
+- Das Gebaeudemodul fuehrt den aktivierten `BuildingModelSpecification`-Stand
+  nun ueber `Import | Uebersicht | Raeume | U-Werte | Ergebnisse | Bauteile`.
+  Die U-Wert-Ansicht verbindet eine feste Bauteildetailkarte mit der
+  Huellbauteiltabelle; positive Oeffnungsflaechen bleiben ueber ihre
+  Host-Beziehung nachvollziehbar. Zwei Ergebnisansichten zeigen
+  flaechengewichtete U-Werte sowie eine klar als Demo gekennzeichnete
+  Transmissionsbilanz mit Nettoflaechen, `H_T` und informativem `H'_T`.
+
+- P029-S12 erzeugt fuer `analyze-data` einen gemeinsamen Tabellenvertrag fuer
+  Streamlit und Excel. Ziel-Leistungswerte koennen in `W`, `W/m2` oder beiden
+  Darstellungen ausgegeben werden; automatische Ausgaben verwenden `Beides`.
+  Weil der bestehende Import die Quelleneinheit nicht belegt, bleiben diese
+  Zielwerte ohne bewusste Laufangabe leer und einheitenoffene
+  Aggregationskennwerte sichtbar. Die
+  Ableitung zwischen W und W/m2 benoetigt eine positive Netto-Raumflaeche.
+  Kuehlkennwerte trennen algebraische Extrema und maximalen Betrag. Das neue
+  Excel-Schema liegt in `metrics_v2`; `metrics` bleibt ein sicherer
+  Legacy-Adapter. Die Arbeitsmappe enthaelt zusaetzlich
+  Dateninventar, Berechnungsgrenzen und eine wertfreie Stage-3-
+  Nachweisbereitschaft. Nutzungsstunden und DIN-Nachweise werden nicht mehr
+  aus Zeilenanzahlen oder leeren Legacy-Spalten vorgetaeuscht.
+
+- Die Streamlit-Analyse fuehrt den bestehenden Auswahl-Wizard und die vier
+  fachlichen Stufen in einer Demo-Ansicht zusammen. Vorhandene Stage-2-
+  Diagramme und Ergebnisdateien werden direkt angezeigt; der Renderer fuer
+  spaetere Summary- und Detailtabellen ist vorbereitet. Dimensionierung,
+  Norm-Nachweis und Sensitivitaet zeigen ihre belegten Moeglichkeiten und
+  Grenzen ohne erfundene Ergebnisse. Ergebnisse sind an den aktiven
+  Projekt-Workspace gebunden; dessen `output/ma_analyse/` wird
+  standardmaessig verwendet.
+
+- Simulation-Setup-Ausgaben werden nun nach Studienstatus getrennt abgelegt:
+  Teststudien unter `data/test_output/<Projekt-ID>/`, regulaere Projektstudien
+  unter `data/project_output/<Projekt-ID>/`. Beide Ausgabebereiche bleiben
+  lokal und werden nicht versioniert.
+
+- Das Simulation-Setup ergaenzt jede Run-Gruppe um `run_summary.yaml` sowie
+  `timings.yaml` und `timings.csv`. Die Logs enthalten die gemessenen
+  technischen Zeiten der Variantenaktionen, die Paketzeiten je Run und die
+  gesamte Materialisierung; manuelle Bearbeitungszeit und IDA-Laufzeit bleiben
+  explizit ausgeschlossen.
+
+- Die Variantenansicht kann zwischen dem unveraenderten SmallOffice-V1-
+  Referenzraum (30 Varianten) und einem getrennten 156er-Testraum waehlen.
+  Zufallsauswahlen bleiben mit einem gespeicherten Startwert reproduzierbar;
+  Dimensionierung und Simulation-Setup lesen denselben Projektstand.
+
+- Sechs skill-lokale Vertragstests sichern den persoenlichen
+  `masterarbeit-navigator`: Topic-Schema, geschuetzte Dateiklassifikation,
+  Ausschluss von Lauf-/Cache-/Datenbankpfaden, kanonische Wurzeln,
+  bidirektionale Zeilenpruefung und die Schreibfreiheit von
+  `--validate-only`.
+
+### Changed
+
+- Der lokale `masterarbeit-navigator` verwendet nun
+  `semantic_topics.md` als einzigen semantischen Einstieg. Eine vollstaendige
+  Referenzmatrix verbindet versionierte Projektdokumente, die lokale
+  Arbeitsablage und positiv freigegebene Git-ignorierte Projektbereiche mit
+  ihren Themen und Originalpfaden. Drei generierte Detailkataloge bleiben im
+  Hintergrund. Die dokumentierten Projekt-, Tages-, Planungs-, Release- und
+  Uebergaberoutinen validieren den Hub; aktualisiert wird er nur innerhalb
+  eines ausdruecklich freigegebenen Umsetzungsscope. Geschuetzte Inhalte
+  werden dabei nicht extrahiert oder veroeffentlicht. Der Rechte-Einstieg
+  verweist auf die tatsaechlich vorhandenen Governance-, Workflow- und
+  Entscheidungsquellen sowie das lokale Objekt-Audit statt auf den bereits
+  in Release 0.34.0 entfernten Pfad `docs/compliance/`.
+
+- Ein Council-Review aus Tera, Mira, Vera und Justus hat den skill-lokalen
+  Navigator gehaertet. Eine fehlerhaft zeichenweise erzeugte
+  `assessment`-Quellenliste ist repariert. Alle fuenf Hub-Dateien werden nun
+  staged erzeugt und bidirektional auf Schema, Erzeugungsstand, fehlende,
+  zusaetzliche, geaenderte oder doppelte Referenzen, kanonische Pfade und
+  Schutzgrenzen validiert. Reparse-Punkte sowie Lauf-, Ergebnis-, Cache- und
+  Datenbankbereiche bleiben ausgeschlossen; der Pfad zum Generator ist
+  eindeutig als persoenlicher `LOCAL_SKILL`-Pfad dokumentiert.
+
+- Der aktive Leitfaden ist auf Version 0.5.15 fortgeschrieben. Er ordnet das
+  UD-112-Zielbild aus PreProcess, MainProcess, PostProcess und
+  Review/Iteration ein und zieht die aktuellen Gebaeude-, Analyse-,
+  Workspace-, Planungs- und Navigationsstaende nach; Version 0.5.14 bleibt
+  unveraendert im Leitfadenarchiv erhalten.
+
+- UD-120 dokumentiert die semantische Bereinigung der lokalen Projekt-Inbox.
+  Sechs private Dateien wurden ohne Inhaltspruefung aus dem Projektbereich
+  verschoben; weitere 161 Dateien wurden lokal und hashgeprueft ihren
+  fachlichen Zielbereichen zugeordnet. Genau 90 Wetterkatalogpfade wurden an
+  die neue PRN-Ablage angepasst. Quelldateiinhalte blieben unveraendert und
+  geschuetzte Inhalte bleiben von Extraktion und Veroeffentlichung
+  ausgeschlossen.
+
 ## 0.38.0 - 2026-08-04
 
 ### Added

@@ -1,7 +1,7 @@
 # Masterarbeit Leitfaden
 
-Leitfaden-Version: 0.5.15
-Stand: 2026-08-11
+Leitfaden-Version: 0.5.14
+Stand: 2026-07-21
 
 Diese Datei ist der zentrale Orientierungsleitfaden fuer die Masterarbeit und
 die begleitende Software. Sie ersetzt keine aktive Steuerdatei. Der operative
@@ -46,7 +46,6 @@ Der Leitfaden fuehrt zwei Quellen zusammen:
 | 0.5.12 | 2026-07-14 | P018 als neutrales Run-Paket und P030 als getrennte Prozessmessung fuer den Masterarbeits-MVP aufgenommen |
 | 0.5.13 | 2026-07-14 | Masterarbeits-MVP V1 bis erste Diagramme und Prozessvergleich sowie P013/P016-Handover-Vertraege festgelegt |
 | 0.5.14 | 2026-07-21 | Gesamtarbeit in manuellen Fachteil und softwaregestuetzten Prozessinnovationsteil gegliedert; ergebniswirksame Prioritaet und externe Arbeitsablage festgelegt |
-| 0.5.15 | 2026-08-11 | Pre-/Main-/PostProcess-Zielbild, aktuelle Modulreife, Analyse- und Gebaeudeergebnisse, Projekt-Workspace sowie den gehaerteten semantischen Navigationshub nachgezogen |
 
 ## 1. Zweck der Software
 
@@ -228,8 +227,8 @@ Optionale Erweiterungen:
 
 ## 2. Gesamtworkflow der Masterarbeit
 
-Die technische Plattform und die sechs P007-Hauptphasen bleiben die
-historisch-fachliche Gliederung des Rahmenplans:
+Die technische Plattform wird als Phase 0 dargestellt. Danach folgen die
+sechs fachlichen P007-Hauptphasen:
 
 0. Technische Plattform
 1. Projektinitialisierung
@@ -240,16 +239,6 @@ historisch-fachliche Gliederung des Rahmenplans:
 6. Reporting, Datenexport und Dokumentation
 
 `ma_validation` und `ma_feedback` wirken phasenuebergreifend.
-
-Fuer die aktive Zielmigration konsolidiert UD-112 diese Gliederung zu
-`PreProcess`, `MainProcess`, `PostProcess` und `Review/Iteration`.
-PreProcess reicht von Projekt und Eingaben bis zum neutralen Run-Paket;
-MainProcess umfasst den weiterhin manuellen Simulationsschritt und die
-neutrale Ergebnisaufnahme; PostProcess ist nach UD-122 zunaechst eine
-gemeinsame technische Analyseebene. Die historischen Analyse-Stages bleiben
-Code- und Dokumentationsbestand, definieren aber keinen zwingenden
-Benutzerworkflow. `ma_validation` und `ma_feedback` wirken weiterhin
-prozessuebergreifend.
 
 Das aktuelle Miro-Workflow-Diagramm und sein fachliches Review werden unter
 `docs/project/architecture/workflow/` gefuehrt. Das Diagramm ist ein
@@ -306,33 +295,33 @@ unveraendert im Planarchiv.
 
 | Modul | Status | Rolle |
 |---|---|---|
-| `ma_core` | teilweise | gemeinsame ID-, Quellen-, Diagnose- und Sitzungsvertraege werden fachmodulweise genutzt |
-| `ma_database` | geplant | Datenhaltung bleibt modulbezogen; eine zentrale produktive Datenbank ist nicht MVP-kritisch |
-| `ma_project` | fachlich konsolidiert | Projektuebersicht, Standort, Programm- und Naming-Auswahl sowie externe P035-Projekt-Workspaces sind umgesetzt |
-| `ma_analyse` | teilweise | UI-neutrale Services, gemeinsamer UI-/Excel-Tabellenvertrag, Diagramme und eine projektgebundene Analyseansicht sind vorhanden |
-| `ma_variants` | teilweise | fruehe VVER-Auswahl, gruppierte Owner-Dimensionierung und der finale VCAT-/VSEL-/VGEN-Vertrag sind umgesetzt; UI-/Persistenzmigration bleibt offen |
-| `ma_weather` | teilweise | Katalog, lokale Auswahl, Validierung, dreiteilige V1-Ansicht und Diagrammnavigation sind umgesetzt; reale TRY-Pruefungen bleiben offen |
-| `ma_ui` | teilweise | direkte Streamlit-Fachansichten und Projektbindung sind weit fortgeschritten; die zentrale Workflowmigration bleibt der letzte Querschnittsslice |
-| `ma_workflow` | teilweise | zentrale Kataloge, Fachaufrufe und SmallOffice-PreProcess sind vorhanden; die UD-114-Zielnavigation bleibt offen |
-| `ma_parameters` | fachlich konsolidiert | reduzierte V1-UI, Scopes, Regeln, Variationsspannen und Projektpersistenz sind umgesetzt |
-| `ma_building` | teilweise | 29-Raum-Raumbuch, Kataloganbindung, U-Wert-Ansicht und informative Transmissionsauswertung sind vorhanden |
-| `ma_zones` | fachlich konsolidiert | 5Z/29Z, hashgebundene Profilzuordnung und schreibfreie Release-/Handover-Vorschau sind umgesetzt |
-| `ma_technical` | fachlich konsolidiert | Techniksysteme, UD-115-Releasekette und gerichteter P014->P013-Durchstich sind umgesetzt |
-| `ma_analyse.stage_1_dimensioning` | teilweise | Owner-Gateway, Ergebnisarten und VVER-gebundene SmallOffice-Gruppierung sind umgesetzt; die physische Owner-Migration bleibt offen |
-| `ma_analyse.stage_2_optimization` | teilweise | vorhandene Analysebefehle, gemeinsame Demoansicht und produktiver UI-/Excel-Ergebnisvertrag sind umgesetzt |
-| `ma_analyse.stage_3_standards_verification` | Readiness umgesetzt | wertfreie Nachweisbereitschaft ist vorhanden; Normformeln, Grenzwerte und PASS-/FAIL-Regeln bleiben gesperrt |
-| `ma_analyse.stage_4_sensitivity` | geplant | Wetterereignisse, Zeitfenster und ein spaeterer Umnutzungsfall muessen fachlich verbunden werden |
-| `ma_simulation_setup` | teilweise | Zielvertrag fuer eine finale Auswahl, gemeinsames Setup, mehrere VAR und technische Zeitprotokolle ist umgesetzt; Aufrufermigration bleibt offen |
-| `ma_export_simulation` | geplant | programmunabhaengige Schnittstelle und IDA-Adapter bleiben nach dem neutralen Run-Paket getrennt zu planen |
-| `ma_import_simulation` | geplant | erster MVP bleibt eine manuelle neutrale Ergebnisaufnahme anhand real bereitgestellter Ergebnisordner |
-| `research_tools` | geplant | P030-Datenmodell und manuelle Versuchserfassung mit Vergleichsprotokoll bleiben der naechste Methodikslice |
+| `ma_core` | geplant, P010-Pilot nutzbar | Quellen-, ID- und Sitzungslog-Basiskontrakte sind im Wetterpilot vorhanden |
+| `ma_database` | geplant | Datenbanklogik liegt derzeit vor allem in `ma_variants` |
+| `ma_project` | geplant | Projektidentitaet, Untersuchungsrahmen, Simulationsprogramme, neutrales Naming und P011-S1a-Serialisierung ohne fachlichen Projektstatus |
+| `ma_analyse` | teilweise | Analyse von IDA-ICE-Ergebnisdaten, CLI, UI-neutrale Services, Plot-Templates |
+| `ma_variants` | geplant | Prototyp vorhanden; P017-Zielkette `VariantSpace -> VariantVerification -> VariantCatalog -> VariantSelection -> VariantGeneration` ist fachlich konsolidiert |
+| `ma_weather` | teilweise | TRY-Katalog, Import, Scan, Validierung, Freigabe, Diagramme, Bericht und kritische Ereignisse |
+| `ma_ui` | geplant | Streamlit-Prototyp mit Modul-/Workflow-Ansicht, Referenzdiagramm und getrenntem Tkinter-Zweig vorhanden |
+| `ma_workflow` | geplant | Katalog- und Orchestrierungsprototyp vorhanden; P027 beschreibt Checkpoints, Reloads und Rueckspruenge |
+| `ma_parameters` | teilweise | `ParameterSnapshot` v1, erster `BaselineParameterSnapshot` v2 und P015-S3a-`ParameterInputPackage` mit Wetter-Default umgesetzt; P015-S3b fuehrt P013/P014-Anschluss und Quellenfingerprints weiter |
+| `ma_building` | teilweise | Gebaeudemodell, Bauteile und bauphysikalische Randbedingungen |
+| `ma_zones` | teilweise | Gesamtgebaeudezone umgesetzt; P013-S2-Gesamtkonzept fuer Raum-Zonen-Modell konsolidiert |
+| `ma_technical` | teilweise | LoD-1/Lite-Referenztechnik umgesetzt; technische Grenzen und Regelquellen fuer P015/P017 folgen |
+| `ma_analyse.stage_1_dimensioning` | teilweise | LoD-1-Referenzdimensionierung umgesetzt; spaetere `DimensioningRequest`-Antworten fuer P017 geplant |
+| `ma_analyse.stage_2_optimization` | teilweise | vorhandene Analysebefehle, gemeinsamer Stufenablauf fehlt |
+| `ma_analyse.stage_3_standards_verification` | geplant | Norm-Nachweis, deutsche Normenprofile zuerst |
+| `ma_analyse.stage_4_sensitivity` | geplant | Vorarbeiten fuer Zeitfenster und Wetterkennwerte vorhanden, Ereignisverknuepfung fehlt |
+| `ma_simulation_setup` | geplant | P018 plant ein neutrales Run-Paket nach `VariantGeneration` mit direkter `RUN -> VAR`-Zuordnung, Setup und technischen Logs |
+| `ma_export_simulation` | geplant | Basisexport liegt noch in `ma_variants`; P009 wird nach P018 ueber `RUN-ID + VAR-ID` weitergefuehrt |
+| `ma_import_simulation` | geplant | P009-MVP plant zuerst eine manuelle neutrale Ergebnisaufnahme und Aufbereitung fuer die erste Analyse |
+| `research_tools` | geplant | P030 wertet technische Logs und manuelle Zeiten getrennt von der Produktivsoftware aus |
 | `ma_economy` | geplant | Wirtschaftlichkeitsprototyp liegt noch in `ma_variants` |
 | `ma_sustainability` | geplant | Nachhaltigkeitsbewertung als eigenes Fachmodul |
 | `ma_assessment` | geplant | Bewertungs- und Scoringschicht ueber Analyse, Wirtschaft und Nachhaltigkeit |
 | `ma_reporting` | geplant | Reportfunktionen liegen noch in Fachmodulen |
 | `ma_data_export` | geplant | Exporte liegen noch verteilt in Fachmodulen |
-| `ma_validation` | teilweise | Diagnose-, Integritaets- und Readiness-Vertraege sind in mehreren Fachmodulen vorhanden; fachliche Regeln bleiben beim jeweiligen Owner |
-| `ma_feedback` | geplant | phasenuebergreifende Ruecksprungsteuerung mit Reload-/Abort-Regeln bleibt Teil der spaeteren Workflowmigration |
+| `ma_validation` | geplant, P010-Pilot nutzbar | Diagnose- und Freigabevertraege sind im Wetterpilot vorhanden; P027 erweitert Checkpoint-Freigaben |
+| `ma_feedback` | geplant | phasenuebergreifende Ruecksprungsteuerung mit Reload-/Abort-Regeln aus P027 |
 
 ### Vollstaendiger Modulkatalog
 
@@ -417,18 +406,13 @@ Paketgeruest, eine Infoseite oder vorhandener Prototypcode genuegt nicht fuer
   Fensteranteil umgesetzt.
 - **Ausgaben:** freigegebene Gebaeudedaten fuer `ma_parameters`,
   Raumreferenzen und Zonierungsvorschlaege fuer `ma_zones` sowie spaetere
-  Mengen- und Modellinformationen fuer Bewertung und Simulationsadapter. Die
-  direkte UI zeigt zusaetzlich flaechengewichtete U-Werte und eine klar als
-  Demo gekennzeichnete Transmissionsbilanz mit Nettoflaechen, `H_T` und
-  informativem `H'_T`.
+  Mengen- und Modellinformationen fuer Bewertung und Simulationsadapter.
 - **Abgrenzung:** Keine Nutzungsprofile, keine technische Anlagenlogik, keine
   Variantenkombination, keine Simulation und keine direkte IDA-ICE-Aenderung.
-- **Status:** Teilweise umgesetzt; P012 fuehrt Demo-Spec,
-  BusinessIntegration-LoD-1, das 29-Raum-Raumbuch, Kataloge, U-Wert-Ansicht,
-  informative Transmissionsauswertung und lokale IFC-/3DM-/CAD-Diagnosen.
-  Host-Bruttoflaechen werden fuer die Demo um positive Oeffnungen reduziert;
-  die Auswertung ist kein GEG- oder Normnachweis. IFC-Lite und produktiver
-  Rhino-Import bleiben offene Ausbaupfade.
+- **Status:** Teilweise umgesetzt; P012 konkretisiert Demo-Spec,
+  BusinessIntegration-LoD-1, IFC-/3DM-/CAD-Diagnose, Reifegrade,
+  Raumregister und Schnittstellen. IFC-Lite und produktiver Rhino-Import
+  bleiben offene Ausbaupfade.
 
 #### ma_zones
 
@@ -563,25 +547,18 @@ Paketgeruest, eine Infoseite oder vorhandener Prototypcode genuegt nicht fuer
 - **Eingaben:** standardisierte Ergebnisdaten, Varianten- und Raumwahl sowie
   Analyse- und Diagrammkonfiguration.
 - **Ausgaben:** Kennwerte, Tabellen, Diagramme, Excel-Dateien und
-  Analyseberichte. Streamlit und Excel verwenden fuer Kennwerte,
-  Dateninventar, Berechnungsgrenzen und Nachweisbereitschaft denselben
-  Tabellenvertrag.
+  Analyseberichte.
 - **Abgrenzung:** Keine Kosten-, Nachhaltigkeits- oder
   Gesamtbewertungslogik; die UI soll langfristig ausserhalb des Fachkerns
   liegen.
-- **Status:** Teilweise; CLI, UI-neutrale Service-Fassade, Analysen,
-  Plot-Templates und projektgebundene Streamlit-Ergebnisse sind vorhanden.
-  Raumleistungen koennen nach UD-121 in `W`, `W/m2` oder beiden
-  Darstellungen erscheinen; ohne belegte Quelleneinheit bleiben sie bewusst
-  einheitenoffen. Nach UD-122 wird der PostProcess zunaechst als gemeinsame
-  technische Analyseebene behandelt.
+- **Status:** Teilweise; CLI, Tkinter-GUI, Service-Fassade, Analysen und
+  Plot-Templates sind vorhanden.
 
 #### ma_analyse.stage_2_optimization
 
 - **Zweck:** Varianten mit vorhandenen Energie-, Leistungs-, Komfort- und
   Zeitreihenanalysen vergleichen.
-- **Status:** Teilweise umgesetzt; P019/P029 buendeln die bestehenden Befehle,
-  die gemeinsame Analyse-Demo und den produktiven UI-/Excel-Ergebnisvertrag.
+- **Status:** Teilweise vorhanden; P019 buendelt die bestehenden Befehle.
 
 #### ma_analyse.stage_3_standards_verification
 
@@ -591,9 +568,7 @@ Paketgeruest, eine Infoseite oder vorhandener Prototypcode genuegt nicht fuer
   Standards-Profile angebunden.
 - **Abgrenzung:** Keine allgemeine Modellverifikation; keine ungeprueften
   Grenzwerte.
-- **Status:** Eine wertfreie Readiness-Matrix ist umgesetzt. Produktive
-  Normregeln, Grenzwerte und PASS-/FAIL-Aussagen bleiben bis zum objektbezogenen
-  Rechte-, Methoden- und Fachtestgate gesperrt.
+- **Status:** Geplant; P020 beginnt mit Quellen- und Methodenrecherche.
 
 #### ma_analyse.stage_4_sensitivity
 
@@ -825,8 +800,6 @@ modulare Ablage besitzt.
 | `config/ma_building/examples/` | versionierte Beispiel-Specs fuer `ma_building` |
 | `data/catalogs/documents/` | Struktur fuer Produkt- und Materialdokumente |
 | `data/test_output/` | lokaler Arbeits- und Smoke-Test-Bereich |
-| `data/project_output/` | lokale regulaere Projektstudien ausserhalb des versionierten Lieferumfangs |
-| `WORK/04_Teil2_Prozessinnovation/Projekt_Workspaces/` | aktive externe P035-Projektordner mit projektbezogenen Eingaben und Ausgaben |
 | `logs/sessions/` | lokale strukturierte Lauf-, Diagnose- und Freigabeereignisse |
 
 Echte Projekt-, Ergebnis- und Katalogdaten werden nicht automatisch versioniert.
@@ -849,7 +822,6 @@ Die Ordnerstruktur bleibt reproduzierbar; Inhalte koennen lokal entstehen.
 | `docs/project/UPDATE_ROUTINES.md` | Codex-Routinen und Updateablaeufe |
 | `docs/project/PROJECT_INPUT_WORKFLOW.md` | Regeln fuer lokale Entwicklungs-Inbox und Projektinput |
 | `CHANGELOG.md` | tatsaechlich umgesetzte Aenderungen |
-| `WORK/04_Teil2_Prozessinnovation/Codex_Navigation/semantic_topics.md` | lokaler, nicht-kanonischer Navigationseinstieg auf die Originalquellen |
 
 ### Archivierungsregel
 
@@ -1002,7 +974,7 @@ folgende Entscheidungen:
 |---|---|---|
 | Projektstruktur | Das Projekt bleibt modular; aktive Planung, Entscheidungen, Architektur und Changelog werden getrennt gefuehrt. | UD-001, UD-002 |
 | Rahmenplanung | P007 ist die verbindliche Planungsgrundlage; Zielstrukturen werden erst nach Bestandsanalyse, Planung und Freigabe umgesetzt. | UD-041 |
-| Phasenmodell | Phase 0 und sechs fachliche P007-Phasen bleiben die historische Rahmenplangliederung; UD-112 fuehrt fuer die aktive Zielmigration PreProcess, MainProcess, PostProcess und Review/Iteration. | UD-042, UD-112 |
+| Phasenmodell | Phase 0 und sechs fachliche P007-Phasen ersetzen die bisherige aktive Vierer-Gliederung. | UD-042 |
 | Simulationsschnittstellen | `ma_export_simulation` und `ma_import_simulation` sind allgemein; IDA ICE liegt in Adaptern. | UD-043 |
 | Eingabemodule | Gebaeude, Wetter, Zonen und Technik bleiben getrennt und liefern ueber `ma_parameters` an `ma_variants`. | UD-044 |
 | Parameter- und Variantenuebergabe | P015 fuehrt den Zielpfad ueber `BaselineParameterSnapshot`, `ReferenceDimensioningResult` und `ParameterVariationSpecification`; P017 verarbeitet daraus `VariantSpace`, `VariantVerification`, `VariantCatalog`, `VariantSelection` und `VariantGeneration`. | PLAN_STATUS 2026-07-12, P015, P017 |
@@ -1023,7 +995,6 @@ folgende Entscheidungen:
 | Wetterdiagramme | Wetterdiagramme bleiben fachlich in `ma_weather`; `plot-template-weather` ist der eigene CLI-/UI-Befehl fuer `all` oder einzelne Wetterdiagramme. | UD-063 |
 | Datenvorbereitung | `prepare` und `analyze-data` bilden einen eigenen Workflow-Schritt zwischen Simulationsergebnisimport und Analyse Stufe 2. | UD-061 |
 | Prozessvergleich | Manueller, softwareunterstuetzter und automatisierter Aufwand wird getrennt nach Arbeitszeit, Laufzeit, Fehlerkorrektur und Wissensstand betrachtet. | UD-038 |
-| Semantische Navigation | `semantic_topics.md` ist der einzige lokale Navigationseinstieg, bleibt aber Adapter; Status, Rechte, Entscheidungen und Freigaben werden stets aus den Originalquellen gelesen. | UD-124, P031 |
 
 Technische Detailentscheidungen stehen in
 `docs/project/decisions/TECHNICAL_DECISIONS.md`. Offene Nutzerentscheidungen
@@ -1040,10 +1011,8 @@ stehen ausschliesslich in
   offen.
 - Cooling-Trennung relativ/absolut bleibt vorerst in Plot-Templates und wird
   spaeter fuer Hauptbefehl und GUI erneut bewertet.
-- UD-121 klaert Raumkennwerttabellen mit `W`, `W/m2` oder `Beides` und
-  positiver Netto-Raumflaeche. Offen bleiben Quelleneinheitenvertrag,
-  Gebaeudeaggregation, weitere Bezugsflaechen und die Uebertragung auf
-  Diagramme und andere Auswertungen.
+- Normierung wird `ma_analyse`-weit geplant: absolute Werte, flaechenbezogene
+  Werte oder beides brauchen spaeter eine konsistente Strategie.
 - `ma_workflow` soll spaeter echte Fachservice-Aufrufe koordinieren; P027
   konkretisiert zunaechst die P017-Checkpoints, Reloads und Abbrueche.
 - P015-S3b, P017-S1 und P018 priorisieren die funktionsfaehige Eingabekette

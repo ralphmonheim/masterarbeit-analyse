@@ -50,8 +50,9 @@ weil dort auch grosse, rohe oder noch ungepruefte Dateien liegen koennen.
 
 ## Compliance-Preflight
 
-Der Preflight richtet sich nach `docs/compliance/README.md`, den gemeinsamen
-Regeln unter `docs/compliance/shared/` und dem betroffenen Fachprofil. Der
+Der Preflight richtet sich nach den Schutz- und Freigaberegeln in `AGENTS.md`,
+den einschlaegigen Nutzer- und Technikentscheidungen unter
+`docs/project/decisions/` sowie dem betroffenen Fachprofil. Der
 `compliance_auditor` prueft read-only und erteilt keine eigene Rechts-,
 Vertrags- oder Fachfreigabe.
 
@@ -65,10 +66,11 @@ Geprueft werden mindestens:
 
 Der Hauptagent besitzt die Prozessentscheidung, prueft die Agentenempfehlung
 und dokumentiert die anwendbare `compliance_decision` mit Belegreferenz im
-passenden Fachregister unter `docs/compliance/` oder im Metadaten-Audit unter
-`logs/compliance/decisions.jsonl`. Eine Agentenempfehlung allein ist keine
-Freigabe. Materielle oder gelbe Entscheidungen benoetigen eine dokumentierte
-menschliche Bestaetigung und alle geforderten Rechtebelege.
+lokalen Metadaten-Audit unter `logs/compliance/decisions.jsonl`. Dauerhafte
+allgemeine Regeln und Entscheidungen werden zusaetzlich in den bestehenden
+versionierten Entscheidungsdateien festgehalten. Eine Agentenempfehlung allein
+ist keine Freigabe. Materielle oder gelbe Entscheidungen benoetigen eine
+dokumentierte menschliche Bestaetigung und alle geforderten Rechtebelege.
 
 Ein Compliance-Blocker stoppt nur das betroffene Objekt. Eine blosse
 Risikoakzeptanz ersetzt keinen Rechte- oder Freigabenachweis; unabhaengige,

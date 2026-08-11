@@ -85,6 +85,32 @@ def parameter_reference_rows(baseline) -> list[dict[str, object]]:
     ]
 
 
+def variation_span_table_rows(baseline, spans: object) -> list[dict[str, object]]:
+    """Bereitet fuer jeden Baseline-Parameter eine bearbeitbare Spannenzeile vor."""
+    stored_spans = {
+        str(span["parameter_key"]): span
+        for span in spans
+        if isinstance(span, dict) and span.get("parameter_key")
+    } if isinstance(spans, list) else {}
+    rows: list[dict[str, object]] = []
+    for value in baseline.parameter_values:
+        stored_span = stored_spans.get(value.parameter_key, {})
+        reference_value = value.value
+        rows.append(
+            {
+                "parameter_key": value.parameter_key,
+                "label": value.label,
+                "unit": value.unit,
+                "reference_value": reference_value,
+                "minimum": stored_span.get("minimum", reference_value),
+                "maximum": stored_span.get("maximum", reference_value),
+                "step": stored_span.get("step", 1.0),
+                "enabled": bool(stored_span.get("enabled", False)),
+            }
+        )
+    return rows
+
+
 def validate_parameter_project_payload(payload: dict[str, object]) -> tuple[str, ...]:
     """Prueft nur den vereinbarten projektbezogenen V1-Vertrag."""
     errors: list[str] = []
@@ -353,51 +379,76 @@ def _render_variation_section(workspace, baseline, payload: dict[str, object]) -
     spans = payload.get("variation_spans", [])
     if not isinstance(spans, list):
         spans = []
-    if spans:
-        st.dataframe(normalize_table_for_streamlit(spans), hide_index=True, width="stretch")
-    parameter_values = {
-        value.parameter_key: value
-        for value in baseline.parameter_values
-    }
-    parameter_key = st.selectbox(
-        "Parameter",
-        tuple(parameter_values),
-        format_func=lambda key: f"{parameter_values[key].label} ({key})",
-        key="ma_parameters_span_parameter",
-        on_change=_mark_parameters_draft,
-    )
-    reference_value = parameter_values[parameter_key]
-    st.caption(f"Referenzoption: {reference_value.value} {reference_value.unit}")
-    enabled = st.checkbox(
-        "Parameter fuer Variation freigeben",
-        key="ma_parameters_span_enabled",
-        on_change=_mark_parameters_draft,
-    )
-    value_form = st.selectbox(
-        "Werteform",
-        VALUE_FORM_OPTIONS,
-        key="ma_parameters_span_form",
-        disabled=not enabled,
-        on_change=_mark_parameters_draft,
-    )
-    values = _variation_form_values(value_form, enabled=enabled)
+    table_rows = variation_span_table_rows(baseline, spans)
+    header_columns = st.columns((3, 1, 1, 1, 1))
+    for column, label in zip(
+        header_columns,
+        ("Parameter", "Minimum", "Maximum", "Schritt", "Freigabe"),
+        strict=True,
+    ):
+        column.markdown(f"**{label}**")
+
+    candidates: list[dict[str, object]] = []
+    for row in table_rows:
+        parameter_key = str(row["parameter_key"])
+        columns = st.columns((3, 1, 1, 1, 1))
+        unit_suffix = f" [{row['unit']}]" if row["unit"] else ""
+        columns[0].write(f"{row['label']} ({parameter_key}){unit_suffix}")
+        minimum = columns[1].text_input(
+            "Minimum",
+            value=str(row["minimum"]),
+            key=f"ma_parameters_span_{parameter_key}_minimum",
+            label_visibility="collapsed",
+            on_change=_mark_parameters_draft,
+        )
+        maximum = columns[2].text_input(
+            "Maximum",
+            value=str(row["maximum"]),
+            key=f"ma_parameters_span_{parameter_key}_maximum",
+            label_visibility="collapsed",
+            on_change=_mark_parameters_draft,
+        )
+        step = columns[3].text_input(
+            "Schritt",
+            value=str(row["step"]),
+            key=f"ma_parameters_span_{parameter_key}_step",
+            label_visibility="collapsed",
+            on_change=_mark_parameters_draft,
+        )
+        enabled = columns[4].checkbox(
+            "Freigabe",
+            value=bool(row["enabled"]),
+            key=f"ma_parameters_span_{parameter_key}_enabled",
+            label_visibility="collapsed",
+            on_change=_mark_parameters_draft,
+        )
+        candidates.append(
+            {
+                "parameter_key": parameter_key,
+                "label": row["label"],
+                "unit": row["unit"],
+                "reference_value": row["reference_value"],
+                "enabled": enabled,
+                "value_form": "Min/Max/Schritt" if enabled else "kein Wert",
+                "minimum": minimum,
+                "maximum": maximum,
+                "step": step,
+            }
+        )
+
     if st.button("Variationsspanne in Projekt speichern", key="ma_parameters_save_span"):
-        candidate = {
-            "parameter_key": parameter_key,
-            "label": reference_value.label,
-            "unit": reference_value.unit,
-            "reference_value": reference_value.value,
-            "enabled": enabled,
-            "value_form": value_form if enabled else "kein Wert",
-            **values,
-        }
         updated_payload = dict(payload)
         updated_payload["reference"] = updated_payload.get("reference") or {
             "snapshot_id": baseline.snapshot_id
         }
+        candidate_keys = {candidate["parameter_key"] for candidate in candidates}
         updated_payload["variation_spans"] = [
-            *[span for span in spans if span.get("parameter_key") != parameter_key],
-            candidate,
+            *candidates,
+            *[
+                span
+                for span in spans
+                if isinstance(span, dict) and span.get("parameter_key") not in candidate_keys
+            ],
         ]
         updated_payload["dependent_results_status"] = "update_required"
         errors = validate_parameter_project_payload(updated_payload)

@@ -15,8 +15,12 @@ from ma_building import (
     BUILDING_RHINO_INPUT_DIR,
     BUILDING_SPECIFICATION_OPTIONS,
     BUSINESS_INTEGRATION_REFERENCE_RHINO_FILENAME,
+    DEFAULT_DELTA_U_WB_W_M2K,
     FACHLICHER_TEIL_REFERENCE_IFC_FILENAME,
     LocalCatalogValidationError,
+    ThermalComponentRow,
+    ThermalTransmissionResult,
+    calculate_thermal_transmission,
     create_user_catalog_draft,
     diagnose_building_source,
     load_building_excel_catalog,
@@ -35,7 +39,14 @@ from ma_ui.streamlit_app.state import (
 from ma_validation import DiagnosticMessage, DiagnosticSeverity
 from ma_workspace import load_project_module_config, save_project_module_config
 
-BUILDING_WORKSPACE_TAB_LABELS = ("Import", "Uebersicht", "Bauteile", "Raeume", "Konstruktionen/Kataloge")
+BUILDING_WORKSPACE_TAB_LABELS = (
+    "Import",
+    "Übersicht",
+    "Räume",
+    "U-Werte",
+    "Ergebnisse",
+    "Bauteile",
+)
 BUILDING_AI_PROMPT_PATH = Path("docs/prompts/MA_BUILDING_AI_MODEL_GENERATION_PROMPT.md")
 
 
@@ -55,26 +66,21 @@ def render() -> None:
         spec = _render_building_import()
     else:
         try:
-            spec = _load_building_spec_option(
-                str(
-                    st.session_state.get(
-                        "building_specification_draft_key",
-                        _default_building_spec_key(),
-                    )
-                )
-            )
+            spec = _load_building_spec_option(_active_building_spec_key())
         except (OSError, ValueError) as exc:
             st.error(f"Gebaeudespezifikation konnte nicht geladen werden: {exc}")
             return
     if spec is None:
         return
-    if section == "Uebersicht":
+    if section == "Übersicht":
         _render_building_overview(spec)
-    elif section == "Bauteile":
-        _render_elements(spec)
-    elif section == "Raeume":
+    elif section == "Räume":
         _render_rooms(spec)
-    elif section == "Konstruktionen/Kataloge":
+    elif section == "U-Werte":
+        _render_u_values(spec)
+    elif section == "Ergebnisse":
+        _render_thermal_results(spec)
+    elif section == "Bauteile":
         _render_construction_catalog(spec)
 
 
@@ -178,6 +184,42 @@ def building_room_rows(spec) -> list[dict[str, object]]:
     ]
 
 
+def building_import_minimum_ready(spec) -> bool:
+    """Prueft die V1-Mindestdaten: Bezeichnung und positive Flaeche."""
+    explicit_components = [
+        (element.element_id, element.area_m2) for element in spec.elements
+    ] + [
+        (opening.opening_id, opening.area_m2) for opening in spec.openings
+    ]
+    if explicit_components:
+        return all(bool(component_id) and area_m2 > 0 for component_id, area_m2 in explicit_components)
+    envelope = spec.simple_envelope
+    if envelope is None:
+        return False
+    aggregate_areas = (
+        envelope.external_wall_area_m2,
+        envelope.window_area_m2,
+        envelope.roof_area_m2,
+        envelope.floor_area_m2,
+    )
+    return bool(spec.building.name) and any(area is not None and area > 0 for area in aggregate_areas)
+
+
+def building_import_document_status_rows(spec, active_selection_key: str | None) -> list[dict[str, object]]:
+    """Beschreibt den gemeinsamen Entwurfs-/Aktivstand aller Importwege."""
+    minimum_ready = building_import_minimum_ready(spec)
+    return [
+        {"Merkmal": "Gebaeudedokument", "Wert": spec.building.name or "leer"},
+        {"Merkmal": "Explizite Bauteile", "Wert": len(spec.elements)},
+        {"Merkmal": "Explizite Oeffnungen", "Wert": len(spec.openings)},
+        {
+            "Merkmal": "V1-Mindestdaten",
+            "Wert": "vollstaendig" if minimum_ready else "Bezeichnung und Flaeche fehlen",
+        },
+        {"Merkmal": "Aktiver Stand", "Wert": active_selection_key or "noch keiner"},
+    ]
+
+
 def _select_building_specification():
     """Waehlt die im Import-Reiter als Entwurf angezeigte Spezifikation."""
     option_rows = building_spec_option_rows()
@@ -197,28 +239,69 @@ def _select_building_specification():
     except (OSError, ValueError) as exc:
         st.error(f"Gebaeudespezifikation konnte nicht geladen werden: {exc}")
         return None
+    workspace = get_active_workspace(st.session_state)
+    project_payload = _building_project_payload(workspace) if workspace is not None else {}
+    active_specification = project_payload.get("building_specification", {})
+    active_selection_key = (
+        str(active_specification.get("selection_key"))
+        if isinstance(active_specification, dict) and active_specification.get("selection_key")
+        else None
+    )
     st.dataframe(
         normalize_table_for_streamlit(building_master_data_rows(spec)),
         hide_index=True,
         width="stretch",
     )
-    if st.button("Gebaeudespezifikation uebernehmen", key="building_apply_specification"):
-        workspace = get_active_workspace(st.session_state)
-        if workspace is None:
-            st.error("Bitte zuerst ein Projekt auswaehlen.")
-        else:
-            payload = _building_project_payload(workspace)
-            payload["building_specification"] = {
-                "selection_key": selected_key,
-                "building_id": spec.building.building_id,
-                "model_version": spec.model_version.version_id,
-            }
-            save_project_module_config(workspace, "ma_building", payload)
-            st.session_state["building_applied_specification_key"] = selected_key
-            clear_workspace_draft(st.session_state, "ma_building")
-            st.success("Gebaeudespezifikation wurde in die Projektkonfiguration uebernommen.")
-    elif st.session_state.get("building_applied_specification_key") != selected_key:
-        st.info("Die Auswahl ist eine Vorschau und noch nicht in die Projektkonfiguration uebernommen.")
+    st.markdown("##### Gemeinsames Gebaeudedokument")
+    st.dataframe(
+        normalize_table_for_streamlit(
+            building_import_document_status_rows(spec, active_selection_key)
+        ),
+        hide_index=True,
+        width="stretch",
+    )
+    minimum_ready = building_import_minimum_ready(spec)
+    replaces_active = bool(active_selection_key and active_selection_key != selected_key)
+    replacement_confirmed = False
+    if replaces_active:
+        st.warning(
+            f"Der aktive Stand {active_selection_key} wird durch {selected_key} ersetzt. "
+            "Die Ueberschreibung erfolgt nur nach deiner Bestaetigung."
+        )
+        replacement_confirmed = st.checkbox(
+            "Aktiven Gebaeudestand wirklich ueberschreiben",
+            key="building_confirm_specification_replacement",
+        )
+    if not minimum_ready:
+        st.warning("Der Entwurf braucht mindestens eine Bauteilbezeichnung und eine positive Flaeche.")
+    if workspace is None:
+        st.info("Bitte zuerst ein Projekt auswaehlen, um den Stand zu aktivieren.")
+    already_active = active_selection_key == selected_key
+    if already_active:
+        st.success("Dieser Gebaeudestand ist im Projekt aktiv.")
+    apply_disabled = (
+        workspace is None
+        or not minimum_ready
+        or already_active
+        or (replaces_active and not replacement_confirmed)
+    )
+    if st.button(
+        "Gebaeudedokument aktivieren",
+        key="building_apply_specification",
+        disabled=apply_disabled,
+    ):
+        payload = project_payload
+        payload["building_specification"] = {
+            "selection_key": selected_key,
+            "building_id": spec.building.building_id,
+            "model_version": spec.model_version.version_id,
+        }
+        save_project_module_config(workspace, "ma_building", payload)
+        st.session_state["building_applied_specification_key"] = selected_key
+        clear_workspace_draft(st.session_state, "ma_building")
+        st.success("Gebaeudedokument wurde aktiviert und an die Gebaeudeansichten uebergeben.")
+    elif not already_active:
+        st.info("Die Auswahl ist ein Entwurf und noch nicht im Projekt aktiviert.")
     return spec
 
 
@@ -238,16 +321,7 @@ def _render_building_import():
         selection_mode="single",
     )
     input_mode = input_mode or input_modes[0]
-    spec = _load_building_spec_option(
-        str(
-            st.session_state.get(
-                "building_specification_draft_key",
-                _default_building_spec_key(),
-            )
-        )
-    )
     if input_mode == "3D-Datei":
-        spec = _select_building_specification()
         uploaded_file = st.file_uploader(
             "3D-Datei fuer die spaetere Pruefung vormerken",
             type=["ifc", "3dm", "dwg", "dxf", "skp", "obj", "stl"],
@@ -293,7 +367,13 @@ def _render_building_import():
             on_change=_mark_building_draft,
         )
         st.caption("Die Beschreibung ist eine Vorbereitung fuer eine spätere strukturierte BuildingModelSpecification.")
-    return spec
+    st.divider()
+    st.subheader("Gemeinsames Gebaeudedokument")
+    st.caption(
+        "Alle Importwege muenden in dieselbe BuildingModelSpecification. "
+        "Die aktuelle V1 aktiviert vorhandene strukturierte Demo-Staende; die Datei- und KI-Verarbeitung bleibt getrennte Folgearbeit."
+    )
+    return _select_building_specification()
 
 
 def _render_prompt_copy_button(prompt: str) -> None:
@@ -352,6 +432,351 @@ def _render_elements(spec) -> None:
             hide_index=True,
             width="stretch",
         )
+
+
+def thermal_component_table_rows(
+    spec,
+    result: ThermalTransmissionResult | None = None,
+) -> list[dict[str, object]]:
+    """Bereitet alle thermischen Bauteile fuer die rechte Auswahltabelle auf."""
+    result = result or calculate_thermal_transmission(spec)
+    openings_by_id = {opening.opening_id: opening for opening in spec.openings}
+    rows = []
+    for number, component in enumerate(result.rows, start=1):
+        opening = openings_by_id.get(component.component_id)
+        aggregate_host = (
+            "LOD1-AW"
+            if component.source_type == "SimpleEnvelope" and component.construction_code == "FA"
+            else ""
+        )
+        rows.append(
+            {
+                "Nr.": number,
+                "Bauteil": component.category,
+                "Bezeichnung": component.component_id,
+                "Ausrichtung": _orientation_label(component.orientation_deg),
+                "Flaeche [m2]": component.gross_area_m2,
+                "U-Wert [W/(m2 K)]": component.u_value_w_m2k,
+                "Abzug von": opening.host_element_id if opening is not None else aggregate_host,
+            }
+        )
+    return rows
+
+
+def thermal_category_table_rows(result: ThermalTransmissionResult) -> list[dict[str, object]]:
+    """Liefert die verdichtete U-Wert-Uebersicht je Bauteilkategorie."""
+    return [
+        {
+            "Kategorie": category.category,
+            "Flaeche [m2]": category.area_m2,
+            "Mittlerer U-Wert [W/(m2 K)]": category.weighted_u_value_w_m2k,
+            "F x U x A [W/K]": category.transmission_contribution_w_k,
+            "Status": "vollstaendig" if category.is_complete else "unvollstaendig",
+        }
+        for category in result.category_results
+    ]
+
+
+def thermal_transmission_table_rows(result: ThermalTransmissionResult) -> list[dict[str, object]]:
+    """Liefert die nachvollziehbaren Einzelbeitraege der Demo-Transmissionsbilanz."""
+    return [
+        {
+            "Bauteil": row.component_id,
+            "Kategorie": row.category,
+            "F": row.temperature_correction_factor,
+            "U-Wert [W/(m2 K)]": row.u_value_w_m2k,
+            "Flaeche A [m2]": row.effective_area_m2,
+            "F x U x A [W/K]": (
+                row.temperature_correction_factor * row.u_value_w_m2k * row.effective_area_m2
+                if row.is_complete
+                and row.temperature_correction_factor is not None
+                and row.u_value_w_m2k is not None
+                else None
+            ),
+            "Status": "Demo-Annahme" if row.assumption_notes else "aus Modellstand",
+        }
+        for row in result.rows
+        if row.effective_area_m2 > 0
+    ]
+
+
+def _render_u_values(spec) -> None:
+    """Zeigt links feste Bauteildetails und rechts alle erkannten Huellbauteile."""
+    result = calculate_thermal_transmission(spec)
+    table_rows = thermal_component_table_rows(spec, result)
+    if not table_rows:
+        st.info("Die gewaehlte Spezifikation enthaelt keine auswertbaren Huellbauteile.")
+        return
+    _render_thermal_source_status(spec)
+
+    detail_column, table_column = st.columns((1, 3), gap="large")
+    with table_column:
+        st.subheader("Erkannte Bauteile")
+        selected_id = st.selectbox(
+            "Bauteil fuer die Detailansicht",
+            [str(row["Bezeichnung"]) for row in table_rows],
+            format_func=lambda component_id: _component_selection_label(component_id, table_rows),
+            key="ma_building_u_value_selected_component",
+        )
+        st.dataframe(
+            normalize_table_for_streamlit(table_rows),
+            hide_index=True,
+            width="stretch",
+        )
+        st.caption(
+            "Die Himmelsrichtung ist ein Bauteilwert und keine Gruppierung. "
+            "Abzugsflaechen bleiben als positive Einzelwerte sichtbar."
+        )
+
+    selected = next(row for row in result.rows if row.component_id == selected_id)
+    with detail_column:
+        _render_thermal_component_detail(spec, selected, table_rows)
+
+
+def _render_thermal_component_detail(
+    spec,
+    component: ThermalComponentRow,
+    table_rows: list[dict[str, object]],
+) -> None:
+    """Rendert die dauerhaft sichtbare linke Detailkarte eines Bauteils."""
+    row_number = next(int(row["Nr."]) for row in table_rows if row["Bezeichnung"] == component.component_id)
+    opening = next((item for item in spec.openings if item.opening_id == component.component_id), None)
+    host_openings = [item for item in spec.openings if item.host_element_id == component.component_id]
+    deduction_lines = [f"{item.opening_id}: {item.area_m2:.2f} m2" for item in host_openings]
+    is_aggregate_opening = component.source_type == "SimpleEnvelope" and component.construction_code == "FA"
+    if component.source_type == "SimpleEnvelope" and component.construction_code == "AW":
+        window_area = spec.simple_envelope.window_area_m2 if spec.simple_envelope is not None else None
+        if window_area is not None and window_area > 0:
+            deduction_lines = [f"LOD1-FA: {window_area:.2f} m2"]
+    if opening is not None:
+        deduction_lines = [f"Abzug von: {opening.host_element_id}"]
+    elif is_aggregate_opening:
+        deduction_lines = ["Abzug von: LOD1-AW"]
+
+    st.subheader("Bauteildetails")
+    st.markdown("##### Bauteil")
+    number_column, type_column = st.columns((1, 3))
+    number_column.number_input("Nr.", value=row_number, disabled=True, key=f"detail_number_{component.component_id}")
+    type_column.text_input(
+        "Bauteilart",
+        value=component.category,
+        disabled=True,
+        key=f"detail_type_{component.component_id}",
+    )
+    st.text_input(
+        "Bezeichnung",
+        value=component.component_id,
+        disabled=True,
+        key=f"detail_name_{component.component_id}",
+    )
+    st.text_input(
+        "Ausrichtung",
+        value=_orientation_label(component.orientation_deg),
+        disabled=True,
+        key=f"detail_orientation_{component.component_id}",
+    )
+
+    st.markdown("##### Geometrie")
+    geometry_columns = st.columns(3)
+    geometry_columns[0].number_input(
+        "Anzahl", value=1, disabled=True, key=f"detail_count_{component.component_id}"
+    )
+    geometry_columns[1].text_input(
+        "Laenge [m]", value="nicht verfuegbar", disabled=True, key=f"detail_length_{component.component_id}"
+    )
+    geometry_columns[2].text_input(
+        "Breite [m]", value="nicht verfuegbar", disabled=True, key=f"detail_width_{component.component_id}"
+    )
+    st.number_input(
+        "Flaeche [m2]",
+        value=float(component.gross_area_m2),
+        disabled=True,
+        key=f"detail_area_{component.component_id}",
+    )
+    st.text_area(
+        "Abzugsflaechen",
+        value="\n".join(deduction_lines) if deduction_lines else "keine",
+        disabled=True,
+        height=80,
+        key=f"detail_deductions_{component.component_id}",
+    )
+    control_columns = st.columns(2)
+    control_columns[0].checkbox(
+        "Abzugsflaeche",
+        value=opening is not None or is_aggregate_opening,
+        disabled=True,
+        key=f"detail_is_deduction_{component.component_id}",
+    )
+    control_columns[1].checkbox(
+        "Teil der Huelle",
+        value=True,
+        disabled=True,
+        key=f"detail_is_envelope_{component.component_id}",
+    )
+
+    st.markdown("##### Eigenschaften")
+    st.text_input(
+        "U-Wert [W/(m2 K)]",
+        value=(f"{component.u_value_w_m2k:.3f}" if component.u_value_w_m2k is not None else "nicht zugewiesen"),
+        disabled=True,
+        key=f"detail_u_value_{component.component_id}",
+    )
+    st.text_input(
+        "Zugewiesenes Bauteil",
+        value=f"Demo-Zuordnung {component.construction_code}",
+        disabled=True,
+        key=f"detail_assignment_{component.component_id}",
+    )
+    if component.assumption_notes:
+        st.caption(" | ".join(component.assumption_notes))
+    if st.button("Vorhandenes Bauteil auswaehlen", key=f"detail_select_catalog_{component.component_id}"):
+        st.info("Die dauerhafte Katalogzuordnung wird im Reiter Bauteile verwaltet.")
+    st.button(
+        "Neues Bauteil erstellen",
+        disabled=True,
+        help="Der Erstellungsdialog ist als spaetere Ausbaustufe vorgesehen.",
+        key=f"detail_create_catalog_{component.component_id}",
+    )
+
+
+def _render_thermal_results(spec) -> None:
+    """Zeigt U-Wert-Uebersicht und vereinfachten Transmissionskennwert."""
+    result = calculate_thermal_transmission(spec)
+    _render_thermal_source_status(spec)
+    u_value_tab, transmission_tab = st.tabs(("U-Wert-Übersicht", "Transmissionswärmeverlust"))
+    with u_value_tab:
+        _render_u_value_results(result)
+    with transmission_tab:
+        _render_transmission_results(result)
+
+
+def _render_u_value_results(result: ThermalTransmissionResult) -> None:
+    st.subheader("Flaechengewichtete U-Werte nach Bauteilkategorie")
+    table_column, chart_column = st.columns((1, 2), gap="large")
+    category_rows = thermal_category_table_rows(result)
+    with table_column:
+        for category in result.category_results:
+            st.markdown(f"##### {category.category}")
+            component_rows = [
+                {
+                    "Bauteil": row.component_id,
+                    "U-Wert [W/(m2 K)]": row.u_value_w_m2k,
+                    "Flaeche [m2]": row.effective_area_m2,
+                }
+                for row in result.rows
+                if row.category == category.category and row.effective_area_m2 > 0
+            ]
+            st.dataframe(normalize_table_for_streamlit(component_rows), hide_index=True, width="stretch")
+            mean_value = category.weighted_u_value_w_m2k
+            st.metric(
+                f"Mittlerer U-Wert {category.category}",
+                f"{mean_value:.3f} W/(m2 K)" if mean_value is not None else "nicht berechenbar",
+            )
+    with chart_column:
+        chart_rows = [
+            {
+                "Kategorie": row["Kategorie"],
+                "Mittlerer U-Wert [W/(m2 K)]": row["Mittlerer U-Wert [W/(m2 K)]"],
+            }
+            for row in category_rows
+            if row["Mittlerer U-Wert [W/(m2 K)]"] is not None
+        ]
+        if chart_rows:
+            st.bar_chart(chart_rows, x="Kategorie", y="Mittlerer U-Wert [W/(m2 K)]")
+        st.caption("Informative Demo-Auswertung; kein GEG-Nachweis.")
+
+
+def _render_transmission_results(result: ThermalTransmissionResult) -> None:
+    st.subheader("Transmissionswärmetransferkoeffizient H_T")
+    st.caption(
+        "Vereinfachte Demo-Bilanz mit manuell gesetzten Randbedingungen. "
+        "H'_T wird beim Nichtwohngebaeude nur als informativer Huellkennwert gezeigt."
+    )
+    transmission_rows = thermal_transmission_table_rows(result)
+    table_column, chart_column = st.columns((1, 2), gap="large")
+    with table_column:
+        st.dataframe(normalize_table_for_streamlit(transmission_rows), hide_index=True, width="stretch")
+        base_heat_loss = (
+            sum(
+                float(row["F x U x A [W/K]"])
+                for row in transmission_rows
+                if row["F x U x A [W/K]"] is not None
+            )
+            if result.is_complete
+            else None
+        )
+        thermal_bridge = (
+            result.thermal_bridge_delta_u_w_m2k * result.envelope_area_m2
+            if result.is_complete
+            else None
+        )
+        summary_rows = [
+            {"Kennwert": "Summe F x U x A", "Wert": base_heat_loss, "Einheit": "W/K"},
+            {
+                "Kennwert": "Waermebrueckenzuschlag",
+                "Wert": thermal_bridge,
+                "Einheit": "W/K",
+            },
+            {
+                "Kennwert": "H_T",
+                "Wert": result.heat_loss_coefficient_w_k,
+                "Einheit": "W/K",
+            },
+            {
+                "Kennwert": "H'_T",
+                "Wert": result.heat_loss_coefficient_per_area_w_m2k,
+                "Einheit": "W/(m2 K)",
+            },
+        ]
+        st.dataframe(normalize_table_for_streamlit(summary_rows), hide_index=True, width="stretch")
+    with chart_column:
+        chart_rows = [
+            {"Bauteil": row["Bauteil"], "F x U x A [W/K]": row["F x U x A [W/K]"]}
+            for row in transmission_rows
+            if row["F x U x A [W/K]"] is not None
+        ]
+        if chart_rows:
+            st.bar_chart(chart_rows, x="Bauteil", y="F x U x A [W/K]")
+        st.metric(
+            "H'_T",
+            (
+                f"{result.heat_loss_coefficient_per_area_w_m2k:.3f} W/(m2 K)"
+                if result.heat_loss_coefficient_per_area_w_m2k is not None
+                else "nicht berechenbar"
+            ),
+        )
+        st.caption(
+            f"Manuelle Demo-Annahme: Delta U_WB = {DEFAULT_DELTA_U_WB_W_M2K:.2f} W/(m2 K)."
+        )
+    for warning in result.warnings:
+        st.warning(warning)
+
+
+def _render_thermal_source_status(spec) -> None:
+    """Macht die Herkunft und Vorlaeufigkeit der U-Werte sichtbar."""
+    relevant_assumptions = [
+        assumption.text
+        for assumption in spec.assumptions
+        if assumption.location and assumption.location.startswith("simple_envelope")
+    ]
+    st.caption("Berechnet mit Demo-Annahmen; nicht gemessen und nicht als GEG-Nachweis freigegeben.")
+    if relevant_assumptions:
+        with st.expander("Herkunft und Grenzen der Huellkennwerte"):
+            for assumption in relevant_assumptions:
+                st.markdown(f"- {assumption}")
+
+
+def _component_selection_label(component_id: str, rows: list[dict[str, object]]) -> str:
+    row = next(item for item in rows if item["Bezeichnung"] == component_id)
+    return f"{row['Nr.']} · {row['Bauteil']} · {component_id}"
+
+
+def _orientation_label(orientation_deg: float | None) -> str:
+    if orientation_deg is None:
+        return "nicht verfuegbar"
+    directions = ("N", "NO", "O", "SO", "S", "SW", "W", "NW")
+    direction = directions[round((orientation_deg % 360.0) / 45.0) % len(directions)]
+    return f"{direction} ({orientation_deg:g} Grad)"
 
 
 def _render_rooms(spec) -> None:
@@ -795,6 +1220,37 @@ def _catalog_record_rows(record: DemoCatalogRecord) -> list[dict[str, object]]:
 
 def _load_building_spec_option(option_key: str):
     return load_named_building_specification(option_key)
+
+
+def _active_building_spec_key() -> str:
+    """Liefert fuer Folgereiter den aktivierten statt des blossen Entwurfsstands."""
+    workspace = get_active_workspace(st.session_state)
+    payload = _building_project_payload(workspace) if workspace is not None else {}
+    return resolve_active_building_spec_key(
+        workspace_present=workspace is not None,
+        project_payload=payload,
+        session_key=str(st.session_state.get("building_applied_specification_key", "")),
+        default_key=_default_building_spec_key(),
+    )
+
+
+def resolve_active_building_spec_key(
+    *,
+    workspace_present: bool,
+    project_payload: dict[str, object],
+    session_key: str,
+    default_key: str,
+) -> str:
+    """Loest den Aktivstand auf, ohne ihn zwischen Projekten zu vererben."""
+    option_keys = {key for key, _label, _source in BUILDING_SPECIFICATION_OPTIONS}
+    if workspace_present:
+        selection = project_payload.get("building_specification", {})
+        if isinstance(selection, dict):
+            selected_key = str(selection.get("selection_key", ""))
+            if selected_key in option_keys:
+                return selected_key
+        return default_key
+    return session_key if session_key in option_keys else default_key
 
 
 def _default_building_spec_key() -> str:

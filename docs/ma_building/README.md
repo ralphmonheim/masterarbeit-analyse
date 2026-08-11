@@ -57,6 +57,23 @@
   `BuildingModelSpecification` enthalten sind. Die aktuelle IFC-Diagnose
   zaehlt Entity-Typen, liest aber noch keine einzelnen IFC-Bauteile oder
   Attribute aus; eine solche Anzeige bleibt IFC-Lite-Folgearbeit.
+- **U-Wert- und Ergebnisansicht:** Der aktivierte Modellstand speist eine
+  feste Bauteildetailkarte, eine Tabelle aller vorhandenen Huellbauteile und
+  zwei Ergebnisreiter. Oeffnungen bleiben positive Objekte und reduzieren
+  ueber `host_element_id` die wirksame Bruttoflaeche ihres Host-Bauteils.
+  `ma_building.thermal` berechnet UI-neutral mittlere U-Werte je Kategorie,
+  eine vereinfachte Demo-Bilanz fuer `H_T` und den nur informativ gezeigten
+  Kennwert `H'_T`.
+- **Methodengrenze:** Fuer die V1-Demo gelten manuelle, sichtbar
+  gekennzeichnete Annahmen `F=1,0` gegen Aussenluft, `F=0,5` gegen Erdreich
+  und `Delta U_WB=0,10 W/(m2 K)`. Sie dienen weder als Normersatz noch als
+  GEG-Nachweis. Grundlage fuer die Einordnung sind die oeffentlich
+  zugaenglichen Regelungen in GEG Anlage 3 und GEG Paragraph 24; eine
+  belastbare Erdreich-, Waermebruecken- oder Nichtwohngebaeude-Nachweisrechnung
+  bleibt Folgearbeit.
+  Oeffentliche Einstiege: [GEG Anlage 3](https://www.gesetze-im-internet.de/geg/anlage_3.html),
+  [GEG Paragraph 24](https://www.gesetze-im-internet.de/geg/__24.html) und
+  [BAFA-Fragenpool Gebaeudetechnik](https://www.bafa.de/SharedDocs/Downloads/DE/Energie/qpeb_uebungsfragen_gebaeudetechnik.pdf?__blob=publicationFile&v=7).
 - **Naechster Schritt:** LoD-2-Inhalte fuer Raum-/Bauteilstruktur klaeren und
   reale IFC-Inhalte separat auswerten, bevor ein IFC-Lite-Import freigegeben
   wird. Rhino bleibt ohne aktive Parser-Abhaengigkeit.

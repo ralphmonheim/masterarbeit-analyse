@@ -19,6 +19,7 @@ Archivierte Fassungen:
 | `MASTERARBEIT_LEITFADEN_v0.1.0_codex_2026-06-17.md` | 0.1.0 | Codex | Erste Fassung auf Basis des aktuellen VS-Code-Projektstands |
 | `MASTERARBEIT_LEITFADEN_v0.2.0_chatgpt_2026-06-18.md` | 0.2.0 | ChatGPT | Externe Referenzfassung fuer Masterarbeitsstruktur und Software |
 | `MASTERARBEIT_LEITFADEN_v0.3.7_2026-06-18.md` | 0.3.7 | Aktive Vorgaengerfassung | Unveraenderte Sicherung vor der Umgliederung in acht Hauptbereiche |
+| `MASTERARBEIT_LEITFADEN_v0.5.14_2026-07-21.md` | 0.5.14 | Aktive Vorgaengerfassung | Unveraenderte Sicherung vor dem Abgleich auf UD-112 sowie den Umsetzungsstand vom 2026-08-11 |
 
 Neue Leitfadenfassungen werden archiviert, wenn sie als eigenstaendige
 Referenz erhalten bleiben sollen oder bevor die aktive Leitfadenstruktur

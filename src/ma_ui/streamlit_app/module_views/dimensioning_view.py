@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+from datetime import UTC, datetime
+from time import perf_counter
 
 import pandas as pd
 import streamlit as st
@@ -36,7 +38,7 @@ from ma_ui.streamlit_app.state import (
     mark_workspace_draft,
     small_office_v1_uses_reference_zone_model,
 )
-from ma_variants import load_small_office_v1_study
+from ma_variants import load_selected_small_office_v1_study
 from ma_workflow import get_module_definition
 from ma_workspace import load_project_module_config, save_project_module_config
 from ma_zones import (
@@ -118,7 +120,7 @@ def render() -> None:
 
     active_vver_selection = None
     if workspace.project.identity.title == "Masterarbeit-Analyse":
-        study = load_small_office_v1_study()
+        study = load_selected_small_office_v1_study(variants_payload)
         active_vver_selection = active_current_vver_selection(
             variants_payload,
             study_id=study.study_id,
@@ -181,6 +183,7 @@ def render() -> None:
         ),
         key="save_manual_reference_dimensioning",
     ):
+        started = perf_counter()
         payload = build_manual_ida_legacy_payload(
             project_id=workspace.project.identity.project_id,
             zone_model_id=zone_spec.zone_model_id,
@@ -199,6 +202,13 @@ def render() -> None:
                 "record_id": active_vver_selection.record_id,
                 "record_fingerprint": active_vver_selection.record_fingerprint,
             }
+        payload["technical_timing"] = {
+            "stage": "reference_dimensioning_save",
+            "status": "success",
+            "duration_seconds": round(perf_counter() - started, 6),
+            "recorded_at": datetime.now(UTC).isoformat(),
+            "details": f"{len(zone_loads)} Zonenlasten gespeichert",
+        }
         try:
             save_project_module_config(workspace, REFERENCE_DIMENSIONING_MODULE_KEY, payload)
         except (OSError, ValueError) as exc:
