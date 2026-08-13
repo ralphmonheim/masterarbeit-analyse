@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from math import isfinite
 
 from ma_validation import DiagnosticMessage, DiagnosticSeverity, ValidationResult, build_validation_result
 
@@ -12,6 +13,12 @@ from .models import (
     BuildingMaturityLevel,
     BuildingModelSpecification,
 )
+
+WINDOW_AREA_RELATIVE_TOLERANCE = 0.01
+"""Zulaessige relative Rundungsabweichung zwischen LoD-1-Fensterflaeche und -anteil."""
+
+WINDOW_AREA_ABSOLUTE_TOLERANCE_M2 = 0.10
+"""Zulaessige absolute Rundungsabweichung der LoD-1-Fensterflaeche in Quadratmetern."""
 
 
 def validate_building_spec(spec: BuildingModelSpecification) -> ValidationResult:
@@ -152,22 +159,22 @@ def _validate_input_detail(spec: BuildingModelSpecification) -> list[DiagnosticM
         "simple_envelope.floor_u_value_w_m2k": envelope.floor_u_value_w_m2k,
     }
     for location, value in u_values.items():
-        if value is not None and value <= 0:
+        if value is not None and not _is_positive_finite(value):
             messages.append(
                 _message(
                     DiagnosticSeverity.ERROR,
                     "BUILDING_SIMPLE_ENVELOPE_U_VALUE_INVALID",
-                    "U-Werte der einfachen Gebaeudehuelle muessen groesser als 0 sein.",
+                    "U-Werte der einfachen Gebaeudehuelle muessen positiv und endlich sein.",
                     location,
                 )
             )
 
-    if not 0 <= envelope.window_area_ratio_percent <= 100:
+    if not _is_finite_between(envelope.window_area_ratio_percent, 0.0, 100.0):
         messages.append(
             _message(
                 DiagnosticSeverity.ERROR,
                 "BUILDING_WINDOW_AREA_RATIO_INVALID",
-                "Der Fensterflaechenanteil muss im Bereich 0 bis 100 Prozent liegen.",
+                "Der Fensterflaechenanteil muss endlich sein und im Bereich 0 bis 100 Prozent liegen.",
                 "simple_envelope.window_area_ratio_percent",
             )
         )
@@ -179,16 +186,70 @@ def _validate_input_detail(spec: BuildingModelSpecification) -> list[DiagnosticM
         "simple_envelope.floor_area_m2": envelope.floor_area_m2,
     }
     for location, value in area_values.items():
-        if value is not None and value <= 0:
+        if value is not None and not _is_positive_finite(value):
             messages.append(
                 _message(
                     DiagnosticSeverity.ERROR,
                     "BUILDING_SIMPLE_ENVELOPE_AREA_INVALID",
-                    "Direkt eingegebene Huellflaechen muessen groesser als 0 sein.",
+                    "Direkt eingegebene Huellflaechen muessen positiv und endlich sein.",
                     location,
                 )
             )
+    if _is_lod_1(spec) and not spec.elements and not spec.openings:
+        messages.extend(_validate_lod1_window_geometry(envelope))
     return messages
+
+
+def _validate_lod1_window_geometry(envelope) -> list[DiagnosticMessage]:
+    """Sichert die LoD-1-Regel: Fensterflaeche ist entweder abgeleitet oder konsistent angegeben."""
+    messages: list[DiagnosticMessage] = []
+    wall_area = envelope.external_wall_area_m2
+    window_area = envelope.window_area_m2
+    ratio = envelope.window_area_ratio_percent
+    if not _is_positive_finite(wall_area):
+        messages.append(
+            _message(
+                DiagnosticSeverity.ERROR,
+                "BUILDING_LOD1_EXTERNAL_WALL_AREA_MISSING",
+                "LoD-1 benoetigt eine positive Aussenwandflaeche fuer die Fensterbilanz.",
+                "simple_envelope.external_wall_area_m2",
+            )
+        )
+        return messages
+    if window_area is None:
+        return messages
+    if not _is_positive_finite(window_area) or not _is_finite_between(ratio, 0.0, 100.0):
+        return messages
+    expected_area = wall_area * ratio / 100.0
+    if not is_within_confirmed_area_tolerance(window_area, expected_area):
+        messages.append(
+            _message(
+                DiagnosticSeverity.ERROR,
+                "BUILDING_LOD1_WINDOW_AREA_RATIO_INCONSISTENT",
+                "Fensterflaeche und Fensterflaechenanteil muessen zur Aussenwandflaeche passen.",
+                "simple_envelope.window_area_m2",
+            )
+        )
+    return messages
+
+
+def _is_positive_finite(value: float | None) -> bool:
+    return value is not None and isfinite(value) and value > 0
+
+
+def _is_finite_between(value: float | None, lower: float, upper: float) -> bool:
+    return value is not None and isfinite(value) and lower <= value <= upper
+
+
+def is_within_confirmed_area_tolerance(actual_area_m2: float, expected_area_m2: float) -> bool:
+    """Prueft eine Abweichung gegen die dokumentierte absolute oder referenzbezogene Toleranz."""
+    if not isfinite(actual_area_m2) or not isfinite(expected_area_m2):
+        return False
+    allowed_difference_m2 = max(
+        WINDOW_AREA_ABSOLUTE_TOLERANCE_M2,
+        WINDOW_AREA_RELATIVE_TOLERANCE * abs(expected_area_m2),
+    )
+    return abs(actual_area_m2 - expected_area_m2) <= allowed_difference_m2
 
 
 def _validate_object_ids(spec: BuildingModelSpecification) -> list[DiagnosticMessage]:
@@ -307,12 +368,12 @@ def _validate_elements(spec: BuildingModelSpecification) -> list[DiagnosticMessa
                     f"elements.{index}.storey_id",
                 )
             )
-        if element.area_m2 <= 0:
+        if not _is_positive_finite(element.area_m2):
             messages.append(
                 _message(
                     DiagnosticSeverity.ERROR,
                     "BUILDING_ELEMENT_AREA_INVALID",
-                    "Bauteilflaechen muessen groesser als 0 sein.",
+                    "Bauteilflaechen muessen positiv und endlich sein.",
                     f"elements.{index}.area_m2",
                 )
             )
@@ -359,12 +420,12 @@ def _validate_openings(spec: BuildingModelSpecification) -> list[DiagnosticMessa
                     f"openings.{index}.host_element_id",
                 )
             )
-        if opening.area_m2 <= 0:
+        if not _is_positive_finite(opening.area_m2):
             messages.append(
                 _message(
                     DiagnosticSeverity.ERROR,
                     "BUILDING_OPENING_AREA_INVALID",
-                    "Oeffnungsflaechen muessen groesser als 0 sein.",
+                    "Oeffnungsflaechen muessen positiv und endlich sein.",
                     f"openings.{index}.area_m2",
                 )
             )

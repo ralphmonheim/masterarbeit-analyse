@@ -26,7 +26,11 @@ Zeitreihenanalysen vergleichen und Optimierungspotenziale sichtbar machen.
 
 ## Status
 
-Teilweise vorhanden. Die benoetigten Befehle existieren. `analyze-data`
+Ein UI-neutrales Feasibility-Framework bewertet explizit konfigurierte Ziele
+und Nebenbedingungen als `PASS`, `FAIL` oder `NOT_EVALUABLE`; es waehlt keine
+Variante automatisch aus. Der historische ALT-Bestand kann je Variante und
+Zone deskriptiv gegen `Dimensionierung` verglichen und als XLSX/CSV exportiert
+werden. `analyze-data`
 liefert einen gemeinsamen UI-/Excel-Tabellenvertrag mit Dateninventar,
 Berechnungsgrenzen, absoluter und spezifischer Leistung sowie sichtbaren
 `nicht auswertbar`-Gruenden. Einheitenoffene Aggregationskennwerte bleiben
@@ -38,5 +42,5 @@ Optimierungsentscheidung fehlt weiterhin bewusst.
 
 ## Naechster Schritt
 
-Den neutralen Import- und Kennwertvertrag weiter an Varianten-, Raum- und
-Run-Referenzen binden.
+Projektbezogene Ziele und Grenzwerte erst nach fachlicher Entscheidung als
+explizites Feasibility-Profil hinterlegen.

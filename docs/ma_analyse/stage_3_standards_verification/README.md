@@ -26,7 +26,11 @@ fachliche PASS-/FAIL-Bewertung.
 
 ## Status
 
-Vorbereitet. Eine UI-neutrale Readiness-Matrix fuehrt derzeit zwei belegte
+Vorbereitet. Ein generisches Profil-/Requirement-Framework prueft
+Konfiguration, Einheit und Messwert und kann erst mit explizit hinterlegten
+Regeln `PASS` oder `FAIL` liefern. Fehlende oder ungueltige Voraussetzungen
+bleiben `NOT_EVALUABLE` beziehungsweise `INVALID`. Eine UI-neutrale
+Readiness-Matrix fuehrt derzeit zwei belegte
 Kandidaten: den wertfreien DIN/TS-18599-10-Profilvertrag und das vorhandene
 Legacy-Datenfeld fuer Uebertemperatur-Gradstunden. Beide bleiben
 `NOT_EVALUABLE`: Es werden weder geschuetzte Norminhalte gelesen noch

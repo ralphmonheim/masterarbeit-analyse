@@ -51,7 +51,7 @@ werden nicht als Projekt- oder Simulationsjahr interpretiert.
 - keine Veraenderung der Originaldateien
 - keine Vermischung unterschiedlicher TRY-Generationen
 - keine Freigabe fuer Simulation oder Veroeffentlichung ohne dokumentierte
-  Datenrechte und bestandenen Import-Preflight
+  Datenrechte und dokumentierte Pruefung bei `update repo`
 
 ## Umsetzungsslices
 
@@ -63,8 +63,8 @@ werden nicht als Projekt- oder Simulationsjahr interpretiert.
 3. Originale im lokalen Wettereingang unveraendert erhalten.
 
 Status: fuer Datei, Periode, Region, Datensatztyp, Referenzstadt und lokale
-Katalogsicht umgesetzt. Groesse und Hash wurden im Preflight geprueft, werden
-in diesem reduzierten Slice aber noch nicht als persistierter Importnachweis
+Katalogsicht umgesetzt. Groesse und Hash werden in diesem reduzierten Slice
+noch nicht als persistierter Importnachweis
 gefuehrt.
 
 Akzeptanz: Alle 90 PRN-Dateien sind eindeutig katalogisiert, lokal vorhanden
@@ -129,7 +129,7 @@ weisen Wetterunterschiede als eigene Einflussgroesse aus.
 
 ## Abhaengigkeiten
 
-P008, P018, P021, P027 und bestehender DWD-Compliance-Preflight.
+P008, P018, P021 und P027.
 
 ## Konsolidierter UI- und Ablagebezug 2026-07-27
 

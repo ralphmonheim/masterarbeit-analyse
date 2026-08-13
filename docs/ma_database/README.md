@@ -17,3 +17,19 @@
   ausserhalb des Zielmoduls.
 - **Naechster Schritt:** moduluebergreifenden Persistenzbedarf,
   Modellversionierung, Importprotokolle und Migrationsgrenzen festlegen.
+
+## Lokales Quellenregister
+
+Die freigegebene Literaturarbeit nutzt einen getrennten lokalen Arbeitsbereich
+unter `config/ma_database/literature/`. Er bleibt Git-ignoriert, weil er
+interne Pfade, Quellenanalysen und gegebenenfalls lizenz- oder
+zugangssensible Arbeitsinformationen enthalten kann.
+
+- `sources_internal.xlsx`: internes Quellenregister mit Verweisen auf
+  Originale und Einzelanalysen.
+- `sources_public.xlsx`: kuratierte, veröffentlichungsfähige Fassung.
+- `analyses/`: eine Markdown-Analyse pro Source-ID.
+
+Die Arbeitsdateien sind kein Laufzeitkatalog und werden nicht durch
+`ma_database.catalog` gelesen. Die Struktur und der Arbeitsauftrag sind in
+`docs/prompts/MASTER_PROMPT_QUELLENINVENTAR_UND_LERNPAKETE.md` dokumentiert.

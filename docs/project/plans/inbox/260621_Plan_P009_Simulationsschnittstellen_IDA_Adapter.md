@@ -33,7 +33,7 @@ kleiner, programmunabhaengiger Postprocess-Slice umgesetzt:
 
 Nicht Teil dieses MVP-Slices sind IDA-Dateibearbeitung, automatischer Import,
 ein IDA-Adapter oder ein Simulationsstart. Das konkrete Ergebnisformat wird
-erst nach dokumentiertem Compliance- und Rechtepreflight festgelegt.
+erst nach dokumentierter Rechteklaerung bei `update repo` festgelegt.
 
 ## Wiederzuverwendender Bestand
 
@@ -121,8 +121,8 @@ run-internen Status je `VAR-ID`.
 - Keine direkte Uebergabe von unvalidierten IFC-, Rhino- oder
   Demo-Gebaeudedaten an IDA ICE.
 - Vollstaendige `.idm`-Dateien, EQUA-Bibliotheken, NMF-Modelle und unbekannte
-  Drittdateien sind kein regulaerer Adaptereingang. Sie duerfen nur nach
-  dokumentiertem Preflight gemass `docs/compliance/ida_ice/` bewertet werden.
+  Drittdateien sind kein regulaerer Adaptereingang. Ihre Repository-Weitergabe
+  wird bei `update repo` bewertet.
 
 ## Tests und Akzeptanzkriterien
 
@@ -187,3 +187,18 @@ Ergebnisexport abgeleitet. Zu inventarisieren sind mindestens Variablen,
 Einheiten, Vorzeichen, Zeitstempel, Zeitschritt, Zonen-/Systemmapping,
 Fehlwerte, Quelldateiname und Hash. Vollstaendige IDA-/EQUA-Dateien,
 Bibliotheken, IDA-Start und IDM-Manipulation bleiben ausserhalb von P009-V1.
+
+## Eingangsauswertung 2026-08-13: externe Simulation und IDA ICE
+
+Die eingegangene IDA-ICE-Uebergabe bestaetigt als Vorschlag die Trennung von
+Pre-Simulation, externer Ausfuehrung und Post-Simulation sowie die Behandlung
+manueller Uebergaben als regulaeren Prozessmodus. Fuer P009 gelten weiterhin
+die bestehenden programmunabhaengigen Grenzen `ma_export_simulation` und
+`ma_import_simulation`, die Zuordnung ueber `RUN-ID + VAR-ID` und die manuelle
+neutrale Ergebnisimportgrenze.
+
+Die vorgeschlagenen Namen `ma_sim_external` und `SimulationCase` werden nicht
+uebernommen; Letzteres widerspricht dem verbindlichen Verzicht auf eine neue
+CASE-Ebene. Automatisierte IDA-Steuerung, API-/Lizenzpruefungen und die
+Verarbeitung geschuetzter IDA-/EQUA-Dateien bleiben ausserhalb des MVP und
+erfordern weiterhin einen objektbezogen freigegebenen P009-Slice.

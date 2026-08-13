@@ -65,3 +65,16 @@ Zeitreihen zu einem dokumentierten Optimierungsablauf buendeln.
   sichtbar `nicht auswertbar`.
 - Eine Readiness-Tabelle bereitet Stage 3 vor, ohne Normwerte oder
   Nachweisergebnisse in Stage 2 zu berechnen.
+
+## Eingangsauswertung 2026-08-13: Optimization Feasibility
+
+Die Stage-2/3-Arbeitsanweisung liefert Kandidaten fuer einen spaeteren,
+expliziten Stage-2-Ergebnisvertrag: Heiz-/Kuehllast, installierte Leistung,
+Temperatur- und Nichtversorgungskennwerte sowie die Trennung von Objectives,
+Constraints und deren Provenienz. Ein moeglicher `Optimization Feasibility
+Check` ist damit ein Planungsbegriff, keine bereits implementierte oder
+fachlich freigegebene Bewertungsregel.
+
+Vor einer Umsetzung sind Dateninventar, Einheiten, projektbezogene Kriterien,
+Bewertungszeitraum und die Grenzen zu Stage 3 nach OP-017 und OP-018 zu
+konsolidieren. Der bestehende wertfreie Ergebnisvertrag bleibt unveraendert.

@@ -17,6 +17,7 @@ model_version:
   confirmed_input_level: "BIL-4"
   current_maturity_level: "BIL-4"
   target_maturity_level: "BIL-4"
+thermal_envelope_complete: true
 storeys:
   - storey_id: "STOREY-0001"
     name: "Erdgeschoss"
@@ -86,3 +87,6 @@ assumptions:
   - assumption_id: "ASSUMPTION-0001"
     location: "building"
     text: "Demo-Geometrie ist bewusst einfach und dient als validierbarer Trainingsdatensatz."
+  - assumption_id: "ASSUMPTION-0002"
+    location: "thermal_envelope_complete"
+    text: "Die explizit erfassten Aussenbauteile bilden fuer die V1-Demo die vollstaendige thermische Huelle."

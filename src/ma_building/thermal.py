@@ -6,9 +6,14 @@ normative Bilanzierung.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
+from math import isfinite
 
 from .models import BuildingModelSpecification, Opening, PhysicalElement
+from .validation import (
+    is_within_confirmed_area_tolerance,
+    validate_building_spec,
+)
 
 DEFAULT_DELTA_U_WB_W_M2K = 0.10
 """Demo-Annahme fuer einen flaechenbezogenen Waermebrueckenzuschlag."""
@@ -121,11 +126,13 @@ def calculate_weighted_u_value(rows: tuple[ThermalComponentRow, ...] | list[Ther
 def calculate_thermal_transmission(
     specification: BuildingModelSpecification,
     *,
-    delta_u_wb_w_m2k: float = DEFAULT_DELTA_U_WB_W_M2K,
     include_internal: bool = False,
 ) -> ThermalTransmissionResult:
     """Berechnet H_T und H'_T nur bei einer vollstaendigen, nichtleeren Huelle."""
     rows = build_thermal_component_rows(specification, include_internal=include_internal)
+    blocking_reasons = _thermal_blocking_reasons(specification, rows)
+    if blocking_reasons:
+        rows = _mark_rows_incomplete(rows, blocking_reasons)
     category_order = ("Dach", "Waende", "Boden", "Fenster", "Tueren", "Unbekannt")
     categories: list[ThermalCategoryResult] = []
     for category in category_order:
@@ -154,13 +161,13 @@ def calculate_thermal_transmission(
         warnings.append("Unvollstaendige oder ungueltige Bauteilzeilen verhindern eine Transmissionsbilanz.")
     if not rows or envelope_area_m2 <= 0:
         warnings.append("Keine auswertbare thermische Huelle vorhanden.")
-    if delta_u_wb_w_m2k == DEFAULT_DELTA_U_WB_W_M2K:
-        warnings.append("DeltaU_WB = 0.10 W/(m2K) ist eine Demo-Annahme.")
+    warnings.extend(blocking_reasons)
+    warnings.append("DeltaU_WB = 0.10 W/(m2K) ist eine feste Demo-Annahme.")
     heat_loss_w_k = None
     h_t_prime = None
     if is_complete:
         heat_loss_w_k = sum(_row_transmission(row) for row in rows if row.effective_area_m2 > 0)
-        heat_loss_w_k += delta_u_wb_w_m2k * envelope_area_m2
+        heat_loss_w_k += DEFAULT_DELTA_U_WB_W_M2K * envelope_area_m2
         h_t_prime = heat_loss_w_k / envelope_area_m2
     return ThermalTransmissionResult(
         rows=rows,
@@ -168,7 +175,7 @@ def calculate_thermal_transmission(
         envelope_area_m2=envelope_area_m2,
         heat_loss_coefficient_w_k=heat_loss_w_k,
         heat_loss_coefficient_per_area_w_m2k=h_t_prime,
-        thermal_bridge_delta_u_w_m2k=delta_u_wb_w_m2k,
+        thermal_bridge_delta_u_w_m2k=DEFAULT_DELTA_U_WB_W_M2K,
         is_complete=is_complete,
         warnings=tuple(warnings),
     )
@@ -181,10 +188,10 @@ def _aggregate_envelope_rows(specification: BuildingModelSpecification) -> tuple
         return ()
     note = "LoD-1-Aggregatflaeche; AW wird als Bruttoflaeche vor Fensterabzug angenommen."
     wall_gross = envelope.external_wall_area_m2
-    window_area = envelope.window_area_m2
+    window_area, window_notes, window_is_invalid = _resolve_lod1_window_area(specification)
     rows: list[ThermalComponentRow] = []
     if wall_gross is not None:
-        invalid = window_area is not None and window_area > wall_gross
+        invalid = window_is_invalid or (window_area is not None and window_area > wall_gross)
         rows.append(
             _synthetic_row(
                 "LOD1-AW",
@@ -195,11 +202,24 @@ def _aggregate_envelope_rows(specification: BuildingModelSpecification) -> tuple
                 specification,
                 note,
                 invalid,
+                extra_notes=window_notes,
             )
         )
     if window_area is not None and window_area > 0:
-        invalid = wall_gross is not None and window_area > wall_gross
-        rows.append(_synthetic_row("LOD1-FA", "Fenster", "FA", window_area, window_area, specification, note, invalid))
+        invalid = window_is_invalid or wall_gross is None or window_area > wall_gross
+        rows.append(
+            _synthetic_row(
+                "LOD1-FA",
+                "Fenster",
+                "FA",
+                window_area,
+                window_area,
+                specification,
+                note,
+                invalid,
+                extra_notes=window_notes,
+            )
+        )
     if envelope.roof_area_m2 is not None:
         rows.append(
             _synthetic_row("LOD1-DA", "Dach", "DA", envelope.roof_area_m2, envelope.roof_area_m2, specification, note)
@@ -222,11 +242,12 @@ def _synthetic_row(
     specification: BuildingModelSpecification,
     note: str,
     invalid: bool = False,
+    extra_notes: tuple[str, ...] = (),
 ) -> ThermalComponentRow:
     u_value, notes = _u_value_for_code(code, specification)
     factor, factor_notes = _temperature_factor_for_code(code)
     if invalid:
-        notes += ("Oeffnungsflaeche ist groesser als die angenommene Host-Bruttoflaeche.",)
+        notes += ("LoD-1-Fensterbilanz ist unvollstaendig oder widerspruechlich.",)
     return ThermalComponentRow(
         component_id,
         "SimpleEnvelope",
@@ -238,7 +259,7 @@ def _synthetic_row(
         u_value,
         factor,
         u_value is not None and factor is not None and not invalid,
-        (note,) + notes + factor_notes,
+        (note,) + extra_notes + notes + factor_notes,
     )
 
 
@@ -309,6 +330,10 @@ def _u_value_for_code(code: str, specification: BuildingModelSpecification) -> t
     value = values.get(code)
     if value is None:
         notes += (f"Kein U-Wert fuer Baucode {code} vorhanden.",)
+        return None, notes
+    if not _is_positive_finite(value):
+        notes += (f"U-Wert fuer Baucode {code} ist nicht positiv und endlich.",)
+        return None, notes
     return value, notes
 
 
@@ -318,3 +343,125 @@ def _temperature_factor_for_code(code: str) -> tuple[float | None, tuple[str, ..
     if code in {"AW", "DA", "FA", "TA"}:
         return 1.0, ()
     return None, (f"Kein Temperaturkorrekturfaktor fuer Baucode {code} vorhanden.",)
+
+
+def _resolve_lod1_window_area(specification: BuildingModelSpecification) -> tuple[float | None, tuple[str, ...], bool]:
+    """Nutzt die explizite Fensterflaeche oder leitet sie nachvollziehbar aus dem Anteil ab."""
+    envelope = specification.simple_envelope
+    assert envelope is not None
+    wall_area = envelope.external_wall_area_m2
+    explicit_area = envelope.window_area_m2
+    ratio = envelope.window_area_ratio_percent
+    if not _is_positive_finite(wall_area):
+        return explicit_area, ("Aussenwandflaeche fehlt fuer die LoD-1-Fensterbilanz.",), True
+    if not _is_finite_between(ratio, 0.0, 100.0):
+        return explicit_area, ("Fensterflaechenanteil ist ungueltig.",), True
+
+    derived_area = wall_area * ratio / 100.0
+    if explicit_area is None:
+        return (
+            derived_area,
+            ("Fensterflaeche wurde aus Aussenwandflaeche und Fensteranteil abgeleitet.",),
+            False,
+        )
+    if not _is_positive_finite(explicit_area):
+        return explicit_area, ("Explizite Fensterflaeche ist nicht positiv und endlich.",), True
+    if not is_within_confirmed_area_tolerance(explicit_area, derived_area):
+        return (
+            explicit_area,
+            ("Explizite Fensterflaeche und Fensteranteil widersprechen sich.",),
+            True,
+        )
+    return explicit_area, (), False
+
+
+def _thermal_blocking_reasons(
+    specification: BuildingModelSpecification,
+    rows: tuple[ThermalComponentRow, ...],
+) -> tuple[str, ...]:
+    """Sammelt fachliche Fehler, die keine scheinbar vollstaendige H_T-Bilanz zulassen."""
+    reasons = [
+        f"Fachvalidierung blockiert die Transmissionsbilanz: {message.code}."
+        for message in validate_building_spec(specification).errors
+    ]
+    if not rows:
+        return tuple(reasons)
+    if specification.elements or specification.openings:
+        if not specification.thermal_envelope_complete:
+            reasons.append("Explizite Huelle besitzt keinen bestaetigten Vollstaendigkeitsnachweis.")
+        external_codes = {
+            row.construction_code for row in rows if row.source_type == "PhysicalElement" and row.effective_area_m2 > 0
+        }
+        missing_codes = {"AW", "DA", "BP"} - external_codes
+        if missing_codes:
+            readable_codes = ", ".join(sorted(missing_codes))
+            reasons.append(f"Explizite Huelle ist unvollstaendig; Aussenbauteile fehlen: {readable_codes}.")
+        reasons.extend(_aggregate_coverage_reasons(specification, rows))
+    elif specification.simple_envelope is not None:
+        envelope = specification.simple_envelope
+        missing_areas = [
+            label
+            for label, area in (
+                ("Aussenwand", envelope.external_wall_area_m2),
+                ("Dach", envelope.roof_area_m2),
+                ("Boden", envelope.floor_area_m2),
+            )
+            if not _is_positive_finite(area)
+        ]
+        if missing_areas:
+            reasons.append("LoD-1-Huelle ist unvollstaendig; Flaechen fehlen: " + ", ".join(missing_areas) + ".")
+    return tuple(reasons)
+
+
+def _aggregate_coverage_reasons(
+    specification: BuildingModelSpecification,
+    rows: tuple[ThermalComponentRow, ...],
+) -> tuple[str, ...]:
+    """Vergleicht explizite V1-Huellflaechen mit vorhandenen bestaetigten Aggregatwerten."""
+    envelope = specification.simple_envelope
+    if envelope is None:
+        return ()
+    expected_by_code = {
+        "AW": envelope.external_wall_area_m2,
+        "DA": envelope.roof_area_m2,
+        "BP": envelope.floor_area_m2,
+        "FA": _lod1_window_area_for_coverage(envelope),
+    }
+    reasons: list[str] = []
+    for code, expected_area in expected_by_code.items():
+        if not _is_positive_finite(expected_area):
+            continue
+        actual_area = sum(
+            row.gross_area_m2 for row in rows if row.construction_code == code and row.effective_area_m2 > 0
+        )
+        if not is_within_confirmed_area_tolerance(actual_area, expected_area):
+            reasons.append(f"Explizite Huelle stimmt fuer {code} nicht mit der bestaetigten Aggregatflaeche ueberein.")
+    return tuple(reasons)
+
+
+def _lod1_window_area_for_coverage(envelope) -> float | None:
+    """Liefert die erwartete transparente Flaeche fuer den Vollstaendigkeitsabgleich."""
+    if _is_positive_finite(envelope.window_area_m2):
+        return envelope.window_area_m2
+    if _is_positive_finite(envelope.external_wall_area_m2) and _is_finite_between(
+        envelope.window_area_ratio_percent,
+        0.0,
+        100.0,
+    ):
+        return envelope.external_wall_area_m2 * envelope.window_area_ratio_percent / 100.0
+    return None
+
+
+def _mark_rows_incomplete(
+    rows: tuple[ThermalComponentRow, ...], reasons: tuple[str, ...]
+) -> tuple[ThermalComponentRow, ...]:
+    """Erhaelt sichtbare Quellwerte, markiert sie aber fuer die Ergebnislogik als unvollstaendig."""
+    return tuple(replace(row, is_complete=False, assumption_notes=row.assumption_notes + reasons) for row in rows)
+
+
+def _is_positive_finite(value: float | None) -> bool:
+    return value is not None and isfinite(value) and value > 0
+
+
+def _is_finite_between(value: float | None, lower: float, upper: float) -> bool:
+    return value is not None and isfinite(value) and lower <= value <= upper

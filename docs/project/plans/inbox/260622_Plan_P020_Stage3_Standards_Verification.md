@@ -71,3 +71,45 @@ Inhalte wurden nicht geoeffnet.
   Maschinenverarbeitungsrecht, manuell dokumentierte Fundstelle,
   qualifizierter Fachreview, Einheit und Geltungsbereich, eigener begrenzter
   Regeltext, reproduzierbarer Test und menschliche Bestaetigung erforderlich.
+
+## Quellen- und Rechteklärung 2026-08-13
+
+Eine gezielte externe Orientierung hat die bestehende Rechtegrenze bestätigt,
+ohne selbst eine Rechtefreigabe für Projektdateien zu erteilen:
+
+- § 44b UrhG ordnet automatisierte Analysen als Text und Data Mining ein und
+  erlaubt die dafür notwendigen Kopien nur bei rechtmäßig zugänglichen Werken
+  und ohne entgegenstehenden Nutzungsvorbehalt des Rechteinhabers.
+- Die DIN-Media-AGB (Stand Mai 2026) verlangen für die maschinelle oder
+  KI-gestützte Verarbeitung technischer Regeln für eigene innerbetriebliche
+  Zwecke zusätzlich eine KI-Lizenz. Sie nennen insbesondere Analyse,
+  Auswertung, Strukturierung, Extraktion, Verarbeitung, Verknüpfung und
+  Indexierung.
+- Die Recherche bezieht sich nicht auf den individuellen Bezugsweg der
+  vorhandenen DIN-, VDI-, VDE- oder ISO-Dokumente. Sie ist keine Rechtsberatung
+  und belegt weder den konkreten Vertrag noch eine zulässige Verarbeitung.
+
+Damit bleibt die bestehende Grenze unverändert: Die im lokalen Normenbestand
+liegenden PDFs werden nicht inhaltlich geöffnet oder automatisiert verarbeitet;
+Normwerte, Formeln, Tabellen und PASS-/FAIL-Regeln werden nicht übernommen.
+
+Für einen späteren, dokumentbezogenen Start sind in der führenden
+Quellen-/Rechteakte mindestens festzuhalten: Dokumentnummer und Ausgabe,
+Bezugsweg, autorisierter Nutzer, geltende Lizenzbedingungen, zulässige
+Operationen (Öffnen, Extrahieren, Vergleichen, Ableiten, Speichern,
+Veröffentlichen) sowie der konkrete schriftliche Nachweis. Erst danach folgen
+manuell dokumentierte Fundstelle, Einheit und Geltungsbereich, Fachreview,
+Methodenprüfung, reproduzierbarer Test und menschliche Bestätigung.
+
+## Eingangsauswertung 2026-08-13: Technical Standard Proof
+
+Die Stage-2/3-Arbeitsanweisung bestaetigt die fachlich sinnvolle Trennung von
+technischer Variante, Ergebniswerten, Bewertungsprofilen und Anforderungen.
+`Standard Evaluation Profile`, eine generische Verifikationsstruktur und
+sommerlicher Waermeschutz sind nur Kandidaten fuer einen spaeteren P020-Slice.
+
+Sie ersetzen weder den bestehenden `NormVerificationReport` mit
+`pass`/`fail`/`warning`/`not_evaluable` noch die Rechte-, Methoden- und
+Fachtestgates dieses Plans. Insbesondere wurden keine Normwerte, Formeln,
+PASS/FAIL-Regeln oder Literaturinhalte aus dem zugehoerigen Quellenpaket
+uebernommen.

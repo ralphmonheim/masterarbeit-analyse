@@ -1357,7 +1357,7 @@ Stand: 2026-08-11
   unbekannte Herkunft stoppen. Reale geschuetzte Dateien und Wetterdaten
   bleiben lokal und unversioniert.
 - Begruendung: Dokumentation allein verhindert keinen versehentlichen
-  Dateiinhaltzugriff. Ein gemeinsamer Preflight und sichere Wrapper machen die
+  Dateiinhaltzugriff. Sichere Wrapper machen die
   bereits festgelegten IDA-/EQUA-, DIN-/Nautos- und DWD-Grenzen testbar und
   reproduzierbar.
 - Auswirkung: Policies, Schemas, Audit, Warntexte und Testmatrix liegen unter
@@ -1388,10 +1388,9 @@ Stand: 2026-08-11
   konsistent angewendet werden. Die Spezialisierung trennt Rechte-, Lizenz-,
   Datenschutz- und Veroeffentlichungsfragen von technischer Qualitaet und
   wissenschaftlicher Methodik.
-- Auswirkung: Neue Plandokumente durchlaufen vor dem Inhaltszugriff einen
-  Metadaten-Preflight. Ist das Dokument selbst zulaessig, bleiben spaetere
-  Umsetzungsblocker in Planindex oder Planstatus sichtbar. Unklare oder
-  blockierte Inbox-Originale werden nicht extrahiert, verschoben oder
+- Auswirkung: Neue Plandokumente werden vor der Freigabe nur als Metadaten
+  erfasst. Spaetere Umsetzungsblocker bleiben in Planindex oder Planstatus
+  sichtbar. Unklare Inbox-Originale werden nicht extrahiert, verschoben oder
   eingearbeitet und bleiben am aktuellen Eingangspfad. Vor jeder
   Veroeffentlichung wird eine gueltige Entscheidung fuer den konkreten Stand
   geprueft.
@@ -1753,7 +1752,7 @@ Stand: 2026-08-11
 - Auswirkung: Vor dem maschinellen Oeffnen oder Verarbeiten geschuetzter
   Quellen, automatischer Tabellen-/Formelextraktion, externer Uebergabe,
   Repository-Uebernahme realer oder abgeleiteter geschuetzter Daten sowie
-  Weitergabe bleibt der volle Preflight verbindlich. Die Entscheidung gibt
+  Weitergabe bleibt die Pruefung bei `update repo` verbindlich. Die Entscheidung gibt
   keine Rechte fuer solche Operationen und keine Freigabe fuer Normvolltexte.
 - Status: getroffen und in der Routineabgrenzung dokumentiert
 - Quelle oder Chatbezug: Nutzerfreigabe `Frei, amch das` am 2026-07-19
@@ -2797,7 +2796,7 @@ Folgeslices.
   einzige fachliche Nutzdatei bewusst im Eingang. Private, sachfremde
   Unterlagen werden ohne Inhaltspruefung in den persoenlichen Downloadordner
   verschoben. Fachquellen und PDFs sollen nach bestandenem objektbezogenem
-  Preflight semantisch in der lokalen Arbeitsablage liegen; Projektplaene,
+  Freigabe semantisch in der lokalen Arbeitsablage liegen; Projektplaene,
   Wetterdaten, Kataloge und Fachdaten folgen ihren bestehenden Owner- und
   Zielordnern.
 - Rechtebasis: Der Nutzer bestaetigt, dass die Dateien entweder eigene
@@ -2936,6 +2935,19 @@ letzten Workflow-UI-Migration bestehen.
   Nichtwohngebaeude. Randbedingungen beider Bauteilseiten gehoeren spaeter
   zur konkreten Bauteilinstanz; der Katalog beschreibt den wiederverwendbaren
   Aufbau und dessen Kennwerte.
+- Council-Korrektur 2026-08-12: Folgereiter verlangen einen zum gespeicherten
+  Auswahl-Schluessel, der Gebaeude-ID und der Modellversion passenden
+  Aktivstand. In LoD-1 wird eine fehlende Fensterflaeche aus
+  `A_Fenster = A_Aussenwand,brutto * Anteil / 100` abgeleitet; bei doppelter
+  Angabe und beim Aggregatabgleich gilt
+  `|A_explizit - A_abgeleitet| <= max(0,10 m2; 1 % * A_abgeleitet)`.
+  Explizite Huellen brauchen die dokumentierte fachliche Demo-Erklaerung
+  `thermal_envelope_complete` und werden, sofern vorhanden, gegen
+  Aggregatflaechen plausibilisiert. Widerspruechliche Angaben, ungueltige
+  U-/Flaechenwerte und unvollstaendige Huellen sperren die thermischen
+  Ergebniswerte. `Delta U_WB=0,10 W/(m2 K)` bleibt eine feste Pauschale. Die
+  UI zeigt weiterhin nur eine sichtbare `Flaeche`; Abzuege bleiben ueber
+  positive Oeffnungen und ihre Host-Referenz nachvollziehbar.
 - Abgrenzung: Keine Mengenermittlung, Nachhaltigkeitsauswertung,
   Simulationsexporte, neuen Katalogdialoge, Normnachweise oder automatische
   Jahresenergiebedarfsrechnung. Mengenermittlung bleibt spaetere Funktion im
@@ -2988,3 +3000,89 @@ letzten Workflow-UI-Migration bestehen.
   unzureichende Stale-, Root- und Schutzpruefungen auf. Der freigegebene Scope
   behebt diese Punkte, ohne neue Inhalte, externe Verarbeitung oder eine
   Repository-Runtime-Abhaengigkeit einzufuehren.
+
+## UD-125 Erweiterung von P015 zum hierarchischen Parameterkatalog
+
+- Datum: 2026-08-12
+- Status: entschieden; P015-S5A umgesetzt
+- Thema: unvollstaendiger Parameterbestand und langfristige
+  Parametergruppenstruktur
+- Entscheidung: Der neue Plan fuer Parametergruppen erweitert und
+  konkretisiert P015. Er ersetzt weder dessen Baseline-, Freigabe- und
+  Variationsvertraege noch die Verantwortung der Fachmodule fuer ihre
+  Fachobjekte. `ma_parameters` fuehrt additiv eine Definitionsebene fuer
+  Parametergruppen, Einzelparameter und konkrete Instanzen ein.
+- Statusachsen: Herkunft, Editierbarkeit, Variantenfaehigkeit, Ableitung und
+  Aktivierung werden getrennt gefuehrt. `FIXED`, `EDITABLE`, `VARIANT`,
+  `DERIVED` und `OPTIONAL` werden nicht in ein mehrdeutiges Einzelfeld
+  zusammengezogen.
+- Migration: Die heutige 84-Zeilen-Vorschau ist ein inventarisierter
+  LoD-1-Istbestand, keine Obergrenze. Sie wird schrittweise in Fachparameter,
+  abgeleitete Werte, Metadaten und Redundanzen eingeordnet. Bestehende
+  Snapshots und P017-Handover bleiben per additiver Schicht kompatibel.
+- Abgrenzung: P015-S5A verarbeitet keine neuen IFC-Rohdaten, Normprofile oder
+  Produktdaten und erfindet keine fehlenden Fachwerte.
+- Quelle oder Chatbezug: Nutzerentscheidung, den neuen Parametergruppenplan
+  als Erweiterung von P015 zu fuehren, und ausdrueckliche `Freigabe zur
+  Umsetzung` am 2026-08-12.
+
+## UD-126 Eigenstaendiges ma_data_preparation und 5Z-Analysefokus
+
+- Datum: 2026-08-13
+- Status: entschieden; Umsetzung freigegeben
+- Thema: programmneutrale Ergebnisaufbereitung und Ausbau von `ma_analyse`
+- Entscheidung: `ma_data_preparation` wird eigener Owner fuer
+  `standardized -> prepared`, Datenqualitaet und Auswertungseignung.
+  `ma_import_simulation` besitzt weiterhin `raw -> standardized` und seine
+  programmspezifischen Adapter. `ma_analyse` beginnt bei der vorbereiteten
+  Datenbasis und besitzt Kennwerte, Tabellen, Vergleiche, Diagramme und
+  Interpretation. Der bestehende Befehl `prepare` bleibt als befristete
+  Kompatibilitaetsfassade.
+- Datenpfad: Die freigegebenen lokalen IDA-Ergebnisartefakte werden aus
+  `data/ma_analyse/ida_imports` gelesen; vorbereitete Analysedaten bleiben
+  zunaechst unter `data/ma_analyse/database`. Eine physische Pfadmigration ist
+  nicht Teil dieser Entscheidung.
+- Untersuchungsfokus: Das 5Z-Modell ist der fachliche Hauptaufbau ueber die
+  vier Untersuchungsstufen. `ALT` ist die historische
+  Heizleistungsoptimierung. 29Z wird nur kurz ueber zentrale Kennwerte und
+  spaeter ueber die extern erarbeitete Rechenzeit gegenuebergestellt.
+- Diagramme: Erst Datenbasis, Kennwerte und Tabellen stabilisieren. Danach
+  werden fachthemenbezogene Beispiele erstellt und im Q&A ausgewaehlt. Alle
+  5Z-Zonen erhalten Ausgaben; der Haupttext zeigt begruendet eine Zone.
+- Rechenzeit: Der getrennte Prozessmessungs-Chat bleibt Owner. P036 bereitet
+  nur eine spaetere Ergebnisschnittstelle vor und leitet keine Rechenzeit aus
+  Datei- oder Simulationszeitstempeln ab.
+- Quellenfragen: Unabhaengige technische Slices werden fortgefuehrt. Offene
+  Veroeffentlichungs- und Quellenfragen werden gesammelt; produktive
+  Normregeln bleiben bis zum Methoden- und Fachtestgate inaktiv.
+- Quelle oder Chatbezug: Nutzerannotationen zum Modulowner, 5Z-Fokus,
+  Diagramm-Q&A und Laufzeitvergleich sowie ausdrueckliche `Freigabe zur
+  Umsetzung` am 2026-08-13.
+
+## UD-127 Quellenregister und gesteuerte Inhaltssuche
+
+- Datum: 2026-08-13
+- Status: entschieden und umgesetzt
+- Thema: Literaturarbeit, Quellenablage und projektweite Inhaltssuche
+- Entscheidung: Jede inventarisierte Quelle erhält eine gut lesbare interne
+  Markdown-Analyse. Die interne Excel-Datei bleibt das zentrale Register und
+  verweist per Source-ID auf Originalfundort und Einzelanalyse; eine getrennte
+  öffentliche Excel-Fassung enthält nur zulässige und überprüfte Angaben.
+- Suchreihenfolge: Quellen- und Inhaltssuchen prüfen zuerst Register und
+  Einzelanalyse, dann den semantischen Navigator und dokumentierten Fundort,
+  danach Zugriffs- und Rechteumfang. Erst anschließend erfolgt gezielte
+  Internetrecherche für Rahmen, Aktualität, Lücken und Abgleich.
+- Qualitätsgrenze: Register und Analysen sind Arbeits- und Navigationshilfen.
+  Quellenbehauptungen, aktuelle Metadaten und Zitationsfundstellen werden am
+  Original geprüft; nur manuell nachgelesene Fundstellen erhalten
+  `citation_ready`.
+- Rechtegrenze: Originale bleiben unverändert und werden nicht
+  weiterveröffentlicht. Interne Pfade, Volltexte, umfangreiche Auszüge und
+  ungeprüfte KI-Analysen bleiben aus der öffentlichen Fassung ausgeschlossen.
+- Umsetzung: Der projektlokale Skill `literature-research-workflow`, die
+  Update-Routine und der persönliche `masterarbeit-navigator` führen diese
+  Reihenfolge. Die Prompts liegen unter `docs/prompts/`; die lokalen
+  Arbeitsdateien sind unter `config/ma_database/literature/` vorgesehen.
+- Quelle oder Chatbezug: Nutzerauftrag zum Quellenbestand und ausdrückliche
+  `Freigabe zur Umsetzung inklusive globalem masterarbeit-navigator` am
+  2026-08-13.

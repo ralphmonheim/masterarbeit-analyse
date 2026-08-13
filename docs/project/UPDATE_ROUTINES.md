@@ -46,17 +46,43 @@ Rueckfallweg, Pruefstrategie sowie alle Sondergates sichtbar sind.
 - `Prompt abschliessen`: den vollstaendigen Arbeits-Prompt ausgeben. Danach
   gelten die normalen Regeln fuer Analyse, Planung und `Freigabe zur Umsetzung`.
 
+## Quellen- und Inhaltssuche
+
+- Literatur-, Quellen-, Normen-, Studien-, Inhalts- und Webquellensuchen
+  nutzen zuerst den Skill `literature-research-workflow` und damit den
+  semantischen Navigationshub.
+- Die Reihenfolge lautet: vorhandenes Quellenregister und Einzelanalyse,
+  gezielte lokale Fundortsuche, Rechte-/Zugriffsprüfung, danach Internetrahmen
+  und Abgleich. Breite lokale Scans bleiben ohne ausdrückliche Nachfrage
+  ausgeschlossen.
+- Die interne Quellenmatrix ist ein Register. Fachliche Aussagen, aktuelle
+  Stände und Zitationsfundstellen werden immer gegen die jeweilige
+  Originalquelle geprüft. Erst manuell nachgelesene Fundstellen erhalten
+  `citation_ready`.
+- Öffentliche Quellenregister enthalten nur zulässige und überprüfte Angaben;
+  Originale, Volltexte, interne Pfade und ungeprüfte KI-Analysen bleiben
+  intern.
+
 ## Sammelbefehle
 
+- `input aufnehmen`: beide Eingaenge `data/project_inbox/new/` und
+  `docs/project/plans/inbox/` erfassen. Eindeutig erkannte Plan-Dokumente
+  werden sofort in die Plan-Inbox verschoben und mit `plan aufnehmen`
+  eingeordnet; diese Ausnahme benoetigt keine weitere Freigabe. Danach einen
+  Zuordnungsbericht erstellen. Nicht-Plan-Dateien erst nach Freigabe
+  uebernehmen; Literatur anschliessend ueber den Literatur-Workflow
+  analysieren. Nach Planaufnahme oder Dokumentaenderung den Navigator
+  aktualisieren und validieren.
 - `aktualisieren und tagesende direkt`: zuerst `aktualisieren`, dann
   `tagesende direkt` ausfuehren.
 - `aktualisieren und direkt update repo`: zuerst `aktualisieren`, dann
   `direkt update repo` ausfuehren.
 - `aktualisieren`: Git-Stand, Planung, Entscheidungen, Command-Dokumentation,
   Modulumsetzungsstand, zentrale Statusanzeigen, Changelog und Versionen
-  pruefen. Neue Plaene und Projektinputs nur anhand ihrer Metadaten erfassen.
-  Den lokalen semantischen Navigationshub gemaess der unten definierten
-  Navigator-Routine validieren.
+  pruefen, festgestellte Aktualisierungen in den zustaendigen
+  Dokumentationsstrukturen ausfuehren und danach den lokalen semantischen
+  Navigationshub gemaess der unten definierten Navigator-Routine aktualisieren
+  und validieren.
 - `tagesstart` oder `Guten Morgen, es ist ein neuer Tag.`: Projektstand und
   offene Entscheidungen ueber den lokalen Navigationshub auffinden und aus
   den dort genannten kanonischen Quellen frisch lesen; keine Oberflaeche
@@ -70,7 +96,9 @@ Rueckfallweg, Pruefstrategie sowie alle Sondergates sichtbar sind.
 
 ## Einzelbefehle
 
-- `update repo`: Version, Changelog und Release-Stand vorbereiten.
+- `update repo`: Version, Changelog und Release-Stand vorbereiten sowie den
+  vorgesehenen Repository-Stand auf Rechte, Schutzbedarf und
+  Veroeffentlichungsgrenzen pruefen.
 - `direkt update repo`: Version, Changelog, Commit, Tag und Push ausfuehren,
   sofern der Arbeitsstand eindeutig ist.
 - `update planung`: Planindex, Planstatus, Entscheidungen und Plan-Inbox
@@ -121,16 +149,17 @@ Rueckfallweg, Pruefstrategie sowie alle Sondergates sichtbar sind.
 - `tagesstart`, `projektlage` und fachliche Analysen beginnen mit einer
   gezielten Suche im Hub. Status, Freigaben und fachliche Aussagen werden
   danach immer aus der dort verlinkten fuehrenden Originalquelle gelesen.
-- `aktualisieren`, `update planung`, `projektinput aufnehmen`, `release check`,
-  `update repo`, `tagesende` und `chat-handover` pruefen den Hub mit dem
-  skill-relativen Skript
-  `LOCAL_SKILL/masterarbeit-navigator/scripts/refresh_index.py --validate-only`.
+- `aktualisieren` aktualisiert den Hub mit dem skill-relativen Skript
+  `LOCAL_SKILL/masterarbeit-navigator/scripts/refresh_index.py` und validiert
+  ihn anschliessend mit `--validate-only`. Die weiteren genannten Routinen
+  pruefen den Hub schreibfrei mit `--validate-only`; `input aufnehmen`
+  aktualisiert und validiert ihn nach freigegebenen Dokumentaenderungen.
   `LOCAL_SKILL` bezeichnet den persoenlichen Skill-Ordner und ist kein Pfad
   innerhalb des Repositorys.
-- Nach einer ausdruecklich freigegebenen Umsetzung, die Projektdokumentation
-  oder einen indexierten lokalen Pfad aendert, wird der Hub vor der Uebergabe
-  aktualisiert und anschliessend validiert. Reine Status-, Release- und
-  Uebergaberoutinen aktualisieren ihn ohne `Freigabe zur Umsetzung` nicht.
+- Nach jeder Erstellung, Verschiebung oder inhaltlichen Aenderung eines
+  Dokuments wird der Hub mit dem tatsaechlichen Ablageort und der kanonischen
+  Referenz aktualisiert und anschliessend validiert. `aktualisieren` fuehrt
+  diese Aktualisierung stets aus.
 - Ein fehlender oder veralteter Hub wird sichtbar gemeldet. Er blockiert
   Produkt- oder Releasearbeiten nur dann, wenn seine Pflege zum freigegebenen
   Umfang gehoert; die kanonischen Projektquellen bleiben weiterhin direkt

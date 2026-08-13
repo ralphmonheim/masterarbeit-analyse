@@ -27,6 +27,7 @@ from ma_building import (
     load_local_building_catalog,
     load_named_building_specification,
     scan_default_building_input_files,
+    validate_building_spec,
 )
 from ma_database import DemoCatalog, DemoCatalogRecord
 from ma_ui.streamlit_app.shared.layout import render_page_header
@@ -65,8 +66,12 @@ def render() -> None:
     if section == "Import":
         spec = _render_building_import()
     else:
+        active_specification_key = _active_building_spec_key()
+        if active_specification_key is None:
+            st.info("Noch kein Gebaeudedokument aktiviert. Bitte im Reiter Import einen validen Stand aktivieren.")
+            return
         try:
-            spec = _load_building_spec_option(_active_building_spec_key())
+            spec = _load_building_spec_option(active_specification_key)
         except (OSError, ValueError) as exc:
             st.error(f"Gebaeudespezifikation konnte nicht geladen werden: {exc}")
             return
@@ -186,9 +191,7 @@ def building_room_rows(spec) -> list[dict[str, object]]:
 
 def building_import_minimum_ready(spec) -> bool:
     """Prueft die V1-Mindestdaten: Bezeichnung und positive Flaeche."""
-    explicit_components = [
-        (element.element_id, element.area_m2) for element in spec.elements
-    ] + [
+    explicit_components = [(element.element_id, element.area_m2) for element in spec.elements] + [
         (opening.opening_id, opening.area_m2) for opening in spec.openings
     ]
     if explicit_components:
@@ -203,6 +206,11 @@ def building_import_minimum_ready(spec) -> bool:
         envelope.floor_area_m2,
     )
     return bool(spec.building.name) and any(area is not None and area > 0 for area in aggregate_areas)
+
+
+def building_import_validation_errors(spec) -> tuple[DiagnosticMessage, ...]:
+    """Liefert fachliche Fehler, die einen Gebaeudestand nicht aktivierbar machen."""
+    return validate_building_spec(spec).errors
 
 
 def building_import_document_status_rows(spec, active_selection_key: str | None) -> list[dict[str, object]]:
@@ -228,9 +236,7 @@ def _select_building_specification():
         "Gebaeudespezifikation",
         option_keys,
         index=option_keys.index(_default_building_spec_key()),
-        format_func=lambda option_key: next(
-            row["Name"] for row in option_rows if row["Schluessel"] == option_key
-        ),
+        format_func=lambda option_key: next(row["Name"] for row in option_rows if row["Schluessel"] == option_key),
         key="building_specification_draft_key",
         on_change=_mark_building_draft,
     )
@@ -241,12 +247,16 @@ def _select_building_specification():
         return None
     workspace = get_active_workspace(st.session_state)
     project_payload = _building_project_payload(workspace) if workspace is not None else {}
-    active_specification = project_payload.get("building_specification", {})
-    active_selection_key = (
-        str(active_specification.get("selection_key"))
-        if isinstance(active_specification, dict) and active_specification.get("selection_key")
-        else None
+    active_selection_key = resolve_active_building_spec_key(
+        workspace_present=workspace is not None,
+        project_payload=project_payload,
+        workspace_project_id=workspace.project.identity.project_id if workspace is not None else None,
     )
+    stored_selection = project_payload.get("building_specification", {})
+    if isinstance(stored_selection, dict) and stored_selection and active_selection_key is None:
+        st.warning(
+            "Der gespeicherte Gebaeudestand passt nicht mehr zur aktuell geladenen Spezifikation und ist gesperrt."
+        )
     st.dataframe(
         normalize_table_for_streamlit(building_master_data_rows(spec)),
         hide_index=True,
@@ -254,26 +264,30 @@ def _select_building_specification():
     )
     st.markdown("##### Gemeinsames Gebaeudedokument")
     st.dataframe(
-        normalize_table_for_streamlit(
-            building_import_document_status_rows(spec, active_selection_key)
-        ),
+        normalize_table_for_streamlit(building_import_document_status_rows(spec, active_selection_key)),
         hide_index=True,
         width="stretch",
     )
     minimum_ready = building_import_minimum_ready(spec)
-    replaces_active = bool(active_selection_key and active_selection_key != selected_key)
+    validation_errors = building_import_validation_errors(spec)
+    replaces_active = _stored_selection_requires_confirmation(stored_selection, spec, selected_key)
     replacement_confirmed = False
     if replaces_active:
         st.warning(
-            f"Der aktive Stand {active_selection_key} wird durch {selected_key} ersetzt. "
+            f"Der gespeicherte Stand {_stored_selection_label(stored_selection)} wird durch {selected_key} ersetzt. "
             "Die Ueberschreibung erfolgt nur nach deiner Bestaetigung."
         )
         replacement_confirmed = st.checkbox(
             "Aktiven Gebaeudestand wirklich ueberschreiben",
-            key="building_confirm_specification_replacement",
+            key=_replacement_confirmation_key(workspace, stored_selection, spec, selected_key),
         )
     if not minimum_ready:
         st.warning("Der Entwurf braucht mindestens eine Bauteilbezeichnung und eine positive Flaeche.")
+    if validation_errors:
+        st.error(
+            "Der Entwurf kann nicht aktiviert werden: "
+            + " ".join(f"{message.code}: {message.message}" for message in validation_errors)
+        )
     if workspace is None:
         st.info("Bitte zuerst ein Projekt auswaehlen, um den Stand zu aktivieren.")
     already_active = active_selection_key == selected_key
@@ -282,6 +296,7 @@ def _select_building_specification():
     apply_disabled = (
         workspace is None
         or not minimum_ready
+        or bool(validation_errors)
         or already_active
         or (replaces_active and not replacement_confirmed)
     )
@@ -291,6 +306,7 @@ def _select_building_specification():
         disabled=apply_disabled,
     ):
         payload = project_payload
+        payload["project_id"] = workspace.project.identity.project_id
         payload["building_specification"] = {
             "selection_key": selected_key,
             "building_id": spec.building.building_id,
@@ -329,9 +345,13 @@ def _render_building_import():
             on_change=_mark_building_draft,
         )
         if uploaded_file is None:
-            st.info("Noch keine Datei vorgemerkt. Bestehende lokale Referenzmodelle lassen sich in der Gebaeudeuebersicht auswaehlen.")
+            st.info(
+                "Noch keine Datei vorgemerkt. Bestehende lokale Referenzmodelle lassen sich in der Gebaeudeuebersicht auswaehlen."
+            )
         else:
-            st.info(f"{uploaded_file.name} ist nur in dieser Sitzung vorgemerkt und wurde nicht verarbeitet oder gespeichert.")
+            st.info(
+                f"{uploaded_file.name} ist nur in dieser Sitzung vorgemerkt und wurde nicht verarbeitet oder gespeichert."
+            )
     elif input_mode == "KI-Modell":
         st.text_area(
             "Gebaeudebeschreibung",
@@ -445,9 +465,7 @@ def thermal_component_table_rows(
     for number, component in enumerate(result.rows, start=1):
         opening = openings_by_id.get(component.component_id)
         aggregate_host = (
-            "LOD1-AW"
-            if component.source_type == "SimpleEnvelope" and component.construction_code == "FA"
-            else ""
+            "LOD1-AW" if component.source_type == "SimpleEnvelope" and component.construction_code == "FA" else ""
         )
         rows.append(
             {
@@ -488,12 +506,14 @@ def thermal_transmission_table_rows(result: ThermalTransmissionResult) -> list[d
             "Flaeche A [m2]": row.effective_area_m2,
             "F x U x A [W/K]": (
                 row.temperature_correction_factor * row.u_value_w_m2k * row.effective_area_m2
-                if row.is_complete
-                and row.temperature_correction_factor is not None
-                and row.u_value_w_m2k is not None
+                if row.is_complete and row.temperature_correction_factor is not None and row.u_value_w_m2k is not None
                 else None
             ),
-            "Status": "Demo-Annahme" if row.assumption_notes else "aus Modellstand",
+            "Status": "unvollstaendig"
+            if not row.is_complete
+            else "Demo-Annahme"
+            if row.assumption_notes
+            else "aus Modellstand",
         }
         for row in result.rows
         if row.effective_area_m2 > 0
@@ -545,9 +565,9 @@ def _render_thermal_component_detail(
     deduction_lines = [f"{item.opening_id}: {item.area_m2:.2f} m2" for item in host_openings]
     is_aggregate_opening = component.source_type == "SimpleEnvelope" and component.construction_code == "FA"
     if component.source_type == "SimpleEnvelope" and component.construction_code == "AW":
-        window_area = spec.simple_envelope.window_area_m2 if spec.simple_envelope is not None else None
-        if window_area is not None and window_area > 0:
-            deduction_lines = [f"LOD1-FA: {window_area:.2f} m2"]
+        deducted_area = component.gross_area_m2 - component.effective_area_m2
+        if deducted_area > 0:
+            deduction_lines = [f"LOD1-FA: {deducted_area:.2f} m2"]
     if opening is not None:
         deduction_lines = [f"Abzug von: {opening.host_element_id}"]
     elif is_aggregate_opening:
@@ -578,9 +598,7 @@ def _render_thermal_component_detail(
 
     st.markdown("##### Geometrie")
     geometry_columns = st.columns(3)
-    geometry_columns[0].number_input(
-        "Anzahl", value=1, disabled=True, key=f"detail_count_{component.component_id}"
-    )
+    geometry_columns[0].number_input("Anzahl", value=1, disabled=True, key=f"detail_count_{component.component_id}")
     geometry_columns[1].text_input(
         "Laenge [m]", value="nicht verfuegbar", disabled=True, key=f"detail_length_{component.component_id}"
     )
@@ -697,19 +715,11 @@ def _render_transmission_results(result: ThermalTransmissionResult) -> None:
     with table_column:
         st.dataframe(normalize_table_for_streamlit(transmission_rows), hide_index=True, width="stretch")
         base_heat_loss = (
-            sum(
-                float(row["F x U x A [W/K]"])
-                for row in transmission_rows
-                if row["F x U x A [W/K]"] is not None
-            )
+            sum(float(row["F x U x A [W/K]"]) for row in transmission_rows if row["F x U x A [W/K]"] is not None)
             if result.is_complete
             else None
         )
-        thermal_bridge = (
-            result.thermal_bridge_delta_u_w_m2k * result.envelope_area_m2
-            if result.is_complete
-            else None
-        )
+        thermal_bridge = result.thermal_bridge_delta_u_w_m2k * result.envelope_area_m2 if result.is_complete else None
         summary_rows = [
             {"Kennwert": "Summe F x U x A", "Wert": base_heat_loss, "Einheit": "W/K"},
             {
@@ -745,9 +755,7 @@ def _render_transmission_results(result: ThermalTransmissionResult) -> None:
                 else "nicht berechenbar"
             ),
         )
-        st.caption(
-            f"Manuelle Demo-Annahme: Delta U_WB = {DEFAULT_DELTA_U_WB_W_M2K:.2f} W/(m2 K)."
-        )
+        st.caption(f"Manuelle Demo-Annahme: Delta U_WB = {DEFAULT_DELTA_U_WB_W_M2K:.2f} W/(m2 K).")
     for warning in result.warnings:
         st.warning(warning)
 
@@ -821,16 +829,10 @@ def _render_excel_catalog_selection(spec, catalog_type: str) -> None:
         st.error(f"Excel-Katalog ist nicht auswertbar: {exc}")
         return
 
-    st.caption(
-        f"Quelle: {catalog.source_path.as_posix()} | SHA-256: {catalog.source_sha256[:12]}…"
-    )
+    st.caption(f"Quelle: {catalog.source_path.as_posix()} | SHA-256: {catalog.source_sha256[:12]}…")
     project_payload = _building_project_payload(workspace)
     stored_selections = project_payload.get("catalog_selections", {})
-    stored_selection = (
-        stored_selections.get(catalog_type, {})
-        if isinstance(stored_selections, dict)
-        else {}
-    )
+    stored_selection = stored_selections.get(catalog_type, {}) if isinstance(stored_selections, dict) else {}
     if (
         isinstance(stored_selection, dict)
         and stored_selection.get("source_sha256")
@@ -860,15 +862,9 @@ def _render_excel_catalog_selection(spec, catalog_type: str) -> None:
         key=f"building_excel_catalog_{catalog_type}_record",
         on_change=_mark_building_draft,
     )
-    selected_record = next(
-        row for row in catalog.rows if str(next(iter(row.values()))) == selected_id
-    )
-    targets = [
-        (element.element_id, element.element_type, element.construction_code)
-        for element in spec.elements
-    ] + [
-        (opening.opening_id, opening.opening_type, opening.construction_code)
-        for opening in spec.openings
+    selected_record = next(row for row in catalog.rows if str(next(iter(row.values()))) == selected_id)
+    targets = [(element.element_id, element.element_type, element.construction_code) for element in spec.elements] + [
+        (opening.opening_id, opening.opening_type, opening.construction_code) for opening in spec.openings
     ]
     if not targets:
         st.warning("Das aktive Gebaeudemodell enthaelt keine zuweisbaren Elemente.")
@@ -896,10 +892,7 @@ def _render_excel_catalog_selection(spec, catalog_type: str) -> None:
                 {"Merkmal": "Zielelement", "Wert": target_id},
                 {"Merkmal": "Elementgruppe", "Wert": f"{target[1]} / {target[2]}"},
                 {"Merkmal": "Geltungsbereich", "Wert": scope},
-                *[
-                    {"Merkmal": key, "Wert": value}
-                    for key, value in selected_record.items()
-                ],
+                *[{"Merkmal": key, "Wert": value} for key, value in selected_record.items()],
             ]
         ),
         hide_index=True,
@@ -1022,7 +1015,10 @@ def _render_user_catalog_drafts(catalog_type: str) -> None:
     drafts_by_type = payload.get("user_catalog_drafts", {})
     drafts = drafts_by_type.get(catalog_type, []) if isinstance(drafts_by_type, dict) else []
     if isinstance(drafts, list) and drafts:
-        st.caption(f"Lokale Entwuerfe ({len(drafts)}): " + ", ".join(str(draft.get("label", "ohne Name")) for draft in drafts if isinstance(draft, dict)))
+        st.caption(
+            f"Lokale Entwuerfe ({len(drafts)}): "
+            + ", ".join(str(draft.get("label", "ohne Name")) for draft in drafts if isinstance(draft, dict))
+        )
 
 
 def _render_wall_construction_catalog() -> None:
@@ -1222,15 +1218,16 @@ def _load_building_spec_option(option_key: str):
     return load_named_building_specification(option_key)
 
 
-def _active_building_spec_key() -> str:
+def _active_building_spec_key() -> str | None:
     """Liefert fuer Folgereiter den aktivierten statt des blossen Entwurfsstands."""
     workspace = get_active_workspace(st.session_state)
-    payload = _building_project_payload(workspace) if workspace is not None else {}
+    if workspace is None:
+        return None
+    payload = _building_project_payload(workspace)
     return resolve_active_building_spec_key(
-        workspace_present=workspace is not None,
+        workspace_present=True,
         project_payload=payload,
-        session_key=str(st.session_state.get("building_applied_specification_key", "")),
-        default_key=_default_building_spec_key(),
+        workspace_project_id=workspace.project.identity.project_id,
     )
 
 
@@ -1238,19 +1235,72 @@ def resolve_active_building_spec_key(
     *,
     workspace_present: bool,
     project_payload: dict[str, object],
-    session_key: str,
-    default_key: str,
-) -> str:
-    """Loest den Aktivstand auf, ohne ihn zwischen Projekten zu vererben."""
+    workspace_project_id: str | None = None,
+) -> str | None:
+    """Loest ausschliesslich einen vollstaendig passenden Projekt-Aktivstand auf."""
+    if not workspace_present:
+        return None
+    if workspace_project_id is not None and project_payload.get("project_id") != workspace_project_id:
+        return None
     option_keys = {key for key, _label, _source in BUILDING_SPECIFICATION_OPTIONS}
-    if workspace_present:
-        selection = project_payload.get("building_specification", {})
-        if isinstance(selection, dict):
-            selected_key = str(selection.get("selection_key", ""))
-            if selected_key in option_keys:
-                return selected_key
-        return default_key
-    return session_key if session_key in option_keys else default_key
+    selection = project_payload.get("building_specification", {})
+    if not isinstance(selection, dict):
+        return None
+    selected_key = str(selection.get("selection_key", ""))
+    expected_building_id = str(selection.get("building_id", ""))
+    expected_model_version = str(selection.get("model_version", ""))
+    if selected_key not in option_keys or not expected_building_id or not expected_model_version:
+        return None
+    try:
+        specification = _load_building_spec_option(selected_key)
+    except OSError, ValueError:
+        return None
+    if (
+        specification.building.building_id != expected_building_id
+        or specification.model_version.version_id != expected_model_version
+    ):
+        return None
+    return selected_key
+
+
+def _stored_selection_requires_confirmation(stored_selection: object, specification, selected_key: str) -> bool:
+    """Erfordert bei jeder vollstaendigen gespeicherten Auswahl eine zielgebundene Ersatzbestaetigung."""
+    if not isinstance(stored_selection, dict):
+        return False
+    stored_key = str(stored_selection.get("selection_key", ""))
+    stored_building_id = str(stored_selection.get("building_id", ""))
+    stored_model_version = str(stored_selection.get("model_version", ""))
+    if not all((stored_key, stored_building_id, stored_model_version)):
+        return False
+    return (
+        stored_key != selected_key
+        or stored_building_id != specification.building.building_id
+        or stored_model_version != specification.model_version.version_id
+    )
+
+
+def _stored_selection_label(stored_selection: object) -> str:
+    """Formatiert auch einen gesperrten, veralteten Projektstand nachvollziehbar."""
+    if not isinstance(stored_selection, dict):
+        return "unbekannt"
+    return " / ".join(
+        str(stored_selection.get(field, "unbekannt")) for field in ("selection_key", "building_id", "model_version")
+    )
+
+
+def _replacement_confirmation_key(workspace, stored_selection: object, specification, selected_key: str) -> str:
+    """Bindet die Überschreibungsbestätigung an Projekt, Quell- und Zielstand."""
+    project_id = workspace.project.identity.project_id if workspace is not None else "no-project"
+    if isinstance(stored_selection, dict):
+        stored_identity = ":".join(
+            str(stored_selection.get(field, "")) for field in ("selection_key", "building_id", "model_version")
+        )
+    else:
+        stored_identity = "no-stored-selection"
+    selected_identity = ":".join(
+        (selected_key, specification.building.building_id, specification.model_version.version_id)
+    )
+    return f"building_confirm_specification_replacement:{project_id}:{stored_identity}:{selected_identity}"
 
 
 def _default_building_spec_key() -> str:

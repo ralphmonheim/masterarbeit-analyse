@@ -610,3 +610,29 @@ Paragraph 24 unter `gesetze-im-internet.de`; geschuetzte Normvolltexte wurden
 nicht verarbeitet. Produktive KI-/3D-Parser, belastbare Randbedingungen je
 Bauteilseite, Erdreichberechnung und neuer Katalogeintragsdialog bleiben
 Folgearbeit.
+
+### Council-Korrektur 2026-08-12
+
+Die Folgereiter verwenden ausschliesslich einen im Projekt gespeicherten,
+vollstaendig passenden Aktivstand aus Auswahl-Schluessel, Gebaeude-ID und
+Modellversion. Ohne diesen Stand bleiben sie gesperrt und verweisen auf den
+Import-Reiter. Die Bestaetigung eines Ersatzes ist an Projekt, bisherigen und
+neu gewaehlten Stand gebunden.
+
+Fuer die LoD-1-Transmissionsdemo wird eine fehlende Fensterflaeche aus
+`A_Fenster = A_Aussenwand,brutto * Fensteranteil / 100` abgeleitet. Liegen
+Fensterflaeche und Anteil gleichzeitig vor, gilt
+`|A_explizit - A_abgeleitet| <= max(0,10 m2; 1 % * A_abgeleitet)`;
+andernfalls blockieren Validierung und thermische Ergebniswerte. Dieselbe
+Toleranz gilt fuer den Abgleich expliziter mit bestaetigten Aggregatflaechen.
+Explizite Huellen benoetigen zudem die dokumentierte fachliche
+Demo-Erklaerung `thermal_envelope_complete`; vorhandene
+Aggregatflaechen fuer AW, Dach, Boden und Fenster werden dagegen
+plausibilisiert. Dasselbe gilt fuer nicht positive oder nicht endliche U- und
+Flaechenwerte. Die Ergebnis-UI bleibt bei einer sichtbaren `Flaeche`; der
+positive Oeffnungsabzug wird nur ueber die Host-Beziehung nachvollziehbar
+gemacht.
+
+`Delta U_WB=0,10 W/(m2 K)` ist in V1 eine feste pauschale Demo-Annahme und
+keine frei waehlbare Eingabe. Die detaillierte Waermebrueckenberechnung bleibt
+Folgearbeit.

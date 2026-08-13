@@ -1,6 +1,6 @@
 # Plan Status
 
-Stand: 2026-08-11
+Stand: 2026-08-13
 
 Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt und nach jeder Planumsetzung aktualisiert. Vollstaendige alte Planstaende liegen unter `docs/project/archive/plans/`.
 
@@ -26,7 +26,7 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - `docs/examples/plot_template_analyse/` bleibt die belastbare Referenzgalerie fuer aktuelle `ma_analyse`-Plot-Template-Beispiele; `docs/examples/plot_template_weather/` fuehrt Wetter-Template-Beispiele getrennt.
 - Der leere, nicht versionierte Ordner `scripts/` wurde entfernt.
 - `docs/project/UPDATE_ROUTINES.md` dokumentiert die festen Codex-Routinen `update repo`, `direkt update repo` und `update planung`.
-- `docs/project/UPDATE_ROUTINES.md` dokumentiert zusaetzlich `tagesstart`, `tagesende`, `tagesende direkt`, `wochenabschluss`, `projektlage`, `plan aufnehmen`, `entscheidung festhalten` und `release check`.
+- `docs/project/UPDATE_ROUTINES.md` dokumentiert zusaetzlich `input aufnehmen`, `tagesstart`, `tagesende`, `tagesende direkt`, `wochenabschluss`, `projektlage`, `plan aufnehmen`, `entscheidung festhalten` und `release check`. `input aufnehmen` erfasst allgemeine und Plan-Eingaenge, bindet Literatur nach der Aufnahme in den Literatur-Workflow ein und aktualisiert danach den Navigator.
 - `docs/project/weekly_reviews/` ist als Ablage fuer Wochenzusammenfassungen vorbereitet.
 - Der alte leere Root-Dokumentenordner wurde entfernt; Produkt- und Materialdatenblaetter liegen aktiv unter `data/catalogs/documents/`.
 - Nutzerentscheidung dokumentiert: Website- und Portfolio-Chats werden von der Masterarbeits-Entscheidungsanalyse ausgeschlossen.
@@ -287,6 +287,13 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   flaechengewichtete U-Werte und eine klar als nicht nachweisfaehige Demo
   markierte Transmissionsbilanz. Explizite Oeffnungen bleiben positiv und
   reduzieren ueber ihre Host-Beziehung die wirksame opake Bruttoflaeche.
+- P012/UD-123-Council-Korrektur ist umgesetzt: Folgereiter verlangen einen
+  projekt-, gebaeude- und revisionspassenden Aktivstand; jede vollstaendige
+  gespeicherte Ersatzwahl braucht eine zielgebundene Bestaetigung. LoD-1
+  leitet fehlende Fensterflaechen aus dem Anteil ab. `H_T` und `H'_T` bleiben
+  bei widerspruechlichen Werten, ungueltigen U-/Flaechenwerten oder ohne
+  bestaetigten Vollstaendigkeitsnachweis der expliziten Huelle gesperrt;
+  `Delta U_WB=0,10 W/(m2 K)` ist fest.
 - P013-S1 ist umgesetzt: `ma_zones` enthaelt eine versionierte
   BusinessIntegration-LoD-1-Zonenspezifikation mit einer Gesamtgebaeudezone,
   einfachem Buero-Nutzungsprofil, Sollwerten, internen Lasten,
@@ -460,6 +467,19 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   `ma_variants`. Der P013-/P014-Anschluss und sein Referenzcheckpoint sind
   umgesetzt. Offen bleiben die v2-basierte Werteherkunft und der verbleibende
   P015-S3b-Vollumfang; beide brauchen einen getrennten Folgeslice.
+- P015-Variationsspannen werden in der direkten UI tabellarisch fuer alle
+  Baseline-Parameter bearbeitet. Minimum, Maximum, Schritt und `enabled`
+  bleiben je Parameter im bestehenden Projektvertrag gespeichert; der
+  Sammelspeicher- und Validierungsweg ist mit 22 fokussierten Tests geprueft.
+- P015-S5A ist umgesetzt: Der additive Definitionskern trennt mit
+  `ParameterDefinition`, `ParameterGroup` und `ParameterInstance` die
+  Fachdefinition, ihre Gruppierung und konkrete Werte. Die versionierte
+  Bestandsmatrix klassifiziert die 84 beobachteten SmallOffice-/LoD-1-
+  Vorschauzeilen, ohne daraus eine Parameterobergrenze abzuleiten. Die
+  bestehenden Snapshot- und Variationsvertraege bleiben unveraendert.
+  P015-S5B erweitert darauf aufbauend Gebaeudeparametergruppen,
+  Konstruktionen, Typ-/Instanzbeziehungen und LoD-1-/LoD-2-Sperrregeln als
+  getrennt freizugebender Folgeslice.
 - UD-118 ist im SmallOffice-V1-Durchstich umgesetzt: Die
   Kapazitaetsstrategie wird vor der Dimensionierung gespeichert. Der ideale
   Default zeigt vor dem Ergebnis nur den ausstehenden Status und danach die
@@ -554,6 +574,11 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - P030 ist als externe Forschungsschicht geplant: Es erfasst manuelle und
   logbasierte Pre-, Simulations- und Postprocessing-Zeiten getrennt,
   vergleicht Prozessmodi und beeinflusst keine produktiven Fachobjekte.
+- Die lokale P030-Arbeitsmappe besitzt eine editierbare Mess- und
+  Auswertungsvorlage fuer PreProcess, Kernprozess und PostProcess. Das
+  versionierte Skript `Skripte/build_process_measurement_workbook.py`
+  aktualisiert die neun neuen Register reproduzierbar; die Arbeitsmappe
+  selbst bleibt ausserhalb des Repositorys in der Arbeitsablage.
 - P031 ordnet das repo-lokale Codex Project Operating System ohne neue
   Parallelwahrheiten: Der Plan buendelt Audit, Konfliktregister,
   Capability-Snapshot und Backlog; `AGENTS.md`, `.codex/`,
@@ -683,8 +708,9 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   abgebildet.
 - Historischer P007-Workflow: `Datenvorbereitung` war als eigener Schritt in
   Phase 4 zwischen Simulationsergebnisimport und Analyse Stufe 2 eingeordnet.
-  Nach UD-112 ist sie PostProcess; `prepare` und `analyze-data` bleiben
-  fachlich in `ma_analyse`.
+  Nach UD-112 ist sie PostProcess. UD-126 konkretisiert den ersten Schritt:
+  `ma_data_preparation` besitzt `standardized -> prepared`; `analyze-data`
+  und die nachfolgenden Fachauswertungen bleiben in `ma_analyse`.
 - P005 Analyseumfang in Streamlit ergaenzt: `Eine Variante`, `Mehrere Varianten`
   und `Alle Varianten` werden erfasst; `Alle Varianten` wird als automatische
   Variantenauswahl an die Service-Fassade uebergeben.
@@ -933,8 +959,20 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   das DIN-4108-2-Legacy-Datenfeld erscheinen als `NOT_EVALUABLE` mit
   Methoden-, Rechte-, Teststatus und naechstem Gate. Produktive Normformeln,
   Grenzwerte und PASS-/FAIL-Regeln bleiben unimplementiert.
+- P036 technischer Backend- und Tabellenslice umgesetzt: `ma_data_preparation`
+  besitzt Zeitreihenaufbereitung, Qualitaet und Eignungsstatus; der IDA-
+  Adapter verarbeitet PRN/HTML/XLSX mit Provenienz. 5Z und 29Z erhalten
+  Zonenkennwerttabellen, ALT einen deskriptiven Variantenvergleich. Stage 2
+  und Stage 3 besitzen konfigurierbare, noch wertfreie Pruefvertraege. Die
+  IDA-Zeit-/Leistungssemantik und der durchgaengige strukturierte
+  Importvertrag bleiben vor einer fachlichen Ergebnisfreigabe offen.
 
 ### Offen
+
+- P036 Folgearbeit: IDA-Zeit-/Leistungssemantik und Importgrenze fachlich
+  schliessen, danach Diagrammbeispiele im Q&A festlegen, produktive Normprofile
+  nach Beschaffung/Fachpruefung aktivieren und die getrennt erarbeitete
+  Rechenzeitvergleichslogik spaeter ankoppeln.
 
 - Overlay-Uebernahme in Hauptfunktionen umsetzen: freie Datenreihen sollen aus
   lokalen Analyse-/Datenbankdaten in die aktuelle Ansicht geladen werden
@@ -1065,6 +1103,19 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   Ebene abgestimmt. Sie duerfen von der direkten Arbeitsansicht abweichen,
   muessen jedoch Entwuerfe erhalten, Ziele eindeutig benennen und frei von
   automatischen Fachaktionen bleiben.
+
+## Projektorganisation: Quellenregister und Inhaltssuche
+
+- UD-127 ergänzt P031 um eine gesteuerte Literatur- und Inhaltssuche. Der
+  projektlokale `literature-research-workflow` und der persönliche
+  `masterarbeit-navigator` verwenden die Reihenfolge Quellenregister,
+  Einzelanalyse, gezielter Fundort, Rechteprüfung und erst danach
+  Internetabgleich. Die Quellenmatrix ist kein Ersatz für Originalquellen.
+- Der finale Arbeitsauftrag liegt unter
+  `docs/prompts/MASTER_PROMPT_QUELLENINVENTAR_UND_LERNPAKETE.md`; die
+  unveränderte Nutzereingabe ist dort hashgesichert referenziert. Interne und
+  öffentliche Quellenregister sowie Einzelanalysen werden erst im lokalen,
+  Git-ignorierten Bereich `config/ma_database/literature/` aufgebaut.
 
 ## Offene Nutzerentscheidungen
 

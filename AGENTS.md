@@ -26,7 +26,9 @@ wartbar bleiben.
 Read-only Analyse, Planung und Statuspruefungen benoetigen keine
 Umsetzungsfreigabe. Jede Aenderung an Code, Konfiguration, Daten oder
 Dokumentation beginnt erst nach der ausdruecklichen Nutzerformulierung
-`Freigabe zur Umsetzung`.
+`Freigabe zur Umsetzung`. Davon ausgenommen ist die bei `input aufnehmen`
+eindeutig erkannte Planaufnahme: Der Plan darf in die Plan-Inbox verschoben
+und unmittelbar in Planindex und Planstatus eingeordnet werden.
 
 Bei `neues thema`, `neues thema: ...` oder `themenwechsel` ist zuerst der
 projektlokale Skill `prompt-intake` anzuwenden. Er entwickelt die neue Idee

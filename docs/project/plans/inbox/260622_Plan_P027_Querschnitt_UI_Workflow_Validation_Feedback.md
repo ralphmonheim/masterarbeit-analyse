@@ -174,8 +174,8 @@ Wiederaufnahme, keine fachliche CaseIteration.
 
 ## Umsetzungsbezug Compliance
 
-`ma_core.compliance` stellt UI-neutrale OperationRequests, Metadaten-
-Preflights, Entscheidungen, Warntexte, sichere Operationswrapper und ein
+`ma_core.compliance` stellt UI-neutrale OperationRequests, Entscheidungen,
+Warntexte, sichere Operationswrapper und ein
 append-only JSONL-Audit bereit. Der DWD-TRY-2011-Konverter ist der erste
 angebundene Fachadapter. Eine spaetere UI darf rote oder unbekannte
 Entscheidungen nicht uebersteuern und bei gelben Entscheidungen nur die vom

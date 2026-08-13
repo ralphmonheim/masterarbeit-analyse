@@ -33,7 +33,7 @@ Status: Vorschlag, keine Migrationsfreigabe
 | MR-08 | Run-Pakete sind trotz neuer Ordner nicht reproduzierbar | mittel | hoch | Ergebnisse ohne Code-/Inputfingerprint | Manifestpflicht und deterministische synthetische Referenzlaeufe | Run als `incomplete` markieren; Freigabe sperren | ma_simulation_setup |
 | MR-09 | Environment-Drift bleibt zwischen `pyproject.toml`, `requirements.txt` und Editable-Metadaten | hoch | hoch | Version 0.20.0 statt 0.28.0; fehlende Imports | klare Dependency-Wahrheit, frische Testumgebung, Build-Smoke-Test | Environment neu aus definierter Quelle erstellen; keine Releasefreigabe | Repository-Owner |
 | MR-10 | CI unterscheidet sich vom lokalen Windows-Ablauf | mittel | mittel | lokal gruen, CI rot oder umgekehrt | Restricted-Profil, plattformneutrale Befehle, gleiche Pythonmatrix | CI zunaechst advisory; Abweichung dokumentieren und lokal reproduzieren | Quality-Owner |
-| MR-11 | Geschuetzte oder private Inhalte gelangen in Git, LFS, Graph oder Logs | niedrig | sehr hoch | unerwartete Binaerdateien, Pfade oder Textfragmente im Diff | positive Allowlist, Ignore-Tests, Compliance-Preflight, Sanitization | Vorgang stoppen; keine Veroeffentlichung; Rechte- und Incident-Pruefung | Compliance-Owner |
+| MR-11 | Geschuetzte oder private Inhalte gelangen in Git, LFS, Graph oder Logs | niedrig | sehr hoch | unerwartete Binaerdateien, Pfade oder Textfragmente im Diff | positive Allowlist, Ignore-Tests, Sanitization und Pruefung bei `update repo` | Vorgang stoppen; keine Veroeffentlichung; Rechte- und Incident-Pruefung | Compliance-Owner |
 | MR-12 | `.gitignore` wird faelschlich als Verarbeitungsrecht interpretiert | mittel | sehr hoch | Scanner greift auf ignorierte Dateien zu | dokumentierte Objektfreigabe und `git ls-files` als Standardscope | Verarbeitung abbrechen; Artefakte lokal sicher entfernen lassen | Compliance-Owner |
 | MR-13 | Obsidian-Links und externe Notizen brechen nach Dateiverschiebungen | unbekannt | mittel | Vault enthaelt alte Repo-Pfade | Vault-Pfad und Linkinventar vor jeder Doku-Migration; Adapterlinks | Doku-Pfad beibehalten oder Linkmapping ausspielen | Nutzer, Governance |
 | MR-14 | Datierter Audit wird zur zweiten Architektur- oder Statuswahrheit | mittel | hoch | aktive Regeln werden nur im Review gepflegt | Snapshot-Kennzeichnung; Entscheidungen und Status in kanonischen Dateien | Review korrigieren und kanonische Quelle explizit verlinken | Governance |
@@ -358,7 +358,7 @@ Eine Welle gilt erst als abgeschlossen, wenn:
 4. kein unerwarteter Zugriff auf ignorierte oder geschuetzte Inhalte
    stattgefunden hat;
 5. ein unabhaengiger Qualitaetsreview keine offenen Blocker meldet;
-6. bei Daten, externen Tools oder Veroeffentlichung der konkrete
-   Compliance-Preflight dokumentiert ist;
+6. bei Daten, externen Tools oder Veroeffentlichung die Pruefung bei
+   `update repo` dokumentiert ist;
 7. Planstatus, Entscheidung und Changelog die reale Umsetzung beschreiben,
    nicht nur das Zielbild.

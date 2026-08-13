@@ -15,6 +15,7 @@ __pycache__/
 
 # Lokale Arbeitsdaten und erzeugte Ausgaben
 /config/ma_database/catalogs/
+/config/ma_database/literature/
 data/test_output/*
 !data/test_output/.gitkeep
 !data/test_output/README.md

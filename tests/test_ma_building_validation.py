@@ -138,6 +138,15 @@ def test_lod1_invalid_window_area_ratio_blocks_release():
     assert "BUILDING_WINDOW_AREA_RATIO_INVALID" in _codes(result)
 
 
+def test_lod1_window_area_ratio_consistency_allows_documented_rounding_tolerance():
+    spec = load_business_integration_lod1_building_spec()
+    rounded = replace(spec, simple_envelope=replace(spec.simple_envelope, window_area_m2=20.15))
+    inconsistent = replace(spec, simple_envelope=replace(spec.simple_envelope, window_area_m2=20.202))
+
+    assert "BUILDING_LOD1_WINDOW_AREA_RATIO_INCONSISTENT" not in _codes(validate_building_spec(rounded))
+    assert "BUILDING_LOD1_WINDOW_AREA_RATIO_INCONSISTENT" in _codes(validate_building_spec(inconsistent))
+
+
 def test_lod1_invalid_optional_area_blocks_release():
     spec = load_business_integration_lod1_building_spec()
     invalid_envelope = SimpleEnvelopeInput(
@@ -152,6 +161,20 @@ def test_lod1_invalid_optional_area_blocks_release():
 
     assert result.release_status is ReleaseStatus.BLOCKED
     assert "BUILDING_SIMPLE_ENVELOPE_AREA_INVALID" in _codes(result)
+
+
+def test_non_finite_explicit_element_and_opening_areas_block_release():
+    spec = load_demo_building_spec()
+    invalid_spec = replace(
+        spec,
+        elements=(replace(spec.elements[0], area_m2=float("nan")), *spec.elements[1:]),
+        openings=(replace(spec.openings[0], area_m2=float("inf")), *spec.openings[1:]),
+    )
+
+    result = validate_building_spec(invalid_spec)
+
+    assert result.release_status is ReleaseStatus.BLOCKED
+    assert {"BUILDING_ELEMENT_AREA_INVALID", "BUILDING_OPENING_AREA_INVALID"} <= _codes(result)
 
 
 def test_invalid_maturity_level_blocks_release():

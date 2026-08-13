@@ -168,7 +168,7 @@ Projektstammdaten, keine Standortuebergabe und keine Fachmodulreferenz.
 ## Digitale Projektakte und Dateigrenzen
 
 Die geplante Projektakte ist eine Dokumentationsschicht, keine Fachdatenbank.
-Zulaessig sind spaeter nur nach objektbezogenem Preflight freigegebene
+Zulaessig sind spaeter nur ausdruecklich freigegebene
 beschreibende Kopien, etwa eigene Skizzen oder Vorschaubilder. Das Original
 einer externen Datei bleibt unveraendert, bis Herkunft, Lizenz, Datenschutz,
 Repository- und Weitergaberecht geklaert sind.

@@ -180,6 +180,7 @@ class BuildingModelSpecification:
     assumptions: tuple[Assumption, ...] = ()
     input_detail_level: BuildingInputDetailLevel | str = BuildingInputDetailLevel.LOD_2
     simple_envelope: SimpleEnvelopeInput | None = None
+    thermal_envelope_complete: bool = False
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "storeys", tuple(self.storeys))
@@ -355,4 +356,5 @@ def building_specification_from_dict(data: Mapping[str, Any]) -> BuildingModelSp
         ),
         input_detail_level=str(data.get("input_detail_level", BuildingInputDetailLevel.LOD_2.value)).strip(),
         simple_envelope=_simple_envelope_from_dict(data.get("simple_envelope")),
+        thermal_envelope_complete=data.get("thermal_envelope_complete", False) is True,
     )

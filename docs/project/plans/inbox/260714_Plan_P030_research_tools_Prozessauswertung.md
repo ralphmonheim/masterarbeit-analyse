@@ -1,7 +1,7 @@
 # P030 research_tools Prozessmessung und Vergleichsauswertung
 
-Stand: 2026-07-31
-Status: Fachlich geplant, von der Produktivsoftware getrennt
+Stand: 2026-08-13
+Status: Fachlich geplant, lokale Mess- und Auswertungsvorlage vorhanden, von der Produktivsoftware getrennt
 Prioritaet: Hoch fuer die Methodik der Masterarbeit
 Abhaengigkeiten: technische Logs aus P011-P021; keine Rueckabhaengigkeit der Fachmodule
 
@@ -174,3 +174,40 @@ Manueller und softwaregestuetzter Ablauf muessen dieselben Eingaben,
 Varianten, Prozessgrenzen, Pruefanforderungen und Ergebnisartefakte besitzen.
 `automated_concept` bleibt Schaetzung und wird nicht mit beobachteter
 Zeitersparnis vermischt.
+
+## Arbeitsstand 2026-08-13: Messvorlage und Quellenregister
+
+Die lokale Arbeitsmappe
+`WORK/04_Teil2_Prozessinnovation/Prozessmessung/Prozesskostenvergleich_Manuell_vs_Automatisiert.xlsx`
+wurde als editierbare Mess- und Auswertungsvorlage erweitert. Das
+versionierte Skript `Skripte/build_process_measurement_workbook.py` erzeugt
+die neuen Register reproduzierbar und erhaelt die vier historischen
+Ausgangsregister unveraendert.
+
+Die Vorlage trennt Gesamtuebersicht, PreProcess (Detail und Gruppierung),
+Kernprozess (Uebersicht und Einzelwerte), PostProcess-Vorlage, Kosten,
+Messannahmen sowie ein Quellenregister. Jede relevante Zeile der neuen
+Register verweist ueber eine Register-ID auf Herkunft, Begruendung,
+Gueltigkeitsbereich, Grenze und naechste Aktion.
+
+Als `manual_entry` liegen fuer die reine PC-Simulationszeit zwei
+exemplarische Fallwerte vor:
+
+- `5Z-Dimensionierung`: Heizlast 24 s, Kuehllast 24 s, Energie 294 s und
+  Ueberhitzung 24 s; Summe 366 s (6 min 06 s).
+- `29Z-Dimensionierung`: Heizlast 109 s, Kuehllast 117 s, Energie 701 s und
+  Ueberhitzung 118 s; Summe 1.045 s (17 min 25 s).
+
+Die Werte sind nur Maschinenzeit und keine unabhaengigen Wiederholungen. Sie
+duerfen weder gemittelt noch als allgemeingueltiger Leistungsnachweis oder
+als belastbare Ersparnis ausgegeben werden. Die aktive Eingabezeit einer
+vollstaendig neuen Variante ist vorlaeufig als Nutzerangabe von 1--4 h
+dokumentiert; der in der Vorlage verwendete Mittelwert von 150 min ist
+ausdruecklich nur ein Rechentest. Folgevarianten durch Kopie bleiben
+"reduziert durch Kopie, noch nicht separat gemessen".
+
+Der Kernprozess wird als Zielablauf `Export/Uebergabe -> Simulation ->
+Import/Standardisierung` gefuehrt; Pruefung/Korrektur wird nur bei
+tatsaechlichem Anfall erfasst. Die PostProcess-Modulstruktur und ihre
+Gruppierung bleiben bewusst offen. Kostenparameter in der Vorlage sind
+Testwerte und bis zur Entscheidung von OP-009 keine Masterarbeitswerte.

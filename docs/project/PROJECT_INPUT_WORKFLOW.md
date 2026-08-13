@@ -17,7 +17,7 @@ werden.
 | --- | --- | --- |
 | `docs/project/` | dauerhafte Projektsteuerung, Plaene, Entscheidungen, Architektur, Routinen und Leitfaden | versioniert |
 | `data/project_inbox/` | lokaler Eingang fuer neue oder unklare Entwicklungsdateien | nur Struktur versioniert, Inhalte ignoriert |
-| `docs/project/plans/inbox/` | Plan-Inbox fuer intern erstellte oder nach Dokument-Preflight uebernommene Projektplaene | versioniert |
+| `docs/project/plans/inbox/` | Plan-Inbox fuer intern erstellte oder aus der Entwicklungs-Inbox uebernommene Projektplaene | versioniert |
 
 `docs/project/` ist damit der gemeinsame Dokumentationsort fuer die Regeln.
 `data/project_inbox/` bleibt der praktische Arbeitsort fuer temporaere Dateien,
@@ -26,63 +26,28 @@ weil dort auch grosse, rohe oder noch ungepruefte Dateien liegen koennen.
 ## Ablauf
 
 1. Alle neuen Dateien direkt unter `data/project_inbox/new/` ablegen.
-2. Mit `projektinput aufnehmen` den Eingang pruefen lassen.
-3. Herkunft, Rechte, Schutzbedarf und beabsichtigte Verarbeitung zunaechst
-   anhand bereinigter Metadaten durch den read-only `compliance_auditor`
-   pruefen; den Dateiinhalt noch nicht uebergeben.
-4. Bei gesperrter oder unbekannter Inhaltsverarbeitung das Original
-   unveraendert am aktuellen Eingangspfad belassen. Nach `needs_review/`
-   duerfen nur ein Metadatenhinweis oder eine ausdruecklich freigegebene
-   Arbeitskopie gelangen.
-5. Erst nach bestandenem Dokument-Preflight den minimal notwendigen Inhalt
-   pruefen. Nur im dokumentierten `green`-Umfang extrahieren, verschieben oder
-   einarbeiten. `yellow` bleibt bis zur dokumentierten Bestaetigung und allen
-   geforderten Belegen gesperrt; `red` stoppt und `unknown` bleibt bis zur
-   Klaerung gesperrt.
-6. Eindeutig zulaessige und zuordenbare Inhalte in bestehende Zielordner
-   uebernehmen.
-7. Projektplaene erst nach bestandenem Dokument-Preflight nach
-   `docs/project/plans/inbox/` uebernehmen und danach mit
-   `plan aufnehmen` in Planindex und Planstatus einordnen.
+2. Mit `input aufnehmen` beide Eingaenge pruefen lassen.
+3. Dateiname, Erweiterung und die fuer die Zuordnung erforderlichen Metadaten
+   erfassen.
+4. Eindeutig erkannte Projektplaene sofort aus `data/project_inbox/new/` nach
+   `docs/project/plans/inbox/` verschieben und mit `plan aufnehmen` in
+   Planindex und Planstatus einordnen. Diese Planaufnahme benoetigt keine
+   weitere Umsetzungsfreigabe.
+5. Danach den Zuordnungsbericht mit allen Dateien, Kategorien,
+   Zielvorschlaegen, Planaufnahmen, Literaturbezug und offenen Punkten
+   erstellen.
+6. Eindeutig zuordenbare Nicht-Plan-Dateien erst nach ausdruecklicher
+   Umsetzungsfreigabe in bestehende Zielordner uebernehmen oder in passende
+   Dokumente einarbeiten.
+7. Uebernommene Literatur anschliessend ueber den Literatur-Workflow
+   inventarisieren, analysieren und als Projektuebertragung einordnen.
 8. Verarbeitete Originale nach `data/project_inbox/processed/` verschieben.
-9. Bei unklaren oder blockierten Objekten eine Rueckfrage stellen und das
-   Original bis zur Klaerung nicht verschieben.
-
-## Compliance-Preflight
-
-Der Preflight richtet sich nach den Schutz- und Freigaberegeln in `AGENTS.md`,
-den einschlaegigen Nutzer- und Technikentscheidungen unter
-`docs/project/decisions/` sowie dem betroffenen Fachprofil. Der
-`compliance_auditor` prueft read-only und erteilt keine eigene Rechts-,
-Vertrags- oder Fachfreigabe.
-
-Geprueft werden mindestens:
-
-- bekannte Herkunft und Eigentum,
-- anwendbare Lizenz und erlaubte Verarbeitung,
-- personenbezogene oder vertrauliche Inhalte,
-- Repository-, Cloud-, Weitergabe- und Veroeffentlichungsrechte,
-- Lizenz- oder Zugangsdaten sowie erforderliche externe Genehmigungen.
-
-Der Hauptagent besitzt die Prozessentscheidung, prueft die Agentenempfehlung
-und dokumentiert die anwendbare `compliance_decision` mit Belegreferenz im
-lokalen Metadaten-Audit unter `logs/compliance/decisions.jsonl`. Dauerhafte
-allgemeine Regeln und Entscheidungen werden zusaetzlich in den bestehenden
-versionierten Entscheidungsdateien festgehalten. Eine Agentenempfehlung allein
-ist keine Freigabe. Materielle oder gelbe Entscheidungen benoetigen eine
-dokumentierte menschliche Bestaetigung und alle geforderten Rechtebelege.
-
-Ein Compliance-Blocker stoppt nur das betroffene Objekt. Eine blosse
-Risikoakzeptanz ersetzt keinen Rechte- oder Freigabenachweis; unabhaengige,
-unkritische Dateien derselben Aufnahme duerfen weiterbearbeitet werden.
-`unknown` bezeichnet einen gesperrten fehlenden-Nachweis-Status, nicht ein
-bestaetigtes Verbot. `red` bezeichnet eine belegte Stop-Regel.
-
-Bei neuen Plaenen wird zwischen Dokument und geplanter Umsetzung
-unterschieden: Ein Risiko der spaeteren Umsetzung wird als sichtbare
-Voraussetzung in Planindex oder Planstatus dokumentiert. Ist bereits die
-Verarbeitung oder Repository-Ablage des Plandokuments selbst gesperrt, wird
-seine weitere Aufnahme gestoppt.
+9. Bei unklarer Zuordnung eine Rueckfrage stellen und das Original bis zur
+   Klaerung nicht verschieben.
+10. Nach jeder Planaufnahme oder Dokumentaenderung den Navigator aktualisieren
+    und validieren.
+11. Vor `update repo` den gesamten vorgesehenen Repository-Stand auf Rechte,
+   Schutzbedarf und Veroeffentlichungsgrenzen pruefen.
 
 ## Eingangskategorien
 
@@ -102,19 +67,18 @@ seine weitere Aufnahme gestoppt.
 
 - Keine Dateien loeschen.
 - Keine Fach- oder Compliance-Freigabe automatisch setzen.
-- Nur eindeutig zuordenbare Dateien verschieben oder in bestehende Dokumente
-  einarbeiten.
+- Nur eindeutig erkennbare Plan-Dateien duerfen ohne weitere Freigabe
+  verschoben und eingeordnet werden. Alle anderen Dateien duerfen erst nach
+  `Freigabe zur Umsetzung` verschoben oder eingearbeitet werden.
 - Die Zuordnung erfolgt erst beim Scan aus Dateiname, Erweiterung und
   zulaessigen Metadaten; `new/` enthaelt keine Kategorie-Unterordner.
-- Vor Extraktion, Verschieben, Einarbeiten oder externer Verarbeitung den
-  Compliance-Preflight ausfuehren.
-- Unklare, nicht ausreichend belegte oder blockierte Originale bleiben
+- Unklare Originale bleiben
   unveraendert an ihrem aktuellen Eingangspfad.
 - `needs_review/` enthaelt nur Metadatenhinweise oder nach ausdruecklicher
   Freigabe erzeugte Arbeitskopien; das Original bleibt erhalten.
 - Grosse, lokale oder rohe Eingangsdateien nicht nach `docs/project/`
   verschieben.
-- Geschuetzte Volltexte, Lizenz- oder Zugangsdaten und vertrauliche
-  Projektdateien nicht in das Repository uebernehmen.
+- Die Pruefung auf geschuetzte Volltexte, Lizenz- oder Zugangsdaten und
+  vertrauliche Projektdateien erfolgt beim `update repo`.
 - `CHANGELOG.md` nur aktualisieren, wenn versionierte Struktur,
   Dokumentation oder produktive Dateien geaendert wurden.

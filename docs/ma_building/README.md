@@ -64,9 +64,21 @@
   `ma_building.thermal` berechnet UI-neutral mittlere U-Werte je Kategorie,
   eine vereinfachte Demo-Bilanz fuer `H_T` und den nur informativ gezeigten
   Kennwert `H'_T`.
+- **Aktivierung und Bilanzgrenze:** Folgereiter bleiben ohne einen zum
+  Auswahl-Schluessel, zur Gebaeude-ID und zur Modellversion passenden
+  Projekt-Aktivstand gesperrt. Fehlt in LoD-1 die Fensterflaeche, leitet die
+  Thermik sie als `A_Fenster = A_Aussenwand,brutto * Anteil / 100` ab;
+  bei doppelter Angabe und beim Aggregatabgleich gilt
+  `|A_explizit - A_abgeleitet| <= max(0,10 m2; 1 % * A_abgeleitet)`.
+  Explizite Huellen brauchen `thermal_envelope_complete` und werden, sofern
+  vorhandene Aggregatflaechen vorliegen, dagegen plausibilisiert.
+  Widerspruechliche Angaben, nicht positive/nicht endliche U- oder
+  Flaechenwerte sowie unvollstaendige Huellen sperren `H_T` und `H'_T`. Die
+  UI zeigt bewusst nur eine sichtbare `Flaeche`; der positive Oeffnungsabzug
+  bleibt an der Host-Beziehung nachvollziehbar.
 - **Methodengrenze:** Fuer die V1-Demo gelten manuelle, sichtbar
   gekennzeichnete Annahmen `F=1,0` gegen Aussenluft, `F=0,5` gegen Erdreich
-  und `Delta U_WB=0,10 W/(m2 K)`. Sie dienen weder als Normersatz noch als
+  und die feste Pauschale `Delta U_WB=0,10 W/(m2 K)`. Sie dienen weder als Normersatz noch als
   GEG-Nachweis. Grundlage fuer die Einordnung sind die oeffentlich
   zugaenglichen Regelungen in GEG Anlage 3 und GEG Paragraph 24; eine
   belastbare Erdreich-, Waermebruecken- oder Nichtwohngebaeude-Nachweisrechnung

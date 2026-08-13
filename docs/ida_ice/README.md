@@ -43,5 +43,6 @@ dokumentieren.
 Die technische und vertragliche Vorpruefung liegt unter
 `docs/compliance/ida_ice/`. Vor einer IDA-bezogenen Implementierung wird eine
 `compliance_decision` mit Klasse `green`, `yellow` oder `red` dokumentiert.
-Bei `yellow` ist der Preflight erforderlich; bei `red` erfolgt keine
-Dateioperation oder Implementierung ohne ausdrueckliche EQUA-Freigabe.
+Die Pruefung des vorgesehenen Repository-Stands erfolgt mit `update repo`;
+bei `red` erfolgt keine Dateioperation oder Implementierung ohne
+ausdrueckliche EQUA-Freigabe.

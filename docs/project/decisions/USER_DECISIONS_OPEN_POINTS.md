@@ -44,6 +44,21 @@ werden nach der Dokumentation als `UD-*` aus dieser Datei entfernt und stehen in
   festgelegten Parameter-/Variantenstufen sowie eindeutigen Start-/Endpunkten
   definieren. Gemeinsame Setup- und PostProcess-Zeiten duerfen nicht
   unbemerkt jeder Variante voll zugerechnet werden.
+- Teilklaerung 2026-08-13: Die lokale Prozessmessungsmappe wird als
+  nachvollziehbare Vorlage mit getrennten Ansichten fuer Gesamtprozess,
+  PreProcess, Kernprozess und PostProcess gefuehrt. Der Kernprozess folgt
+  dem Zielablauf Export/Uebergabe, Simulation und Import/Standardisierung;
+  Pruefung/Korrektur wird nur bei Bedarf erfasst. PreProcess erscheint
+  sowohl detailliert als auch gruppiert. Die PostProcess-Gruppierung bleibt
+  bis zu einer gesonderten fachlichen Klaerung offen. Alle Werte, Schaetzungen
+  und Testannahmen verweisen auf ein Quellenregister; Testkostenwerte sind
+  keine Kostenentscheidung. Die vorliegenden 5Z-/29Z-Simulationszeiten sind
+  reine Maschinenzeiten und exemplarische Fallwerte, nicht der Nachweis einer
+  vergleichbaren Zeit- oder Kostenersparnis.
+  Vor einer Auswertung sind zusaetzlich Messmethode und Start-/Endpunkt der
+  PC-Zeit, IDA-/Hardwareumgebung, Wiederholungsumfang, Behandlung von
+  Wartezeit und Ueberlappungen sowie das objektive Ereignis fuer
+  Pruefung/Korrektur im Vergleichsprotokoll festzulegen.
 
 ### OP-017 Neutraler Ergebnisvertrag und Dateninventar
 
@@ -229,6 +244,12 @@ werden nach der Dokumentation als `UD-*` aus dieser Datei entfernt und stehen in
   installiert. Diese einmalige Freigabe umfasst weder eine globale
   Installation noch einen produktiven IFC-Lite-Adapter oder weitere
   Abhaengigkeiten.
+- Ergänzung 2026-08-13: Die Recherche zu § 44b UrhG und den DIN-Media-AGB
+  (Stand Mai 2026) ersetzt keine objektbezogene Rechteklärung. Sie bestätigt
+  für den geprüften DIN-Media-Rahmen, dass Nichtveröffentlichung und korrektes
+  Zitieren allein keine belastbare Freigabe für KI-/Maschinenverarbeitung
+  darstellen. Für die vorhandenen Dokumente bleiben Bezugsweg, Vertragsstatus
+  und zulässige Operationen je Objekt offen.
 
 ### OP-017 Erweiterung des themenbezogenen Council-Spezialistenpools
 

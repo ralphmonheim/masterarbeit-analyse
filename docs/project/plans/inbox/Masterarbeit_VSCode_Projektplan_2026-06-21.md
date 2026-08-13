@@ -1676,3 +1676,17 @@ Für jede größere Änderung gilt
 6. Tests ausführen
 7. Dokumentation und Entscheidungslog aktualisieren
 8. keine bestehende Struktur ohne Migrationsplan ersetzen
+
+## Eingangsauswertung 2026-08-13: Stage-/Wave-Konzeptplan
+
+Der Eingang „Finaler Codex-Konzeptplan“ wurde als Architekturvorschlag
+ausgewertet. Seine Trennung von Variantenpipeline, Analyse, Verifikation,
+Regeln und Orchestrierung ist ein pruefenswerter Impuls fuer spaetere,
+separat freizugebende Migrationsslices. Er aendert jedoch weder den
+MVP-V1-Zielvertrag noch bestehende Modulgrenzen.
+
+Insbesondere wird keine `SimulationCase`-Ebene uebernommen: Der verbindliche
+Gesamtprozess ordnet Exporte und Ergebnisse weiterhin ueber `RUN-ID + VAR-ID`
+zu. Study-/Stage-/Wave-Objekte, neue Regelmodule, eine Workflow-Orchestrierung
+oder externe Provider bleiben Folgeoptionen, die erst gegen P007, P009,
+P017, P018, P019, P020 und UD-112 fachlich und technisch abzugleichen sind.

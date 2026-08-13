@@ -49,6 +49,14 @@
   sondern liefert eine freigegebene `ParameterVariationSpecification` mit
   Scope, Zielobjekten, Werteformen, Dimensionierungsrelevanz und
   Referenzstrategien.
+- **P015-S5A Definitionskern:** `definitions.py` fuehrt die additive
+  Definitionsebene mit `ParameterDefinition`, `ParameterGroup` und
+  `ParameterInstance`. Herkunft, Editierbarkeit, Variantenfaehigkeit,
+  Ableitung und Aktivierung bleiben getrennte Statusachsen. Die versionierte
+  Matrix unter `config/ma_parameters/inventory/` klassifiziert die heute
+  sichtbaren Bestandswerte als `EXISTS`, `PARTIAL`, `MISSING`, `METADATA` oder
+  `DERIVED`; die 84 beobachteten Vorschauzeilen sind eine Inventurangabe und
+  keine Softwaregrenze.
 - **Naechster Schritt:** Die v2-basierte Herkunft bestehender Parameterwerte
   und der verbleibende Vollumfang von P015-S3b bleiben getrennte Slices.
   Der abgeschlossene P013-/P014-Checkpoint aendert keine v1-Parameterwerte,

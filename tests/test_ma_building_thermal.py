@@ -93,6 +93,103 @@ def test_lod1_aggregate_envelope_creates_complete_synthetic_rows_and_transmissio
     assert result.is_complete
 
 
+def test_lod1_derives_window_area_from_the_ratio_when_no_explicit_window_area_exists():
+    spec = load_business_integration_lod1_building_spec()
+    aggregate_only = replace(spec, simple_envelope=replace(spec.simple_envelope, window_area_m2=None))
+
+    result = calculate_thermal_transmission(aggregate_only)
+    rows_by_id = {row.component_id: row for row in result.rows}
+
+    assert rows_by_id["LOD1-AW"].effective_area_m2 == pytest.approx(60.0)
+    assert rows_by_id["LOD1-FA"].effective_area_m2 == pytest.approx(20.0)
+    assert result.heat_loss_coefficient_w_k == pytest.approx(61.6)
+    assert result.is_complete
+
+
+def test_lod1_inconsistent_window_area_and_ratio_block_the_transmission_result():
+    spec = load_business_integration_lod1_building_spec()
+    inconsistent = replace(spec, simple_envelope=replace(spec.simple_envelope, window_area_m2=10.0))
+
+    result = calculate_thermal_transmission(inconsistent)
+
+    assert result.heat_loss_coefficient_w_k is None
+    assert result.heat_loss_coefficient_per_area_w_m2k is None
+    assert not result.is_complete
+    assert any("BUILDING_LOD1_WINDOW_AREA_RATIO_INCONSISTENT" in warning for warning in result.warnings)
+
+
+def test_invalid_or_non_finite_u_values_block_the_transmission_result():
+    spec = load_business_integration_lod1_building_spec()
+    invalid = replace(spec, simple_envelope=replace(spec.simple_envelope, external_wall_u_value_w_m2k=-0.24))
+    non_finite = replace(spec, simple_envelope=replace(spec.simple_envelope, external_wall_u_value_w_m2k=float("nan")))
+
+    for invalid_spec in (invalid, non_finite):
+        result = calculate_thermal_transmission(invalid_spec)
+
+        assert result.heat_loss_coefficient_w_k is None
+        assert result.heat_loss_coefficient_per_area_w_m2k is None
+        assert not result.is_complete
+        assert all(not row.is_complete for row in result.rows)
+        assert any("BUILDING_SIMPLE_ENVELOPE_U_VALUE_INVALID" in warning for warning in result.warnings)
+
+
+def test_partial_explicit_envelope_is_not_reported_as_a_complete_building_hull():
+    spec = _spec_with_u_values()
+    partial = replace(spec, elements=(spec.elements[0],), openings=())
+
+    result = calculate_thermal_transmission(partial)
+
+    assert result.heat_loss_coefficient_w_k is None
+    assert not result.is_complete
+    assert any("Explizite Huelle ist unvollstaendig" in warning for warning in result.warnings)
+
+
+def test_explicit_envelope_requires_a_confirmed_completeness_statement():
+    spec = _spec_with_u_values()
+
+    result = calculate_thermal_transmission(replace(spec, thermal_envelope_complete=False))
+
+    assert result.heat_loss_coefficient_w_k is None
+    assert not result.is_complete
+    assert any("Vollstaendigkeitsnachweis" in warning for warning in result.warnings)
+
+
+def test_explicit_envelope_must_match_confirmed_aggregate_areas_when_available():
+    spec = load_small_office_5z_endvariant_02_building_spec()
+    incomplete = replace(
+        spec,
+        elements=tuple(replace(element, area_m2=1.0) for element in spec.elements if element.construction_code != "GD"),
+        openings=(),
+    )
+
+    result = calculate_thermal_transmission(incomplete)
+
+    assert result.heat_loss_coefficient_w_k is None
+    assert not result.is_complete
+    assert any("bestaetigten Aggregatflaeche" in warning for warning in result.warnings)
+
+
+def test_explicit_envelope_aggregate_coverage_uses_the_confirmed_tolerance():
+    spec = load_small_office_5z_endvariant_02_building_spec()
+    within_tolerance = replace(
+        spec,
+        elements=tuple(
+            replace(element, area_m2=element.area_m2 + 0.05) if element.construction_code == "DA" else element
+            for element in spec.elements
+        ),
+    )
+    outside_tolerance = replace(
+        spec,
+        elements=tuple(
+            replace(element, area_m2=element.area_m2 + 2.5) if element.construction_code == "DA" else element
+            for element in spec.elements
+        ),
+    )
+
+    assert calculate_thermal_transmission(within_tolerance).is_complete
+    assert not calculate_thermal_transmission(outside_tolerance).is_complete
+
+
 def test_small_office_openings_redistribute_the_gross_facade_without_double_counting():
     spec = load_small_office_5z_endvariant_02_building_spec()
 

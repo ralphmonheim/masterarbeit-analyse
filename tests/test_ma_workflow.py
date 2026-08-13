@@ -77,7 +77,7 @@ def test_partial_modules_reflect_current_module_implementation():
     assert partial_modules == {
         "ma_building",
         "ma_analyse",
-        "ma_analyse.data_preparation",
+        "ma_data_preparation",
         "ma_analyse.stage_1_dimensioning",
         "ma_analyse.stage_2_optimization",
         "ma_zones",

@@ -12,7 +12,7 @@ Archivierung nachvollziehbar fuehren.
 - freigegebene Plaene und Nutzerentscheidungen
 - technische Entscheidungen, Pruefergebnisse und Projektstaende
 - temporaere Entwicklungsinputs aus `data/project_inbox/`, wenn sie mit
-  `projektinput aufnehmen` in bestehende Zielordner einsortiert werden
+  `input aufnehmen` in bestehende Zielordner einsortiert werden
 
 ## Ausgaben
 
@@ -56,7 +56,8 @@ Temporaere neue Projektdateien koennen waehrend der Entwicklungsphase zuerst in
 der lokalen Entwicklungs-Inbox `data/project_inbox/new/` gesammelt werden. Die
 Regeln dafuer stehen in `PROJECT_INPUT_WORKFLOW.md`. Der Eingang ist kein
 dauerhafter Dokumentationsbereich; Codex verteilt eindeutige Inhalte mit
-`projektinput aufnehmen` in die bestehenden Projekt-, Modul- und lokalen
-Datenordner.
+`input aufnehmen` in die bestehenden Projekt-, Modul- und lokalen Datenordner.
+Der Sammelbefehl erstellt zuerst einen Zuordnungsbericht, uebernimmt nach
+Freigabe eindeutige Dateien und aktualisiert danach den Navigator.
 
 Vor groesseren Umsetzungen zuerst `plans/PLAN_STATUS.md`, `plans/PLAN_INDEX.md`, `architecture/` und die offenen Nutzerentscheidungen pruefen.

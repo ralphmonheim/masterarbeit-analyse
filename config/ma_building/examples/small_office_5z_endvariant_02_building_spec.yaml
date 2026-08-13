@@ -22,6 +22,7 @@ model_version:
   confirmed_input_level: "BIL-2"
   current_maturity_level: "BIL-2"
   target_maturity_level: "BIL-3"
+thermal_envelope_complete: true
 simple_envelope:
   # Materialbasierte LoD-1-Ableitungen aus den Projektkonstruktionen.
   # Oberflaechenwiderstaende und Waermebruecken sind noch nicht enthalten.
@@ -98,3 +99,6 @@ assumptions:
   - assumption_id: "SMALLOFFICE-5Z-THERMAL-001"
     location: "simple_envelope"
     text: "U-Werte fuer Wand, Dach und Boden sind vorlaeufige materialbasierte Ableitungen ohne Oberflaechenwiderstaende oder Waermebruecken; Fenster-U-Wert 1,9 W/(m2K) stammt aus der Projektkonfiguration."
+  - assumption_id: "SMALLOFFICE-5Z-THERMAL-002"
+    location: "thermal_envelope_complete"
+    text: "Die thermisch aggregierten Aussenbauteile sind fuer die V1-Demo vollstaendig; ihre Flächen werden gegen die einfache Huelle plausibilisiert."

@@ -4,6 +4,54 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.40.0 - 2026-08-13
+
+### Fixed
+
+- Die Gebäude-U-Wert- und Ergebnisansichten verlangen nun einen zum Projekt
+  passenden aktivierten Modellstand. LoD-1 leitet fehlende Fensterflächen aus
+  dem Fensteranteil ab und sperrt bei widersprüchlichen Flächen,
+  ungültigen U-Werten oder unvollständigen Hüllen `H_T` und `H'_T`. Der
+  Wärmebrückenzuschlag ist fest auf `Delta U_WB=0,10 W/(m2 K)` gesetzt.
+
+### Added
+
+- P030 besitzt eine lokale, editierbare Mess- und Auswertungsvorlage fuer
+  PreProcess, Kernprozess und PostProcess. Das versionierte Erzeugungsskript
+  aktualisiert die neun neuen Register reproduzierbar, waehrend die
+  historische Arbeitsmappe selbst in der externen Arbeitsablage verbleibt.
+
+- Drei fachliche Markdown-Eingaenge wurden den bestehenden Plaenen P007,
+  P009, P019 und P020 als nicht automatisch uebernommene Architektur- bzw.
+  Ergebnisvertragskandidaten zugeordnet. Der zugehoerige Literaturcontainer
+  bleibt bis zur objektbezogenen Rechte- und Zugriffspruefung unverarbeitet.
+  Die zugehoerige Chat-Uebergabe verweist ausschliesslich auf die kanonischen
+  Planquellen.
+
+- P036 und UD-126 fuehren `ma_data_preparation` als eigenen Owner fuer die
+  gepruefte Aufbereitung standardisierter Simulationsergebnisse ein. Der
+  freigegebene Ausbau priorisiert die 5Z-Untersuchung, bindet den historischen
+  ALT-Optimierungsbestand an und stellt Diagrammdesign sowie die getrennt
+  erarbeitete Laufzeitkopplung zurueck.
+
+- Der erste P036-Slice implementiert standardisierte Zeitreihen mit
+  Provenienz, Datenqualitaets- und Eignungsstatus, IDA-Adapter fuer PRN/HTML/
+  XLSX sowie zeitgewichtete Kennwerte. Editierbare 5Z-/29Z-Zonentabellen und
+  ein deskriptiver ALT-Variantenvergleich werden als XLSX/CSV erzeugt.
+  Stage 2 und Stage 3 besitzen konfigurierbare, wertfreie Pruefvertraege;
+  produktive Normgrenzwerte bleiben bis zur Fachaktivierung gesperrt.
+  Reale IDA-PRN-Energieableitungen bleiben wegen noch offener Zeit-/
+  Leistungssemantik ausdrücklich `PARTIAL`; erkannte Luecken und nicht
+  eindeutige Reihen werden nicht integriert.
+
+- P015-S5A fuehrt einen additiven Definitionskern fuer den hierarchischen
+  Parameterkatalog ein. `ParameterDefinition`, `ParameterGroup` und
+  `ParameterInstance` trennen Fachdefinition, konkrete Werte, Herkunft,
+  Editierbarkeit, Ableitung, Aktivierung und Variantenfaehigkeit, ohne die
+  bestehenden P015-/P017-Snapshotvertraege umzubauen. Eine versionierte
+  Bestandsmatrix dokumentiert den beobachteten 84-Zeilen-Vorschauumfang als
+  Ist-Stand, nicht als Parametergrenze.
+
 ## 0.39.0 - 2026-08-11
 
 ### Added

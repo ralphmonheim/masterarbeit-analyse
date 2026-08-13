@@ -340,3 +340,12 @@ produktive Erkennung ein neuer Codex-Chat oder Projekt-Reload erforderlich.
 - Custom Agents: <https://learn.chatgpt.com/docs/agent-configuration/subagents#custom-agents>
 - Skills und repo-lokaler Ablageort:
   <https://learn.chatgpt.com/docs/customization/overview#skills>
+
+## Eingangsauswertung 2026-08-13: Literaturcontainer
+
+Ein datierter Literaturcontainer zu den Simulationsstufen liegt weiterhin im
+lokalen Projekt-Eingang. Er wurde ausschliesslich ueber Dateiname, Erweiterung,
+Groesse und Hash inventarisiert; sein Inhalt wurde nicht geoeffnet,
+extrahiert oder verarbeitet. Vor jeder Inventarisierung gelten die bestehende
+Quellenregister-Reihenfolge und die objektbezogene Rechte- und
+Zugriffspruefung aus UD-127 unveraendert.

@@ -442,8 +442,8 @@ der fachlichen Datenvalidierung und Freigabe in `ma_validation` getrennt.
 
 Technische Folgen:
 
-- Ein Metadaten-Preflight erfasst Dateiname, Endung, Groesse, SHA-256,
-  Herkunfts- und Lizenzstatus, bevor semantischer Inhalt verarbeitet wird.
+- Die Aufnahme erfasst Dateiname, Endung, Groesse und die fuer die Zuordnung
+  erforderlichen Metadaten, bevor semantischer Inhalt verarbeitet wird.
 - `green` erlaubt nur den dokumentierten Umfang. `yellow` bleibt technisch
   gesperrt, bis Nutzerbestaetigung und alle geforderten Rechte- oder
   Hochschulreferenzen vorliegen. `red` und `unknown` sind nicht
@@ -468,9 +468,8 @@ Technische Folgen:
 
 - Die Rolle liegt unter `.codex/agents/`, nutzt Sol mit hohem Reasoning und
   besitzt keinen Schreibzugriff.
-- Neue Plaene und Projektinputs durchlaufen vor jedem Inhaltszugriff einen
-  Metadaten-Preflight; erst nach belegter Inhalts- und KI-Verarbeitung darf
-  der Agent den Inhalt pruefen.
+- Neue Plaene und Projektinputs werden vor der Freigabe als Metadatenbericht
+  erfasst; nach Freigabe darf der Agent den erforderlichen Inhalt pruefen.
 - Ein zulaessiges Plandokument mit einem Umsetzungsrisiko bleibt in Planindex
   und Planstatus sichtbar; der Blocker sperrt die Umsetzung, nicht die
   Dokumentation des Risikos.
@@ -722,10 +721,10 @@ Der vom Nutzer lokal freigegebene P011-Gesamtentwurf wird kontrolliert in den
 bestehenden kanonischen P011-Plan uebernommen. Er erzeugt keine zweite
 P011-Planwahrheit.
 
-Council- und Compliance-Preflight:
+Council-Review:
 
-- Der Dokument-Preflight pruefte den vom Nutzer bereitgestellten lokalen
-  Markdown-Kandidaten anhand von Herkunft, Metadaten und SHA-256
+- Der vom Nutzer bereitgestellte lokale Markdown-Kandidat wurde anhand von
+  Herkunft, Metadaten und SHA-256
   `4D6782E8CD35C902CED72BA858972B79BEFBC6E1F9D39B4B2332FA80860BE955`.
   Nach der ausdruecklichen menschlichen Freigabe vom 2026-07-15 war die lokale
   Inhaltsanalyse `green`; die Uebernahme realer Assets bleibt `yellow` bis zu
@@ -815,7 +814,7 @@ lokale P032-W3a-Teilslice umgesetzt. Er beseitigt ausschliesslich die
 Runtime-Importkante `ma_technical -> ma_zones`; die fachliche Ownership der
 zonenabhaengigen Legacy-Validierung bleibt bewusst offen.
 
-Council- und Compliance-Preflight:
+Council-Review:
 
 - Mira bestaetigt, dass `ZoneModelSpecification` in
   `ma_technical.validation` nur fuer Annotationen genutzt wird. P014-S4
@@ -859,7 +858,7 @@ fachlichen Werteherkunftsvertrag, sondern einen nachvollziehbaren,
 synthetischen V2-Eingabe- und Abnahmenachweis auf den bereits vorhandenen
 V2-Modellen, Revisionen und Handovern.
 
-Council- und Compliance-Preflight:
+Council-Review:
 
 - Mira bestaetigt einen allgemeinen, nicht beispielspezifischen Parser fuer
   `TechnicalModelSpecification`: fruehe V2-Schemapruefung, Pflichtfelder,

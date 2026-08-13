@@ -557,11 +557,91 @@ def test_building_active_specification_does_not_leak_between_workspaces():
     resolved = building_view.resolve_active_building_spec_key(
         workspace_present=True,
         project_payload={},
-        session_key="small_office_5z_endvariant_02",
-        default_key="demo",
     )
 
-    assert resolved == "demo"
+    assert resolved is None
+
+
+def test_building_active_specification_requires_matching_building_id_and_revision():
+    matching = {
+        "project_id": "PROJECT-WORKSPACE-0001",
+        "building_specification": {
+            "selection_key": "business_integration_lod1",
+            "building_id": "BUILDING-BI-LOD1-0001",
+            "model_version": "BUILDING-BI-LOD1-V2",
+        },
+    }
+
+    assert (
+        building_view.resolve_active_building_spec_key(
+            workspace_present=True,
+            project_payload=matching,
+            workspace_project_id="PROJECT-WORKSPACE-0001",
+        )
+        == "business_integration_lod1"
+    )
+    assert (
+        building_view.resolve_active_building_spec_key(
+            workspace_present=True,
+            project_payload={
+                **matching,
+                "building_specification": {**matching["building_specification"], "building_id": "other"},
+            },
+            workspace_project_id="PROJECT-WORKSPACE-0001",
+        )
+        is None
+    )
+    assert (
+        building_view.resolve_active_building_spec_key(
+            workspace_present=True,
+            project_payload={
+                **matching,
+                "building_specification": {**matching["building_specification"], "model_version": "other"},
+            },
+            workspace_project_id="PROJECT-WORKSPACE-0001",
+        )
+        is None
+    )
+    assert (
+        building_view.resolve_active_building_spec_key(
+            workspace_present=True,
+            project_payload={**matching, "project_id": "PROJECT-OTHER"},
+            workspace_project_id="PROJECT-WORKSPACE-0001",
+        )
+        is None
+    )
+
+
+def test_building_replacement_confirmation_is_bound_to_the_selected_target():
+    spec = load_business_integration_lod1_building_spec()
+    stored_selection = {
+        "selection_key": "demo",
+        "building_id": "BUILDING-DEMO-0001",
+        "model_version": "BUILDING-MODEL-DEMO-V1",
+    }
+    first_target = building_view._replacement_confirmation_key(
+        None, stored_selection, spec, "business_integration_lod1"
+    )
+    second_target = building_view._replacement_confirmation_key(
+        None, stored_selection, spec, "small_office_5z_endvariant_02"
+    )
+
+    assert first_target != second_target
+
+
+def test_building_replacement_confirmation_covers_a_stale_saved_selection():
+    spec = load_business_integration_lod1_building_spec()
+    stored_selection = {
+        "selection_key": "business_integration_lod1",
+        "building_id": "BUILDING-BI-LOD1-0001",
+        "model_version": "outdated-version",
+    }
+
+    assert building_view._stored_selection_requires_confirmation(
+        stored_selection,
+        spec,
+        "business_integration_lod1",
+    )
 
 
 def test_building_room_book_shows_released_spaces_without_zone_assignment():
@@ -674,6 +754,12 @@ def test_building_result_rows_separate_u_value_summary_and_transmission_contribu
     assert all(row["Mittlerer U-Wert [W/(m2 K)]"] is not None for row in categories)
     assert all(row["F x U x A [W/K]"] is not None for row in contributions)
     assert result.heat_loss_coefficient_per_area_w_m2k is not None
+
+
+def test_building_transmission_rows_mark_missing_u_values_as_incomplete():
+    result = calculate_thermal_transmission(load_demo_building_spec())
+
+    assert all(row["Status"] == "unvollstaendig" for row in building_view.thermal_transmission_table_rows(result))
 
 
 def test_technical_topic_options_include_not_installed():
@@ -798,8 +884,7 @@ def test_zones_and_technical_views_show_lod1_demo_data():
     zone_summary = {row["Kennwert"]: row["Wert"] for row in zones_view.zone_summary_rows(zone_spec)}
     technical_summary = {row["Kennwert"]: row["Wert"] for row in technical_view.technical_summary_rows(technical_spec)}
     legacy_summary = {
-        row["Kennwert"]: row["Wert"]
-        for row in technical_view.legacy_technical_summary_rows(legacy_technical_spec)
+        row["Kennwert"]: row["Wert"] for row in technical_view.legacy_technical_summary_rows(legacy_technical_spec)
     }
 
     assert zone_summary["Eingabe-LoD"] == "LOD-1"
@@ -998,7 +1083,7 @@ def test_dashboard_and_workflow_rows_cover_target_structure():
         "ida_ice",
         "ma_import_simulation",
     ]
-    assert post_process_rows[0]["Modul"] == "ma_analyse.data_preparation"
+    assert post_process_rows[0]["Modul"] == "ma_data_preparation"
 
 
 def test_home_page_summarizes_workflow_status_and_phases():

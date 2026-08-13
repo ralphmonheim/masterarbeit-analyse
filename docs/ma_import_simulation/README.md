@@ -7,14 +7,16 @@
 - **Abgrenzung:** keine fachliche Kennwertberechnung oder Bewertung.
 - **Compliance:** Das Modul verarbeitet automatisch nur exportierte,
   zuordenbare Ergebnisartefakte. Vollstaendige IDA-Projektdateien und
-  Bibliotheken sind kein regulaerer Importeingang und bleiben dem
-  Compliance-Preflight unter `docs/compliance/ida_ice/` vorbehalten.
+  Bibliotheken sind kein regulaerer Importeingang; ihre Repository-Weitergabe
+  wird bei `update repo` geprueft.
 - **Abhaengigkeiten:** `ma_export_simulation`; Phase 4.
-- **Status:** geplant; Adapter- und Aufbereitungslogik liegt noch in bestehenden Modulen.
+- **Status:** Der erste IDA-ICE-Ergebnisadapter erkennt PRN, HTML und XLSX
+  positiv, fuehrt Provenienz und Hash und verarbeitet manifestgebundene
+  Pakete. IDM/IDC werden diagnostiziert, aber nicht inhaltlich gelesen.
 - **Zuordnung:** Simulationsergebnisse werden mindestens ueber
   `RUN-ID + VAR-ID` zugeordnet. Es gibt keine `CASE-ID`.
-- **Naechster Schritt:** bestehende Importlogik inventarisieren und die
-  IDA-ICE-Adaptergrenze planen.
+- **Naechster Schritt:** Weitere Simulationsprogramme erhalten eigene Adapter,
+  ohne den neutralen Ergebnisvertrag oder `ma_data_preparation` zu umgehen.
 
 Historische Bezeichnungen `ma_import_ida` und `import_ida` werden nur als
 Uebergangsaliase unterstuetzt.

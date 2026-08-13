@@ -1,6 +1,6 @@
 # P015 ma_parameters Zentrale Parameter
 
-Stand: 2026-07-15
+Stand: 2026-08-12
 Status: Fachlich konsolidiert; P015-S1, P015-S2, P015-S3a, P015-S3b-prep, P013-S3c/P015-S3b-T2-Releasecheckpoint und erster zonaler Variationsvertrag umgesetzt; v2-Werteherkunft und Restumfang von P015-S3b offen
 Prioritaet: Hoch
 Abhaengigkeiten: P008, P010, P012, P013, P014, P016, P017, P027
@@ -603,6 +603,13 @@ beschlossenen Werteformen und werden erst nach ausdruecklicher Freigabe
 aktiv. Referenzstand und Variationsspezifikation werden im Projekt
 gespeichert; abhaengige Ergebnisse erhalten `update_required`.
 
+Seit 2026-08-12 zeigt `Variationsspannen` alle Parameter des aktuellen
+Baseline-Snapshots tabellarisch. Pro Parameter werden Minimum, Maximum,
+Schritt und der Freigabestatus (`enabled`) gemeinsam bearbeitet und
+gespeichert. Die Freigabe aktiviert die Werteform `Min/Max/Schritt`; nicht
+freigegebene Parameter bleiben als `kein Wert` gespeichert. Die bestehende
+Validierung und der Handover an `ma_variants` bleiben unveraendert.
+
 Min/Max/Schritt, explizite Listen, Kopplungs-IDs und Referenzoptionen werden
 semantisch validiert. Jede gueltige Aenderung an Referenz, Regeln oder
 Spannen synchronisiert den projektbezogenen Variationsentwurf automatisch
@@ -620,3 +627,25 @@ Dimensionierungsschritt. Ohne Ergebnis zeigt sie keinen erfundenen
 Leistungswert, sondern den Status `Referenzdimensionierung ausstehend`. Im
 idealen Modus bleibt die wirksame Leistung unbegrenzt; ein spaeteres Ergebnis
 wird nur als Klammerwert fuer Analyse und Vergleich dargestellt.
+
+## Erweiterung 2026-08-12: P015-S5A Bestandsmatrix und Definitionskern
+
+Der neue Parameterkatalog erweitert P015, ersetzt aber weder die vorhandenen
+Snapshots noch den Handover an P017. P015-S5A fuehrt deshalb additiv die
+fachliche Definitionsebene mit `ParameterDefinition`, `ParameterGroup` und
+`ParameterInstance` ein. Diese trennt:
+
+- Fachdefinition, Parametergruppe und konkreten Projektwert,
+- Herkunft, Editierbarkeit, Variantenfaehigkeit, Ableitung und Aktivierung,
+- beobachtete Bestandsfelder, Metadaten, Zusammenfassungen und Luecken.
+
+Die versionierte Matrix unter
+`config/ma_parameters/inventory/parameter_inventory_v1.yaml` erfasst den
+heutigen SmallOffice-/LoD-1-Vorschauumfang. Die darin beobachteten 84 Zeilen
+sind ein reproduzierbarer Inventurnachweis und keine feste oder implizite
+Parameterobergrenze. Bestehende `ParameterSnapshot`-,
+`BaselineParameterSnapshot`- und `ParameterVariationSpecification`-Vertraege
+bleiben unveraendert.
+
+P015-S5B folgt als getrennte Erweiterung fuer Gebaeudeparametergruppen,
+Konstruktionen, Typ-/Instanzbeziehungen sowie die LoD-1-/LoD-2-Sperrregeln.

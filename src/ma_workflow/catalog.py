@@ -267,18 +267,18 @@ _MODULE_DEFINITIONS: tuple[ModuleDefinition, ...] = (
         python_package="ma_analyse",
     ),
     _module(
-        "ma_analyse.data_preparation",
+        "ma_data_preparation",
         "Datenvorbereitung",
         "data_preparation",
         "partial",
         "workflow",
-        "Importierte Simulationsergebnisse in nutzbare Raumtabellen und Basisberichte ueberfuehren.",
-        inputs=("standardisierte Simulationsergebnisse", "IDA-Rohdatenvarianten"),
-        outputs=("aufbereitete Raumtabellen", "Basisbericht", "Excel-Datenuebersicht"),
+        "Standardisierte Simulationsergebnisse programmunabhaengig pruefen und in eine belastbare Analysebasis ueberfuehren.",
+        inputs=("standardisierte Simulationsergebnisse",),
+        outputs=("aufbereitete Zeitreihen", "Qualitaetsbericht", "Eignungsstatus"),
         boundaries=("keine Variantenoptimierung", "kein Norm-Nachweis", "keine Sensitivitaetsbewertung"),
-        dependencies=("ma_analyse", "ma_import_simulation"),
-        next_step="Prepare und analyze-data als gemeinsamen Datenvorbereitungsschritt fachlich buendeln.",
-        python_package="ma_analyse.data_preparation",
+        dependencies=("ma_import_simulation",),
+        next_step="P036: standardisierte IDA-Ergebnisreihen pruefen und nach data/ma_analyse/database aufbereiten.",
+        python_package="ma_data_preparation",
     ),
     _module(
         "ma_analyse.stage_2_optimization",
@@ -290,7 +290,7 @@ _MODULE_DEFINITIONS: tuple[ModuleDefinition, ...] = (
         inputs=("standardisierte Simulationsergebnisse", "Varianten- und Raumwahl"),
         outputs=("Variantenvergleiche", "Optimierungshinweise", "Diagramme und Tabellen"),
         boundaries=("kein Norm-Nachweis", "keine Sensitivitaetsbewertung"),
-        dependencies=("ma_analyse.data_preparation",),
+        dependencies=("ma_data_preparation",),
         next_step="P019: vorhandene Analysebefehle nach der Datenvorbereitung zu einem dokumentierten Optimierungsablauf buendeln.",
         python_package="ma_analyse.stage_2_optimization",
     ),
@@ -503,6 +503,7 @@ _MODULE_DEFINITIONS: tuple[ModuleDefinition, ...] = (
 MODULE_KEY_ALIASES = {
     "ma_export_ida": "ma_export_simulation",
     "ma_import_ida": "ma_import_simulation",
+    "ma_analyse.data_preparation": "ma_data_preparation",
     "ma_analyse.stage_3_verification": "ma_analyse.stage_3_standards_verification",
 }
 
@@ -658,7 +659,7 @@ _WORKFLOW_STEPS: tuple[WorkflowStep, ...] = (
         "data_preparation",
         "Daten vorbereiten",
         "post_process",
-        "ma_analyse.data_preparation",
+        "ma_data_preparation",
         "Prepare und analyze-data fuer die nutzbare Analysebasis ausfuehren.",
     ),
     _step(

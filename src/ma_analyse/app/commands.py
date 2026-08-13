@@ -8,6 +8,8 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 
+from ma_data_preparation.ida_ice import discover_known_ida_prn, prepare_known_ida_results
+
 from ..analysis.comfort.main import get_run_id, process_analysis, process_overview, process_plots
 from ..analysis.cooling import main as compare_cooling_comparison
 from ..analysis.excel import build_excel_report
@@ -136,7 +138,16 @@ def get_comfort_output_settings(output_type):
 
 
 def run_prepare(args):
-    """Fuehrt den prepare-Befehl aus und erzeugt Nutzdaten."""
+    """Fuehrt den kompatiblen prepare-Befehl ueber den neuen Owner aus."""
+    known_sources = discover_known_ida_prn(args.input_dir)
+    if known_sources:
+        results = prepare_known_ida_results(args.input_dir, args.datenbank_dir, resume_existing=True)
+        for package_id, result in results.items():
+            print(f"Datenvorbereitung {package_id}: {result.manifest_path}")
+        return
+
+    # Befristeter Kompatibilitaetspfad fuer die bisherige direkte
+    # Varianten-/Raumstruktur. Neue Formate werden nicht mehr hier ergaenzt.
     process_all_variants(
         args.input_dir,
         args.rooms,

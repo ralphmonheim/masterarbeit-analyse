@@ -36,6 +36,7 @@ def test_building_specification_from_dict_normalizes_tuples_and_levels():
                     "adjacent_space_ids": ["R1"],
                 }
             ],
+            "thermal_envelope_complete": True,
         }
     )
 
@@ -43,6 +44,7 @@ def test_building_specification_from_dict_normalizes_tuples_and_levels():
     assert spec.storey_ids == {"S1"}
     assert spec.space_ids == {"R1"}
     assert spec.element_ids == {"W1"}
+    assert spec.thermal_envelope_complete
     assert spec.object_id_locations()[0] == ("B1", "building.building_id")
 
 

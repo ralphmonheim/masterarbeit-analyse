@@ -50,7 +50,6 @@ module: ma_core
 current_responsibilities:
   - Konfigurations-I/O und Hashing
   - InputSource- und Zeit-/Sitzungsmetadaten
-  - technische Compliance-Preflights
 recommended_responsibilities:
   - fachneutrale Infrastrukturvertraege
   - zentraler WorkspacePaths-Vertrag fuer config, data und logs

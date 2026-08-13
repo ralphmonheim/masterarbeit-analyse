@@ -1,5 +1,17 @@
-"""Analyse Stufe 2: Variantenoptimierung.
+"""Analyse Stufe 2: UI-neutrale, konfigurierbare Machbarkeitsprüfung."""
 
-Die vorhandenen Analysebefehle bleiben in ihren bestehenden Modulen. Dieser
-Bereich wird erst mit P019 zu einem gemeinsamen Ablauf ausgebaut.
-"""
+from .historical import build_historical_optimization_table, export_historical_optimization_table
+from .models import CheckResult, FeasibilityResult, MetricValue, OptimizationConstraint, OptimizationObjective
+from .services import FeasibilityEngine, evaluate_feasibility
+
+__all__ = [
+    "CheckResult",
+    "FeasibilityEngine",
+    "FeasibilityResult",
+    "MetricValue",
+    "OptimizationConstraint",
+    "OptimizationObjective",
+    "evaluate_feasibility",
+    "build_historical_optimization_table",
+    "export_historical_optimization_table",
+]

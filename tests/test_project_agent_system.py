@@ -20,11 +20,15 @@ READ_ONLY_AGENTS = {
     "quality_auditor",
 }
 EXPECTED_SKILLS = {
+    "literature-research-workflow",
     "prompt-intake",
     "project-governance-workflow",
     "repo-release-workflow",
 }
 EXPECTED_SKILL_TRIGGERS = {
+    "literature-research-workflow": (
+        "input aufnehmen",
+    ),
     "prompt-intake": (
         "neues thema",
         "neues thema: ...",
@@ -32,6 +36,7 @@ EXPECTED_SKILL_TRIGGERS = {
         "Prompt abschliessen",
     ),
     "project-governance-workflow": (
+        "input aufnehmen",
         "aktualisieren",
         "tagesstart",
         "Guten Morgen, es ist ein neuer Tag.",
@@ -202,6 +207,9 @@ def test_workflow_sources_have_unambiguous_ownership() -> None:
     assert "Triggerindex" in commands
     assert "aktualisieren und tagesende direkt" in routines
     assert "aktualisieren und direkt update repo" in routines
+    assert "diese Ausnahme benoetigt keine weitere Freigabe" in routines
+    assert "Nicht-Plan-Dateien erst nach Freigabe" in routines
+    assert "Dokumentationsstrukturen ausfuehren" in routines
     for trigger in CANONICAL_WORKFLOW_TRIGGERS:
         assert f"`{trigger}`" in routines
         assert f"`{trigger}`" in commands
@@ -211,6 +219,18 @@ def test_workflow_sources_have_unambiguous_ownership() -> None:
     assert "Formeln, Grenzwerte und Regeln" in norms_readme
     assert "GitHub-spezifische Adapter" in github_professor
     assert ".codex/agents/professor.toml" in github_professor
+
+
+def test_input_workflow_allows_only_direct_plan_intake() -> None:
+    workflow = (REPO_ROOT / "docs/project/PROJECT_INPUT_WORKFLOW.md").read_text(encoding="utf-8")
+    agent_rules = (REPO_ROOT / "AGENTS.md").read_text(encoding="utf-8")
+
+    assert "Projektplaene sofort" in workflow
+    assert "Planaufnahme benoetigt keine" in workflow
+    assert "Nicht-Plan-Dateien erst nach ausdruecklicher" in workflow
+    assert "Literatur anschliessend ueber den Literatur-Workflow" in workflow
+    assert "Navigator aktualisieren" in workflow
+    assert "eindeutig erkannte Planaufnahme" in agent_rules
 
 
 def test_protected_working_data_is_not_part_of_tracked_scan_scope() -> None:

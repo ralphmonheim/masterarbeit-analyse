@@ -33,10 +33,19 @@ Tabellen, Diagramme und Analyseberichte bereitstellen.
 
 ## Status
 
-Die gemeinsamen Analysefunktionen, die Datenvorbereitung und Stage 2 sind
-teilweise vorhanden. Die historische Stage-1-Dimensionierung bleibt bis zur
-physischen P016-Owner-Migration als Implementierungs- und Legacy-Pfad
-erhalten; Stage 3 und Stage 4 sind geplant.
+Die Datenvorbereitung hat mit `ma_data_preparation` einen eigenen Owner. Der
+Analysebefehl `prepare` bleibt als Kompatibilitaetsfassade erhalten. IDA-PRN-
+Reihen werden mit Provenienz und Qualitaetsdiagnostik unter
+`data/ma_analyse/database` abgelegt. Die historische Stage-1-Dimensionierung
+bleibt bis zur physischen P016-Owner-Migration als Implementierungs- und
+Legacy-Pfad erhalten. Stage 3 besitzt ein wertfreies, konfigurierbares
+Nachweisframework; produktive Normprofile sind noch nicht aktiviert. Stage 4
+bleibt geplant.
+
+Fuer die Masterarbeit werden editierbare 5Z- und 29Z-Zonenkennwerttabellen
+sowie ein deskriptiver ALT-Variantenvergleich als XLSX/CSV erzeugt. Nicht
+ableitbare Werte bleiben leer. Der finale Diagramm-Slice folgt nach einem
+Beispiel-Q&A.
 
 Die Streamlit-Demo zeigt die vorhandene Auswahl sowie Dimensionierung,
 Optimierung, Nachweis und Sensitivitaet in einer gemeinsamen Tab-Ansicht.
@@ -84,6 +93,8 @@ benoetigen weiterhin eigene fachlich freigegebene Aktivierungen.
 - `data_preparation/README.md`: vorbereitender Schritt fuer `prepare` und
   `analyze-data` vor Analyse Stufe 2.
 - `plot_template_examples.md`: Referenzgalerie der Plot-Template-Beispiele.
+- `normen_und_outputkatalog.md`: Regelwerksinventar, Tabellen- und spaeterer
+  Diagrammoutput sowie offene Aktivierungsgates.
 - `stage_1_dimensioning/README.md`: LoD-1-Referenzdimensionierung aus dem
   validierten `ParameterSnapshot` v1.
 - `stage_2_optimization/README.md`: vorhandene Analysebefehle als spaeterer

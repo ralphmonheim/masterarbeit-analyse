@@ -1,0 +1,4 @@
+interface:
+  display_name: "Literaturrecherche"
+  short_description: "Quellen strukturiert finden und verifizieren"
+  default_prompt: "Use $literature-research-workflow to find and structure project sources."

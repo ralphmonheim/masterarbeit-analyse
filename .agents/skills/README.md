@@ -12,6 +12,9 @@ Projektaufgaben. Die Skills duplizieren keine Prozessbeschreibung:
   Duplikatabgleich entlang der kanonischen Projektdokumentation.
 - `prompt-intake`: Neuer Themenstart mit strukturiertem Arbeits-Prompt und
   Rueckfragen zu noch nicht geklaerten Angaben.
+- `literature-research-workflow`: Quellen zuerst über das interne Register
+  und den semantischen Navigator auffinden, dann gezielt lokal und im
+  Internet abgleichen.
 
 ## Regeln
 
