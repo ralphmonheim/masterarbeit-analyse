@@ -9,6 +9,7 @@ from ma_workflow import get_module_definition, list_module_definitions, list_wor
 
 CURRENT_PAGE_SESSION_KEY = "ma_ui_current_page"
 MODULE_INFO_PAGE_SESSION_KEY = "ma_ui_module_info_page"
+WORKFLOW_HELP_PAGE_SESSION_KEY = "ma_ui_workflow_help_page"
 CONFIGURATION_RETURN_PAGE_SESSION_KEY = "ma_ui_configuration_return_page"
 VIEW_MODE_SESSION_KEY = "ma_ui_view_mode"
 SCROLL_TO_TOP_SESSION_KEY = "ma_ui_scroll_to_top"
@@ -26,6 +27,7 @@ def select_view_mode(session_state: MutableMapping[str, object], view_mode: str)
     """Wechselt zwischen Bearbeitungs- und Workflowansicht."""
     session_state[VIEW_MODE_SESSION_KEY] = normalize_view_mode(view_mode)
     session_state.pop(MODULE_INFO_PAGE_SESSION_KEY, None)
+    session_state.pop(WORKFLOW_HELP_PAGE_SESSION_KEY, None)
 
 
 def toggle_view_mode(session_state: MutableMapping[str, object]) -> str:
@@ -47,8 +49,9 @@ def consume_scroll_to_top(session_state: MutableMapping[str, object]) -> bool:
 
 
 def select_page(session_state: MutableMapping[str, object], page_key: str) -> None:
-    """Waehlt eine Seite und beendet einen eventuell aktiven Infokartenmodus."""
+    """Waehlt eine Seite und beendet aktive technische oder fachliche Hilfen."""
     session_state.pop(MODULE_INFO_PAGE_SESSION_KEY, None)
+    session_state.pop(WORKFLOW_HELP_PAGE_SESSION_KEY, None)
     session_state.pop(CONFIGURATION_RETURN_PAGE_SESSION_KEY, None)
     session_state[CURRENT_PAGE_SESSION_KEY] = page_key
     request_scroll_to_top(session_state)
@@ -84,11 +87,27 @@ def set_module_info_active(
     *,
     active: bool,
 ) -> None:
-    """Speichert oder beendet den Infokartenmodus fuer ein Modul."""
+    """Speichert oder beendet die technische Modulinfo fuer ein Modul."""
     if active:
         session_state[MODULE_INFO_PAGE_SESSION_KEY] = page_key
+        session_state.pop(WORKFLOW_HELP_PAGE_SESSION_KEY, None)
     else:
         session_state.pop(MODULE_INFO_PAGE_SESSION_KEY, None)
+
+
+def set_workflow_help_active(
+    session_state: MutableMapping[str, object],
+    page_key: str,
+    *,
+    active: bool,
+) -> None:
+    """Speichert oder beendet die Ablaufhilfe für ein Modul."""
+
+    if active:
+        session_state[WORKFLOW_HELP_PAGE_SESSION_KEY] = page_key
+        session_state.pop(MODULE_INFO_PAGE_SESSION_KEY, None)
+    else:
+        session_state.pop(WORKFLOW_HELP_PAGE_SESSION_KEY, None)
 
 
 @dataclass(frozen=True, slots=True)

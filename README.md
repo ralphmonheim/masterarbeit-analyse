@@ -20,6 +20,7 @@ python -m pip install -e ".[dev]"
 | `data/ma_weather/` | lokale TRY-Dateien, aufbereitete Wetterdaten, Wetterdiagramme und Berichte |
 | `data/catalogs/` | Produkt-, Material-, Quellen- und Dokumentkataloge |
 | `docs/project/` | Planstatus, Planindex, Entscheidungen, Strukturreviews und Projektinput-Regeln |
+| `docs/project/workflow/` | führende fachliche Ablaufdokumentation und Modulsteckbriefe für die Workflowansicht |
 | `docs/ma_analyse/` | Befehle, Architektur und Plot-Template-Beispiele der Analysepipeline |
 | `docs/ma_variants/` | Workflow, Datenmodell und Wirtschaftlichkeitsmodell des Variantenkerns |
 | `docs/ma_weather/` | Wetterdatenanalyse und TRY-Integration |
@@ -33,8 +34,8 @@ python -m pip install -e ".[dev]"
 | `src/ma_ui/tkinter_app/` | fachlich gekoppelte Tkinter-Oberflaeche der Analysepipeline |
 | `src/ma_variants/` | modularer Varianten-, Export-, Katalog- und Bewertungskern |
 | `src/ma_weather/` | Wetterkatalog und lokale TRY-Analysepipeline |
-| `src/ma_ui/` | zentrale Streamlit-Oberflaeche mit Dashboard und Modulansichten |
-| `src/ma_workflow/` | zentraler Workflow- und Statuskatalog mit Adaptern |
+| `src/ma_ui/` | zentrale Streamlit-Oberflaeche mit getrennter Bearbeitungs- und Workflowansicht |
+| `src/ma_workflow/` | zentraler Struktur- und Statuskatalog mit fachlichem Dokumentationsadapter |
 | `src/ma_core/`, `src/ma_database/`, `src/ma_project/` | leichte Zielpakete fuer Plattform und Projektinitialisierung |
 | `src/ma_building/`, `src/ma_zones/`, `src/ma_technical/`, `src/ma_parameters/` | leichte Zielpakete fuer Eingangsdaten |
 | `src/ma_analyse/stage_1_dimensioning/` bis `stage_4_sensitivity/` | getrennte Analyse-Stufen fuer Dimensionierung, Optimierung, Norm-Nachweis und Sensitivitaet |

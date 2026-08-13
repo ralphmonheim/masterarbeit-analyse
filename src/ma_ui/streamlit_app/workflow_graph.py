@@ -10,6 +10,7 @@ from ma_workflow import (
     list_cross_cutting_steps,
     list_workflow_phases,
     list_workflow_steps,
+    workflow_module_summary,
 )
 from ma_workflow.models import WorkflowStep
 
@@ -24,6 +25,7 @@ STATUS_STYLES = {
     "manual": {"label": "Manuell", "color": "#6B7280", "background": "#F3F4F6"},
 }
 DEFAULT_STATUS_STYLE = {"label": "Unklar", "color": "#4B5563", "background": "#F3F4F6"}
+
 
 @dataclass(frozen=True, slots=True)
 class WorkflowCard:
@@ -67,8 +69,10 @@ def workflow_card_rows(
     available_page_keys: tuple[str, ...] = (),
 ) -> list[WorkflowCard]:
     """Bereitet Workflow-Schritte als Karten fuer das grafische Dashboard auf."""
-    workflow_steps = steps if steps is not None else tuple(
-        step for step in list_workflow_steps() if step.phase_key != "cross_cutting"
+    workflow_steps = (
+        steps
+        if steps is not None
+        else tuple(step for step in list_workflow_steps() if step.phase_key != "cross_cutting")
     )
     cards: list[WorkflowCard] = []
     for step in workflow_steps:
@@ -83,7 +87,7 @@ def workflow_card_rows(
                 status_label=style["label"],
                 status_color=style["color"],
                 status_background=style["background"],
-                description=step.description,
+                description=workflow_module_summary(step.module_key),
                 target_page_key=target_page_for_step(step.step_key, available_page_keys),
             )
         )
@@ -110,9 +114,7 @@ def cross_cutting_card_rows(*, available_page_keys: tuple[str, ...] = ()) -> lis
 def technical_platform_card_rows(*, available_page_keys: tuple[str, ...] = ()) -> list[WorkflowCard]:
     """Bereitet die technischen Grundlagen als eigenen Dashboard-Bereich auf."""
     platform_steps = tuple(
-        step
-        for step in list_workflow_steps()
-        if step.phase_key == "cross_cutting" and not step.is_cross_cutting
+        step for step in list_workflow_steps() if step.phase_key == "cross_cutting" and not step.is_cross_cutting
     )
     return workflow_card_rows(
         steps=platform_steps,

@@ -8,7 +8,6 @@ from html import escape
 import pandas as pd
 import streamlit as st
 
-from ma_ui.streamlit_app.main_dashboard import dashboard_action_rows
 from ma_ui.streamlit_app.navigation import (
     get_navigation_pages,
     select_page,
@@ -27,7 +26,7 @@ from ma_ui.streamlit_app.workflow_graph import (
     workflow_cards_by_phase,
 )
 from ma_ui.streamlit_app.workflow_view import workflow_step_rows
-from ma_workflow import ModuleDefinition, list_module_definitions
+from ma_workflow import ModuleDefinition, list_module_definitions, list_workflow_steps
 
 STATUS_LABELS = {
     "available": "Verfuegbar",
@@ -37,12 +36,11 @@ STATUS_LABELS = {
 }
 CARDS_PER_ROW = 4
 _SECONDARY_STATUS_PILLS = {"weather": ("Diagramme", "partial")}
-CATEGORY_LABELS = {
-    "workflow": "Fachmodule",
-    "cross_cutting": "Querschnittsmodule",
-    "infrastructure": "Technische Plattform",
-    "documentation": "Dokumentation",
-    "external": "Externe Werkzeuge",
+PROCESS_AREA_ORDER = ("PreProcess", "Kernprozess", "PostProcess", "Querschnittsmodule")
+PROCESS_AREA_BY_PHASE_KEY = {
+    "pre_process": "PreProcess",
+    "main_process": "Kernprozess",
+    "post_process": "PostProcess",
 }
 
 
@@ -87,11 +85,15 @@ def module_overview_rows(
 ) -> list[dict[str, object]]:
     """Bereitet den Modulkatalog ohne Workflow-Reihenfolge fuer die Bearbeitungsansicht auf."""
     module_definitions = modules if modules is not None else list_module_definitions()
+    phase_by_module_key = {
+        step.module_key: PROCESS_AREA_BY_PHASE_KEY.get(step.phase_key, "Querschnittsmodule")
+        for step in list_workflow_steps()
+    }
     return [
         {
             "Modul": module.label,
             "Modul-Key": module.module_key,
-            "Kategorie": CATEGORY_LABELS.get(module.category, module.category),
+            "Prozessbereich": phase_by_module_key.get(module.module_key, "Querschnittsmodule"),
             "Status": module.status,
             "Beschreibung": module.purpose,
             "Zielseite": module.page_key,
@@ -204,12 +206,12 @@ def _render_module_card(module: ModuleDefinition, available_page_keys: tuple[str
         st.caption("Noch keine eigene Modulansicht.")
 
 
-def _render_module_category(
-    category: str,
+def _render_module_process_area(
+    process_area: str,
     modules: list[ModuleDefinition],
     available_page_keys: tuple[str, ...],
 ) -> None:
-    st.markdown(f"### {CATEGORY_LABELS.get(category, category)}")
+    st.markdown(f"### {process_area}")
     for start_index in range(0, len(modules), CARDS_PER_ROW):
         row_modules = modules[start_index : start_index + CARDS_PER_ROW]
         columns = st.columns(len(row_modules))
@@ -220,9 +222,11 @@ def _render_module_category(
 
 def _render_workflow_card(card: WorkflowCard) -> None:
     st.markdown(_workflow_card_html(card), unsafe_allow_html=True)
-    if card.target_page_key:
-        if st.button("Oeffnen", key=f"workflow_card_open_{card.step_key}", width="stretch"):
+    if card.status in {"available", "partial"} and card.target_page_key:
+        if st.button("Zur Bearbeitung", key=f"workflow_card_open_{card.step_key}", width="stretch"):
             _navigate_to(card.target_page_key)
+    elif card.status == "planned":
+        st.caption("Geplant – noch nicht ausführbar.")
     else:
         st.caption("Manueller oder externer Schritt.")
 
@@ -287,7 +291,7 @@ def render_workflow_overview() -> None:
         technical_platform_card_rows(available_page_keys=_available_page_keys()),
     )
 
-    with st.expander("Technische Detailtabellen", expanded=False):
+    with st.expander("Ablaufübersicht", expanded=False):
         st.subheader("Workflow-Phasen")
         st.dataframe(
             normalize_table_for_streamlit(pd.DataFrame(workflow_phase_summary_rows(workflow_rows))),
@@ -298,19 +302,12 @@ def render_workflow_overview() -> None:
         st.subheader("Workflow-Schritte")
         st.dataframe(normalize_table_for_streamlit(pd.DataFrame(workflow_rows)), hide_index=True, width="stretch")
 
-        st.subheader("Dashboard-Aktionen")
-        st.dataframe(
-            normalize_table_for_streamlit(pd.DataFrame(dashboard_action_rows())),
-            hide_index=True,
-            width="stretch",
-        )
-
 
 def render() -> None:
     """Zeigt die Module unabhaengig von ihrer Reihenfolge im Workflow."""
     _render_dashboard_styles()
     st.title("Masterarbeit Bearbeitungsansicht")
-    st.caption("Fachmodule und unterstuetzende Projektmodule als direkte Bearbeitungseinstiege.")
+    st.caption("Direkte Bearbeitungseinstiege, nach den vier verbindlichen Prozessbereichen gruppiert.")
 
     modules = list_module_definitions()
     status_counts = Counter(module.status for module in modules)
@@ -319,14 +316,20 @@ def render() -> None:
         column.metric(label, status_counts.get(status_key, 0))
 
     available_page_keys = _available_page_keys()
-    modules_by_category: dict[str, list[ModuleDefinition]] = {}
+    modules_by_process_area: dict[str, list[ModuleDefinition]] = {
+        process_area: [] for process_area in PROCESS_AREA_ORDER
+    }
+    process_area_by_module_key = {row["Modul-Key"]: str(row["Prozessbereich"]) for row in module_overview_rows(modules)}
     for module in modules:
-        modules_by_category.setdefault(module.category, []).append(module)
+        modules_by_process_area.setdefault(
+            process_area_by_module_key.get(module.module_key, "Querschnittsmodule"),
+            [],
+        ).append(module)
 
-    for category in CATEGORY_LABELS:
-        category_modules = modules_by_category.get(category, [])
-        if category_modules:
-            _render_module_category(category, category_modules, available_page_keys)
+    for process_area in PROCESS_AREA_ORDER:
+        process_modules = modules_by_process_area.get(process_area, [])
+        if process_modules:
+            _render_module_process_area(process_area, process_modules, available_page_keys)
 
     with st.expander("Modulkatalog", expanded=False):
         st.dataframe(

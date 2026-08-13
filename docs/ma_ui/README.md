@@ -65,33 +65,26 @@ Workflow-Service-Aufrufe getrennt anbinden.
 - Die automatische Streamlit-Multipage-Navigation ist in
   `.streamlit/config.toml` ausgeblendet, damit nur die fachliche
   Projektnavigation unter `Bereich` sichtbar ist.
-- Der Projektstart bleibt der erste Einstieg. Nach der Projektauswahl oeffnet
-  die Bearbeitungsansicht den zentralen Modulkatalog als direkte
-  Bearbeitungseinstiege, ohne die Module als gefuehrte Prozessfolge
-  darzustellen.
-- Die Workflowansicht zeigt getrennt davon die gefuehrte Reihenfolge mit
-  Statuskennzahlen, Phasenkarten, Iterationspfaden und optionalen technischen
-  Detailtabellen.
+- Der normale Streamlit-Start öffnet die Bearbeitungsansicht mit direkten
+  Bearbeitungseinstiegen. Die Projektauswahl erscheint ausschließlich über
+  `Start` innerhalb der bewusst gewählten Workflowansicht.
+- Die Workflowansicht zeigt getrennt davon die geführte fachliche Reihenfolge
+  mit Statuskennzahlen, Phasenkarten und Iterationspfaden. Ihre Karten lesen
+  die Erklärtexte aus `docs/project/workflow/modules/`.
 - Das Workflow-Referenzdiagramm liegt unter
   `src/ma_ui/assets/workflow/masterarbeit_workflow.png`; die PDF-Referenz liegt
   daneben unter `src/ma_ui/assets/workflow/masterarbeit_workflow.pdf`. Die
   Referenzfunktionen und Assets bleiben fuer die spaeter geplante
   Workflowdarstellung erhalten, werden im aktuellen gefuehrten V1-Workflow
   aber nicht eingeblendet.
-- Workflow-Karten, Statuskennzahlen, Navigation und Detailtabellen verwenden
-  die zentral gepflegten Modulumsetzungsstaende aus `ma_workflow`.
-- Die Kopfzeile kann eine vorhandene Fachansicht mit `Infokarte` durch die
-  zentrale Modulbeschreibung ersetzen und mit `Modulansicht` wieder
-  herstellen. Auf Bearbeitungs- und Workflowansicht nutzt dieselbe rechte
-  Aktionsspalte den Wechsel `Workflow` bzw. `Bearbeitung`. Ein Seitenwechsel
-  beendet den Infokartenmodus und springt beim neuen Rendern wieder an den
-  Seitenanfang. Die zentrale Infokarte erlaeutert den V1-Rahmen mit `Was`,
-  `Wie`, `Warum` und `Wann` aus dem kanonischen `ma_workflow`-Modulkatalog;
-  der Status ist kein Nachweis einer ausfuehrbaren Demo.
-- Jede V1-Infokarte erlaeutert zentrale Begriffe. Allgemeine Begriffe wie
-  V1-Rahmen, Freigabestatus, Annahme und Demo-/Uebergangsstand gelten fuer
-  alle Module; fachliche Begriffe werden zentral je Modul ergaenzt. Fuer
-  Gebaeude sind dies insbesondere alle BIL-Reifegrade und LoD-Eingabestufen.
+- Workflow-Karten, Statuskennzahlen und Navigation verwenden die stabilen
+  Modulumsetzungsstände aus `ma_workflow`; fachliche Erklärungen kommen aus
+  den Workflow-Steckbriefen.
+- Die Kopfzeile einer vorhandenen Fachansicht trennt `Technische Modulinfo`
+  und `Hilfe zum Ablauf`. Die technische Karte zeigt Status, Schnittstellen,
+  Tests und aktive Planreferenzen; die Ablaufhilfe rendert den fachlichen
+  Steckbrief. Beide Ansichten schließen sich aus und ein Seitenwechsel beendet
+  sie. Der Wechsel `Workflow` bzw. `Bearbeitung` bleibt davon getrennt.
 - Die Modul-Uebersicht gehoert ausschliesslich in die Bearbeitungsansicht.
   Modulviews zeigen nur eigene Inhalte oder bei geplantem Stand eine blaue
   Hinweisbox.
@@ -205,16 +198,18 @@ Workflow-Service-Aufrufe getrennt anbinden.
 - Bewertungsseite zeigt generische Systemkosten, Energiepreise und Szenarien aus
   den vorhandenen Beispielannahmen. Variantenbezogene Kostenberechnung wird dort
   noch nicht gestartet.
-- Jedes katalogisierte Modul ist klickbar. Module ohne eigene Fachansicht
-  zeigen eine generische Infoseite mit Zweck, Ein- und Ausgaben, Abgrenzung,
-  Abhaengigkeiten, Status und naechstem Schritt.
+- Jedes katalogisierte Modul ist in der Bearbeitungsansicht sichtbar. Module
+  ohne eigene Fachansicht zeigen einen klaren Planungs- oder Externhinweis;
+  die technische Modulinfo und die Ablaufhilfe bleiben als getrennte,
+  lesende Informationszugänge erreichbar.
 - `ma_validation` und `ma_feedback` werden in einem eigenen
   phasenuebergreifenden Dashboard-Bereich angezeigt.
 - Phase 4 zeigt Optimierung, Norm-Nachweis und Sensitivitaet als getrennte
   Karten. Die vorhandene Analyseansicht bleibt Einstieg fuer Stage 2.
 - Allgemeine Workflow- und Dashboard-Tabellen werden nicht in jeder
-  Modulansicht angezeigt. Sie bleiben nur als eingeklappte technische
-  Detailtabellen in der Workflowansicht erreichbar.
+  Modulansicht angezeigt. Die Workflowansicht erklärt den fachlichen Ablauf;
+  technische Details bleiben in der technischen Modulinfo und den
+  Projektdokumenten.
 
 ## Start
 

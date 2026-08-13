@@ -230,6 +230,7 @@ objektbezogenen Entscheidung in einen begrenzten lokalen Prozess wechseln.
 | P031-M6 | IDA-/Simulationseingaben | blockiert | EQUA-/Drittrechte und erlaubter Parser-/Automatisierungsumfang belegt |
 | P031-M7 | Project-OS-Compliance-Fachprofil | spaeter | erst bei konkreter externer Komponente als eigener freigegebener Slice |
 | P031-M8 | Council-Empfehlung und erweitertes Review | umgesetzt | UD-116: Tera, Mira, Vera, Professor Sophia und Justus bilden die themenbezogene Reviewstruktur; Empfehlungen ersetzen keine menschliche Freigabe und Sondergates bleiben separat |
+| P031-M9 | Freigabearmer Navigator-Refresh in Sammelroutinen | unfreigegebene Zukunftsoption | Pruefen, ob ein ausdruecklicher Sammelbefehl den schreibenden Refresh samt Validierung eindeutig mitfreigeben kann; keine Hooks, Watcher oder stillen Schreibzugriffe |
 
 ## Semantischer Navigationshub 2026-08-11
 

@@ -5,8 +5,8 @@ Fachmodulen.
 
 ## Zweck
 
-Phasen, Module, Status, Workflow-Schritte und UI-Aktionen zentral und
-UI-neutral beschreiben.
+Stabile Phasen-, Modul- und Statusstrukturen zentral und UI-neutral
+beschreiben sowie die fachlichen Modulsteckbriefe lesend an die UI anbinden.
 
 ## Eingaben
 
@@ -40,7 +40,8 @@ freigegebenen Modulslices ergaenzen.
 
 ## Rolle
 
-- beschreibt den Gesamtworkflow der Masterarbeit
+- führt den technischen Struktur- und Statuskatalog, nicht den erklärenden
+  fachlichen Gesamtworkflow
 - katalogisiert Phase 0 und die sechs fachlichen P007-Hauptphasen
 - beschreibt alle Module mit Zweck, Grenzen, Status und naechstem Schritt
 - fuehrt `ma_validation` und `ma_feedback` phasenuebergreifend
@@ -52,6 +53,10 @@ freigegebenen Modulslices ergaenzen.
 
 - Phasen-, Modul- und Workflow-Katalog ist umgesetzt und zentrale Quelle fuer
   die Modulumsetzungsstaende in Streamlit.
+- `workflow_content.py` liest die führenden fachlichen Modulsteckbriefe aus
+  `docs/project/workflow/modules/`. Diese Markdown-Texte versorgen die
+  Workflowkarten und die Hilfe zum Ablauf, ohne erklärende Langtexte im
+  Python-Katalog zu duplizieren.
 - Statuswerte werden bei `aktualisieren` gegen Fachpakete, Services, Views,
   Tests und Dokumentation geprueft.
 - `workflow_manager.py` stellt den zentralen Zugriff auf Workflow-Schritte bereit.

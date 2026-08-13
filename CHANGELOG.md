@@ -4,6 +4,19 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.41.0 - 2026-08-13
+
+### Added
+
+- P037 führt die fachliche Ablaufquelle `docs/project/workflow/` mit
+  Gesamtübersicht und 30 Modulsteckbriefen ein. Ein lesender
+  `ma_workflow`-Adapter versorgt damit Workflowkarten und die neue Hilfe zum
+  Ablauf, ohne Langtexte im technischen Katalog zu duplizieren.
+- Die Streamlit-Oberfläche trennt nun technische Modulinfo und Ablaufhilfe,
+  gruppiert die Bearbeitungsansicht nach vier Prozessbereichen und öffnet beim
+  normalen Start die Bearbeitungsansicht. `Start` zur Projektauswahl ist auf
+  die bewusst gewählte Workflowansicht begrenzt.
+
 ## 0.40.0 - 2026-08-13
 
 ### Fixed

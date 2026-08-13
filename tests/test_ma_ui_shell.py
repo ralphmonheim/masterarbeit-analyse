@@ -807,24 +807,23 @@ def test_technical_view_separates_model_overview_and_fixed_reference_selection()
     assert "technical_scope_rows()" not in render_source
 
 
-def test_module_info_v1_status_messages_cover_every_catalog_status():
+def test_technical_module_info_status_messages_cover_every_catalog_status():
     catalog_statuses = {module.status for module in list_module_definitions()}
 
-    assert catalog_statuses <= set(module_info_view.V1_STATUS_MESSAGES)
-    assert "sichtbar verfuegbaren Funktionen" in module_info_view.v1_status_message("partial")
-    assert "fachlich noch nicht freigegeben" in module_info_view.v1_status_message("planned")
-    assert "Demonstrations- oder Uebergangsstand" in module_info_view.v1_status_message("planned")
-    assert module_info_view.v1_status_message("unknown") == "Der aktuelle V1-Umfang ist im Modulkatalog dokumentiert."
+    assert catalog_statuses <= set(module_info_view.TECHNICAL_STATUS_MESSAGES)
+    assert "teilweise umgesetzt" in module_info_view.TECHNICAL_STATUS_MESSAGES["partial"]
+    assert "nicht als ausführbare Funktion" in module_info_view.TECHNICAL_STATUS_MESSAGES["planned"]
+    assert module_info_view.ACTIVE_PLAN_BY_MODULE_KEY["ma_building"] == "P012"
 
 
-def test_building_info_card_explains_bil_and_lod_levels_centrally():
-    terms = dict(module_info_view.info_terms("ma_building"))
+def test_building_workflow_guide_explains_bil_and_lod_levels():
+    from ma_workflow import load_workflow_module_guide
 
-    assert "BIL-4" in terms
-    assert "analysefaehiges gebaeudemodell" in terms["BIL-4"].lower()
-    assert "LoD-2" in terms
-    assert "strukturierter gebaeudeinput" in terms["LoD-2"].lower()
-    assert "V1-Rahmen" in dict(module_info_view.info_terms("unknown_module"))
+    guide = load_workflow_module_guide("ma_building").markdown
+
+    assert "BIL" in guide
+    assert "LoD" in guide
+    assert "Aktiver Plan" not in guide
 
 
 def test_technical_topic_session_keys_remain_stable(monkeypatch):
@@ -1101,7 +1100,7 @@ def test_bearbeitungsansicht_uses_module_catalog_without_workflow_phases():
     rows = module_overview_rows()
 
     assert any(row["Modul-Key"] == "ma_building" for row in rows)
-    assert any(row["Kategorie"] == "Fachmodule" for row in rows)
+    assert any(row["Prozessbereich"] == "PreProcess" for row in rows)
     assert all("Phase" not in row for row in rows)
     assert all("Schritt" not in row for row in rows)
 
@@ -1213,8 +1212,8 @@ def test_ui_uses_top_navigation_instead_of_sidebar_radio():
     assert '"Workflow"' in app_source
     assert '"Workflowansicht"' in app_source
     assert '"Bearbeitung"' in app_source
-    assert "Infokarte" in app_source
-    assert "Modulansicht" in app_source
+    assert "Technische Modulinfo" in app_source
+    assert "Hilfe zum Ablauf" in app_source
 
 
 def test_weather_uses_persistent_analysis_diagram_and_management_sections():

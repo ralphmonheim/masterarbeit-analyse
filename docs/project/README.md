@@ -41,7 +41,10 @@ fortschreiben.
   Datei fuehrt eine eigene Leitfaden-Version.
 - `plans/`: Plaene, Status, Strukturreview, Cleanup-Plan und Umsetzungshinweise.
 - `decisions/`: technische Entscheidungen, Nutzerentscheidungen und offene Entscheidungsfragen.
-- `architecture/`: Zielarchitektur, Gesamtworkflow und UI-Auslagerungsreview.
+- `workflow/`: führende fachliche Ablaufdokumentation mit Gesamtübersicht und
+  Modulsteckbriefen für die Workflowansicht.
+- `architecture/`: technische Zielarchitektur, Schnittstellen und
+  UI-Auslagerungsreview; keine fachliche Ablaufquelle.
 - `archive/leitfaeden/`: archivierte Leitfadenfassungen und externe Referenzen.
 - `archive/plans/`: archivierte und alte Planstaende.
 - `archive/workflow/`: ersetzte Workflow-Grafiken und zugehoerige Reviews.

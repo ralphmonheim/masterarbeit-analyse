@@ -18,6 +18,14 @@ from .main_process_runner import list_main_process_steps
 from .models import ModuleDefinition, WorkflowAction, WorkflowPhase, WorkflowStep
 from .post_process_runner import list_post_process_steps
 from .pre_process_runner import list_pre_process_steps
+from .workflow_content import (
+    WORKFLOW_DOCUMENTATION_ROOT,
+    WorkflowModuleGuide,
+    load_workflow_module_guide,
+    missing_workflow_module_guides,
+    workflow_module_documentation_path,
+    workflow_module_summary,
+)
 from .workflow_manager import get_step, group_steps_by_phase, list_steps
 
 _SMALL_OFFICE_V1_EXPORTS = {
@@ -40,8 +48,10 @@ def __getattr__(name: str) -> object:
         return value
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
+
 __all__ = [
     "WorkflowAction",
+    "WorkflowModuleGuide",
     "WorkflowPhase",
     "WorkflowStep",
     "ModuleDefinition",
@@ -64,10 +74,15 @@ __all__ = [
     "list_steps",
     "list_workflow_steps",
     "list_workflow_phases",
+    "load_workflow_module_guide",
+    "missing_workflow_module_guides",
     "resolve_module_key",
     "resolve_step_key",
     "run_small_office_v1_preprocess",
     "run_analysis_action",
     "steps_by_phase",
     "small_office_v1_summary_rows",
+    "WORKFLOW_DOCUMENTATION_ROOT",
+    "workflow_module_documentation_path",
+    "workflow_module_summary",
 ]

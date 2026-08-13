@@ -5,14 +5,18 @@ Er ist Planungs- und Entscheidungsgrundlage, keine Fachlogik.
 
 ## Dateien
 
-- `TARGET_ARCHITECTURE.md`: Zielmodule, Workflow und Dashboard-Zuordnung.
+- `TARGET_ARCHITECTURE.md`: Zielmodule, technische Zuordnung und
+  Dashboard-Zuordnung. Der fachliche Ablauf wird unter
+  `docs/project/workflow/` geführt.
 - `UI_EXTRACTION_REVIEW.md`: Pruefung der bestehenden Oberflaechen und
   Historie der UI-Auslagerung.
 - `UI_MIGRATION_PLAN.md`: Phasenplan fuer Streamlit, Tkinter und
   UI-neutrale Fachlogik.
 - `MA_ANALYSE_INVENTORY.md`: Bestandsanalyse von `ma_analyse` fuer P005.
 - `MA_ANALYSE_SERVICE_INTERFACE.md`: Zielvertrag fuer `AnalysisConfig`, `AnalysisResult` und `run_analysis(config)`.
-- `workflow/`: aktuelle Workflow-Diagramme und fachliche Strukturreviews.
+- `workflow/`: technische Diagrammreferenzen und Strukturreviews; die
+  operative fachliche Workflowquelle liegt außerhalb dieses Architekturordners
+  unter `docs/project/workflow/`.
 - `reviews/2026-07-15/`: datierter, nicht autoritativer P032-Benchmark mit
   Ist-Inventar, Modulgrenzen, Zieloptionen und Migrationsentwurf.
 

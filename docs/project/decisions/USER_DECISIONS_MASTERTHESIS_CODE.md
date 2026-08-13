@@ -3086,3 +3086,44 @@ letzten Workflow-UI-Migration bestehen.
 - Quelle oder Chatbezug: Nutzerauftrag zum Quellenbestand und ausdrückliche
   `Freigabe zur Umsetzung inklusive globalem masterarbeit-navigator` am
   2026-08-13.
+
+## UD-128 Dokumenthierarchie und getrennte UI-Informationsrollen
+
+- Datum: 2026-08-13
+- Status: entschieden; in P037 am 2026-08-13 umgesetzt
+- Thema: Dokumentationswahrheiten, fachlicher Gesamtworkflow sowie Trennung
+  von Workflow- und Bearbeitungsansicht
+- Dokumenthierarchie: Der Leitfaden fuehrt Zweck, wissenschaftliche Richtung,
+  Methodenrahmen und Systemgrenzen. Der fachliche Gesamtworkflow ist die
+  operative Inhaltswahrheit und besteht aus einer Uebersicht sowie einzelnen
+  Markdown-Steckbriefen fuer alle katalogisierten Module. Architektur,
+  Entscheidungen und aktive Plaene fuehren technische Ziele und laufende
+  Umsetzung; Status, Changelog und offene Punkte fuehren den Arbeitsstand.
+  Das Archiv ist historischer Nachweis. Der Navigator steht als sechste,
+  uebergreifende Navigationsebene ausserhalb dieser Inhaltswahrheiten.
+- Workflowansicht: Die Infokarten erklaeren waehrend der Nutzung Ablauf,
+  Begriffe und Abkuerzungen, Kategorien, Werte, Datenherkunft, Bedienung und
+  Beispiele. Kurze Quellenangaben werden wie wissenschaftliche Fussnoten
+  gefuehrt. Geplante und konzeptionelle Module bleiben sichtbar. Aktive
+  Umsetzungsplaene erscheinen hier nicht.
+- Bearbeitungsansicht: Die technischen Modulkarten zeigen Modul-ID und Rolle,
+  Implementierungsstand, Paket, Schnittstellen, Abhaengigkeiten, Tests,
+  Dokumente, aktuelle technische Restarbeit und ausschliesslich aktive
+  Plaene. Die Ansicht gruppiert wieder PreProcess, Kernprozess, PostProcess
+  und Querschnittsmodule.
+- Gemeinsame Informationen: Stabile Strukturfelder kommen aus einem
+  technischen Katalog; erklaerende Langtexte und Beispiele aus den
+  Markdown-Steckbriefen. Begriffe duerfen in beiden Ansichten erscheinen,
+  besitzen aber nur eine fuehrende Definition.
+- Bedienung: Der normale Anwendungsstart oeffnet die Bearbeitungsansicht. Die
+  Workflowansicht wird bewusst ausgewaehlt; nur deren interner Start fuehrt
+  zur Projektauswahl. Der bisherige Infozugang einer Modulansicht wird in
+  zwei kleinere Zugaenge fuer technische Modulinfo und Hilfe zum Ablauf
+  geteilt.
+- Abgrenzung: P037 konkretisiert P027 und UD-114. Die Umsetzung verschiebt
+  keine historischen Dokumente, löscht keine Dateien und führt keine neuen
+  Dependencies, Hooks, externen Dienste oder geschützten Inhalte ein.
+- Quelle oder Chatbezug: ausfuehrlicher Nutzerabgleich zur Dokumentstruktur,
+  den beiden UI-Ansichten, Infokarten, Startverhalten und Navigatorrolle;
+  ausdrueckliche `Freigabe zur Umsetzung` fuer Plan- und Handover-
+  Dokumentation am 2026-08-13.

@@ -6,7 +6,7 @@ Die Dokumentation ist nach Projektorganisation und Fachmodulen gegliedert.
 
 | Bereich | Zweck |
 |---|---|
-| `project/` | Planung, Status, Strukturreviews, Aufraeumplaene und Entscheidungen |
+| `project/` | Leitfaden, Planung, Status, Strukturreviews, Entscheidungen und fachlicher Gesamtworkflow |
 | `ma_analyse/` | bestehende Analysepipeline, CLI, GUI und Plot-Templates |
 | `ma_variants/` | Variantenkern, Datenmodell, Workflow, Wirtschaftlichkeit und Exporte |
 | `ma_weather/` | Wetterdatenanalyse und TRY-Integration |
@@ -29,6 +29,8 @@ Der zentrale Orientierungsleitfaden fuer die Masterarbeit liegt unter
 Referenzen liegen unter `project/archive/leitfaeden/`. Ersetzte
 Workflow-Fassungen liegen unter `project/archive/workflow/`.
 
-Zweck, Ein- und Ausgaben, Abgrenzung, Status und naechster Schritt aller
-Zielmodule werden zusaetzlich zentral in `ma_workflow` gepflegt und im
-Streamlit-Dashboard angezeigt.
+Die führende fachliche Ablaufquelle liegt in `project/workflow/`: die
+Übersicht erläutert den Gesamtprozess, die Modulsteckbriefe erläutern Nutzung,
+Übergaben und Grenzen. `ma_workflow` führt dazu nur die stabilen technischen
+Strukturfelder; die Streamlit-Workflowansicht rendert die fachlichen Texte aus
+den Steckbriefen.

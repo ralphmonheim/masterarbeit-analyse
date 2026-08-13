@@ -1104,6 +1104,27 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   muessen jedoch Entwuerfe erhalten, Ziele eindeutig benennen und frei von
   automatischen Fachaktionen bleiben.
 
+## P037 Dokumentationshierarchie und getrennte UI-Informationen
+
+- P037 ist am 2026-08-13 mit den drei freigegebenen Paketen abgeschlossen.
+  P037-S0 dokumentiert das Inventar von 196 versionierten Markdown-Dateien;
+  P037-S1 legt die Rollen- und Pflegematrix fest. Es wurden weder Archive noch
+  andere Dateien verschoben oder gelöscht.
+- `docs/project/workflow/` ist die führende fachliche Ablaufquelle. Die
+  Gesamtübersicht und 30 Modulsteckbriefe versorgen Workflowkarten und Hilfe
+  zum Ablauf. `src/ma_workflow/catalog.py` bleibt ausschließlich Quelle der
+  stabilen Struktur- und Statusfelder.
+- Die Bearbeitungsansicht gruppiert alle Module in PreProcess, Kernprozess,
+  PostProcess und Querschnitt. Ihre technische Modulinfo enthält Status,
+  Schnittstellen, Tests und Planreferenzen, während die Ablaufhilfe den
+  fachlichen Steckbrief rendert.
+- Der Normalstart öffnet die Bearbeitungsansicht. Nur `Start` in der bewusst
+  gewählten Workflowansicht führt zur Projektauswahl. Die P037-Tests sichern
+  Dokumentkonsistenz, Bereichsgruppierung und exklusiven Hilfestatus.
+- Nächster Schritt: Fachliche Inhalte der Steckbriefe nur bei freigegebenen
+  Modul- oder Quellenarbeiten vertiefen; Archivbereinigungen bleiben ein
+  separater Freigabeumfang.
+
 ## Projektorganisation: Quellenregister und Inhaltssuche
 
 - UD-127 ergänzt P031 um eine gesteuerte Literatur- und Inhaltssuche. Der
