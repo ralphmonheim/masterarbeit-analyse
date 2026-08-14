@@ -62,7 +62,7 @@ class ThermalTransmissionResult:
     warnings: tuple[str, ...] = ()
 
 
-_CATEGORY_BY_CODE = {"AW": "Waende", "DA": "Dach", "BP": "Boden", "FA": "Fenster", "TA": "Tueren"}
+_CATEGORY_BY_CODE = {"AW": "Waende", "DA": "Dach", "BP": "Boden", "GD": "Oberste Geschossdecke", "FA": "Fenster", "TA": "Tueren"}
 _EXCLUDED_INTERNAL_CODES = frozenset({"IW", "GD"})
 
 
@@ -86,7 +86,7 @@ def build_thermal_component_rows(
         if host_id in elements_by_id and sum(opening.area_m2 for opening in openings) > elements_by_id[host_id].area_m2
     }
     for element in specification.elements:
-        if not include_internal and element.construction_code in _EXCLUDED_INTERNAL_CODES:
+        if not include_internal and _is_internal_element(element):
             continue
         opening_area_m2 = sum(opening.area_m2 for opening in openings_by_host.get(element.element_id, ()))
         invalid_host = element.element_id in invalid_opening_hosts
@@ -104,11 +104,16 @@ def build_thermal_component_rows(
         host = elements_by_id.get(opening.host_element_id)
         if host is None:
             rows.append(_opening_row(opening, None, specification, invalid_host=True))
-        elif include_internal or host.construction_code not in _EXCLUDED_INTERNAL_CODES:
+        elif include_internal or not _is_internal_element(host):
             rows.append(
                 _opening_row(opening, host, specification, invalid_host=host.element_id in invalid_opening_hosts)
             )
     return tuple(rows)
+
+
+def _is_internal_element(element: PhysicalElement) -> bool:
+    """Haelt oberste Geschossdecken gegen einen unconditioned Dachraum sichtbar."""
+    return element.construction_code in _EXCLUDED_INTERNAL_CODES and element.element_type != "uppermost_storey_ceiling"
 
 
 def calculate_weighted_u_value(rows: tuple[ThermalComponentRow, ...] | list[ThermalComponentRow]) -> float | None:
@@ -129,24 +134,37 @@ def calculate_thermal_transmission(
     include_internal: bool = False,
 ) -> ThermalTransmissionResult:
     """Berechnet H_T und H'_T nur bei einer vollstaendigen, nichtleeren Huelle."""
-    rows = build_thermal_component_rows(specification, include_internal=include_internal)
-    blocking_reasons = _thermal_blocking_reasons(specification, rows)
+    source_rows = build_thermal_component_rows(specification, include_internal=include_internal)
+    blocking_reasons = _thermal_blocking_reasons(specification, source_rows)
+    rows = source_rows
     if blocking_reasons:
         rows = _mark_rows_incomplete(rows, blocking_reasons)
-    category_order = ("Dach", "Waende", "Boden", "Fenster", "Tueren", "Unbekannt")
+    category_order = (
+        "Dach",
+        "Oberste Geschossdecke",
+        "Waende",
+        "Boden",
+        "Fenster",
+        "Tueren",
+        "Unbekannt",
+    )
     categories: list[ThermalCategoryResult] = []
     for category in category_order:
         category_rows = [row for row in rows if row.category == category and row.effective_area_m2 > 0]
         if not category_rows:
             continue
+        source_category_rows = [
+            row for row in source_rows if row.category == category and row.effective_area_m2 > 0
+        ]
         incomplete = [row for row in category_rows if not row.is_complete]
+        source_incomplete = [row for row in source_category_rows if not row.is_complete]
         categories.append(
             ThermalCategoryResult(
                 category=category,
                 area_m2=sum(row.effective_area_m2 for row in category_rows),
-                weighted_u_value_w_m2k=calculate_weighted_u_value(category_rows),
+                weighted_u_value_w_m2k=calculate_weighted_u_value(source_category_rows),
                 transmission_contribution_w_k=(
-                    None if incomplete else sum(_row_transmission(row) for row in category_rows)
+                    None if source_incomplete else sum(_row_transmission(row) for row in source_category_rows)
                 ),
                 is_complete=not incomplete,
                 warnings=tuple(f"{row.component_id}: Zeile ist unvollstaendig oder ungueltig." for row in incomplete),

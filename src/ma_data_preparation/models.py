@@ -59,6 +59,7 @@ class StandardizedSeries:
     provenance: SourceProvenance
     records: tuple[StandardizedRecord, ...]
     expected_step_hours: float | None = None
+    normalization_notes: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -108,6 +109,7 @@ class PreparedSeries:
     provenance: SourceProvenance
     quality: SeriesQualityReport
     records: tuple[PreparedRecord, ...]
+    normalization_notes: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)

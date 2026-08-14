@@ -1,5 +1,5 @@
-# Pseudonymisierte V1-Referenzgeometrie. Quellnamen und Kennungen werden nicht
-# versioniert; die aktuelle V1-Vorlage fuehrt die Huellgeometrie aggregiert.
+# V1-Referenzgeometrie aus der IDA-5Z-Dimensionierung. Die IDA-Summen haben
+# Vorrang; IFC-Viewer und IDM/IDC dienen ausschliesslich dem Detailabgleich.
 schema_version: "1.0"
 input_detail_level: "LOD-2"
 project:
@@ -10,11 +10,11 @@ building:
   name: "Reference Building – 5 thermal zones"
   unit: "m"
   north_angle_deg: 0.0
-  # Die Arbeitsmappe enthaelt keine Bounding-Box. Die beiden Abmessungen
-  # bilden daher nur ein flaechenaequivalentes Quadrat des Erdgeschosses ab.
+  # Keine verifizierte Bounding-Box in der V1-Eingabe; deshalb nur eine
+  # flaechenaequivalente Ersatzabmessung fuer nicht-geometrische UI-Anzeigen.
   length_m: 17.1482214821
   width_m: 17.1482214821
-  height_m: 8.0
+  height_m: 7.551
 model_version:
   version_id: "BUILDING-SMALL-OFFICE-5Z-ENDVAR-02-V1"
   source_input_level: "BIL-2"
@@ -22,19 +22,22 @@ model_version:
   confirmed_input_level: "BIL-2"
   current_maturity_level: "BIL-2"
   target_maturity_level: "BIL-3"
-thermal_envelope_complete: true
+# Die geometrische Huelle ist belegt; die thermische Bilanz bleibt teilweise,
+# bis fuer die obersten Geschossdecken ein Randfall und U-Wert bestaetigt sind.
+thermal_envelope_complete: false
 simple_envelope:
-  # Materialbasierte LoD-1-Ableitungen aus den Projektkonstruktionen.
-  # Oberflaechenwiderstaende und Waermebruecken sind noch nicht enthalten.
-  external_wall_u_value_w_m2k: 0.5822784810
+  # U-Werte und Flaechen aus IDA-5Z-Dimensionierung; die App berechnet daraus
+  # nur eine transparente Demo-Bilanz, keine normative Bilanz.
+  external_wall_u_value_w_m2k: 0.1476
   window_u_value_w_m2k: 1.9
-  window_area_ratio_percent: 27.6208037472
-  roof_u_value_w_m2k: 0.2292526364
-  floor_u_value_w_m2k: 0.8547008547
-  external_wall_area_m2: 748.033605
-  window_area_m2: 206.612894
-  roof_area_m2: 243.2645
-  floor_area_m2: 358.917805
+  window_area_ratio_percent: 34.61
+  roof_u_value_w_m2k: 0.1388
+  floor_u_value_w_m2k: 0.1342
+  # AW ist Bruttoflaeche vor Abzug der Oeffnungen.
+  external_wall_area_m2: 512.880608546411
+  window_area_m2: 177.505747551411
+  roof_area_m2: 77.95284375
+  floor_area_m2: 337.917925
 storeys:
   - storey_id: "STOREY-SYNTH-01"
     name: "Level 01"
@@ -45,60 +48,50 @@ storeys:
     elevation_m: 3.0
     height_m: 3.0
 spaces:
-  - {space_id: "SPACE-SYNTH-001", name: "Space 001", storey_id: "STOREY-SYNTH-01", floor_area_m2: 65.4, volume_m3: 458.12305}
-  - {space_id: "SPACE-SYNTH-002", name: "Space 002", storey_id: "STOREY-SYNTH-01", floor_area_m2: 6.281, volume_m3: 17.5868}
-  - {space_id: "SPACE-SYNTH-003", name: "Space 003", storey_id: "STOREY-SYNTH-01", floor_area_m2: 43.56, volume_m3: 117.612}
-  - {space_id: "SPACE-SYNTH-004", name: "Space 004", storey_id: "STOREY-SYNTH-01", floor_area_m2: 15.12, volume_m3: 40.824}
-  - {space_id: "SPACE-SYNTH-005", name: "Space 005", storey_id: "STOREY-SYNTH-01", floor_area_m2: 12.18, volume_m3: 32.886}
-  - {space_id: "SPACE-SYNTH-006", name: "Space 006", storey_id: "STOREY-SYNTH-01", floor_area_m2: 12.18, volume_m3: 32.886}
-  - {space_id: "SPACE-SYNTH-007", name: "Space 007", storey_id: "STOREY-SYNTH-01", floor_area_m2: 12.18, volume_m3: 32.886}
-  - {space_id: "SPACE-SYNTH-008", name: "Space 008", storey_id: "STOREY-SYNTH-01", floor_area_m2: 12.18, volume_m3: 32.886}
-  - {space_id: "SPACE-SYNTH-009", name: "Space 009", storey_id: "STOREY-SYNTH-01", floor_area_m2: 12.18, volume_m3: 32.886}
-  - {space_id: "SPACE-SYNTH-010", name: "Space 010", storey_id: "STOREY-SYNTH-01", floor_area_m2: 12.18, volume_m3: 32.886}
-  - {space_id: "SPACE-SYNTH-011", name: "Space 011", storey_id: "STOREY-SYNTH-01", floor_area_m2: 12.18, volume_m3: 32.886}
-  - {space_id: "SPACE-SYNTH-012", name: "Space 012", storey_id: "STOREY-SYNTH-01", floor_area_m2: 12.18, volume_m3: 32.886}
-  - {space_id: "SPACE-SYNTH-013", name: "Space 013", storey_id: "STOREY-SYNTH-01", floor_area_m2: 27.447, volume_m3: 74.1069}
-  - {space_id: "SPACE-SYNTH-014", name: "Space 014", storey_id: "STOREY-SYNTH-01", floor_area_m2: 27.1135, volume_m3: 73.20645}
-  - {space_id: "SPACE-SYNTH-015", name: "Space 015", storey_id: "STOREY-SYNTH-01", floor_area_m2: 6.0, volume_m3: 16.2}
-  - {space_id: "SPACE-SYNTH-016", name: "Space 016", storey_id: "STOREY-SYNTH-01", floor_area_m2: 5.7, volume_m3: 15.39}
-  - {space_id: "SPACE-SYNTH-017", name: "Space 017", storey_id: "STOREY-SYNTH-02", floor_area_m2: 43.56, volume_m3: 117.612}
-  - {space_id: "SPACE-SYNTH-018", name: "Space 018", storey_id: "STOREY-SYNTH-02", floor_area_m2: 15.12, volume_m3: 40.824}
-  - {space_id: "SPACE-SYNTH-019", name: "Space 019", storey_id: "STOREY-SYNTH-02", floor_area_m2: 12.18, volume_m3: 32.886}
-  - {space_id: "SPACE-SYNTH-020", name: "Space 020", storey_id: "STOREY-SYNTH-02", floor_area_m2: 12.18, volume_m3: 32.886}
-  - {space_id: "SPACE-SYNTH-021", name: "Space 021", storey_id: "STOREY-SYNTH-02", floor_area_m2: 12.18, volume_m3: 32.886}
-  - {space_id: "SPACE-SYNTH-022", name: "Space 022", storey_id: "STOREY-SYNTH-02", floor_area_m2: 12.18, volume_m3: 32.886}
-  - {space_id: "SPACE-SYNTH-023", name: "Space 023", storey_id: "STOREY-SYNTH-02", floor_area_m2: 12.18, volume_m3: 32.886}
-  - {space_id: "SPACE-SYNTH-024", name: "Space 024", storey_id: "STOREY-SYNTH-02", floor_area_m2: 12.18, volume_m3: 32.886}
-  - {space_id: "SPACE-SYNTH-025", name: "Space 025", storey_id: "STOREY-SYNTH-02", floor_area_m2: 12.18, volume_m3: 32.886}
-  - {space_id: "SPACE-SYNTH-026", name: "Space 026", storey_id: "STOREY-SYNTH-02", floor_area_m2: 12.18, volume_m3: 32.886}
-  - {space_id: "SPACE-SYNTH-027", name: "Space 027", storey_id: "STOREY-SYNTH-02", floor_area_m2: 13.364031, volume_m3: 36.082883}
-  - {space_id: "SPACE-SYNTH-028", name: "Space 028", storey_id: "STOREY-SYNTH-02", floor_area_m2: 27.447, volume_m3: 74.1069}
-  - {space_id: "SPACE-SYNTH-029", name: "Space 029", storey_id: "STOREY-SYNTH-02", floor_area_m2: 25.849469, volume_m3: 69.793567}
+  - {space_id: "SPACE-5Z-LOBBY", name: "Lobby", storey_id: "STOREY-SYNTH-01", floor_area_m2: 65.4, volume_m3: 458.1}
+  - {space_id: "SPACE-5Z-EG-WEST", name: "EG West", storey_id: "STOREY-SYNTH-01", floor_area_m2: 162.6, volume_m3: 438.9}
+  - {space_id: "SPACE-5Z-EG-OST", name: "EG Ost", storey_id: "STOREY-SYNTH-01", floor_area_m2: 67.96, volume_m3: 183.5}
+  - {space_id: "SPACE-5Z-OG-WEST", name: "OG West", storey_id: "STOREY-SYNTH-02", floor_area_m2: 162.6, volume_m3: 438.9}
+  - {space_id: "SPACE-5Z-OG-OST", name: "OG Ost", storey_id: "STOREY-SYNTH-02", floor_area_m2: 67.96, volume_m3: 183.5}
 elements:
-  - {element_id: "ELEMENT-SYNTH-EXTERNAL-WALLS", element_type: "external_wall", construction_code: "AW", storey_id: "STOREY-SYNTH-01", area_m2: 748.033605}
-  - {element_id: "ELEMENT-SYNTH-GROUND-FLOOR", element_type: "ground_floor", construction_code: "BP", storey_id: "STOREY-SYNTH-01", area_m2: 358.917805}
-  - {element_id: "ELEMENT-SYNTH-INTERMEDIATE-FLOOR", element_type: "intermediate_floor", construction_code: "GD", storey_id: "STOREY-SYNTH-02", area_m2: 267.463474}
-  - {element_id: "ELEMENT-SYNTH-ROOF", element_type: "roof", construction_code: "DA", storey_id: "STOREY-SYNTH-02", area_m2: 243.2645}
+  - {element_id: "ELEMENT-5Z-LOBBY-AW", element_type: "external_wall", construction_code: "AW", storey_id: "STOREY-SYNTH-01", area_m2: 106.71, adjacent_space_ids: ["SPACE-5Z-LOBBY"]}
+  - {element_id: "ELEMENT-5Z-EG-WEST-AW", element_type: "external_wall", construction_code: "AW", storey_id: "STOREY-SYNTH-01", area_m2: 124.87, adjacent_space_ids: ["SPACE-5Z-EG-WEST"]}
+  - {element_id: "ELEMENT-5Z-EG-OST-AW", element_type: "external_wall", construction_code: "AW", storey_id: "STOREY-SYNTH-01", area_m2: 73.17, adjacent_space_ids: ["SPACE-5Z-EG-OST"]}
+  - {element_id: "ELEMENT-5Z-OG-WEST-AW", element_type: "external_wall", construction_code: "AW", storey_id: "STOREY-SYNTH-02", area_m2: 131.23, adjacent_space_ids: ["SPACE-5Z-OG-WEST"]}
+  - {element_id: "ELEMENT-5Z-OG-OST-AW", element_type: "external_wall", construction_code: "AW", storey_id: "STOREY-SYNTH-02", area_m2: 76.90, adjacent_space_ids: ["SPACE-5Z-OG-OST"]}
+  - {element_id: "ELEMENT-5Z-LOBBY-BP", element_type: "ground_floor", construction_code: "BP", storey_id: "STOREY-SYNTH-01", area_m2: 72.98, adjacent_space_ids: ["SPACE-5Z-LOBBY"]}
+  - {element_id: "ELEMENT-5Z-EG-WEST-BP", element_type: "ground_floor", construction_code: "BP", storey_id: "STOREY-SYNTH-01", area_m2: 184.10, adjacent_space_ids: ["SPACE-5Z-EG-WEST"]}
+  - {element_id: "ELEMENT-5Z-EG-OST-BP", element_type: "ground_floor", construction_code: "BP", storey_id: "STOREY-SYNTH-01", area_m2: 80.86, adjacent_space_ids: ["SPACE-5Z-EG-OST"]}
+  - {element_id: "ELEMENT-5Z-LOBBY-DA", element_type: "roof", construction_code: "DA", storey_id: "STOREY-SYNTH-01", area_m2: 77.95284375, adjacent_space_ids: ["SPACE-5Z-LOBBY"]}
+  - {element_id: "ELEMENT-5Z-OG-WEST-OGD", element_type: "uppermost_storey_ceiling", construction_code: "GD", storey_id: "STOREY-SYNTH-02", area_m2: 162.552, adjacent_space_ids: ["SPACE-5Z-OG-WEST"], boundary_condition: "unconditioned_attic"}
+  - {element_id: "ELEMENT-5Z-OG-OST-OGD", element_type: "uppermost_storey_ceiling", construction_code: "GD", storey_id: "STOREY-SYNTH-02", area_m2: 67.964, adjacent_space_ids: ["SPACE-5Z-OG-OST"], boundary_condition: "unconditioned_attic"}
 openings:
-  - {opening_id: "OPENING-SYNTH-EXTERNAL-WINDOWS", opening_type: "window", host_element_id: "ELEMENT-SYNTH-EXTERNAL-WALLS", construction_code: "FA", area_m2: 206.612894}
-  - {opening_id: "OPENING-SYNTH-EXTERNAL-DOORS", opening_type: "door", host_element_id: "ELEMENT-SYNTH-EXTERNAL-WALLS", construction_code: "TA", area_m2: 28.255}
+  - {opening_id: "OPENING-5Z-LOBBY-FA", opening_type: "window", host_element_id: "ELEMENT-5Z-LOBBY-AW", construction_code: "FA", area_m2: 72.22}
+  - {opening_id: "OPENING-5Z-EG-WEST-FA", opening_type: "window", host_element_id: "ELEMENT-5Z-EG-WEST-AW", construction_code: "FA", area_m2: 41.51}
+  - {opening_id: "OPENING-5Z-EG-OST-FA", opening_type: "window", host_element_id: "ELEMENT-5Z-EG-OST-AW", construction_code: "FA", area_m2: 11.56}
+  - {opening_id: "OPENING-5Z-OG-WEST-FA", opening_type: "window", host_element_id: "ELEMENT-5Z-OG-WEST-AW", construction_code: "FA", area_m2: 41.51}
+  - {opening_id: "OPENING-5Z-OG-OST-FA", opening_type: "window", host_element_id: "ELEMENT-5Z-OG-OST-AW", construction_code: "FA", area_m2: 10.71}
+  - {opening_id: "OPENING-5Z-EG-WEST-TA", opening_type: "door", host_element_id: "ELEMENT-5Z-EG-WEST-AW", construction_code: "TA", area_m2: 3.78}
+  - {opening_id: "OPENING-5Z-EG-OST-TA", opening_type: "door", host_element_id: "ELEMENT-5Z-EG-OST-AW", construction_code: "TA", area_m2: 1.89}
+  - {opening_id: "OPENING-5Z-OG-WEST-TA", opening_type: "door", host_element_id: "ELEMENT-5Z-OG-WEST-AW", construction_code: "TA", area_m2: 3.78}
+  - {opening_id: "OPENING-5Z-OG-OST-TA", opening_type: "door", host_element_id: "ELEMENT-5Z-OG-OST-AW", construction_code: "TA", area_m2: 1.89}
 shading_devices: []
 assumptions:
   - assumption_id: "SMALLOFFICE-5Z-SOURCE-001"
     location: "spaces"
-    text: "29 Raumflaechen und Raumvolumina bilden eine pseudonymisierte Referenzvorlage; lokale Quelldaten bleiben ausserhalb des Repository."
+    text: "Flaechen und Volumina stammen aus der IDA-5Z-Eingabedatei und haben vor IFC-Viewer-Aggregationen Vorrang."
   - assumption_id: "SMALLOFFICE-5Z-LOBBY-001"
     location: "spaces.0"
-    text: "Die Lobby ist fachlich bestaetigt zweigeschossig, 8,0 m hoch und ragt etwas ueber das obere Geschoss hinaus."
+    text: "Die Lobby ist laut IDA-5Z-Eingabe 7,551 m hoch und besitzt als obere thermische Begrenzung die Dachflaeche."
   - assumption_id: "SMALLOFFICE-5Z-BOUNDING-001"
     location: "building"
-    text: "Laenge und Breite sind nur eine flaechenaequivalente Ersatzabmessung; Dimensionierung verwendet die direkt uebernommenen aggregierten Huellflaechen."
+    text: "Laenge und Breite sind nur eine flaechenaequivalente Ersatzabmessung; Dimensionierung verwendet die IDA-5Z-Huellflaechen."
   - assumption_id: "SMALLOFFICE-5Z-ELEMENTS-001"
     location: "elements"
-    text: "94 Quellbauteile und 113 Quelloeffnungen sind fuer den aktuellen v1-Vertrag nach thermischer Rolle aggregiert; Innenwaende werden in Endvariante 02 nicht modelliert."
+    text: "Die expliziten Bauteile sind zonal aus der IDA-5Z-Dimensionierung aggregiert. Die Richtungsdetails aus IDM werden getrennt nachgewiesen, weil deren Segmentmengen nicht exakt mit den Dimensionierungssummen uebereinstimmen."
   - assumption_id: "SMALLOFFICE-5Z-THERMAL-001"
     location: "simple_envelope"
-    text: "U-Werte fuer Wand, Dach und Boden sind vorlaeufige materialbasierte Ableitungen ohne Oberflaechenwiderstaende oder Waermebruecken; Fenster-U-Wert 1,9 W/(m2K) stammt aus der Projektkonfiguration."
+    text: "U-Werte fuer Wand, Dach und Boden stammen aus dem IDA-5Z-Konstruktionsreport; Fenster-U-Wert 1,9 W/(m2K) stammt aus der IDA-Konfiguration."
   - assumption_id: "SMALLOFFICE-5Z-THERMAL-002"
     location: "thermal_envelope_complete"
-    text: "Die thermisch aggregierten Aussenbauteile sind fuer die V1-Demo vollstaendig; ihre Flächen werden gegen die einfache Huelle plausibilisiert."
+    text: "OG West und OG Ost besitzen eine oberste Geschossdecke gegen einen nicht zur thermischen Huelle gehoerenden Bereich. Sie ist als GD dokumentiert, aber nicht als Dach bilanziert."

@@ -73,9 +73,9 @@ def read_prn_as_standardized_series(selection: IdaSeriesSelection) -> tuple[Stan
         unit = prn_column_unit(column)
         if column == "relhum" and values and max(abs(value) for value in values) <= 1.5:
             values = [value * 100.0 for value in values]
-        records = _collapse_repeated_records(tuple(
-            StandardizedRecord(float(row[time_index]), float(value)) for row, value in zip(rows, values, strict=True)
-        ))
+        # Konfligierende Stützstellen bleiben im Standardvertrag unverändert.
+        # Damit kann die Qualitätsprüfung eine Energiebilanz verlässlich sperren.
+        records = tuple(StandardizedRecord(float(row[time_index]), float(value)) for row, value in zip(rows, values, strict=True))
         result.append(
             StandardizedSeries(
                 series_id=_series_id(selection, column),
@@ -84,6 +84,7 @@ def read_prn_as_standardized_series(selection: IdaSeriesSelection) -> tuple[Stan
                 time_semantics=TimeSemantics.INSTANTANEOUS,
                 provenance=provenance,
                 records=records,
+                normalization_notes=(),
             )
         )
     return tuple(result)
@@ -214,19 +215,30 @@ def _prepared_manifest_matches_source(output_root: str | Path, package_id: str, 
         return False
 
 
-def _collapse_repeated_records(
+def project_ida_records_for_display(
     records: tuple[StandardizedRecord, ...], *, time_tolerance: float = 1e-8, value_tolerance: float = 1e-9
-) -> tuple[StandardizedRecord, ...]:
-    """Entfernt nur numerisch gleiche IDA-Stuetzstellen mit gleichem Wert.
+) -> tuple[tuple[StandardizedRecord, ...], tuple[str, ...]]:
+    """Erzeugt eine optionale Anzeigeprojektion aus IDA-Stuetzstellen.
 
-    Widerspruechliche Werte am selben Zeitpunkt bleiben erhalten und werden
-    anschliessend von der Qualitaetspruefung als nicht eindeutig gemeldet.
+    Diese Projektion ist ausschliesslich fuer Visualisierungen gedacht. Sie
+    darf weder die Originalreihe ersetzen noch fuer Energieintegrationen oder
+    Vergleichsbilanzen verwendet werden.
     """
 
     collapsed: list[StandardizedRecord] = []
+    conflicting_duplicates = 0
     for record in records:
         if collapsed and abs(record.time_hours - collapsed[-1].time_hours) <= time_tolerance:
             if abs(record.value - collapsed[-1].value) <= value_tolerance:
                 continue
+            conflicting_duplicates += 1
+            collapsed[-1] = StandardizedRecord(collapsed[-1].time_hours, record.value)
+            continue
         collapsed.append(record)
-    return tuple(collapsed)
+    notes = ()
+    if conflicting_duplicates:
+        notes = (
+            f"Anzeigeprojektion: {conflicting_duplicates} abweichende IDA-Werte an identischen Zeitstempeln "
+            "wurden mit der letzten Stuetzstelle visualisiert; nicht fuer Energiebilanz verwenden.",
+        )
+    return tuple(collapsed), notes

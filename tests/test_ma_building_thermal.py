@@ -186,7 +186,10 @@ def test_explicit_envelope_aggregate_coverage_uses_the_confirmed_tolerance():
         ),
     )
 
-    assert calculate_thermal_transmission(within_tolerance).is_complete
+    # Oberste Geschossdecken sind geometrisch nachgewiesen, haben in V1 aber
+    # noch keinen bestaetigten U-Wert. Die Abdeckungspruefung bleibt deshalb
+    # sichtbar teilweise, auch wenn die Aggregatabweichung innerhalb liegt.
+    assert not calculate_thermal_transmission(within_tolerance).is_complete
     assert not calculate_thermal_transmission(outside_tolerance).is_complete
 
 
@@ -196,7 +199,8 @@ def test_small_office_openings_redistribute_the_gross_facade_without_double_coun
     result = calculate_thermal_transmission(spec)
     rows_by_id = {row.component_id: row for row in result.rows}
 
-    assert rows_by_id["ELEMENT-SYNTH-EXTERNAL-WALLS"].effective_area_m2 == pytest.approx(
-        748.033605 - 206.612894 - 28.255
-    )
-    assert result.envelope_area_m2 == pytest.approx(748.033605 + 358.917805 + 243.2645)
+    assert rows_by_id["ELEMENT-5Z-EG-WEST-AW"].effective_area_m2 == pytest.approx(79.58)
+    assert rows_by_id["ELEMENT-5Z-OG-WEST-AW"].effective_area_m2 == pytest.approx(85.94)
+    assert result.envelope_area_m2 == pytest.approx(1159.28884375)
+    assert rows_by_id["ELEMENT-5Z-OG-WEST-OGD"].category == "Oberste Geschossdecke"
+    assert not rows_by_id["ELEMENT-5Z-OG-WEST-OGD"].is_complete

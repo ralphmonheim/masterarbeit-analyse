@@ -252,6 +252,17 @@ objektbezogenen Entscheidung in einen begrenzten lokalen Prozess wechseln.
   Aktualisierung. Der globale lokale Skill bleibt eine persoenliche Hilfe und
   keine vorausgesetzte Repository-, Release- oder Runtime-Abhaengigkeit.
 
+### Aktueller Validierungsbefund 2026-08-14
+
+- Die zunaechst schreibfreie Handover-Validierung meldete eine veraltete
+  semantische Referenzmatrix. Innerhalb der anschliessend freigegebenen
+  `aktualisieren`-Routine wurde der Navigator neu erzeugt und danach mit
+  `--validate-only` erfolgreich geprueft.
+- Der Generator verarbeitete nur die dokumentierten versionierten Dateien und
+  freigegebenen Metadatenbereiche. Geschuetzte Inhalte wurden nicht
+  extrahiert; Hooks, Watcher und stille Aktualisierungen bleiben
+  ausgeschlossen.
+
 ### Council-Klaerung und Validatorhaertung 2026-08-11
 
 - Tera, Mira, Vera und Justus bestaetigten getrennt die skill-lokale

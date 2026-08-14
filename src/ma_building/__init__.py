@@ -72,6 +72,14 @@ from .paths import (
     SMALL_OFFICE_5Z_ENDVARIANT_02_BUILDING_SPEC_PATH,
     SMALL_OFFICE_LOD1_BUILDING_SPEC_PATH,
 )
+from .reference_mapping import (
+    EnvelopeDetail,
+    MappingSource,
+    ReferenceMapping,
+    ZoneEnvelopeTotal,
+    build_small_office_5z_b1_mapping,
+    enrich_b2_from_viewer_and_ifc,
+)
 from .thermal import (
     DEFAULT_DELTA_U_WB_W_M2K,
     ThermalCategoryResult,
@@ -111,6 +119,10 @@ __all__ = [
     "BuildingModelVersion",
     "BuildingSourceDiagnostic",
     "IfcLiteImportSummary",
+    "MappingSource",
+    "ZoneEnvelopeTotal",
+    "EnvelopeDetail",
+    "ReferenceMapping",
     "Opening",
     "PhysicalElement",
     "ProjectInfo",
@@ -121,6 +133,8 @@ __all__ = [
     "building_specification_from_dict",
     "diagnose_building_source",
     "derive_ifc_lite_building_candidate",
+    "build_small_office_5z_b1_mapping",
+    "enrich_b2_from_viewer_and_ifc",
     "load_business_integration_lod1_building_spec",
     "load_building_spec",
     "load_demo_building_spec",

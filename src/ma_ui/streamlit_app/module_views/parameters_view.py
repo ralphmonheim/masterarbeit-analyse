@@ -18,6 +18,7 @@ from ma_ui.streamlit_app.state import (
     get_active_workspace,
     mark_workspace_draft,
 )
+from ma_variants.project_studies import SMALL_OFFICE_CAPACITY_COUPLING_RULE
 from ma_workspace import load_project_module_config, save_project_module_config
 
 PARAMETER_MODULE_KEY = "ma_parameters"
@@ -235,7 +236,11 @@ def _render_reference_section(workspace, baseline, payload: dict[str, object]) -
     selected_strategy = (
         str(capacity_state.get("mode"))
         if isinstance(capacity_state, dict) and capacity_state.get("mode") in CAPACITY_STRATEGY_OPTIONS
-        else "ideal_unlimited"
+        else (
+            "dimensioned_with_factor"
+            if workspace.project.identity.title == "Masterarbeit-Analyse"
+            else "ideal_unlimited"
+        )
     )
     selected_strategy = st.selectbox(
         "Leistungsbegrenzung der Studie",
@@ -290,6 +295,14 @@ def _render_rules_section(workspace, baseline, payload: dict[str, object]) -> No
         "Regeln werden vor den konkreten Spannen definiert. Ein definierender Status macht "
         "die Regel fuer den angegebenen Geltungsbereich verbindlich."
     )
+    if workspace.project.identity.title == "Masterarbeit-Analyse":
+        st.markdown("##### Systemregel der SmallOffice-V1-Studie")
+        st.dataframe(
+            normalize_table_for_streamlit([SMALL_OFFICE_CAPACITY_COUPLING_RULE]),
+            hide_index=True,
+            width="stretch",
+        )
+        st.caption("Diese Regel wird vom Varianten- und Dimensionierungsmodul technisch erzwungen.")
     if rules:
         st.dataframe(normalize_table_for_streamlit(rules), hide_index=True, width="stretch")
     else:
@@ -646,7 +659,7 @@ def _project_study_contract(workspace, payload: dict[str, object] | None = None)
     strategy = (
         str(capacity_state.get("mode"))
         if isinstance(capacity_state, dict) and capacity_state.get("mode") in CAPACITY_STRATEGY_OPTIONS
-        else "ideal_unlimited"
+        else "dimensioned_with_factor"
     )
     return {
         "study_id": SMALL_OFFICE_V1_STUDY_ID,

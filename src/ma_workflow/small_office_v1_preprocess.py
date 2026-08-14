@@ -59,8 +59,8 @@ STEP_ORDER = (
     ("project", "Projekt"),
     ("weather", "Wetter"),
     ("building", "Gebaeude"),
-    ("zones", "Zonen"),
     ("technical", "Technik"),
+    ("zones", "Zonen"),
     ("parameters", "Parameter"),
     ("dimensioning", "Referenzdimensionierung"),
     ("parameter_variations", "Parameter-Variationsspezifikation"),
@@ -223,20 +223,20 @@ def run_small_office_v1_preprocess(
         action=_building_action,
     )
     execute(
-        "zones",
-        "Zonen",
-        dependencies=("building",),
-        inputs=("Fuenf feste Zonen", "29 Raum-Zonen-Zuordnungen"),
-        process=("Zonen gegen Gebaeude validieren", "Aktives thermisches Modell freigeben"),
-        action=lambda: _zones_action(artifacts["building"]),
-    )
-    execute(
         "technical",
         "Technik",
-        dependencies=("zones",),
-        inputs=("Endvariante 02: technische Ausgangswerte", "Aktives Zonenmodell und Zonen-IDs"),
-        process=("Technik eigenstaendig validieren", "Technik gegen aktive Zonen-IDs pruefen"),
-        action=lambda: _technical_action(artifacts["zones"]),
+        dependencies=("building",),
+        inputs=("Endvariante 02: technische Ausgangswerte",),
+        process=("Technik eigenstaendig validieren", "Zonenintegration als nachgelagertes Gate markieren"),
+        action=_technical_action,
+    )
+    execute(
+        "zones",
+        "Zonen",
+        dependencies=("building", "technical"),
+        inputs=("Fuenf feste Zonen", "aktiver Technikstand"),
+        process=("Zonen gegen Gebaeude validieren", "Technik gegen aktive Zonen-IDs pruefen"),
+        action=lambda: _zones_action(artifacts["building"], artifacts["technical"]),
     )
     execute(
         "parameters",
@@ -365,40 +365,38 @@ def _building_action() -> tuple[Any, tuple[DiagnosticMessage, ...], tuple[str, .
         spec,
         validation.messages,
         (
-            f"{len(spec.spaces)} Raeume",
+            f"{len(spec.spaces)} direkte IDA-Zonenraeume",
             f"{sum(space.floor_area_m2 for space in spec.spaces):.3f} m2",
             f"{sum(space.volume_m3 for space in spec.spaces):.5f} m3",
-            "Zweigeschossige Lobbygeometrie als Quellenstand dokumentiert",
+            "Lobbydach sowie oberste Geschossdecken im OG als Quellenstand dokumentiert",
         ),
         ("BuildingModelSpecification an Technik-Zonen-Kette und Parameter",),
     )
 
 
-def _technical_action(
-    zone_spec: Any,
-) -> tuple[Any, tuple[DiagnosticMessage, ...], tuple[str, ...], tuple[str, ...]]:
+def _technical_action() -> tuple[Any, tuple[DiagnosticMessage, ...], tuple[str, ...], tuple[str, ...]]:
     spec = load_small_office_5z_endvariant_02_technical_spec()
     local_validation = validate_technical_spec(spec)
-    integration_validation = validate_technical_zone_integration(zone_spec, spec)
-    diagnostics = (*local_validation.messages, *integration_validation.messages)
+    diagnostics = local_validation.messages
     return (
         spec,
         tuple(diagnostics),
-        (f"{len(spec.systems)} technische Systeme", "Technik-Zonen-Integritaet freigegeben"),
-        ("TechnicalSystemSpecification an Parameter",),
+        (f"{len(spec.systems)} technische Systeme", "Zonenintegration folgt im Zonen-Gate"),
+        ("TechnicalSystemSpecification an Zonen und Parameter",),
     )
 
 
 def _zones_action(
-    building_spec: Any,
+    building_spec: Any, technical_spec: Any,
 ) -> tuple[Any, tuple[DiagnosticMessage, ...], tuple[str, ...], tuple[str, ...]]:
     spec = load_small_office_5z_endvariant_02_zone_spec()
     local_validation = validate_zone_spec(spec, building_spec=building_spec)
+    integration_validation = validate_technical_zone_integration(spec, technical_spec)
     return (
         spec,
-        local_validation.messages,
-        (f"{len(spec.zones)} thermische Zonen", "29 von 29 Raeumen zugeordnet", "Kein neuer V1-Zonenzuschnitt"),
-        ("ZoneModelSpecification und aktive Zonen-IDs an Technik",),
+        (*local_validation.messages, *integration_validation.messages),
+        (f"{len(spec.zones)} thermische Zonen", "5 von 5 direkten IDA-Zonenraeumen zugeordnet", "Technik-Zonen-Integritaet geprueft"),
+        ("ZoneModelSpecification an Parameter",),
     )
 
 
@@ -527,7 +525,7 @@ def _small_office_variation_specification(study: SmallOfficeV1Study) -> dict[str
                 "weather_ofat",
                 "occupancy_ofat",
             ],
-            "capacity_strategy": "ideal_unlimited",
+            "capacity_strategy": "dimensioned_with_factor",
         },
     }
 
@@ -636,6 +634,8 @@ def _write_run_reports(result: SmallOfficeV1PreProcessResult) -> None:
             encoding="utf-8",
         )
 
+    building_spec = load_small_office_5z_endvariant_02_building_spec()
+    zone_spec = load_small_office_5z_endvariant_02_zone_spec()
     summary = {
         "run_id": result.run_id,
         "created_at": datetime.now().astimezone().isoformat(),
@@ -646,10 +646,10 @@ def _write_run_reports(result: SmallOfficeV1PreProcessResult) -> None:
         "source_metadata": {
             "endvariant": "ENDVAR-02-5Z-OHNE",
             "zone_model_id": "ZONEVAR-REDUCED-5-BOUNDARIES-REMOVED-001",
-            "room_count": 29,
-            "zone_count": 5,
-            "floor_area_m2": 516.842,
-            "volume_m3": 1677.64455,
+            "room_count": len(building_spec.spaces),
+            "zone_count": len(zone_spec.zones),
+            "floor_area_m2": sum(zone.floor_area_m2 for zone in zone_spec.zones),
+            "volume_m3": sum(zone.volume_m3 for zone in zone_spec.zones),
             "source_archive": "data/catalogs/sources/demo_masterarbeit_endvarianten_optionen_v2.zip",
             "source_archive_sha256": _file_hash(
                 Path("data/catalogs/sources/demo_masterarbeit_endvarianten_optionen_v2.zip")

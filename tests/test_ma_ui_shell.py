@@ -739,9 +739,9 @@ def test_building_u_value_rows_keep_openings_positive_and_show_their_host():
     rows = building_view.thermal_component_table_rows(spec, result)
     rows_by_id = {row["Bezeichnung"]: row for row in rows}
 
-    assert rows_by_id["OPENING-SYNTH-EXTERNAL-WINDOWS"]["Flaeche [m2]"] == 206.612894
-    assert rows_by_id["OPENING-SYNTH-EXTERNAL-WINDOWS"]["Abzug von"] == "ELEMENT-SYNTH-EXTERNAL-WALLS"
-    assert rows_by_id["ELEMENT-SYNTH-EXTERNAL-WALLS"]["Abzug von"] == ""
+    assert rows_by_id["OPENING-5Z-EG-WEST-FA"]["Flaeche [m2]"] == 41.51
+    assert rows_by_id["OPENING-5Z-EG-WEST-FA"]["Abzug von"] == "ELEMENT-5Z-EG-WEST-AW"
+    assert rows_by_id["ELEMENT-5Z-EG-WEST-AW"]["Abzug von"] == ""
 
 
 def test_building_result_rows_separate_u_value_summary_and_transmission_contributions():
@@ -750,10 +750,18 @@ def test_building_result_rows_separate_u_value_summary_and_transmission_contribu
     categories = building_view.thermal_category_table_rows(result)
     contributions = building_view.thermal_transmission_table_rows(result)
 
-    assert {row["Kategorie"] for row in categories} == {"Dach", "Waende", "Boden", "Fenster", "Tueren"}
-    assert all(row["Mittlerer U-Wert [W/(m2 K)]"] is not None for row in categories)
-    assert all(row["F x U x A [W/K]"] is not None for row in contributions)
-    assert result.heat_loss_coefficient_per_area_w_m2k is not None
+    assert {row["Kategorie"] for row in categories} == {"Dach", "Waende", "Boden", "Fenster", "Tueren", "Oberste Geschossdecke"}
+    assert all(
+        row["Mittlerer U-Wert [W/(m2 K)]"] is not None
+        for row in categories
+        if row["Kategorie"] != "Oberste Geschossdecke"
+    )
+    ogd = next(row for row in categories if row["Kategorie"] == "Oberste Geschossdecke")
+    assert ogd["Mittlerer U-Wert [W/(m2 K)]"] is None
+    assert next(
+        row for row in contributions if row["Kategorie"] == "Oberste Geschossdecke"
+    )["F x U x A [W/K]"] is None
+    assert result.heat_loss_coefficient_per_area_w_m2k is None
 
 
 def test_building_transmission_rows_mark_missing_u_values_as_incomplete():

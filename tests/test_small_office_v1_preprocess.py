@@ -60,7 +60,7 @@ def _vver_selection(study):
                 "weather_ofat",
                 "occupancy_ofat",
             ],
-            "capacity_strategy": "ideal_unlimited",
+            "capacity_strategy": "dimensioned_with_factor",
         },
     })
     optimization = [row for row in candidates if row["study_direction"] == "optimization"]
@@ -75,7 +75,7 @@ def _vver_selection(study):
     ), candidates
 
 
-def test_small_office_v1_uses_pseudonymized_room_ids_and_stable_zone_geometry():
+def test_small_office_v1_uses_direct_ida_zone_geometry():
     building = load_small_office_5z_endvariant_02_building_spec()
     zones = load_small_office_5z_endvariant_02_zone_spec()
     technical = load_small_office_5z_endvariant_02_technical_spec()
@@ -84,17 +84,17 @@ def test_small_office_v1_uses_pseudonymized_room_ids_and_stable_zone_geometry():
     assert validate_zone_spec(zones, building_spec=building).release_status is ReleaseStatus.RELEASED
     assert validate_technical_spec(technical).release_status is ReleaseStatus.RELEASED
     assert validate_technical_zone_integration(zones, technical).release_status is ReleaseStatus.RELEASED
-    assert len(building.spaces) == 29
+    assert len(building.spaces) == 5
     assert len(zones.zones) == 5
-    assert sum(space.floor_area_m2 for space in building.spaces) == 516.842
-    assert sum(space.volume_m3 for space in building.spaces) == 1677.64455
-    assert sum(zone.floor_area_m2 for zone in zones.zones) == 516.842
-    assert building.spaces[0].space_id == "SPACE-SYNTH-001"
-    assert building.spaces[0].name == "Space 001"
+    assert sum(space.floor_area_m2 for space in building.spaces) == 526.52
+    assert sum(space.volume_m3 for space in building.spaces) == 1702.9
+    assert sum(zone.floor_area_m2 for zone in zones.zones) == 526.52
+    assert building.spaces[0].space_id == "SPACE-5Z-LOBBY"
+    assert building.spaces[0].name == "Lobby"
     assert {space.space_id for space in building.spaces} == {
         space_id for zone in zones.zones for space_id in zone.source_space_ids
     }
-    assert "zweigeschossig" in " ".join(item.text for item in building.assumptions)
+    assert "oberste Geschossdecke" in " ".join(item.text for item in building.assumptions)
 
 
 def test_zone_owned_technical_integration_matches_legacy_diagnostics():
@@ -118,7 +118,7 @@ def test_zone_owned_technical_integration_matches_legacy_diagnostics():
     assert zone_owned.release_status is legacy.release_status is ReleaseStatus.BLOCKED
 
 
-def test_small_office_v1_builds_ideal_optimization_cases_and_8_sensitivity_cases():
+def test_small_office_v1_builds_30_coupled_optimization_cases_and_8_sensitivity_cases():
     snapshot = build_small_office_5z_v1_parameter_snapshot()
     baseline = build_small_office_5z_v1_baseline_parameter_snapshot()
     study = load_small_office_v1_study()
@@ -134,17 +134,17 @@ def test_small_office_v1_builds_ideal_optimization_cases_and_8_sensitivity_cases
         baseline,
         study,
         assignments,
-        capacity_strategy="ideal_unlimited",
+        capacity_strategy="dimensioned_with_factor",
     )
     sensitivity = build_small_office_v1_sensitivity_cases(baseline, study, optimization)
 
     assert validate_parameter_snapshot(snapshot).release_status is ReleaseStatus.RELEASED
     assert validate_baseline_parameter_snapshot(baseline).release_status is ReleaseStatus.RELEASED
-    assert len(optimization) == 5
+    assert len(optimization) == 30
     assert len(requests) == 4
     assert len(sensitivity) == 8
     assert optimization[0].case_id == "OPT-SB01-F100"
-    assert optimization[-1].case_id == "OPT-SB05-F100"
+    assert optimization[-1].case_id == "OPT-SB05-F050"
 
     for case in optimization:
         heating_values = {
@@ -157,8 +157,8 @@ def test_small_office_v1_builds_ideal_optimization_cases_and_8_sensitivity_cases
         assert cooling_values == {case.band.cooling_setpoint_c}
 
     reference = optimization[0]
-    assert reference.variant.capacity_strategy == "ideal_unlimited"
-    assert not any(value.parameter_key.endswith("capacity_w") for value in reference.variant.values)
+    assert reference.variant.capacity_strategy == "dimensioned_with_factor"
+    assert any(value.parameter_key.endswith("capacity_w") for value in reference.variant.values)
     assert {case.parent_variant_id for case in sensitivity} == {"OPT-SB01-F100"}
 
 
@@ -177,23 +177,23 @@ def test_small_office_v1_runner_materializes_draft_packages_and_module_reports(t
         "project",
         "weather",
         "building",
-        "zones",
         "technical",
+        "zones",
         "parameters",
         "dimensioning",
         "parameter_variations",
         "variants",
         "simulation_setup",
     ]
-    assert len(result.optimization_cases) == 5
+    assert len(result.optimization_cases) == 30
     assert len(result.sensitivity_cases) == 8
-    assert len(list((result.output_directory / "optimization").iterdir())) == 5
+    assert len(list((result.output_directory / "optimization").iterdir())) == 30
     assert len(list((result.output_directory / "sensitivity").iterdir())) == 8
     assert len(list((result.output_directory / "modules").glob("*.yaml"))) == 10
     assert (result.output_directory / "timings.csv").is_file()
     assert (result.output_directory / "diagnostics.yaml").is_file()
     assert (result.output_directory / "manual_v1_acceptance.md").is_file()
-    assert "5 Optimierungsfaelle" in (
+    assert "30 Optimierungsfaelle" in (
         result.output_directory / "manual_v1_acceptance.md"
     ).read_text(encoding="utf-8")
 
@@ -217,10 +217,10 @@ def test_small_office_v1_runner_materializes_draft_packages_and_module_reports(t
             / "variant_config.yaml"
         ).read_text(encoding="utf-8")
     )
-    assert reference_variant["capacity_strategy"] == "ideal_unlimited"
+    assert reference_variant["capacity_strategy"] == "dimensioned_with_factor"
     assert reference_variant["dimensioning_status"] == "available"
     assert reference_variant["reference_heating_capacity_w"] is not None
-    assert not any(value["parameter_key"].endswith("capacity_w") for value in reference_variant["values"])
+    assert any(value["parameter_key"].endswith("capacity_w") for value in reference_variant["values"])
     assert (
         result.output_directory
         / "sensitivity"

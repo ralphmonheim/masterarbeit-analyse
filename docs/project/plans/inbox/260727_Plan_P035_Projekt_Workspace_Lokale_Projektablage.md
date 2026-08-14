@@ -207,11 +207,13 @@ P035, uebernimmt dessen Dateisystemlogik aber nicht.
   Projekte in der separaten Arbeitsablage vor. Das SmallOffice bleibt ein
   Gebaeude mit 5Z und 29Z im ersten Projekt. Die Repository-Kopien wurden in
   unveraenderliche Seed-Vorlagen ueberfuehrt.
-- Das fruehere lokale Testarchiv wurde bis auf 19 durch Windows-ACLs
-  gesperrte UUID-Verzeichnisse entfernt. Diese Reste sind ignorierte,
-  synthetische Zwischenartefakte und muessen einmalig mit lokalen
-  Administratorrechten geloescht werden; sie werden nicht versioniert oder
-  als Nachweis weiterverwendet.
+- Das frühere lokale Testarchiv bestand ausschließlich aus ignorierten,
+  synthetischen Zwischenartefakten. Nach ausdrücklicher Nutzerfreigabe wurden
+  am 2026-08-13 die 19 ACL-gesperrten UUID-Verzeichnisse sowie anschließend
+  der leere Root-Ordner `Arbeitsablage/` im Repository-Checkout mit lokalen
+  Administratorrechten entfernt. Versionierte Programm-, Konfigurations- und
+  Testdateien erzeugen diesen Legacy-Pfad nicht erneut; die separate
+  Masterarbeits-Arbeitsablage bleibt davon unberührt.
 - Projektname und Projekt-ID werden nicht still geaendert; vorhandene
   Zielordner, doppelte Registry-IDs und abweichende Projektordnernamen
   blockieren.

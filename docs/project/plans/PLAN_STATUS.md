@@ -1,6 +1,6 @@
 # Plan Status
 
-Stand: 2026-08-13
+Stand: 2026-08-14
 
 Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt und nach jeder Planumsetzung aktualisiert. Vollstaendige alte Planstaende liegen unter `docs/project/archive/plans/`.
 
@@ -146,8 +146,15 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   Projektordner und Registry liegen nach UD-107 in der separaten
   Arbeitsablage; das Repository enthaelt nur Seed-Vorlagen. Der Workspace
   bleibt lokal und fuehrt weder Cloud- noch Mehrbenutzerbetrieb ein.
-- UD-106 konsolidiert die neue V1-Bearbeitungsfolge `Projekt -> Wetter ->
-  Gebaeude -> Zonen -> Technik -> Parameter-Referenzstand ->
+- Das unversionierte Legacy-Testarchiv `Arbeitsablage/Testlaeufe_Archiv_2026-07-28`
+  und der danach leere Root-Ordner `Arbeitsablage/` im Repository-Checkout
+  wurden am 2026-08-13 nach ausdrücklicher Nutzerfreigabe entfernt. Die
+  separate Masterarbeits-Arbeitsablage und alle versionierten Zielpfade bleiben
+  unverändert.
+- UD-106 konsolidierte die damalige V1-Bearbeitungsfolge `Projekt -> Wetter ->
+  Gebaeude -> Zonen -> Technik`. Fuer den Reihenfolgenscope ersetzt UD-112
+  sie durch `Projekt -> Wetter -> Gebaeude -> Technik -> Zonen ->
+  Parameter-Referenzstand ->
   Referenzdimensionierung -> Parameter-Variationsspezifikation -> Varianten
   -> Simulation-Setup`. Die Produktslices sind bis auf dokumentierte
   Quellen- und Rechtegates umgesetzt. Die vollstaendige Suite bestaetigt
@@ -494,10 +501,12 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   Konfigurationspaket bleibt nach
   weiterhin lokal und ignoriert; nur die separat synthetische Rekonstruktion
   wird versioniert.
-- SmallOffice V1 ist bis `ma_simulation_setup` umgesetzt: Endvariante 02
-  umfasst 29 Raeume, fuenf feste Zonen, 516,842 m2 und 1677,64455 m3. Die
-  Lobbyhoehe 8,0 m ist als zweigeschossige Geometrie bestaetigt. Fuenf
-  globale Temperatur-Sollwertbaender und sechs gekoppelte
+- SmallOffice V1 ist bis `ma_simulation_setup` als technischer Teilstand
+  umgesetzt: Endvariante 02 umfasst fuenf direkte IDA-Zonenraeume, 526,52 m2
+  und 1702,9 m3. Die Lobby besitzt das Dach; OG West und OG Ost besitzen
+  oberste Geschossdecken mit noch offenen thermischen Kennwerten. Der
+  29Z-Vergleichsstand bleibt getrennt. Fuenf globale Temperatur-Sollwertbaender
+  und sechs gekoppelte
   Heiz-/Kuehlleistungsfaktoren erzeugen 30 Optimierungsfaelle. Acht getrennte
   Sensitivitaetsfaelle verwenden den Referenz-/Dimensionierungsfall fuer vier
   Frankfurt-Jahreswetter und vier Belegungszeitprofile.
@@ -606,6 +615,11 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   Sondergates sichtbar bleiben. Die Empfehlung ersetzt keine menschliche
   Freigabe; Rechte-, externe und irreversible Gates bleiben konkret
   freizugeben.
+- Der am 2026-08-14 festgestellte veraltete Navigatorstand wurde innerhalb
+  der freigegebenen `aktualisieren`-Routine neu erzeugt. Die anschliessende
+  schreibfreie Validierung gegen Repository, Arbeitsablage und freigegebene
+  lokale Metadaten ist erfolgreich; geschuetzte Inhalte wurden nicht
+  extrahiert.
 - P032 dokumentiert den professionellen Architektur-Benchmark als datierten
   Snapshot unter `docs/project/architecture/reviews/2026-07-15/`. ADR-P032
   ist mit der konservativen Konsolidierung der bestehenden `ma_*`-Pakete
@@ -966,6 +980,10 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   und Stage 3 besitzen konfigurierbare, noch wertfreie Pruefvertraege. Die
   IDA-Zeit-/Leistungssemantik und der durchgaengige strukturierte
   Importvertrag bleiben vor einer fachlichen Ergebnisfreigabe offen.
+- Wiederholte IDA-Stuetzstellen bleiben im standardisierten Vertrag
+  unveraendert und koennen die Energieeignung weiterhin sperren. Eine
+  getrennte Anzeigeprojektion protokolliert ihre Reduktion, ersetzt aber
+  weder die Quellreihe noch eine Integrationsgrundlage.
 
 ### Offen
 
@@ -1134,9 +1152,16 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   Internetabgleich. Die Quellenmatrix ist kein Ersatz für Originalquellen.
 - Der finale Arbeitsauftrag liegt unter
   `docs/prompts/MASTER_PROMPT_QUELLENINVENTAR_UND_LERNPAKETE.md`; die
-  unveränderte Nutzereingabe ist dort hashgesichert referenziert. Interne und
-  öffentliche Quellenregister sowie Einzelanalysen werden erst im lokalen,
-  Git-ignorierten Bereich `config/ma_database/literature/` aufgebaut.
+  unveränderte Nutzereingabe ist dort hashgesichert referenziert. Ein erstes
+  internes, Git-ignoriertes Register mit 21 Metadatensätzen und zugehörigen
+  Einzelanalysen liegt unter `config/ma_database/literature/`. Es verwendet
+  durchgehend `user-described` und `requires_manual_review`; PDFs,
+  Norminhalte und zitierfähige Quellenaussagen wurden nicht übernommen.
+- Die Themenroutine fuehrt nach dem Prompt-Intake eine getrennte read-only
+  Sol-Planung und einen neuen Tera-Umsetzungschat. Der unabhaengige
+  V1-5Z-/UI-/PostProcess-Plan ist ohne P-Nummer gespeichert; er definiert
+  einen freigegebenen Ausfuehrungsscope, ersetzt aber keine bestehende
+  Architektur-, Modul- oder Entscheidungswahrheit.
 
 ## Offene Nutzerentscheidungen
 

@@ -52,3 +52,11 @@ Ein neuer Zonenzuschnitt ist nicht Teil von V1 und waere eine eigene,
 spaeter zu entscheidende strukturelle Sensitivitaet. Nutzungsart,
 Profilquelle, betroffene Raeume oder Zonen, Vergleichsmetriken und
 Akzeptanzkriterien sind vor einer Umsetzung fachlich festzulegen.
+
+## Eingangsauswertung 2026-08-14: Sensitivitaetsquellen
+
+Das aufgenommene Literaturpaket ordnet Sensitivitaetsmethodik Stage 4 zu und
+liefert insbesondere Metadaten fuer Tian (2013), Sanchez et al. (2012) und
+CIBSE TM54. Es begruendet noch keine konkrete Ereignisdefinition,
+Robustheitsmetrik oder Akzeptanzschwelle; diese bleiben fachlich offen und
+werden erst nach manueller Quellpruefung weiter geplant.

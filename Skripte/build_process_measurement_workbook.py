@@ -10,10 +10,8 @@ from __future__ import annotations
 from pathlib import Path
 
 from openpyxl import load_workbook
-from openpyxl.formatting.rule import FormulaRule
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
-
 
 WORKBOOK_PATH = Path(
     r"C:\Users\ralph\Documents\Master\5.Semester\Masterarbeit - lokal"

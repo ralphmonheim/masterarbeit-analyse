@@ -312,3 +312,14 @@ Templates, Farben, Achsen, Layouts oder fachliche Bedeutung nicht ohne einen
 eigenen, vom Nutzer besprochenen Slice aendern. Das Dateninventar eines
 freigegebenen Ergebnisexports bestimmt spaeter die datenkompatiblen
 Vorlagen; fehlende Daten ergeben sichtbar `nicht auswertbar` statt Ersatzwerte.
+
+## Eingangsauswertung 2026-08-14: KPI-Diskussionsprozess
+
+Der aufgenommene Diskussionsprozess bestaetigt die Rolle von `ma_analyse` als
+technischer, deskriptiver PostProcess-Owner. Er darf Ergebnisprovenienz,
+Einheiten, Datenqualitaet und Variantenvergleiche sichtbar machen, aber keine
+fachfremde Nachhaltigkeits- oder Wirtschaftlichkeitsberechnung sowie keine
+gewichtete Gesamtentscheidung enthalten. Die vorgeschlagene Trennung von
+Constraints, nachgelagerter Feasibility und optionaler Pareto-/Gewichtungsebene
+bleibt mit P019/P020/P024 abzugleichen und ersetzt die offenen OP-017/OP-018
+nicht.

@@ -113,3 +113,13 @@ Sie ersetzen weder den bestehenden `NormVerificationReport` mit
 Fachtestgates dieses Plans. Insbesondere wurden keine Normwerte, Formeln,
 PASS/FAIL-Regeln oder Literaturinhalte aus dem zugehoerigen Quellenpaket
 uebernommen.
+
+## Eingangsauswertung 2026-08-14: Quellenmetadaten
+
+Das Literaturpaket ist nun als internes Quellenregister inventarisiert. Die
+Aufnahme beschraenkt sich auf Nutzer-Metadaten und verlinkte Fundstellen; die
+enthaltenen PDF-Dateien und Norminhalte wurden nicht extrahiert oder
+verarbeitet. Die dort vorgeschlagene Begriffstrennung von `Standard
+Evaluation Profile` und `Standard Verification` bleibt ein Kandidat fuer
+einen spaeteren P020-Slice und aendert weder den kanonischen Modulnamen noch
+die bestehenden Rechte-, Methoden- und Fachtestgates.

@@ -53,6 +53,10 @@ def assess_series_quality(series: StandardizedSeries) -> SeriesQualityReport:
     """Leitet eine einfache, konservative Eignungsstufe aus Achsenbefunden ab."""
     axis = validate_time_axis(series)
     findings: list[QualityDiagnostic] = []
+    findings.extend(
+        QualityDiagnostic("source_normalization", note, "warning")
+        for note in series.normalization_notes
+    )
     if axis.record_count < 2:
         findings.append(QualityDiagnostic("too_few_records", "Mindestens zwei Zeitpunkte sind erforderlich.", "error"))
     if axis.finite_time_count != axis.record_count or axis.finite_value_count != axis.record_count:
@@ -96,12 +100,18 @@ def prepare_series_to_hourly(series: StandardizedSeries) -> PreparedSeries:
     """Aggregiert eine gültige Reihe auf ganze Stunden ohne Jahresbegrenzung."""
     quality = assess_series_quality(series)
     if quality.suitability is DataSuitability.NOT_READY:
-        return PreparedSeries(series.series_id, series.metric, series.unit, series.time_semantics, series.provenance, quality, ())
+        return PreparedSeries(
+            series.series_id, series.metric, series.unit, series.time_semantics, series.provenance, quality, (),
+            series.normalization_notes,
+        )
     records = _usable_sorted_records(series)
     first_hour = math.floor(records[0].time_hours)
     last_hour = math.ceil(records[-1].time_hours)
     prepared = _aggregate_all_hours(series, records, first_hour, last_hour)
-    return PreparedSeries(series.series_id, series.metric, series.unit, series.time_semantics, series.provenance, quality, prepared)
+    return PreparedSeries(
+        series.series_id, series.metric, series.unit, series.time_semantics, series.provenance, quality, prepared,
+        series.normalization_notes,
+    )
 
 
 def prepare_package(package_id: str, series: tuple[StandardizedSeries, ...]) -> PreparationPackage:
@@ -204,6 +214,7 @@ def _manifest_payload(package: PreparationPackage, csv_paths: tuple[Path, ...]) 
                 "metric": item.metric,
                 "unit": item.unit,
                 "time_semantics": item.time_semantics.value,
+                "normalization_notes": list(item.normalization_notes),
                 "provenance": asdict(item.provenance),
                 "suitability": item.quality.suitability.value,
                 "quality_diagnostics": [asdict(finding) for finding in item.quality.diagnostics],

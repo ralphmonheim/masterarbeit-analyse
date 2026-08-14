@@ -43,8 +43,26 @@ Rueckfallweg, Pruefstrategie sowie alle Sondergates sichtbar sind.
   pausieren und den neuen Auftrag mit dem projektlokalen Skill `prompt-intake`
   schrittweise praezisieren. Der Skill fragt alle noch nicht klaren
   relevanten Angaben nach.
-- `Prompt abschliessen`: den vollstaendigen Arbeits-Prompt ausgeben. Danach
-  gelten die normalen Regeln fuer Analyse, Planung und `Freigabe zur Umsetzung`.
+- `Prompt abschliessen`: den vollstaendigen Arbeits-Prompt ausgeben. Dies
+  erzeugt noch keinen Umsetzungsplan und aendert keine Projektdateien.
+- `umsetzungsplan erstellen`: einen getrennten Sol-Agenten auf hoher Stufe
+  (`quality_auditor`) ausschliesslich read-only mit Planung und
+  Qualitaetspruefung des abgeschlossenen Arbeits-Prompts beauftragen. Der
+  koordinierende Agent speichert dessen unveraendertes Ergebnis als
+  unabhaengigen Umsetzungsplan unter `docs/project/plans/independent/`. Der
+  Dateiname besteht aus Datum und einem freien inhaltlichen Titel, ohne
+  `P`-Nummer. Diese Ablage ist nicht Teil der formellen
+  Projektplanserie und wird nicht automatisch in `PLAN_INDEX.md`,
+  `PLAN_STATUS.md` oder bestehende Plaene eingearbeitet.
+- Der gespeicherte Umsetzungsplan enthaelt einen kurzen Tera-Handoff. Ein
+  neuer Tera-Chat erhaelt den konkreten Planpfad, liest den vollstaendigen im
+  Plan gespeicherten Arbeits-Prompt und setzt ausschliesslich den darin
+  freigegebenen Umfang erst nach `Freigabe zur Umsetzung` um. Der Sol-Plan
+  nutzt die feste Abschnittsstruktur aus `prompt-intake`; unvollstaendige
+  Ergebnisse werden vor dem Speichern read-only vervollstaendigt. Nach
+  Abschluss fragt Tera den Nutzer nach der Einordnung: benannten bestehenden
+  Plan aktualisieren, ueber `plan aufnehmen` einen neuen `P`-Plan anlegen
+  oder den unabhaengigen Plan als abgeschlossenen Einzelplan belassen.
 
 ## Quellen- und Inhaltssuche
 

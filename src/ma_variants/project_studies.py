@@ -36,6 +36,19 @@ REQUIRED_SMALL_OFFICE_V1_DIMENSIONS = {
     "weather_ofat",
     "occupancy_ofat",
 }
+SMALL_OFFICE_CAPACITY_COUPLING_RULE = {
+    "rule_id": "RULE-SMALLOFFICE-CAPACITY-COUPLING",
+    "title": "Heiz- und Kuehlleistungsfaktor gemeinsam fuehren",
+    "rule_type": "coupling",
+    "defining": True,
+    "scope_type": "study_direction",
+    "scope_id": "optimization",
+    "details": (
+        "cooling.factor = heating.factor. Beide Leistungen verwenden pro "
+        "Optimierungsfall denselben Faktor; getrennte Kombinationen sind nicht zulaessig."
+    ),
+    "source": "SmallOffice-V1-Studienvertrag",
+}
 
 
 def small_office_study_case_rows(study: SmallOfficeV1Study) -> list[dict[str, object]]:

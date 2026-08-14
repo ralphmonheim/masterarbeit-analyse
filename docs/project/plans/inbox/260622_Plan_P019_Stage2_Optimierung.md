@@ -78,3 +78,13 @@ fachlich freigegebene Bewertungsregel.
 Vor einer Umsetzung sind Dateninventar, Einheiten, projektbezogene Kriterien,
 Bewertungszeitraum und die Grenzen zu Stage 3 nach OP-017 und OP-018 zu
 konsolidieren. Der bestehende wertfreie Ergebnisvertrag bleibt unveraendert.
+
+## Eingangsauswertung 2026-08-14: KPI- und Quellenpaket
+
+Der aufgenommene KPI-Diskussionsprozess bestaetigt die Trennung von
+Optimierungszielen, Constraints und einem nachgelagerten, optionalen
+Entscheidungsverfahren. Er ist ein nicht-kanonischer methodischer Hintergrund:
+Er setzt weder Criteria noch PASS/FAIL-Schwellen, Gewichtungen oder eine
+automatische Variantenwahl fest. Das zugehoerige Literaturpaket wurde als
+internes Metadatenregister aufgenommen; konkrete Quellenaussagen bleiben bis
+zum manuellen Nachlesen `requires_manual_review`.

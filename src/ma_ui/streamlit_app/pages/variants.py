@@ -37,6 +37,7 @@ from ma_variants import (
     variation_specification_is_current,
     verify_candidate_rows,
 )
+from ma_variants.project_studies import SMALL_OFFICE_CAPACITY_COUPLING_RULE
 from ma_variants.vver_selection import (
     VverSelectionRecord,
     create_vver_selection_record,
@@ -225,6 +226,8 @@ def _render_effective_rules(
                 or (scope_type == "study_case" and scope_id == case_id)
             ):
                 effective_rules.append(rule)
+    if direction == "optimization":
+        effective_rules.append(SMALL_OFFICE_CAPACITY_COUPLING_RULE)
     with st.expander("Wirksame Regeln/Vorgaben", expanded=False):
         if effective_rules:
             st.dataframe(

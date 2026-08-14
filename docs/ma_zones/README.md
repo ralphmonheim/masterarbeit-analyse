@@ -13,7 +13,8 @@
   BusinessIntegration-Testgebaeude bereit:
   `config/ma_zones/examples/business_integration_lod1_zone_spec.yaml`.
 - **SmallOffice V1:** Endvariante 02 besitzt fuenf feste thermische Zonen und
-  eine vollstaendige Zuordnung aller 29 Raeume. Optimierung und Sensitivitaet
+  eine vollstaendige Eins-zu-eins-Zuordnung der fuenf direkten IDA-Zonenraeume.
+  Optimierung und Sensitivitaet
   veraendern in V1 weder den Zonenzuschnitt noch zonenweise Sollwertmuster;
   innerhalb jedes Falls gelten dieselben Sollwerte fuer alle fuenf Zonen.
 - **Planstand:** P013-S2 ist fachlich konsolidiert. Der Zielworkflow lautet

@@ -1,4 +1,4 @@
-# Feste pseudonymisierte V1-Zonierung. Alle Zonen verwenden im
+# Feste IDA-5Z-V1-Zonierung. Alle Zonen verwenden im
 # Referenzfall dasselbe Temperatur-Sollwertband 21/24 Grad C.
 schema_version: "1.0"
 zone_model_id: "ZONEVAR-REDUCED-5-BOUNDARIES-REMOVED-001"
@@ -51,52 +51,52 @@ zones:
   - zone_id: "ZONE-5Z-LOBBY"
     name: "Lobby und Eingang"
     usage_profile_id: "PROFILE-NORM-SCHALTERHALLE-2025"
-    floor_area_m2: 71.681
-    volume_m3: 475.70985
-    source_space_ids: ["SPACE-SYNTH-001", "SPACE-SYNTH-002"]
+    floor_area_m2: 65.4
+    volume_m3: 458.1
+    source_space_ids: ["SPACE-5Z-LOBBY"]
     heating_setpoint_c: 21.0
     cooling_setpoint_c: 24.0
     minimum_air_change_rate_1_h: 1.0
   - zone_id: "ZONE-5Z-EG-WEST"
     name: "Erdgeschoss West"
     usage_profile_id: "PROFILE-CUSTOM-EG-WEST-001"
-    floor_area_m2: 156.12
-    volume_m3: 421.524
-    source_space_ids: ["SPACE-SYNTH-003", "SPACE-SYNTH-004", "SPACE-SYNTH-005", "SPACE-SYNTH-006", "SPACE-SYNTH-007", "SPACE-SYNTH-008", "SPACE-SYNTH-009", "SPACE-SYNTH-010", "SPACE-SYNTH-011", "SPACE-SYNTH-012"]
+    floor_area_m2: 162.6
+    volume_m3: 438.9
+    source_space_ids: ["SPACE-5Z-EG-WEST"]
     heating_setpoint_c: 21.0
     cooling_setpoint_c: 24.0
     minimum_air_change_rate_1_h: 1.4814814815
   - zone_id: "ZONE-5Z-EG-EAST"
     name: "Erdgeschoss Ost"
     usage_profile_id: "PROFILE-CUSTOM-EG-EAST-001"
-    floor_area_m2: 66.2605
-    volume_m3: 178.90335
-    source_space_ids: ["SPACE-SYNTH-013", "SPACE-SYNTH-014", "SPACE-SYNTH-015", "SPACE-SYNTH-016"]
+    floor_area_m2: 67.96
+    volume_m3: 183.5
+    source_space_ids: ["SPACE-5Z-EG-OST"]
     heating_setpoint_c: 21.0
     cooling_setpoint_c: 24.0
     minimum_air_change_rate_1_h: 3.7037037037
   - zone_id: "ZONE-5Z-OG-WEST"
     name: "Obergeschoss West"
     usage_profile_id: "PROFILE-CUSTOM-OG-WEST-001"
-    floor_area_m2: 156.12
-    volume_m3: 421.524
-    source_space_ids: ["SPACE-SYNTH-017", "SPACE-SYNTH-018", "SPACE-SYNTH-019", "SPACE-SYNTH-020", "SPACE-SYNTH-021", "SPACE-SYNTH-022", "SPACE-SYNTH-023", "SPACE-SYNTH-024", "SPACE-SYNTH-025", "SPACE-SYNTH-026"]
+    floor_area_m2: 162.6
+    volume_m3: 438.9
+    source_space_ids: ["SPACE-5Z-OG-WEST"]
     heating_setpoint_c: 21.0
     cooling_setpoint_c: 24.0
     minimum_air_change_rate_1_h: 1.4814814815
   - zone_id: "ZONE-5Z-OG-EAST"
     name: "Obergeschoss Ost"
     usage_profile_id: "PROFILE-CUSTOM-OG-EAST-001"
-    floor_area_m2: 66.6605
-    volume_m3: 179.98335
-    source_space_ids: ["SPACE-SYNTH-027", "SPACE-SYNTH-028", "SPACE-SYNTH-029"]
+    floor_area_m2: 67.96
+    volume_m3: 183.5
+    source_space_ids: ["SPACE-5Z-OG-OST"]
     heating_setpoint_c: 21.0
     cooling_setpoint_c: 24.0
     minimum_air_change_rate_1_h: 3.7037037037
 assumptions:
   - assumption_id: "SMALLOFFICE-5Z-ZONING-001"
     location: "zones"
-    text: "Die fuenf Zonen und alle 29 pseudonymisierten Raumzuordnungen bilden den festen V1-Referenzzuschnitt."
+    text: "Die fuenf direkten IDA-Zonen bilden den festen V1-Referenzzuschnitt; die fruehere 29-Raum-Aggregation wird nicht mehr als 5Z-Quelle verwendet."
   - assumption_id: "SMALLOFFICE-5Z-SETPOINT-001"
     location: "zones"
     text: "Der V1-Referenzfall setzt in allen Zonen 21 Grad C Heizen und 24 Grad C Kuehlen."

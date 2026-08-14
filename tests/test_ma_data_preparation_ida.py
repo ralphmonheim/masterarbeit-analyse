@@ -6,6 +6,7 @@ from ma_data_preparation.ida_ice import (
     IdaSeriesSelection,
     discover_known_ida_prn,
     prepare_known_ida_results,
+    project_ida_records_for_display,
     read_prn_as_standardized_series,
 )
 
@@ -54,17 +55,21 @@ def test_prn_without_time_is_rejected(tmp_path):
         read_prn_as_standardized_series(selection)
 
 
-def test_numerically_repeated_ida_support_points_are_collapsed_only_when_equal(tmp_path):
+def test_repeated_ida_support_points_remain_blocking_in_the_standard_contract(tmp_path):
     source = tmp_path / "repeat.TEMPERATURES.prn"
     source.write_text(
-        "# time order top\n0 1 20\n0.5000000000 1 21\n0.5000000001 1 21\n1 1 22\n",
+        "# time order top\n0 1 20\n0.5000000000 1 21\n0.5000000001 1 23\n1 1 22\n",
         encoding="utf-8",
     )
     selection = IdaSeriesSelection("29Z", "model", "run", "variant", "zone", "energy", source)
 
     series = read_prn_as_standardized_series(selection)[0]
 
-    assert [record.time_hours for record in series.records] == [0.0, 0.5, 1.0]
+    assert [record.time_hours for record in series.records] == [0.0, 0.5, 0.5000000001, 1.0]
+    assert not series.normalization_notes
+    display, notes = project_ida_records_for_display(series.records)
+    assert [record.value for record in display] == [20.0, 23.0, 22.0]
+    assert notes
 
 
 def test_prepare_can_resume_an_explicitly_interrupted_local_run(tmp_path):

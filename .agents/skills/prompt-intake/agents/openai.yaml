@@ -1,4 +1,4 @@
 interface:
   display_name: "Themenstart"
-  short_description: "Neue Themen mit Fragen in klare Arbeitsauftraege ueberfuehren"
-  default_prompt: "Use $prompt-intake to start a new topic and build a clear task prompt."
+  short_description: "Themen klaeren, mit Sol planen und an Tera uebergeben"
+  default_prompt: "Use $prompt-intake to clarify a new topic, create a Sol-reviewed implementation plan, and prepare the Tera handoff."

@@ -4,6 +4,51 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.42.0 - 2026-08-14
+
+### Added
+
+- Das Literaturpaket zu den vier Simulationsstufen ist als lokales internes
+  Quellenregister mit 21 Metadatensätzen und Einzelanalysen aufgenommen.
+  Originale bleiben unverändert; alle Einträge stehen bis zur manuellen
+  Originalprüfung auf `requires_manual_review`.
+- Der KPI-Diskussionsprozess ist als nicht-kanonischer Methodenhintergrund in
+  P019, P020, P021, P024 und P029 eingeordnet. Er ergänzt keine offenen
+  Bewertungskriterien, Gewichte, PASS/FAIL-Schwellen oder Modulnamen.
+- Die Themenroutine trennt Prompt-Intake, read-only Sol-Planung und die
+  Umsetzung in einem neuen Tera-Chat. Unabhaengige Umsetzungsplaene liegen
+  ohne `P`-Nummer unter `docs/project/plans/independent/`; der erste Plan
+  dokumentiert den V1-5Z-, UI- und PostProcess-Test einschliesslich B2-Gate.
+- `ma_building.reference_mapping` stellt einen ersten nachvollziehbaren
+  B1-Vertrag fuer die bestaetigten 5Z-Referenzsummen sowie einen strikt
+  GlobalId-basierten B2-Anreicherungseinstieg bereit. Unsichere Zuordnungen
+  werden nicht geraten und Rohdateien werden nicht versioniert.
+
+### Changed
+
+- Die SmallOffice-Endvariante verwendet fuenf direkte IDA-Zonenraeume mit
+  526,52 m2 und 1702,9 m3. Lobby-Dach und oberste Geschossdecken von OG West
+  und OG Ost sind getrennt abgebildet; der 29Z-Vergleichsstand bleibt davon
+  unabhaengig.
+- Der SmallOffice-PreProcess folgt fuer Gebaeude, Technik und Zonen der
+  Zielreihenfolge aus UD-112. Parameter- und Variantenansicht zeigen die
+  Backendregel `cooling.factor = heating.factor`; die Optimierung erzeugt 30
+  gekoppelte Faelle, die acht OFAT-Faelle bleiben getrennt.
+- Der IDA-PRN-Standardvertrag bewahrt wiederholte Stuetzstellen unveraendert.
+  Eine getrennte Anzeigeprojektion darf Konflikte sichtbar reduzieren, wird
+  aber nicht fuer Energieintegration oder Vergleichsbilanzen verwendet.
+- Der lokale semantische Navigator wurde nach dem Dokumentationsabgleich
+  aktualisiert und gegen Repository, Arbeitsablage und freigegebene lokale
+  Metadaten erfolgreich validiert.
+
+### Fixed
+
+- Die obersten Geschossdecken bleiben mit Flaeche und offenem Kennwert in der
+  Gebaeude-UI sichtbar. Solange U-Wert oder Temperaturfaktor fehlen, bleiben
+  `H_T` und `H'_T` weiterhin gesperrt.
+- Die Imports des Prozessmappen-Skripts und der neuen Mapping-/UI-Dateien sind
+  Ruff-konform bereinigt; die vollstaendige Suite besteht mit 907 Tests.
+
 ## 0.41.0 - 2026-08-13
 
 ### Added

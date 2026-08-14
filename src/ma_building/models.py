@@ -129,6 +129,7 @@ class PhysicalElement:
     area_m2: float
     orientation_deg: float | None = None
     adjacent_space_ids: tuple[str, ...] = ()
+    boundary_condition: str = ""
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "adjacent_space_ids", tuple(self.adjacent_space_ids))
@@ -324,6 +325,7 @@ def building_specification_from_dict(data: Mapping[str, Any]) -> BuildingModelSp
                 area_m2=float(item.get("area_m2", 0.0)),
                 orientation_deg=(float(item["orientation_deg"]) if item.get("orientation_deg") is not None else None),
                 adjacent_space_ids=tuple(str(space_id).strip() for space_id in item.get("adjacent_space_ids", ())),
+                boundary_condition=str(item.get("boundary_condition", "")).strip(),
             )
             for item in _sequence(data, "elements")
         ),

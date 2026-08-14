@@ -9,7 +9,7 @@ Council: `council analyse`, `council review`, `council umsetzen`,
 `ohne council`, `nur Tera`, `mit Sol-Review`.
 
 Themenstart: `neues thema`, `neues thema: ...`, `themenwechsel`,
-`Prompt abschliessen`.
+`Prompt abschliessen`, `umsetzungsplan erstellen`.
 
 Sammelbefehle: `input aufnehmen`, `aktualisieren und tagesende direkt`,
 `aktualisieren und direkt update repo`, `aktualisieren`, `tagesstart`,

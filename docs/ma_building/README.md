@@ -48,11 +48,13 @@
   Eigene Eingaben werden projektlokal als `user_unverified`-Entwuerfe mit
   Herkunft, Zeitstempel und optionaler Quellen-URL gespeichert; sie ersetzen
   keine Quellwerte und sind nicht simulationsfreigegeben.
-- **SmallOffice V1:** Die versionierte Endvariante 02 uebernimmt 29 Raeume,
-  516,842 m2 und 1677,64455 m3 aus der lokalen Arbeitsmappe. Die Lobbyhoehe
-  von 8,0 m ist als zweigeschossiger, etwas ueber das zweite Obergeschoss
-  hinausreichender Raum fachlich bestaetigt. Unbekannte Innengeometrie wird
-  nicht erfunden; Huellflaechen bleiben nachvollziehbar aggregiert.
+- **SmallOffice V1:** Die aktive Endvariante 02 uebernimmt die fuenf direkten
+  IDA-Zonen mit 526,52 m2 und 1702,9 m3 aus der 5Z-Eingabedatei. IDA-5Z-
+  Dimensionierungsflaechen haben Vorrang vor der 29-Raum-IFC-Aggregation.
+  Die Lobby besitzt das thermisch wirksame Dach; OG West und OG Ost besitzen
+  eine oberste Geschossdecke gegen einen nicht zur thermischen Huelle
+  gehoerenden Bereich und daher kein Dachbauteil. IFC-Viewer, IDM und IDC
+  dienen als Detail- und Konsistenznachweis, nicht als Ersatz der IDA-Summen.
 - **UI-Grenze:** Einzelbauteile werden nur angezeigt, wenn sie in der
   `BuildingModelSpecification` enthalten sind. Die aktuelle IFC-Diagnose
   zaehlt Entity-Typen, liest aber noch keine einzelnen IFC-Bauteile oder

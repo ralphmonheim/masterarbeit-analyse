@@ -21,3 +21,14 @@ Fachberechnung zu einer Entscheidungsvorlage zusammenfuehren.
 
 - Keine Primaerberechnung liegt in `ma_assessment`.
 - Jede Bewertung ist auf Kriterien- und Gewichtungsstand zurueckfuehrbar.
+
+## Eingangsauswertung 2026-08-14: Bewertungsarchitektur
+
+Der KPI-Diskussionsprozess stuetzt die bestehende Zieltrennung: technische
+Analyse liefert nachvollziehbare Eingaben; `ma_economy` und
+`ma_sustainability` behalten ihre Fachberechnungen; `ma_assessment` fasst
+Ergebnisse erst danach als Entscheidungsvorlage zusammen. Pareto, Scoring und
+Gewichtung bleiben getrennte, optionale Verfahren. Das Eingangsdokument ist
+kein Architekturentscheid: Modulnamen, feste Gewichte, ein Gesamtscore sowie
+endgueltige Kriterien bleiben offen und werden nicht in den bestehenden Plan
+hineininterpretiert.
