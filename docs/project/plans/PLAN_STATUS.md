@@ -1,6 +1,6 @@
 # Plan Status
 
-Stand: 2026-08-14
+Stand: 2026-08-15
 
 Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt und nach jeder Planumsetzung aktualisiert. Vollstaendige alte Planstaende liegen unter `docs/project/archive/plans/`.
 
@@ -487,6 +487,11 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   P015-S5B erweitert darauf aufbauend Gebaeudeparametergruppen,
   Konstruktionen, Typ-/Instanzbeziehungen und LoD-1-/LoD-2-Sperrregeln als
   getrennt freizugebender Folgeslice.
+- Planaufnahme 2026-08-15: Der Eingangsplan
+  `inbox/260815_Plan_Parametergruppen_Neustrukturierung.md` ist als
+  Referenzplan zu P015 eingeordnet. Seine bereits entschiedenen Inhalte
+  entsprechen UD-125 und P015-S5A/S5B; er begruendet keine neue Plan-ID und
+  keine zusaetzliche Umsetzungsfreigabe.
 - UD-118 ist im SmallOffice-V1-Durchstich umgesetzt: Die
   Kapazitaetsstrategie wird vor der Dimensionierung gespeichert. Der ideale
   Default zeigt vor dem Ergebnis nur den ausstehenden Status und danach die

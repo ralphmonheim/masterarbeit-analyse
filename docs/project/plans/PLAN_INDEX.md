@@ -1,6 +1,6 @@
 # Plan Index
 
-Stand: 2026-08-14
+Stand: 2026-08-15
 
 | Plan ID | Titel | Datei | Modul | Status | Prioritaet | Abhaengigkeiten | Naechster Schritt |
 |---|---|---|---|---|---|---|---|
@@ -18,7 +18,7 @@ Stand: 2026-08-14
 | P012 | ma_building Gebaeudeinput | `inbox/260622_Plan_P012_ma_building_Gebaeudeinput.md` | ma_building | Teilweise umgesetzt; direkte 5Z-Referenz, oberste Geschossdecken und erster B1-/B2-Mappingvertrag vorhanden | Hoch | P010, P011, P013, P015, P027, P034 | Quellenmapping und thermische Restgates nach unabhaengigem V1-Plan pruefen |
 | P013 | ma_zones Zonen und Nutzungen | `inbox/260622_Plan_P013_ma_zones_Zonen_Nutzungen.md` | ma_zones | Fachlich konsolidiert; direkte 5Z-Zonen, getrennter 29Z-Vergleichsstand und P014-Handover-Vertraege vorhanden | Hoch | P008, P010, P012, P014 (Zielvertrag), P015, P017, P027 | SmallOffice-Vorschau und Technik-Zonen-Uebergabe manuell pruefen |
 | P014 | ma_technical Technische Systeme | `inbox/260622_Plan_P014_ma_technical_Technische_Systeme.md` | ma_technical | Fachlich konsolidiert; UD-115-Releasekette und gerichteter P014->P013-Assignment-Durchstich in der direkten UI umgesetzt | Hoch | P010, P012, P015, P017, P027 | v2-Werteherkunft getrennt behandeln; P013-Durchstich manuell pruefen |
-| P015 | ma_parameters Zentrale Parameter | `inbox/260622_Plan_P015_ma_parameters_Zentrale_Parameter.md` | ma_parameters | Fachlich konsolidiert; reduzierte V1-UI, scoped Regeln, Variationsspannen, Projektpersistenz und sichtbare SmallOffice-Kopplungsregel umgesetzt | Hoch | P008, P010, P012-P014, P016, P017, P027 | Projektentwurf und Kopplungsregel im manuellen V1-Smoke-Test pruefen |
+| P015 | ma_parameters Zentrale Parameter | `inbox/260622_Plan_P015_ma_parameters_Zentrale_Parameter.md` | ma_parameters | Fachlich konsolidiert; reduzierte V1-UI, scoped Regeln, Variationsspannen, Projektpersistenz und sichtbare SmallOffice-Kopplungsregel umgesetzt; Referenzplan zur Parametergruppenstruktur am 2026-08-15 als P015-Ergaenzung aufgenommen | Hoch | P008, P010, P012-P014, P016, P017, P027 | Projektentwurf und Kopplungsregel im manuellen V1-Smoke-Test pruefen; P015-S5B bleibt getrennt freizugebender Folgeslice |
 | P016 | Dimensionierung (historisch Analyse Stufe 1) | `inbox/260622_Plan_P016_Stage1_Dimensionierung.md` | Ziel: ma_dimensionierung; Altbestand: ma_analyse.stage_1_dimensioning | Owner-Gateway, Ergebnisarten und VVER-gebundene SmallOffice-Gruppierung umgesetzt; physische Owner-Migration offen | Hoch | P015, P017, P027, UD-112 | Historische Gleichungen/Persistenzgrenze physisch migrieren |
 | P017 | ma_variants und Naming-Anbindung | `inbox/260622_Plan_P017_ma_variants_Naming_Anbindung.md` | ma_variants | Fruehe VVER-Auswahl, Owner-Dimensionierung, finaler VCAT/VSEL/VGEN-Vertrag und sichtbare 30er-Kopplungsregel umgesetzt; Persistenzmigration offen | Hoch | P015, P016, P018, P027, UD-112 | Persistenzadapter an Projekt-Workspace und anschliessend P018 migrieren |
 | P018 | ma_simulation_setup und neutrales Run-Paket | `inbox/260622_Plan_P018_ma_simulation_setup_Run_Manifest.md` | ma_simulation_setup | Zielvertrag fuer eine finale Selection, gemeinsames Setup und mehrere VAR umgesetzt; Aufrufermigration offen | Hoch | P008, P011-P017, P027, spaeter P009, OP-017 | SmallOffice- und UI-Aufrufer auf den Zielvertrag migrieren |

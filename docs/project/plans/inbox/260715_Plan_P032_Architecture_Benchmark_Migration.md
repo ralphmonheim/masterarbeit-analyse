@@ -432,3 +432,15 @@ kompatibel; neue Runtime-Importzyklen wurden nicht eingefuehrt.
 Die SmallOffice-V1-Kette nutzt zuerst die technische Eigenvalidierung und
 danach die zonenseitige Integritaetspruefung. P032-W2b, V2-Werteherkunft und
 eine spaetere Aufrufermigration bleiben getrennte Slices.
+
+## Eingangsauswertung 2026-08-14: Datenhaltung und PostgreSQL nach V1
+
+Der aufgenommene Datenhaltungs-Handover beschreibt ein moegliches spaeteres
+Zielbild mit kanonischem Datenmodell, Provenienz, Einheiten und einer
+Persistenzabstraktion. Fuer V1 bleibt P035 mit lokaler dateibasierter
+Workspace-Persistenz verbindlich. PostgreSQL ist nach V1 eine interessante,
+aber noch nicht entschiedene P032-W6-Folgeoption. Vor jeder Umsetzung sind
+Notwendigkeit, Datenmodell, Migrationsstrategie, Abhaengigkeiten, Umgang mit
+realen Daten, Tests und Rueckfallweg in einem eigenen freigegebenen Slice zu
+klaeren. Der Input fuehrt insbesondere keine neue `CASE`-Ebene ein und aendert
+keine bestehenden Fachowner oder Dateiformate.

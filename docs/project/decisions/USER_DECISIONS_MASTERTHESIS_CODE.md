@@ -3127,3 +3127,19 @@ letzten Workflow-UI-Migration bestehen.
   den beiden UI-Ansichten, Infokarten, Startverhalten und Navigatorrolle;
   ausdrueckliche `Freigabe zur Umsetzung` fuer Plan- und Handover-
   Dokumentation am 2026-08-13.
+
+## UD-129 PostgreSQL als Post-V1-Folgeoption
+
+- Datum: 2026-08-14
+- Status: entschieden; keine Produktumsetzung beauftragt
+- Thema: zukuenftige Datenhaltung und Datenbankarchitektur
+- Entscheidung: Fuer V1 bleibt die lokale dateibasierte Workspace-Persistenz
+  massgeblich. PostgreSQL ist erst nach V1 als moegliche Erweiterung
+  interessant. Diese Einordnung entscheidet weder fuer eine Datenbank noch
+  fuer eine Migration, neue Abhaengigkeit, neues Datenmodell oder eine neue
+  `CASE`-Ebene.
+- Folge: Eine spaetere Datenbankarbeit wird ausschliesslich als eigener
+  P032-W6-Slice mit konkretem Nutzen, Datenmodell, Migrations- und
+  Rueckfallstrategie, Rechtepruefung und Tests geplant.
+- Quelle oder Chatbezug: Nutzerbestaetigung „Fuer V1 egal aber danach
+  interessant“ im Datenhaltungs-Handover-Chat am 2026-08-14.

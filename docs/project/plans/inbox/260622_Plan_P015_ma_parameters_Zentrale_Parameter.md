@@ -635,6 +635,11 @@ Snapshots noch den Handover an P017. P015-S5A fuehrt deshalb additiv die
 fachliche Definitionsebene mit `ParameterDefinition`, `ParameterGroup` und
 `ParameterInstance` ein. Diese trennt:
 
+Planaufnahme 2026-08-15: Der eingegangene Referenzplan
+`260815_Plan_Parametergruppen_Neustrukturierung.md` ist dieser Erweiterung
+zugeordnet. Seine Einordnung bestaetigt UD-125; er ersetzt weder P015 noch
+begruendet er einen neuen Umsetzungsscope.
+
 - Fachdefinition, Parametergruppe und konkreten Projektwert,
 - Herkunft, Editierbarkeit, Variantenfaehigkeit, Ableitung und Aktivierung,
 - beobachtete Bestandsfelder, Metadaten, Zusammenfassungen und Luecken.

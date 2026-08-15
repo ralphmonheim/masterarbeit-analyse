@@ -4,6 +4,37 @@ Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentie
 
 ## Unreleased
 
+## 0.42.1 - 2026-08-15
+
+### Added
+
+- Zwei unabhaengige, Sol-gepruefte Umsetzungsplaene bereiten erstens die
+  kontrollierte Handover-Strukturbaseline und zweitens den begrenzten
+  29Z-/5Z-Referenzvergleich vor. Beide Plaene erteilen keine
+  Umsetzungsfreigabe und sind nicht automatisch Teil der formellen
+  P-Planserie.
+- Die Handover-Strukturentscheidungsvorlage inventarisiert vorhandene
+  Dokumentrollen, Architekturkonflikte und noch zu bestaetigende
+  Anti-Regression-Entscheidungen, ohne die kanonische Projektstruktur zu
+  veraendern.
+- Zwei vorbereitete Chat-Handovers dokumentieren den Projektinput zu
+  Literatur, KPI und Datenhaltung sowie den V1-5Z-Umsetzungszwischenstand.
+
+### Changed
+
+- Der eingegangene Plan zur Neustrukturierung von Eingabeparametern und
+  Parametergruppen ist als Referenzplan zu P015 aufgenommen. Seine bereits
+  entschiedenen Inhalte bleiben durch UD-125 sowie P015-S5A/S5B eingeordnet;
+  es entsteht keine neue Plan-ID oder Umsetzungsfreigabe.
+- PostgreSQL ist durch UD-129 als moegliche Post-V1-Option dokumentiert; V1
+  bleibt dateibasiert. Der zugehoerige Projektinput-Handover ist mit seinen
+  fuehrenden Quellen archiviert.
+- Der geplante 29Z-/5Z-Vergleich trennt Zonierungswirkung,
+  Berechnungsumfang, Ausgabeaufloesung, PRN-Datenumfang und PostProcess-
+  Aufwand. Die fuenf lokalen Referenzlaeufe bleiben im fachlichen
+  Importbereich; ALT soll erst nach eigener Umsetzungsfreigabe in einen
+  getrennten Referenzbereich verschoben werden.
+
 ## 0.42.0 - 2026-08-14
 
 ### Added
