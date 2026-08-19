@@ -32,3 +32,17 @@ Gewichtung bleiben getrennte, optionale Verfahren. Das Eingangsdokument ist
 kein Architekturentscheid: Modulnamen, feste Gewichte, ein Gesamtscore sowie
 endgueltige Kriterien bleiben offen und werden nicht in den bestehenden Plan
 hineininterpretiert.
+
+## Folgebezug 2026-08-19: KPI-Uebergabe aus dem Sommerwaermeschutz
+
+Ein spaeterer P020-Sommerwaermeschutz-Nachweis darf standardisierte,
+quellengebundene Ergebniskennwerte an `ma_assessment` uebergeben. Kandidaten
+sind Nachweisstatus, Bewertbarkeit, Abweichung zum verwendeten Kriterium,
+Massnahmenumfang und Datenqualitaet. `ma_assessment` buendelt und vergleicht
+diese Ergebnisse erst nach der technischen Analyse; Formeln, Grenzwerte,
+Raum-/Zonenmapping und Primaerberechnung verbleiben ausserhalb von P024.
+
+Solange die Legacy-Methode nicht fachlich und normativ bestaetigt ist, darf
+P024 daraus keinen Erfuellungs-, Ranking- oder Gesamtscore ableiten. Der
+konkrete erste Uebergabevertrag und sein Umfang bleiben nach OP-020 Teil des
+noch abzuschliessenden Prompt-Intakes.

@@ -1,6 +1,6 @@
 # Plan Status
 
-Stand: 2026-08-15
+Stand: 2026-08-20
 
 Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt und nach jeder Planumsetzung aktualisiert. Vollstaendige alte Planstaende liegen unter `docs/project/archive/plans/`.
 
@@ -258,6 +258,11 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
   Orientierung und spaeteren manuellen Fachpruefung; sie enthalten keine
   Normtexte, Tabellen, Formeln oder normativen Fachwerte und aendern keine
   bestehende `ma_zones`-Laufzeitlogik.
+- Die historische Bachelor-Arbeitsmappe ist als read-only Eingang fuer einen
+  spaeteren Sommerwaermeschutz-Slice in P020 eingeordnet. P013, P024 und P034
+  fuehren die Zonen-, KPI- und Quellenabgrenzung; OP-020 buendelt die offenen
+  Entscheidungen. Prompt-Intake, Sol-Plan und Produktfreigabe stehen noch
+  aus; normative PASS-/FAIL-Aussagen bleiben gesperrt.
 - Analyse Stufe 4 Sensitivitaet: P021 mit kritischen Wetterereignissen statt
   ausschliesslicher Jahresbetrachtung.
 - Economy und Sustainability: P022 und P023 als kleine Demos mit
@@ -1147,6 +1152,19 @@ Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt un
 - Nächster Schritt: Fachliche Inhalte der Steckbriefe nur bei freigegebenen
   Modul- oder Quellenarbeiten vertiefen; Archivbereinigungen bleiben ein
   separater Freigabeumfang.
+- Dokumentationsnachlauf 2026-08-19: Zwei uncommittete, nicht autoritative
+  HTML-Modulpraesentationen sind vorhanden, aber noch nicht abgenommen. P037
+  fuehrt den erforderlichen Quellenabgleich, Browser-/Barrierefreiheitscheck
+  und die Klaerung der derzeitigen `ma_core`-README-Ablage. Der Entwurf darf
+  insbesondere den Ziel-Owner `ma_dimensionierung` und die noch offene
+  Pareto-/Ranking-Entscheidung nicht durch aeltere Darstellungen ersetzen.
+
+## Offene Strukturbaseline aus der Handover-Auswertung
+
+- OP-019 fuehrt die noch ausstehende Besprechung der Strukturpunkte S-01 bis
+  S-13 aus der nicht autoritativen Entscheidungsvorlage vom 2026-08-15.
+  Aktuelle kanonische Quellen bleiben bis zur Baseline-Bestaetigung und einer
+  danach erneut erteilten `Freigabe zur Umsetzung` unveraendert fuehrend.
 
 ## Projektorganisation: Quellenregister und Inhaltssuche
 

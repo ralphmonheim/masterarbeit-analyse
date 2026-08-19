@@ -2540,3 +2540,38 @@ Rechtenachweis fuer vollstaendige Profilwerte vorliegt. Eine persistierte
 P013-Freigabe benoetigt spaeter einen eigenen Nutzerentscheid zu einem
 append-only Release-Envelope. Die Workflowansicht bleibt der letzte UI-
 Migrationsslice.
+
+## Nicht freigegebene UI- und Profilfolgeoption 2026-08-19
+
+Die direkte V1-Zonenansicht soll eine bearbeitbare Liste aller erkannten
+Raeume zeigen. Die erste Spalte bleibt Raum-ID/-Name, die zweite Spalte waehlt
+die Zielzone; erst danach werden die Zonenprofile zugeordnet. Die fachliche
+PreProcess-Reihenfolge bleibt `ma_building -> ma_technical -> ma_zones ->
+ma_parameters`; die Raum-Zonen-Zuordnung ersetzt weder die P014-Referenz noch
+die technischen Assignment-Gates.
+
+Fuer den unmittelbaren UI-Referenzfall sollen zwei klar getrennte
+Profilvorlagen sichtbar sein: eine nicht normative MA-Buero-Vorlage und fuer
+die Lobby die Metadatenreferenz `DIN/TS 18599-10, Profil A.5 Schalterhalle`.
+Geschuetzte Normprofilwerte duerfen dabei nicht uebernommen werden. Die
+Parameteransicht zeigt anschliessend nur die tatsaechlich verwendeten
+Profilreferenzen. Diese Folgeoption aendert keinen freigegebenen
+Zonen-/Profilstand und benoetigt einen eigenen Umsetzungsslice.
+
+## Folgebezug 2026-08-19: Sommerwaermeschutz-Nachweis in P020
+
+Der aus der nutzereigenen Bachelor-Arbeitsmappe abgeleitete
+Sommerwaermeschutz-Kandidat bleibt fachlich bei
+`ma_analyse.stage_3_standards_verification` und P020. `ma_zones` stellt fuer
+einen spaeteren Nachweis ausschliesslich referenzierte Zonendaten bereit:
+
+- stabile Zonen-ID und zugeordnete Raum-IDs,
+- Nutzungs- und Betriebsbezug,
+- Fensterbetriebs-, Nachtlueftungs- und Sonnenschutzbezug, soweit im
+  freigegebenen Zonenstand vorhanden,
+- sichtbare Begruendung und Annahmen der Raum-Zonen-Zuordnung.
+
+Flaechen, Volumen, Fenster- und Bauteilgeometrie bleiben bei `ma_building`.
+P013 berechnet keinen sommerlichen Waermeschutz und speichert keine
+Stage-3-Ergebnisse. Ob der erste P020-Slice eine kleine lesende
+P013-Schnittstelle bereits enthaelt, bleibt in OP-020 offen.

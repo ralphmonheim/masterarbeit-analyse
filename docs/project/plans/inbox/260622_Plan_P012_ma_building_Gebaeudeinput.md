@@ -636,3 +636,15 @@ gemacht.
 `Delta U_WB=0,10 W/(m2 K)` ist in V1 eine feste pauschale Demo-Annahme und
 keine frei waehlbare Eingabe. Die detaillierte Waermebrueckenberechnung bleibt
 Folgearbeit.
+
+## Nicht freigegebene UI-Folgeoption 2026-08-19
+
+Die Nutzer-Rueckmeldung zum V1-PreProcess verlangt, die Auswahl des aktiven
+Gebaeudedokuments aus dem jetzigen Importbereich in einen eigenen vierten
+fachlichen Reiter zu verschieben. Importwege, Quelldiagnosen und die
+Aktivierungs-/Warnlogik bleiben dabei getrennt; die Verschiebung darf keinen
+automatischen Import oder Ersatz eines aktiven Projektstands ausloesen.
+
+Die genaue Reiterbezeichnung, Reihenfolge und der Zielbereich werden zusammen
+mit der P027-Button-/Sprungzielmatrix festgelegt. Dies ist eine erfasste
+Folgeoption, keine Umsetzungsfreigabe.

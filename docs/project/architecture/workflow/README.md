@@ -27,5 +27,13 @@ WORKFLOW_DIAGRAM_REVIEW_vX.Y.Z_YYYY-MM-DD.md
   `ma_sustainability` und `ma_assessment`.
 - `WORKFLOW_DIAGRAM_REVIEW_v0.1.1_2026-06-18.md`: Aenderungsreview der
   aktualisierten Grafik.
+- `WORKFLOW_MODULE_PRESENTATION_v0.2.0_2026-08-19.html`: filterbare
+  Volluebersicht der 30 katalogisierten Komponenten nach PreProcess,
+  Kernprozess, PostProcess und Querschnitt. Die Praesentation ersetzt weder
+  den Workflow-Katalog noch `TARGET_ARCHITECTURE.md`.
+- `WORKFLOW_MODULE_DETAILS_v0.2.0_2026-08-19.html`: vertiefende
+  HTML-Praesentation mit allen Komponenten sowie Detailansichten fuer
+  Parameter/Dimensionierung/Varianten und die gemeinsame Analyseebene im
+  PostProcess. Historische Analyse-Stages bleiben als Vertiefungen sichtbar.
 
 Vorherige Fassungen liegen unter `docs/project/archive/workflow/`.

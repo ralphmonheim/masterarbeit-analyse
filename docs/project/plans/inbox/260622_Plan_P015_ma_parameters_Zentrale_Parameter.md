@@ -654,3 +654,38 @@ bleiben unveraendert.
 
 P015-S5B folgt als getrennte Erweiterung fuer Gebaeudeparametergruppen,
 Konstruktionen, Typ-/Instanzbeziehungen sowie die LoD-1-/LoD-2-Sperrregeln.
+
+## Nicht freigegebene V1-Parameter- und Varianten-Demofolgeoption 2026-08-19
+
+Der naechste fachliche Arbeitsauftrag soll P015-S5A als Struktur nutzen, aber
+einen neuen, vollstaendigen LoD-2-Parameterkatalog fuer den SmallOffice-V1-
+Referenzfall aufbauen. Die bestehende 84-Zeilen-Matrix ist dabei nur
+Inventarhilfe. Jeder Katalogeintrag braucht mindestens Gruppe,
+Parameterdefinition, Einheit, LoD-Verfuegbarkeit, Wert-/Herkunftsstatus und
+Variationsfaehigkeit. Nicht vorhandene LoD-2-Werte bleiben als
+`not_available` sichtbar und sind gesperrt; nur bewusst belegte Annahmen
+duerfen als `provisional_assumption` aktiviert werden.
+
+Baseline-Werte und Variationen werden in getrennten, fingerprintbaren
+Konfigurationen gefuehrt. Die Variationskonfiguration beschreibt fuer den
+wissenschaftlichen V1-Referenzlauf weiterhin genau die fuenf
+Temperatur-Sollwertbaender, sechs gekoppelten Heiz-/Kuehlleistungsfaktoren
+und die getrennten Wetter-/Belegungs-OFAT-Faelle. Sie darf keine generischen
+UI-Defaults als zweite Fachwahrheit verwenden.
+
+Zusaetzlich ist ein rein technischer, reproduzierbarer Demolauf vorgesehen:
+Die UI waehlt eine Generatormethode (zunaechst Zufall), einen expliziten Seed
+und eine gewuenschte Anzahl. Sie erzeugt, prueft, waehlt und gibt 50
+eindeutige Demo-Varianten mit IDs, Werten und Fingerprint aus. Dieser Lauf
+ist vom wissenschaftlichen 30er-Optimierungsraum getrennt und begruendet
+weder eine Simulation noch eine Variantenbewertung. Der Prompt-Intake war
+beim Handover noch nicht abgeschlossen; dies ist keine
+Umsetzungsfreigabe.
+
+Vor `Prompt abschliessen` sind fuer diesen Demolauf noch vier fachliche
+Festlegungen erforderlich: die Kandidatengrundgesamtheit fuer 50 eindeutige
+Demo-Varianten, der Default oder die Bedienregel des reproduzierbaren Seeds,
+die konkreten Baseline- und Variationswerte einschliesslich Herkunft und
+Annahmenstatus sowie die Daten- und Persistenzgrenze des Demolaufs. Erst nach
+dem abgeschlossenen Prompt-Intake darf ein unabhaengiger Umsetzungsplan
+erstellt werden.

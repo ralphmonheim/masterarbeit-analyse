@@ -179,3 +179,24 @@ Dieser Schnitt ersetzt P034-E1 bis E5 nicht. Die neuen Inbox-Pakete bleiben
 bis zu ihrem objektbezogenen Quelleninventar, Feldmapping und der fachlichen
 Pruefung unveraendert am Eingang. Wetterdaten sind bewusst nicht Teil dieses
 ersten Katalogschnitts.
+
+## Eingang 2026-08-19: historische Bachelor-Arbeitsmappe
+
+Die vom Nutzer bereitgestellte externe Arbeitsmappe
+`Bachelor_Endpäsentation_221213.xlsx` wurde read-only analysiert und bleibt
+unveraendert ausserhalb des Repositorys. Reproduzierbare Identifikation des
+analysierten Stands:
+
+- Dateigroesse: `1.014.325` Byte,
+- letzter lokaler Aenderungszeitpunkt: `2026-08-15 17:33:04`,
+- SHA-256:
+  `DA9EB6B29084C5E0FA9B178C03D59F9EA86150235EC8F4070545E09417305D81`.
+
+Die Arbeitsmappe ist keine neue Katalogwahrheit und wurde nicht kopiert,
+verschoben oder in einen produktiven Import aufgenommen. Ein spaeterer
+P020-Slice darf ausschliesslich die benoetigten Felder und Formeln der
+Sommerwaermeschutz-Register mit Datei-, Blatt- und Zellprovenienz abbilden.
+Raum-, Flaechen-, Bauteil- und Zonenwerte werden dabei den bestehenden
+Ownern `ma_building` und `ma_zones` zugeordnet; doppelte Fachobjekte sind
+nicht zulaessig. Die kuenftige Quellenablage beziehungsweise eine moegliche
+Projektkopie bleibt in OP-020 offen.

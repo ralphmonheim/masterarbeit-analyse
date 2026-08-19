@@ -123,3 +123,50 @@ verarbeitet. Die dort vorgeschlagene Begriffstrennung von `Standard
 Evaluation Profile` und `Standard Verification` bleibt ein Kandidat fuer
 einen spaeteren P020-Slice und aendert weder den kanonischen Modulnamen noch
 die bestehenden Rechte-, Methoden- und Fachtestgates.
+
+## Eingangsauswertung 2026-08-19: Bachelor-Excel zum sommerlichen Waermeschutz
+
+Die nutzereigene Arbeitsmappe `Bachelor_Endpäsentation_221213.xlsx` wurde
+read-only als fachlicher Ausgangspunkt analysiert. Fuer P020 sind insbesondere
+die drei Register `Sommer. WS Übersicht`, `Sommerl. WS Ist-Zustand` und
+`Sommerl. WS verbessert` relevant. Die Register `Flächen & Cwirk neu`,
+`Flächenermittelung` und `Zonierung - Argumentation` beschreiben benoetigte
+Eingabebezuege, werden aber nicht zu einer zweiten Gebaeude- oder
+Zonenwahrheit.
+
+Das vorlaeufige, noch nicht umsetzungsgeplante Zielbild umfasst innerhalb von
+`ma_analyse.stage_3_standards_verification` drei Ansichten:
+
+1. `Übersicht` fuer Datenstatus, Annahmen, Quellen, Ergebnisstatus und
+   fehlende Nachweise,
+2. `Aktueller Zustand` fuer einen nachvollziehbaren Ausgangsfall mit allen
+   Zwischenwerten,
+3. `Variantenanalyse` fuer die Auswahl und Gegenueberstellung von Varianten
+   sowie Raeumen oder Zonen.
+
+Die in der Arbeitsmappe enthaltenen Formeln duerfen in einem spaeteren,
+getrennt freizugebenden Slice nur als identifizierte Legacy-Methode
+reproduziert werden. `legacy_user_workbook_method`, `DRAFT` und
+`NOT_VERIFIED` sind dabei vorlaeufige Fachbegriffe, keine beschlossenen API-
+oder Enum-Werte. Bis zur bestaetigten Normausgabe, Methode, Fundstelle,
+Rechtebasis und einem reproduzierbaren Fachtest bleibt der bestehende
+Verifikationsstatus `NOT_EVALUABLE`; ein normatives `PASS` oder `FAIL` ist
+ausgeschlossen.
+
+Die Fachverantwortung bleibt getrennt:
+
+- `ma_building` besitzt Raumgeometrie, Flaechen, Volumen, Bauteile,
+  Oeffnungen und Sonnenschutzobjekte,
+- `ma_zones` besitzt Raum-Zonen-Zuordnung, Nutzungs- und Betriebsbezug sowie
+  die dokumentierte Zuweisungsbegruendung,
+- Stage 3 referenziert diese Objekte ueber stabile Projekt-, Varianten-,
+  Raum- und Zonenkennungen und besitzt Nachweisannahmen, Berechnung und
+  Ergebnis,
+- `ma_assessment` darf spaeter nur standardisierte Stage-3-Ergebnisse
+  aggregieren und fuehrt keine Primaerberechnung aus.
+
+Der Prompt-Intake ist nicht abgeschlossen. OP-020 fuehrt die noch offenen
+Entscheidungen zu Beispielstand, Parameterumfang, Schnittstellenscope,
+Quellablage und Auswahlsemantik. Erst `Prompt abschliessen` und danach
+`umsetzungsplan erstellen` duerfen aus diesem Eingang einen unabhaengigen,
+Sol-geprueften Umsetzungsscope erzeugen.

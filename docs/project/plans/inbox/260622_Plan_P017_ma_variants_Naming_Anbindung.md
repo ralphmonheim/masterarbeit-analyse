@@ -653,3 +653,18 @@ keine wirksamen Kapazitaets-Overrides. Nach Abschluss der Owner-
 Dimensionierung tragen sie die Referenz-Heiz- und Kuehlleistung ausschliesslich
 als Analyseprovenienz. Die bisherige Faktorenreihe F100 bis F050 bleibt unter
 `dimensioned_with_factor` erhalten und wird erst nach dem Ergebnis absolut.
+
+## Nicht freigegebene V1-Demogenerierung 2026-08-19
+
+Als technischer Nachweis soll die Variantenansicht eine Generatormethode,
+einen reproduzierbaren Seed und eine Zielanzahl entgegennehmen. Fuer die
+erste Demo werden 50 eindeutige, valide Varianten zufaellig erzeugt,
+anschliessend sichtbar geprueft, bewusst als endgueltige Demoauswahl
+bestaetigt und mit IDs, Parameterwerten und Fingerprint ausgegeben.
+
+Der Demolauf ist von der wissenschaftlichen V1-Kette mit 30
+Optimierungsvarianten und den getrennten Sensitivitaetsfamilien isoliert. Er
+ist nur ein Test von Generierung, Validierung, Auswahl und Ausgabe, ohne
+IDA-Simulation, automatische Bestvariante oder fachliche Bewertung. Die
+Kandidatengrundgesamtheit, der Default-Seed und die persistente
+Workspace-Anbindung sind im noch abzuschliessenden Prompt konkret zu planen.

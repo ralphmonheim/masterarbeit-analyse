@@ -2,7 +2,22 @@
 
 Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentiert.
 
-## Unreleased
+## 0.42.2 - 2026-08-20
+
+### Added
+
+- Die Workflow-Dokumentation enthaelt eine filterbare HTML-Praesentation der
+  30 katalogisierten Projektkomponenten. Sie kennzeichnet fachliche
+  Reifegrade, Aufgaben, Ein- und Ausgaenge sowie die Zielfolge von
+  PreProcess ueber Pre-Sim-Export, externe Simulation und Post-Sim-Import
+  bis zum PostProcess.
+- Eine zweite HTML-Praesentation vertieft die fachlichen Inhalte aller Module
+  und stellt insbesondere die Parameter-, Dimensionierungs- und Variantenkette
+  sowie Datenaufbereitung und die vier Analysestufen dar.
+- Die historische Bachelor-Arbeitsmappe zum sommerlichen Waermeschutz ist
+  dokumentarisch P020, P013, P024 und P034 zugeordnet; OP-020 fuehrt die noch
+  offenen Intake-Entscheidungen. Es wurden keine Produktlogik, Normregeln oder
+  Arbeitsmappendaten in das Repository uebernommen.
 
 ## 0.42.1 - 2026-08-15
 

@@ -317,3 +317,27 @@ Ebene 1 bis 3 abgestimmt. Diese Navigation darf sich bewusst von der direkten
 Arbeits-/Modulansicht unterscheiden. Jeder Button benoetigt jedoch ein
 eindeutiges Ziel und darf weder Entwuerfe zuruecksetzen noch Fachwerte,
 Selections, Varianten, RUNs oder Reviewzustaende automatisch veraendern.
+
+## Nicht freigegebene Korrekturpunkte der direkten Bearbeitungsansicht 2026-08-19
+
+Die direkte Bearbeitungsansicht braucht auf Fachseiten wieder explizite
+Navigation zu `Uebersicht` und `Gesamtworkflow`. In der Workflowansicht soll
+die Projektwahl anschliessend direkt `ma_project` oeffnen, nicht die
+Bearbeitungsuebersicht. Die Begriffe `Start` und `Uebersicht` sind je Ebene
+eindeutig zuzuordnen; die spaetere Button-/Sprungzielmatrix bleibt die
+fuehrende Detailplanung.
+
+`Weiter` in der fachlichen PreProcess-Kette soll vor dem Seitenwechsel den
+Mindeststand des aktuellen Moduls pruefen. Bei blockierenden Fehlern bleibt
+die Fachseite aktiv und nennt die fehlenden Angaben. Bei Erfolg wird der
+gueltige Projektentwurf gespeichert, an den Nachfolger uebergeben und
+abhaengige Staende als `update_required` markiert. Dies ersetzt keine
+expliziten Fachfreigaben oder Release-Handover.
+
+Als separate Fehlerkorrekturen sind der Streamlit-Session-State-Fehler beim
+Analyse-Output-Pfad sowie die falsche Anzeige von Wirtschaftsannahmen in
+`ma_assessment` aufzunehmen. `ma_assessment` braucht eine eigene, als geplant
+gekennzeichnete Ansicht; `ma_economy`-, `ma_sustainability`- und
+Bewertungsinhalte bleiben voneinander getrennt. Der Umfang ist noch nicht
+freigegeben und wird nicht still mit der letzten Workflow-UI-Migration
+vermischt.

@@ -1,6 +1,6 @@
 # Offene Nutzerentscheidungen
 
-Stand: 2026-08-11
+Stand: 2026-08-20
 
 Diese Datei enthaelt nur offene Nutzerentscheidungen. Erledigte Entscheidungen
 werden nach der Dokumentation als `UD-*` aus dieser Datei entfernt und stehen in
@@ -90,6 +90,82 @@ werden nach der Dokumentation als `UD-*` aus dieser Datei entfernt und stehen in
   Unterversorgung nicht als Verbesserung interpretiert werden; ein
   normativer Komfortnachweis bleibt ausgeschlossen. Ein Pass/Fail-Urteil oder
   eine Einsparungsbewertung ist bis zur Entscheidung nicht zulaessig.
+
+### OP-019 Handover-Strukturbaseline und Dokumentrollen
+
+- Thema: Gesamtstruktur, Workflowrollen und Anti-Regression nach der
+  Handover-Auswertung vom 2026-08-15
+- Status: offen; die Stufe-A-Auswertung ist abgeschlossen, eine strukturelle
+  Baseline wurde noch nicht bestaetigt
+- Frage: Welche der in
+  `docs/project/architecture/reviews/2026-08-15/HANDOVER_STRUCTURE_DECISION_TEMPLATE.md`
+  beschriebenen Optionen S-01 bis S-13 werden als verbindliche Baseline
+  bestaetigt? Insbesondere sind die Rollen von P007 als Gesamt- und
+  Architekturrahmen, `docs/project/workflow/README.md` als fachlichem
+  Gesamtworkflow, `docs/project/architecture/TARGET_ARCHITECTURE.md` als
+  technischer Zielstruktur und P027 als technischem Workflow-Querschnitt
+  eindeutig festzulegen.
+- Schutzregel: Bis zur ausdruecklichen Baseline-Bestaetigung bleiben die
+  heutigen kanonischen Quellen und neueren Nutzerentscheidungen fuehrend.
+  Vorschlaege aus Handovers wie `SimulationCase`, `ma_sim_external`,
+  `ma_quantity`, neue Stage-Top-Level-Module sowie eine verbindliche
+  Pareto-/Gewichtungsmethode werden nicht als bestehende Architektur
+  behandelt. PostgreSQL bleibt nach UD-129 eine Post-V1-Option; der dazu am
+  2026-08-15 eingegangene Markdown-Handover war ein bytegleiches Duplikat
+  eines bereits am 2026-08-14 aufgenommenen Konzeptdokuments und kein
+  Datenbank- oder Datenimport.
+- Freigabegrenze: Baseline-Bestaetigung und Umsetzung sind zwei getrennte
+  Schritte. Erst nach der inhaltlichen Bestaetigung ist fuer strukturelle
+  Anpassungen erneut exakt `Freigabe zur Umsetzung` erforderlich.
+- Auswirkung: Betrifft eine spaetere, konsistente Anpassung von P007,
+  Zielarchitektur, fachlicher Workflowquelle, P027/P037, Entscheidungen und
+  Planstatus, ohne auf einen durch neuere Entscheidungen abgeloesten
+  Handover- oder P007-Altstand zurueckzufallen.
+
+### OP-020 Erster Sommerwaermeschutz-Nachweis aus der Bachelor-Arbeitsmappe
+
+- Thema: P020, Stage 3, Raum-/Zonenbezug und spaetere KPI-Uebergabe
+- Status: offen; read-only Eingangsanalyse und kanonische Zuordnung sind
+  abgeschlossen, der Prompt-Intake ist noch nicht beendet
+- Quelle: nutzereigene externe Arbeitsmappe
+  `Bachelor_Endpäsentation_221213.xlsx`, identifiziert in P034 durch
+  Dateigroesse, Aenderungszeitpunkt und SHA-256
+- Zielrahmen: Drei Ansichten `Übersicht`, `Aktueller Zustand` und
+  `Variantenanalyse` in `ma_analyse.stage_3_standards_verification`; die
+  Excel-Formeln bleiben bis zur Fach- und Normpruefung eine vorlaeufig so
+  bezeichnete Legacy-Methode ohne normatives PASS/FAIL. Die Bezeichnung ist
+  noch kein API- oder Enum-Vertrag.
+- Entscheidung 1 – Beispieldaten:
+  - Option A: historische Raeume Foyer, Buero und Saal als klar
+    gekennzeichnetes Referenzbeispiel behalten und die produktive Auswahl an
+    aktive Projektraeume binden; empfohlen,
+  - Option B: ausschliesslich aktive Projektraeume verwenden,
+  - Option C: zunaechst nur das historische Beispiel reproduzieren.
+- Entscheidung 2 – erster Parameterumfang:
+  - empfohlener Kern: g-Wert, Verschattungsfaktor Fc, Nachtlueftung,
+    wirksame Waermespeicherfaehigkeit Cwirk und Fensterflaeche/-anteil,
+  - zusaetzliche Szenariooptionen: passive Kuehlung und erhoehte Lueftung,
+  - weitere Parameter bleiben ausserhalb des ersten Slices.
+- Entscheidung 3 – Schnittstellenscope:
+  - Option A: kleine lesende P013-Schnittstelle sowie einen neutralen
+    P024-Ergebnisvertrag bereits im ersten Plan beruecksichtigen; empfohlen,
+  - Option B: zuerst nur die isolierte Stage-3-Berechnung planen und beide
+    Schnittstellen spaeter ergaenzen.
+- Entscheidung 4 – Quellenablage:
+  - Option A: die Arbeitsmappe extern und unveraendert lassen, ueber Hash und
+    Quellenmetadaten referenzieren und nur synthetische Testdaten
+    versionieren; empfohlen,
+  - Option B: eine kontrollierte lokale Projektkopie erst ueber einen
+    getrennten P034-Input-Slice aufnehmen.
+- Entscheidung 5 – Auswahlsemantik:
+  - zu klaeren sind Einzel- oder Mehrfachauswahl von Varianten und
+    Raeumen/Zonen, die Beziehung zwischen Raum- und Zonenauswahl sowie der
+    genaue Vergleichsmodus; empfohlener Zwischenweg ist ein Ausgangsfall
+    gegen eine ausgewaehlte Variante und genau einen Raum oder eine Zone.
+- Auswirkung: Erst nach Beantwortung dieser Punkte kann der Intake mit
+  `Prompt abschliessen` beendet und anschliessend mit
+  `umsetzungsplan erstellen` ein unabhaengiger Sol-Plan erzeugt werden. Eine
+  spaetere Produktumsetzung benoetigt eine eigene `Freigabe zur Umsetzung`.
 
 ### OP-012 Umfang eines IFC-Lite-Imports
 

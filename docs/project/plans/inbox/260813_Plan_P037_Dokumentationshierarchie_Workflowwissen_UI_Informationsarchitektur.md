@@ -300,3 +300,35 @@ P037-A bis P037-C wurden ohne Archivverschiebungen/-löschungen, neue
 Dependencies, Hooks, externe Dienste oder geschützte Inhalte umgesetzt. Die
 Abnahme umfasst Modulsteckbriefe, Informationsadapter, UI-Navigation,
 fokussierte UI-/Workflowtests, Qualitätsprüfungen und Navigator-Validierung.
+
+## Nachlauf 2026-08-19: HTML-Modulpraesentationen
+
+Unter `docs/project/architecture/workflow/` liegen im uncommitteten
+Arbeitsstand zwei nicht autoritative Darstellungen:
+
+- `WORKFLOW_MODULE_PRESENTATION_v0.2.0_2026-08-19.html` als filterbare
+  Uebersicht der 30 katalogisierten Komponenten;
+- `WORKFLOW_MODULE_DETAILS_v0.2.0_2026-08-19.html` als fachliche Vertiefung.
+
+Die Dateien sind Praesentationen und keine neue Architektur-, Workflow-,
+Status- oder Entscheidungsquelle. Vor einer Abnahme sind folgende
+Nachlaufpunkte zu schliessen:
+
+1. Aussagen und Modulstatus gegen P007, UD-112/122/126,
+   `docs/project/architecture/TARGET_ARCHITECTURE.md`,
+   `docs/project/workflow/README.md` und die Modulsteckbriefe abgleichen.
+   Der aktuelle Entwurf nennt fuer Stage 1 noch
+   `ma_analyse.stage_1_dimensioning` statt des Ziel-Owners
+   `ma_dimensionierung` und fuehrt Pareto/Ranking als Assessment-Ausgabe,
+   obwohl die Methode nach OP-019 noch nicht bestaetigt ist.
+2. Links und HTML-Struktur pruefen sowie beide Dateien in einem Browser auf
+   Filterfunktion, Lesbarkeit, Tastaturbedienung und Druckdarstellung testen.
+3. Die derzeit uncommittete Ablage von `docs/ma_core/README.md` unter
+   `docs/ma_data_export/ma_core/README.md` fachlich klaeren. Der Nachlauf
+   bestaetigt diese Verschiebung nicht und nimmt sie nicht zurueck.
+4. Erst nach den Korrekturen die P037-Dokumenttests, Architektur-Guardrails,
+   `git diff --check` und die Navigator-Validierung erneut ausfuehren.
+
+Bis zu dieser Abnahme bleibt der P037-Hauptabschluss vom 2026-08-13
+unveraendert; die beiden HTML-Dateien sind lediglich ein offener
+Dokumentationsnachlauf.
