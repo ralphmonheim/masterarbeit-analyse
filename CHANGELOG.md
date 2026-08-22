@@ -2,6 +2,44 @@
 
 Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentiert.
 
+## 0.42.3 - 2026-08-23
+
+### Added
+
+- Eine auf Commit `c6f7f5f` fixierte technische Bestandsaufnahme fuer
+  Kapitel 5 dokumentiert Repository, Architektur, Datenmodelle,
+  Prozessabbildung, UI, Tests, Agentensystem, Git-Historie und
+  Reproduzierbarkeitsgrenzen als datierten Nachweisstand unter
+  `docs/project/analysis/`.
+- Der zugehoerige unabhaengige Analyse- und Berichtsplan bleibt gemaess
+  Themenroutine ohne formelle P-Nummer unter `docs/project/plans/independent/`
+  erhalten.
+- `PLAN_STATUS.md` fuehrt eine chatuebergreifende TODO-Sammeluebersicht mit
+  stabilen `CT-*`-Kennungen. Sie verlinkt offene Arbeitsauftraege auf ihre
+  kanonischen Plaene und Entscheidungen, ohne eine zweite Planungswahrheit
+  oder eine Umsetzungsfreigabe zu erzeugen.
+
+### Changed
+
+- Die Paketversionen in `pyproject.toml` und `ma_analyse.__version__` sind auf
+  `0.42.3` synchronisiert.
+- Der P036-Chat-Handover beschreibt Eignungsstatus, leere Ergebniswerte,
+  technische Nachweise, verbleibende Fachgates und den naechsten gemeinsamen
+  Einstieg eindeutiger.
+
+### Verification
+
+- Python 3.14.0; Ruff-Linting fuer `src` und `tests` bestanden.
+- Vollsuite: 906 Tests bestanden, ein bekannter Dokumentationsguardrail
+  fehlgeschlagen. `ma_core` besitzt am Release-Stand weiterhin keine
+  vollstaendige Moduldokumentation am erwarteten Pfad; Zielablage und
+  getrennte Korrektur bleiben in CT-008 offen.
+- Der Ruff-Formatcheck meldet den bereits dokumentierten Altbestand von 131
+  nicht formatierten Dateien; dieser Dokumentationsrelease formatiert keine
+  Produktiv- oder Testdateien um.
+- Der lokale semantische Navigationshub wurde aktualisiert und anschliessend
+  mit `--validate-only` erfolgreich geprueft.
+
 ## 0.42.2 - 2026-08-20
 
 ### Added

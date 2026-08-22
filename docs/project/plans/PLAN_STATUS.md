@@ -1,8 +1,34 @@
 # Plan Status
 
-Stand: 2026-08-20
+Stand: 2026-08-22
 
 Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt und nach jeder Planumsetzung aktualisiert. Vollstaendige alte Planstaende liegen unter `docs/project/archive/plans/`.
+
+## Chatuebergreifende TODO-Sammeluebersicht
+
+Diese Tabelle sammelt offene Arbeitsauftraege aus abgeschlossenen und
+angefangenen Chats als gemeinsamen Einstieg. Sie erteilt keine Freigabe und
+ersetzt weder den jeweils fuehrenden Plan noch
+`USER_DECISIONS_OPEN_POINTS.md`. Details, Statusaenderungen und fachliche
+Entscheidungen werden weiterhin ausschliesslich in diesen kanonischen Quellen
+gepflegt; die Tabelle verweist nur dorthin. Neue Chats fuehren vorhandene
+`CT-*`-Eintraege fort und legen fuer inhaltlich neue Themen die naechste freie
+Kennung an.
+
+| ID | Offener Arbeitsauftrag | Art / Status | Naechster gemeinsamer Einstieg | Fuehrende Quelle |
+|---|---|---|---|---|
+| CT-001 | IDA-Zeitstempel, letzte Periodengrenze, Warm-up sowie Leistungssemantik von `q_heat` und `q_cool` bestaetigen; Kuehlvorzeichen und absolute/algebraische Kennwerte festlegen. | Fach- und Methodengate offen; hohe Prioritaet | Freigegebenen Ergebnisexport und belegte IDA-Semantik inventarisieren, danach Methodenentscheidung vorbereiten. | P036, OP-008, OP-017 |
+| CT-002 | Den strukturierten Vertrag `ma_import_simulation -> ma_data_preparation` ohne zusammengesetzte Metadatenstrings durchgaengig machen. | Technische Restarbeit; wartet auf CT-001/OP-017 | Neutralen Feldvertrag mit Run, Variante, Modell, Zone, Variable, Einheit, Zeitbasis und Provenienz festlegen. | P036, P009, OP-017 |
+| CT-003 | Nettoflaeche, Zonenmultiplikator, Systemgrenze der Gebaeudeenergie, zeitgleichen Peak sowie Pflichtvariablen-, Perioden- und Zonenabdeckung fuer `READY` bestaetigen. | Fachgate offen; hohe Prioritaet | Aggregations- und Vollstaendigkeitsregeln fachlich entscheiden und anschliessend synthetisch testen. | P036, OP-008, OP-018 |
+| CT-004 | Nach geschlossener Daten- und Methodengrundlage Diagrammbeispiele erzeugen und im Q&A die argumentationstragenden Darstellungen auswaehlen. | Zurueckgestellt; nicht freigegeben | Erst CT-001 bis CT-003 abschliessen, dann je Fachthema zwei bis drei Beispiele vorlegen. | P036, UD-126 |
+| CT-005 | 29Z und 5Z hinsichtlich Simulationszeiten, Dokumentanzahl, Ausgabeumfang und Ergebniskennwerten kontrolliert vergleichen. | Unabhaengiger Vergleichsplan; Auswertung offen | Laufzeitdaten und Ergebnisinventar getrennt aufbereiten, Vergleichbarkeit pruefen und erst danach wenige Hauptkennwerte waehlen. | `independent/260815_Kontrollierter_29Z-5Z-Referenzvergleich.md`, P030, OP-009 |
+| CT-006 | Die beiden Workflow-HTML-Praesentationen gegen kanonische Quellen, Links, Browserdarstellung, Filter, Lesbarkeit und Barrierefreiheit pruefen sowie sichtbare Owner-/Ranking-Konflikte korrigieren. | P037-Nachlauf; noch nicht abgenommen | Quellenmatrix aus P007, Workflow-README, Zielarchitektur, P027 und P037 abgleichen; danach fokussierten Browser- und Guardrail-Test ausfuehren. | P037, P007, P027 |
+| CT-007 | Die Strukturpunkte S-01 bis S-13 als gemeinsame Anti-Regressions-Baseline inhaltlich entscheiden. | Nutzerentscheidung offen; keine Umsetzung freigegeben | Entscheidungsvorlage gemeinsam Punkt fuer Punkt beantworten; Umsetzung erst nach eigener neuer Freigabe planen. | OP-019, `docs/project/architecture/reviews/2026-08-15/HANDOVER_STRUCTURE_DECISION_TEMPLATE.md` |
+| CT-008 | Die fachlich korrekte Dokumentationsablage der `ma_core`-README klaeren; die in Release 0.42.2 versionierte Ablage unter `docs/ma_data_export/ma_core/` nicht stillschweigend als Zielstruktur behandeln. | Dokumentationsowner offen | P037 und Zielarchitektur pruefen, Zielpfad entscheiden und eine eventuelle Verschiebung separat freigeben. | P037, OP-019 |
+| CT-009 | Den Prompt-Intake fuer den V1-Parameter-/Varianten-Demolauf mit SmallOffice-LoD-2-Katalog, Baseline, Variationsraum, Seed, Kandidatenzahl und Persistenz abschliessen. | Prompt-Intake offen; nicht freigegeben | Zuerst den Folgeoptionsabschnitt in P015, danach die Generierungsgrenze in P017 bearbeiten; anschliessend `Prompt abschliessen`. | P015, P017 |
+| CT-010 | Aktive Gebaeudeauswahl in einen eigenen Fachreiter verschieben und die bearbeitbare Raum-zu-Zone-Tabelle vor der Profilzuweisung planen. | UI-Folgeoption; nicht freigegeben | P012- und P013-Umfang gemeinsam abgrenzen und als eigenen UI-Slice planen. | P012, P013 |
+| CT-011 | Fachseiten-Navigation, Projektstart nach der Auswahl, `Weiter`-/`update_required`-Vertrag, Analyse-Output-Session-State und die falsche Wirtschaftlichkeitsanzeige in `ma_assessment` klaeren beziehungsweise korrigieren. | P027-Folgearbeit; separater Nutzerauftrag erforderlich | Fehler und UX-Aenderungen trennen, reproduzieren und danach risikoarme Korrekturslices bilden. | P027 |
+| CT-012 | Den Prompt-Intake zum Sommerwaermeschutz aus der nutzereigenen Bachelor-Excel abschliessen. | Methoden-, Rechte- und Normgate offen; kein Produktslice freigegeben | P020 und OP-020 lesen, offene Ziel-, Methoden-, Quellen- und Darstellungsentscheidungen klaeren, dann `Prompt abschliessen`. | P020, OP-020, P013, P024, P034 |
 
 ## Projektorganisation
 
