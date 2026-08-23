@@ -2,6 +2,30 @@
 
 Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentiert.
 
+## 0.42.4 - 2026-08-23
+
+### Added
+
+- Der Wochenabschluss fuer KW34 dokumentiert die Releases `v0.42.2` und
+  `v0.42.3`, den aktuellen Pruefstand, die offenen CT-Aufgaben,
+  Archivkandidaten, Risiken und die Prioritaeten fuer die Folgewoche.
+
+### Changed
+
+- Die Paketversionen in `pyproject.toml` und `ma_analyse.__version__` sind auf
+  `0.42.4` synchronisiert.
+
+### Verification
+
+- `python -m ruff check .` wurde erfolgreich ausgefuehrt.
+- Die vollstaendige Testsuite endete mit `906 passed, 1 failed`; der einzige
+  Fehler ist der bereits bekannte Dokumentationsguardrail fuer die am
+  erwarteten Pfad fehlende `ma_core`-Moduldokumentation.
+- Der optionale projektweite Ruff-Formatcheck weist 132 bestehende
+  Formatabweichungen aus; keine der vier Release-Dateien ist betroffen.
+- Der lokale semantische Navigationshub wurde fuer den neuen Wochenbericht
+  aktualisiert und mit `--validate-only` erfolgreich geprueft.
+
 ## 0.42.3 - 2026-08-23
 
 ### Added
