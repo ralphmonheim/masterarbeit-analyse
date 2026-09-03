@@ -233,14 +233,20 @@ def _resolve_processed_variant_dir(datenbank_dir: str | Path, variant_name: str)
 
 def _resolve_input_variant_dir(input_dir: str | Path, variant_name: str) -> Path:
     variant_stem = strip_variant_suffix(variant_name)
+    energy_suffix = "_energy"
+    raw_variant_stem = variant_stem[: -len(energy_suffix)] if variant_stem.endswith(energy_suffix) else variant_stem
     candidates = [
         Path(input_dir) / variant_name,
         Path(input_dir) / variant_stem,
         Path(input_dir) / f"{variant_stem}_rohdaten",
+        Path(input_dir) / raw_variant_stem,
     ]
     for candidate in candidates:
-        if candidate.exists():
+        if (candidate / "REPORT-AUX.prn").is_file():
             return candidate
+        energy_dir = candidate / "energy"
+        if (energy_dir / "REPORT-AUX.prn").is_file():
+            return energy_dir
     raise FileNotFoundError(f"Rohdaten-Variante fuer REPORT-AUX.prn nicht gefunden: {variant_stem}")
 
 

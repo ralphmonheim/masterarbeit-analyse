@@ -10,6 +10,10 @@ Basisbericht ueber `analyze-data`.
 
 - standardisierte Simulationsergebnisse aus `ma_import_simulation`
 - lokale IDA-Rohdatenvarianten unter `data/ma_analyse/ida_imports/`
+- neue Jahres-Energieexports im Layout `<Variante>/energy/<Raum>.<PRN-Datei>`
+  werden mit denselben fuenf Raum-PRNs wie die bisherige Variante aufbereitet:
+  `HEAT_BALANCE`, `IAQ`, `LOCAL-DE-COMF-DIAG-T`, `TEMPERATURES` und
+  `ZONE-ENERGY`.
 - Varianten-, Raum- und Ausgabeauswahl fuer den Basisbericht
 
 ## Ausgaben

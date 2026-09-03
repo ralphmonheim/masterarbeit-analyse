@@ -321,6 +321,7 @@ def main():
     args.variant_mode_explicit = has_cli_option(raw_argv, "--heating-mode", "--variant-mode")
     args.series_layout_explicit = has_cli_option(raw_argv, "--heating-series-layout", "--series-layout")
     args.output_root_explicit = has_cli_option(raw_argv, "--output-root")
+    args.rooms_explicit = has_cli_option(raw_argv, "--rooms")
 
     if args.command == "plot-template":
         apply_plot_template_config_defaults(args, raw_argv)

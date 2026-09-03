@@ -17,7 +17,13 @@ from ..analysis.heating import main as compare_heating_comparison
 from ..analysis.templates import build_plot_template
 from ..core.config import DOCS_DIR, OUTPUT_DIR, ROOMS, TEST_OUTPUT_DIR
 from ..core.logging import format_duration, timed_step
-from ..preprocessing.prepare import process_all_variants
+from ..preprocessing.prepare import (
+    discover_energy_layout_variant_dirs,
+    discover_variant_dirs,
+    prepare_energy_layout_variant_data,
+    process_all_variants,
+    strip_variant_suffix,
+)
 
 STEP_SEQUENCE = ["prepare", "plots", "overview", "analysis", "analyze", "heating", "cooling", "plot_template"]
 DATABASE_STEPS = {"plots", "overview", "analysis", "analyze", "heating", "cooling", "plot_template"}
@@ -87,6 +93,7 @@ class PipelineRuntimeArgs:
     debug: bool
     variants: list[str] | None
     rooms: list[str]
+    rooms_explicit: bool
     view: str
     month: str | None
     week: int | None
@@ -139,24 +146,71 @@ def get_comfort_output_settings(output_type):
 
 def run_prepare(args):
     """Fuehrt den kompatiblen prepare-Befehl ueber den neuen Owner aus."""
+    processed_layout = False
     known_sources = discover_known_ida_prn(args.input_dir)
-    if known_sources:
+    known_energy_variant_dirs = {
+        source.path.parent.parent.resolve() for source in known_sources if source.result_kind == "energy"
+    }
+    energy_variants = discover_energy_layout_variant_dirs(args.input_dir, args.variants)
+    energy_variants = [path for path in energy_variants if path.resolve() not in known_energy_variant_dirs]
+    if energy_variants:
+        selected_rooms = args.rooms if getattr(args, "rooms_explicit", False) else None
+        for variant_dir in energy_variants:
+            result = prepare_energy_layout_variant_data(
+                variant_dir,
+                selected_rooms,
+                args.datenbank_dir,
+                debug=args.debug,
+                export_format=getattr(args, "export_format", "csv"),
+            )
+            print(
+                f"Datenvorbereitung {result['variant_name']}: "
+                f"{result['processed_rooms']} Raeume, {result['rows']} Zeilen"
+            )
+        processed_layout = True
+
+    if known_sources and _known_ida_sources_are_selected(known_sources, args.variants):
         results = prepare_known_ida_results(args.input_dir, args.datenbank_dir, resume_existing=True)
         for package_id, result in results.items():
             print(f"Datenvorbereitung {package_id}: {result.manifest_path}")
-        return
+        processed_layout = True
 
-    # Befristeter Kompatibilitaetspfad fuer die bisherige direkte
-    # Varianten-/Raumstruktur. Neue Formate werden nicht mehr hier ergaenzt.
-    process_all_variants(
+    legacy_variants = discover_variant_dirs(
         args.input_dir,
-        args.rooms,
-        args.datenbank_dir,
-        debug=args.debug,
+        rooms=args.rooms,
         selected_variants=args.variants,
-        export_format=getattr(args, "export_format", "csv"),
     )
+    if legacy_variants or not processed_layout:
+        # Der Legacy-Owner ermittelt die Verzeichnisse nochmals selbst. Das
+        # bewahrt seinen bestehenden Aufrufvertrag und verarbeitet nur die
+        # hier zuvor bestaetigten Varianten.
+        process_all_variants(
+            args.input_dir,
+            args.rooms,
+            args.datenbank_dir,
+            debug=args.debug,
+            selected_variants=args.variants,
+            export_format=getattr(args, "export_format", "csv"),
+            excluded_variant_names={variant_dir.name for variant_dir in energy_variants},
+        )
 
+
+def _known_ida_sources_are_selected(known_sources, selected_variants):
+    """Prueft die Variantenauswahl gegen die bekannten IDA-Quellen.
+
+    Die bekannten 5Z-/29Z-Daten tragen die fachliche Variantenidentitaet
+    ``Dimensionierung``; ALT-Quellen tragen ihren jeweiligen Ordnernamen.
+    Ohne Auswahl bleiben alle bekannten Quellen Teil des Prepare-Laufs.
+    """
+    if selected_variants is None:
+        return True
+
+    requested_names = {strip_variant_suffix(name.strip()) for name in selected_variants if name.strip()}
+    return any(
+        strip_variant_suffix(source.variant_id) in requested_names
+        or strip_variant_suffix(source.model_id) in requested_names
+        for source in known_sources
+    )
 
 def run_plots(args):
     """Fuehrt Comfort-Einzelplots aus."""
@@ -781,6 +835,7 @@ def build_runtime_args(
         debug=args.debug,
         variants=variants,
         rooms=rooms if rooms is not None else ROOMS.copy(),
+        rooms_explicit=getattr(args, "rooms_explicit", False) or rooms is not None,
         view=heating_defaults["view"],
         month=plot_template_defaults["month"] if plot_template_options else heating_defaults["month"],
         week=plot_template_defaults["week"] if plot_template_options else heating_defaults["week"],

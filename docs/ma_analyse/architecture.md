@@ -8,7 +8,7 @@ Tkinter-Kompatibilitaetspfad mehr.
 
 ## Datenfluss
 
-1. `prepare` liest Varianten aus `data/ma_analyse/ida_imports/` und schreibt Raumtabellen nach `data/ma_analyse/database/`.
+1. `prepare` liest Varianten aus `data/ma_analyse/ida_imports/` und schreibt Raumtabellen nach `data/ma_analyse/database/`. Neben der bisherigen Raumordner-Struktur wird der Jahres-Energieexport `<Variante>/energy/<Raum>.<PRN-Datei>` mit den fuenf etablierten Raum-PRNs unterstuetzt.
 2. `analyze-data` erzeugt als Basisbericht eine Excel-Datenuebersicht aus den vorbereiteten Raumtabellen.
 3. `comfort`, `heating` und `cooling` lesen aus `data/ma_analyse/database/`.
 4. Regulaere Ergebnisse landen in `data/ma_analyse/output/`, Smoke-Tests und Experimente in `data/test_output/`.

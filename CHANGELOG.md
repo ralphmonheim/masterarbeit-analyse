@@ -2,6 +2,54 @@
 
 Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentiert.
 
+## 0.42.5 - 2026-09-03
+
+### Added
+
+- `prepare` erkennt jetzt Jahres-Energieexports im Layout
+  `<Variante>/energy/<Raum>.<PRN-Datei>` und erzeugt daraus kompatible
+  Raumtabellen mit den fuenf bestehenden Raum-PRNs.
+- Der Anhang `ANHANG_REKONSTRUIERTER_CHATVERLAUF_MA_BUILDING.md` dokumentiert
+  als gekennzeichnete Rekonstruktion die ChatGPT-/Codex-gestuetzte
+  Modulentwicklung von `ma_building` und trennt belegte Projektspuren von
+  offenen historischen Nachweisen.
+- Der datierte Wissensbasisabgleich dokumentiert externe Fachquellen,
+  Normmetadaten, Projektwissen, rekursive Archivzaehlung, Dubletten und
+  Nutzungsnachweise getrennt und liefert Tabellen fuer Kapitel 5.3 und den
+  Anhang.
+- `UD-130` haelt die lokale Verarbeitungsfreigabe, die strikte
+  Metadatenbegrenzung fuer Normen sowie die getrennte Behandlung der
+  Projekt-Inbox fest.
+
+### Changed
+
+- Das Heating-Overlay findet `REPORT-AUX.prn` auch im neuen `energy`-Ordner.
+- `prepare` verarbeitet Energy-, bekannte IDA- und bisherige Legacy-Layouts
+  auch in gemischten Eingabebaeumen vollstaendig, ohne Varianten doppelt
+  aufzubereiten oder nach dem ersten erkannten Layout vorzeitig abzubrechen.
+- Energy-Aufbereitungen behalten den bestehenden Variantenvertrag
+  `<Variante>_nutzdaten`; explizite Raumauswahlen werden sowohl ueber die CLI
+  als auch ueber Service- und Pipeline-Aufrufe durchgereicht.
+
+### Verification
+
+- Die neue Aufbereitung fuer `01_OGWest_detaliert` erzeugte zehn Raumtabellen
+  mit jeweils 8.760 Stunden sowie zehn Heating-Overlay-Diagramme mit dem
+  Sollwertband 21–24 °C.
+- Direkte und archivierte PDFs wurden rekursiv per SHA-256 abgeglichen; die
+  Markdown-Tabellen sind strukturell konsistent und die acht Tests des
+  Projekt-Agentensystems bestehen.
+- Python 3.14.0; `ruff check src tests --no-cache` ist erfolgreich.
+- Die 38 fokussierten Regressionstests fuer Energy-Aufbereitung,
+  Prepare-Owner, Pipeline-Runtime und Service-Anbindung bestehen.
+- Die vollstaendige Testsuite endet mit `911 passed, 1 failed`; der bereits
+  dokumentierte Guardrail-Fehler betrifft die fehlende
+  `docs/ma_core/README.md` (CT-008).
+- CT-014 haelt getrennt fest, dass der vorbestehende bekannte IDA-Owner eine
+  einzelne Variantenauswahl noch nicht kohorten- und variantenpraezise auf
+  seine Eingaben begrenzt; die CT-013-Korrekturen verschaerfen dieses
+  Verhalten nicht.
+
 ## 0.42.4 - 2026-08-23
 
 ### Added

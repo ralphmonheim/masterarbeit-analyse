@@ -113,14 +113,13 @@ def prepare_file_dataframe(file_path, source_filename, debug=False):
     return data
 
 
-def merge_room_prn_tables(room_dir, room_name, debug=False):
-    """Fuehrt alle verfuegbaren PRN-Tabellen eines Raums ueber ``time`` zusammen."""
-    """Mergt die 5 PRN-Dateien eines Raums über time (outer join)."""
+def merge_room_prn_file_map(prn_paths, room_name, debug=False):
+    """Fuehrt die fuenf bekannten PRN-Dateien eines Raums ueber ``time`` zusammen."""
     room_tables = []
 
     for source_filename in PRN_FILES:
-        source_path = os.path.join(room_dir, source_filename)
-        if not os.path.exists(source_path):
+        source_path = prn_paths.get(source_filename)
+        if source_path is None or not os.path.exists(source_path):
             if debug:
                 print(f"    - Datei fehlt: {source_filename}")
             continue
@@ -143,6 +142,15 @@ def merge_room_prn_tables(room_dir, room_name, debug=False):
     merged = merged[ordered_columns]
     merged = merged.sort_values(by=TIME_COLUMN).reset_index(drop=True)
     return merged
+
+
+def merge_room_prn_tables(room_dir, room_name, debug=False):
+    """Kompatibilitaetswrapper fuer die bisherige Raumordner-Struktur."""
+    prn_paths = {
+        source_filename: os.path.join(room_dir, source_filename)
+        for source_filename in PRN_FILES
+    }
+    return merge_room_prn_file_map(prn_paths, room_name, debug=debug)
 
 
 def build_room_output_file(output_dir, room_name, file_format):
@@ -233,6 +241,85 @@ def prepare_variant_data(variant_dir, rooms, datenbank_dir, debug=False, export_
     return {"variant_name": variant_name, "processed_rooms": processed_rooms, "rows": total_room_rows}
 
 
+def discover_energy_layout_rooms(variant_dir):
+    """Findet Raum-PRNs im neuen Layout ``energy/<Raum>.<PRN-Datei>``.
+
+    Es werden bewusst nur die fuenf etablierten Raum-PRNs beruecksichtigt.
+    Gebaeude- oder Zusatzdateien bleiben damit ausserhalb der bestehenden
+    Raumtabellen.
+    """
+    energy_dir = Path(variant_dir) / "energy"
+    if not energy_dir.is_dir():
+        return {}
+
+    rooms = {}
+    for source_filename in PRN_FILES:
+        suffix = f".{source_filename}"
+        for source_path in energy_dir.glob(f"*{suffix}"):
+            room_name = source_path.name[: -len(suffix)]
+            if room_name:
+                rooms.setdefault(room_name, {})[source_filename] = source_path
+    return rooms
+
+
+def discover_energy_layout_variant_dirs(input_root, selected_variants=None):
+    """Findet Varianten mit dem neuen Jahres-Energieexportlayout."""
+    root = Path(input_root)
+    if not root.is_dir():
+        return []
+
+    candidates = []
+    for path in sorted(root.iterdir()):
+        if not path.is_dir() or not (path / "energy").is_dir():
+            continue
+        room_sources = discover_energy_layout_rooms(path)
+        if any(all(source_name in sources for source_name in PRN_FILES) for sources in room_sources.values()):
+            candidates.append(path)
+    if selected_variants is None:
+        return candidates
+
+    requested_names = {strip_variant_suffix(name.strip()) for name in selected_variants if name.strip()}
+    return [path for path in candidates if path.name in requested_names]
+
+
+def prepare_energy_layout_variant_data(variant_dir, rooms, datenbank_dir, debug=False, export_format="csv"):
+    """Bereitet neue IDA-Energiedaten im bisherigen Raumtabellenformat auf."""
+    variant_name = Path(variant_dir).name
+    room_sources = discover_energy_layout_rooms(variant_dir)
+    selected_rooms = sorted(rooms) if rooms is not None else sorted(room_sources)
+    output_dir = os.path.join(datenbank_dir, build_nutzdaten_folder_name(variant_name))
+    os.makedirs(output_dir, exist_ok=True)
+
+    if debug:
+        print(f"\nVariante: {variant_name} / energy")
+        print(f"  Zielordner: {output_dir}")
+
+    processed_rooms = 0
+    total_room_rows = 0
+    for room_name in selected_rooms:
+        source_files = room_sources.get(room_name)
+        if source_files is None:
+            if debug:
+                print(f"  - Raum nicht gefunden: {room_name}")
+            continue
+
+        room_table = merge_room_prn_file_map(source_files, room_name, debug=debug)
+        if room_table is None or room_table.empty:
+            if debug:
+                print(f"  - Keine verwertbaren PRN-Daten: {room_name}")
+            continue
+
+        save_room_table(room_table, output_dir, room_name, export_format=export_format, debug=debug)
+        processed_rooms += 1
+        total_room_rows += len(room_table)
+
+    return {
+        "variant_name": variant_name,
+        "processed_rooms": processed_rooms,
+        "rows": total_room_rows,
+    }
+
+
 def normalize_variant_name(variant_name, suffix):
     """Ergaenzt einen erwarteten Varianten-Suffix, falls er fehlt."""
     """Normalisiert einen Variablennamen auf das gewünschte Suffix."""
@@ -293,6 +380,7 @@ def process_all_variants(
     debug=False,
     selected_variants=None,
     export_format="csv",
+    excluded_variant_names=None,
 ):
     """Fuehrt die Datenaufbereitung fuer alle ausgewaehlten Varianten aus."""
     """Verarbeitet alle Varianten unter Input und erzeugt Raumdateien."""
@@ -308,6 +396,8 @@ def process_all_variants(
         debug=debug,
         selected_variants=selected_variants,
     )
+    excluded_names = set(excluded_variant_names or ())
+    variant_dirs = [variant_dir for variant_dir in variant_dirs if Path(variant_dir).name not in excluded_names]
     if not variant_dirs:
         if selected_variants:
             print(f"X Keine der ausgewaehlten Varianten in {input_root} gefunden: {selected_variants}")

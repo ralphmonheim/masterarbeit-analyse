@@ -1,6 +1,6 @@
 # Plan Status
 
-Stand: 2026-08-22
+Stand: 2026-09-03
 
 Diese Datei ist die aktive Planungsuebersicht. Sie wird nach Modulen gefuehrt und nach jeder Planumsetzung aktualisiert. Vollstaendige alte Planstaende liegen unter `docs/project/archive/plans/`.
 
@@ -29,6 +29,8 @@ Kennung an.
 | CT-010 | Aktive Gebaeudeauswahl in einen eigenen Fachreiter verschieben und die bearbeitbare Raum-zu-Zone-Tabelle vor der Profilzuweisung planen. | UI-Folgeoption; nicht freigegeben | P012- und P013-Umfang gemeinsam abgrenzen und als eigenen UI-Slice planen. | P012, P013 |
 | CT-011 | Fachseiten-Navigation, Projektstart nach der Auswahl, `Weiter`-/`update_required`-Vertrag, Analyse-Output-Session-State und die falsche Wirtschaftlichkeitsanzeige in `ma_assessment` klaeren beziehungsweise korrigieren. | P027-Folgearbeit; separater Nutzerauftrag erforderlich | Fehler und UX-Aenderungen trennen, reproduzieren und danach risikoarme Korrekturslices bilden. | P027 |
 | CT-012 | Den Prompt-Intake zum Sommerwaermeschutz aus der nutzereigenen Bachelor-Excel abschliessen. | Methoden-, Rechte- und Normgate offen; kein Produktslice freigegeben | P020 und OP-020 lesen, offene Ziel-, Methoden-, Quellen- und Darstellungsentscheidungen klaeren, dann `Prompt abschliessen`. | P020, OP-020, P013, P024, P034 |
+| CT-013 | Den lokalen Energy-Layout-Releasekandidaten fuer gemischte Eingabebaeume, durchgaengige Variantenidentitaet und explizite Raumauswahl korrigieren und end-to-end testen. | Abgeschlossen und fuer v0.42.5 validiert | Kein eigener Folgeslice; der bekannte CT-008-Dokumentationsguardrail bleibt getrennt. | P029, P036 |
+| CT-014 | Die Variantenauswahl des bekannten IDA-Prepare-Owners kohorten- und variantenpraezise begrenzen. | Vorbestehende Selektionsunschaerfe; kein v0.42.5-Blocker | Den Owner-Vertrag von `prepare_known_ida_results()` in einem eigenen Slice um eine positive Auswahl erweitern und 5Z-, 29Z- sowie ALT-Abgrenzungen testen. | P029, P036 |
 
 ## Projektorganisation
 
@@ -944,6 +946,11 @@ Kennung an.
 - Datenvorbereitung als eigener Workflow-Schritt eingeordnet:
   `prepare` erzeugt die nutzbaren Raumtabellen und `analyze-data` den
   Basisbericht vor Analyse Stufe 2. Die Fachlogik bleibt in `ma_analyse`.
+- Jahres-Energieexports im Layout `<Variante>/energy/<Raum>.<PRN-Datei>`
+  werden gemeinsam mit bekannten IDA- und Legacy-Layouts verarbeitet,
+  schreiben kompatibel nach `<Variante>_nutzdaten` und respektieren explizite
+  Raumfilter aus CLI und Service. Die CT-013-Regressionen sind fokussiert
+  sowie im Gesamttest validiert.
 
 ### Teilweise umgesetzt
 
@@ -1211,6 +1218,14 @@ Kennung an.
   V1-5Z-/UI-/PostProcess-Plan ist ohne P-Nummer gespeichert; er definiert
   einen freigegebenen Ausfuehrungsscope, ersetzt aber keine bestehende
   Architektur-, Modul- oder Entscheidungswahrheit.
+- UD-130 und der datierte Wissensbasisabgleich dokumentieren den lokalen
+  Quellenstand vom 03.09.2026 mit getrennter Direkt-/Archivzaehlung,
+  SHA-256-Dublettenbereinigung sowie strikter Trennung von Verfuegbarkeit,
+  Rechteumfang und tatsaechlicher Nutzung. Die 103 lokal nachgewiesenen
+  Norm-/Regelwerksdateien bleiben vollstaendig metadata-only. Die 145
+  gegenueber der Arbeitsablage binär neuen Inbox-Objekte sind nur
+  Aufnahmekandidaten und wurden weder verschoben noch als inhaltlich gepruefte
+  Literatur eingestuft.
 
 ## Offene Nutzerentscheidungen
 

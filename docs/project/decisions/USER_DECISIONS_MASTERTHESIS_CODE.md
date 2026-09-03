@@ -3143,3 +3143,35 @@ letzten Workflow-UI-Migration bestehen.
   Rueckfallstrategie, Rechtepruefung und Tests geplant.
 - Quelle oder Chatbezug: Nutzerbestaetigung „Fuer V1 egal aber danach
   interessant“ im Datenhaltungs-Handover-Chat am 2026-08-14.
+
+## UD-130 Lokaler Wissensbasisabgleich mit strikter Normengrenze
+
+- Datum: 2026-09-03
+- Status: entschieden; Bestandsabgleich dokumentiert
+- Thema: lokale Literatur-, Normen- und Projektwissensbasis fuer die
+  KI-gestuetzte Softwareentwicklung
+- Entscheidung: Alle Literatur-PDFs und Archiv-Inhalte unter
+  `WORK/01_Quellen` duerfen fuer den internen Bestandsabgleich lokal
+  inventarisiert und innerhalb des jeweils belegten Rechteumfangs analysiert
+  werden. Normen und Regelwerke bleiben unabhaengig vom Ablageort strikt auf
+  Metadaten-, Container- und Pruefsummenebene; geschuetzte Normvolltexte werden
+  nicht inhaltlich ausgewertet.
+- Ablagegrenze: Originaldateien und Archive werden weder in das Repository
+  kopiert noch fuer den Abgleich verschoben. Literatur- und technische
+  Quellenkandidaten in `data/project_inbox/` werden getrennt inventarisiert
+  und nicht automatisch in den konsolidierten Quellenbestand uebernommen.
+- Zaehlregel: Direkte PDFs und Archiv-PDFs werden separat ausgewiesen.
+  Dateivorkommen, eindeutige SHA-256-Objekte, bibliografische Quellen/Ausgaben
+  und tatsaechliche Entwicklungsnutzung sind getrennte Evidenzdimensionen.
+- Rechtegrenze: Die Projektfreigabe ersetzt keinen objektbezogenen
+  Drittrechte- oder Lizenznachweis. Nonnormative Quellen mit ungeklaertem
+  Verarbeitungsumfang bleiben bis zur Einzelpruefung metadata-only; externe
+  oder Cloud-Volltextverarbeitung ist nicht freigegeben.
+- Ergebnisdokument: Der datierte Bericht
+  `docs/project/analysis/2026-09-03_wissensbasis_bestandsabgleich.md` fuehrt
+  Bestand, Dublettenbereinigung, Wissensbereiche, Nutzungsnachweise und die
+  Tabellenempfehlungen fuer Kapitel 5.3 und Anhang.
+- Quelle oder Chatbezug: ausdrueckliche `Freigabe zur Umsetzung` zur Aufnahme
+  moeglicher Literatur aus den Inputordnern und zur vollstaendigen Analyse der
+  Literaturbestaende sowie anschliessende Nutzerbestaetigung der lokalen
+  Verarbeitungs-, Normen-, Originaldatei- und Dublettengrenzen am 2026-09-03.
