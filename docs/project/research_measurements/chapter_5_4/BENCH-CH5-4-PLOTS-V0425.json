@@ -1,0 +1,308 @@
+{
+  "schema_version": "1.0",
+  "benchmark_id": "BENCH-CH5-4-PLOTS-V0425",
+  "recorded_at_utc": "2026-09-06T19:15:05.722211+00:00",
+  "commit": "d45bd4783c97af6d65eb8645c4273fba2f010598",
+  "python_version": "3.14.0 (tags/v3.14.0:ebf955d, Oct  7 2025, 10:15:03) [MSC v.1944 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "cases": {
+    "year_single": {
+      "plot_function": "ma_analyse.analysis.templates.build_heating_year_template",
+      "template": "heating-year",
+      "output_mode": "single",
+      "measurement_boundary": "Aufruf der vorhandenen Plotfunktion ab bereitliegender aufbereiteter CSV bis vollständig gespeicherter PNG-Datei; internes CSV-Lesen und unmittelbar plotbezogene Transformationen enthalten.",
+      "input_data": {
+        "basis": "Reproduzierbare bestehende Testdatenstruktur aus tests/test_plot_templates.py",
+        "data_kind": "synthetische Testdaten, keine Kapitel-4-Realwerte",
+        "variant_count": 1,
+        "room_count": 1,
+        "zone_count": 1,
+        "series_count": 1,
+        "timepoint_count_per_series": 1200,
+        "prepared_csv_files": 1
+      },
+      "cold_start": {
+        "process_wall_seconds": 6.09425199998077,
+        "worker_measurement": {
+          "elapsed_seconds": 0.9702554999967106,
+          "output_files": [
+            "C:\\Users\\ralph\\Documents\\Master\\5.Semester\\Masterarbeit - lokal\\TEIL1_Fach-Anwendungskompetenz\\260524_Masterarbeit_Analyse\\data\\test_output\\chapter_5_4_benchmark\\plot_outputs\\PlotTemplates\\20260906T191510Z-year_single-COLD-d2f28864\\Dimensionierung\\101_lobby_heating_year_template.png"
+          ],
+          "output_format": "png",
+          "variant_count": 1,
+          "room_count": 1,
+          "series_count": 1,
+          "timepoint_count_per_series": 1200
+        }
+      },
+      "warm_repetitions": [
+        {
+          "elapsed_seconds": 0.7115659000119194,
+          "output_files": [
+            "C:\\Users\\ralph\\Documents\\Master\\5.Semester\\Masterarbeit - lokal\\TEIL1_Fach-Anwendungskompetenz\\260524_Masterarbeit_Analyse\\data\\test_output\\chapter_5_4_benchmark\\plot_outputs\\PlotTemplates\\20260906T191511Z-year_single-WARM-01\\Dimensionierung\\101_lobby_heating_year_template.png"
+          ],
+          "output_format": "png",
+          "variant_count": 1,
+          "room_count": 1,
+          "series_count": 1,
+          "timepoint_count_per_series": 1200
+        },
+        {
+          "elapsed_seconds": 0.5816482000227552,
+          "output_files": [
+            "C:\\Users\\ralph\\Documents\\Master\\5.Semester\\Masterarbeit - lokal\\TEIL1_Fach-Anwendungskompetenz\\260524_Masterarbeit_Analyse\\data\\test_output\\chapter_5_4_benchmark\\plot_outputs\\PlotTemplates\\20260906T191511Z-year_single-WARM-02\\Dimensionierung\\101_lobby_heating_year_template.png"
+          ],
+          "output_format": "png",
+          "variant_count": 1,
+          "room_count": 1,
+          "series_count": 1,
+          "timepoint_count_per_series": 1200
+        },
+        {
+          "elapsed_seconds": 0.5443671999964863,
+          "output_files": [
+            "C:\\Users\\ralph\\Documents\\Master\\5.Semester\\Masterarbeit - lokal\\TEIL1_Fach-Anwendungskompetenz\\260524_Masterarbeit_Analyse\\data\\test_output\\chapter_5_4_benchmark\\plot_outputs\\PlotTemplates\\20260906T191511Z-year_single-WARM-03\\Dimensionierung\\101_lobby_heating_year_template.png"
+          ],
+          "output_format": "png",
+          "variant_count": 1,
+          "room_count": 1,
+          "series_count": 1,
+          "timepoint_count_per_series": 1200
+        },
+        {
+          "elapsed_seconds": 0.5431539999844972,
+          "output_files": [
+            "C:\\Users\\ralph\\Documents\\Master\\5.Semester\\Masterarbeit - lokal\\TEIL1_Fach-Anwendungskompetenz\\260524_Masterarbeit_Analyse\\data\\test_output\\chapter_5_4_benchmark\\plot_outputs\\PlotTemplates\\20260906T191511Z-year_single-WARM-04\\Dimensionierung\\101_lobby_heating_year_template.png"
+          ],
+          "output_format": "png",
+          "variant_count": 1,
+          "room_count": 1,
+          "series_count": 1,
+          "timepoint_count_per_series": 1200
+        },
+        {
+          "elapsed_seconds": 0.6956581000122242,
+          "output_files": [
+            "C:\\Users\\ralph\\Documents\\Master\\5.Semester\\Masterarbeit - lokal\\TEIL1_Fach-Anwendungskompetenz\\260524_Masterarbeit_Analyse\\data\\test_output\\chapter_5_4_benchmark\\plot_outputs\\PlotTemplates\\20260906T191511Z-year_single-WARM-05\\Dimensionierung\\101_lobby_heating_year_template.png"
+          ],
+          "output_format": "png",
+          "variant_count": 1,
+          "room_count": 1,
+          "series_count": 1,
+          "timepoint_count_per_series": 1200
+        },
+        {
+          "elapsed_seconds": 0.5546676999947522,
+          "output_files": [
+            "C:\\Users\\ralph\\Documents\\Master\\5.Semester\\Masterarbeit - lokal\\TEIL1_Fach-Anwendungskompetenz\\260524_Masterarbeit_Analyse\\data\\test_output\\chapter_5_4_benchmark\\plot_outputs\\PlotTemplates\\20260906T191511Z-year_single-WARM-06\\Dimensionierung\\101_lobby_heating_year_template.png"
+          ],
+          "output_format": "png",
+          "variant_count": 1,
+          "room_count": 1,
+          "series_count": 1,
+          "timepoint_count_per_series": 1200
+        },
+        {
+          "elapsed_seconds": 0.5235848999873269,
+          "output_files": [
+            "C:\\Users\\ralph\\Documents\\Master\\5.Semester\\Masterarbeit - lokal\\TEIL1_Fach-Anwendungskompetenz\\260524_Masterarbeit_Analyse\\data\\test_output\\chapter_5_4_benchmark\\plot_outputs\\PlotTemplates\\20260906T191511Z-year_single-WARM-07\\Dimensionierung\\101_lobby_heating_year_template.png"
+          ],
+          "output_format": "png",
+          "variant_count": 1,
+          "room_count": 1,
+          "series_count": 1,
+          "timepoint_count_per_series": 1200
+        },
+        {
+          "elapsed_seconds": 0.5010516000038479,
+          "output_files": [
+            "C:\\Users\\ralph\\Documents\\Master\\5.Semester\\Masterarbeit - lokal\\TEIL1_Fach-Anwendungskompetenz\\260524_Masterarbeit_Analyse\\data\\test_output\\chapter_5_4_benchmark\\plot_outputs\\PlotTemplates\\20260906T191511Z-year_single-WARM-08\\Dimensionierung\\101_lobby_heating_year_template.png"
+          ],
+          "output_format": "png",
+          "variant_count": 1,
+          "room_count": 1,
+          "series_count": 1,
+          "timepoint_count_per_series": 1200
+        },
+        {
+          "elapsed_seconds": 0.5400209999934305,
+          "output_files": [
+            "C:\\Users\\ralph\\Documents\\Master\\5.Semester\\Masterarbeit - lokal\\TEIL1_Fach-Anwendungskompetenz\\260524_Masterarbeit_Analyse\\data\\test_output\\chapter_5_4_benchmark\\plot_outputs\\PlotTemplates\\20260906T191511Z-year_single-WARM-09\\Dimensionierung\\101_lobby_heating_year_template.png"
+          ],
+          "output_format": "png",
+          "variant_count": 1,
+          "room_count": 1,
+          "series_count": 1,
+          "timepoint_count_per_series": 1200
+        },
+        {
+          "elapsed_seconds": 0.4808992999896873,
+          "output_files": [
+            "C:\\Users\\ralph\\Documents\\Master\\5.Semester\\Masterarbeit - lokal\\TEIL1_Fach-Anwendungskompetenz\\260524_Masterarbeit_Analyse\\data\\test_output\\chapter_5_4_benchmark\\plot_outputs\\PlotTemplates\\20260906T191511Z-year_single-WARM-10\\Dimensionierung\\101_lobby_heating_year_template.png"
+          ],
+          "output_format": "png",
+          "variant_count": 1,
+          "room_count": 1,
+          "series_count": 1,
+          "timepoint_count_per_series": 1200
+        }
+      ],
+      "summary": {
+        "mean_seconds": 0.5676617899996927,
+        "median_seconds": 0.5437605999904918,
+        "min_seconds": 0.4808992999896873,
+        "max_seconds": 0.7115659000119194,
+        "stdev_seconds": 0.07693476065965281
+      }
+    },
+    "year_compare": {
+      "plot_function": "ma_analyse.analysis.templates.build_heating_year_template",
+      "template": "heating-year",
+      "output_mode": "compare",
+      "measurement_boundary": "Aufruf der vorhandenen Plotfunktion ab bereitliegender aufbereiteter CSV bis vollständig gespeicherter PNG-Datei; internes CSV-Lesen und unmittelbar plotbezogene Transformationen enthalten.",
+      "input_data": {
+        "basis": "Reproduzierbare bestehende Testdatenstruktur aus tests/test_plot_templates.py",
+        "data_kind": "synthetische Testdaten, keine Kapitel-4-Realwerte",
+        "variant_count": 2,
+        "room_count": 1,
+        "zone_count": 1,
+        "series_count": 2,
+        "timepoint_count_per_series": 1200,
+        "prepared_csv_files": 2
+      },
+      "cold_start": {
+        "process_wall_seconds": 5.173170599999139,
+        "worker_measurement": {
+          "elapsed_seconds": 0.6739271999977063,
+          "output_files": [
+            "C:\\Users\\ralph\\Documents\\Master\\5.Semester\\Masterarbeit - lokal\\TEIL1_Fach-Anwendungskompetenz\\260524_Masterarbeit_Analyse\\data\\test_output\\chapter_5_4_benchmark\\plot_outputs\\PlotTemplates\\20260906T191521Z-year_compare-COLD-726909ae\\Compare\\heating_year_compare.png"
+          ],
+          "output_format": "png",
+          "variant_count": 2,
+          "room_count": 1,
+          "series_count": 2,
+          "timepoint_count_per_series": 1200
+        }
+      },
+      "warm_repetitions": [
+        {
+          "elapsed_seconds": 0.5198711999983061,
+          "output_files": [
+            "C:\\Users\\ralph\\Documents\\Master\\5.Semester\\Masterarbeit - lokal\\TEIL1_Fach-Anwendungskompetenz\\260524_Masterarbeit_Analyse\\data\\test_output\\chapter_5_4_benchmark\\plot_outputs\\PlotTemplates\\20260906T191522Z-year_compare-WARM-01\\Compare\\heating_year_compare.png"
+          ],
+          "output_format": "png",
+          "variant_count": 2,
+          "room_count": 1,
+          "series_count": 2,
+          "timepoint_count_per_series": 1200
+        },
+        {
+          "elapsed_seconds": 0.5130879000062123,
+          "output_files": [
+            "C:\\Users\\ralph\\Documents\\Master\\5.Semester\\Masterarbeit - lokal\\TEIL1_Fach-Anwendungskompetenz\\260524_Masterarbeit_Analyse\\data\\test_output\\chapter_5_4_benchmark\\plot_outputs\\PlotTemplates\\20260906T191522Z-year_compare-WARM-02\\Compare\\heating_year_compare.png"
+          ],
+          "output_format": "png",
+          "variant_count": 2,
+          "room_count": 1,
+          "series_count": 2,
+          "timepoint_count_per_series": 1200
+        },
+        {
+          "elapsed_seconds": 0.5424506000126712,
+          "output_files": [
+            "C:\\Users\\ralph\\Documents\\Master\\5.Semester\\Masterarbeit - lokal\\TEIL1_Fach-Anwendungskompetenz\\260524_Masterarbeit_Analyse\\data\\test_output\\chapter_5_4_benchmark\\plot_outputs\\PlotTemplates\\20260906T191522Z-year_compare-WARM-03\\Compare\\heating_year_compare.png"
+          ],
+          "output_format": "png",
+          "variant_count": 2,
+          "room_count": 1,
+          "series_count": 2,
+          "timepoint_count_per_series": 1200
+        },
+        {
+          "elapsed_seconds": 0.5488647000165656,
+          "output_files": [
+            "C:\\Users\\ralph\\Documents\\Master\\5.Semester\\Masterarbeit - lokal\\TEIL1_Fach-Anwendungskompetenz\\260524_Masterarbeit_Analyse\\data\\test_output\\chapter_5_4_benchmark\\plot_outputs\\PlotTemplates\\20260906T191522Z-year_compare-WARM-04\\Compare\\heating_year_compare.png"
+          ],
+          "output_format": "png",
+          "variant_count": 2,
+          "room_count": 1,
+          "series_count": 2,
+          "timepoint_count_per_series": 1200
+        },
+        {
+          "elapsed_seconds": 0.5205945999769028,
+          "output_files": [
+            "C:\\Users\\ralph\\Documents\\Master\\5.Semester\\Masterarbeit - lokal\\TEIL1_Fach-Anwendungskompetenz\\260524_Masterarbeit_Analyse\\data\\test_output\\chapter_5_4_benchmark\\plot_outputs\\PlotTemplates\\20260906T191522Z-year_compare-WARM-05\\Compare\\heating_year_compare.png"
+          ],
+          "output_format": "png",
+          "variant_count": 2,
+          "room_count": 1,
+          "series_count": 2,
+          "timepoint_count_per_series": 1200
+        },
+        {
+          "elapsed_seconds": 0.6552187000052072,
+          "output_files": [
+            "C:\\Users\\ralph\\Documents\\Master\\5.Semester\\Masterarbeit - lokal\\TEIL1_Fach-Anwendungskompetenz\\260524_Masterarbeit_Analyse\\data\\test_output\\chapter_5_4_benchmark\\plot_outputs\\PlotTemplates\\20260906T191522Z-year_compare-WARM-06\\Compare\\heating_year_compare.png"
+          ],
+          "output_format": "png",
+          "variant_count": 2,
+          "room_count": 1,
+          "series_count": 2,
+          "timepoint_count_per_series": 1200
+        },
+        {
+          "elapsed_seconds": 0.5569088000047486,
+          "output_files": [
+            "C:\\Users\\ralph\\Documents\\Master\\5.Semester\\Masterarbeit - lokal\\TEIL1_Fach-Anwendungskompetenz\\260524_Masterarbeit_Analyse\\data\\test_output\\chapter_5_4_benchmark\\plot_outputs\\PlotTemplates\\20260906T191522Z-year_compare-WARM-07\\Compare\\heating_year_compare.png"
+          ],
+          "output_format": "png",
+          "variant_count": 2,
+          "room_count": 1,
+          "series_count": 2,
+          "timepoint_count_per_series": 1200
+        },
+        {
+          "elapsed_seconds": 0.5225903999817092,
+          "output_files": [
+            "C:\\Users\\ralph\\Documents\\Master\\5.Semester\\Masterarbeit - lokal\\TEIL1_Fach-Anwendungskompetenz\\260524_Masterarbeit_Analyse\\data\\test_output\\chapter_5_4_benchmark\\plot_outputs\\PlotTemplates\\20260906T191522Z-year_compare-WARM-08\\Compare\\heating_year_compare.png"
+          ],
+          "output_format": "png",
+          "variant_count": 2,
+          "room_count": 1,
+          "series_count": 2,
+          "timepoint_count_per_series": 1200
+        },
+        {
+          "elapsed_seconds": 0.5744927999912761,
+          "output_files": [
+            "C:\\Users\\ralph\\Documents\\Master\\5.Semester\\Masterarbeit - lokal\\TEIL1_Fach-Anwendungskompetenz\\260524_Masterarbeit_Analyse\\data\\test_output\\chapter_5_4_benchmark\\plot_outputs\\PlotTemplates\\20260906T191522Z-year_compare-WARM-09\\Compare\\heating_year_compare.png"
+          ],
+          "output_format": "png",
+          "variant_count": 2,
+          "room_count": 1,
+          "series_count": 2,
+          "timepoint_count_per_series": 1200
+        },
+        {
+          "elapsed_seconds": 0.572807799995644,
+          "output_files": [
+            "C:\\Users\\ralph\\Documents\\Master\\5.Semester\\Masterarbeit - lokal\\TEIL1_Fach-Anwendungskompetenz\\260524_Masterarbeit_Analyse\\data\\test_output\\chapter_5_4_benchmark\\plot_outputs\\PlotTemplates\\20260906T191522Z-year_compare-WARM-10\\Compare\\heating_year_compare.png"
+          ],
+          "output_format": "png",
+          "variant_count": 2,
+          "room_count": 1,
+          "series_count": 2,
+          "timepoint_count_per_series": 1200
+        }
+      ],
+      "summary": {
+        "mean_seconds": 0.5526887499989244,
+        "median_seconds": 0.5456576500146184,
+        "min_seconds": 0.5130879000062123,
+        "max_seconds": 0.6552187000052072,
+        "stdev_seconds": 0.04230970385170887
+      }
+    }
+  }
+}

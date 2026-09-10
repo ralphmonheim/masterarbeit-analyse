@@ -1,0 +1,255 @@
+{
+  "schema_version": "1.0",
+  "benchmark_id": "BENCH-CH5-4-V0425",
+  "recorded_at_utc": "2026-09-06T18:55:56.194606+00:00",
+  "commit": "d45bd4783c97af6d65eb8645c4273fba2f010598",
+  "python_version": "3.14.0 (tags/v3.14.0:ebf955d, Oct  7 2025, 10:15:03) [MSC v.1944 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "measurement_boundary": "run_small_office_v1_preprocess: Aufruf bis materialisierte Draft-Simulation-Setup-Pakete; kein IDA-Export, keine IDA-Simulation, kein Ergebnisimport.",
+  "input_case": {
+    "workflow": "SmallOffice V1",
+    "zone_count": 5,
+    "optimization_case_count": 30,
+    "sensitivity_case_count": 8,
+    "package_count": 38
+  },
+  "cold_start": {
+    "process_wall_seconds": 7.605141100008041,
+    "worker_measurement": {
+      "elapsed_seconds": 2.148408900015056,
+      "optimization_case_count": 30,
+      "sensitivity_case_count": 8,
+      "package_count": 38,
+      "step_seconds": {
+        "project": 0.013996,
+        "weather": 0.070296,
+        "building": 0.044665,
+        "technical": 0.020575,
+        "zones": 0.03793,
+        "parameters": 0.114049,
+        "dimensioning": 0.000534,
+        "parameter_variations": 2.2e-05,
+        "variants": 0.057459,
+        "simulation_setup": 1.56845
+      }
+    }
+  },
+  "warm_repetitions": [
+    {
+      "elapsed_seconds": 1.8040602000255603,
+      "optimization_case_count": 30,
+      "sensitivity_case_count": 8,
+      "package_count": 38,
+      "step_seconds": {
+        "project": 0.018946,
+        "weather": 0.043758,
+        "building": 0.035093,
+        "technical": 0.011826,
+        "zones": 0.024043,
+        "parameters": 0.141146,
+        "dimensioning": 0.000367,
+        "parameter_variations": 1e-05,
+        "variants": 0.078627,
+        "simulation_setup": 1.286983
+      }
+    },
+    {
+      "elapsed_seconds": 1.8617972000211012,
+      "optimization_case_count": 30,
+      "sensitivity_case_count": 8,
+      "package_count": 38,
+      "step_seconds": {
+        "project": 0.018334,
+        "weather": 0.044767,
+        "building": 0.085419,
+        "technical": 0.026189,
+        "zones": 0.078764,
+        "parameters": 0.197874,
+        "dimensioning": 0.000436,
+        "parameter_variations": 1.3e-05,
+        "variants": 0.088295,
+        "simulation_setup": 1.170342
+      }
+    },
+    {
+      "elapsed_seconds": 1.8544803000113461,
+      "optimization_case_count": 30,
+      "sensitivity_case_count": 8,
+      "package_count": 38,
+      "step_seconds": {
+        "project": 0.015358,
+        "weather": 0.040382,
+        "building": 0.045663,
+        "technical": 0.011127,
+        "zones": 0.023649,
+        "parameters": 0.15349,
+        "dimensioning": 0.000386,
+        "parameter_variations": 8e-06,
+        "variants": 0.074236,
+        "simulation_setup": 1.316841
+      }
+    },
+    {
+      "elapsed_seconds": 1.6041112000239082,
+      "optimization_case_count": 30,
+      "sensitivity_case_count": 8,
+      "package_count": 38,
+      "step_seconds": {
+        "project": 0.012664,
+        "weather": 0.045301,
+        "building": 0.039566,
+        "technical": 0.008495,
+        "zones": 0.019701,
+        "parameters": 0.129719,
+        "dimensioning": 0.000699,
+        "parameter_variations": 9e-06,
+        "variants": 0.068641,
+        "simulation_setup": 1.138134
+      }
+    },
+    {
+      "elapsed_seconds": 1.4796032999875024,
+      "optimization_case_count": 30,
+      "sensitivity_case_count": 8,
+      "package_count": 38,
+      "step_seconds": {
+        "project": 0.015035,
+        "weather": 0.042259,
+        "building": 0.038498,
+        "technical": 0.010465,
+        "zones": 0.018069,
+        "parameters": 0.139798,
+        "dimensioning": 0.000345,
+        "parameter_variations": 7e-06,
+        "variants": 0.065517,
+        "simulation_setup": 1.015846
+      }
+    },
+    {
+      "elapsed_seconds": 1.3780927999760024,
+      "optimization_case_count": 30,
+      "sensitivity_case_count": 8,
+      "package_count": 38,
+      "step_seconds": {
+        "project": 0.014822,
+        "weather": 0.044286,
+        "building": 0.032382,
+        "technical": 0.007602,
+        "zones": 0.020443,
+        "parameters": 0.119037,
+        "dimensioning": 0.000374,
+        "parameter_variations": 6e-06,
+        "variants": 0.060521,
+        "simulation_setup": 0.931787
+      }
+    },
+    {
+      "elapsed_seconds": 2.009329599997727,
+      "optimization_case_count": 30,
+      "sensitivity_case_count": 8,
+      "package_count": 38,
+      "step_seconds": {
+        "project": 0.012708,
+        "weather": 0.043003,
+        "building": 0.035555,
+        "technical": 0.008619,
+        "zones": 0.01967,
+        "parameters": 0.137171,
+        "dimensioning": 0.000311,
+        "parameter_variations": 6e-06,
+        "variants": 0.06798,
+        "simulation_setup": 1.415743
+      }
+    },
+    {
+      "elapsed_seconds": 1.8550468999892473,
+      "optimization_case_count": 30,
+      "sensitivity_case_count": 8,
+      "package_count": 38,
+      "step_seconds": {
+        "project": 0.019457,
+        "weather": 0.058335,
+        "building": 0.040997,
+        "technical": 0.016302,
+        "zones": 0.028464,
+        "parameters": 0.194351,
+        "dimensioning": 0.000498,
+        "parameter_variations": 1.4e-05,
+        "variants": 0.083617,
+        "simulation_setup": 1.150157
+      }
+    },
+    {
+      "elapsed_seconds": 1.7086872000072617,
+      "optimization_case_count": 30,
+      "sensitivity_case_count": 8,
+      "package_count": 38,
+      "step_seconds": {
+        "project": 0.018755,
+        "weather": 0.045547,
+        "building": 0.049739,
+        "technical": 0.010596,
+        "zones": 0.024144,
+        "parameters": 0.1715,
+        "dimensioning": 0.000301,
+        "parameter_variations": 5e-06,
+        "variants": 0.08443,
+        "simulation_setup": 1.149506
+      }
+    },
+    {
+      "elapsed_seconds": 1.6038920999853872,
+      "optimization_case_count": 30,
+      "sensitivity_case_count": 8,
+      "package_count": 38,
+      "step_seconds": {
+        "project": 0.015614,
+        "weather": 0.043834,
+        "building": 0.040411,
+        "technical": 0.008972,
+        "zones": 0.023791,
+        "parameters": 0.137688,
+        "dimensioning": 0.000273,
+        "parameter_variations": 5e-06,
+        "variants": 0.064857,
+        "simulation_setup": 1.124796
+      }
+    }
+  ],
+  "summaries": {
+    "preprocess_total": {
+      "mean_seconds": 1.7159100800025044,
+      "median_seconds": 1.756373700016411,
+      "min_seconds": 1.3780927999760024,
+      "max_seconds": 2.009329599997727,
+      "stdev_seconds": 0.19685580370851283
+    },
+    "variant_generation_step": {
+      "mean_seconds": 0.07367209999999999,
+      "median_seconds": 0.07143849999999999,
+      "min_seconds": 0.060521,
+      "max_seconds": 0.088295,
+      "stdev_seconds": 0.009592860278468682
+    },
+    "simulation_setup_materialization_step": {
+      "mean_seconds": 1.1700135,
+      "median_seconds": 1.1498315,
+      "min_seconds": 0.931787,
+      "max_seconds": 1.415743,
+      "stdev_seconds": 0.14142863143354906
+    }
+  },
+  "unsupported_scale_points": {
+    "1": "Nicht gemessen: Der aktuelle V1-Workflow besitzt nur den fachlich definierten 38-Paket-Fall; keine Duplikation erstellt.",
+    "5": "Nicht gemessen: Der aktuelle V1-Workflow besitzt nur den fachlich definierten 38-Paket-Fall; keine Duplikation erstellt.",
+    "10": "Nicht gemessen: Der aktuelle V1-Workflow besitzt nur den fachlich definierten 38-Paket-Fall; keine Duplikation erstellt.",
+    "25": "Nicht gemessen: Der aktuelle V1-Workflow besitzt nur den fachlich definierten 38-Paket-Fall; keine Duplikation erstellt.",
+    "50": "Nicht gemessen: Der aktuelle V1-Workflow besitzt nur den fachlich definierten 38-Paket-Fall; keine Duplikation erstellt.",
+    "100": "Nicht gemessen: Der aktuelle V1-Workflow besitzt nur den fachlich definierten 38-Paket-Fall; keine Duplikation erstellt."
+  },
+  "not_measured": [
+    "IDA-ICE-Modellerzeugung, -Aenderung und -Simulation",
+    "fachliche Nachweisfuehrung (Stage 3 ist NOT_EVALUABLE)",
+    "Import, Datenaufbereitung, Kennwertberechnung, Excel und Diagramme: keine versionierte vollstaendige IDA-Ergebnisbasis vorhanden"
+  ]
+}

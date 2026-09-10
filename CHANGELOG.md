@@ -2,6 +2,24 @@
 
 Alle nennenswerten Aenderungen an `ma_analyse` werden in dieser Datei dokumentiert.
 
+## 0.42.6 - 2026-09-10
+
+### Added
+
+- Der digitale Anhang zu Kapitel 5 dokumentiert die unveraenderten
+  PreProcess- und Plot-Benchmark-Rohmessungen, vorhandene Diagrammausgaben
+  sowie reproduzierte Browseraufnahmen der aktuellen Streamlit-UI.
+- Die Skripte fuer die reproduzierbare Zusammenstellung des digitalen Anhangs
+  und die lokale Streamlit-Browseraufnahme sind im Projekt enthalten.
+
+### Verification
+
+- Die beiden Benchmark-Kopien stimmen per SHA-256 mit ihren Originaldateien
+  ueberein.
+- `ruff check src tests --no-cache` ist erfolgreich; die lokale Streamlit-UI
+  wurde fuer die aufgenommenen Ansichten auf Port 8510 gestartet und danach
+  wieder beendet.
+
 ## 0.42.5 - 2026-09-03
 
 ### Added
