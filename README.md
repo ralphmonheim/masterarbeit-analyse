@@ -2,12 +2,6 @@
 
 Analysepipeline fuer Simulationsdaten der Masterarbeit.
 
-## Setup
-
-```powershell
-python -m pip install -e ".[dev]"
-```
-
 ## Ordnerstruktur
 
 | Ordner | Zweck |
@@ -59,21 +53,4 @@ python -m ma_analyse plot-template --template heating-year --variants Dimensioni
 python -m ma_analyse all
 ```
 
-## Qualitaetssicherung
-
-```powershell
-python -m ruff check src tests --no-cache
-python -m ruff format --check src tests --no-cache
-python -m pytest
-```
-
 Lokale Daten- und Ausgabeordner unter `data/` sind in `.gitignore` ausgeschlossen. Analysebefehle schreiben automatisch Logdateien mit Schritt- und Gesamtlaufzeiten nach `logs/`; die Logdateien selbst werden nicht versioniert.
-
-## Projektsteuerung
-
-- Verbindlicher Rahmenplan: `docs/project/plans/inbox/Masterarbeit_VSCode_Projektplan_2026-06-21.md`
-- Aktiver Planstatus: `docs/project/plans/PLAN_STATUS.md`
-- Planindex und Plan-Inbox: `docs/project/plans/`
-- Technische Entscheidungen: `docs/project/decisions/TECHNICAL_DECISIONS.md`
-- Nutzerentscheidungen: `docs/project/decisions/USER_DECISIONS_MASTERTHESIS_CODE.md`
-- Root-Changelog: `CHANGELOG.md`
